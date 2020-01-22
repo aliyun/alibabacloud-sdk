@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 using Tea;
 
-using AlibabaCloud.RPCClient;
-using Aliyun.SDK.Models;
+using AlibabaCloud.RPC;
+using AlibabaCloud.SDK.OpenPlatform.Models;
 
-namespace Aliyun.SDK
+namespace AlibabaCloud.SDK.OpenPlatform
 {
     public class Client : RPCClient
     {
