@@ -1,0 +1,27 @@
+// This file is auto-generated, don't edit it. Thanks.
+package com.aliyun.ocr.models;
+
+import com.aliyun.tea.*;
+
+public class RecognizeCharacterAdvanceRequest extends TeaModel {
+    @NameInMap("ImageURLObject")
+    @Validation(required = true)
+    public java.io.InputStream imageURLObject;
+
+    @NameInMap("ImageType")
+    public Integer imageType;
+
+    @NameInMap("MinHeight")
+    @Validation(required = true)
+    public Integer minHeight;
+
+    @NameInMap("OutputProbability")
+    @Validation(required = true)
+    public boolean outputProbability;
+
+    public static RecognizeCharacterAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
+        RecognizeCharacterAdvanceRequest self = new RecognizeCharacterAdvanceRequest();
+        return TeaModel.build(map, self);
+    }
+
+}
