@@ -1,0 +1,113 @@
+import Common;
+module OpenPlatform {
+
+  type @endpoint = string
+  type @regionId = string
+  type @protocol = string
+  type @userAgent = string
+  type @endpointType = string
+  type @readTimeout = number
+  type @connectTimeout = number
+  type @httpProxy = string
+  type @httpsProxy = string
+  type @noProxy = string
+  type @maxIdleConns = number
+  type @getAccessKeySecret = (): string
+  type @getAccessKeyId = (): string
+  type @json = async ($Response): object
+  type @hasError = (object): boolean
+
+  prop version = '2019-12-19';
+
+  model Config {
+    accessKeyId: string,
+    accessKeySecret: string,
+    type: string,
+    securityToken: string,
+    endpoint: string,
+    protocol: string,
+    regionId: string,
+    userAgent: string,
+    readTimeout: number,
+    connectTimeout: number,
+    localAddr: string,
+    httpProxy: string,
+    httpsProxy: string,
+    noProxy: string,
+    socks5Proxy: string,
+    socks5NetWork: string,
+    maxIdleConns: number,
+    endpointType: string,
+    openPlatformEndpoint: number,
+  }
+
+  init(config: Config);
+
+  model AuthorizeFileUploadRequest = {
+    product: string(name='Product', example='Ecs', description='用户请求的文件上传API所属的产品pop code'),
+    regionId?: string(name='RegionId', example='ap-southeast-1', description='用户请求的文件上传API所属的目标区域')
+  }
+
+  model AuthorizeFileUploadResponse = {
+    requestId: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E', description='请求ID'),
+    accessKeyId: string(name='AccessKeyId', example='', description='授权给用户上传文件使用的AK'),
+    encodedPolicy: string(name='EncodedPolicy', example='', description='post上传文件时携带的post policy编码串'),
+    signature: string(name='Signature', description='post policy的签名串'),
+    objectKey: string(name='ObjectKey', description='用户上传OSS时的文件路径'),
+    bucket: string(name='Bucket', example='bucket-a', description='授权给用户上传的目标OSS bucket'),
+    endpoint: string(name='Endpoint', example='oss-cn-beijing.aliyuncs.com', description='授权给用户上传的目标OSS bucket的外网endpoint'),
+    useAccelerate: boolean(name='UseAccelerate', example='false', description='目标OSS是否提供了加速访问功能，如果提供，可以使用加速endpoint访问OSS')
+  }
+
+  api authorizeFileUpload(request: AuthorizeFileUploadRequest, runtime: Common.RuntimeObject): AuthorizeFileUploadResponse {
+    protocol = @protocol;
+    method = 'GET';
+    pathname = '/';
+    query = Common.query({
+      Action = 'AuthorizeFileUpload',
+      Format = 'json',
+      RegionId = @regionId,
+      Timestamp = Common.getTimestamp(),
+      Version = __module.version,
+      SignatureMethod = 'HMAC-SHA1',
+      SignatureVersion = '1.0',
+      SignatureNonce = Common.getNonce(),
+      AccessKeyId = @getAccessKeyId(),
+      ...request,
+    });
+    headers = {
+      host = Common.getHost('OpenPlatform', @regionId, @endpoint),
+      user-agent = Common.getUserAgent(@userAgent),
+    };
+    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
+  } returns {
+    var body = @json(__response);
+    if (@hasError(body)) {
+      throw {
+        message = body.Message,
+        data = body,
+        code = body.Code,
+      }
+    }
+    return {
+        ...body,
+    };
+  } runtime {
+    timeouted = 'retry',
+    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
+    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
+    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
+    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
+    noProxy = Common.default(runtime.noProxy, @noProxy),
+    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+    retry = {
+      retryable = runtime.autoretry,
+      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
+    },
+    backoff = {
+      policy = Common.default(runtime.backoffPolicy, 'no'),
+      period = Common.defaultNumber(runtime.backoffPeriod, 1)
+    },
+    ignoreSSL = runtime.ignoreSSL
+  }
+}
