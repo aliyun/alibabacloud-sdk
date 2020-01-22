@@ -1,7 +1,7 @@
 English | [简体中文](README-CN.md)
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-# Alibaba Cloud OpenPlatform SDK for Go
+# Alibaba Cloud Ocr SDK for Go
 
 ## Requirements
 - It's necessary for you to make sure your system have installed a Go environment which is new than 1.12.0.
