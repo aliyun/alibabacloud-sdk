@@ -6,15 +6,15 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.OpenPlatform.Models
+namespace AlibabaCloud.OCR.Models
 {
     public class Config : TeaModel {
         [NameInMap("accessKeyId")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string AccessKeyId { get; set; }
 
         [NameInMap("accessKeySecret")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string AccessKeySecret { get; set; }
 
         [NameInMap("type")]

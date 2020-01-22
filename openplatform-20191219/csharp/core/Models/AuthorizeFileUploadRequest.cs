@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace Aliyun.SDK.Models
+namespace AlibabaCloud.SDK.OpenPlatform.Models
 {
     public class AuthorizeFileUploadRequest : TeaModel {
         [NameInMap("Product")]
