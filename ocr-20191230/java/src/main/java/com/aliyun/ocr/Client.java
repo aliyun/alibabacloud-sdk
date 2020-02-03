@@ -138,7 +138,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeCharacterRequest recognizeCharacterreq = new RecognizeCharacterRequest();
         com.aliyun.common.Common.convert(request, recognizeCharacterreq);
-        recognizeCharacterreq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeCharacterreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeCharacterResponse recognizeCharacterResp = this.recognizeCharacter(recognizeCharacterreq, runtime);
         return recognizeCharacterResp;
     }
@@ -192,7 +192,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeDriverLicenseRequest recognizeDriverLicensereq = new RecognizeDriverLicenseRequest();
         com.aliyun.common.Common.convert(request, recognizeDriverLicensereq);
-        recognizeDriverLicensereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeDriverLicensereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeDriverLicenseResponse recognizeDriverLicenseResp = this.recognizeDriverLicense(recognizeDriverLicensereq, runtime);
         return recognizeDriverLicenseResp;
     }
@@ -246,7 +246,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeLicensePlateRequest recognizeLicensePlatereq = new RecognizeLicensePlateRequest();
         com.aliyun.common.Common.convert(request, recognizeLicensePlatereq);
-        recognizeLicensePlatereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeLicensePlatereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeLicensePlateResponse recognizeLicensePlateResp = this.recognizeLicensePlate(recognizeLicensePlatereq, runtime);
         return recognizeLicensePlateResp;
     }
@@ -300,7 +300,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeTableRequest recognizeTablereq = new RecognizeTableRequest();
         com.aliyun.common.Common.convert(request, recognizeTablereq);
-        recognizeTablereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeTablereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeTableResponse recognizeTableResp = this.recognizeTable(recognizeTablereq, runtime);
         return recognizeTableResp;
     }
@@ -354,7 +354,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeStampRequest recognizeStampreq = new RecognizeStampRequest();
         com.aliyun.common.Common.convert(request, recognizeStampreq);
-        recognizeStampreq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeStampreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeStampResponse recognizeStampResp = this.recognizeStamp(recognizeStampreq, runtime);
         return recognizeStampResp;
     }
@@ -408,7 +408,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeAccountPageRequest recognizeAccountPagereq = new RecognizeAccountPageRequest();
         com.aliyun.common.Common.convert(request, recognizeAccountPagereq);
-        recognizeAccountPagereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeAccountPagereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeAccountPageResponse recognizeAccountPageResp = this.recognizeAccountPage(recognizeAccountPagereq, runtime);
         return recognizeAccountPageResp;
     }
@@ -462,7 +462,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeTaxiInvoiceRequest recognizeTaxiInvoicereq = new RecognizeTaxiInvoiceRequest();
         com.aliyun.common.Common.convert(request, recognizeTaxiInvoicereq);
-        recognizeTaxiInvoicereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeTaxiInvoicereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeTaxiInvoiceResponse recognizeTaxiInvoiceResp = this.recognizeTaxiInvoice(recognizeTaxiInvoicereq, runtime);
         return recognizeTaxiInvoiceResp;
     }
@@ -516,7 +516,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeIdentityCardRequest recognizeIdentityCardreq = new RecognizeIdentityCardRequest();
         com.aliyun.common.Common.convert(request, recognizeIdentityCardreq);
-        recognizeIdentityCardreq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeIdentityCardreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeIdentityCardResponse recognizeIdentityCardResp = this.recognizeIdentityCard(recognizeIdentityCardreq, runtime);
         return recognizeIdentityCardResp;
     }
@@ -570,7 +570,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeBusinessCardRequest recognizeBusinessCardreq = new RecognizeBusinessCardRequest();
         com.aliyun.common.Common.convert(request, recognizeBusinessCardreq);
-        recognizeBusinessCardreq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeBusinessCardreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeBusinessCardResponse recognizeBusinessCardResp = this.recognizeBusinessCard(recognizeBusinessCardreq, runtime);
         return recognizeBusinessCardResp;
     }
@@ -624,7 +624,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeBankCardRequest recognizeBankCardreq = new RecognizeBankCardRequest();
         com.aliyun.common.Common.convert(request, recognizeBankCardreq);
-        recognizeBankCardreq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeBankCardreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeBankCardResponse recognizeBankCardResp = this.recognizeBankCard(recognizeBankCardreq, runtime);
         return recognizeBankCardResp;
     }
@@ -678,7 +678,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeVINCodeRequest recognizeVINCodereq = new RecognizeVINCodeRequest();
         com.aliyun.common.Common.convert(request, recognizeVINCodereq);
-        recognizeVINCodereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeVINCodereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeVINCodeResponse recognizeVINCodeResp = this.recognizeVINCode(recognizeVINCodereq, runtime);
         return recognizeVINCodeResp;
     }
@@ -732,7 +732,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeBusinessLicenseRequest recognizeBusinessLicensereq = new RecognizeBusinessLicenseRequest();
         com.aliyun.common.Common.convert(request, recognizeBusinessLicensereq);
-        recognizeBusinessLicensereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeBusinessLicensereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeBusinessLicenseResponse recognizeBusinessLicenseResp = this.recognizeBusinessLicense(recognizeBusinessLicensereq, runtime);
         return recognizeBusinessLicenseResp;
     }
@@ -786,7 +786,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeTrainTicketRequest recognizeTrainTicketreq = new RecognizeTrainTicketRequest();
         com.aliyun.common.Common.convert(request, recognizeTrainTicketreq);
-        recognizeTrainTicketreq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeTrainTicketreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeTrainTicketResponse recognizeTrainTicketResp = this.recognizeTrainTicket(recognizeTrainTicketreq, runtime);
         return recognizeTrainTicketResp;
     }
@@ -840,7 +840,7 @@ public class Client extends RPCClient {
         ossClient.postObject(uploadRequest, runtime);
         RecognizeDrivingLicenseRequest recognizeDrivingLicensereq = new RecognizeDrivingLicenseRequest();
         com.aliyun.common.Common.convert(request, recognizeDrivingLicensereq);
-        recognizeDrivingLicensereq.imageURL = "http://" + authResponse.bucket + "." + ossConfig.endpoint + "/" + authResponse.objectKey + "";
+        recognizeDrivingLicensereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
         RecognizeDrivingLicenseResponse recognizeDrivingLicenseResp = this.recognizeDrivingLicense(recognizeDrivingLicensereq, runtime);
         return recognizeDrivingLicenseResp;
     }
