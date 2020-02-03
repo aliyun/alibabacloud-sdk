@@ -1,0 +1,496 @@
+import OSS;
+import OpenPlatform;
+import Common;
+module imagerecog {
+
+  type @endpoint = string
+  type @regionId = string
+  type @protocol = string
+  type @userAgent = string
+  type @endpointType = string
+  type @readTimeout = number
+  type @connectTimeout = number
+  type @httpProxy = string
+  type @httpsProxy = string
+  type @noProxy = string
+  type @maxIdleConns = number
+  type @openPlatformEndpoint = string
+  type @getAccessKeyId = (): string
+  type @getAccessKeySecret = (): string
+  prop version = '2019-09-30';
+
+  model Config {
+    accessKeyId?: string,
+    accessKeySecret?: string,
+    type: string,
+    securityToken: string,
+    endpoint: string,
+    protocol: string,
+    regionId: string,
+    userAgent: string,
+    readTimeout: number,
+    connectTimeout: number,
+    localAddr: string,
+    httpProxy: string,
+    httpsProxy: string,
+    noProxy: string,
+    socks5Proxy: string,
+    socks5NetWork: string,
+    maxIdleConns: number,
+    endpointType: string,
+    openPlatformEndpoint: number,
+  }
+
+  init(config: Config);
+
+  api _request(action: string, protocol: string, method: string, request: object, runtime: Common.RuntimeObject): object {
+    protocol = Common.default(@protocol, protocol);
+    method = method;
+    pathname = '/';
+    query = Common.query({
+      Action = action,
+      Format = 'json',
+      RegionId = @regionId,
+      Timestamp = Common.getTimestamp(),
+      Version = __module.version,
+      SignatureMethod = 'HMAC-SHA1',
+      SignatureVersion = '1.0',
+      SignatureNonce = Common.getNonce(),
+      AccessKeyId = @getAccessKeyId(),
+      ...request,
+    });
+    headers = {
+      host = Common.getHost('imagerecog', @regionId, @endpoint),
+      user-agent = Common.getUserAgent(@userAgent),
+    };
+    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
+  } returns {
+    var body = Common.json(__response);
+    if (Common.hasError(body)) {
+      throw {
+        message = body.Message,
+        data = body,
+        code = body.Code,
+      }
+    }
+    return body;
+  } runtime {
+    timeouted = 'retry',
+    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
+    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
+    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
+    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
+    noProxy = Common.default(runtime.noProxy, @noProxy),
+    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+    retry = {
+      retryable = runtime.autoretry,
+      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
+    },
+    backoff = {
+      policy = Common.default(runtime.backoffPolicy, 'no'),
+      period = Common.defaultNumber(runtime.backoffPeriod, 1)
+    },
+    ignoreSSL = runtime.ignoreSSL
+  }
+
+  model TaggingImageRequest = {
+    imageType?: integer(name='ImageType', description='imageType'),
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model TaggingImageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      tags: [
+        {
+          confidence: float(name='Confidence', description='confidence'),
+          value: string(name='Value', description='value'),
+        }
+      ](name='Tags', description='tags'),
+    }(name='Data', description='data'),
+  }
+
+  async function taggingImage(request: TaggingImageRequest, runtime: Common.RuntimeObject): TaggingImageResponse {
+    return _request('TaggingImage', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model TaggingImageAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+    imageType?: integer(name='ImageType', description='imageType'),
+  }
+
+  async function taggingImageAdvance(request: TaggingImageAdvanceRequest, runtime: Common.RuntimeObject): TaggingImageResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imagerecog',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.imageURLObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var taggingImagereq = new TaggingImageRequest{};
+    Common.convert(request, taggingImagereq);
+    taggingImagereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var taggingImageResp = taggingImage(taggingImagereq, runtime);
+    return taggingImageResp;
+  }
+
+  model RecognizeSceneRequest = {
+    imageType?: integer(name='ImageType', description='imageType'),
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model RecognizeSceneResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      tags: [
+        {
+          confidence: float(name='Confidence', description='confidence'),
+          value: string(name='Value', description='value'),
+        }
+      ](name='Tags', description='tags'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeScene(request: RecognizeSceneRequest, runtime: Common.RuntimeObject): RecognizeSceneResponse {
+    return _request('RecognizeScene', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeSceneAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+    imageType?: integer(name='ImageType', description='imageType'),
+  }
+
+  async function recognizeSceneAdvance(request: RecognizeSceneAdvanceRequest, runtime: Common.RuntimeObject): RecognizeSceneResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imagerecog',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.imageURLObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeScenereq = new RecognizeSceneRequest{};
+    Common.convert(request, recognizeScenereq);
+    recognizeScenereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeSceneResp = recognizeScene(recognizeScenereq, runtime);
+    return recognizeSceneResp;
+  }
+
+  model RecognizeImageStyleRequest = {
+    url: string(name='Url', description='url'),
+  }
+
+  model RecognizeImageStyleResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeImageStyle(request: RecognizeImageStyleRequest, runtime: Common.RuntimeObject): RecognizeImageStyleResponse {
+    return _request('RecognizeImageStyle', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeImageStyleAdvanceRequest = {
+    urlObject: readable(description='UrlObject', name='UrlObject'),
+  }
+
+  async function recognizeImageStyleAdvance(request: RecognizeImageStyleAdvanceRequest, runtime: Common.RuntimeObject): RecognizeImageStyleResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imagerecog',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.urlObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeImageStylereq = new RecognizeImageStyleRequest{};
+    Common.convert(request, recognizeImageStylereq);
+    recognizeImageStylereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeImageStyleResp = recognizeImageStyle(recognizeImageStylereq, runtime);
+    return recognizeImageStyleResp;
+  }
+
+  model DetectImageElementsRequest = {
+    url: string(name='Url', description='url'),
+  }
+
+  model DetectImageElementsResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          type: string(name='Type', description='type'),
+          x: integer(name='X', description='x'),
+          y: integer(name='Y', description='y'),
+          width: integer(name='Width', description='width'),
+          height: integer(name='Height', description='height'),
+          score: float(name='Score', description='score'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function detectImageElements(request: DetectImageElementsRequest, runtime: Common.RuntimeObject): DetectImageElementsResponse {
+    return _request('DetectImageElements', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model DetectImageElementsAdvanceRequest = {
+    urlObject: readable(description='UrlObject', name='UrlObject'),
+  }
+
+  async function detectImageElementsAdvance(request: DetectImageElementsAdvanceRequest, runtime: Common.RuntimeObject): DetectImageElementsResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imagerecog',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.urlObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var detectImageElementsreq = new DetectImageElementsRequest{};
+    Common.convert(request, detectImageElementsreq);
+    detectImageElementsreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var detectImageElementsResp = detectImageElements(detectImageElementsreq, runtime);
+    return detectImageElementsResp;
+  }
+
+  model RecognizeImageColorRequest = {
+    url: string(name='Url', description='url'),
+    colorCount?: integer(name='ColorCount', description='colorCount'),
+  }
+
+  model RecognizeImageColorResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      colorTemplateList: [
+        {
+          color: string(name='Color', description='color'),
+          label: string(name='Label', description='label'),
+          percentage: float(name='Percentage', description='percentage'),
+        }
+      ](name='ColorTemplateList', description='colorTemplateList'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeImageColor(request: RecognizeImageColorRequest, runtime: Common.RuntimeObject): RecognizeImageColorResponse {
+    return _request('RecognizeImageColor', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeImageColorAdvanceRequest = {
+    urlObject: readable(description='UrlObject', name='UrlObject'),
+    colorCount?: integer(name='ColorCount', description='colorCount'),
+  }
+
+  async function recognizeImageColorAdvance(request: RecognizeImageColorAdvanceRequest, runtime: Common.RuntimeObject): RecognizeImageColorResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imagerecog',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.urlObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeImageColorreq = new RecognizeImageColorRequest{};
+    Common.convert(request, recognizeImageColorreq);
+    recognizeImageColorreq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeImageColorResp = recognizeImageColor(recognizeImageColorreq, runtime);
+    return recognizeImageColorResp;
+  }
+
+}
