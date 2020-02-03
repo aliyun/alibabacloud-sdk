@@ -1,0 +1,287 @@
+import OSS;
+import OpenPlatform;
+import Common;
+module imageenhan {
+
+  type @endpoint = string
+  type @regionId = string
+  type @protocol = string
+  type @userAgent = string
+  type @endpointType = string
+  type @readTimeout = number
+  type @connectTimeout = number
+  type @httpProxy = string
+  type @httpsProxy = string
+  type @noProxy = string
+  type @maxIdleConns = number
+  type @openPlatformEndpoint = string
+  type @getAccessKeyId = (): string
+  type @getAccessKeySecret = (): string
+  prop version = '2019-09-30';
+
+  model Config {
+    accessKeyId?: string,
+    accessKeySecret?: string,
+    type: string,
+    securityToken: string,
+    endpoint: string,
+    protocol: string,
+    regionId: string,
+    userAgent: string,
+    readTimeout: number,
+    connectTimeout: number,
+    localAddr: string,
+    httpProxy: string,
+    httpsProxy: string,
+    noProxy: string,
+    socks5Proxy: string,
+    socks5NetWork: string,
+    maxIdleConns: number,
+    endpointType: string,
+    openPlatformEndpoint: number,
+  }
+
+  init(config: Config);
+
+  api _request(action: string, protocol: string, method: string, request: object, runtime: Common.RuntimeObject): object {
+    protocol = Common.default(@protocol, protocol);
+    method = method;
+    pathname = '/';
+    query = Common.query({
+      Action = action,
+      Format = 'json',
+      RegionId = @regionId,
+      Timestamp = Common.getTimestamp(),
+      Version = __module.version,
+      SignatureMethod = 'HMAC-SHA1',
+      SignatureVersion = '1.0',
+      SignatureNonce = Common.getNonce(),
+      AccessKeyId = @getAccessKeyId(),
+      ...request,
+    });
+    headers = {
+      host = Common.getHost('imageenhan', @regionId, @endpoint),
+      user-agent = Common.getUserAgent(@userAgent),
+    };
+    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
+  } returns {
+    var body = Common.json(__response);
+    if (Common.hasError(body)) {
+      throw {
+        message = body.Message,
+        data = body,
+        code = body.Code,
+      }
+    }
+    return body;
+  } runtime {
+    timeouted = 'retry',
+    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
+    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
+    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
+    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
+    noProxy = Common.default(runtime.noProxy, @noProxy),
+    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+    retry = {
+      retryable = runtime.autoretry,
+      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
+    },
+    backoff = {
+      policy = Common.default(runtime.backoffPolicy, 'no'),
+      period = Common.defaultNumber(runtime.backoffPeriod, 1)
+    },
+    ignoreSSL = runtime.ignoreSSL
+  }
+
+  model RecolorImageRequest = {
+    url: string(name='Url', description='url'),
+    mode?: string(name='Mode', description='mode'),
+    refUrl?: string(name='RefUrl', description='refUrl'),
+    colorCount?: integer(name='ColorCount', description='colorCount'),
+    colorTemplate?: [
+      {
+        color?: string(name='Color', description='color'),
+      }
+    ](name='ColorTemplate', description='colorTemplate'),
+  }
+
+  model RecolorImageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+    }(name='Data', description='data'),
+  }
+
+  async function recolorImage(request: RecolorImageRequest, runtime: Common.RuntimeObject): RecolorImageResponse {
+    return _request('RecolorImage', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model MakeSuperResolutionImageRequest = {
+    url: string(name='Url', description='url'),
+  }
+
+  model MakeSuperResolutionImageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      url: string(name='Url', description='url'),
+    }(name='Data', description='data'),
+  }
+
+  async function makeSuperResolutionImage(request: MakeSuperResolutionImageRequest, runtime: Common.RuntimeObject): MakeSuperResolutionImageResponse {
+    return _request('MakeSuperResolutionImage', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model MakeSuperResolutionImageAdvanceRequest = {
+    urlObject: readable(description='UrlObject', name='UrlObject'),
+  }
+
+  async function makeSuperResolutionImageAdvance(request: MakeSuperResolutionImageAdvanceRequest, runtime: Common.RuntimeObject): MakeSuperResolutionImageResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imageenhan',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.urlObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest{};
+    Common.convert(request, makeSuperResolutionImagereq);
+    makeSuperResolutionImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var makeSuperResolutionImageResp = makeSuperResolutionImage(makeSuperResolutionImagereq, runtime);
+    return makeSuperResolutionImageResp;
+  }
+
+  model ExtendImageStyleRequest = {
+    styleUrl: string(name='StyleUrl', description='styleUrl'),
+    majorUrl: string(name='MajorUrl', description='majorUrl'),
+  }
+
+  model ExtendImageStyleResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      url: string(name='Url', description='url'),
+      majorUrl: string(name='MajorUrl', description='majorUrl'),
+    }(name='Data', description='data'),
+  }
+
+  async function extendImageStyle(request: ExtendImageStyleRequest, runtime: Common.RuntimeObject): ExtendImageStyleResponse {
+    return _request('ExtendImageStyle', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model ChangeImageSizeRequest = {
+    width: integer(name='Width', description='width'),
+    height: integer(name='Height', description='height'),
+    url: string(name='Url', description='url'),
+  }
+
+  model ChangeImageSizeResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      url: string(name='Url', description='url'),
+    }(name='Data', description='data'),
+  }
+
+  async function changeImageSize(request: ChangeImageSizeRequest, runtime: Common.RuntimeObject): ChangeImageSizeResponse {
+    return _request('ChangeImageSize', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model ChangeImageSizeAdvanceRequest = {
+    urlObject: readable(description='UrlObject', name='UrlObject'),
+    width: integer(name='Width', description='width'),
+    height: integer(name='Height', description='height'),
+  }
+
+  async function changeImageSizeAdvance(request: ChangeImageSizeAdvanceRequest, runtime: Common.RuntimeObject): ChangeImageSizeResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imageenhan',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.urlObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var changeImageSizereq = new ChangeImageSizeRequest{};
+    Common.convert(request, changeImageSizereq);
+    changeImageSizereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var changeImageSizeResp = changeImageSize(changeImageSizereq, runtime);
+    return changeImageSizeResp;
+  }
+
+}
