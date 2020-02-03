@@ -3,12 +3,6 @@
 
 # Alibaba Cloud SDK for OpenPlatform
 
-## 安装
-
-- [OpenPlatform SDK for Java](./java/README-CN.md)
-- [OpenPlatform SDK for .Net](./csharp/README-CN.md)
-- [OpenPlatform SDK for Go](./golang/README-CN.md)
-
 ## 问题
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new)，不符合指南的问题可能会立即关闭。
 
