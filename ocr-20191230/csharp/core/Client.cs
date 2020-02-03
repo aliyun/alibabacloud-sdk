@@ -273,7 +273,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeCharacterRequest recognizeCharacterreq = new RecognizeCharacterRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeCharacterreq);
-            recognizeCharacterreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeCharacterreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeCharacterResponse recognizeCharacterResp = RecognizeCharacter(recognizeCharacterreq, runtime);
             return recognizeCharacterResp;
         }
@@ -330,7 +330,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeCharacterRequest recognizeCharacterreq = new RecognizeCharacterRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeCharacterreq);
-            recognizeCharacterreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeCharacterreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeCharacterResponse recognizeCharacterResp = await RecognizeCharacterAsync(recognizeCharacterreq, runtime);
             return recognizeCharacterResp;
         }
@@ -397,7 +397,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeDriverLicenseRequest recognizeDriverLicensereq = new RecognizeDriverLicenseRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeDriverLicensereq);
-            recognizeDriverLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeDriverLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeDriverLicenseResponse recognizeDriverLicenseResp = RecognizeDriverLicense(recognizeDriverLicensereq, runtime);
             return recognizeDriverLicenseResp;
         }
@@ -454,7 +454,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeDriverLicenseRequest recognizeDriverLicensereq = new RecognizeDriverLicenseRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeDriverLicensereq);
-            recognizeDriverLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeDriverLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeDriverLicenseResponse recognizeDriverLicenseResp = await RecognizeDriverLicenseAsync(recognizeDriverLicensereq, runtime);
             return recognizeDriverLicenseResp;
         }
@@ -521,7 +521,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeLicensePlateRequest recognizeLicensePlatereq = new RecognizeLicensePlateRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeLicensePlatereq);
-            recognizeLicensePlatereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeLicensePlatereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeLicensePlateResponse recognizeLicensePlateResp = RecognizeLicensePlate(recognizeLicensePlatereq, runtime);
             return recognizeLicensePlateResp;
         }
@@ -578,7 +578,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeLicensePlateRequest recognizeLicensePlatereq = new RecognizeLicensePlateRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeLicensePlatereq);
-            recognizeLicensePlatereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeLicensePlatereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeLicensePlateResponse recognizeLicensePlateResp = await RecognizeLicensePlateAsync(recognizeLicensePlatereq, runtime);
             return recognizeLicensePlateResp;
         }
@@ -645,7 +645,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeTableRequest recognizeTablereq = new RecognizeTableRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeTablereq);
-            recognizeTablereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeTablereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeTableResponse recognizeTableResp = RecognizeTable(recognizeTablereq, runtime);
             return recognizeTableResp;
         }
@@ -702,7 +702,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeTableRequest recognizeTablereq = new RecognizeTableRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeTablereq);
-            recognizeTablereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeTablereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeTableResponse recognizeTableResp = await RecognizeTableAsync(recognizeTablereq, runtime);
             return recognizeTableResp;
         }
@@ -769,7 +769,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeStampRequest recognizeStampreq = new RecognizeStampRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeStampreq);
-            recognizeStampreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeStampreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeStampResponse recognizeStampResp = RecognizeStamp(recognizeStampreq, runtime);
             return recognizeStampResp;
         }
@@ -826,7 +826,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeStampRequest recognizeStampreq = new RecognizeStampRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeStampreq);
-            recognizeStampreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeStampreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeStampResponse recognizeStampResp = await RecognizeStampAsync(recognizeStampreq, runtime);
             return recognizeStampResp;
         }
@@ -893,7 +893,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeAccountPageRequest recognizeAccountPagereq = new RecognizeAccountPageRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeAccountPagereq);
-            recognizeAccountPagereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeAccountPagereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeAccountPageResponse recognizeAccountPageResp = RecognizeAccountPage(recognizeAccountPagereq, runtime);
             return recognizeAccountPageResp;
         }
@@ -950,7 +950,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeAccountPageRequest recognizeAccountPagereq = new RecognizeAccountPageRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeAccountPagereq);
-            recognizeAccountPagereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeAccountPagereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeAccountPageResponse recognizeAccountPageResp = await RecognizeAccountPageAsync(recognizeAccountPagereq, runtime);
             return recognizeAccountPageResp;
         }
@@ -1017,7 +1017,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeTaxiInvoiceRequest recognizeTaxiInvoicereq = new RecognizeTaxiInvoiceRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeTaxiInvoicereq);
-            recognizeTaxiInvoicereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeTaxiInvoicereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeTaxiInvoiceResponse recognizeTaxiInvoiceResp = RecognizeTaxiInvoice(recognizeTaxiInvoicereq, runtime);
             return recognizeTaxiInvoiceResp;
         }
@@ -1074,7 +1074,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeTaxiInvoiceRequest recognizeTaxiInvoicereq = new RecognizeTaxiInvoiceRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeTaxiInvoicereq);
-            recognizeTaxiInvoicereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeTaxiInvoicereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeTaxiInvoiceResponse recognizeTaxiInvoiceResp = await RecognizeTaxiInvoiceAsync(recognizeTaxiInvoicereq, runtime);
             return recognizeTaxiInvoiceResp;
         }
@@ -1141,7 +1141,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeIdentityCardRequest recognizeIdentityCardreq = new RecognizeIdentityCardRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeIdentityCardreq);
-            recognizeIdentityCardreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeIdentityCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeIdentityCardResponse recognizeIdentityCardResp = RecognizeIdentityCard(recognizeIdentityCardreq, runtime);
             return recognizeIdentityCardResp;
         }
@@ -1198,7 +1198,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeIdentityCardRequest recognizeIdentityCardreq = new RecognizeIdentityCardRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeIdentityCardreq);
-            recognizeIdentityCardreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeIdentityCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeIdentityCardResponse recognizeIdentityCardResp = await RecognizeIdentityCardAsync(recognizeIdentityCardreq, runtime);
             return recognizeIdentityCardResp;
         }
@@ -1265,7 +1265,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeBusinessCardRequest recognizeBusinessCardreq = new RecognizeBusinessCardRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeBusinessCardreq);
-            recognizeBusinessCardreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeBusinessCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeBusinessCardResponse recognizeBusinessCardResp = RecognizeBusinessCard(recognizeBusinessCardreq, runtime);
             return recognizeBusinessCardResp;
         }
@@ -1322,7 +1322,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeBusinessCardRequest recognizeBusinessCardreq = new RecognizeBusinessCardRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeBusinessCardreq);
-            recognizeBusinessCardreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeBusinessCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeBusinessCardResponse recognizeBusinessCardResp = await RecognizeBusinessCardAsync(recognizeBusinessCardreq, runtime);
             return recognizeBusinessCardResp;
         }
@@ -1389,7 +1389,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeBankCardRequest recognizeBankCardreq = new RecognizeBankCardRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeBankCardreq);
-            recognizeBankCardreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeBankCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeBankCardResponse recognizeBankCardResp = RecognizeBankCard(recognizeBankCardreq, runtime);
             return recognizeBankCardResp;
         }
@@ -1446,7 +1446,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeBankCardRequest recognizeBankCardreq = new RecognizeBankCardRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeBankCardreq);
-            recognizeBankCardreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeBankCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeBankCardResponse recognizeBankCardResp = await RecognizeBankCardAsync(recognizeBankCardreq, runtime);
             return recognizeBankCardResp;
         }
@@ -1513,7 +1513,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeVINCodeRequest recognizeVINCodereq = new RecognizeVINCodeRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeVINCodereq);
-            recognizeVINCodereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeVINCodereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeVINCodeResponse recognizeVINCodeResp = RecognizeVINCode(recognizeVINCodereq, runtime);
             return recognizeVINCodeResp;
         }
@@ -1570,7 +1570,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeVINCodeRequest recognizeVINCodereq = new RecognizeVINCodeRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeVINCodereq);
-            recognizeVINCodereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeVINCodereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeVINCodeResponse recognizeVINCodeResp = await RecognizeVINCodeAsync(recognizeVINCodereq, runtime);
             return recognizeVINCodeResp;
         }
@@ -1637,7 +1637,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeBusinessLicenseRequest recognizeBusinessLicensereq = new RecognizeBusinessLicenseRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeBusinessLicensereq);
-            recognizeBusinessLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeBusinessLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeBusinessLicenseResponse recognizeBusinessLicenseResp = RecognizeBusinessLicense(recognizeBusinessLicensereq, runtime);
             return recognizeBusinessLicenseResp;
         }
@@ -1694,7 +1694,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeBusinessLicenseRequest recognizeBusinessLicensereq = new RecognizeBusinessLicenseRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeBusinessLicensereq);
-            recognizeBusinessLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeBusinessLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeBusinessLicenseResponse recognizeBusinessLicenseResp = await RecognizeBusinessLicenseAsync(recognizeBusinessLicensereq, runtime);
             return recognizeBusinessLicenseResp;
         }
@@ -1761,7 +1761,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeTrainTicketRequest recognizeTrainTicketreq = new RecognizeTrainTicketRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeTrainTicketreq);
-            recognizeTrainTicketreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeTrainTicketreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeTrainTicketResponse recognizeTrainTicketResp = RecognizeTrainTicket(recognizeTrainTicketreq, runtime);
             return recognizeTrainTicketResp;
         }
@@ -1818,7 +1818,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeTrainTicketRequest recognizeTrainTicketreq = new RecognizeTrainTicketRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeTrainTicketreq);
-            recognizeTrainTicketreq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeTrainTicketreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeTrainTicketResponse recognizeTrainTicketResp = await RecognizeTrainTicketAsync(recognizeTrainTicketreq, runtime);
             return recognizeTrainTicketResp;
         }
@@ -1885,7 +1885,7 @@ namespace AlibabaCloud.OCR
             ossClient.PostObject(uploadRequest, runtime);
             RecognizeDrivingLicenseRequest recognizeDrivingLicensereq = new RecognizeDrivingLicenseRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeDrivingLicensereq);
-            recognizeDrivingLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeDrivingLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeDrivingLicenseResponse recognizeDrivingLicenseResp = RecognizeDrivingLicense(recognizeDrivingLicensereq, runtime);
             return recognizeDrivingLicenseResp;
         }
@@ -1942,7 +1942,7 @@ namespace AlibabaCloud.OCR
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             RecognizeDrivingLicenseRequest recognizeDrivingLicensereq = new RecognizeDrivingLicenseRequest() { };
             AlibabaCloud.Common.Convert(request, recognizeDrivingLicensereq);
-            recognizeDrivingLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + ossConfig.Endpoint + "/" + authResponse.ObjectKey;
+            recognizeDrivingLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             RecognizeDrivingLicenseResponse recognizeDrivingLicenseResp = await RecognizeDrivingLicenseAsync(recognizeDrivingLicensereq, runtime);
             return recognizeDrivingLicenseResp;
         }
