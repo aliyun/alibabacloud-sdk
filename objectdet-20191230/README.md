@@ -4,12 +4,6 @@ English | [简体中文](README-CN.md)
 
 # Alibaba Cloud SDK for Objectdet
 
-## Installation
-
-- [Objectdet SDK for Java](./java/README.md)
-- [Objectdet SDK for .Net](./csharp/README.md)
-- [Objectdet SDK for Go](./golang/README.md)
-
 ## Issues
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new), Issues not conforming to the guidelines may be closed immediately.
 
