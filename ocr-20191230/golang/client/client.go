@@ -3126,7 +3126,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeCharacterreq := &RecognizeCharacterRequest{}
 	common.Convert(request, recognizeCharacterreq)
-	recognizeCharacterreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeCharacterreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeCharacterResp, _err := client.RecognizeCharacter(recognizeCharacterreq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3206,7 +3206,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeDriverLicensereq := &RecognizeDriverLicenseRequest{}
 	common.Convert(request, recognizeDriverLicensereq)
-	recognizeDriverLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeDriverLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeDriverLicenseResp, _err := client.RecognizeDriverLicense(recognizeDriverLicensereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3286,7 +3286,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeLicensePlatereq := &RecognizeLicensePlateRequest{}
 	common.Convert(request, recognizeLicensePlatereq)
-	recognizeLicensePlatereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeLicensePlatereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeLicensePlateResp, _err := client.RecognizeLicensePlate(recognizeLicensePlatereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3366,7 +3366,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeTablereq := &RecognizeTableRequest{}
 	common.Convert(request, recognizeTablereq)
-	recognizeTablereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeTablereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTableResp, _err := client.RecognizeTable(recognizeTablereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3446,7 +3446,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeStampreq := &RecognizeStampRequest{}
 	common.Convert(request, recognizeStampreq)
-	recognizeStampreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeStampreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeStampResp, _err := client.RecognizeStamp(recognizeStampreq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3526,7 +3526,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeAccountPagereq := &RecognizeAccountPageRequest{}
 	common.Convert(request, recognizeAccountPagereq)
-	recognizeAccountPagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeAccountPagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeAccountPageResp, _err := client.RecognizeAccountPage(recognizeAccountPagereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3606,7 +3606,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeTaxiInvoicereq := &RecognizeTaxiInvoiceRequest{}
 	common.Convert(request, recognizeTaxiInvoicereq)
-	recognizeTaxiInvoicereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeTaxiInvoicereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTaxiInvoiceResp, _err := client.RecognizeTaxiInvoice(recognizeTaxiInvoicereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3686,7 +3686,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeIdentityCardreq := &RecognizeIdentityCardRequest{}
 	common.Convert(request, recognizeIdentityCardreq)
-	recognizeIdentityCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeIdentityCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeIdentityCardResp, _err := client.RecognizeIdentityCard(recognizeIdentityCardreq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3766,7 +3766,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeBusinessCardreq := &RecognizeBusinessCardRequest{}
 	common.Convert(request, recognizeBusinessCardreq)
-	recognizeBusinessCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeBusinessCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeBusinessCardResp, _err := client.RecognizeBusinessCard(recognizeBusinessCardreq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3846,7 +3846,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeBankCardreq := &RecognizeBankCardRequest{}
 	common.Convert(request, recognizeBankCardreq)
-	recognizeBankCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeBankCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeBankCardResp, _err := client.RecognizeBankCard(recognizeBankCardreq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -3926,7 +3926,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeVINCodereq := &RecognizeVINCodeRequest{}
 	common.Convert(request, recognizeVINCodereq)
-	recognizeVINCodereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeVINCodereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVINCodeResp, _err := client.RecognizeVINCode(recognizeVINCodereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -4006,7 +4006,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeBusinessLicensereq := &RecognizeBusinessLicenseRequest{}
 	common.Convert(request, recognizeBusinessLicensereq)
-	recognizeBusinessLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeBusinessLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeBusinessLicenseResp, _err := client.RecognizeBusinessLicense(recognizeBusinessLicensereq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -4086,7 +4086,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeTrainTicketreq := &RecognizeTrainTicketRequest{}
 	common.Convert(request, recognizeTrainTicketreq)
-	recognizeTrainTicketreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeTrainTicketreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTrainTicketResp, _err := client.RecognizeTrainTicket(recognizeTrainTicketreq, runtime)
 	if _err != nil {
 		return nil, _err
@@ -4166,7 +4166,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	ossClient.PostObject(uploadRequest, runtime)
 	recognizeDrivingLicensereq := &RecognizeDrivingLicenseRequest{}
 	common.Convert(request, recognizeDrivingLicensereq)
-	recognizeDrivingLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(ossConfig.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeDrivingLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeDrivingLicenseResp, _err := client.RecognizeDrivingLicense(recognizeDrivingLicensereq, runtime)
 	if _err != nil {
 		return nil, _err
