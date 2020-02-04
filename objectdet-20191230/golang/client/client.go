@@ -31,7 +31,7 @@ type Config struct {
 	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
 	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
 	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *int    `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
 }
 
 func (s Config) String() string {
@@ -132,7 +132,7 @@ func (s *Config) SetEndpointType(v string) *Config {
 	return s
 }
 
-func (s *Config) SetOpenPlatformEndpoint(v int) *Config {
+func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	s.OpenPlatformEndpoint = &v
 	return s
 }
