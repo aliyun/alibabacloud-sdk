@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Tea;
 
 using AlibabaCloud.RPC;
-using AlibabaCloud.OCR.Models;
+using AlibabaCloud.Ocr.Models;
 
-namespace AlibabaCloud.OCR
+namespace AlibabaCloud.Ocr
 {
     public class Client : RPCClient
     {
