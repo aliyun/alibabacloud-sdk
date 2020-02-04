@@ -4,8 +4,10 @@ English | [简体中文](README-CN.md)
 
 # Alibaba Cloud SDK
 
+
 ## Usage
-[Usage for Go](./docs/golang/Usage-EN.md)
+ - [Usage for Go](./docs/golang/Usage-EN.md)
+ - [Usage for Java](./docs/java/0-Examples-EN.md)
 
 ## Issues
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new), Issues not conforming to the guidelines may be closed immediately.
