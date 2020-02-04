@@ -8,11 +8,11 @@
 - Alibaba Cloud SDK for Java 需要1.8以上的JDK。
 
 ## 通过Maven来管理项目依赖(推荐)
-如果您使用Apache Maven来管理Java项目，只需在项目的`pom.xml`文件加入相应的依赖项即可。以使用Openplatform SDK为例，您只需在`pom.xml`中声明以下依赖：
+如果您使用Apache Maven来管理Java项目，只需在项目的`pom.xml`文件加入相应的依赖项即可。以使用OCR SDK为例，您只需在`pom.xml`中声明以下依赖：
 ```xml
 <dependency>
     <groupId>com.aliyun</groupId>
-    <artifactId>openplatform</artifactId>
+    <artifactId>ocr</artifactId>
     <version>[0.0.1,1.0.0)</version>
 </dependency>
 ```

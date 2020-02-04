@@ -8,11 +8,11 @@
 
 ## Installation
 
-If you use Apache Maven to manage Java projects, you only need to add corresponding dependencies to the pom.xml files of the projects. To use the Openplatform SDK as an example, you only need to declare the following the dependencie in the `pom.xml` file.
+If you use Apache Maven to manage Java projects, you only need to add corresponding dependencies to the pom.xml files of the projects. To use the OCR SDK as an example, you only need to declare the following the dependencie in the `pom.xml` file.
 ```xml
 <dependency>
     <groupId>com.aliyun</groupId>
-    <artifactId>openplatform</artifactId>
+    <artifactId>ocr</artifactId>
     <version>[0.0.1,1.0.0)</version>
 </dependency>
 ```
