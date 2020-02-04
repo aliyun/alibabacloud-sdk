@@ -1,8 +1,10 @@
 [English](README.md) | 简体中文
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud SDK
+# Alibaba Cloud SDK
 
+## 使用说明
+[Usage for Go](./docs/golang/Usage-CN.md)
 
 ## 问题
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new)，不符合指南的问题可能会立即关闭。
