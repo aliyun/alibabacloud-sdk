@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.OCR.Models
+namespace AlibabaCloud.Ocr.Models
 {
     public class RecognizeTaxiInvoiceAdvanceRequest : TeaModel {
         [NameInMap("ImageURLObject")]

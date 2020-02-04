@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.OCR.Models
+namespace AlibabaCloud.Ocr.Models
 {
     public class Config : TeaModel {
         [NameInMap("accessKeyId")]
@@ -83,7 +83,7 @@ namespace AlibabaCloud.OCR.Models
 
         [NameInMap("openPlatformEndpoint")]
         [Validation(Required=true)]
-        public int? OpenPlatformEndpoint { get; set; }
+        public string OpenPlatformEndpoint { get; set; }
 
     }
 
