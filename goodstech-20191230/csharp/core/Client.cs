@@ -24,21 +24,21 @@ namespace AlibabaCloud.Goodstech
             Dictionary<string, object> runtime_ = new Dictionary<string, object>()
             {
                 {"timeouted", "retry"},
-                {"readTimeout", AlibabaCloud.Common.DefaultNumber(runtime.ReadTimeout, _readTimeout)},
-                {"connectTimeout", AlibabaCloud.Common.DefaultNumber(runtime.ConnectTimeout, _connectTimeout)},
-                {"httpProxy", AlibabaCloud.Common.Default(runtime.HttpProxy, _httpProxy)},
-                {"httpsProxy", AlibabaCloud.Common.Default(runtime.HttpsProxy, _httpsProxy)},
-                {"noProxy", AlibabaCloud.Common.Default(runtime.NoProxy, _noProxy)},
-                {"maxIdleConns", AlibabaCloud.Common.DefaultNumber(runtime.MaxIdleConns, _maxIdleConns)},
+                {"readTimeout", AlibabaCloud.Commons.Common.DefaultNumber(runtime.ReadTimeout, _readTimeout)},
+                {"connectTimeout", AlibabaCloud.Commons.Common.DefaultNumber(runtime.ConnectTimeout, _connectTimeout)},
+                {"httpProxy", AlibabaCloud.Commons.Common.Default(runtime.HttpProxy, _httpProxy)},
+                {"httpsProxy", AlibabaCloud.Commons.Common.Default(runtime.HttpsProxy, _httpsProxy)},
+                {"noProxy", AlibabaCloud.Commons.Common.Default(runtime.NoProxy, _noProxy)},
+                {"maxIdleConns", AlibabaCloud.Commons.Common.DefaultNumber(runtime.MaxIdleConns, _maxIdleConns)},
                 {"retry", new Dictionary<string, object>()
                 {
                     {"retryable", runtime.Autoretry},
-                    {"maxAttempts", AlibabaCloud.Common.DefaultNumber(runtime.MaxAttempts, 3)},
+                    {"maxAttempts", AlibabaCloud.Commons.Common.DefaultNumber(runtime.MaxAttempts, 3)},
                 }},
                 {"backoff", new Dictionary<string, object>()
                 {
-                    {"policy", AlibabaCloud.Common.Default(runtime.BackoffPolicy, "no")},
-                    {"period", AlibabaCloud.Common.DefaultNumber(runtime.BackoffPeriod, 1)},
+                    {"policy", AlibabaCloud.Commons.Common.Default(runtime.BackoffPolicy, "no")},
+                    {"period", AlibabaCloud.Commons.Common.DefaultNumber(runtime.BackoffPeriod, 1)},
                 }},
                 {"ignoreSSL", runtime.IgnoreSSL},
             };
@@ -61,36 +61,36 @@ namespace AlibabaCloud.Goodstech
                 try
                 {
                     TeaRequest request_ = new TeaRequest();
-                    request_.Protocol = AlibabaCloud.Common.Default(_protocol, protocol);
+                    request_.Protocol = AlibabaCloud.Commons.Common.Default(_protocol, protocol);
                     request_.Method = method;
                     request_.Pathname = "/";
-                    request_.Query = AlibabaCloud.Common.Query(TeaConverter.merge<object>
+                    request_.Query = AlibabaCloud.Commons.Common.Query(TeaConverter.merge<object>
                     (
                         new Dictionary<string, object>()
                         {
                             {"Action", action},
                             {"Format", "json"},
                             {"RegionId", _regionId},
-                            {"Timestamp", AlibabaCloud.Common.GetTimestamp()},
+                            {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-12-30"},
                             {"SignatureMethod", "HMAC-SHA1"},
                             {"SignatureVersion", "1.0"},
-                            {"SignatureNonce", AlibabaCloud.Common.GetNonce()},
+                            {"SignatureNonce", AlibabaCloud.Commons.Common.GetNonce()},
                             {"AccessKeyId", _getAccessKeyId()},
                         },
                         request
                     ));
                     request_.Headers = new Dictionary<string, string>()
                     {
-                        {"host", AlibabaCloud.Common.GetHost("goodstech", _regionId, _endpoint)},
-                        {"user-agent", AlibabaCloud.Common.GetUserAgent(_userAgent)},
+                        {"host", AlibabaCloud.Commons.Common.GetHost("goodstech", _regionId, _endpoint)},
+                        {"user-agent", AlibabaCloud.Commons.Common.GetUserAgent(_userAgent)},
                     };
-                    request_.Query["Signature"] = AlibabaCloud.Common.GetSignature(request_, _getAccessKeySecret());
+                    request_.Query["Signature"] = AlibabaCloud.Commons.Common.GetSignature(request_, _getAccessKeySecret());
                     _lastRequest = request_;
                     TeaResponse response_ = TeaCore.DoAction(request_, runtime_);
 
-                    Dictionary<string, object> body = AlibabaCloud.Common.Json(response_);
-                    if (AlibabaCloud.Common.HasError(body))
+                    Dictionary<string, object> body = AlibabaCloud.Commons.Common.Json(response_);
+                    if (AlibabaCloud.Commons.Common.HasError(body))
                     {
                         throw new TeaException(new Dictionary<string, object>()
                         {
@@ -120,21 +120,21 @@ namespace AlibabaCloud.Goodstech
             Dictionary<string, object> runtime_ = new Dictionary<string, object>()
             {
                 {"timeouted", "retry"},
-                {"readTimeout", AlibabaCloud.Common.DefaultNumber(runtime.ReadTimeout, _readTimeout)},
-                {"connectTimeout", AlibabaCloud.Common.DefaultNumber(runtime.ConnectTimeout, _connectTimeout)},
-                {"httpProxy", AlibabaCloud.Common.Default(runtime.HttpProxy, _httpProxy)},
-                {"httpsProxy", AlibabaCloud.Common.Default(runtime.HttpsProxy, _httpsProxy)},
-                {"noProxy", AlibabaCloud.Common.Default(runtime.NoProxy, _noProxy)},
-                {"maxIdleConns", AlibabaCloud.Common.DefaultNumber(runtime.MaxIdleConns, _maxIdleConns)},
+                {"readTimeout", AlibabaCloud.Commons.Common.DefaultNumber(runtime.ReadTimeout, _readTimeout)},
+                {"connectTimeout", AlibabaCloud.Commons.Common.DefaultNumber(runtime.ConnectTimeout, _connectTimeout)},
+                {"httpProxy", AlibabaCloud.Commons.Common.Default(runtime.HttpProxy, _httpProxy)},
+                {"httpsProxy", AlibabaCloud.Commons.Common.Default(runtime.HttpsProxy, _httpsProxy)},
+                {"noProxy", AlibabaCloud.Commons.Common.Default(runtime.NoProxy, _noProxy)},
+                {"maxIdleConns", AlibabaCloud.Commons.Common.DefaultNumber(runtime.MaxIdleConns, _maxIdleConns)},
                 {"retry", new Dictionary<string, object>()
                 {
                     {"retryable", runtime.Autoretry},
-                    {"maxAttempts", AlibabaCloud.Common.DefaultNumber(runtime.MaxAttempts, 3)},
+                    {"maxAttempts", AlibabaCloud.Commons.Common.DefaultNumber(runtime.MaxAttempts, 3)},
                 }},
                 {"backoff", new Dictionary<string, object>()
                 {
-                    {"policy", AlibabaCloud.Common.Default(runtime.BackoffPolicy, "no")},
-                    {"period", AlibabaCloud.Common.DefaultNumber(runtime.BackoffPeriod, 1)},
+                    {"policy", AlibabaCloud.Commons.Common.Default(runtime.BackoffPolicy, "no")},
+                    {"period", AlibabaCloud.Commons.Common.DefaultNumber(runtime.BackoffPeriod, 1)},
                 }},
                 {"ignoreSSL", runtime.IgnoreSSL},
             };
@@ -157,36 +157,36 @@ namespace AlibabaCloud.Goodstech
                 try
                 {
                     TeaRequest request_ = new TeaRequest();
-                    request_.Protocol = AlibabaCloud.Common.Default(_protocol, protocol);
+                    request_.Protocol = AlibabaCloud.Commons.Common.Default(_protocol, protocol);
                     request_.Method = method;
                     request_.Pathname = "/";
-                    request_.Query = AlibabaCloud.Common.Query(TeaConverter.merge<object>
+                    request_.Query = AlibabaCloud.Commons.Common.Query(TeaConverter.merge<object>
                     (
                         new Dictionary<string, object>()
                         {
                             {"Action", action},
                             {"Format", "json"},
                             {"RegionId", _regionId},
-                            {"Timestamp", AlibabaCloud.Common.GetTimestamp()},
+                            {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-12-30"},
                             {"SignatureMethod", "HMAC-SHA1"},
                             {"SignatureVersion", "1.0"},
-                            {"SignatureNonce", AlibabaCloud.Common.GetNonce()},
+                            {"SignatureNonce", AlibabaCloud.Commons.Common.GetNonce()},
                             {"AccessKeyId", _getAccessKeyId()},
                         },
                         request
                     ));
                     request_.Headers = new Dictionary<string, string>()
                     {
-                        {"host", AlibabaCloud.Common.GetHost("goodstech", _regionId, _endpoint)},
-                        {"user-agent", AlibabaCloud.Common.GetUserAgent(_userAgent)},
+                        {"host", AlibabaCloud.Commons.Common.GetHost("goodstech", _regionId, _endpoint)},
+                        {"user-agent", AlibabaCloud.Commons.Common.GetUserAgent(_userAgent)},
                     };
-                    request_.Query["Signature"] = AlibabaCloud.Common.GetSignature(request_, _getAccessKeySecret());
+                    request_.Query["Signature"] = AlibabaCloud.Commons.Common.GetSignature(request_, _getAccessKeySecret());
                     _lastRequest = request_;
                     TeaResponse response_ = await TeaCore.DoActionAsync(request_, runtime_);
 
-                    Dictionary<string, object> body = AlibabaCloud.Common.Json(response_);
-                    if (AlibabaCloud.Common.HasError(body))
+                    Dictionary<string, object> body = AlibabaCloud.Commons.Common.Json(response_);
+                    if (AlibabaCloud.Commons.Common.HasError(body))
                     {
                         throw new TeaException(new Dictionary<string, object>()
                         {
@@ -244,12 +244,12 @@ namespace AlibabaCloud.Goodstech
                 AccessKeyId = authResponse.AccessKeyId,
                 AccessKeySecret = _getAccessKeySecret(),
                 Type = "access_key",
-                Endpoint = AlibabaCloud.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
                 Protocol = _protocol,
                 RegionId = _regionId,
             };
             AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Common.ReadAsString(request.ImageURLObject);
+            string str = AlibabaCloud.Commons.Common.ReadAsString(request.ImageURLObject);
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
             {
                 FileName = authResponse.ObjectKey,
@@ -272,7 +272,7 @@ namespace AlibabaCloud.Goodstech
             };
             ossClient.PostObject(uploadRequest, runtime);
             ClassifyCommodityRequest classifyCommodityreq = new ClassifyCommodityRequest() { };
-            AlibabaCloud.Common.Convert(request, classifyCommodityreq);
+            AlibabaCloud.Commons.Common.Convert(request, classifyCommodityreq);
             classifyCommodityreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             ClassifyCommodityResponse classifyCommodityResp = ClassifyCommodity(classifyCommodityreq, runtime);
             return classifyCommodityResp;
@@ -301,12 +301,12 @@ namespace AlibabaCloud.Goodstech
                 AccessKeyId = authResponse.AccessKeyId,
                 AccessKeySecret = _getAccessKeySecret(),
                 Type = "access_key",
-                Endpoint = AlibabaCloud.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
                 Protocol = _protocol,
                 RegionId = _regionId,
             };
             AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Common.ReadAsString(request.ImageURLObject);
+            string str = AlibabaCloud.Commons.Common.ReadAsString(request.ImageURLObject);
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
             {
                 FileName = authResponse.ObjectKey,
@@ -329,7 +329,7 @@ namespace AlibabaCloud.Goodstech
             };
             await ossClient.PostObjectAsync(uploadRequest, runtime);
             ClassifyCommodityRequest classifyCommodityreq = new ClassifyCommodityRequest() { };
-            AlibabaCloud.Common.Convert(request, classifyCommodityreq);
+            AlibabaCloud.Commons.Common.Convert(request, classifyCommodityreq);
             classifyCommodityreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             ClassifyCommodityResponse classifyCommodityResp = await ClassifyCommodityAsync(classifyCommodityreq, runtime);
             return classifyCommodityResp;
