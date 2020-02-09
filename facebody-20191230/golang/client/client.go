@@ -579,7 +579,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 
 func (client *Client) DetectMask(request *DetectMaskRequest, runtime *common.RuntimeObject) (_result *DetectMaskResponse, _err error) {
 	_result = &DetectMaskResponse{}
-	_body, _err := client._request("DetectMask", "HTTPS", "GET", tea.ToMap(request), runtime)
+	_body, _err := client._request("DetectMask", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
