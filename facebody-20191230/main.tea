@@ -93,6 +93,81 @@ module facebody {
     ignoreSSL = runtime.ignoreSSL
   }
 
+  model DetectMaskRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model DetectMaskResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      mask: integer(name='Mask', description='mask'),
+      faceProbability: float(name='FaceProbability', description='faceProbability'),
+    }(name='Data', description='data'),
+  }
+
+  async function detectMask(request: DetectMaskRequest, runtime: Common.RuntimeObject): DetectMaskResponse {
+    return _request('DetectMask', 'HTTPS', 'GET', request, runtime);
+  }
+
+  model DetectMaskAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function detectMaskAdvance(request: DetectMaskAdvanceRequest, runtime: Common.RuntimeObject): DetectMaskResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'facebody',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var str = Common.readAsString(request.imageURLObject);
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = str,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var detectMaskreq = new DetectMaskRequest{};
+    Common.convert(request, detectMaskreq);
+    detectMaskreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var detectMaskResp = detectMask(detectMaskreq, runtime);
+    return detectMaskResp;
+  }
+
   model RecognizeFaceRequest = {
     imageType?: integer(name='ImageType', description='imageType'),
     imageURL: string(name='ImageURL', description='imageUrl'),

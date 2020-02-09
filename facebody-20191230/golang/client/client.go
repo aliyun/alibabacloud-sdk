@@ -137,6 +137,86 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
+type DetectMaskRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectMaskRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMaskRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMaskRequest) SetImageURL(v string) *DetectMaskRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectMaskResponse struct {
+	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectMaskResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectMaskResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMaskResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMaskResponse) SetRequestId(v string) *DetectMaskResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectMaskResponse) SetData(v *DetectMaskResponseData) *DetectMaskResponse {
+	s.Data = v
+	return s
+}
+
+type DetectMaskResponseData struct {
+	Mask            *int     `json:"Mask" xml:"Mask" require:"true"`
+	FaceProbability *float32 `json:"FaceProbability" xml:"FaceProbability" require:"true"`
+}
+
+func (s DetectMaskResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMaskResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMaskResponseData) SetMask(v int) *DetectMaskResponseData {
+	s.Mask = &v
+	return s
+}
+
+func (s *DetectMaskResponseData) SetFaceProbability(v float32) *DetectMaskResponseData {
+	s.FaceProbability = &v
+	return s
+}
+
+type DetectMaskAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s DetectMaskAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMaskAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMaskAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMaskAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type RecognizeFaceRequest struct {
 	ImageType *int    `json:"ImageType" xml:"ImageType"`
 	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
@@ -495,6 +575,86 @@ func (client *Client) _request(action string, protocol string, method string, re
 	}
 
 	return _resp, _err
+}
+
+func (client *Client) DetectMask(request *DetectMaskRequest, runtime *common.RuntimeObject) (_result *DetectMaskResponse, _err error) {
+	_result = &DetectMaskResponse{}
+	_body, _err := client._request("DetectMask", "HTTPS", "GET", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectMaskResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	str, _err := common.ReadAsString(request.ImageURLObject)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     tea.String(str),
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	detectMaskreq := &DetectMaskRequest{}
+	common.Convert(request, detectMaskreq)
+	detectMaskreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectMaskResp, _err := client.DetectMask(detectMaskreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return detectMaskResp, _err
 }
 
 func (client *Client) RecognizeFace(request *RecognizeFaceRequest, runtime *common.RuntimeObject) (_result *RecognizeFaceResponse, _err error) {
