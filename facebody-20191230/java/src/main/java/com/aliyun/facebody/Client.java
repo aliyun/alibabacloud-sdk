@@ -89,6 +89,60 @@ public class Client extends RPCClient {
         throw new TeaUnretryableException(_lastRequest);
     }
 
+    public DetectMaskResponse detectMask(DetectMaskRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        return TeaModel.toModel(this._request("DetectMask", "HTTPS", "GET", TeaModel.buildMap(request), runtime), new DetectMaskResponse());
+    }
+
+    public DetectMaskResponse detectMaskAdvance(DetectMaskAdvanceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", _getAccessKeyId()),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", "openplatform.aliyuncs.com"),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
+        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+            new TeaPair("product", "facebody"),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", com.aliyun.common.Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, _endpointType)),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
+        String str = com.aliyun.common.Common.readAsString(request.imageURLObject);
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
+            new TeaPair("fileName", authResponse.objectKey),
+            new TeaPair("content", str),
+            new TeaPair("contentType", "")
+        ));
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("policy", authResponse.encodedPolicy),
+            new TeaPair("signature", authResponse.signature),
+            new TeaPair("key", authResponse.objectKey),
+            new TeaPair("file", fileObj),
+            new TeaPair("successActionStatus", "201")
+        ));
+        com.aliyun.oss.models.PostObjectRequest uploadRequest = com.aliyun.oss.models.PostObjectRequest.build(TeaConverter.buildMap(
+            new TeaPair("bucketName", authResponse.bucket),
+            new TeaPair("header", ossHeader)
+        ));
+        ossClient.postObject(uploadRequest, runtime);
+        DetectMaskRequest detectMaskreq = new DetectMaskRequest();
+        com.aliyun.common.Common.convert(request, detectMaskreq);
+        detectMaskreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
+        DetectMaskResponse detectMaskResp = this.detectMask(detectMaskreq, runtime);
+        return detectMaskResp;
+    }
+
     public RecognizeFaceResponse recognizeFace(RecognizeFaceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
         return TeaModel.toModel(this._request("RecognizeFace", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new RecognizeFaceResponse());
     }
