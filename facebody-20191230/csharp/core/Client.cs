@@ -213,12 +213,12 @@ namespace AlibabaCloud.Facebody
 
         public DetectMaskResponse DetectMask(DetectMaskRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
         {
-            return TeaModel.ToObject<DetectMaskResponse>(_request("DetectMask", "HTTPS", "GET", request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectMaskResponse>(_request("DetectMask", "HTTPS", "POST", request.ToMap(), runtime));
         }
 
         public async Task<DetectMaskResponse> DetectMaskAsync(DetectMaskRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
         {
-            return TeaModel.ToObject<DetectMaskResponse>(await _requestAsync("DetectMask", "HTTPS", "GET", request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectMaskResponse>(await _requestAsync("DetectMask", "HTTPS", "POST", request.ToMap(), runtime));
         }
 
         public DetectMaskResponse DetectMaskAdvance(DetectMaskAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
