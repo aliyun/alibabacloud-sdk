@@ -90,7 +90,7 @@ public class Client extends RPCClient {
     }
 
     public DetectMaskResponse detectMask(DetectMaskRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
-        return TeaModel.toModel(this._request("DetectMask", "HTTPS", "GET", TeaModel.buildMap(request), runtime), new DetectMaskResponse());
+        return TeaModel.toModel(this._request("DetectMask", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new DetectMaskResponse());
     }
 
     public DetectMaskResponse detectMaskAdvance(DetectMaskAdvanceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
