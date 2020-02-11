@@ -282,6 +282,7 @@ func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest, r
 				"Format":           "json",
 				"RegionId":         client.RegionId,
 				"Timestamp":        common.GetTimestamp(),
+				"Date":             common.GetTimestamp(),
 				"Version":          "2019-12-19",
 				"SignatureMethod":  "HMAC-SHA1",
 				"SignatureVersion": "1.0",

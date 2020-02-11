@@ -3016,6 +3016,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 				"Format":           "json",
 				"RegionId":         client.RegionId,
 				"Timestamp":        common.GetTimestamp(),
+				"Date":             common.GetTimestamp(),
 				"Version":          "2019-12-30",
 				"SignatureMethod":  "HMAC-SHA1",
 				"SignatureVersion": "1.0",
