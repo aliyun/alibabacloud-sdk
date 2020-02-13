@@ -20,7 +20,7 @@ public class CompareFaceResponse extends TeaModel {
     public static class CompareFaceResponseData extends TeaModel {
         @NameInMap("Confidence")
         @Validation(required = true)
-        public float confidence;
+        public Double confidence;
 
         public static CompareFaceResponseData build(java.util.Map<String, ?> map) throws Exception {
             CompareFaceResponseData self = new CompareFaceResponseData();

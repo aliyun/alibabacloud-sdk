@@ -48,7 +48,7 @@ public class RecognizeCharacterResponse extends TeaModel {
     public static class RecognizeCharacterResponseDataResults extends TeaModel {
         @NameInMap("Probability")
         @Validation(required = true)
-        public float probability;
+        public Double probability;
 
         @NameInMap("Text")
         @Validation(required = true)

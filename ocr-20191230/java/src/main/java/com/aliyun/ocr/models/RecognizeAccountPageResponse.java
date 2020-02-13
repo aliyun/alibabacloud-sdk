@@ -140,7 +140,7 @@ public class RecognizeAccountPageResponse extends TeaModel {
     public static class RecognizeAccountPageResponseData extends TeaModel {
         @NameInMap("Angle")
         @Validation(required = true)
-        public float angle;
+        public Double angle;
 
         @NameInMap("Name")
         @Validation(required = true)

@@ -24,7 +24,7 @@ public class DetectMaskResponse extends TeaModel {
 
         @NameInMap("FaceProbability")
         @Validation(required = true)
-        public float faceProbability;
+        public Double faceProbability;
 
         public static DetectMaskResponseData build(java.util.Map<String, ?> map) throws Exception {
             DetectMaskResponseData self = new DetectMaskResponseData();

@@ -20,7 +20,7 @@ public class ClassifyCommodityResponse extends TeaModel {
     public static class ClassifyCommodityResponseDataCategories extends TeaModel {
         @NameInMap("Score")
         @Validation(required = true)
-        public float score;
+        public Double score;
 
         @NameInMap("CategoryName")
         @Validation(required = true)

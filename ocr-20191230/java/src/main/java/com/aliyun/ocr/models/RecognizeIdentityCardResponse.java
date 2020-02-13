@@ -20,11 +20,11 @@ public class RecognizeIdentityCardResponse extends TeaModel {
     public static class RecognizeIdentityCardResponseDataFrontResultCardAreas extends TeaModel {
         @NameInMap("X")
         @Validation(required = true)
-        public float x;
+        public Double x;
 
         @NameInMap("Y")
         @Validation(required = true)
-        public float y;
+        public Double y;
 
         public static RecognizeIdentityCardResponseDataFrontResultCardAreas build(java.util.Map<String, ?> map) throws Exception {
             RecognizeIdentityCardResponseDataFrontResultCardAreas self = new RecognizeIdentityCardResponseDataFrontResultCardAreas();
@@ -36,11 +36,11 @@ public class RecognizeIdentityCardResponse extends TeaModel {
     public static class RecognizeIdentityCardResponseDataFrontResultFaceRectVertices extends TeaModel {
         @NameInMap("X")
         @Validation(required = true)
-        public float x;
+        public Double x;
 
         @NameInMap("Y")
         @Validation(required = true)
-        public float y;
+        public Double y;
 
         public static RecognizeIdentityCardResponseDataFrontResultFaceRectVertices build(java.util.Map<String, ?> map) throws Exception {
             RecognizeIdentityCardResponseDataFrontResultFaceRectVertices self = new RecognizeIdentityCardResponseDataFrontResultFaceRectVertices();
@@ -52,11 +52,11 @@ public class RecognizeIdentityCardResponse extends TeaModel {
     public static class RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter extends TeaModel {
         @NameInMap("X")
         @Validation(required = true)
-        public float x;
+        public Double x;
 
         @NameInMap("Y")
         @Validation(required = true)
-        public float y;
+        public Double y;
 
         public static RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter build(java.util.Map<String, ?> map) throws Exception {
             RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter self = new RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter();
@@ -68,11 +68,11 @@ public class RecognizeIdentityCardResponse extends TeaModel {
     public static class RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize extends TeaModel {
         @NameInMap("Height")
         @Validation(required = true)
-        public float height;
+        public Double height;
 
         @NameInMap("Width")
         @Validation(required = true)
-        public float width;
+        public Double width;
 
         public static RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize build(java.util.Map<String, ?> map) throws Exception {
             RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize self = new RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize();
@@ -84,7 +84,7 @@ public class RecognizeIdentityCardResponse extends TeaModel {
     public static class RecognizeIdentityCardResponseDataFrontResultFaceRectangle extends TeaModel {
         @NameInMap("Angle")
         @Validation(required = true)
-        public float angle;
+        public Double angle;
 
         @NameInMap("Center")
         @Validation(required = true)

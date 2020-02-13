@@ -20,11 +20,11 @@ public class RecognizeTaxiInvoiceResponse extends TeaModel {
     public static class RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter extends TeaModel {
         @NameInMap("X")
         @Validation(required = true)
-        public float x;
+        public Double x;
 
         @NameInMap("Y")
         @Validation(required = true)
-        public float y;
+        public Double y;
 
         public static RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter self = new RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter();
@@ -36,11 +36,11 @@ public class RecognizeTaxiInvoiceResponse extends TeaModel {
     public static class RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize extends TeaModel {
         @NameInMap("H")
         @Validation(required = true)
-        public float h;
+        public Double h;
 
         @NameInMap("W")
         @Validation(required = true)
-        public float w;
+        public Double w;
 
         public static RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize self = new RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize();
@@ -52,7 +52,7 @@ public class RecognizeTaxiInvoiceResponse extends TeaModel {
     public static class RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi extends TeaModel {
         @NameInMap("Angle")
         @Validation(required = true)
-        public float angle;
+        public Double angle;
 
         @NameInMap("Center")
         @Validation(required = true)
@@ -88,19 +88,19 @@ public class RecognizeTaxiInvoiceResponse extends TeaModel {
     public static class RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi extends TeaModel {
         @NameInMap("H")
         @Validation(required = true)
-        public float h;
+        public Double h;
 
         @NameInMap("W")
         @Validation(required = true)
-        public float w;
+        public Double w;
 
         @NameInMap("X")
         @Validation(required = true)
-        public float x;
+        public Double x;
 
         @NameInMap("Y")
         @Validation(required = true)
-        public float y;
+        public Double y;
 
         public static RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi self = new RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi();

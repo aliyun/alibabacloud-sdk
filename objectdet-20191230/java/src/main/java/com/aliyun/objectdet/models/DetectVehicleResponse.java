@@ -20,7 +20,7 @@ public class DetectVehicleResponse extends TeaModel {
     public static class DetectVehicleResponseDataDetectObjectInfoList extends TeaModel {
         @NameInMap("Score")
         @Validation(required = true)
-        public float score;
+        public Double score;
 
         @NameInMap("Type")
         @Validation(required = true)
