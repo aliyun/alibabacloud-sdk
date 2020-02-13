@@ -52,6 +52,7 @@ public class Client extends RPCClient {
                         new TeaPair("Format", "json"),
                         new TeaPair("RegionId", _regionId),
                         new TeaPair("Timestamp", com.aliyun.common.Common.getTimestamp()),
+                        new TeaPair("Date", com.aliyun.common.Common.getTimestamp()),
                         new TeaPair("Version", "2019-12-30"),
                         new TeaPair("SignatureMethod", "HMAC-SHA1"),
                         new TeaPair("SignatureVersion", "1.0"),
@@ -117,10 +118,9 @@ public class Client extends RPCClient {
             new TeaPair("regionId", _regionId)
         ));
         com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
-        String str = com.aliyun.common.Common.readAsString(request.imageURLObject);
         com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
             new TeaPair("fileName", authResponse.objectKey),
-            new TeaPair("content", str),
+            new TeaPair("content", request.imageURLObject),
             new TeaPair("contentType", "")
         ));
         com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
@@ -171,10 +171,9 @@ public class Client extends RPCClient {
             new TeaPair("regionId", _regionId)
         ));
         com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
-        String str = com.aliyun.common.Common.readAsString(request.imageURLObject);
         com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
             new TeaPair("fileName", authResponse.objectKey),
-            new TeaPair("content", str),
+            new TeaPair("content", request.imageURLObject),
             new TeaPair("contentType", "")
         ));
         com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
@@ -229,10 +228,9 @@ public class Client extends RPCClient {
             new TeaPair("regionId", _regionId)
         ));
         com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
-        String str = com.aliyun.common.Common.readAsString(request.imageURLObject);
         com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
             new TeaPair("fileName", authResponse.objectKey),
-            new TeaPair("content", str),
+            new TeaPair("content", request.imageURLObject),
             new TeaPair("contentType", "")
         ));
         com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
