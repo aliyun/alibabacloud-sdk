@@ -94,85 +94,6 @@ module objectdet {
     ignoreSSL = runtime.ignoreSSL
   }
 
-  model DetectMainBodyRequest = {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }
-
-  model DetectMainBodyResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    data: {
-      location: {
-        x: integer(name='X', description='x'),
-        y: integer(name='Y', description='y'),
-        width: integer(name='Width', description='width'),
-        height: integer(name='Height', description='height'),
-      }(name='Location', description='location'),
-    }(name='Data', description='data'),
-  }
-
-  async function detectMainBody(request: DetectMainBodyRequest, runtime: Common.RuntimeObject): DetectMainBodyResponse {
-    return _request('DetectMainBody', 'HTTPS', 'GET', request, runtime);
-  }
-
-  model DetectMainBodyAdvanceRequest = {
-    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-  }
-
-  async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runtime: Common.RuntimeObject): DetectMainBodyResponse {
-    // Step 0: init client
-    var authConfig = new OpenPlatform.Config{
-      accessKeyId = @getAccessKeyId(),
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = 'openplatform.aliyuncs.com',
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var authClient = new OpenPlatform(authConfig);
-
-    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-      product = 'objectdet',
-      regionId = @regionId,
-    };
-    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-    // Step 1: request OSS api to upload file
-    var ossConfig = new OSS.Config{
-      accessKeyId = authResponse.accessKeyId,
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var ossClient = new OSS(ossConfig);
-
-    var str = Common.readAsString(request.imageURLObject);
-    var fileObj = new OSS.PostObjectRequest.header.file{
-      fileName = authResponse.objectKey,
-      content = str,
-      contentType = '',
-    };
-    var ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    var uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, runtime);
-    // Step 2: request final api
-    var detectMainBodyreq = new DetectMainBodyRequest{};
-    Common.convert(request, detectMainBodyreq);
-    detectMainBodyreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    var detectMainBodyResp = detectMainBody(detectMainBodyreq, runtime);
-    return detectMainBodyResp;
-  }
-
   model DetectVehicleRequest = {
     imageType?: integer(name='ImageType', description='imageType'),
     imageURL: string(name='ImageURL', description='imageUrl'),
@@ -230,10 +151,9 @@ module objectdet {
     };
     var ossClient = new OSS(ossConfig);
 
-    var str = Common.readAsString(request.imageURLObject);
     var fileObj = new OSS.PostObjectRequest.header.file{
       fileName = authResponse.objectKey,
-      content = str,
+      content = request.imageURLObject,
       contentType = '',
     };
     var ossHeader = new OSS.PostObjectRequest.header{
@@ -255,6 +175,84 @@ module objectdet {
     detectVehiclereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
     var detectVehicleResp = detectVehicle(detectVehiclereq, runtime);
     return detectVehicleResp;
+  }
+
+  model DetectMainBodyRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model DetectMainBodyResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      location: {
+        x: integer(name='X', description='x'),
+        y: integer(name='Y', description='y'),
+        width: integer(name='Width', description='width'),
+        height: integer(name='Height', description='height'),
+      }(name='Location', description='location'),
+    }(name='Data', description='data'),
+  }
+
+  async function detectMainBody(request: DetectMainBodyRequest, runtime: Common.RuntimeObject): DetectMainBodyResponse {
+    return _request('DetectMainBody', 'HTTPS', 'GET', request, runtime);
+  }
+
+  model DetectMainBodyAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runtime: Common.RuntimeObject): DetectMainBodyResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'objectdet',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var detectMainBodyreq = new DetectMainBodyRequest{};
+    Common.convert(request, detectMainBodyreq);
+    detectMainBodyreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var detectMainBodyResp = detectMainBody(detectMainBodyreq, runtime);
+    return detectMainBodyResp;
   }
 
 }

@@ -94,119 +94,6 @@ module imageenhan {
     ignoreSSL = runtime.ignoreSSL
   }
 
-  model RecolorImageRequest = {
-    url: string(name='Url', description='url'),
-    mode?: string(name='Mode', description='mode'),
-    refUrl?: string(name='RefUrl', description='refUrl'),
-    colorCount?: integer(name='ColorCount', description='colorCount'),
-    colorTemplate?: [
-      {
-        color?: string(name='Color', description='color'),
-      }
-    ](name='ColorTemplate', description='colorTemplate'),
-  }
-
-  model RecolorImageResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    data: {
-    }(name='Data', description='data'),
-  }
-
-  async function recolorImage(request: RecolorImageRequest, runtime: Common.RuntimeObject): RecolorImageResponse {
-    return _request('RecolorImage', 'HTTPS', 'POST', request, runtime);
-  }
-
-  model MakeSuperResolutionImageRequest = {
-    url: string(name='Url', description='url'),
-  }
-
-  model MakeSuperResolutionImageResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    data: {
-      url: string(name='Url', description='url'),
-    }(name='Data', description='data'),
-  }
-
-  async function makeSuperResolutionImage(request: MakeSuperResolutionImageRequest, runtime: Common.RuntimeObject): MakeSuperResolutionImageResponse {
-    return _request('MakeSuperResolutionImage', 'HTTPS', 'POST', request, runtime);
-  }
-
-  model MakeSuperResolutionImageAdvanceRequest = {
-    urlObject: readable(description='UrlObject', name='UrlObject'),
-  }
-
-  async function makeSuperResolutionImageAdvance(request: MakeSuperResolutionImageAdvanceRequest, runtime: Common.RuntimeObject): MakeSuperResolutionImageResponse {
-    // Step 0: init client
-    var authConfig = new OpenPlatform.Config{
-      accessKeyId = @getAccessKeyId(),
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = 'openplatform.aliyuncs.com',
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var authClient = new OpenPlatform(authConfig);
-
-    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-      product = 'imageenhan',
-      regionId = @regionId,
-    };
-    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-    // Step 1: request OSS api to upload file
-    var ossConfig = new OSS.Config{
-      accessKeyId = authResponse.accessKeyId,
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var ossClient = new OSS(ossConfig);
-
-    var str = Common.readAsString(request.urlObject);
-    var fileObj = new OSS.PostObjectRequest.header.file{
-      fileName = authResponse.objectKey,
-      content = str,
-      contentType = '',
-    };
-    var ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    var uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, runtime);
-    // Step 2: request final api
-    var makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest{};
-    Common.convert(request, makeSuperResolutionImagereq);
-    makeSuperResolutionImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    var makeSuperResolutionImageResp = makeSuperResolutionImage(makeSuperResolutionImagereq, runtime);
-    return makeSuperResolutionImageResp;
-  }
-
-  model ExtendImageStyleRequest = {
-    styleUrl: string(name='StyleUrl', description='styleUrl'),
-    majorUrl: string(name='MajorUrl', description='majorUrl'),
-  }
-
-  model ExtendImageStyleResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    data: {
-      url: string(name='Url', description='url'),
-      majorUrl: string(name='MajorUrl', description='majorUrl'),
-    }(name='Data', description='data'),
-  }
-
-  async function extendImageStyle(request: ExtendImageStyleRequest, runtime: Common.RuntimeObject): ExtendImageStyleResponse {
-    return _request('ExtendImageStyle', 'HTTPS', 'POST', request, runtime);
-  }
-
   model ChangeImageSizeRequest = {
     width: integer(name='Width', description='width'),
     height: integer(name='Height', description='height'),
@@ -258,10 +145,9 @@ module imageenhan {
     };
     var ossClient = new OSS(ossConfig);
 
-    var str = Common.readAsString(request.urlObject);
     var fileObj = new OSS.PostObjectRequest.header.file{
       fileName = authResponse.objectKey,
-      content = str,
+      content = request.urlObject,
       contentType = '',
     };
     var ossHeader = new OSS.PostObjectRequest.header{
@@ -283,6 +169,118 @@ module imageenhan {
     changeImageSizereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
     var changeImageSizeResp = changeImageSize(changeImageSizereq, runtime);
     return changeImageSizeResp;
+  }
+
+  model ExtendImageStyleRequest = {
+    styleUrl: string(name='StyleUrl', description='styleUrl'),
+    majorUrl: string(name='MajorUrl', description='majorUrl'),
+  }
+
+  model ExtendImageStyleResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      url: string(name='Url', description='url'),
+      majorUrl: string(name='MajorUrl', description='majorUrl'),
+    }(name='Data', description='data'),
+  }
+
+  async function extendImageStyle(request: ExtendImageStyleRequest, runtime: Common.RuntimeObject): ExtendImageStyleResponse {
+    return _request('ExtendImageStyle', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model MakeSuperResolutionImageRequest = {
+    url: string(name='Url', description='url'),
+  }
+
+  model MakeSuperResolutionImageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      url: string(name='Url', description='url'),
+    }(name='Data', description='data'),
+  }
+
+  async function makeSuperResolutionImage(request: MakeSuperResolutionImageRequest, runtime: Common.RuntimeObject): MakeSuperResolutionImageResponse {
+    return _request('MakeSuperResolutionImage', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model MakeSuperResolutionImageAdvanceRequest = {
+    urlObject: readable(description='UrlObject', name='UrlObject'),
+  }
+
+  async function makeSuperResolutionImageAdvance(request: MakeSuperResolutionImageAdvanceRequest, runtime: Common.RuntimeObject): MakeSuperResolutionImageResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imageenhan',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.urlObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest{};
+    Common.convert(request, makeSuperResolutionImagereq);
+    makeSuperResolutionImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var makeSuperResolutionImageResp = makeSuperResolutionImage(makeSuperResolutionImagereq, runtime);
+    return makeSuperResolutionImageResp;
+  }
+
+  model RecolorImageRequest = {
+    url: string(name='Url', description='url'),
+    mode?: string(name='Mode', description='mode'),
+    refUrl?: string(name='RefUrl', description='refUrl'),
+    colorCount?: integer(name='ColorCount', description='colorCount'),
+    colorTemplate?: [
+      {
+        color?: string(name='Color', description='color'),
+      }
+    ](name='ColorTemplate', description='colorTemplate'),
+  }
+
+  model RecolorImageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+    }(name='Data', description='data'),
+  }
+
+  async function recolorImage(request: RecolorImageRequest, runtime: Common.RuntimeObject): RecolorImageResponse {
+    return _request('RecolorImage', 'HTTPS', 'POST', request, runtime);
   }
 
 }
