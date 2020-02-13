@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/alibabacloud-go/tea/tea"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
+	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	"github.com/aliyun/rpc-client-go/service"
 )
 
