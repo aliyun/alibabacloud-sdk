@@ -7,7 +7,7 @@ import (
 
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
+	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
 	"github.com/aliyun/rpc-client-go/service"
 )
@@ -134,115 +134,6 @@ func (s *Config) SetEndpointType(v string) *Config {
 
 func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	s.OpenPlatformEndpoint = &v
-	return s
-}
-
-type DetectMainBodyRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-}
-
-func (s DetectMainBodyRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s DetectMainBodyRequest) GoString() string {
-	return s.String()
-}
-
-func (s *DetectMainBodyRequest) SetImageURL(v string) *DetectMainBodyRequest {
-	s.ImageURL = &v
-	return s
-}
-
-type DetectMainBodyResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectMainBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s DetectMainBodyResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s DetectMainBodyResponse) GoString() string {
-	return s.String()
-}
-
-func (s *DetectMainBodyResponse) SetRequestId(v string) *DetectMainBodyResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *DetectMainBodyResponse) SetData(v *DetectMainBodyResponseData) *DetectMainBodyResponse {
-	s.Data = v
-	return s
-}
-
-type DetectMainBodyResponseData struct {
-	Location *DetectMainBodyResponseDataLocation `json:"Location" xml:"Location" require:"true" type:"Struct"`
-}
-
-func (s DetectMainBodyResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s DetectMainBodyResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *DetectMainBodyResponseData) SetLocation(v *DetectMainBodyResponseDataLocation) *DetectMainBodyResponseData {
-	s.Location = v
-	return s
-}
-
-type DetectMainBodyResponseDataLocation struct {
-	X      *int `json:"X" xml:"X" require:"true"`
-	Y      *int `json:"Y" xml:"Y" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-}
-
-func (s DetectMainBodyResponseDataLocation) String() string {
-	return service.Prettify(s)
-}
-
-func (s DetectMainBodyResponseDataLocation) GoString() string {
-	return s.String()
-}
-
-func (s *DetectMainBodyResponseDataLocation) SetX(v int) *DetectMainBodyResponseDataLocation {
-	s.X = &v
-	return s
-}
-
-func (s *DetectMainBodyResponseDataLocation) SetY(v int) *DetectMainBodyResponseDataLocation {
-	s.Y = &v
-	return s
-}
-
-func (s *DetectMainBodyResponseDataLocation) SetWidth(v int) *DetectMainBodyResponseDataLocation {
-	s.Width = &v
-	return s
-}
-
-func (s *DetectMainBodyResponseDataLocation) SetHeight(v int) *DetectMainBodyResponseDataLocation {
-	s.Height = &v
-	return s
-}
-
-type DetectMainBodyAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-}
-
-func (s DetectMainBodyAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s DetectMainBodyAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *DetectMainBodyAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMainBodyAdvanceRequest {
-	s.ImageURLObject = v
 	return s
 }
 
@@ -373,6 +264,115 @@ func (s *DetectVehicleAdvanceRequest) SetImageType(v int) *DetectVehicleAdvanceR
 	return s
 }
 
+type DetectMainBodyRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectMainBodyRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMainBodyRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMainBodyRequest) SetImageURL(v string) *DetectMainBodyRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectMainBodyResponse struct {
+	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectMainBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectMainBodyResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMainBodyResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMainBodyResponse) SetRequestId(v string) *DetectMainBodyResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectMainBodyResponse) SetData(v *DetectMainBodyResponseData) *DetectMainBodyResponse {
+	s.Data = v
+	return s
+}
+
+type DetectMainBodyResponseData struct {
+	Location *DetectMainBodyResponseDataLocation `json:"Location" xml:"Location" require:"true" type:"Struct"`
+}
+
+func (s DetectMainBodyResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMainBodyResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMainBodyResponseData) SetLocation(v *DetectMainBodyResponseDataLocation) *DetectMainBodyResponseData {
+	s.Location = v
+	return s
+}
+
+type DetectMainBodyResponseDataLocation struct {
+	X      *int `json:"X" xml:"X" require:"true"`
+	Y      *int `json:"Y" xml:"Y" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+}
+
+func (s DetectMainBodyResponseDataLocation) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMainBodyResponseDataLocation) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMainBodyResponseDataLocation) SetX(v int) *DetectMainBodyResponseDataLocation {
+	s.X = &v
+	return s
+}
+
+func (s *DetectMainBodyResponseDataLocation) SetY(v int) *DetectMainBodyResponseDataLocation {
+	s.Y = &v
+	return s
+}
+
+func (s *DetectMainBodyResponseDataLocation) SetWidth(v int) *DetectMainBodyResponseDataLocation {
+	s.Width = &v
+	return s
+}
+
+func (s *DetectMainBodyResponseDataLocation) SetHeight(v int) *DetectMainBodyResponseDataLocation {
+	s.Height = &v
+	return s
+}
+
+type DetectMainBodyAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s DetectMainBodyAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectMainBodyAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectMainBodyAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMainBodyAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type Client struct {
 	service.BaseClient
 }
@@ -475,86 +475,6 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *common.RuntimeObject) (_result *DetectMainBodyResponse, _err error) {
-	_result = &DetectMainBodyResponse{}
-	_body, _err := client._request("DetectMainBody", "HTTPS", "GET", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectMainBodyResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	detectMainBodyreq := &DetectMainBodyRequest{}
-	common.Convert(request, detectMainBodyreq)
-	detectMainBodyreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	detectMainBodyResp, _err := client.DetectMainBody(detectMainBodyreq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return detectMainBodyResp, _err
-}
-
 func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *common.RuntimeObject) (_result *DetectVehicleResponse, _err error) {
 	_result = &DetectVehicleResponse{}
 	_body, _err := client._request("DetectVehicle", "HTTPS", "POST", tea.ToMap(request), runtime)
@@ -601,14 +521,9 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -633,4 +548,79 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 	}
 
 	return detectVehicleResp, _err
+}
+
+func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *common.RuntimeObject) (_result *DetectMainBodyResponse, _err error) {
+	_result = &DetectMainBodyResponse{}
+	_body, _err := client._request("DetectMainBody", "HTTPS", "GET", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectMainBodyResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	detectMainBodyreq := &DetectMainBodyRequest{}
+	common.Convert(request, detectMainBodyreq)
+	detectMainBodyreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectMainBodyResp, _err := client.DetectMainBody(detectMainBodyreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return detectMainBodyResp, _err
 }

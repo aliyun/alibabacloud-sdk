@@ -7,7 +7,7 @@ import (
 
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
+	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
 	"github.com/aliyun/rpc-client-go/service"
 )
@@ -624,14 +624,9 @@ func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runti
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -704,14 +699,9 @@ func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest,
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -794,14 +784,9 @@ func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runti
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{

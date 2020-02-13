@@ -7,7 +7,7 @@ import (
 
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
+	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
 	"github.com/aliyun/rpc-client-go/service"
 )
@@ -314,1128 +314,6 @@ func (s *RecognizeCharacterAdvanceRequest) SetMinHeight(v int) *RecognizeCharact
 
 func (s *RecognizeCharacterAdvanceRequest) SetOutputProbability(v bool) *RecognizeCharacterAdvanceRequest {
 	s.OutputProbability = &v
-	return s
-}
-
-type RecognizeDriverLicenseRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side      *string `json:"Side" xml:"Side" require:"true"`
-}
-
-func (s RecognizeDriverLicenseRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDriverLicenseRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDriverLicenseRequest) SetImageType(v int) *RecognizeDriverLicenseRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseRequest) SetImageURL(v string) *RecognizeDriverLicenseRequest {
-	s.ImageURL = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseRequest) SetSide(v string) *RecognizeDriverLicenseRequest {
-	s.Side = &v
-	return s
-}
-
-type RecognizeDriverLicenseResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeDriverLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeDriverLicenseResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDriverLicenseResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDriverLicenseResponse) SetRequestId(v string) *RecognizeDriverLicenseResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponse) SetData(v *RecognizeDriverLicenseResponseData) *RecognizeDriverLicenseResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeDriverLicenseResponseData struct {
-	FaceResult *RecognizeDriverLicenseResponseDataFaceResult `json:"FaceResult" xml:"FaceResult" require:"true" type:"Struct"`
-	BackResult *RecognizeDriverLicenseResponseDataBackResult `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
-}
-
-func (s RecognizeDriverLicenseResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDriverLicenseResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDriverLicenseResponseData) SetFaceResult(v *RecognizeDriverLicenseResponseDataFaceResult) *RecognizeDriverLicenseResponseData {
-	s.FaceResult = v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseData) SetBackResult(v *RecognizeDriverLicenseResponseDataBackResult) *RecognizeDriverLicenseResponseData {
-	s.BackResult = v
-	return s
-}
-
-type RecognizeDriverLicenseResponseDataFaceResult struct {
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	LicenseNumber *string `json:"LicenseNumber" xml:"LicenseNumber" require:"true"`
-	VehicleType   *string `json:"VehicleType" xml:"VehicleType" require:"true"`
-	StartDate     *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate       *string `json:"EndDate" xml:"EndDate" require:"true"`
-	IssueDate     *string `json:"IssueDate" xml:"IssueDate" require:"true"`
-	Address       *string `json:"Address" xml:"Address" require:"true"`
-	Gender        *string `json:"Gender" xml:"Gender" require:"true"`
-}
-
-func (s RecognizeDriverLicenseResponseDataFaceResult) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDriverLicenseResponseDataFaceResult) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetName(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.Name = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetLicenseNumber(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.LicenseNumber = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetVehicleType(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.VehicleType = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetStartDate(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.StartDate = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetEndDate(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.EndDate = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetIssueDate(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.IssueDate = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetAddress(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.Address = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseResponseDataFaceResult) SetGender(v string) *RecognizeDriverLicenseResponseDataFaceResult {
-	s.Gender = &v
-	return s
-}
-
-type RecognizeDriverLicenseResponseDataBackResult struct {
-	ArchiveNumber *string `json:"ArchiveNumber" xml:"ArchiveNumber" require:"true"`
-}
-
-func (s RecognizeDriverLicenseResponseDataBackResult) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDriverLicenseResponseDataBackResult) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDriverLicenseResponseDataBackResult) SetArchiveNumber(v string) *RecognizeDriverLicenseResponseDataBackResult {
-	s.ArchiveNumber = &v
-	return s
-}
-
-type RecognizeDriverLicenseAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
-	Side           *string   `json:"Side" xml:"Side" require:"true"`
-}
-
-func (s RecognizeDriverLicenseAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDriverLicenseAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDriverLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeDriverLicenseAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeDriverLicenseAdvanceRequest) SetImageType(v int) *RecognizeDriverLicenseAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeDriverLicenseAdvanceRequest) SetSide(v string) *RecognizeDriverLicenseAdvanceRequest {
-	s.Side = &v
-	return s
-}
-
-type RecognizeLicensePlateRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-}
-
-func (s RecognizeLicensePlateRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeLicensePlateRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeLicensePlateRequest) SetImageType(v int) *RecognizeLicensePlateRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateRequest) SetImageURL(v string) *RecognizeLicensePlateRequest {
-	s.ImageURL = &v
-	return s
-}
-
-type RecognizeLicensePlateResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeLicensePlateResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeLicensePlateResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeLicensePlateResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeLicensePlateResponse) SetRequestId(v string) *RecognizeLicensePlateResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponse) SetData(v *RecognizeLicensePlateResponseData) *RecognizeLicensePlateResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeLicensePlateResponseData struct {
-	Plates []*RecognizeLicensePlateResponseDataPlates `json:"Plates" xml:"Plates" require:"true" type:"Repeated"`
-}
-
-func (s RecognizeLicensePlateResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeLicensePlateResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeLicensePlateResponseData) SetPlates(v []*RecognizeLicensePlateResponseDataPlates) *RecognizeLicensePlateResponseData {
-	s.Plates = v
-	return s
-}
-
-type RecognizeLicensePlateResponseDataPlates struct {
-	Confidence          *float32                                    `json:"Confidence" xml:"Confidence" require:"true"`
-	PlateNumber         *string                                     `json:"PlateNumber" xml:"PlateNumber" require:"true"`
-	PlateType           *string                                     `json:"PlateType" xml:"PlateType" require:"true"`
-	PlateTypeConfidence *float32                                    `json:"PlateTypeConfidence" xml:"PlateTypeConfidence" require:"true"`
-	Roi                 *RecognizeLicensePlateResponseDataPlatesRoi `json:"Roi" xml:"Roi" require:"true" type:"Struct"`
-}
-
-func (s RecognizeLicensePlateResponseDataPlates) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeLicensePlateResponseDataPlates) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeLicensePlateResponseDataPlates) SetConfidence(v float32) *RecognizeLicensePlateResponseDataPlates {
-	s.Confidence = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlates) SetPlateNumber(v string) *RecognizeLicensePlateResponseDataPlates {
-	s.PlateNumber = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlates) SetPlateType(v string) *RecognizeLicensePlateResponseDataPlates {
-	s.PlateType = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlates) SetPlateTypeConfidence(v float32) *RecognizeLicensePlateResponseDataPlates {
-	s.PlateTypeConfidence = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlates) SetRoi(v *RecognizeLicensePlateResponseDataPlatesRoi) *RecognizeLicensePlateResponseDataPlates {
-	s.Roi = v
-	return s
-}
-
-type RecognizeLicensePlateResponseDataPlatesRoi struct {
-	H *int `json:"H" xml:"H" require:"true"`
-	W *int `json:"W" xml:"W" require:"true"`
-	X *int `json:"X" xml:"X" require:"true"`
-	Y *int `json:"Y" xml:"Y" require:"true"`
-}
-
-func (s RecognizeLicensePlateResponseDataPlatesRoi) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeLicensePlateResponseDataPlatesRoi) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetH(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
-	s.H = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetW(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
-	s.W = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetX(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
-	s.X = &v
-	return s
-}
-
-func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetY(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
-	s.Y = &v
-	return s
-}
-
-type RecognizeLicensePlateAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
-}
-
-func (s RecognizeLicensePlateAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeLicensePlateAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeLicensePlateAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeLicensePlateAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeLicensePlateAdvanceRequest) SetImageType(v int) *RecognizeLicensePlateAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
-type RecognizeTableRequest struct {
-	ImageType       *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL        *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	OutputFormat    *string `json:"OutputFormat" xml:"OutputFormat" require:"true"`
-	UseFinanceModel *bool   `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
-	AssureDirection *bool   `json:"AssureDirection" xml:"AssureDirection" require:"true"`
-	HasLine         *bool   `json:"HasLine" xml:"HasLine" require:"true"`
-	SkipDetection   *bool   `json:"SkipDetection" xml:"SkipDetection" require:"true"`
-}
-
-func (s RecognizeTableRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableRequest) SetImageType(v int) *RecognizeTableRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeTableRequest) SetImageURL(v string) *RecognizeTableRequest {
-	s.ImageURL = &v
-	return s
-}
-
-func (s *RecognizeTableRequest) SetOutputFormat(v string) *RecognizeTableRequest {
-	s.OutputFormat = &v
-	return s
-}
-
-func (s *RecognizeTableRequest) SetUseFinanceModel(v bool) *RecognizeTableRequest {
-	s.UseFinanceModel = &v
-	return s
-}
-
-func (s *RecognizeTableRequest) SetAssureDirection(v bool) *RecognizeTableRequest {
-	s.AssureDirection = &v
-	return s
-}
-
-func (s *RecognizeTableRequest) SetHasLine(v bool) *RecognizeTableRequest {
-	s.HasLine = &v
-	return s
-}
-
-func (s *RecognizeTableRequest) SetSkipDetection(v bool) *RecognizeTableRequest {
-	s.SkipDetection = &v
-	return s
-}
-
-type RecognizeTableResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeTableResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeTableResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableResponse) SetRequestId(v string) *RecognizeTableResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeTableResponse) SetData(v *RecognizeTableResponseData) *RecognizeTableResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeTableResponseData struct {
-	FileContent *string                             `json:"FileContent" xml:"FileContent" require:"true"`
-	Tables      []*RecognizeTableResponseDataTables `json:"Tables" xml:"Tables" require:"true" type:"Repeated"`
-}
-
-func (s RecognizeTableResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableResponseData) SetFileContent(v string) *RecognizeTableResponseData {
-	s.FileContent = &v
-	return s
-}
-
-func (s *RecognizeTableResponseData) SetTables(v []*RecognizeTableResponseDataTables) *RecognizeTableResponseData {
-	s.Tables = v
-	return s
-}
-
-type RecognizeTableResponseDataTables struct {
-	Head      *string                                      `json:"Head" xml:"Head" require:"true"`
-	Tail      *string                                      `json:"Tail" xml:"Tail" require:"true"`
-	TableRows []*RecognizeTableResponseDataTablesTableRows `json:"TableRows" xml:"TableRows" require:"true" type:"Repeated"`
-}
-
-func (s RecognizeTableResponseDataTables) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableResponseDataTables) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableResponseDataTables) SetHead(v string) *RecognizeTableResponseDataTables {
-	s.Head = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTables) SetTail(v string) *RecognizeTableResponseDataTables {
-	s.Tail = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTables) SetTableRows(v []*RecognizeTableResponseDataTablesTableRows) *RecognizeTableResponseDataTables {
-	s.TableRows = v
-	return s
-}
-
-type RecognizeTableResponseDataTablesTableRows struct {
-	TableColumns []*RecognizeTableResponseDataTablesTableRowsTableColumns `json:"TableColumns" xml:"TableColumns" require:"true" type:"Repeated"`
-}
-
-func (s RecognizeTableResponseDataTablesTableRows) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableResponseDataTablesTableRows) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableResponseDataTablesTableRows) SetTableColumns(v []*RecognizeTableResponseDataTablesTableRowsTableColumns) *RecognizeTableResponseDataTablesTableRows {
-	s.TableColumns = v
-	return s
-}
-
-type RecognizeTableResponseDataTablesTableRowsTableColumns struct {
-	StartColumn *int `json:"StartColumn" xml:"StartColumn" require:"true"`
-	StartRow    *int `json:"StartRow" xml:"StartRow" require:"true"`
-	EndColumn   *int `json:"EndColumn" xml:"EndColumn" require:"true"`
-	EndRow      *int `json:"EndRow" xml:"EndRow" require:"true"`
-	Height      *int `json:"Height" xml:"Height" require:"true"`
-	Width       *int `json:"Width" xml:"Width" require:"true"`
-}
-
-func (s RecognizeTableResponseDataTablesTableRowsTableColumns) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableResponseDataTablesTableRowsTableColumns) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetStartColumn(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
-	s.StartColumn = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetStartRow(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
-	s.StartRow = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetEndColumn(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
-	s.EndColumn = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetEndRow(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
-	s.EndRow = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetHeight(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
-	s.Height = &v
-	return s
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetWidth(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
-	s.Width = &v
-	return s
-}
-
-type RecognizeTableAdvanceRequest struct {
-	ImageURLObject  io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType       *int      `json:"ImageType" xml:"ImageType"`
-	OutputFormat    *string   `json:"OutputFormat" xml:"OutputFormat" require:"true"`
-	UseFinanceModel *bool     `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
-	AssureDirection *bool     `json:"AssureDirection" xml:"AssureDirection" require:"true"`
-	HasLine         *bool     `json:"HasLine" xml:"HasLine" require:"true"`
-	SkipDetection   *bool     `json:"SkipDetection" xml:"SkipDetection" require:"true"`
-}
-
-func (s RecognizeTableAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTableAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeTableAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetImageType(v int) *RecognizeTableAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetOutputFormat(v string) *RecognizeTableAdvanceRequest {
-	s.OutputFormat = &v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetUseFinanceModel(v bool) *RecognizeTableAdvanceRequest {
-	s.UseFinanceModel = &v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetAssureDirection(v bool) *RecognizeTableAdvanceRequest {
-	s.AssureDirection = &v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetHasLine(v bool) *RecognizeTableAdvanceRequest {
-	s.HasLine = &v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetSkipDetection(v bool) *RecognizeTableAdvanceRequest {
-	s.SkipDetection = &v
-	return s
-}
-
-type RecognizeStampRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-}
-
-func (s RecognizeStampRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampRequest) SetImageType(v int) *RecognizeStampRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeStampRequest) SetImageURL(v string) *RecognizeStampRequest {
-	s.ImageURL = &v
-	return s
-}
-
-type RecognizeStampResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeStampResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeStampResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampResponse) SetRequestId(v string) *RecognizeStampResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeStampResponse) SetData(v *RecognizeStampResponseData) *RecognizeStampResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeStampResponseData struct {
-	Results []*RecognizeStampResponseDataResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
-}
-
-func (s RecognizeStampResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampResponseData) SetResults(v []*RecognizeStampResponseDataResults) *RecognizeStampResponseData {
-	s.Results = v
-	return s
-}
-
-type RecognizeStampResponseDataResults struct {
-	GeneralText []*RecognizeStampResponseDataResultsGeneralText `json:"GeneralText" xml:"GeneralText" require:"true" type:"Repeated"`
-	Roi         *RecognizeStampResponseDataResultsRoi           `json:"Roi" xml:"Roi" require:"true" type:"Struct"`
-	Text        *RecognizeStampResponseDataResultsText          `json:"Text" xml:"Text" require:"true" type:"Struct"`
-}
-
-func (s RecognizeStampResponseDataResults) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampResponseDataResults) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampResponseDataResults) SetGeneralText(v []*RecognizeStampResponseDataResultsGeneralText) *RecognizeStampResponseDataResults {
-	s.GeneralText = v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResults) SetRoi(v *RecognizeStampResponseDataResultsRoi) *RecognizeStampResponseDataResults {
-	s.Roi = v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResults) SetText(v *RecognizeStampResponseDataResultsText) *RecognizeStampResponseDataResults {
-	s.Text = v
-	return s
-}
-
-type RecognizeStampResponseDataResultsGeneralText struct {
-	Content    *string  `json:"Content" xml:"Content" require:"true"`
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
-}
-
-func (s RecognizeStampResponseDataResultsGeneralText) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampResponseDataResultsGeneralText) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampResponseDataResultsGeneralText) SetContent(v string) *RecognizeStampResponseDataResultsGeneralText {
-	s.Content = &v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResultsGeneralText) SetConfidence(v float32) *RecognizeStampResponseDataResultsGeneralText {
-	s.Confidence = &v
-	return s
-}
-
-type RecognizeStampResponseDataResultsRoi struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-}
-
-func (s RecognizeStampResponseDataResultsRoi) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampResponseDataResultsRoi) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampResponseDataResultsRoi) SetLeft(v int) *RecognizeStampResponseDataResultsRoi {
-	s.Left = &v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResultsRoi) SetTop(v int) *RecognizeStampResponseDataResultsRoi {
-	s.Top = &v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResultsRoi) SetWidth(v int) *RecognizeStampResponseDataResultsRoi {
-	s.Width = &v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResultsRoi) SetHeight(v int) *RecognizeStampResponseDataResultsRoi {
-	s.Height = &v
-	return s
-}
-
-type RecognizeStampResponseDataResultsText struct {
-	Content    *string  `json:"Content" xml:"Content" require:"true"`
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
-}
-
-func (s RecognizeStampResponseDataResultsText) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampResponseDataResultsText) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampResponseDataResultsText) SetContent(v string) *RecognizeStampResponseDataResultsText {
-	s.Content = &v
-	return s
-}
-
-func (s *RecognizeStampResponseDataResultsText) SetConfidence(v float32) *RecognizeStampResponseDataResultsText {
-	s.Confidence = &v
-	return s
-}
-
-type RecognizeStampAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
-}
-
-func (s RecognizeStampAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeStampAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeStampAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeStampAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeStampAdvanceRequest) SetImageType(v int) *RecognizeStampAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
-type RecognizeAccountPageRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-}
-
-func (s RecognizeAccountPageRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageRequest) SetImageType(v int) *RecognizeAccountPageRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeAccountPageRequest) SetImageURL(v string) *RecognizeAccountPageRequest {
-	s.ImageURL = &v
-	return s
-}
-
-type RecognizeAccountPageResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeAccountPageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeAccountPageResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponse) SetRequestId(v string) *RecognizeAccountPageResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponse) SetData(v *RecognizeAccountPageResponseData) *RecognizeAccountPageResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeAccountPageResponseData struct {
-	Angle               *float32                                               `json:"Angle" xml:"Angle" require:"true"`
-	Name                *string                                                `json:"Name" xml:"Name" require:"true"`
-	Gender              *string                                                `json:"Gender" xml:"Gender" require:"true"`
-	Relation            *string                                                `json:"Relation" xml:"Relation" require:"true"`
-	BirthPlace          *string                                                `json:"BirthPlace" xml:"BirthPlace" require:"true"`
-	Nationality         *string                                                `json:"Nationality" xml:"Nationality" require:"true"`
-	NativePlace         *string                                                `json:"NativePlace" xml:"NativePlace" require:"true"`
-	BirthDate           *string                                                `json:"BirthDate" xml:"BirthDate" require:"true"`
-	IDNumber            *string                                                `json:"IDNumber" xml:"IDNumber" require:"true"`
-	InvalidStampAreas   []*RecognizeAccountPageResponseDataInvalidStampAreas   `json:"InvalidStampAreas" xml:"InvalidStampAreas" require:"true" type:"Repeated"`
-	UndertakeStampAreas []*RecognizeAccountPageResponseDataUndertakeStampAreas `json:"UndertakeStampAreas" xml:"UndertakeStampAreas" require:"true" type:"Repeated"`
-	RegisterStampAreas  []*RecognizeAccountPageResponseDataRegisterStampAreas  `json:"RegisterStampAreas" xml:"RegisterStampAreas" require:"true" type:"Repeated"`
-	OtherStampAreas     []*RecognizeAccountPageResponseDataOtherStampAreas     `json:"OtherStampAreas" xml:"OtherStampAreas" require:"true" type:"Repeated"`
-	TitleArea           *RecognizeAccountPageResponseDataTitleArea             `json:"TitleArea" xml:"TitleArea" require:"true" type:"Struct"`
-}
-
-func (s RecognizeAccountPageResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponseData) SetAngle(v float32) *RecognizeAccountPageResponseData {
-	s.Angle = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetName(v string) *RecognizeAccountPageResponseData {
-	s.Name = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetGender(v string) *RecognizeAccountPageResponseData {
-	s.Gender = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetRelation(v string) *RecognizeAccountPageResponseData {
-	s.Relation = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetBirthPlace(v string) *RecognizeAccountPageResponseData {
-	s.BirthPlace = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetNationality(v string) *RecognizeAccountPageResponseData {
-	s.Nationality = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetNativePlace(v string) *RecognizeAccountPageResponseData {
-	s.NativePlace = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetBirthDate(v string) *RecognizeAccountPageResponseData {
-	s.BirthDate = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetIDNumber(v string) *RecognizeAccountPageResponseData {
-	s.IDNumber = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetInvalidStampAreas(v []*RecognizeAccountPageResponseDataInvalidStampAreas) *RecognizeAccountPageResponseData {
-	s.InvalidStampAreas = v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetUndertakeStampAreas(v []*RecognizeAccountPageResponseDataUndertakeStampAreas) *RecognizeAccountPageResponseData {
-	s.UndertakeStampAreas = v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetRegisterStampAreas(v []*RecognizeAccountPageResponseDataRegisterStampAreas) *RecognizeAccountPageResponseData {
-	s.RegisterStampAreas = v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetOtherStampAreas(v []*RecognizeAccountPageResponseDataOtherStampAreas) *RecognizeAccountPageResponseData {
-	s.OtherStampAreas = v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseData) SetTitleArea(v *RecognizeAccountPageResponseDataTitleArea) *RecognizeAccountPageResponseData {
-	s.TitleArea = v
-	return s
-}
-
-type RecognizeAccountPageResponseDataInvalidStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-}
-
-func (s RecognizeAccountPageResponseDataInvalidStampAreas) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponseDataInvalidStampAreas) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
-	s.Left = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
-	s.Top = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
-	s.Height = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
-	s.Width = &v
-	return s
-}
-
-type RecognizeAccountPageResponseDataUndertakeStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-}
-
-func (s RecognizeAccountPageResponseDataUndertakeStampAreas) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponseDataUndertakeStampAreas) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
-	s.Left = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
-	s.Top = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
-	s.Height = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
-	s.Width = &v
-	return s
-}
-
-type RecognizeAccountPageResponseDataRegisterStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-}
-
-func (s RecognizeAccountPageResponseDataRegisterStampAreas) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponseDataRegisterStampAreas) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
-	s.Left = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
-	s.Top = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
-	s.Height = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
-	s.Width = &v
-	return s
-}
-
-type RecognizeAccountPageResponseDataOtherStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-}
-
-func (s RecognizeAccountPageResponseDataOtherStampAreas) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponseDataOtherStampAreas) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
-	s.Left = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
-	s.Top = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
-	s.Height = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
-	s.Width = &v
-	return s
-}
-
-type RecognizeAccountPageResponseDataTitleArea struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-}
-
-func (s RecognizeAccountPageResponseDataTitleArea) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageResponseDataTitleArea) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageResponseDataTitleArea) SetLeft(v int) *RecognizeAccountPageResponseDataTitleArea {
-	s.Left = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataTitleArea) SetTop(v int) *RecognizeAccountPageResponseDataTitleArea {
-	s.Top = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataTitleArea) SetHeight(v int) *RecognizeAccountPageResponseDataTitleArea {
-	s.Height = &v
-	return s
-}
-
-func (s *RecognizeAccountPageResponseDataTitleArea) SetWidth(v int) *RecognizeAccountPageResponseDataTitleArea {
-	s.Width = &v
-	return s
-}
-
-type RecognizeAccountPageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
-}
-
-func (s RecognizeAccountPageAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeAccountPageAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeAccountPageAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeAccountPageAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeAccountPageAdvanceRequest) SetImageType(v int) *RecognizeAccountPageAdvanceRequest {
-	s.ImageType = &v
 	return s
 }
 
@@ -2006,89 +884,656 @@ func (s *RecognizeIdentityCardAdvanceRequest) SetSide(v string) *RecognizeIdenti
 	return s
 }
 
-type RecognizeBusinessCardRequest struct {
+type RecognizeLicensePlateRequest struct {
 	ImageType *int    `json:"ImageType" xml:"ImageType"`
 	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
-func (s RecognizeBusinessCardRequest) String() string {
+func (s RecognizeLicensePlateRequest) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeBusinessCardRequest) GoString() string {
+func (s RecognizeLicensePlateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeBusinessCardRequest) SetImageType(v int) *RecognizeBusinessCardRequest {
+func (s *RecognizeLicensePlateRequest) SetImageType(v int) *RecognizeLicensePlateRequest {
 	s.ImageType = &v
 	return s
 }
 
-func (s *RecognizeBusinessCardRequest) SetImageURL(v string) *RecognizeBusinessCardRequest {
+func (s *RecognizeLicensePlateRequest) SetImageURL(v string) *RecognizeLicensePlateRequest {
 	s.ImageURL = &v
 	return s
 }
 
-type RecognizeBusinessCardResponse struct {
+type RecognizeLicensePlateResponse struct {
 	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeBusinessCardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Data      *RecognizeLicensePlateResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
 }
 
-func (s RecognizeBusinessCardResponse) String() string {
+func (s RecognizeLicensePlateResponse) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeBusinessCardResponse) GoString() string {
+func (s RecognizeLicensePlateResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeBusinessCardResponse) SetRequestId(v string) *RecognizeBusinessCardResponse {
+func (s *RecognizeLicensePlateResponse) SetRequestId(v string) *RecognizeLicensePlateResponse {
 	s.RequestId = &v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponse) SetData(v *RecognizeBusinessCardResponseData) *RecognizeBusinessCardResponse {
+func (s *RecognizeLicensePlateResponse) SetData(v *RecognizeLicensePlateResponseData) *RecognizeLicensePlateResponse {
 	s.Data = v
 	return s
 }
 
-type RecognizeBusinessCardResponseData struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+type RecognizeLicensePlateResponseData struct {
+	Plates []*RecognizeLicensePlateResponseDataPlates `json:"Plates" xml:"Plates" require:"true" type:"Repeated"`
 }
 
-func (s RecognizeBusinessCardResponseData) String() string {
+func (s RecognizeLicensePlateResponseData) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeBusinessCardResponseData) GoString() string {
+func (s RecognizeLicensePlateResponseData) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeBusinessCardResponseData) SetName(v string) *RecognizeBusinessCardResponseData {
-	s.Name = &v
+func (s *RecognizeLicensePlateResponseData) SetPlates(v []*RecognizeLicensePlateResponseDataPlates) *RecognizeLicensePlateResponseData {
+	s.Plates = v
 	return s
 }
 
-type RecognizeBusinessCardAdvanceRequest struct {
+type RecognizeLicensePlateResponseDataPlates struct {
+	Confidence          *float32                                    `json:"Confidence" xml:"Confidence" require:"true"`
+	PlateNumber         *string                                     `json:"PlateNumber" xml:"PlateNumber" require:"true"`
+	PlateType           *string                                     `json:"PlateType" xml:"PlateType" require:"true"`
+	PlateTypeConfidence *float32                                    `json:"PlateTypeConfidence" xml:"PlateTypeConfidence" require:"true"`
+	Roi                 *RecognizeLicensePlateResponseDataPlatesRoi `json:"Roi" xml:"Roi" require:"true" type:"Struct"`
+}
+
+func (s RecognizeLicensePlateResponseDataPlates) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLicensePlateResponseDataPlates) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLicensePlateResponseDataPlates) SetConfidence(v float32) *RecognizeLicensePlateResponseDataPlates {
+	s.Confidence = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlates) SetPlateNumber(v string) *RecognizeLicensePlateResponseDataPlates {
+	s.PlateNumber = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlates) SetPlateType(v string) *RecognizeLicensePlateResponseDataPlates {
+	s.PlateType = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlates) SetPlateTypeConfidence(v float32) *RecognizeLicensePlateResponseDataPlates {
+	s.PlateTypeConfidence = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlates) SetRoi(v *RecognizeLicensePlateResponseDataPlatesRoi) *RecognizeLicensePlateResponseDataPlates {
+	s.Roi = v
+	return s
+}
+
+type RecognizeLicensePlateResponseDataPlatesRoi struct {
+	H *int `json:"H" xml:"H" require:"true"`
+	W *int `json:"W" xml:"W" require:"true"`
+	X *int `json:"X" xml:"X" require:"true"`
+	Y *int `json:"Y" xml:"Y" require:"true"`
+}
+
+func (s RecognizeLicensePlateResponseDataPlatesRoi) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLicensePlateResponseDataPlatesRoi) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetH(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
+	s.H = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetW(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
+	s.W = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetX(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
+	s.X = &v
+	return s
+}
+
+func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetY(v int) *RecognizeLicensePlateResponseDataPlatesRoi {
+	s.Y = &v
+	return s
+}
+
+type RecognizeLicensePlateAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
 	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
-func (s RecognizeBusinessCardAdvanceRequest) String() string {
+func (s RecognizeLicensePlateAdvanceRequest) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeBusinessCardAdvanceRequest) GoString() string {
+func (s RecognizeLicensePlateAdvanceRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeBusinessCardAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeBusinessCardAdvanceRequest {
+func (s *RecognizeLicensePlateAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeLicensePlateAdvanceRequest {
 	s.ImageURLObject = v
 	return s
 }
 
-func (s *RecognizeBusinessCardAdvanceRequest) SetImageType(v int) *RecognizeBusinessCardAdvanceRequest {
+func (s *RecognizeLicensePlateAdvanceRequest) SetImageType(v int) *RecognizeLicensePlateAdvanceRequest {
 	s.ImageType = &v
+	return s
+}
+
+type RecognizeTableRequest struct {
+	ImageType       *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL        *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	OutputFormat    *string `json:"OutputFormat" xml:"OutputFormat" require:"true"`
+	UseFinanceModel *bool   `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
+	AssureDirection *bool   `json:"AssureDirection" xml:"AssureDirection" require:"true"`
+	HasLine         *bool   `json:"HasLine" xml:"HasLine" require:"true"`
+	SkipDetection   *bool   `json:"SkipDetection" xml:"SkipDetection" require:"true"`
+}
+
+func (s RecognizeTableRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableRequest) SetImageType(v int) *RecognizeTableRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeTableRequest) SetImageURL(v string) *RecognizeTableRequest {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *RecognizeTableRequest) SetOutputFormat(v string) *RecognizeTableRequest {
+	s.OutputFormat = &v
+	return s
+}
+
+func (s *RecognizeTableRequest) SetUseFinanceModel(v bool) *RecognizeTableRequest {
+	s.UseFinanceModel = &v
+	return s
+}
+
+func (s *RecognizeTableRequest) SetAssureDirection(v bool) *RecognizeTableRequest {
+	s.AssureDirection = &v
+	return s
+}
+
+func (s *RecognizeTableRequest) SetHasLine(v bool) *RecognizeTableRequest {
+	s.HasLine = &v
+	return s
+}
+
+func (s *RecognizeTableRequest) SetSkipDetection(v bool) *RecognizeTableRequest {
+	s.SkipDetection = &v
+	return s
+}
+
+type RecognizeTableResponse struct {
+	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeTableResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeTableResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableResponse) SetRequestId(v string) *RecognizeTableResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeTableResponse) SetData(v *RecognizeTableResponseData) *RecognizeTableResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeTableResponseData struct {
+	FileContent *string                             `json:"FileContent" xml:"FileContent" require:"true"`
+	Tables      []*RecognizeTableResponseDataTables `json:"Tables" xml:"Tables" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeTableResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableResponseData) SetFileContent(v string) *RecognizeTableResponseData {
+	s.FileContent = &v
+	return s
+}
+
+func (s *RecognizeTableResponseData) SetTables(v []*RecognizeTableResponseDataTables) *RecognizeTableResponseData {
+	s.Tables = v
+	return s
+}
+
+type RecognizeTableResponseDataTables struct {
+	Head      *string                                      `json:"Head" xml:"Head" require:"true"`
+	Tail      *string                                      `json:"Tail" xml:"Tail" require:"true"`
+	TableRows []*RecognizeTableResponseDataTablesTableRows `json:"TableRows" xml:"TableRows" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeTableResponseDataTables) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableResponseDataTables) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableResponseDataTables) SetHead(v string) *RecognizeTableResponseDataTables {
+	s.Head = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTables) SetTail(v string) *RecognizeTableResponseDataTables {
+	s.Tail = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTables) SetTableRows(v []*RecognizeTableResponseDataTablesTableRows) *RecognizeTableResponseDataTables {
+	s.TableRows = v
+	return s
+}
+
+type RecognizeTableResponseDataTablesTableRows struct {
+	TableColumns []*RecognizeTableResponseDataTablesTableRowsTableColumns `json:"TableColumns" xml:"TableColumns" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeTableResponseDataTablesTableRows) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableResponseDataTablesTableRows) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableResponseDataTablesTableRows) SetTableColumns(v []*RecognizeTableResponseDataTablesTableRowsTableColumns) *RecognizeTableResponseDataTablesTableRows {
+	s.TableColumns = v
+	return s
+}
+
+type RecognizeTableResponseDataTablesTableRowsTableColumns struct {
+	StartColumn *int `json:"StartColumn" xml:"StartColumn" require:"true"`
+	StartRow    *int `json:"StartRow" xml:"StartRow" require:"true"`
+	EndColumn   *int `json:"EndColumn" xml:"EndColumn" require:"true"`
+	EndRow      *int `json:"EndRow" xml:"EndRow" require:"true"`
+	Height      *int `json:"Height" xml:"Height" require:"true"`
+	Width       *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeTableResponseDataTablesTableRowsTableColumns) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableResponseDataTablesTableRowsTableColumns) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetStartColumn(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.StartColumn = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetStartRow(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.StartRow = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetEndColumn(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.EndColumn = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetEndRow(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.EndRow = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetHeight(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetWidth(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.Width = &v
+	return s
+}
+
+type RecognizeTableAdvanceRequest struct {
+	ImageURLObject  io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType       *int      `json:"ImageType" xml:"ImageType"`
+	OutputFormat    *string   `json:"OutputFormat" xml:"OutputFormat" require:"true"`
+	UseFinanceModel *bool     `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
+	AssureDirection *bool     `json:"AssureDirection" xml:"AssureDirection" require:"true"`
+	HasLine         *bool     `json:"HasLine" xml:"HasLine" require:"true"`
+	SkipDetection   *bool     `json:"SkipDetection" xml:"SkipDetection" require:"true"`
+}
+
+func (s RecognizeTableAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTableAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeTableAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeTableAdvanceRequest) SetImageType(v int) *RecognizeTableAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeTableAdvanceRequest) SetOutputFormat(v string) *RecognizeTableAdvanceRequest {
+	s.OutputFormat = &v
+	return s
+}
+
+func (s *RecognizeTableAdvanceRequest) SetUseFinanceModel(v bool) *RecognizeTableAdvanceRequest {
+	s.UseFinanceModel = &v
+	return s
+}
+
+func (s *RecognizeTableAdvanceRequest) SetAssureDirection(v bool) *RecognizeTableAdvanceRequest {
+	s.AssureDirection = &v
+	return s
+}
+
+func (s *RecognizeTableAdvanceRequest) SetHasLine(v bool) *RecognizeTableAdvanceRequest {
+	s.HasLine = &v
+	return s
+}
+
+func (s *RecognizeTableAdvanceRequest) SetSkipDetection(v bool) *RecognizeTableAdvanceRequest {
+	s.SkipDetection = &v
+	return s
+}
+
+type RecognizeDrivingLicenseRequest struct {
+	ImageType *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Side      *string `json:"Side" xml:"Side" require:"true"`
+}
+
+func (s RecognizeDrivingLicenseRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDrivingLicenseRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDrivingLicenseRequest) SetImageType(v int) *RecognizeDrivingLicenseRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseRequest) SetImageURL(v string) *RecognizeDrivingLicenseRequest {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseRequest) SetSide(v string) *RecognizeDrivingLicenseRequest {
+	s.Side = &v
+	return s
+}
+
+type RecognizeDrivingLicenseResponse struct {
+	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeDrivingLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeDrivingLicenseResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDrivingLicenseResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDrivingLicenseResponse) SetRequestId(v string) *RecognizeDrivingLicenseResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponse) SetData(v *RecognizeDrivingLicenseResponseData) *RecognizeDrivingLicenseResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeDrivingLicenseResponseData struct {
+	FaceResult *RecognizeDrivingLicenseResponseDataFaceResult `json:"FaceResult" xml:"FaceResult" require:"true" type:"Struct"`
+	BackResult *RecognizeDrivingLicenseResponseDataBackResult `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
+}
+
+func (s RecognizeDrivingLicenseResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDrivingLicenseResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDrivingLicenseResponseData) SetFaceResult(v *RecognizeDrivingLicenseResponseDataFaceResult) *RecognizeDrivingLicenseResponseData {
+	s.FaceResult = v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseData) SetBackResult(v *RecognizeDrivingLicenseResponseDataBackResult) *RecognizeDrivingLicenseResponseData {
+	s.BackResult = v
+	return s
+}
+
+type RecognizeDrivingLicenseResponseDataFaceResult struct {
+	PlateNumber  *string `json:"PlateNumber" xml:"PlateNumber" require:"true"`
+	VehicleType  *string `json:"VehicleType" xml:"VehicleType" require:"true"`
+	Owner        *string `json:"Owner" xml:"Owner" require:"true"`
+	UseCharacter *string `json:"UseCharacter" xml:"UseCharacter" require:"true"`
+	Address      *string `json:"Address" xml:"Address" require:"true"`
+	Model        *string `json:"Model" xml:"Model" require:"true"`
+	Vin          *string `json:"Vin" xml:"Vin" require:"true"`
+	EngineNumber *string `json:"EngineNumber" xml:"EngineNumber" require:"true"`
+	RegisterDate *string `json:"RegisterDate" xml:"RegisterDate" require:"true"`
+	IssueDate    *string `json:"IssueDate" xml:"IssueDate" require:"true"`
+}
+
+func (s RecognizeDrivingLicenseResponseDataFaceResult) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDrivingLicenseResponseDataFaceResult) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetPlateNumber(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.PlateNumber = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetVehicleType(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.VehicleType = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetOwner(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.Owner = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetUseCharacter(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.UseCharacter = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetAddress(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.Address = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetModel(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.Model = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetVin(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.Vin = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetEngineNumber(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.EngineNumber = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetRegisterDate(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.RegisterDate = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetIssueDate(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
+	s.IssueDate = &v
+	return s
+}
+
+type RecognizeDrivingLicenseResponseDataBackResult struct {
+	ApprovedPassengerCapacity *string `json:"ApprovedPassengerCapacity" xml:"ApprovedPassengerCapacity" require:"true"`
+	ApprovedLoad              *string `json:"ApprovedLoad" xml:"ApprovedLoad" require:"true"`
+	FileNumber                *string `json:"FileNumber" xml:"FileNumber" require:"true"`
+	GrossMass                 *string `json:"GrossMass" xml:"GrossMass" require:"true"`
+	EnergyType                *string `json:"EnergyType" xml:"EnergyType" require:"true"`
+	InspectionRecord          *string `json:"InspectionRecord" xml:"InspectionRecord" require:"true"`
+	OverallDimension          *string `json:"OverallDimension" xml:"OverallDimension" require:"true"`
+	TractionMass              *string `json:"TractionMass" xml:"TractionMass" require:"true"`
+	UnladenMass               *string `json:"UnladenMass" xml:"UnladenMass" require:"true"`
+	PlateNumber               *string `json:"PlateNumber" xml:"PlateNumber" require:"true"`
+}
+
+func (s RecognizeDrivingLicenseResponseDataBackResult) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDrivingLicenseResponseDataBackResult) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetApprovedPassengerCapacity(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.ApprovedPassengerCapacity = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetApprovedLoad(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.ApprovedLoad = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetFileNumber(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.FileNumber = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetGrossMass(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.GrossMass = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetEnergyType(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.EnergyType = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetInspectionRecord(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.InspectionRecord = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetOverallDimension(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.OverallDimension = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetTractionMass(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.TractionMass = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetUnladenMass(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.UnladenMass = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseResponseDataBackResult) SetPlateNumber(v string) *RecognizeDrivingLicenseResponseDataBackResult {
+	s.PlateNumber = &v
+	return s
+}
+
+type RecognizeDrivingLicenseAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType      *int      `json:"ImageType" xml:"ImageType"`
+	Side           *string   `json:"Side" xml:"Side" require:"true"`
+}
+
+func (s RecognizeDrivingLicenseAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDrivingLicenseAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDrivingLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeDrivingLicenseAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseAdvanceRequest) SetImageType(v int) *RecognizeDrivingLicenseAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeDrivingLicenseAdvanceRequest) SetSide(v string) *RecognizeDrivingLicenseAdvanceRequest {
+	s.Side = &v
 	return s
 }
 
@@ -2186,6 +1631,935 @@ func (s *RecognizeBankCardAdvanceRequest) SetImageURLObject(v io.Reader) *Recogn
 }
 
 func (s *RecognizeBankCardAdvanceRequest) SetImageType(v int) *RecognizeBankCardAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+type RecognizeTrainTicketRequest struct {
+	ImageType *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeTrainTicketRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTrainTicketRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTrainTicketRequest) SetImageType(v int) *RecognizeTrainTicketRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketRequest) SetImageURL(v string) *RecognizeTrainTicketRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeTrainTicketResponse struct {
+	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeTrainTicketResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeTrainTicketResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTrainTicketResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTrainTicketResponse) SetRequestId(v string) *RecognizeTrainTicketResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponse) SetData(v *RecognizeTrainTicketResponseData) *RecognizeTrainTicketResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeTrainTicketResponseData struct {
+	Date             *string  `json:"Date" xml:"Date" require:"true"`
+	Destination      *string  `json:"Destination" xml:"Destination" require:"true"`
+	Level            *string  `json:"Level" xml:"Level" require:"true"`
+	Number           *string  `json:"Number" xml:"Number" require:"true"`
+	Name             *string  `json:"Name" xml:"Name" require:"true"`
+	DepartureStation *string  `json:"DepartureStation" xml:"DepartureStation" require:"true"`
+	Seat             *string  `json:"Seat" xml:"Seat" require:"true"`
+	Price            *float32 `json:"Price" xml:"Price" require:"true"`
+}
+
+func (s RecognizeTrainTicketResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTrainTicketResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTrainTicketResponseData) SetDate(v string) *RecognizeTrainTicketResponseData {
+	s.Date = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetDestination(v string) *RecognizeTrainTicketResponseData {
+	s.Destination = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetLevel(v string) *RecognizeTrainTicketResponseData {
+	s.Level = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetNumber(v string) *RecognizeTrainTicketResponseData {
+	s.Number = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetName(v string) *RecognizeTrainTicketResponseData {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetDepartureStation(v string) *RecognizeTrainTicketResponseData {
+	s.DepartureStation = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetSeat(v string) *RecognizeTrainTicketResponseData {
+	s.Seat = &v
+	return s
+}
+
+func (s *RecognizeTrainTicketResponseData) SetPrice(v float32) *RecognizeTrainTicketResponseData {
+	s.Price = &v
+	return s
+}
+
+type RecognizeTrainTicketAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType      *int      `json:"ImageType" xml:"ImageType"`
+}
+
+func (s RecognizeTrainTicketAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeTrainTicketAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTrainTicketAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeTrainTicketAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeTrainTicketAdvanceRequest) SetImageType(v int) *RecognizeTrainTicketAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+type RecognizeDriverLicenseRequest struct {
+	ImageType *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Side      *string `json:"Side" xml:"Side" require:"true"`
+}
+
+func (s RecognizeDriverLicenseRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDriverLicenseRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDriverLicenseRequest) SetImageType(v int) *RecognizeDriverLicenseRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseRequest) SetImageURL(v string) *RecognizeDriverLicenseRequest {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseRequest) SetSide(v string) *RecognizeDriverLicenseRequest {
+	s.Side = &v
+	return s
+}
+
+type RecognizeDriverLicenseResponse struct {
+	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeDriverLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeDriverLicenseResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDriverLicenseResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDriverLicenseResponse) SetRequestId(v string) *RecognizeDriverLicenseResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponse) SetData(v *RecognizeDriverLicenseResponseData) *RecognizeDriverLicenseResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeDriverLicenseResponseData struct {
+	FaceResult *RecognizeDriverLicenseResponseDataFaceResult `json:"FaceResult" xml:"FaceResult" require:"true" type:"Struct"`
+	BackResult *RecognizeDriverLicenseResponseDataBackResult `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
+}
+
+func (s RecognizeDriverLicenseResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDriverLicenseResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDriverLicenseResponseData) SetFaceResult(v *RecognizeDriverLicenseResponseDataFaceResult) *RecognizeDriverLicenseResponseData {
+	s.FaceResult = v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseData) SetBackResult(v *RecognizeDriverLicenseResponseDataBackResult) *RecognizeDriverLicenseResponseData {
+	s.BackResult = v
+	return s
+}
+
+type RecognizeDriverLicenseResponseDataFaceResult struct {
+	Name          *string `json:"Name" xml:"Name" require:"true"`
+	LicenseNumber *string `json:"LicenseNumber" xml:"LicenseNumber" require:"true"`
+	VehicleType   *string `json:"VehicleType" xml:"VehicleType" require:"true"`
+	StartDate     *string `json:"StartDate" xml:"StartDate" require:"true"`
+	EndDate       *string `json:"EndDate" xml:"EndDate" require:"true"`
+	IssueDate     *string `json:"IssueDate" xml:"IssueDate" require:"true"`
+	Address       *string `json:"Address" xml:"Address" require:"true"`
+	Gender        *string `json:"Gender" xml:"Gender" require:"true"`
+}
+
+func (s RecognizeDriverLicenseResponseDataFaceResult) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDriverLicenseResponseDataFaceResult) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetName(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetLicenseNumber(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.LicenseNumber = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetVehicleType(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.VehicleType = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetStartDate(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.StartDate = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetEndDate(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.EndDate = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetIssueDate(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.IssueDate = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetAddress(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.Address = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseResponseDataFaceResult) SetGender(v string) *RecognizeDriverLicenseResponseDataFaceResult {
+	s.Gender = &v
+	return s
+}
+
+type RecognizeDriverLicenseResponseDataBackResult struct {
+	ArchiveNumber *string `json:"ArchiveNumber" xml:"ArchiveNumber" require:"true"`
+}
+
+func (s RecognizeDriverLicenseResponseDataBackResult) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDriverLicenseResponseDataBackResult) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDriverLicenseResponseDataBackResult) SetArchiveNumber(v string) *RecognizeDriverLicenseResponseDataBackResult {
+	s.ArchiveNumber = &v
+	return s
+}
+
+type RecognizeDriverLicenseAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType      *int      `json:"ImageType" xml:"ImageType"`
+	Side           *string   `json:"Side" xml:"Side" require:"true"`
+}
+
+func (s RecognizeDriverLicenseAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeDriverLicenseAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeDriverLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeDriverLicenseAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeDriverLicenseAdvanceRequest) SetImageType(v int) *RecognizeDriverLicenseAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeDriverLicenseAdvanceRequest) SetSide(v string) *RecognizeDriverLicenseAdvanceRequest {
+	s.Side = &v
+	return s
+}
+
+type RecognizeAccountPageRequest struct {
+	ImageType *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeAccountPageRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageRequest) SetImageType(v int) *RecognizeAccountPageRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeAccountPageRequest) SetImageURL(v string) *RecognizeAccountPageRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeAccountPageResponse struct {
+	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeAccountPageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeAccountPageResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponse) SetRequestId(v string) *RecognizeAccountPageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponse) SetData(v *RecognizeAccountPageResponseData) *RecognizeAccountPageResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeAccountPageResponseData struct {
+	Angle               *float32                                               `json:"Angle" xml:"Angle" require:"true"`
+	Name                *string                                                `json:"Name" xml:"Name" require:"true"`
+	Gender              *string                                                `json:"Gender" xml:"Gender" require:"true"`
+	Relation            *string                                                `json:"Relation" xml:"Relation" require:"true"`
+	BirthPlace          *string                                                `json:"BirthPlace" xml:"BirthPlace" require:"true"`
+	Nationality         *string                                                `json:"Nationality" xml:"Nationality" require:"true"`
+	NativePlace         *string                                                `json:"NativePlace" xml:"NativePlace" require:"true"`
+	BirthDate           *string                                                `json:"BirthDate" xml:"BirthDate" require:"true"`
+	IDNumber            *string                                                `json:"IDNumber" xml:"IDNumber" require:"true"`
+	InvalidStampAreas   []*RecognizeAccountPageResponseDataInvalidStampAreas   `json:"InvalidStampAreas" xml:"InvalidStampAreas" require:"true" type:"Repeated"`
+	UndertakeStampAreas []*RecognizeAccountPageResponseDataUndertakeStampAreas `json:"UndertakeStampAreas" xml:"UndertakeStampAreas" require:"true" type:"Repeated"`
+	RegisterStampAreas  []*RecognizeAccountPageResponseDataRegisterStampAreas  `json:"RegisterStampAreas" xml:"RegisterStampAreas" require:"true" type:"Repeated"`
+	OtherStampAreas     []*RecognizeAccountPageResponseDataOtherStampAreas     `json:"OtherStampAreas" xml:"OtherStampAreas" require:"true" type:"Repeated"`
+	TitleArea           *RecognizeAccountPageResponseDataTitleArea             `json:"TitleArea" xml:"TitleArea" require:"true" type:"Struct"`
+}
+
+func (s RecognizeAccountPageResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponseData) SetAngle(v float32) *RecognizeAccountPageResponseData {
+	s.Angle = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetName(v string) *RecognizeAccountPageResponseData {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetGender(v string) *RecognizeAccountPageResponseData {
+	s.Gender = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetRelation(v string) *RecognizeAccountPageResponseData {
+	s.Relation = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetBirthPlace(v string) *RecognizeAccountPageResponseData {
+	s.BirthPlace = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetNationality(v string) *RecognizeAccountPageResponseData {
+	s.Nationality = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetNativePlace(v string) *RecognizeAccountPageResponseData {
+	s.NativePlace = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetBirthDate(v string) *RecognizeAccountPageResponseData {
+	s.BirthDate = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetIDNumber(v string) *RecognizeAccountPageResponseData {
+	s.IDNumber = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetInvalidStampAreas(v []*RecognizeAccountPageResponseDataInvalidStampAreas) *RecognizeAccountPageResponseData {
+	s.InvalidStampAreas = v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetUndertakeStampAreas(v []*RecognizeAccountPageResponseDataUndertakeStampAreas) *RecognizeAccountPageResponseData {
+	s.UndertakeStampAreas = v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetRegisterStampAreas(v []*RecognizeAccountPageResponseDataRegisterStampAreas) *RecognizeAccountPageResponseData {
+	s.RegisterStampAreas = v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetOtherStampAreas(v []*RecognizeAccountPageResponseDataOtherStampAreas) *RecognizeAccountPageResponseData {
+	s.OtherStampAreas = v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseData) SetTitleArea(v *RecognizeAccountPageResponseDataTitleArea) *RecognizeAccountPageResponseData {
+	s.TitleArea = v
+	return s
+}
+
+type RecognizeAccountPageResponseDataInvalidStampAreas struct {
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeAccountPageResponseDataInvalidStampAreas) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponseDataInvalidStampAreas) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataInvalidStampAreas {
+	s.Width = &v
+	return s
+}
+
+type RecognizeAccountPageResponseDataUndertakeStampAreas struct {
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeAccountPageResponseDataUndertakeStampAreas) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponseDataUndertakeStampAreas) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataUndertakeStampAreas {
+	s.Width = &v
+	return s
+}
+
+type RecognizeAccountPageResponseDataRegisterStampAreas struct {
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeAccountPageResponseDataRegisterStampAreas) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponseDataRegisterStampAreas) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataRegisterStampAreas {
+	s.Width = &v
+	return s
+}
+
+type RecognizeAccountPageResponseDataOtherStampAreas struct {
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeAccountPageResponseDataOtherStampAreas) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponseDataOtherStampAreas) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetLeft(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetTop(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetHeight(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetWidth(v int) *RecognizeAccountPageResponseDataOtherStampAreas {
+	s.Width = &v
+	return s
+}
+
+type RecognizeAccountPageResponseDataTitleArea struct {
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeAccountPageResponseDataTitleArea) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageResponseDataTitleArea) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageResponseDataTitleArea) SetLeft(v int) *RecognizeAccountPageResponseDataTitleArea {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataTitleArea) SetTop(v int) *RecognizeAccountPageResponseDataTitleArea {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataTitleArea) SetHeight(v int) *RecognizeAccountPageResponseDataTitleArea {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeAccountPageResponseDataTitleArea) SetWidth(v int) *RecognizeAccountPageResponseDataTitleArea {
+	s.Width = &v
+	return s
+}
+
+type RecognizeAccountPageAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType      *int      `json:"ImageType" xml:"ImageType"`
+}
+
+func (s RecognizeAccountPageAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeAccountPageAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeAccountPageAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeAccountPageAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeAccountPageAdvanceRequest) SetImageType(v int) *RecognizeAccountPageAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+type RecognizeStampRequest struct {
+	ImageType *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeStampRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampRequest) SetImageType(v int) *RecognizeStampRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeStampRequest) SetImageURL(v string) *RecognizeStampRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeStampResponse struct {
+	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeStampResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeStampResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampResponse) SetRequestId(v string) *RecognizeStampResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeStampResponse) SetData(v *RecognizeStampResponseData) *RecognizeStampResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeStampResponseData struct {
+	Results []*RecognizeStampResponseDataResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeStampResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampResponseData) SetResults(v []*RecognizeStampResponseDataResults) *RecognizeStampResponseData {
+	s.Results = v
+	return s
+}
+
+type RecognizeStampResponseDataResults struct {
+	GeneralText []*RecognizeStampResponseDataResultsGeneralText `json:"GeneralText" xml:"GeneralText" require:"true" type:"Repeated"`
+	Roi         *RecognizeStampResponseDataResultsRoi           `json:"Roi" xml:"Roi" require:"true" type:"Struct"`
+	Text        *RecognizeStampResponseDataResultsText          `json:"Text" xml:"Text" require:"true" type:"Struct"`
+}
+
+func (s RecognizeStampResponseDataResults) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampResponseDataResults) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampResponseDataResults) SetGeneralText(v []*RecognizeStampResponseDataResultsGeneralText) *RecognizeStampResponseDataResults {
+	s.GeneralText = v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResults) SetRoi(v *RecognizeStampResponseDataResultsRoi) *RecognizeStampResponseDataResults {
+	s.Roi = v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResults) SetText(v *RecognizeStampResponseDataResultsText) *RecognizeStampResponseDataResults {
+	s.Text = v
+	return s
+}
+
+type RecognizeStampResponseDataResultsGeneralText struct {
+	Content    *string  `json:"Content" xml:"Content" require:"true"`
+	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+}
+
+func (s RecognizeStampResponseDataResultsGeneralText) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampResponseDataResultsGeneralText) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampResponseDataResultsGeneralText) SetContent(v string) *RecognizeStampResponseDataResultsGeneralText {
+	s.Content = &v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResultsGeneralText) SetConfidence(v float32) *RecognizeStampResponseDataResultsGeneralText {
+	s.Confidence = &v
+	return s
+}
+
+type RecognizeStampResponseDataResultsRoi struct {
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Height *int `json:"Height" xml:"Height" require:"true"`
+}
+
+func (s RecognizeStampResponseDataResultsRoi) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampResponseDataResultsRoi) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampResponseDataResultsRoi) SetLeft(v int) *RecognizeStampResponseDataResultsRoi {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResultsRoi) SetTop(v int) *RecognizeStampResponseDataResultsRoi {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResultsRoi) SetWidth(v int) *RecognizeStampResponseDataResultsRoi {
+	s.Width = &v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResultsRoi) SetHeight(v int) *RecognizeStampResponseDataResultsRoi {
+	s.Height = &v
+	return s
+}
+
+type RecognizeStampResponseDataResultsText struct {
+	Content    *string  `json:"Content" xml:"Content" require:"true"`
+	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+}
+
+func (s RecognizeStampResponseDataResultsText) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampResponseDataResultsText) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampResponseDataResultsText) SetContent(v string) *RecognizeStampResponseDataResultsText {
+	s.Content = &v
+	return s
+}
+
+func (s *RecognizeStampResponseDataResultsText) SetConfidence(v float32) *RecognizeStampResponseDataResultsText {
+	s.Confidence = &v
+	return s
+}
+
+type RecognizeStampAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType      *int      `json:"ImageType" xml:"ImageType"`
+}
+
+func (s RecognizeStampAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeStampAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeStampAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeStampAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeStampAdvanceRequest) SetImageType(v int) *RecognizeStampAdvanceRequest {
+	s.ImageType = &v
+	return s
+}
+
+type RecognizeBusinessCardRequest struct {
+	ImageType *int    `json:"ImageType" xml:"ImageType"`
+	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeBusinessCardRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeBusinessCardRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardRequest) SetImageType(v int) *RecognizeBusinessCardRequest {
+	s.ImageType = &v
+	return s
+}
+
+func (s *RecognizeBusinessCardRequest) SetImageURL(v string) *RecognizeBusinessCardRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeBusinessCardResponse struct {
+	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeBusinessCardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeBusinessCardResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponse) SetRequestId(v string) *RecognizeBusinessCardResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponse) SetData(v *RecognizeBusinessCardResponseData) *RecognizeBusinessCardResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeBusinessCardResponseData struct {
+	Name *string `json:"Name" xml:"Name" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseData) SetName(v string) *RecognizeBusinessCardResponseData {
+	s.Name = &v
+	return s
+}
+
+type RecognizeBusinessCardAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageType      *int      `json:"ImageType" xml:"ImageType"`
+}
+
+func (s RecognizeBusinessCardAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeBusinessCardAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeBusinessCardAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *RecognizeBusinessCardAdvanceRequest) SetImageType(v int) *RecognizeBusinessCardAdvanceRequest {
 	s.ImageType = &v
 	return s
 }
@@ -2580,380 +2954,6 @@ func (s *RecognizeBusinessLicenseAdvanceRequest) SetImageType(v int) *RecognizeB
 	return s
 }
 
-type RecognizeTrainTicketRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-}
-
-func (s RecognizeTrainTicketRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTrainTicketRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTrainTicketRequest) SetImageType(v int) *RecognizeTrainTicketRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketRequest) SetImageURL(v string) *RecognizeTrainTicketRequest {
-	s.ImageURL = &v
-	return s
-}
-
-type RecognizeTrainTicketResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeTrainTicketResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeTrainTicketResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTrainTicketResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTrainTicketResponse) SetRequestId(v string) *RecognizeTrainTicketResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponse) SetData(v *RecognizeTrainTicketResponseData) *RecognizeTrainTicketResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeTrainTicketResponseData struct {
-	Date             *string  `json:"Date" xml:"Date" require:"true"`
-	Destination      *string  `json:"Destination" xml:"Destination" require:"true"`
-	Level            *string  `json:"Level" xml:"Level" require:"true"`
-	Number           *string  `json:"Number" xml:"Number" require:"true"`
-	Name             *string  `json:"Name" xml:"Name" require:"true"`
-	DepartureStation *string  `json:"DepartureStation" xml:"DepartureStation" require:"true"`
-	Seat             *string  `json:"Seat" xml:"Seat" require:"true"`
-	Price            *float32 `json:"Price" xml:"Price" require:"true"`
-}
-
-func (s RecognizeTrainTicketResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTrainTicketResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTrainTicketResponseData) SetDate(v string) *RecognizeTrainTicketResponseData {
-	s.Date = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetDestination(v string) *RecognizeTrainTicketResponseData {
-	s.Destination = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetLevel(v string) *RecognizeTrainTicketResponseData {
-	s.Level = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetNumber(v string) *RecognizeTrainTicketResponseData {
-	s.Number = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetName(v string) *RecognizeTrainTicketResponseData {
-	s.Name = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetDepartureStation(v string) *RecognizeTrainTicketResponseData {
-	s.DepartureStation = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetSeat(v string) *RecognizeTrainTicketResponseData {
-	s.Seat = &v
-	return s
-}
-
-func (s *RecognizeTrainTicketResponseData) SetPrice(v float32) *RecognizeTrainTicketResponseData {
-	s.Price = &v
-	return s
-}
-
-type RecognizeTrainTicketAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
-}
-
-func (s RecognizeTrainTicketAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeTrainTicketAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTrainTicketAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeTrainTicketAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeTrainTicketAdvanceRequest) SetImageType(v int) *RecognizeTrainTicketAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
-type RecognizeDrivingLicenseRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side      *string `json:"Side" xml:"Side" require:"true"`
-}
-
-func (s RecognizeDrivingLicenseRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDrivingLicenseRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseRequest) SetImageType(v int) *RecognizeDrivingLicenseRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseRequest) SetImageURL(v string) *RecognizeDrivingLicenseRequest {
-	s.ImageURL = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseRequest) SetSide(v string) *RecognizeDrivingLicenseRequest {
-	s.Side = &v
-	return s
-}
-
-type RecognizeDrivingLicenseResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeDrivingLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeDrivingLicenseResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDrivingLicenseResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseResponse) SetRequestId(v string) *RecognizeDrivingLicenseResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponse) SetData(v *RecognizeDrivingLicenseResponseData) *RecognizeDrivingLicenseResponse {
-	s.Data = v
-	return s
-}
-
-type RecognizeDrivingLicenseResponseData struct {
-	FaceResult *RecognizeDrivingLicenseResponseDataFaceResult `json:"FaceResult" xml:"FaceResult" require:"true" type:"Struct"`
-	BackResult *RecognizeDrivingLicenseResponseDataBackResult `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
-}
-
-func (s RecognizeDrivingLicenseResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDrivingLicenseResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseResponseData) SetFaceResult(v *RecognizeDrivingLicenseResponseDataFaceResult) *RecognizeDrivingLicenseResponseData {
-	s.FaceResult = v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseData) SetBackResult(v *RecognizeDrivingLicenseResponseDataBackResult) *RecognizeDrivingLicenseResponseData {
-	s.BackResult = v
-	return s
-}
-
-type RecognizeDrivingLicenseResponseDataFaceResult struct {
-	PlateNumber  *string `json:"PlateNumber" xml:"PlateNumber" require:"true"`
-	VehicleType  *string `json:"VehicleType" xml:"VehicleType" require:"true"`
-	Owner        *string `json:"Owner" xml:"Owner" require:"true"`
-	UseCharacter *string `json:"UseCharacter" xml:"UseCharacter" require:"true"`
-	Address      *string `json:"Address" xml:"Address" require:"true"`
-	Model        *string `json:"Model" xml:"Model" require:"true"`
-	Vin          *string `json:"Vin" xml:"Vin" require:"true"`
-	EngineNumber *string `json:"EngineNumber" xml:"EngineNumber" require:"true"`
-	RegisterDate *string `json:"RegisterDate" xml:"RegisterDate" require:"true"`
-	IssueDate    *string `json:"IssueDate" xml:"IssueDate" require:"true"`
-}
-
-func (s RecognizeDrivingLicenseResponseDataFaceResult) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDrivingLicenseResponseDataFaceResult) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetPlateNumber(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.PlateNumber = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetVehicleType(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.VehicleType = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetOwner(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.Owner = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetUseCharacter(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.UseCharacter = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetAddress(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.Address = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetModel(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.Model = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetVin(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.Vin = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetEngineNumber(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.EngineNumber = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetRegisterDate(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.RegisterDate = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetIssueDate(v string) *RecognizeDrivingLicenseResponseDataFaceResult {
-	s.IssueDate = &v
-	return s
-}
-
-type RecognizeDrivingLicenseResponseDataBackResult struct {
-	ApprovedPassengerCapacity *string `json:"ApprovedPassengerCapacity" xml:"ApprovedPassengerCapacity" require:"true"`
-	ApprovedLoad              *string `json:"ApprovedLoad" xml:"ApprovedLoad" require:"true"`
-	FileNumber                *string `json:"FileNumber" xml:"FileNumber" require:"true"`
-	GrossMass                 *string `json:"GrossMass" xml:"GrossMass" require:"true"`
-	EnergyType                *string `json:"EnergyType" xml:"EnergyType" require:"true"`
-	InspectionRecord          *string `json:"InspectionRecord" xml:"InspectionRecord" require:"true"`
-	OverallDimension          *string `json:"OverallDimension" xml:"OverallDimension" require:"true"`
-	TractionMass              *string `json:"TractionMass" xml:"TractionMass" require:"true"`
-	UnladenMass               *string `json:"UnladenMass" xml:"UnladenMass" require:"true"`
-	PlateNumber               *string `json:"PlateNumber" xml:"PlateNumber" require:"true"`
-}
-
-func (s RecognizeDrivingLicenseResponseDataBackResult) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDrivingLicenseResponseDataBackResult) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetApprovedPassengerCapacity(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.ApprovedPassengerCapacity = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetApprovedLoad(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.ApprovedLoad = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetFileNumber(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.FileNumber = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetGrossMass(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.GrossMass = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetEnergyType(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.EnergyType = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetInspectionRecord(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.InspectionRecord = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetOverallDimension(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.OverallDimension = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetTractionMass(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.TractionMass = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetUnladenMass(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.UnladenMass = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseResponseDataBackResult) SetPlateNumber(v string) *RecognizeDrivingLicenseResponseDataBackResult {
-	s.PlateNumber = &v
-	return s
-}
-
-type RecognizeDrivingLicenseAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
-	Side           *string   `json:"Side" xml:"Side" require:"true"`
-}
-
-func (s RecognizeDrivingLicenseAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeDrivingLicenseAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeDrivingLicenseAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseAdvanceRequest) SetImageType(v int) *RecognizeDrivingLicenseAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
-func (s *RecognizeDrivingLicenseAdvanceRequest) SetSide(v string) *RecognizeDrivingLicenseAdvanceRequest {
-	s.Side = &v
-	return s
-}
-
 type Client struct {
 	service.BaseClient
 }
@@ -3102,14 +3102,9 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -3134,406 +3129,6 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	}
 
 	return recognizeCharacterResp, _err
-}
-
-func (client *Client) RecognizeDriverLicense(request *RecognizeDriverLicenseRequest, runtime *common.RuntimeObject) (_result *RecognizeDriverLicenseResponse, _err error) {
-	_result = &RecognizeDriverLicenseResponse{}
-	_body, _err := client._request("RecognizeDriverLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLicenseAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeDriverLicenseResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeDriverLicensereq := &RecognizeDriverLicenseRequest{}
-	common.Convert(request, recognizeDriverLicensereq)
-	recognizeDriverLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeDriverLicenseResp, _err := client.RecognizeDriverLicense(recognizeDriverLicensereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeDriverLicenseResp, _err
-}
-
-func (client *Client) RecognizeLicensePlate(request *RecognizeLicensePlateRequest, runtime *common.RuntimeObject) (_result *RecognizeLicensePlateResponse, _err error) {
-	_result = &RecognizeLicensePlateResponse{}
-	_body, _err := client._request("RecognizeLicensePlate", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlateAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeLicensePlateResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeLicensePlatereq := &RecognizeLicensePlateRequest{}
-	common.Convert(request, recognizeLicensePlatereq)
-	recognizeLicensePlatereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeLicensePlateResp, _err := client.RecognizeLicensePlate(recognizeLicensePlatereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeLicensePlateResp, _err
-}
-
-func (client *Client) RecognizeTable(request *RecognizeTableRequest, runtime *common.RuntimeObject) (_result *RecognizeTableResponse, _err error) {
-	_result = &RecognizeTableResponse{}
-	_body, _err := client._request("RecognizeTable", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeTableResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeTablereq := &RecognizeTableRequest{}
-	common.Convert(request, recognizeTablereq)
-	recognizeTablereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeTableResp, _err := client.RecognizeTable(recognizeTablereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeTableResp, _err
-}
-
-func (client *Client) RecognizeStamp(request *RecognizeStampRequest, runtime *common.RuntimeObject) (_result *RecognizeStampResponse, _err error) {
-	_result = &RecognizeStampResponse{}
-	_body, _err := client._request("RecognizeStamp", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeStampResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeStampreq := &RecognizeStampRequest{}
-	common.Convert(request, recognizeStampreq)
-	recognizeStampreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeStampResp, _err := client.RecognizeStamp(recognizeStampreq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeStampResp, _err
-}
-
-func (client *Client) RecognizeAccountPage(request *RecognizeAccountPageRequest, runtime *common.RuntimeObject) (_result *RecognizeAccountPageResponse, _err error) {
-	_result = &RecognizeAccountPageResponse{}
-	_body, _err := client._request("RecognizeAccountPage", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeAccountPageResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeAccountPagereq := &RecognizeAccountPageRequest{}
-	common.Convert(request, recognizeAccountPagereq)
-	recognizeAccountPagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeAccountPageResp, _err := client.RecognizeAccountPage(recognizeAccountPagereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeAccountPageResp, _err
 }
 
 func (client *Client) RecognizeTaxiInvoice(request *RecognizeTaxiInvoiceRequest, runtime *common.RuntimeObject) (_result *RecognizeTaxiInvoiceResponse, _err error) {
@@ -3582,14 +3177,9 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -3662,14 +3252,9 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -3696,9 +3281,9 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	return recognizeIdentityCardResp, _err
 }
 
-func (client *Client) RecognizeBusinessCard(request *RecognizeBusinessCardRequest, runtime *common.RuntimeObject) (_result *RecognizeBusinessCardResponse, _err error) {
-	_result = &RecognizeBusinessCardResponse{}
-	_body, _err := client._request("RecognizeBusinessCard", "HTTPS", "POST", tea.ToMap(request), runtime)
+func (client *Client) RecognizeLicensePlate(request *RecognizeLicensePlateRequest, runtime *common.RuntimeObject) (_result *RecognizeLicensePlateResponse, _err error) {
+	_result = &RecognizeLicensePlateResponse{}
+	_body, _err := client._request("RecognizeLicensePlate", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3706,7 +3291,7 @@ func (client *Client) RecognizeBusinessCard(request *RecognizeBusinessCardReques
 	return _result, _err
 }
 
-func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCardAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeBusinessCardResponse, _err error) {
+func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlateAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeLicensePlateResponse, _err error) {
 	authConfig := &openplatform.Config{
 		AccessKeyId:     tea.String(client.GetAccessKeyId()),
 		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
@@ -3742,14 +3327,9 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -3765,15 +3345,165 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 		Header:     ossHeader,
 	}
 	ossClient.PostObject(uploadRequest, runtime)
-	recognizeBusinessCardreq := &RecognizeBusinessCardRequest{}
-	common.Convert(request, recognizeBusinessCardreq)
-	recognizeBusinessCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeBusinessCardResp, _err := client.RecognizeBusinessCard(recognizeBusinessCardreq, runtime)
+	recognizeLicensePlatereq := &RecognizeLicensePlateRequest{}
+	common.Convert(request, recognizeLicensePlatereq)
+	recognizeLicensePlatereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeLicensePlateResp, _err := client.RecognizeLicensePlate(recognizeLicensePlatereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return recognizeBusinessCardResp, _err
+	return recognizeLicensePlateResp, _err
+}
+
+func (client *Client) RecognizeTable(request *RecognizeTableRequest, runtime *common.RuntimeObject) (_result *RecognizeTableResponse, _err error) {
+	_result = &RecognizeTableResponse{}
+	_body, _err := client._request("RecognizeTable", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeTableResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeTablereq := &RecognizeTableRequest{}
+	common.Convert(request, recognizeTablereq)
+	recognizeTablereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeTableResp, _err := client.RecognizeTable(recognizeTablereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeTableResp, _err
+}
+
+func (client *Client) RecognizeDrivingLicense(request *RecognizeDrivingLicenseRequest, runtime *common.RuntimeObject) (_result *RecognizeDrivingLicenseResponse, _err error) {
+	_result = &RecognizeDrivingLicenseResponse{}
+	_body, _err := client._request("RecognizeDrivingLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLicenseAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeDrivingLicenseResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeDrivingLicensereq := &RecognizeDrivingLicenseRequest{}
+	common.Convert(request, recognizeDrivingLicensereq)
+	recognizeDrivingLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeDrivingLicenseResp, _err := client.RecognizeDrivingLicense(recognizeDrivingLicensereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeDrivingLicenseResp, _err
 }
 
 func (client *Client) RecognizeBankCard(request *RecognizeBankCardRequest, runtime *common.RuntimeObject) (_result *RecognizeBankCardResponse, _err error) {
@@ -3822,14 +3552,9 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -3854,6 +3579,381 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	}
 
 	return recognizeBankCardResp, _err
+}
+
+func (client *Client) RecognizeTrainTicket(request *RecognizeTrainTicketRequest, runtime *common.RuntimeObject) (_result *RecognizeTrainTicketResponse, _err error) {
+	_result = &RecognizeTrainTicketResponse{}
+	_body, _err := client._request("RecognizeTrainTicket", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeTrainTicketResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeTrainTicketreq := &RecognizeTrainTicketRequest{}
+	common.Convert(request, recognizeTrainTicketreq)
+	recognizeTrainTicketreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeTrainTicketResp, _err := client.RecognizeTrainTicket(recognizeTrainTicketreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeTrainTicketResp, _err
+}
+
+func (client *Client) RecognizeDriverLicense(request *RecognizeDriverLicenseRequest, runtime *common.RuntimeObject) (_result *RecognizeDriverLicenseResponse, _err error) {
+	_result = &RecognizeDriverLicenseResponse{}
+	_body, _err := client._request("RecognizeDriverLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLicenseAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeDriverLicenseResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeDriverLicensereq := &RecognizeDriverLicenseRequest{}
+	common.Convert(request, recognizeDriverLicensereq)
+	recognizeDriverLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeDriverLicenseResp, _err := client.RecognizeDriverLicense(recognizeDriverLicensereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeDriverLicenseResp, _err
+}
+
+func (client *Client) RecognizeAccountPage(request *RecognizeAccountPageRequest, runtime *common.RuntimeObject) (_result *RecognizeAccountPageResponse, _err error) {
+	_result = &RecognizeAccountPageResponse{}
+	_body, _err := client._request("RecognizeAccountPage", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeAccountPageResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeAccountPagereq := &RecognizeAccountPageRequest{}
+	common.Convert(request, recognizeAccountPagereq)
+	recognizeAccountPagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeAccountPageResp, _err := client.RecognizeAccountPage(recognizeAccountPagereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeAccountPageResp, _err
+}
+
+func (client *Client) RecognizeStamp(request *RecognizeStampRequest, runtime *common.RuntimeObject) (_result *RecognizeStampResponse, _err error) {
+	_result = &RecognizeStampResponse{}
+	_body, _err := client._request("RecognizeStamp", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeStampResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeStampreq := &RecognizeStampRequest{}
+	common.Convert(request, recognizeStampreq)
+	recognizeStampreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeStampResp, _err := client.RecognizeStamp(recognizeStampreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeStampResp, _err
+}
+
+func (client *Client) RecognizeBusinessCard(request *RecognizeBusinessCardRequest, runtime *common.RuntimeObject) (_result *RecognizeBusinessCardResponse, _err error) {
+	_result = &RecognizeBusinessCardResponse{}
+	_body, _err := client._request("RecognizeBusinessCard", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCardAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeBusinessCardResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeBusinessCardreq := &RecognizeBusinessCardRequest{}
+	common.Convert(request, recognizeBusinessCardreq)
+	recognizeBusinessCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeBusinessCardResp, _err := client.RecognizeBusinessCard(recognizeBusinessCardreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeBusinessCardResp, _err
 }
 
 func (client *Client) RecognizeVINCode(request *RecognizeVINCodeRequest, runtime *common.RuntimeObject) (_result *RecognizeVINCodeResponse, _err error) {
@@ -3902,14 +4002,9 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -3982,14 +4077,9 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -4014,164 +4104,4 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	}
 
 	return recognizeBusinessLicenseResp, _err
-}
-
-func (client *Client) RecognizeTrainTicket(request *RecognizeTrainTicketRequest, runtime *common.RuntimeObject) (_result *RecognizeTrainTicketResponse, _err error) {
-	_result = &RecognizeTrainTicketResponse{}
-	_body, _err := client._request("RecognizeTrainTicket", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeTrainTicketResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeTrainTicketreq := &RecognizeTrainTicketRequest{}
-	common.Convert(request, recognizeTrainTicketreq)
-	recognizeTrainTicketreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeTrainTicketResp, _err := client.RecognizeTrainTicket(recognizeTrainTicketreq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeTrainTicketResp, _err
-}
-
-func (client *Client) RecognizeDrivingLicense(request *RecognizeDrivingLicenseRequest, runtime *common.RuntimeObject) (_result *RecognizeDrivingLicenseResponse, _err error) {
-	_result = &RecognizeDrivingLicenseResponse{}
-	_body, _err := client._request("RecognizeDrivingLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLicenseAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeDrivingLicenseResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("ocr"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeDrivingLicensereq := &RecognizeDrivingLicenseRequest{}
-	common.Convert(request, recognizeDrivingLicensereq)
-	recognizeDrivingLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeDrivingLicenseResp, _err := client.RecognizeDrivingLicense(recognizeDrivingLicensereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeDrivingLicenseResp, _err
 }
