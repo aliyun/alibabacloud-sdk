@@ -40,7 +40,7 @@ public class DetectImageElementsResponse extends TeaModel {
 
         @NameInMap("Score")
         @Validation(required = true)
-        public float score;
+        public Double score;
 
         public static DetectImageElementsResponseDataElements build(java.util.Map<String, ?> map) throws Exception {
             DetectImageElementsResponseDataElements self = new DetectImageElementsResponseDataElements();

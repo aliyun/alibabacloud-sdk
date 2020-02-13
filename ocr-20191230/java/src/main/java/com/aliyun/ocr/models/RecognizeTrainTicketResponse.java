@@ -48,7 +48,7 @@ public class RecognizeTrainTicketResponse extends TeaModel {
 
         @NameInMap("Price")
         @Validation(required = true)
-        public float price;
+        public Double price;
 
         public static RecognizeTrainTicketResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTrainTicketResponseData self = new RecognizeTrainTicketResponseData();

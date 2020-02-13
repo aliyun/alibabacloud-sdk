@@ -20,7 +20,7 @@ public class RecognizeSceneResponse extends TeaModel {
     public static class RecognizeSceneResponseDataTags extends TeaModel {
         @NameInMap("Confidence")
         @Validation(required = true)
-        public float confidence;
+        public Double confidence;
 
         @NameInMap("Value")
         @Validation(required = true)

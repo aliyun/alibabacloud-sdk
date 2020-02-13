@@ -24,7 +24,7 @@ public class RecognizeStampResponse extends TeaModel {
 
         @NameInMap("Confidence")
         @Validation(required = true)
-        public float confidence;
+        public Double confidence;
 
         public static RecognizeStampResponseDataResultsGeneralText build(java.util.Map<String, ?> map) throws Exception {
             RecognizeStampResponseDataResultsGeneralText self = new RecognizeStampResponseDataResultsGeneralText();
@@ -64,7 +64,7 @@ public class RecognizeStampResponse extends TeaModel {
 
         @NameInMap("Confidence")
         @Validation(required = true)
-        public float confidence;
+        public Double confidence;
 
         public static RecognizeStampResponseDataResultsText build(java.util.Map<String, ?> map) throws Exception {
             RecognizeStampResponseDataResultsText self = new RecognizeStampResponseDataResultsText();

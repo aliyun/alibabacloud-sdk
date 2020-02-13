@@ -20,7 +20,7 @@ public class TaggingImageResponse extends TeaModel {
     public static class TaggingImageResponseDataTags extends TeaModel {
         @NameInMap("Confidence")
         @Validation(required = true)
-        public float confidence;
+        public Double confidence;
 
         @NameInMap("Value")
         @Validation(required = true)

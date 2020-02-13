@@ -28,7 +28,7 @@ public class RecognizeImageColorResponse extends TeaModel {
 
         @NameInMap("Percentage")
         @Validation(required = true)
-        public float percentage;
+        public Double percentage;
 
         public static RecognizeImageColorResponseDataColorTemplateList build(java.util.Map<String, ?> map) throws Exception {
             RecognizeImageColorResponseDataColorTemplateList self = new RecognizeImageColorResponseDataColorTemplateList();

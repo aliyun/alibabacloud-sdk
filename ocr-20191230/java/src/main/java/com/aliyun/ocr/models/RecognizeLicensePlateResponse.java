@@ -44,7 +44,7 @@ public class RecognizeLicensePlateResponse extends TeaModel {
     public static class RecognizeLicensePlateResponseDataPlates extends TeaModel {
         @NameInMap("Confidence")
         @Validation(required = true)
-        public float confidence;
+        public Double confidence;
 
         @NameInMap("PlateNumber")
         @Validation(required = true)
@@ -56,7 +56,7 @@ public class RecognizeLicensePlateResponse extends TeaModel {
 
         @NameInMap("PlateTypeConfidence")
         @Validation(required = true)
-        public float plateTypeConfidence;
+        public Double plateTypeConfidence;
 
         @NameInMap("Roi")
         @Validation(required = true)
