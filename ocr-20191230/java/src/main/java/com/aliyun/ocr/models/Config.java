@@ -76,7 +76,7 @@ public class Config extends TeaModel {
 
     @NameInMap("openPlatformEndpoint")
     @Validation(required = true)
-    public Integer openPlatformEndpoint;
+    public String openPlatformEndpoint;
 
     public static Config build(java.util.Map<String, ?> map) throws Exception {
         Config self = new Config();
