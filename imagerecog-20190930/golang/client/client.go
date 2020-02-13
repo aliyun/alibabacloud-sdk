@@ -7,7 +7,7 @@ import (
 
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
+	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
 	"github.com/aliyun/rpc-client-go/service"
 )
@@ -355,71 +355,118 @@ func (s *RecognizeSceneAdvanceRequest) SetImageType(v int) *RecognizeSceneAdvanc
 	return s
 }
 
-type RecognizeImageStyleRequest struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
+type RecognizeImageColorRequest struct {
+	Url        *string `json:"Url" xml:"Url" require:"true"`
+	ColorCount *int    `json:"ColorCount" xml:"ColorCount"`
 }
 
-func (s RecognizeImageStyleRequest) String() string {
+func (s RecognizeImageColorRequest) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageStyleRequest) GoString() string {
+func (s RecognizeImageColorRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageStyleRequest) SetUrl(v string) *RecognizeImageStyleRequest {
+func (s *RecognizeImageColorRequest) SetUrl(v string) *RecognizeImageColorRequest {
 	s.Url = &v
 	return s
 }
 
-type RecognizeImageStyleResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeImageStyleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+func (s *RecognizeImageColorRequest) SetColorCount(v int) *RecognizeImageColorRequest {
+	s.ColorCount = &v
+	return s
 }
 
-func (s RecognizeImageStyleResponse) String() string {
+type RecognizeImageColorResponse struct {
+	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeImageColorResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeImageColorResponse) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageStyleResponse) GoString() string {
+func (s RecognizeImageColorResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageStyleResponse) SetRequestId(v string) *RecognizeImageStyleResponse {
+func (s *RecognizeImageColorResponse) SetRequestId(v string) *RecognizeImageColorResponse {
 	s.RequestId = &v
 	return s
 }
 
-func (s *RecognizeImageStyleResponse) SetData(v *RecognizeImageStyleResponseData) *RecognizeImageStyleResponse {
+func (s *RecognizeImageColorResponse) SetData(v *RecognizeImageColorResponseData) *RecognizeImageColorResponse {
 	s.Data = v
 	return s
 }
 
-type RecognizeImageStyleResponseData struct {
+type RecognizeImageColorResponseData struct {
+	ColorTemplateList []*RecognizeImageColorResponseDataColorTemplateList `json:"ColorTemplateList" xml:"ColorTemplateList" require:"true" type:"Repeated"`
 }
 
-func (s RecognizeImageStyleResponseData) String() string {
+func (s RecognizeImageColorResponseData) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageStyleResponseData) GoString() string {
+func (s RecognizeImageColorResponseData) GoString() string {
 	return s.String()
 }
 
-type RecognizeImageStyleAdvanceRequest struct {
-	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
+func (s *RecognizeImageColorResponseData) SetColorTemplateList(v []*RecognizeImageColorResponseDataColorTemplateList) *RecognizeImageColorResponseData {
+	s.ColorTemplateList = v
+	return s
 }
 
-func (s RecognizeImageStyleAdvanceRequest) String() string {
+type RecognizeImageColorResponseDataColorTemplateList struct {
+	Color      *string  `json:"Color" xml:"Color" require:"true"`
+	Label      *string  `json:"Label" xml:"Label" require:"true"`
+	Percentage *float32 `json:"Percentage" xml:"Percentage" require:"true"`
+}
+
+func (s RecognizeImageColorResponseDataColorTemplateList) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageStyleAdvanceRequest) GoString() string {
+func (s RecognizeImageColorResponseDataColorTemplateList) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageStyleAdvanceRequest) SetUrlObject(v io.Reader) *RecognizeImageStyleAdvanceRequest {
+func (s *RecognizeImageColorResponseDataColorTemplateList) SetColor(v string) *RecognizeImageColorResponseDataColorTemplateList {
+	s.Color = &v
+	return s
+}
+
+func (s *RecognizeImageColorResponseDataColorTemplateList) SetLabel(v string) *RecognizeImageColorResponseDataColorTemplateList {
+	s.Label = &v
+	return s
+}
+
+func (s *RecognizeImageColorResponseDataColorTemplateList) SetPercentage(v float32) *RecognizeImageColorResponseDataColorTemplateList {
+	s.Percentage = &v
+	return s
+}
+
+type RecognizeImageColorAdvanceRequest struct {
+	UrlObject  io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
+	ColorCount *int      `json:"ColorCount" xml:"ColorCount"`
+}
+
+func (s RecognizeImageColorAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeImageColorAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeImageColorAdvanceRequest) SetUrlObject(v io.Reader) *RecognizeImageColorAdvanceRequest {
 	s.UrlObject = v
+	return s
+}
+
+func (s *RecognizeImageColorAdvanceRequest) SetColorCount(v int) *RecognizeImageColorAdvanceRequest {
+	s.ColorCount = &v
 	return s
 }
 
@@ -544,118 +591,71 @@ func (s *DetectImageElementsAdvanceRequest) SetUrlObject(v io.Reader) *DetectIma
 	return s
 }
 
-type RecognizeImageColorRequest struct {
-	Url        *string `json:"Url" xml:"Url" require:"true"`
-	ColorCount *int    `json:"ColorCount" xml:"ColorCount"`
+type RecognizeImageStyleRequest struct {
+	Url *string `json:"Url" xml:"Url" require:"true"`
 }
 
-func (s RecognizeImageColorRequest) String() string {
+func (s RecognizeImageStyleRequest) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageColorRequest) GoString() string {
+func (s RecognizeImageStyleRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageColorRequest) SetUrl(v string) *RecognizeImageColorRequest {
+func (s *RecognizeImageStyleRequest) SetUrl(v string) *RecognizeImageStyleRequest {
 	s.Url = &v
 	return s
 }
 
-func (s *RecognizeImageColorRequest) SetColorCount(v int) *RecognizeImageColorRequest {
-	s.ColorCount = &v
-	return s
-}
-
-type RecognizeImageColorResponse struct {
+type RecognizeImageStyleResponse struct {
 	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeImageColorResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Data      *RecognizeImageStyleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
 }
 
-func (s RecognizeImageColorResponse) String() string {
+func (s RecognizeImageStyleResponse) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageColorResponse) GoString() string {
+func (s RecognizeImageStyleResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageColorResponse) SetRequestId(v string) *RecognizeImageColorResponse {
+func (s *RecognizeImageStyleResponse) SetRequestId(v string) *RecognizeImageStyleResponse {
 	s.RequestId = &v
 	return s
 }
 
-func (s *RecognizeImageColorResponse) SetData(v *RecognizeImageColorResponseData) *RecognizeImageColorResponse {
+func (s *RecognizeImageStyleResponse) SetData(v *RecognizeImageStyleResponseData) *RecognizeImageStyleResponse {
 	s.Data = v
 	return s
 }
 
-type RecognizeImageColorResponseData struct {
-	ColorTemplateList []*RecognizeImageColorResponseDataColorTemplateList `json:"ColorTemplateList" xml:"ColorTemplateList" require:"true" type:"Repeated"`
+type RecognizeImageStyleResponseData struct {
 }
 
-func (s RecognizeImageColorResponseData) String() string {
+func (s RecognizeImageStyleResponseData) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageColorResponseData) GoString() string {
+func (s RecognizeImageStyleResponseData) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageColorResponseData) SetColorTemplateList(v []*RecognizeImageColorResponseDataColorTemplateList) *RecognizeImageColorResponseData {
-	s.ColorTemplateList = v
-	return s
+type RecognizeImageStyleAdvanceRequest struct {
+	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
 }
 
-type RecognizeImageColorResponseDataColorTemplateList struct {
-	Color      *string  `json:"Color" xml:"Color" require:"true"`
-	Label      *string  `json:"Label" xml:"Label" require:"true"`
-	Percentage *float32 `json:"Percentage" xml:"Percentage" require:"true"`
-}
-
-func (s RecognizeImageColorResponseDataColorTemplateList) String() string {
+func (s RecognizeImageStyleAdvanceRequest) String() string {
 	return service.Prettify(s)
 }
 
-func (s RecognizeImageColorResponseDataColorTemplateList) GoString() string {
+func (s RecognizeImageStyleAdvanceRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeImageColorResponseDataColorTemplateList) SetColor(v string) *RecognizeImageColorResponseDataColorTemplateList {
-	s.Color = &v
-	return s
-}
-
-func (s *RecognizeImageColorResponseDataColorTemplateList) SetLabel(v string) *RecognizeImageColorResponseDataColorTemplateList {
-	s.Label = &v
-	return s
-}
-
-func (s *RecognizeImageColorResponseDataColorTemplateList) SetPercentage(v float32) *RecognizeImageColorResponseDataColorTemplateList {
-	s.Percentage = &v
-	return s
-}
-
-type RecognizeImageColorAdvanceRequest struct {
-	UrlObject  io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
-	ColorCount *int      `json:"ColorCount" xml:"ColorCount"`
-}
-
-func (s RecognizeImageColorAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecognizeImageColorAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeImageColorAdvanceRequest) SetUrlObject(v io.Reader) *RecognizeImageColorAdvanceRequest {
+func (s *RecognizeImageStyleAdvanceRequest) SetUrlObject(v io.Reader) *RecognizeImageStyleAdvanceRequest {
 	s.UrlObject = v
-	return s
-}
-
-func (s *RecognizeImageColorAdvanceRequest) SetColorCount(v int) *RecognizeImageColorAdvanceRequest {
-	s.ColorCount = &v
 	return s
 }
 
@@ -807,14 +807,9 @@ func (client *Client) TaggingImageAdvance(request *TaggingImageAdvanceRequest, r
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -887,14 +882,9 @@ func (client *Client) RecognizeSceneAdvance(request *RecognizeSceneAdvanceReques
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.ImageURLObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -919,166 +909,6 @@ func (client *Client) RecognizeSceneAdvance(request *RecognizeSceneAdvanceReques
 	}
 
 	return recognizeSceneResp, _err
-}
-
-func (client *Client) RecognizeImageStyle(request *RecognizeImageStyleRequest, runtime *common.RuntimeObject) (_result *RecognizeImageStyleResponse, _err error) {
-	_result = &RecognizeImageStyleResponse{}
-	_body, _err := client._request("RecognizeImageStyle", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) RecognizeImageStyleAdvance(request *RecognizeImageStyleAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeImageStyleResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("imagerecog"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.UrlObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	recognizeImageStylereq := &RecognizeImageStyleRequest{}
-	common.Convert(request, recognizeImageStylereq)
-	recognizeImageStylereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeImageStyleResp, _err := client.RecognizeImageStyle(recognizeImageStylereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return recognizeImageStyleResp, _err
-}
-
-func (client *Client) DetectImageElements(request *DetectImageElementsRequest, runtime *common.RuntimeObject) (_result *DetectImageElementsResponse, _err error) {
-	_result = &DetectImageElementsResponse{}
-	_body, _err := client._request("DetectImageElements", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) DetectImageElementsAdvance(request *DetectImageElementsAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectImageElementsResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("imagerecog"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.UrlObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	detectImageElementsreq := &DetectImageElementsRequest{}
-	common.Convert(request, detectImageElementsreq)
-	detectImageElementsreq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	detectImageElementsResp, _err := client.DetectImageElements(detectImageElementsreq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return detectImageElementsResp, _err
 }
 
 func (client *Client) RecognizeImageColor(request *RecognizeImageColorRequest, runtime *common.RuntimeObject) (_result *RecognizeImageColorResponse, _err error) {
@@ -1127,14 +957,9 @@ func (client *Client) RecognizeImageColorAdvance(request *RecognizeImageColorAdv
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.UrlObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.UrlObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -1159,4 +984,154 @@ func (client *Client) RecognizeImageColorAdvance(request *RecognizeImageColorAdv
 	}
 
 	return recognizeImageColorResp, _err
+}
+
+func (client *Client) DetectImageElements(request *DetectImageElementsRequest, runtime *common.RuntimeObject) (_result *DetectImageElementsResponse, _err error) {
+	_result = &DetectImageElementsResponse{}
+	_body, _err := client._request("DetectImageElements", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectImageElementsAdvance(request *DetectImageElementsAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectImageElementsResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imagerecog"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.UrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	detectImageElementsreq := &DetectImageElementsRequest{}
+	common.Convert(request, detectImageElementsreq)
+	detectImageElementsreq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectImageElementsResp, _err := client.DetectImageElements(detectImageElementsreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return detectImageElementsResp, _err
+}
+
+func (client *Client) RecognizeImageStyle(request *RecognizeImageStyleRequest, runtime *common.RuntimeObject) (_result *RecognizeImageStyleResponse, _err error) {
+	_result = &RecognizeImageStyleResponse{}
+	_body, _err := client._request("RecognizeImageStyle", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeImageStyleAdvance(request *RecognizeImageStyleAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeImageStyleResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imagerecog"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.UrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeImageStylereq := &RecognizeImageStyleRequest{}
+	common.Convert(request, recognizeImageStylereq)
+	recognizeImageStylereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeImageStyleResp, _err := client.RecognizeImageStyle(recognizeImageStylereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeImageStyleResp, _err
 }

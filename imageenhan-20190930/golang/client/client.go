@@ -7,7 +7,7 @@ import (
 
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
+	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
 	"github.com/aliyun/rpc-client-go/service"
 )
@@ -137,241 +137,6 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
-type RecolorImageRequest struct {
-	Url           *string                             `json:"Url" xml:"Url" require:"true"`
-	Mode          *string                             `json:"Mode" xml:"Mode"`
-	RefUrl        *string                             `json:"RefUrl" xml:"RefUrl"`
-	ColorCount    *int                                `json:"ColorCount" xml:"ColorCount"`
-	ColorTemplate []*RecolorImageRequestColorTemplate `json:"ColorTemplate" xml:"ColorTemplate" type:"Repeated"`
-}
-
-func (s RecolorImageRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecolorImageRequest) GoString() string {
-	return s.String()
-}
-
-func (s *RecolorImageRequest) SetUrl(v string) *RecolorImageRequest {
-	s.Url = &v
-	return s
-}
-
-func (s *RecolorImageRequest) SetMode(v string) *RecolorImageRequest {
-	s.Mode = &v
-	return s
-}
-
-func (s *RecolorImageRequest) SetRefUrl(v string) *RecolorImageRequest {
-	s.RefUrl = &v
-	return s
-}
-
-func (s *RecolorImageRequest) SetColorCount(v int) *RecolorImageRequest {
-	s.ColorCount = &v
-	return s
-}
-
-func (s *RecolorImageRequest) SetColorTemplate(v []*RecolorImageRequestColorTemplate) *RecolorImageRequest {
-	s.ColorTemplate = v
-	return s
-}
-
-type RecolorImageRequestColorTemplate struct {
-	Color *string `json:"Color" xml:"Color"`
-}
-
-func (s RecolorImageRequestColorTemplate) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecolorImageRequestColorTemplate) GoString() string {
-	return s.String()
-}
-
-func (s *RecolorImageRequestColorTemplate) SetColor(v string) *RecolorImageRequestColorTemplate {
-	s.Color = &v
-	return s
-}
-
-type RecolorImageResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecolorImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecolorImageResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecolorImageResponse) GoString() string {
-	return s.String()
-}
-
-func (s *RecolorImageResponse) SetRequestId(v string) *RecolorImageResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *RecolorImageResponse) SetData(v *RecolorImageResponseData) *RecolorImageResponse {
-	s.Data = v
-	return s
-}
-
-type RecolorImageResponseData struct {
-}
-
-func (s RecolorImageResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s RecolorImageResponseData) GoString() string {
-	return s.String()
-}
-
-type MakeSuperResolutionImageRequest struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
-}
-
-func (s MakeSuperResolutionImageRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s MakeSuperResolutionImageRequest) GoString() string {
-	return s.String()
-}
-
-func (s *MakeSuperResolutionImageRequest) SetUrl(v string) *MakeSuperResolutionImageRequest {
-	s.Url = &v
-	return s
-}
-
-type MakeSuperResolutionImageResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *MakeSuperResolutionImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s MakeSuperResolutionImageResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s MakeSuperResolutionImageResponse) GoString() string {
-	return s.String()
-}
-
-func (s *MakeSuperResolutionImageResponse) SetRequestId(v string) *MakeSuperResolutionImageResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *MakeSuperResolutionImageResponse) SetData(v *MakeSuperResolutionImageResponseData) *MakeSuperResolutionImageResponse {
-	s.Data = v
-	return s
-}
-
-type MakeSuperResolutionImageResponseData struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
-}
-
-func (s MakeSuperResolutionImageResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s MakeSuperResolutionImageResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *MakeSuperResolutionImageResponseData) SetUrl(v string) *MakeSuperResolutionImageResponseData {
-	s.Url = &v
-	return s
-}
-
-type MakeSuperResolutionImageAdvanceRequest struct {
-	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
-}
-
-func (s MakeSuperResolutionImageAdvanceRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s MakeSuperResolutionImageAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *MakeSuperResolutionImageAdvanceRequest) SetUrlObject(v io.Reader) *MakeSuperResolutionImageAdvanceRequest {
-	s.UrlObject = v
-	return s
-}
-
-type ExtendImageStyleRequest struct {
-	StyleUrl *string `json:"StyleUrl" xml:"StyleUrl" require:"true"`
-	MajorUrl *string `json:"MajorUrl" xml:"MajorUrl" require:"true"`
-}
-
-func (s ExtendImageStyleRequest) String() string {
-	return service.Prettify(s)
-}
-
-func (s ExtendImageStyleRequest) GoString() string {
-	return s.String()
-}
-
-func (s *ExtendImageStyleRequest) SetStyleUrl(v string) *ExtendImageStyleRequest {
-	s.StyleUrl = &v
-	return s
-}
-
-func (s *ExtendImageStyleRequest) SetMajorUrl(v string) *ExtendImageStyleRequest {
-	s.MajorUrl = &v
-	return s
-}
-
-type ExtendImageStyleResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ExtendImageStyleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s ExtendImageStyleResponse) String() string {
-	return service.Prettify(s)
-}
-
-func (s ExtendImageStyleResponse) GoString() string {
-	return s.String()
-}
-
-func (s *ExtendImageStyleResponse) SetRequestId(v string) *ExtendImageStyleResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *ExtendImageStyleResponse) SetData(v *ExtendImageStyleResponseData) *ExtendImageStyleResponse {
-	s.Data = v
-	return s
-}
-
-type ExtendImageStyleResponseData struct {
-	Url      *string `json:"Url" xml:"Url" require:"true"`
-	MajorUrl *string `json:"MajorUrl" xml:"MajorUrl" require:"true"`
-}
-
-func (s ExtendImageStyleResponseData) String() string {
-	return service.Prettify(s)
-}
-
-func (s ExtendImageStyleResponseData) GoString() string {
-	return s.String()
-}
-
-func (s *ExtendImageStyleResponseData) SetUrl(v string) *ExtendImageStyleResponseData {
-	s.Url = &v
-	return s
-}
-
-func (s *ExtendImageStyleResponseData) SetMajorUrl(v string) *ExtendImageStyleResponseData {
-	s.MajorUrl = &v
-	return s
-}
-
 type ChangeImageSizeRequest struct {
 	Width  *int    `json:"Width" xml:"Width" require:"true"`
 	Height *int    `json:"Height" xml:"Height" require:"true"`
@@ -468,6 +233,241 @@ func (s *ChangeImageSizeAdvanceRequest) SetWidth(v int) *ChangeImageSizeAdvanceR
 func (s *ChangeImageSizeAdvanceRequest) SetHeight(v int) *ChangeImageSizeAdvanceRequest {
 	s.Height = &v
 	return s
+}
+
+type ExtendImageStyleRequest struct {
+	StyleUrl *string `json:"StyleUrl" xml:"StyleUrl" require:"true"`
+	MajorUrl *string `json:"MajorUrl" xml:"MajorUrl" require:"true"`
+}
+
+func (s ExtendImageStyleRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s ExtendImageStyleRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ExtendImageStyleRequest) SetStyleUrl(v string) *ExtendImageStyleRequest {
+	s.StyleUrl = &v
+	return s
+}
+
+func (s *ExtendImageStyleRequest) SetMajorUrl(v string) *ExtendImageStyleRequest {
+	s.MajorUrl = &v
+	return s
+}
+
+type ExtendImageStyleResponse struct {
+	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *ExtendImageStyleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s ExtendImageStyleResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s ExtendImageStyleResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ExtendImageStyleResponse) SetRequestId(v string) *ExtendImageStyleResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ExtendImageStyleResponse) SetData(v *ExtendImageStyleResponseData) *ExtendImageStyleResponse {
+	s.Data = v
+	return s
+}
+
+type ExtendImageStyleResponseData struct {
+	Url      *string `json:"Url" xml:"Url" require:"true"`
+	MajorUrl *string `json:"MajorUrl" xml:"MajorUrl" require:"true"`
+}
+
+func (s ExtendImageStyleResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s ExtendImageStyleResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ExtendImageStyleResponseData) SetUrl(v string) *ExtendImageStyleResponseData {
+	s.Url = &v
+	return s
+}
+
+func (s *ExtendImageStyleResponseData) SetMajorUrl(v string) *ExtendImageStyleResponseData {
+	s.MajorUrl = &v
+	return s
+}
+
+type MakeSuperResolutionImageRequest struct {
+	Url *string `json:"Url" xml:"Url" require:"true"`
+}
+
+func (s MakeSuperResolutionImageRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s MakeSuperResolutionImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *MakeSuperResolutionImageRequest) SetUrl(v string) *MakeSuperResolutionImageRequest {
+	s.Url = &v
+	return s
+}
+
+type MakeSuperResolutionImageResponse struct {
+	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *MakeSuperResolutionImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s MakeSuperResolutionImageResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s MakeSuperResolutionImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *MakeSuperResolutionImageResponse) SetRequestId(v string) *MakeSuperResolutionImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *MakeSuperResolutionImageResponse) SetData(v *MakeSuperResolutionImageResponseData) *MakeSuperResolutionImageResponse {
+	s.Data = v
+	return s
+}
+
+type MakeSuperResolutionImageResponseData struct {
+	Url *string `json:"Url" xml:"Url" require:"true"`
+}
+
+func (s MakeSuperResolutionImageResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s MakeSuperResolutionImageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *MakeSuperResolutionImageResponseData) SetUrl(v string) *MakeSuperResolutionImageResponseData {
+	s.Url = &v
+	return s
+}
+
+type MakeSuperResolutionImageAdvanceRequest struct {
+	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
+}
+
+func (s MakeSuperResolutionImageAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s MakeSuperResolutionImageAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *MakeSuperResolutionImageAdvanceRequest) SetUrlObject(v io.Reader) *MakeSuperResolutionImageAdvanceRequest {
+	s.UrlObject = v
+	return s
+}
+
+type RecolorImageRequest struct {
+	Url           *string                             `json:"Url" xml:"Url" require:"true"`
+	Mode          *string                             `json:"Mode" xml:"Mode"`
+	RefUrl        *string                             `json:"RefUrl" xml:"RefUrl"`
+	ColorCount    *int                                `json:"ColorCount" xml:"ColorCount"`
+	ColorTemplate []*RecolorImageRequestColorTemplate `json:"ColorTemplate" xml:"ColorTemplate" type:"Repeated"`
+}
+
+func (s RecolorImageRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecolorImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorImageRequest) SetUrl(v string) *RecolorImageRequest {
+	s.Url = &v
+	return s
+}
+
+func (s *RecolorImageRequest) SetMode(v string) *RecolorImageRequest {
+	s.Mode = &v
+	return s
+}
+
+func (s *RecolorImageRequest) SetRefUrl(v string) *RecolorImageRequest {
+	s.RefUrl = &v
+	return s
+}
+
+func (s *RecolorImageRequest) SetColorCount(v int) *RecolorImageRequest {
+	s.ColorCount = &v
+	return s
+}
+
+func (s *RecolorImageRequest) SetColorTemplate(v []*RecolorImageRequestColorTemplate) *RecolorImageRequest {
+	s.ColorTemplate = v
+	return s
+}
+
+type RecolorImageRequestColorTemplate struct {
+	Color *string `json:"Color" xml:"Color"`
+}
+
+func (s RecolorImageRequestColorTemplate) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecolorImageRequestColorTemplate) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorImageRequestColorTemplate) SetColor(v string) *RecolorImageRequestColorTemplate {
+	s.Color = &v
+	return s
+}
+
+type RecolorImageResponse struct {
+	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecolorImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecolorImageResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecolorImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorImageResponse) SetRequestId(v string) *RecolorImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecolorImageResponse) SetData(v *RecolorImageResponseData) *RecolorImageResponse {
+	s.Data = v
+	return s
+}
+
+type RecolorImageResponseData struct {
+}
+
+func (s RecolorImageResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecolorImageResponseData) GoString() string {
+	return s.String()
 }
 
 type Client struct {
@@ -572,9 +572,84 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) RecolorImage(request *RecolorImageRequest, runtime *common.RuntimeObject) (_result *RecolorImageResponse, _err error) {
-	_result = &RecolorImageResponse{}
-	_body, _err := client._request("RecolorImage", "HTTPS", "POST", tea.ToMap(request), runtime)
+func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {
+	_result = &ChangeImageSizeResponse{}
+	_body, _err := client._request("ChangeImageSize", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.UrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	changeImageSizereq := &ChangeImageSizeRequest{}
+	common.Convert(request, changeImageSizereq)
+	changeImageSizereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	changeImageSizeResp, _err := client.ChangeImageSize(changeImageSizereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return changeImageSizeResp, _err
+}
+
+func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime *common.RuntimeObject) (_result *ExtendImageStyleResponse, _err error) {
+	_result = &ExtendImageStyleResponse{}
+	_body, _err := client._request("ExtendImageStyle", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -628,14 +703,9 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 		return nil, _err
 	}
 
-	str, _err := common.ReadAsString(request.UrlObject)
-	if _err != nil {
-		return nil, _err
-	}
-
 	fileObj := &oss.PostObjectRequestHeaderFile{
 		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
+		Content:     request.UrlObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -662,92 +732,12 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	return makeSuperResolutionImageResp, _err
 }
 
-func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime *common.RuntimeObject) (_result *ExtendImageStyleResponse, _err error) {
-	_result = &ExtendImageStyleResponse{}
-	_body, _err := client._request("ExtendImageStyle", "HTTPS", "POST", tea.ToMap(request), runtime)
+func (client *Client) RecolorImage(request *RecolorImageRequest, runtime *common.RuntimeObject) (_result *RecolorImageResponse, _err error) {
+	_result = &RecolorImageResponse{}
+	_body, _err := client._request("RecolorImage", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
-}
-
-func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {
-	_result = &ChangeImageSizeResponse{}
-	_body, _err := client._request("ChangeImageSize", "HTTPS", "POST", tea.ToMap(request), runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("imageenhan"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	str, _err := common.ReadAsString(request.UrlObject)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
-		Content:     tea.String(str),
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossClient.PostObject(uploadRequest, runtime)
-	changeImageSizereq := &ChangeImageSizeRequest{}
-	common.Convert(request, changeImageSizereq)
-	changeImageSizereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	changeImageSizeResp, _err := client.ChangeImageSize(changeImageSizereq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	return changeImageSizeResp, _err
 }
