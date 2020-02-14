@@ -72,6 +72,7 @@ namespace AlibabaCloud.Objectdet
                             {"Format", "json"},
                             {"RegionId", _regionId},
                             {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
+                            {"Date", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-12-30"},
                             {"SignatureMethod", "HMAC-SHA1"},
                             {"SignatureVersion", "1.0"},
@@ -168,6 +169,7 @@ namespace AlibabaCloud.Objectdet
                             {"Format", "json"},
                             {"RegionId", _regionId},
                             {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
+                            {"Date", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-12-30"},
                             {"SignatureMethod", "HMAC-SHA1"},
                             {"SignatureVersion", "1.0"},
@@ -211,130 +213,6 @@ namespace AlibabaCloud.Objectdet
             throw new TeaUnretryableException(_lastRequest, _lastException);
         }
 
-        public DetectMainBodyResponse DetectMainBody(DetectMainBodyRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<DetectMainBodyResponse>(_request("DetectMainBody", "HTTPS", "GET", request.ToMap(), runtime));
-        }
-
-        public async Task<DetectMainBodyResponse> DetectMainBodyAsync(DetectMainBodyRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<DetectMainBodyResponse>(await _requestAsync("DetectMainBody", "HTTPS", "GET", request.ToMap(), runtime));
-        }
-
-        public DetectMainBodyResponse DetectMainBodyAdvance(DetectMainBodyAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
-            {
-                AccessKeyId = _getAccessKeyId(),
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = "openplatform.aliyuncs.com",
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
-            {
-                Product = "objectdet",
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
-            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.ImageURLObject);
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
-            {
-                FileName = authResponse.ObjectKey,
-                Content = str,
-                ContentType = "",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                Policy = authResponse.EncodedPolicy,
-                Signature = authResponse.Signature,
-                Key = authResponse.ObjectKey,
-                File = fileObj,
-                SuccessActionStatus = "201",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
-            {
-                BucketName = authResponse.Bucket,
-                Header = ossHeader,
-            };
-            ossClient.PostObject(uploadRequest, runtime);
-            DetectMainBodyRequest detectMainBodyreq = new DetectMainBodyRequest() { };
-            AlibabaCloud.Commons.Common.Convert(request, detectMainBodyreq);
-            detectMainBodyreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
-            DetectMainBodyResponse detectMainBodyResp = DetectMainBody(detectMainBodyreq, runtime);
-            return detectMainBodyResp;
-        }
-
-        public async Task<DetectMainBodyResponse> DetectMainBodyAdvanceAsync(DetectMainBodyAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
-            {
-                AccessKeyId = _getAccessKeyId(),
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = "openplatform.aliyuncs.com",
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
-            {
-                Product = "objectdet",
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
-            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.ImageURLObject);
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
-            {
-                FileName = authResponse.ObjectKey,
-                Content = str,
-                ContentType = "",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                Policy = authResponse.EncodedPolicy,
-                Signature = authResponse.Signature,
-                Key = authResponse.ObjectKey,
-                File = fileObj,
-                SuccessActionStatus = "201",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
-            {
-                BucketName = authResponse.Bucket,
-                Header = ossHeader,
-            };
-            await ossClient.PostObjectAsync(uploadRequest, runtime);
-            DetectMainBodyRequest detectMainBodyreq = new DetectMainBodyRequest() { };
-            AlibabaCloud.Commons.Common.Convert(request, detectMainBodyreq);
-            detectMainBodyreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
-            DetectMainBodyResponse detectMainBodyResp = await DetectMainBodyAsync(detectMainBodyreq, runtime);
-            return detectMainBodyResp;
-        }
-
         public DetectVehicleResponse DetectVehicle(DetectVehicleRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
         {
             return TeaModel.ToObject<DetectVehicleResponse>(_request("DetectVehicle", "HTTPS", "POST", request.ToMap(), runtime));
@@ -373,11 +251,10 @@ namespace AlibabaCloud.Objectdet
                 RegionId = _regionId,
             };
             AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.ImageURLObject);
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
             {
                 FileName = authResponse.ObjectKey,
-                Content = str,
+                Content = request.ImageURLObject,
                 ContentType = "",
             };
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
@@ -430,11 +307,10 @@ namespace AlibabaCloud.Objectdet
                 RegionId = _regionId,
             };
             AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.ImageURLObject);
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
             {
                 FileName = authResponse.ObjectKey,
-                Content = str,
+                Content = request.ImageURLObject,
                 ContentType = "",
             };
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
@@ -457,6 +333,128 @@ namespace AlibabaCloud.Objectdet
             detectVehiclereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             DetectVehicleResponse detectVehicleResp = await DetectVehicleAsync(detectVehiclereq, runtime);
             return detectVehicleResp;
+        }
+
+        public DetectMainBodyResponse DetectMainBody(DetectMainBodyRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<DetectMainBodyResponse>(_request("DetectMainBody", "HTTPS", "GET", request.ToMap(), runtime));
+        }
+
+        public async Task<DetectMainBodyResponse> DetectMainBodyAsync(DetectMainBodyRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<DetectMainBodyResponse>(await _requestAsync("DetectMainBody", "HTTPS", "GET", request.ToMap(), runtime));
+        }
+
+        public DetectMainBodyResponse DetectMainBodyAdvance(DetectMainBodyAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = _getAccessKeyId(),
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "objectdet",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
+            {
+                FileName = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            ossClient.PostObject(uploadRequest, runtime);
+            DetectMainBodyRequest detectMainBodyreq = new DetectMainBodyRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, detectMainBodyreq);
+            detectMainBodyreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            DetectMainBodyResponse detectMainBodyResp = DetectMainBody(detectMainBodyreq, runtime);
+            return detectMainBodyResp;
+        }
+
+        public async Task<DetectMainBodyResponse> DetectMainBodyAdvanceAsync(DetectMainBodyAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = _getAccessKeyId(),
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "objectdet",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
+            {
+                FileName = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            await ossClient.PostObjectAsync(uploadRequest, runtime);
+            DetectMainBodyRequest detectMainBodyreq = new DetectMainBodyRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, detectMainBodyreq);
+            detectMainBodyreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            DetectMainBodyResponse detectMainBodyResp = await DetectMainBodyAsync(detectMainBodyreq, runtime);
+            return detectMainBodyResp;
         }
 
     }

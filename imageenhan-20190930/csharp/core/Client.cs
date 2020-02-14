@@ -72,6 +72,7 @@ namespace AlibabaCloud.Imageenhan
                             {"Format", "json"},
                             {"RegionId", _regionId},
                             {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
+                            {"Date", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-09-30"},
                             {"SignatureMethod", "HMAC-SHA1"},
                             {"SignatureVersion", "1.0"},
@@ -168,6 +169,7 @@ namespace AlibabaCloud.Imageenhan
                             {"Format", "json"},
                             {"RegionId", _regionId},
                             {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
+                            {"Date", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-09-30"},
                             {"SignatureMethod", "HMAC-SHA1"},
                             {"SignatureVersion", "1.0"},
@@ -211,150 +213,6 @@ namespace AlibabaCloud.Imageenhan
             throw new TeaUnretryableException(_lastRequest, _lastException);
         }
 
-        public RecolorImageResponse RecolorImage(RecolorImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<RecolorImageResponse>(_request("RecolorImage", "HTTPS", "POST", request.ToMap(), runtime));
-        }
-
-        public async Task<RecolorImageResponse> RecolorImageAsync(RecolorImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<RecolorImageResponse>(await _requestAsync("RecolorImage", "HTTPS", "POST", request.ToMap(), runtime));
-        }
-
-        public MakeSuperResolutionImageResponse MakeSuperResolutionImage(MakeSuperResolutionImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<MakeSuperResolutionImageResponse>(_request("MakeSuperResolutionImage", "HTTPS", "POST", request.ToMap(), runtime));
-        }
-
-        public async Task<MakeSuperResolutionImageResponse> MakeSuperResolutionImageAsync(MakeSuperResolutionImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<MakeSuperResolutionImageResponse>(await _requestAsync("MakeSuperResolutionImage", "HTTPS", "POST", request.ToMap(), runtime));
-        }
-
-        public MakeSuperResolutionImageResponse MakeSuperResolutionImageAdvance(MakeSuperResolutionImageAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
-            {
-                AccessKeyId = _getAccessKeyId(),
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = "openplatform.aliyuncs.com",
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
-            {
-                Product = "imageenhan",
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
-            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.UrlObject);
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
-            {
-                FileName = authResponse.ObjectKey,
-                Content = str,
-                ContentType = "",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                Policy = authResponse.EncodedPolicy,
-                Signature = authResponse.Signature,
-                Key = authResponse.ObjectKey,
-                File = fileObj,
-                SuccessActionStatus = "201",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
-            {
-                BucketName = authResponse.Bucket,
-                Header = ossHeader,
-            };
-            ossClient.PostObject(uploadRequest, runtime);
-            MakeSuperResolutionImageRequest makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest() { };
-            AlibabaCloud.Commons.Common.Convert(request, makeSuperResolutionImagereq);
-            makeSuperResolutionImagereq.Url = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
-            MakeSuperResolutionImageResponse makeSuperResolutionImageResp = MakeSuperResolutionImage(makeSuperResolutionImagereq, runtime);
-            return makeSuperResolutionImageResp;
-        }
-
-        public async Task<MakeSuperResolutionImageResponse> MakeSuperResolutionImageAdvanceAsync(MakeSuperResolutionImageAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
-            {
-                AccessKeyId = _getAccessKeyId(),
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = "openplatform.aliyuncs.com",
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
-            {
-                Product = "imageenhan",
-                RegionId = _regionId,
-            };
-            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
-            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                AccessKeySecret = _getAccessKeySecret(),
-                Type = "access_key",
-                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
-                Protocol = _protocol,
-                RegionId = _regionId,
-            };
-            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.UrlObject);
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
-            {
-                FileName = authResponse.ObjectKey,
-                Content = str,
-                ContentType = "",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
-            {
-                AccessKeyId = authResponse.AccessKeyId,
-                Policy = authResponse.EncodedPolicy,
-                Signature = authResponse.Signature,
-                Key = authResponse.ObjectKey,
-                File = fileObj,
-                SuccessActionStatus = "201",
-            };
-            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
-            {
-                BucketName = authResponse.Bucket,
-                Header = ossHeader,
-            };
-            await ossClient.PostObjectAsync(uploadRequest, runtime);
-            MakeSuperResolutionImageRequest makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest() { };
-            AlibabaCloud.Commons.Common.Convert(request, makeSuperResolutionImagereq);
-            makeSuperResolutionImagereq.Url = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
-            MakeSuperResolutionImageResponse makeSuperResolutionImageResp = await MakeSuperResolutionImageAsync(makeSuperResolutionImagereq, runtime);
-            return makeSuperResolutionImageResp;
-        }
-
-        public ExtendImageStyleResponse ExtendImageStyle(ExtendImageStyleRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<ExtendImageStyleResponse>(_request("ExtendImageStyle", "HTTPS", "POST", request.ToMap(), runtime));
-        }
-
-        public async Task<ExtendImageStyleResponse> ExtendImageStyleAsync(ExtendImageStyleRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
-        {
-            return TeaModel.ToObject<ExtendImageStyleResponse>(await _requestAsync("ExtendImageStyle", "HTTPS", "POST", request.ToMap(), runtime));
-        }
-
         public ChangeImageSizeResponse ChangeImageSize(ChangeImageSizeRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
         {
             return TeaModel.ToObject<ChangeImageSizeResponse>(_request("ChangeImageSize", "HTTPS", "POST", request.ToMap(), runtime));
@@ -393,11 +251,10 @@ namespace AlibabaCloud.Imageenhan
                 RegionId = _regionId,
             };
             AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.UrlObject);
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
             {
                 FileName = authResponse.ObjectKey,
-                Content = str,
+                Content = request.UrlObject,
                 ContentType = "",
             };
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
@@ -450,11 +307,10 @@ namespace AlibabaCloud.Imageenhan
                 RegionId = _regionId,
             };
             AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
-            string str = AlibabaCloud.Commons.Common.ReadAsString(request.UrlObject);
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
             {
                 FileName = authResponse.ObjectKey,
-                Content = str,
+                Content = request.UrlObject,
                 ContentType = "",
             };
             AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
@@ -477,6 +333,148 @@ namespace AlibabaCloud.Imageenhan
             changeImageSizereq.Url = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             ChangeImageSizeResponse changeImageSizeResp = await ChangeImageSizeAsync(changeImageSizereq, runtime);
             return changeImageSizeResp;
+        }
+
+        public ExtendImageStyleResponse ExtendImageStyle(ExtendImageStyleRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<ExtendImageStyleResponse>(_request("ExtendImageStyle", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public async Task<ExtendImageStyleResponse> ExtendImageStyleAsync(ExtendImageStyleRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<ExtendImageStyleResponse>(await _requestAsync("ExtendImageStyle", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public MakeSuperResolutionImageResponse MakeSuperResolutionImage(MakeSuperResolutionImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<MakeSuperResolutionImageResponse>(_request("MakeSuperResolutionImage", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public async Task<MakeSuperResolutionImageResponse> MakeSuperResolutionImageAsync(MakeSuperResolutionImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<MakeSuperResolutionImageResponse>(await _requestAsync("MakeSuperResolutionImage", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public MakeSuperResolutionImageResponse MakeSuperResolutionImageAdvance(MakeSuperResolutionImageAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = _getAccessKeyId(),
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "imageenhan",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
+            {
+                FileName = authResponse.ObjectKey,
+                Content = request.UrlObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            ossClient.PostObject(uploadRequest, runtime);
+            MakeSuperResolutionImageRequest makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, makeSuperResolutionImagereq);
+            makeSuperResolutionImagereq.Url = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            MakeSuperResolutionImageResponse makeSuperResolutionImageResp = MakeSuperResolutionImage(makeSuperResolutionImagereq, runtime);
+            return makeSuperResolutionImageResp;
+        }
+
+        public async Task<MakeSuperResolutionImageResponse> MakeSuperResolutionImageAdvanceAsync(MakeSuperResolutionImageAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = _getAccessKeyId(),
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "imageenhan",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
+            {
+                FileName = authResponse.ObjectKey,
+                Content = request.UrlObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            await ossClient.PostObjectAsync(uploadRequest, runtime);
+            MakeSuperResolutionImageRequest makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, makeSuperResolutionImagereq);
+            makeSuperResolutionImagereq.Url = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            MakeSuperResolutionImageResponse makeSuperResolutionImageResp = await MakeSuperResolutionImageAsync(makeSuperResolutionImagereq, runtime);
+            return makeSuperResolutionImageResp;
+        }
+
+        public RecolorImageResponse RecolorImage(RecolorImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecolorImageResponse>(_request("RecolorImage", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public async Task<RecolorImageResponse> RecolorImageAsync(RecolorImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecolorImageResponse>(await _requestAsync("RecolorImage", "HTTPS", "POST", request.ToMap(), runtime));
         }
 
     }
