@@ -15,23 +15,23 @@ import (
 type Config struct {
 	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type" require:"true"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken" require:"true"`
+	Type                 *string `json:"type" xml:"type"`
+	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
 	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol" require:"true"`
+	Protocol             *string `json:"protocol" xml:"protocol"`
 	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent" require:"true"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout" require:"true"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout" require:"true"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr" require:"true"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy" require:"true"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy" require:"true"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy" require:"true"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy" require:"true"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	UserAgent            *string `json:"userAgent" xml:"userAgent"`
+	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
+	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
+	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
+	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
+	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
+	NoProxy              *string `json:"noProxy" xml:"noProxy"`
+	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
+	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
+	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
+	EndpointType         *string `json:"endpointType" xml:"endpointType"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
 }
 
 func (s Config) String() string {
@@ -138,7 +138,6 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 }
 
 type RecognizeCharacterRequest struct {
-	ImageType         *int    `json:"ImageType" xml:"ImageType"`
 	ImageURL          *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 	MinHeight         *int    `json:"MinHeight" xml:"MinHeight" require:"true"`
 	OutputProbability *bool   `json:"OutputProbability" xml:"OutputProbability" require:"true"`
@@ -150,11 +149,6 @@ func (s RecognizeCharacterRequest) String() string {
 
 func (s RecognizeCharacterRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeCharacterRequest) SetImageType(v int) *RecognizeCharacterRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeCharacterRequest) SetImageURL(v string) *RecognizeCharacterRequest {
@@ -213,9 +207,9 @@ func (s *RecognizeCharacterResponseData) SetResults(v []*RecognizeCharacterRespo
 }
 
 type RecognizeCharacterResponseDataResults struct {
-	Probability    *float32                                               `json:"Probability" xml:"Probability" require:"true"`
-	Text           *string                                                `json:"Text" xml:"Text" require:"true"`
-	TextRectangles []*RecognizeCharacterResponseDataResultsTextRectangles `json:"TextRectangles" xml:"TextRectangles" require:"true" type:"Repeated"`
+	Probability    *float32                                             `json:"Probability" xml:"Probability" require:"true"`
+	Text           *string                                              `json:"Text" xml:"Text" require:"true"`
+	TextRectangles *RecognizeCharacterResponseDataResultsTextRectangles `json:"TextRectangles" xml:"TextRectangles" require:"true" type:"Struct"`
 }
 
 func (s RecognizeCharacterResponseDataResults) String() string {
@@ -236,7 +230,7 @@ func (s *RecognizeCharacterResponseDataResults) SetText(v string) *RecognizeChar
 	return s
 }
 
-func (s *RecognizeCharacterResponseDataResults) SetTextRectangles(v []*RecognizeCharacterResponseDataResultsTextRectangles) *RecognizeCharacterResponseDataResults {
+func (s *RecognizeCharacterResponseDataResults) SetTextRectangles(v *RecognizeCharacterResponseDataResultsTextRectangles) *RecognizeCharacterResponseDataResults {
 	s.TextRectangles = v
 	return s
 }
@@ -284,7 +278,6 @@ func (s *RecognizeCharacterResponseDataResultsTextRectangles) SetHeight(v int) *
 
 type RecognizeCharacterAdvanceRequest struct {
 	ImageURLObject    io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType         *int      `json:"ImageType" xml:"ImageType"`
 	MinHeight         *int      `json:"MinHeight" xml:"MinHeight" require:"true"`
 	OutputProbability *bool     `json:"OutputProbability" xml:"OutputProbability" require:"true"`
 }
@@ -302,11 +295,6 @@ func (s *RecognizeCharacterAdvanceRequest) SetImageURLObject(v io.Reader) *Recog
 	return s
 }
 
-func (s *RecognizeCharacterAdvanceRequest) SetImageType(v int) *RecognizeCharacterAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 func (s *RecognizeCharacterAdvanceRequest) SetMinHeight(v int) *RecognizeCharacterAdvanceRequest {
 	s.MinHeight = &v
 	return s
@@ -318,8 +306,7 @@ func (s *RecognizeCharacterAdvanceRequest) SetOutputProbability(v bool) *Recogni
 }
 
 type RecognizeTaxiInvoiceRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeTaxiInvoiceRequest) String() string {
@@ -328,11 +315,6 @@ func (s RecognizeTaxiInvoiceRequest) String() string {
 
 func (s RecognizeTaxiInvoiceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeTaxiInvoiceRequest) SetImageType(v int) *RecognizeTaxiInvoiceRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeTaxiInvoiceRequest) SetImageURL(v string) *RecognizeTaxiInvoiceRequest {
@@ -544,7 +526,6 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi) SetY(v float32) *Re
 
 type RecognizeTaxiInvoiceAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeTaxiInvoiceAdvanceRequest) String() string {
@@ -560,15 +541,9 @@ func (s *RecognizeTaxiInvoiceAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 	return s
 }
 
-func (s *RecognizeTaxiInvoiceAdvanceRequest) SetImageType(v int) *RecognizeTaxiInvoiceAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeIdentityCardRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side      *string `json:"Side" xml:"Side" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Side     *string `json:"Side" xml:"Side" require:"true"`
 }
 
 func (s RecognizeIdentityCardRequest) String() string {
@@ -577,11 +552,6 @@ func (s RecognizeIdentityCardRequest) String() string {
 
 func (s RecognizeIdentityCardRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeIdentityCardRequest) SetImageType(v int) *RecognizeIdentityCardRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeIdentityCardRequest) SetImageURL(v string) *RecognizeIdentityCardRequest {
@@ -857,7 +827,6 @@ func (s *RecognizeIdentityCardResponseDataBackResult) SetIssue(v string) *Recogn
 
 type RecognizeIdentityCardAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 	Side           *string   `json:"Side" xml:"Side" require:"true"`
 }
 
@@ -874,19 +843,13 @@ func (s *RecognizeIdentityCardAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 	return s
 }
 
-func (s *RecognizeIdentityCardAdvanceRequest) SetImageType(v int) *RecognizeIdentityCardAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 func (s *RecognizeIdentityCardAdvanceRequest) SetSide(v string) *RecognizeIdentityCardAdvanceRequest {
 	s.Side = &v
 	return s
 }
 
 type RecognizeLicensePlateRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeLicensePlateRequest) String() string {
@@ -895,11 +858,6 @@ func (s RecognizeLicensePlateRequest) String() string {
 
 func (s RecognizeLicensePlateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeLicensePlateRequest) SetImageType(v int) *RecognizeLicensePlateRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeLicensePlateRequest) SetImageURL(v string) *RecognizeLicensePlateRequest {
@@ -1025,7 +983,6 @@ func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetY(v int) *RecognizeLicen
 
 type RecognizeLicensePlateAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeLicensePlateAdvanceRequest) String() string {
@@ -1041,13 +998,7 @@ func (s *RecognizeLicensePlateAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 	return s
 }
 
-func (s *RecognizeLicensePlateAdvanceRequest) SetImageType(v int) *RecognizeLicensePlateAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeTableRequest struct {
-	ImageType       *int    `json:"ImageType" xml:"ImageType"`
 	ImageURL        *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 	OutputFormat    *string `json:"OutputFormat" xml:"OutputFormat" require:"true"`
 	UseFinanceModel *bool   `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
@@ -1062,11 +1013,6 @@ func (s RecognizeTableRequest) String() string {
 
 func (s RecognizeTableRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeTableRequest) SetImageType(v int) *RecognizeTableRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeTableRequest) SetImageURL(v string) *RecognizeTableRequest {
@@ -1240,7 +1186,6 @@ func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetWidth(v int) 
 
 type RecognizeTableAdvanceRequest struct {
 	ImageURLObject  io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType       *int      `json:"ImageType" xml:"ImageType"`
 	OutputFormat    *string   `json:"OutputFormat" xml:"OutputFormat" require:"true"`
 	UseFinanceModel *bool     `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
 	AssureDirection *bool     `json:"AssureDirection" xml:"AssureDirection" require:"true"`
@@ -1258,11 +1203,6 @@ func (s RecognizeTableAdvanceRequest) GoString() string {
 
 func (s *RecognizeTableAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeTableAdvanceRequest {
 	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeTableAdvanceRequest) SetImageType(v int) *RecognizeTableAdvanceRequest {
-	s.ImageType = &v
 	return s
 }
 
@@ -1292,9 +1232,8 @@ func (s *RecognizeTableAdvanceRequest) SetSkipDetection(v bool) *RecognizeTableA
 }
 
 type RecognizeDrivingLicenseRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side      *string `json:"Side" xml:"Side" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Side     *string `json:"Side" xml:"Side" require:"true"`
 }
 
 func (s RecognizeDrivingLicenseRequest) String() string {
@@ -1303,11 +1242,6 @@ func (s RecognizeDrivingLicenseRequest) String() string {
 
 func (s RecognizeDrivingLicenseRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeDrivingLicenseRequest) SetImageType(v int) *RecognizeDrivingLicenseRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeDrivingLicenseRequest) SetImageURL(v string) *RecognizeDrivingLicenseRequest {
@@ -1510,7 +1444,6 @@ func (s *RecognizeDrivingLicenseResponseDataBackResult) SetPlateNumber(v string)
 
 type RecognizeDrivingLicenseAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 	Side           *string   `json:"Side" xml:"Side" require:"true"`
 }
 
@@ -1527,19 +1460,13 @@ func (s *RecognizeDrivingLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *
 	return s
 }
 
-func (s *RecognizeDrivingLicenseAdvanceRequest) SetImageType(v int) *RecognizeDrivingLicenseAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 func (s *RecognizeDrivingLicenseAdvanceRequest) SetSide(v string) *RecognizeDrivingLicenseAdvanceRequest {
 	s.Side = &v
 	return s
 }
 
 type RecognizeBankCardRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeBankCardRequest) String() string {
@@ -1548,11 +1475,6 @@ func (s RecognizeBankCardRequest) String() string {
 
 func (s RecognizeBankCardRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeBankCardRequest) SetImageType(v int) *RecognizeBankCardRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeBankCardRequest) SetImageURL(v string) *RecognizeBankCardRequest {
@@ -1614,7 +1536,6 @@ func (s *RecognizeBankCardResponseData) SetValidDate(v string) *RecognizeBankCar
 
 type RecognizeBankCardAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeBankCardAdvanceRequest) String() string {
@@ -1630,14 +1551,8 @@ func (s *RecognizeBankCardAdvanceRequest) SetImageURLObject(v io.Reader) *Recogn
 	return s
 }
 
-func (s *RecognizeBankCardAdvanceRequest) SetImageType(v int) *RecognizeBankCardAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeTrainTicketRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeTrainTicketRequest) String() string {
@@ -1646,11 +1561,6 @@ func (s RecognizeTrainTicketRequest) String() string {
 
 func (s RecognizeTrainTicketRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeTrainTicketRequest) SetImageType(v int) *RecognizeTrainTicketRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeTrainTicketRequest) SetImageURL(v string) *RecognizeTrainTicketRequest {
@@ -1742,7 +1652,6 @@ func (s *RecognizeTrainTicketResponseData) SetPrice(v float32) *RecognizeTrainTi
 
 type RecognizeTrainTicketAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeTrainTicketAdvanceRequest) String() string {
@@ -1758,15 +1667,9 @@ func (s *RecognizeTrainTicketAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 	return s
 }
 
-func (s *RecognizeTrainTicketAdvanceRequest) SetImageType(v int) *RecognizeTrainTicketAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeDriverLicenseRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side      *string `json:"Side" xml:"Side" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Side     *string `json:"Side" xml:"Side" require:"true"`
 }
 
 func (s RecognizeDriverLicenseRequest) String() string {
@@ -1775,11 +1678,6 @@ func (s RecognizeDriverLicenseRequest) String() string {
 
 func (s RecognizeDriverLicenseRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeDriverLicenseRequest) SetImageType(v int) *RecognizeDriverLicenseRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeDriverLicenseRequest) SetImageURL(v string) *RecognizeDriverLicenseRequest {
@@ -1916,7 +1814,6 @@ func (s *RecognizeDriverLicenseResponseDataBackResult) SetArchiveNumber(v string
 
 type RecognizeDriverLicenseAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 	Side           *string   `json:"Side" xml:"Side" require:"true"`
 }
 
@@ -1933,19 +1830,13 @@ func (s *RecognizeDriverLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *R
 	return s
 }
 
-func (s *RecognizeDriverLicenseAdvanceRequest) SetImageType(v int) *RecognizeDriverLicenseAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 func (s *RecognizeDriverLicenseAdvanceRequest) SetSide(v string) *RecognizeDriverLicenseAdvanceRequest {
 	s.Side = &v
 	return s
 }
 
 type RecognizeAccountPageRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeAccountPageRequest) String() string {
@@ -1954,11 +1845,6 @@ func (s RecognizeAccountPageRequest) String() string {
 
 func (s RecognizeAccountPageRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeAccountPageRequest) SetImageType(v int) *RecognizeAccountPageRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeAccountPageRequest) SetImageURL(v string) *RecognizeAccountPageRequest {
@@ -2261,7 +2147,6 @@ func (s *RecognizeAccountPageResponseDataTitleArea) SetWidth(v int) *RecognizeAc
 
 type RecognizeAccountPageAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeAccountPageAdvanceRequest) String() string {
@@ -2277,14 +2162,8 @@ func (s *RecognizeAccountPageAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 	return s
 }
 
-func (s *RecognizeAccountPageAdvanceRequest) SetImageType(v int) *RecognizeAccountPageAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeStampRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeStampRequest) String() string {
@@ -2293,11 +2172,6 @@ func (s RecognizeStampRequest) String() string {
 
 func (s RecognizeStampRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeStampRequest) SetImageType(v int) *RecognizeStampRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeStampRequest) SetImageURL(v string) *RecognizeStampRequest {
@@ -2457,7 +2331,6 @@ func (s *RecognizeStampResponseDataResultsText) SetConfidence(v float32) *Recogn
 
 type RecognizeStampAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeStampAdvanceRequest) String() string {
@@ -2473,14 +2346,8 @@ func (s *RecognizeStampAdvanceRequest) SetImageURLObject(v io.Reader) *Recognize
 	return s
 }
 
-func (s *RecognizeStampAdvanceRequest) SetImageType(v int) *RecognizeStampAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeBusinessCardRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeBusinessCardRequest) String() string {
@@ -2489,11 +2356,6 @@ func (s RecognizeBusinessCardRequest) String() string {
 
 func (s RecognizeBusinessCardRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeBusinessCardRequest) SetImageType(v int) *RecognizeBusinessCardRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeBusinessCardRequest) SetImageURL(v string) *RecognizeBusinessCardRequest {
@@ -2543,7 +2405,6 @@ func (s *RecognizeBusinessCardResponseData) SetName(v string) *RecognizeBusiness
 
 type RecognizeBusinessCardAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeBusinessCardAdvanceRequest) String() string {
@@ -2559,14 +2420,8 @@ func (s *RecognizeBusinessCardAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 	return s
 }
 
-func (s *RecognizeBusinessCardAdvanceRequest) SetImageType(v int) *RecognizeBusinessCardAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeVINCodeRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeVINCodeRequest) String() string {
@@ -2575,11 +2430,6 @@ func (s RecognizeVINCodeRequest) String() string {
 
 func (s RecognizeVINCodeRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeVINCodeRequest) SetImageType(v int) *RecognizeVINCodeRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeVINCodeRequest) SetImageURL(v string) *RecognizeVINCodeRequest {
@@ -2629,7 +2479,6 @@ func (s *RecognizeVINCodeResponseData) SetVinCode(v string) *RecognizeVINCodeRes
 
 type RecognizeVINCodeAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeVINCodeAdvanceRequest) String() string {
@@ -2645,14 +2494,8 @@ func (s *RecognizeVINCodeAdvanceRequest) SetImageURLObject(v io.Reader) *Recogni
 	return s
 }
 
-func (s *RecognizeVINCodeAdvanceRequest) SetImageType(v int) *RecognizeVINCodeAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeBusinessLicenseRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseRequest) String() string {
@@ -2661,11 +2504,6 @@ func (s RecognizeBusinessLicenseRequest) String() string {
 
 func (s RecognizeBusinessLicenseRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeBusinessLicenseRequest) SetImageType(v int) *RecognizeBusinessLicenseRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeBusinessLicenseRequest) SetImageURL(v string) *RecognizeBusinessLicenseRequest {
@@ -2933,7 +2771,6 @@ func (s *RecognizeBusinessLicenseResponseDataQRCode) SetWidth(v int) *RecognizeB
 
 type RecognizeBusinessLicenseAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeBusinessLicenseAdvanceRequest) String() string {
@@ -2946,11 +2783,6 @@ func (s RecognizeBusinessLicenseAdvanceRequest) GoString() string {
 
 func (s *RecognizeBusinessLicenseAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeBusinessLicenseAdvanceRequest {
 	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeBusinessLicenseAdvanceRequest) SetImageType(v int) *RecognizeBusinessLicenseAdvanceRequest {
-	s.ImageType = &v
 	return s
 }
 
