@@ -8,9 +8,6 @@ public class RecognizeLicensePlateAdvanceRequest extends TeaModel {
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     public static RecognizeLicensePlateAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         RecognizeLicensePlateAdvanceRequest self = new RecognizeLicensePlateAdvanceRequest();
         return TeaModel.build(map, self);

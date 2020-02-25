@@ -8,9 +8,6 @@ public class RecognizeBusinessCardAdvanceRequest extends TeaModel {
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     public static RecognizeBusinessCardAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         RecognizeBusinessCardAdvanceRequest self = new RecognizeBusinessCardAdvanceRequest();
         return TeaModel.build(map, self);

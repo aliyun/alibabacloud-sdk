@@ -56,7 +56,7 @@ public class RecognizeCharacterResponse extends TeaModel {
 
         @NameInMap("TextRectangles")
         @Validation(required = true)
-        public RecognizeCharacterResponseDataResultsTextRectangles[] textRectangles;
+        public RecognizeCharacterResponseDataResultsTextRectangles textRectangles;
 
         public static RecognizeCharacterResponseDataResults build(java.util.Map<String, ?> map) throws Exception {
             RecognizeCharacterResponseDataResults self = new RecognizeCharacterResponseDataResults();
