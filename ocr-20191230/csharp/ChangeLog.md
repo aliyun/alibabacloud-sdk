@@ -1,3 +1,6 @@
+### 2020-02-25 Version 0.0.5
+* Recodegen csharp
+
 ### 2020-02-20 Version 0.0.4
 * Improved packages version
 
