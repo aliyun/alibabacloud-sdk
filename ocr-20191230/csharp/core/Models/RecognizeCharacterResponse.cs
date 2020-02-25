@@ -23,13 +23,28 @@ namespace AlibabaCloud.Ocr.Models
             public class RecognizeCharacterResponseDataResults : TeaModel {
                     public float Probability { get; set; }
                     public string Text { get; set; }
-                    public List<RecognizeCharacterResponseDataResultsTextRectangles> TextRectangles { get; set; }
+                    public RecognizeCharacterResponseDataResultsTextRectangles TextRectangles { get; set; }
                     public class RecognizeCharacterResponseDataResultsTextRectangles : TeaModel {
-                            public int? Angle { get; set; }
-                            public int? Left { get; set; }
-                            public int? Top { get; set; }
-                            public int? Width { get; set; }
-                            public int? Height { get; set; }
+                        [NameInMap("Angle")]
+                        [Validation(Required=true)]
+                        public int? Angle { get; set; }
+
+                        [NameInMap("Left")]
+                        [Validation(Required=true)]
+                        public int? Left { get; set; }
+
+                        [NameInMap("Top")]
+                        [Validation(Required=true)]
+                        public int? Top { get; set; }
+
+                        [NameInMap("Width")]
+                        [Validation(Required=true)]
+                        public int? Width { get; set; }
+
+                        [NameInMap("Height")]
+                        [Validation(Required=true)]
+                        public int? Height { get; set; }
+
                     }
             }
         };
