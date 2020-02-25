@@ -8,9 +8,6 @@ public class RecognizeTrainTicketAdvanceRequest extends TeaModel {
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     public static RecognizeTrainTicketAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         RecognizeTrainTicketAdvanceRequest self = new RecognizeTrainTicketAdvanceRequest();
         return TeaModel.build(map, self);

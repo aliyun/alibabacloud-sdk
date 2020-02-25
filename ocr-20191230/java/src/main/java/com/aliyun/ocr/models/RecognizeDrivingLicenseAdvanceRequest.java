@@ -8,9 +8,6 @@ public class RecognizeDrivingLicenseAdvanceRequest extends TeaModel {
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     @NameInMap("Side")
     @Validation(required = true)
     public String side;
