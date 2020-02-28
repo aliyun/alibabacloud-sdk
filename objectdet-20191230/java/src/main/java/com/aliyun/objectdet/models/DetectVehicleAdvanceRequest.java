@@ -8,9 +8,6 @@ public class DetectVehicleAdvanceRequest extends TeaModel {
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     public static DetectVehicleAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         DetectVehicleAdvanceRequest self = new DetectVehicleAdvanceRequest();
         return TeaModel.build(map, self);

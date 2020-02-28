@@ -4,9 +4,6 @@ package com.aliyun.facebody.models;
 import com.aliyun.tea.*;
 
 public class CompareFaceRequest extends TeaModel {
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     @NameInMap("ImageURLA")
     @Validation(required = true)
     public String imageURLA;

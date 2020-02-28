@@ -4,9 +4,6 @@ package com.aliyun.facebody.models;
 import com.aliyun.tea.*;
 
 public class RecognizeFaceRequest extends TeaModel {
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     @NameInMap("ImageURL")
     @Validation(required = true)
     public String imageURL;

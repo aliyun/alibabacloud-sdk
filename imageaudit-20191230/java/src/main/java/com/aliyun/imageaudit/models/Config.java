@@ -1,5 +1,5 @@
 // This file is auto-generated, don't edit it. Thanks.
-package com.aliyun.imageseg.models;
+package com.aliyun.imageaudit.models;
 
 import com.aliyun.tea.*;
 

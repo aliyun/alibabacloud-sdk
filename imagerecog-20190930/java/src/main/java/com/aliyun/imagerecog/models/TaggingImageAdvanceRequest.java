@@ -8,9 +8,6 @@ public class TaggingImageAdvanceRequest extends TeaModel {
     @Validation(required = true)
     public java.io.InputStream imageURLObject;
 
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     public static TaggingImageAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         TaggingImageAdvanceRequest self = new TaggingImageAdvanceRequest();
         return TeaModel.build(map, self);
