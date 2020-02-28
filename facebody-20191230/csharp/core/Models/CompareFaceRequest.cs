@@ -9,10 +9,6 @@ using Tea;
 namespace AlibabaCloud.Facebody.Models
 {
     public class CompareFaceRequest : TeaModel {
-        [NameInMap("ImageType")]
-        [Validation(Required=false)]
-        public int? ImageType { get; set; }
-
         [NameInMap("ImageURLA")]
         [Validation(Required=true)]
         public string ImageURLA { get; set; }

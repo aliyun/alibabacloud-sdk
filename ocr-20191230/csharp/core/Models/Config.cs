@@ -10,7 +10,7 @@ namespace AlibabaCloud.Ocr.Models
 {
     public class Config : TeaModel {
         [NameInMap("accessKeyId")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string AccessKeyId { get; set; }
 
         [NameInMap("accessKeySecret")]
