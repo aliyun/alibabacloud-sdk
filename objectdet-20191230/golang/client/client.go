@@ -13,25 +13,25 @@ import (
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type" require:"true"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken" require:"true"`
+	Type                 *string `json:"type" xml:"type"`
+	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
 	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol" require:"true"`
+	Protocol             *string `json:"protocol" xml:"protocol"`
 	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent" require:"true"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout" require:"true"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout" require:"true"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr" require:"true"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy" require:"true"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy" require:"true"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy" require:"true"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy" require:"true"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	UserAgent            *string `json:"userAgent" xml:"userAgent"`
+	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
+	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
+	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
+	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
+	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
+	NoProxy              *string `json:"noProxy" xml:"noProxy"`
+	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
+	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
+	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
+	EndpointType         *string `json:"endpointType" xml:"endpointType"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
 }
 
 func (s Config) String() string {
@@ -137,9 +137,408 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
+type ClassifyVehicleInsuranceRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s ClassifyVehicleInsuranceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s ClassifyVehicleInsuranceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ClassifyVehicleInsuranceRequest) SetImageURL(v string) *ClassifyVehicleInsuranceRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type ClassifyVehicleInsuranceResponse struct {
+	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *ClassifyVehicleInsuranceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s ClassifyVehicleInsuranceResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s ClassifyVehicleInsuranceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ClassifyVehicleInsuranceResponse) SetRequestId(v string) *ClassifyVehicleInsuranceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ClassifyVehicleInsuranceResponse) SetData(v *ClassifyVehicleInsuranceResponseData) *ClassifyVehicleInsuranceResponse {
+	s.Data = v
+	return s
+}
+
+type ClassifyVehicleInsuranceResponseData struct {
+	Threshold *float32                                      `json:"Threshold" xml:"Threshold" require:"true"`
+	Labels    []*ClassifyVehicleInsuranceResponseDataLabels `json:"Labels" xml:"Labels" require:"true" type:"Repeated"`
+}
+
+func (s ClassifyVehicleInsuranceResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s ClassifyVehicleInsuranceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ClassifyVehicleInsuranceResponseData) SetThreshold(v float32) *ClassifyVehicleInsuranceResponseData {
+	s.Threshold = &v
+	return s
+}
+
+func (s *ClassifyVehicleInsuranceResponseData) SetLabels(v []*ClassifyVehicleInsuranceResponseDataLabels) *ClassifyVehicleInsuranceResponseData {
+	s.Labels = v
+	return s
+}
+
+type ClassifyVehicleInsuranceResponseDataLabels struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Name  *string  `json:"Name" xml:"Name" require:"true"`
+}
+
+func (s ClassifyVehicleInsuranceResponseDataLabels) String() string {
+	return service.Prettify(s)
+}
+
+func (s ClassifyVehicleInsuranceResponseDataLabels) GoString() string {
+	return s.String()
+}
+
+func (s *ClassifyVehicleInsuranceResponseDataLabels) SetScore(v float32) *ClassifyVehicleInsuranceResponseDataLabels {
+	s.Score = &v
+	return s
+}
+
+func (s *ClassifyVehicleInsuranceResponseDataLabels) SetName(v string) *ClassifyVehicleInsuranceResponseDataLabels {
+	s.Name = &v
+	return s
+}
+
+type ClassifyVehicleInsuranceAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s ClassifyVehicleInsuranceAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s ClassifyVehicleInsuranceAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ClassifyVehicleInsuranceAdvanceRequest) SetImageURLObject(v io.Reader) *ClassifyVehicleInsuranceAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizeVehicleDashboardRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeVehicleDashboardRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDashboardRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDashboardRequest) SetImageURL(v string) *RecognizeVehicleDashboardRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeVehicleDashboardResponse struct {
+	RequestId *string                                `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeVehicleDashboardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeVehicleDashboardResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDashboardResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDashboardResponse) SetRequestId(v string) *RecognizeVehicleDashboardResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeVehicleDashboardResponse) SetData(v *RecognizeVehicleDashboardResponseData) *RecognizeVehicleDashboardResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeVehicleDashboardResponseData struct {
+	Elements []*RecognizeVehicleDashboardResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeVehicleDashboardResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDashboardResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDashboardResponseData) SetElements(v []*RecognizeVehicleDashboardResponseDataElements) *RecognizeVehicleDashboardResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeVehicleDashboardResponseDataElements struct {
+	Score     *float32 `json:"Score" xml:"Score" require:"true"`
+	ClassName *string  `json:"ClassName" xml:"ClassName" require:"true"`
+	Label     *string  `json:"Label" xml:"Label" require:"true"`
+}
+
+func (s RecognizeVehicleDashboardResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDashboardResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDashboardResponseDataElements) SetScore(v float32) *RecognizeVehicleDashboardResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+func (s *RecognizeVehicleDashboardResponseDataElements) SetClassName(v string) *RecognizeVehicleDashboardResponseDataElements {
+	s.ClassName = &v
+	return s
+}
+
+func (s *RecognizeVehicleDashboardResponseDataElements) SetLabel(v string) *RecognizeVehicleDashboardResponseDataElements {
+	s.Label = &v
+	return s
+}
+
+type RecognizeVehicleDashboardAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeVehicleDashboardAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDashboardAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDashboardAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeVehicleDashboardAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizeVehicleDamageRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeVehicleDamageRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageRequest) SetImageURL(v string) *RecognizeVehicleDamageRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeVehicleDamageResponse struct {
+	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeVehicleDamageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeVehicleDamageResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageResponse) SetRequestId(v string) *RecognizeVehicleDamageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeVehicleDamageResponse) SetData(v *RecognizeVehicleDamageResponseData) *RecognizeVehicleDamageResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeVehicleDamageResponseData struct {
+	Elements []*RecognizeVehicleDamageResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeVehicleDamageResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageResponseData) SetElements(v []*RecognizeVehicleDamageResponseDataElements) *RecognizeVehicleDamageResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeVehicleDamageResponseDataElements struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Type  *string  `json:"Type" xml:"Type" require:"true"`
+}
+
+func (s RecognizeVehicleDamageResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageResponseDataElements) SetScore(v float32) *RecognizeVehicleDamageResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+func (s *RecognizeVehicleDamageResponseDataElements) SetType(v string) *RecognizeVehicleDamageResponseDataElements {
+	s.Type = &v
+	return s
+}
+
+type RecognizeVehicleDamageAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeVehicleDamageAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeVehicleDamageAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizeVehiclePartsRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeVehiclePartsRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsRequest) SetImageURL(v string) *RecognizeVehiclePartsRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeVehiclePartsResponse struct {
+	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeVehiclePartsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeVehiclePartsResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsResponse) SetRequestId(v string) *RecognizeVehiclePartsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeVehiclePartsResponse) SetData(v *RecognizeVehiclePartsResponseData) *RecognizeVehiclePartsResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeVehiclePartsResponseData struct {
+	Elements []*RecognizeVehiclePartsResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeVehiclePartsResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsResponseData) SetElements(v []*RecognizeVehiclePartsResponseDataElements) *RecognizeVehiclePartsResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeVehiclePartsResponseDataElements struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Type  *string  `json:"Type" xml:"Type" require:"true"`
+}
+
+func (s RecognizeVehiclePartsResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsResponseDataElements) SetScore(v float32) *RecognizeVehiclePartsResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+func (s *RecognizeVehiclePartsResponseDataElements) SetType(v string) *RecognizeVehiclePartsResponseDataElements {
+	s.Type = &v
+	return s
+}
+
+type RecognizeVehiclePartsAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeVehiclePartsAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeVehiclePartsAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type DetectVehicleRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s DetectVehicleRequest) String() string {
@@ -148,11 +547,6 @@ func (s DetectVehicleRequest) String() string {
 
 func (s DetectVehicleRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DetectVehicleRequest) SetImageType(v int) *DetectVehicleRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *DetectVehicleRequest) SetImageURL(v string) *DetectVehicleRequest {
@@ -243,7 +637,6 @@ func (s *DetectVehicleResponseDataDetectObjectInfoList) SetId(v int) *DetectVehi
 
 type DetectVehicleAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s DetectVehicleAdvanceRequest) String() string {
@@ -256,11 +649,6 @@ func (s DetectVehicleAdvanceRequest) GoString() string {
 
 func (s *DetectVehicleAdvanceRequest) SetImageURLObject(v io.Reader) *DetectVehicleAdvanceRequest {
 	s.ImageURLObject = v
-	return s
-}
-
-func (s *DetectVehicleAdvanceRequest) SetImageType(v int) *DetectVehicleAdvanceRequest {
-	s.ImageType = &v
 	return s
 }
 
@@ -473,6 +861,306 @@ func (client *Client) _request(action string, protocol string, method string, re
 	}
 
 	return _resp, _err
+}
+
+func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsuranceRequest, runtime *common.RuntimeObject) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+	_result = &ClassifyVehicleInsuranceResponse{}
+	_body, _err := client._request("ClassifyVehicleInsurance", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleInsuranceAdvanceRequest, runtime *common.RuntimeObject) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	classifyVehicleInsurancereq := &ClassifyVehicleInsuranceRequest{}
+	common.Convert(request, classifyVehicleInsurancereq)
+	classifyVehicleInsurancereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	classifyVehicleInsuranceResp, _err := client.ClassifyVehicleInsurance(classifyVehicleInsurancereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return classifyVehicleInsuranceResp, _err
+}
+
+func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboardRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDashboardResponse, _err error) {
+	_result = &RecognizeVehicleDashboardResponse{}
+	_body, _err := client._request("RecognizeVehicleDashboard", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicleDashboardAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDashboardResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeVehicleDashboardreq := &RecognizeVehicleDashboardRequest{}
+	common.Convert(request, recognizeVehicleDashboardreq)
+	recognizeVehicleDashboardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeVehicleDashboardResp, _err := client.RecognizeVehicleDashboard(recognizeVehicleDashboardreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeVehicleDashboardResp, _err
+}
+
+func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDamageResponse, _err error) {
+	_result = &RecognizeVehicleDamageResponse{}
+	_body, _err := client._request("RecognizeVehicleDamage", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDamageAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDamageResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeVehicleDamagereq := &RecognizeVehicleDamageRequest{}
+	common.Convert(request, recognizeVehicleDamagereq)
+	recognizeVehicleDamagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeVehicleDamageResp, _err := client.RecognizeVehicleDamage(recognizeVehicleDamagereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeVehicleDamageResp, _err
+}
+
+func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsRequest, runtime *common.RuntimeObject) (_result *RecognizeVehiclePartsResponse, _err error) {
+	_result = &RecognizeVehiclePartsResponse{}
+	_body, _err := client._request("RecognizeVehicleParts", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePartsAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVehiclePartsResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeVehiclePartsreq := &RecognizeVehiclePartsRequest{}
+	common.Convert(request, recognizeVehiclePartsreq)
+	recognizeVehiclePartsreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeVehiclePartsResp, _err := client.RecognizeVehicleParts(recognizeVehiclePartsreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeVehiclePartsResp, _err
 }
 
 func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *common.RuntimeObject) (_result *DetectVehicleResponse, _err error) {

@@ -1,0 +1,224 @@
+import OSS;
+import OpenPlatform;
+import Common;
+module imageaudit {
+
+  type @endpoint = string
+  type @regionId = string
+  type @protocol = string
+  type @userAgent = string
+  type @endpointType = string
+  type @readTimeout = number
+  type @connectTimeout = number
+  type @httpProxy = string
+  type @httpsProxy = string
+  type @noProxy = string
+  type @maxIdleConns = number
+  type @openPlatformEndpoint = string
+  type @getAccessKeyId = (): string
+  type @getAccessKeySecret = (): string
+  prop version = '2019-12-30';
+
+  model Config {
+    accessKeyId: string,
+    accessKeySecret?: string,
+    type?: string,
+    securityToken?: string,
+    endpoint: string,
+    protocol?: string,
+    regionId: string,
+    userAgent?: string,
+    readTimeout?: number,
+    connectTimeout?: number,
+    localAddr?: string,
+    httpProxy?: string,
+    httpsProxy?: string,
+    noProxy?: string,
+    socks5Proxy?: string,
+    socks5NetWork?: string,
+    maxIdleConns?: number,
+    endpointType?: string,
+    openPlatformEndpoint?: string,
+  }
+
+  init(config: Config);
+
+  api _request(action: string, protocol: string, method: string, request: object, runtime: Common.RuntimeObject): object {
+    protocol = Common.default(@protocol, protocol);
+    method = method;
+    pathname = '/';
+    query = Common.query({
+      Action = action,
+      Format = 'json',
+      RegionId = @regionId,
+      Timestamp = Common.getTimestamp(),
+      Date = Common.getTimestamp(),
+      Version = __module.version,
+      SignatureMethod = 'HMAC-SHA1',
+      SignatureVersion = '1.0',
+      SignatureNonce = Common.getNonce(),
+      AccessKeyId = @getAccessKeyId(),
+      ...request,
+    });
+    headers = {
+      host = Common.getHost('imageaudit', @regionId, @endpoint),
+      user-agent = Common.getUserAgent(@userAgent),
+    };
+    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
+  } returns {
+    var body = Common.json(__response);
+    if (Common.hasError(body)) {
+      throw {
+        message = body.Message,
+        data = body,
+        code = body.Code,
+      }
+    }
+    return body;
+  } runtime {
+    timeouted = 'retry',
+    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
+    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
+    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
+    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
+    noProxy = Common.default(runtime.noProxy, @noProxy),
+    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+    retry = {
+      retryable = runtime.autoretry,
+      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
+    },
+    backoff = {
+      policy = Common.default(runtime.backoffPolicy, 'no'),
+      period = Common.defaultNumber(runtime.backoffPeriod, 1)
+    },
+    ignoreSSL = runtime.ignoreSSL
+  }
+
+  model ScanTextRequest = {
+    tasks: [
+      {
+        content: string(name='Content', description='content'),
+      }
+    ](name='Tasks', description='tasks'),
+    labels: [
+      {
+        label: string(name='Label', description='label'),
+      }
+    ](name='Labels', description='labels'),
+  }
+
+  model ScanTextResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          taskId: string(name='TaskId', description='taskId'),
+          results: [
+            {
+              label: string(name='Label', description='label'),
+              suggestion: string(name='Suggestion', description='suggestion'),
+              rate: float(name='Rate', description='rate'),
+              details: [
+                {
+                  label: string(name='Label', description='label'),
+                  hintWords: [
+                    {
+                      context: string(name='Context', description='context'),
+                    }
+                  ](name='HintWords', description='hintWords'),
+                }
+              ](name='Details', description='details'),
+            }
+          ](name='Results', description='results'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function scanText(request: ScanTextRequest, runtime: Common.RuntimeObject): ScanTextResponse {
+    return _request('ScanText', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model ScanImageRequest = {
+    task: [
+      {
+        dataId?: string(name='DataId', description='dataId'),
+        imageURL: string(name='ImageURL', description='imageUrl'),
+        imageTimeMillisecond?: long(name='ImageTimeMillisecond', description='imageTime'),
+        interval?: integer(name='Interval', description='interval'),
+        maxFrames?: integer(name='MaxFrames', description='maxFrames'),
+      }
+    ](name='Task', description='tasks'),
+    scene: [ string ](name='Scene', description='scenes'),
+  }
+
+  model ScanImageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      results: [
+        {
+          dataId: string(name='DataId', description='dataId'),
+          taskId: string(name='TaskId', description='taskId'),
+          imageURL: string(name='ImageURL', description='imageUrl'),
+          subResults: [
+            {
+              label: string(name='Label', description='label'),
+              suggestion: string(name='Suggestion', description='suggestion'),
+              rate: float(name='Rate', description='rate'),
+              scene: string(name='Scene', description='scene'),
+              frames: [
+                {
+                  rate: float(name='Rate', description='Rate'),
+                  URL: string(name='URL', description='URL'),
+                }
+              ](name='Frames', description='frames'),
+              hintWordsInfoList: [
+                {
+                  context: string(name='Context', description='Context'),
+                }
+              ](name='HintWordsInfoList', description='hintWordsInfo'),
+              programCodeDataList: [
+                {
+                  x: float(name='X', description='x'),
+                  y: float(name='Y', description='y'),
+                  width: float(name='Width', description='width'),
+                  height: float(name='Height', description='height'),
+                }
+              ](name='ProgramCodeDataList', description='programCodeData'),
+              logoDataList: [
+                {
+                  type: string(name='Type', description='type'),
+                  name: string(name='Name', description='name'),
+                  x: float(name='X', description='x'),
+                  y: float(name='Y', description='y'),
+                  width: float(name='Width', description='Width'),
+                  height: float(name='Height', description='Height'),
+                }
+              ](name='LogoDataList', description='logoData'),
+              sfaceDataList: [
+                {
+                  x: float(name='X', description='x'),
+                  y: float(name='Y', description='y'),
+                  width: float(name='Width', description='width'),
+                  height: float(name='Height', description='heihght'),
+                  faces: [
+                    {
+                      name: string(name='Name', description='name'),
+                      rate: float(name='Rate', description='rate'),
+                      id: string(name='Id', description='id'),
+                    }
+                  ](name='Faces', description='faces'),
+                }
+              ](name='SfaceDataList', description='sfaceData'),
+            }
+          ](name='SubResults', description='subResults'),
+        }
+      ](name='Results', description='result'),
+    }(name='Data', description='data'),
+  }
+
+  async function scanImage(request: ScanImageRequest, runtime: Common.RuntimeObject): ScanImageResponse {
+    return _request('ScanImage', 'HTTPS', 'POST', request, runtime);
+  }
+
+}

@@ -20,25 +20,25 @@ module imageenhan {
   prop version = '2019-09-30';
 
   model Config {
-    accessKeyId?: string,
+    accessKeyId: string,
     accessKeySecret?: string,
-    type: string,
-    securityToken: string,
+    type?: string,
+    securityToken?: string,
     endpoint: string,
-    protocol: string,
+    protocol?: string,
     regionId: string,
-    userAgent: string,
-    readTimeout: number,
-    connectTimeout: number,
-    localAddr: string,
-    httpProxy: string,
-    httpsProxy: string,
-    noProxy: string,
-    socks5Proxy: string,
-    socks5NetWork: string,
-    maxIdleConns: number,
-    endpointType: string,
-    openPlatformEndpoint: string,
+    userAgent?: string,
+    readTimeout?: number,
+    connectTimeout?: number,
+    localAddr?: string,
+    httpProxy?: string,
+    httpsProxy?: string,
+    noProxy?: string,
+    socks5Proxy?: string,
+    socks5NetWork?: string,
+    maxIdleConns?: number,
+    endpointType?: string,
+    openPlatformEndpoint?: string,
   }
 
   init(config: Config);
@@ -92,6 +92,89 @@ module imageenhan {
       period = Common.defaultNumber(runtime.backoffPeriod, 1)
     },
     ignoreSSL = runtime.ignoreSSL
+  }
+
+  model IntelligentCompositionRequest = {
+    numBoxes?: integer(name='NumBoxes', description='numBoxes'),
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model IntelligentCompositionResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          minX: integer(name='MinX', description='minX'),
+          minY: integer(name='MinY', description='minY'),
+          maxX: integer(name='MaxX', description='maxX'),
+          maxY: integer(name='MaxY', description='maxY'),
+          score: float(name='Score', description='score'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function intelligentComposition(request: IntelligentCompositionRequest, runtime: Common.RuntimeObject): IntelligentCompositionResponse {
+    return _request('IntelligentComposition', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model IntelligentCompositionAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+    numBoxes?: integer(name='NumBoxes', description='numBoxes'),
+  }
+
+  async function intelligentCompositionAdvance(request: IntelligentCompositionAdvanceRequest, runtime: Common.RuntimeObject): IntelligentCompositionResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imageenhan',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var intelligentCompositionreq = new IntelligentCompositionRequest{};
+    Common.convert(request, intelligentCompositionreq);
+    intelligentCompositionreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var intelligentCompositionResp = intelligentComposition(intelligentCompositionreq, runtime);
+    return intelligentCompositionResp;
   }
 
   model ChangeImageSizeRequest = {

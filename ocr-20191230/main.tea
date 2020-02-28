@@ -20,7 +20,7 @@ module ocr {
   prop version = '2019-12-30';
 
   model Config {
-    accessKeyId?: string,
+    accessKeyId: string,
     accessKeySecret?: string,
     type?: string,
     securityToken?: string,
@@ -92,6 +92,134 @@ module ocr {
       period = Common.defaultNumber(runtime.backoffPeriod, 1)
     },
     ignoreSSL = runtime.ignoreSSL
+  }
+
+  model RecognizeQrCodeRequest = {
+    tasks: [
+      {
+        imageURL: string(name='ImageURL', description='imageUrl'),
+      }
+    ](name='Tasks', description='tasks'),
+  }
+
+  model RecognizeQrCodeResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          taskId: string(name='TaskId', description='taskId'),
+          imageURL: string(name='ImageURL', description='imageUrl'),
+          results: [
+            {
+              label: string(name='Label', description='label'),
+              suggestion: string(name='Suggestion', description='suggestion'),
+              rate: float(name='Rate', description='rate'),
+            }
+          ](name='Results', description='results'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeQrCode(request: RecognizeQrCodeRequest, runtime: Common.RuntimeObject): RecognizeQrCodeResponse {
+    return _request('RecognizeQrCode', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeVATInvoiceRequest = {
+    fileURL: string(name='FileURL', description='fileUrl'),
+    fileType: string(name='FileType', description='fileType'),
+  }
+
+  model RecognizeVATInvoiceResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      content: {
+        invoiceCode: string(name='InvoiceCode', description='invoiceCode'),
+        invoiceNo: string(name='InvoiceNo', description='invoiceNo'),
+        invoiceDate: string(name='InvoiceDate', description='invoiceDate'),
+        antiFakeCode: string(name='AntiFakeCode', description='antiFakeCode'),
+        payerName: string(name='PayerName', description='payerName'),
+        payerRegisterNo: string(name='PayerRegisterNo', description='payerRegisterNo'),
+        payerAddress: string(name='PayerAddress', description='payerAddress'),
+        payerBankName: string(name='PayerBankName', description='payerBankName'),
+        withoutTaxAmount: string(name='WithoutTaxAmount', description='withoutTaxAmount'),
+        taxAmount: string(name='TaxAmount', description='taxAmount'),
+        sumAmount: string(name='SumAmount', description='sumAmount'),
+        invoiceAmount: string(name='InvoiceAmount', description='invoiceAmount'),
+        payeeName: string(name='PayeeName', description='payeeName'),
+        payeeRegisterNo: string(name='PayeeRegisterNo', description='payeeRegisterNo'),
+        payeeAddress: string(name='PayeeAddress', description='payeeAddress'),
+        payeeBankName: string(name='PayeeBankName', description='payeeBankName'),
+        payee: string(name='Payee', description='payee'),
+        checker: string(name='Checker', description='checker'),
+        clerk: string(name='Clerk', description='clerk'),
+      }(name='Content', description='content'),
+      box: {
+      }(name='Box', description='box'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeVATInvoice(request: RecognizeVATInvoiceRequest, runtime: Common.RuntimeObject): RecognizeVATInvoiceResponse {
+    return _request('RecognizeVATInvoice', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeVATInvoiceAdvanceRequest = {
+    fileURLObject: readable(description='FileURLObject', name='FileURLObject'),
+    fileType: string(name='FileType', description='fileType'),
+  }
+
+  async function recognizeVATInvoiceAdvance(request: RecognizeVATInvoiceAdvanceRequest, runtime: Common.RuntimeObject): RecognizeVATInvoiceResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'ocr',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.fileURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeVATInvoicereq = new RecognizeVATInvoiceRequest{};
+    Common.convert(request, recognizeVATInvoicereq);
+    recognizeVATInvoicereq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeVATInvoiceResp = recognizeVATInvoice(recognizeVATInvoicereq, runtime);
+    return recognizeVATInvoiceResp;
   }
 
   model RecognizeCharacterRequest = {

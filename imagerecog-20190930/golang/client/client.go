@@ -13,25 +13,25 @@ import (
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type" require:"true"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken" require:"true"`
+	Type                 *string `json:"type" xml:"type"`
+	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
 	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol" require:"true"`
+	Protocol             *string `json:"protocol" xml:"protocol"`
 	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent" require:"true"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout" require:"true"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout" require:"true"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr" require:"true"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy" require:"true"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy" require:"true"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy" require:"true"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy" require:"true"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	UserAgent            *string `json:"userAgent" xml:"userAgent"`
+	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
+	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
+	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
+	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
+	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
+	NoProxy              *string `json:"noProxy" xml:"noProxy"`
+	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
+	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
+	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
+	EndpointType         *string `json:"endpointType" xml:"endpointType"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
 }
 
 func (s Config) String() string {
@@ -137,9 +137,193 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
+type RecognizeLogoRequest struct {
+	Tasks []*RecognizeLogoRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeLogoRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoRequest) SetTasks(v []*RecognizeLogoRequestTasks) *RecognizeLogoRequest {
+	s.Tasks = v
+	return s
+}
+
+type RecognizeLogoRequestTasks struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeLogoRequestTasks) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoRequestTasks) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoRequestTasks) SetImageURL(v string) *RecognizeLogoRequestTasks {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeLogoResponse struct {
+	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeLogoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeLogoResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoResponse) SetRequestId(v string) *RecognizeLogoResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeLogoResponse) SetData(v *RecognizeLogoResponseData) *RecognizeLogoResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeLogoResponseData struct {
+	Elements []*RecognizeLogoResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeLogoResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoResponseData) SetElements(v []*RecognizeLogoResponseDataElements) *RecognizeLogoResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeLogoResponseDataElements struct {
+	TaskId   *string                                     `json:"TaskId" xml:"TaskId" require:"true"`
+	ImageURL *string                                     `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Results  []*RecognizeLogoResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeLogoResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoResponseDataElements) SetTaskId(v string) *RecognizeLogoResponseDataElements {
+	s.TaskId = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElements) SetImageURL(v string) *RecognizeLogoResponseDataElements {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElements) SetResults(v []*RecognizeLogoResponseDataElementsResults) *RecognizeLogoResponseDataElements {
+	s.Results = v
+	return s
+}
+
+type RecognizeLogoResponseDataElementsResults struct {
+	Label      *string                                              `json:"Label" xml:"Label" require:"true"`
+	Suggestion *string                                              `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Rate       *float32                                             `json:"Rate" xml:"Rate" require:"true"`
+	LogosData  []*RecognizeLogoResponseDataElementsResultsLogosData `json:"LogosData" xml:"LogosData" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeLogoResponseDataElementsResults) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoResponseDataElementsResults) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoResponseDataElementsResults) SetLabel(v string) *RecognizeLogoResponseDataElementsResults {
+	s.Label = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResults) SetSuggestion(v string) *RecognizeLogoResponseDataElementsResults {
+	s.Suggestion = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResults) SetRate(v float32) *RecognizeLogoResponseDataElementsResults {
+	s.Rate = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResults) SetLogosData(v []*RecognizeLogoResponseDataElementsResultsLogosData) *RecognizeLogoResponseDataElementsResults {
+	s.LogosData = v
+	return s
+}
+
+type RecognizeLogoResponseDataElementsResultsLogosData struct {
+	Name *string  `json:"Name" xml:"Name" require:"true"`
+	Type *string  `json:"Type" xml:"Type" require:"true"`
+	X    *float32 `json:"X" xml:"X" require:"true"`
+	Y    *float32 `json:"Y" xml:"Y" require:"true"`
+	H    *float32 `json:"H" xml:"H" require:"true"`
+	W    *float32 `json:"W" xml:"W" require:"true"`
+}
+
+func (s RecognizeLogoResponseDataElementsResultsLogosData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeLogoResponseDataElementsResultsLogosData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetName(v string) *RecognizeLogoResponseDataElementsResultsLogosData {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetType(v string) *RecognizeLogoResponseDataElementsResultsLogosData {
+	s.Type = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetX(v float32) *RecognizeLogoResponseDataElementsResultsLogosData {
+	s.X = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetY(v float32) *RecognizeLogoResponseDataElementsResultsLogosData {
+	s.Y = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetH(v float32) *RecognizeLogoResponseDataElementsResultsLogosData {
+	s.H = &v
+	return s
+}
+
+func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetW(v float32) *RecognizeLogoResponseDataElementsResultsLogosData {
+	s.W = &v
+	return s
+}
+
 type TaggingImageRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s TaggingImageRequest) String() string {
@@ -148,11 +332,6 @@ func (s TaggingImageRequest) String() string {
 
 func (s TaggingImageRequest) GoString() string {
 	return s.String()
-}
-
-func (s *TaggingImageRequest) SetImageType(v int) *TaggingImageRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *TaggingImageRequest) SetImageURL(v string) *TaggingImageRequest {
@@ -225,7 +404,6 @@ func (s *TaggingImageResponseDataTags) SetValue(v string) *TaggingImageResponseD
 
 type TaggingImageAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s TaggingImageAdvanceRequest) String() string {
@@ -241,14 +419,8 @@ func (s *TaggingImageAdvanceRequest) SetImageURLObject(v io.Reader) *TaggingImag
 	return s
 }
 
-func (s *TaggingImageAdvanceRequest) SetImageType(v int) *TaggingImageAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type RecognizeSceneRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeSceneRequest) String() string {
@@ -257,11 +429,6 @@ func (s RecognizeSceneRequest) String() string {
 
 func (s RecognizeSceneRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeSceneRequest) SetImageType(v int) *RecognizeSceneRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeSceneRequest) SetImageURL(v string) *RecognizeSceneRequest {
@@ -334,7 +501,6 @@ func (s *RecognizeSceneResponseDataTags) SetValue(v string) *RecognizeSceneRespo
 
 type RecognizeSceneAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeSceneAdvanceRequest) String() string {
@@ -347,11 +513,6 @@ func (s RecognizeSceneAdvanceRequest) GoString() string {
 
 func (s *RecognizeSceneAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeSceneAdvanceRequest {
 	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeSceneAdvanceRequest) SetImageType(v int) *RecognizeSceneAdvanceRequest {
-	s.ImageType = &v
 	return s
 }
 
@@ -759,6 +920,16 @@ func (client *Client) _request(action string, protocol string, method string, re
 	}
 
 	return _resp, _err
+}
+
+func (client *Client) RecognizeLogo(request *RecognizeLogoRequest, runtime *common.RuntimeObject) (_result *RecognizeLogoResponse, _err error) {
+	_result = &RecognizeLogoResponse{}
+	_body, _err := client._request("RecognizeLogo", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
 }
 
 func (client *Client) TaggingImage(request *TaggingImageRequest, runtime *common.RuntimeObject) (_result *TaggingImageResponse, _err error) {

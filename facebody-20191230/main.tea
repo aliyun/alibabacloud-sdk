@@ -20,25 +20,25 @@ module facebody {
   prop version = '2019-12-30';
 
   model Config {
-    accessKeyId?: string,
+    accessKeyId: string,
     accessKeySecret?: string,
-    type: string,
-    securityToken: string,
+    type?: string,
+    securityToken?: string,
     endpoint: string,
-    protocol: string,
+    protocol?: string,
     regionId: string,
-    userAgent: string,
-    readTimeout: number,
-    connectTimeout: number,
-    localAddr: string,
-    httpProxy: string,
-    httpsProxy: string,
-    noProxy: string,
-    socks5Proxy: string,
-    socks5NetWork: string,
-    maxIdleConns: number,
-    endpointType: string,
-    openPlatformEndpoint: string,
+    userAgent?: string,
+    readTimeout?: number,
+    connectTimeout?: number,
+    localAddr?: string,
+    httpProxy?: string,
+    httpsProxy?: string,
+    noProxy?: string,
+    socks5Proxy?: string,
+    socks5NetWork?: string,
+    maxIdleConns?: number,
+    endpointType?: string,
+    openPlatformEndpoint?: string,
   }
 
   init(config: Config);
@@ -92,6 +92,246 @@ module facebody {
       period = Common.defaultNumber(runtime.backoffPeriod, 1)
     },
     ignoreSSL = runtime.ignoreSSL
+  }
+
+  model RecognizeExpressionRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model RecognizeExpressionResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          expression: string(name='Expression', description='expression'),
+          faceProbability: float(name='FaceProbability', description='faceProbability'),
+          faceRectangle: {
+            height: integer(name='Height', description='height'),
+            left: integer(name='Left', description='left'),
+            top: integer(name='Top', description='top'),
+            width: integer(name='Width', description='width'),
+          }(name='FaceRectangle', description='faceRectangle'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeExpression(request: RecognizeExpressionRequest, runtime: Common.RuntimeObject): RecognizeExpressionResponse {
+    return _request('RecognizeExpression', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeExpressionAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function recognizeExpressionAdvance(request: RecognizeExpressionAdvanceRequest, runtime: Common.RuntimeObject): RecognizeExpressionResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'facebody',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeExpressionreq = new RecognizeExpressionRequest{};
+    Common.convert(request, recognizeExpressionreq);
+    recognizeExpressionreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeExpressionResp = recognizeExpression(recognizeExpressionreq, runtime);
+    return recognizeExpressionResp;
+  }
+
+  model RecognizePublicFaceRequest = {
+    task: [
+      {
+        imageURL: string(name='ImageURL', description='imageUrl'),
+      }
+    ](name='Task', description='tasks'),
+  }
+
+  model RecognizePublicFaceResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          taskId: string(name='TaskId', description='taskId'),
+          imageURL: string(name='ImageURL', description='imageUrl'),
+          results: [
+            {
+              label: string(name='Label', description='label'),
+              suggestion: string(name='Suggestion', description='suggestion'),
+              rate: float(name='Rate', description='rate'),
+              subResults: [
+                {
+                  h: float(name='H', description='h'),
+                  w: float(name='W', description='w'),
+                  x: float(name='X', description='x'),
+                  y: float(name='Y', description='h'),
+                  faces: [
+                    {
+                      id: string(name='Id', description='id'),
+                      name: string(name='Name', description='name'),
+                      rate: float(name='Rate', description='rate'),
+                    }
+                  ](name='Faces', description='faces'),
+                }
+              ](name='SubResults', description='subResults'),
+            }
+          ](name='Results', description='results'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizePublicFace(request: RecognizePublicFaceRequest, runtime: Common.RuntimeObject): RecognizePublicFaceResponse {
+    return _request('RecognizePublicFace', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model DetectLivingFaceRequest = {
+    tasks: [
+      {
+        imageURL: string(name='ImageURL', description='imageUrl'),
+      }
+    ](name='Tasks', description='tasks'),
+  }
+
+  model DetectLivingFaceResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          taskId: string(name='TaskId', description='taskId'),
+          imageURL: string(name='ImageURL', description='imageUrl'),
+          results: [
+            {
+              label: string(name='Label', description='label'),
+              suggestion: string(name='Suggestion', description='suggestion'),
+              rate: float(name='Rate', description='rate'),
+              frames: [
+                {
+                  rate: float(name='Rate', description='rate'),
+                  url: string(name='Url', description='url'),
+                }
+              ](name='Frames', description='frames'),
+            }
+          ](name='Results', description='results'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function detectLivingFace(request: DetectLivingFaceRequest, runtime: Common.RuntimeObject): DetectLivingFaceResponse {
+    return _request('DetectLivingFace', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model DetectBodyCountRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model DetectBodyCountResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      personNumber: integer(name='PersonNumber', description='personNumber'),
+    }(name='Data', description='data'),
+  }
+
+  async function detectBodyCount(request: DetectBodyCountRequest, runtime: Common.RuntimeObject): DetectBodyCountResponse {
+    return _request('DetectBodyCount', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model DetectBodyCountAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function detectBodyCountAdvance(request: DetectBodyCountAdvanceRequest, runtime: Common.RuntimeObject): DetectBodyCountResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'facebody',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var detectBodyCountreq = new DetectBodyCountRequest{};
+    Common.convert(request, detectBodyCountreq);
+    detectBodyCountreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var detectBodyCountResp = detectBodyCount(detectBodyCountreq, runtime);
+    return detectBodyCountResp;
   }
 
   model DetectMaskRequest = {
@@ -169,7 +409,6 @@ module facebody {
   }
 
   model RecognizeFaceRequest = {
-    imageType?: integer(name='ImageType', description='imageType'),
     imageURL: string(name='ImageURL', description='imageUrl'),
   }
 
@@ -188,7 +427,6 @@ module facebody {
 
   model RecognizeFaceAdvanceRequest = {
     imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-    imageType?: integer(name='ImageType', description='imageType'),
   }
 
   async function recognizeFaceAdvance(request: RecognizeFaceAdvanceRequest, runtime: Common.RuntimeObject): RecognizeFaceResponse {
@@ -246,7 +484,6 @@ module facebody {
   }
 
   model CompareFaceRequest = {
-    imageType?: integer(name='ImageType', description='imageType'),
     imageURLA: string(name='ImageURLA', description='imageUrlA'),
     imageURLB: string(name='ImageURLB', description='imageUrlB'),
   }
@@ -263,7 +500,6 @@ module facebody {
   }
 
   model DetectFaceRequest = {
-    imageType?: integer(name='ImageType', description='imageType'),
     imageURL: string(name='ImageURL', description='imageUrl'),
   }
 
@@ -281,7 +517,6 @@ module facebody {
 
   model DetectFaceAdvanceRequest = {
     imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-    imageType?: integer(name='ImageType', description='imageType'),
   }
 
   async function detectFaceAdvance(request: DetectFaceAdvanceRequest, runtime: Common.RuntimeObject): DetectFaceResponse {

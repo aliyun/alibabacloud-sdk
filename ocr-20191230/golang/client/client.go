@@ -13,7 +13,7 @@ import (
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
 	Type                 *string `json:"type" xml:"type"`
 	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
@@ -134,6 +134,366 @@ func (s *Config) SetEndpointType(v string) *Config {
 
 func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	s.OpenPlatformEndpoint = &v
+	return s
+}
+
+type RecognizeQrCodeRequest struct {
+	Tasks []*RecognizeQrCodeRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeQrCodeRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeQrCodeRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeRequest) SetTasks(v []*RecognizeQrCodeRequestTasks) *RecognizeQrCodeRequest {
+	s.Tasks = v
+	return s
+}
+
+type RecognizeQrCodeRequestTasks struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeQrCodeRequestTasks) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeQrCodeRequestTasks) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeRequestTasks) SetImageURL(v string) *RecognizeQrCodeRequestTasks {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeQrCodeResponse struct {
+	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeQrCodeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeQrCodeResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeQrCodeResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeResponse) SetRequestId(v string) *RecognizeQrCodeResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeQrCodeResponse) SetData(v *RecognizeQrCodeResponseData) *RecognizeQrCodeResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeQrCodeResponseData struct {
+	Elements []*RecognizeQrCodeResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeQrCodeResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeQrCodeResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeResponseData) SetElements(v []*RecognizeQrCodeResponseDataElements) *RecognizeQrCodeResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeQrCodeResponseDataElements struct {
+	TaskId   *string                                       `json:"TaskId" xml:"TaskId" require:"true"`
+	ImageURL *string                                       `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Results  []*RecognizeQrCodeResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeQrCodeResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeQrCodeResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeResponseDataElements) SetTaskId(v string) *RecognizeQrCodeResponseDataElements {
+	s.TaskId = &v
+	return s
+}
+
+func (s *RecognizeQrCodeResponseDataElements) SetImageURL(v string) *RecognizeQrCodeResponseDataElements {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *RecognizeQrCodeResponseDataElements) SetResults(v []*RecognizeQrCodeResponseDataElementsResults) *RecognizeQrCodeResponseDataElements {
+	s.Results = v
+	return s
+}
+
+type RecognizeQrCodeResponseDataElementsResults struct {
+	Label      *string  `json:"Label" xml:"Label" require:"true"`
+	Suggestion *string  `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Rate       *float32 `json:"Rate" xml:"Rate" require:"true"`
+}
+
+func (s RecognizeQrCodeResponseDataElementsResults) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeQrCodeResponseDataElementsResults) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeResponseDataElementsResults) SetLabel(v string) *RecognizeQrCodeResponseDataElementsResults {
+	s.Label = &v
+	return s
+}
+
+func (s *RecognizeQrCodeResponseDataElementsResults) SetSuggestion(v string) *RecognizeQrCodeResponseDataElementsResults {
+	s.Suggestion = &v
+	return s
+}
+
+func (s *RecognizeQrCodeResponseDataElementsResults) SetRate(v float32) *RecognizeQrCodeResponseDataElementsResults {
+	s.Rate = &v
+	return s
+}
+
+type RecognizeVATInvoiceRequest struct {
+	FileURL  *string `json:"FileURL" xml:"FileURL" require:"true"`
+	FileType *string `json:"FileType" xml:"FileType" require:"true"`
+}
+
+func (s RecognizeVATInvoiceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceRequest) SetFileURL(v string) *RecognizeVATInvoiceRequest {
+	s.FileURL = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceRequest) SetFileType(v string) *RecognizeVATInvoiceRequest {
+	s.FileType = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponse struct {
+	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeVATInvoiceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeVATInvoiceResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponse) SetRequestId(v string) *RecognizeVATInvoiceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponse) SetData(v *RecognizeVATInvoiceResponseData) *RecognizeVATInvoiceResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeVATInvoiceResponseData struct {
+	Content *RecognizeVATInvoiceResponseDataContent `json:"Content" xml:"Content" require:"true" type:"Struct"`
+	Box     *RecognizeVATInvoiceResponseDataBox     `json:"Box" xml:"Box" require:"true" type:"Struct"`
+}
+
+func (s RecognizeVATInvoiceResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseData) SetContent(v *RecognizeVATInvoiceResponseDataContent) *RecognizeVATInvoiceResponseData {
+	s.Content = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseData) SetBox(v *RecognizeVATInvoiceResponseDataBox) *RecognizeVATInvoiceResponseData {
+	s.Box = v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataContent struct {
+	InvoiceCode      *string `json:"InvoiceCode" xml:"InvoiceCode" require:"true"`
+	InvoiceNo        *string `json:"InvoiceNo" xml:"InvoiceNo" require:"true"`
+	InvoiceDate      *string `json:"InvoiceDate" xml:"InvoiceDate" require:"true"`
+	AntiFakeCode     *string `json:"AntiFakeCode" xml:"AntiFakeCode" require:"true"`
+	PayerName        *string `json:"PayerName" xml:"PayerName" require:"true"`
+	PayerRegisterNo  *string `json:"PayerRegisterNo" xml:"PayerRegisterNo" require:"true"`
+	PayerAddress     *string `json:"PayerAddress" xml:"PayerAddress" require:"true"`
+	PayerBankName    *string `json:"PayerBankName" xml:"PayerBankName" require:"true"`
+	WithoutTaxAmount *string `json:"WithoutTaxAmount" xml:"WithoutTaxAmount" require:"true"`
+	TaxAmount        *string `json:"TaxAmount" xml:"TaxAmount" require:"true"`
+	SumAmount        *string `json:"SumAmount" xml:"SumAmount" require:"true"`
+	InvoiceAmount    *string `json:"InvoiceAmount" xml:"InvoiceAmount" require:"true"`
+	PayeeName        *string `json:"PayeeName" xml:"PayeeName" require:"true"`
+	PayeeRegisterNo  *string `json:"PayeeRegisterNo" xml:"PayeeRegisterNo" require:"true"`
+	PayeeAddress     *string `json:"PayeeAddress" xml:"PayeeAddress" require:"true"`
+	PayeeBankName    *string `json:"PayeeBankName" xml:"PayeeBankName" require:"true"`
+	Payee            *string `json:"Payee" xml:"Payee" require:"true"`
+	Checker          *string `json:"Checker" xml:"Checker" require:"true"`
+	Clerk            *string `json:"Clerk" xml:"Clerk" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataContent) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataContent) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetInvoiceCode(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.InvoiceCode = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetInvoiceNo(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.InvoiceNo = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetInvoiceDate(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.InvoiceDate = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetAntiFakeCode(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.AntiFakeCode = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayerName(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayerName = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayerRegisterNo(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayerRegisterNo = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayerAddress(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayerAddress = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayerBankName(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayerBankName = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetWithoutTaxAmount(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.WithoutTaxAmount = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetTaxAmount(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.TaxAmount = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetSumAmount(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.SumAmount = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetInvoiceAmount(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.InvoiceAmount = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayeeName(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayeeName = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayeeRegisterNo(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayeeRegisterNo = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayeeAddress(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayeeAddress = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayeeBankName(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.PayeeBankName = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetPayee(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.Payee = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetChecker(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.Checker = &v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataContent) SetClerk(v string) *RecognizeVATInvoiceResponseDataContent {
+	s.Clerk = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBox struct {
+}
+
+func (s RecognizeVATInvoiceResponseDataBox) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBox) GoString() string {
+	return s.String()
+}
+
+type RecognizeVATInvoiceAdvanceRequest struct {
+	FileURLObject io.Reader `json:"FileURLObject" xml:"FileURLObject" require:"true"`
+	FileType      *string   `json:"FileType" xml:"FileType" require:"true"`
+}
+
+func (s RecognizeVATInvoiceAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceAdvanceRequest) SetFileURLObject(v io.Reader) *RecognizeVATInvoiceAdvanceRequest {
+	s.FileURLObject = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceAdvanceRequest) SetFileType(v string) *RecognizeVATInvoiceAdvanceRequest {
+	s.FileType = &v
 	return s
 }
 
@@ -2886,6 +3246,91 @@ func (client *Client) _request(action string, protocol string, method string, re
 	}
 
 	return _resp, _err
+}
+
+func (client *Client) RecognizeQrCode(request *RecognizeQrCodeRequest, runtime *common.RuntimeObject) (_result *RecognizeQrCodeResponse, _err error) {
+	_result = &RecognizeQrCodeResponse{}
+	_body, _err := client._request("RecognizeQrCode", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVATInvoice(request *RecognizeVATInvoiceRequest, runtime *common.RuntimeObject) (_result *RecognizeVATInvoiceResponse, _err error) {
+	_result = &RecognizeVATInvoiceResponse{}
+	_body, _err := client._request("RecognizeVATInvoice", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVATInvoiceResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.FileURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeVATInvoicereq := &RecognizeVATInvoiceRequest{}
+	common.Convert(request, recognizeVATInvoicereq)
+	recognizeVATInvoicereq.FileURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeVATInvoiceResp, _err := client.RecognizeVATInvoice(recognizeVATInvoicereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeVATInvoiceResp, _err
 }
 
 func (client *Client) RecognizeCharacter(request *RecognizeCharacterRequest, runtime *common.RuntimeObject) (_result *RecognizeCharacterResponse, _err error) {
