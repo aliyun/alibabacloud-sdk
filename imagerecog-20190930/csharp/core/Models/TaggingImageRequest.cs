@@ -9,10 +9,6 @@ using Tea;
 namespace AlibabaCloud.Imagerecog.Models
 {
     public class TaggingImageRequest : TeaModel {
-        [NameInMap("ImageType")]
-        [Validation(Required=false)]
-        public int? ImageType { get; set; }
-
         [NameInMap("ImageURL")]
         [Validation(Required=true)]
         public string ImageURL { get; set; }

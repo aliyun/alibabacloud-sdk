@@ -213,6 +213,16 @@ namespace AlibabaCloud.Imagerecog
             throw new TeaUnretryableException(_lastRequest, _lastException);
         }
 
+        public RecognizeLogoResponse RecognizeLogo(RecognizeLogoRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecognizeLogoResponse>(_request("RecognizeLogo", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeLogoResponse> RecognizeLogoAsync(RecognizeLogoRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecognizeLogoResponse>(await _requestAsync("RecognizeLogo", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
         public TaggingImageResponse TaggingImage(TaggingImageRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
         {
             return TeaModel.ToObject<TaggingImageResponse>(_request("TaggingImage", "HTTPS", "POST", request.ToMap(), runtime));

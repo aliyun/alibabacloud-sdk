@@ -213,6 +213,138 @@ namespace AlibabaCloud.Ocr
             throw new TeaUnretryableException(_lastRequest, _lastException);
         }
 
+        public RecognizeQrCodeResponse RecognizeQrCode(RecognizeQrCodeRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecognizeQrCodeResponse>(_request("RecognizeQrCode", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeQrCodeResponse> RecognizeQrCodeAsync(RecognizeQrCodeRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecognizeQrCodeResponse>(await _requestAsync("RecognizeQrCode", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public RecognizeVATInvoiceResponse RecognizeVATInvoice(RecognizeVATInvoiceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecognizeVATInvoiceResponse>(_request("RecognizeVATInvoice", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeVATInvoiceResponse> RecognizeVATInvoiceAsync(RecognizeVATInvoiceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            return TeaModel.ToObject<RecognizeVATInvoiceResponse>(await _requestAsync("RecognizeVATInvoice", "HTTPS", "POST", request.ToMap(), runtime));
+        }
+
+        public RecognizeVATInvoiceResponse RecognizeVATInvoiceAdvance(RecognizeVATInvoiceAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = _getAccessKeyId(),
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
+            {
+                FileName = authResponse.ObjectKey,
+                Content = request.FileURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            ossClient.PostObject(uploadRequest, runtime);
+            RecognizeVATInvoiceRequest recognizeVATInvoicereq = new RecognizeVATInvoiceRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeVATInvoicereq);
+            recognizeVATInvoicereq.FileURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeVATInvoiceResponse recognizeVATInvoiceResp = RecognizeVATInvoice(recognizeVATInvoicereq, runtime);
+            return recognizeVATInvoiceResp;
+        }
+
+        public async Task<RecognizeVATInvoiceResponse> RecognizeVATInvoiceAdvanceAsync(RecognizeVATInvoiceAdvanceRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
+        {
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = _getAccessKeyId(),
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = _getAccessKeySecret(),
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile fileObj = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader.PostObjectRequestHeaderFile
+            {
+                FileName = authResponse.ObjectKey,
+                Content = request.FileURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            await ossClient.PostObjectAsync(uploadRequest, runtime);
+            RecognizeVATInvoiceRequest recognizeVATInvoicereq = new RecognizeVATInvoiceRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeVATInvoicereq);
+            recognizeVATInvoicereq.FileURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeVATInvoiceResponse recognizeVATInvoiceResp = await RecognizeVATInvoiceAsync(recognizeVATInvoicereq, runtime);
+            return recognizeVATInvoiceResp;
+        }
+
         public RecognizeCharacterResponse RecognizeCharacter(RecognizeCharacterRequest request, AlibabaCloud.Commons.Models.RuntimeObject runtime)
         {
             return TeaModel.ToObject<RecognizeCharacterResponse>(_request("RecognizeCharacter", "HTTPS", "POST", request.ToMap(), runtime));
