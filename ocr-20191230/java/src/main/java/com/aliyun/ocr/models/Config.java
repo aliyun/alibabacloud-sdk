@@ -5,6 +5,7 @@ import com.aliyun.tea.*;
 
 public class Config extends TeaModel {
     @NameInMap("accessKeyId")
+    @Validation(required = true)
     public String accessKeyId;
 
     @NameInMap("accessKeySecret")

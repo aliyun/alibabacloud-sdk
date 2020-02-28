@@ -4,9 +4,6 @@ package com.aliyun.imagerecog.models;
 import com.aliyun.tea.*;
 
 public class RecognizeSceneRequest extends TeaModel {
-    @NameInMap("ImageType")
-    public Integer imageType;
-
     @NameInMap("ImageURL")
     @Validation(required = true)
     public String imageURL;

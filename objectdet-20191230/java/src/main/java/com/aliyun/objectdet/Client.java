@@ -90,6 +90,218 @@ public class Client extends RPCClient {
         throw new TeaUnretryableException(_lastRequest);
     }
 
+    public ClassifyVehicleInsuranceResponse classifyVehicleInsurance(ClassifyVehicleInsuranceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        return TeaModel.toModel(this._request("ClassifyVehicleInsurance", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new ClassifyVehicleInsuranceResponse());
+    }
+
+    public ClassifyVehicleInsuranceResponse classifyVehicleInsuranceAdvance(ClassifyVehicleInsuranceAdvanceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", _getAccessKeyId()),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", "openplatform.aliyuncs.com"),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
+        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+            new TeaPair("product", "objectdet"),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", com.aliyun.common.Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, _endpointType)),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
+            new TeaPair("fileName", authResponse.objectKey),
+            new TeaPair("content", request.imageURLObject),
+            new TeaPair("contentType", "")
+        ));
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("policy", authResponse.encodedPolicy),
+            new TeaPair("signature", authResponse.signature),
+            new TeaPair("key", authResponse.objectKey),
+            new TeaPair("file", fileObj),
+            new TeaPair("successActionStatus", "201")
+        ));
+        com.aliyun.oss.models.PostObjectRequest uploadRequest = com.aliyun.oss.models.PostObjectRequest.build(TeaConverter.buildMap(
+            new TeaPair("bucketName", authResponse.bucket),
+            new TeaPair("header", ossHeader)
+        ));
+        ossClient.postObject(uploadRequest, runtime);
+        ClassifyVehicleInsuranceRequest classifyVehicleInsurancereq = new ClassifyVehicleInsuranceRequest();
+        com.aliyun.common.Common.convert(request, classifyVehicleInsurancereq);
+        classifyVehicleInsurancereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
+        ClassifyVehicleInsuranceResponse classifyVehicleInsuranceResp = this.classifyVehicleInsurance(classifyVehicleInsurancereq, runtime);
+        return classifyVehicleInsuranceResp;
+    }
+
+    public RecognizeVehicleDashboardResponse recognizeVehicleDashboard(RecognizeVehicleDashboardRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        return TeaModel.toModel(this._request("RecognizeVehicleDashboard", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new RecognizeVehicleDashboardResponse());
+    }
+
+    public RecognizeVehicleDashboardResponse recognizeVehicleDashboardAdvance(RecognizeVehicleDashboardAdvanceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", _getAccessKeyId()),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", "openplatform.aliyuncs.com"),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
+        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+            new TeaPair("product", "objectdet"),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", com.aliyun.common.Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, _endpointType)),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
+            new TeaPair("fileName", authResponse.objectKey),
+            new TeaPair("content", request.imageURLObject),
+            new TeaPair("contentType", "")
+        ));
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("policy", authResponse.encodedPolicy),
+            new TeaPair("signature", authResponse.signature),
+            new TeaPair("key", authResponse.objectKey),
+            new TeaPair("file", fileObj),
+            new TeaPair("successActionStatus", "201")
+        ));
+        com.aliyun.oss.models.PostObjectRequest uploadRequest = com.aliyun.oss.models.PostObjectRequest.build(TeaConverter.buildMap(
+            new TeaPair("bucketName", authResponse.bucket),
+            new TeaPair("header", ossHeader)
+        ));
+        ossClient.postObject(uploadRequest, runtime);
+        RecognizeVehicleDashboardRequest recognizeVehicleDashboardreq = new RecognizeVehicleDashboardRequest();
+        com.aliyun.common.Common.convert(request, recognizeVehicleDashboardreq);
+        recognizeVehicleDashboardreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
+        RecognizeVehicleDashboardResponse recognizeVehicleDashboardResp = this.recognizeVehicleDashboard(recognizeVehicleDashboardreq, runtime);
+        return recognizeVehicleDashboardResp;
+    }
+
+    public RecognizeVehicleDamageResponse recognizeVehicleDamage(RecognizeVehicleDamageRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        return TeaModel.toModel(this._request("RecognizeVehicleDamage", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new RecognizeVehicleDamageResponse());
+    }
+
+    public RecognizeVehicleDamageResponse recognizeVehicleDamageAdvance(RecognizeVehicleDamageAdvanceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", _getAccessKeyId()),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", "openplatform.aliyuncs.com"),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
+        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+            new TeaPair("product", "objectdet"),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", com.aliyun.common.Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, _endpointType)),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
+            new TeaPair("fileName", authResponse.objectKey),
+            new TeaPair("content", request.imageURLObject),
+            new TeaPair("contentType", "")
+        ));
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("policy", authResponse.encodedPolicy),
+            new TeaPair("signature", authResponse.signature),
+            new TeaPair("key", authResponse.objectKey),
+            new TeaPair("file", fileObj),
+            new TeaPair("successActionStatus", "201")
+        ));
+        com.aliyun.oss.models.PostObjectRequest uploadRequest = com.aliyun.oss.models.PostObjectRequest.build(TeaConverter.buildMap(
+            new TeaPair("bucketName", authResponse.bucket),
+            new TeaPair("header", ossHeader)
+        ));
+        ossClient.postObject(uploadRequest, runtime);
+        RecognizeVehicleDamageRequest recognizeVehicleDamagereq = new RecognizeVehicleDamageRequest();
+        com.aliyun.common.Common.convert(request, recognizeVehicleDamagereq);
+        recognizeVehicleDamagereq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
+        RecognizeVehicleDamageResponse recognizeVehicleDamageResp = this.recognizeVehicleDamage(recognizeVehicleDamagereq, runtime);
+        return recognizeVehicleDamageResp;
+    }
+
+    public RecognizeVehiclePartsResponse recognizeVehicleParts(RecognizeVehiclePartsRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        return TeaModel.toModel(this._request("RecognizeVehicleParts", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new RecognizeVehiclePartsResponse());
+    }
+
+    public RecognizeVehiclePartsResponse recognizeVehiclePartsAdvance(RecognizeVehiclePartsAdvanceRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", _getAccessKeyId()),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", "openplatform.aliyuncs.com"),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
+        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+            new TeaPair("product", "objectdet"),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("accessKeySecret", _getAccessKeySecret()),
+            new TeaPair("type", "access_key"),
+            new TeaPair("endpoint", com.aliyun.common.Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, _endpointType)),
+            new TeaPair("protocol", _protocol),
+            new TeaPair("regionId", _regionId)
+        ));
+        com.aliyun.oss.Client ossClient = new com.aliyun.oss.Client(ossConfig);
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile fileObj = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeaderFile.build(TeaConverter.buildMap(
+            new TeaPair("fileName", authResponse.objectKey),
+            new TeaPair("content", request.imageURLObject),
+            new TeaPair("contentType", "")
+        ));
+        com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader ossHeader = com.aliyun.oss.models.PostObjectRequest.PostObjectRequestHeader.build(TeaConverter.buildMap(
+            new TeaPair("accessKeyId", authResponse.accessKeyId),
+            new TeaPair("policy", authResponse.encodedPolicy),
+            new TeaPair("signature", authResponse.signature),
+            new TeaPair("key", authResponse.objectKey),
+            new TeaPair("file", fileObj),
+            new TeaPair("successActionStatus", "201")
+        ));
+        com.aliyun.oss.models.PostObjectRequest uploadRequest = com.aliyun.oss.models.PostObjectRequest.build(TeaConverter.buildMap(
+            new TeaPair("bucketName", authResponse.bucket),
+            new TeaPair("header", ossHeader)
+        ));
+        ossClient.postObject(uploadRequest, runtime);
+        RecognizeVehiclePartsRequest recognizeVehiclePartsreq = new RecognizeVehiclePartsRequest();
+        com.aliyun.common.Common.convert(request, recognizeVehiclePartsreq);
+        recognizeVehiclePartsreq.imageURL = "http://" + authResponse.bucket + "." + authResponse.endpoint + "/" + authResponse.objectKey + "";
+        RecognizeVehiclePartsResponse recognizeVehiclePartsResp = this.recognizeVehicleParts(recognizeVehiclePartsreq, runtime);
+        return recognizeVehiclePartsResp;
+    }
+
     public DetectVehicleResponse detectVehicle(DetectVehicleRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
         return TeaModel.toModel(this._request("DetectVehicle", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new DetectVehicleResponse());
     }

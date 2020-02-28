@@ -90,6 +90,10 @@ public class Client extends RPCClient {
         throw new TeaUnretryableException(_lastRequest);
     }
 
+    public RecognizeLogoResponse recognizeLogo(RecognizeLogoRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
+        return TeaModel.toModel(this._request("RecognizeLogo", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new RecognizeLogoResponse());
+    }
+
     public TaggingImageResponse taggingImage(TaggingImageRequest request, com.aliyun.common.models.RuntimeObject runtime) throws Exception {
         return TeaModel.toModel(this._request("TaggingImage", "HTTPS", "POST", TeaModel.buildMap(request), runtime), new TaggingImageResponse());
     }
