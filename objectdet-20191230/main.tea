@@ -20,25 +20,25 @@ module objectdet {
   prop version = '2019-12-30';
 
   model Config {
-    accessKeyId?: string,
+    accessKeyId: string,
     accessKeySecret?: string,
-    type: string,
-    securityToken: string,
+    type?: string,
+    securityToken?: string,
     endpoint: string,
-    protocol: string,
+    protocol?: string,
     regionId: string,
-    userAgent: string,
-    readTimeout: number,
-    connectTimeout: number,
-    localAddr: string,
-    httpProxy: string,
-    httpsProxy: string,
-    noProxy: string,
-    socks5Proxy: string,
-    socks5NetWork: string,
-    maxIdleConns: number,
-    endpointType: string,
-    openPlatformEndpoint: string,
+    userAgent?: string,
+    readTimeout?: number,
+    connectTimeout?: number,
+    localAddr?: string,
+    httpProxy?: string,
+    httpsProxy?: string,
+    noProxy?: string,
+    socks5Proxy?: string,
+    socks5NetWork?: string,
+    maxIdleConns?: number,
+    endpointType?: string,
+    openPlatformEndpoint?: string,
   }
 
   init(config: Config);
@@ -94,8 +94,321 @@ module objectdet {
     ignoreSSL = runtime.ignoreSSL
   }
 
+  model ClassifyVehicleInsuranceRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model ClassifyVehicleInsuranceResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      threshold: float(name='Threshold', description='threshold'),
+      labels: [
+        {
+          score: float(name='Score', description='score'),
+          name: string(name='Name', description='name'),
+        }
+      ](name='Labels', description='labels'),
+    }(name='Data', description='data'),
+  }
+
+  async function classifyVehicleInsurance(request: ClassifyVehicleInsuranceRequest, runtime: Common.RuntimeObject): ClassifyVehicleInsuranceResponse {
+    return _request('ClassifyVehicleInsurance', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model ClassifyVehicleInsuranceAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function classifyVehicleInsuranceAdvance(request: ClassifyVehicleInsuranceAdvanceRequest, runtime: Common.RuntimeObject): ClassifyVehicleInsuranceResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'objectdet',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var classifyVehicleInsurancereq = new ClassifyVehicleInsuranceRequest{};
+    Common.convert(request, classifyVehicleInsurancereq);
+    classifyVehicleInsurancereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var classifyVehicleInsuranceResp = classifyVehicleInsurance(classifyVehicleInsurancereq, runtime);
+    return classifyVehicleInsuranceResp;
+  }
+
+  model RecognizeVehicleDashboardRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model RecognizeVehicleDashboardResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          score: float(name='Score', description='score'),
+          className: string(name='ClassName', description='className'),
+          label: string(name='Label', description='label'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeVehicleDashboard(request: RecognizeVehicleDashboardRequest, runtime: Common.RuntimeObject): RecognizeVehicleDashboardResponse {
+    return _request('RecognizeVehicleDashboard', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeVehicleDashboardAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function recognizeVehicleDashboardAdvance(request: RecognizeVehicleDashboardAdvanceRequest, runtime: Common.RuntimeObject): RecognizeVehicleDashboardResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'objectdet',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeVehicleDashboardreq = new RecognizeVehicleDashboardRequest{};
+    Common.convert(request, recognizeVehicleDashboardreq);
+    recognizeVehicleDashboardreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeVehicleDashboardResp = recognizeVehicleDashboard(recognizeVehicleDashboardreq, runtime);
+    return recognizeVehicleDashboardResp;
+  }
+
+  model RecognizeVehicleDamageRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model RecognizeVehicleDamageResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          score: float(name='Score', description='score'),
+          type: string(name='Type', description='type'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeVehicleDamage(request: RecognizeVehicleDamageRequest, runtime: Common.RuntimeObject): RecognizeVehicleDamageResponse {
+    return _request('RecognizeVehicleDamage', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeVehicleDamageAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function recognizeVehicleDamageAdvance(request: RecognizeVehicleDamageAdvanceRequest, runtime: Common.RuntimeObject): RecognizeVehicleDamageResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'objectdet',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeVehicleDamagereq = new RecognizeVehicleDamageRequest{};
+    Common.convert(request, recognizeVehicleDamagereq);
+    recognizeVehicleDamagereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeVehicleDamageResp = recognizeVehicleDamage(recognizeVehicleDamagereq, runtime);
+    return recognizeVehicleDamageResp;
+  }
+
+  model RecognizeVehiclePartsRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model RecognizeVehiclePartsResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          score: float(name='Score', description='score'),
+          type: string(name='Type', description='type'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function recognizeVehicleParts(request: RecognizeVehiclePartsRequest, runtime: Common.RuntimeObject): RecognizeVehiclePartsResponse {
+    return _request('RecognizeVehicleParts', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model RecognizeVehiclePartsAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function recognizeVehiclePartsAdvance(request: RecognizeVehiclePartsAdvanceRequest, runtime: Common.RuntimeObject): RecognizeVehiclePartsResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'objectdet',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var recognizeVehiclePartsreq = new RecognizeVehiclePartsRequest{};
+    Common.convert(request, recognizeVehiclePartsreq);
+    recognizeVehiclePartsreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var recognizeVehiclePartsResp = recognizeVehicleParts(recognizeVehiclePartsreq, runtime);
+    return recognizeVehiclePartsResp;
+  }
+
   model DetectVehicleRequest = {
-    imageType?: integer(name='ImageType', description='imageType'),
     imageURL: string(name='ImageURL', description='imageUrl'),
   }
 
@@ -120,7 +433,6 @@ module objectdet {
 
   model DetectVehicleAdvanceRequest = {
     imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-    imageType?: integer(name='ImageType', description='imageType'),
   }
 
   async function detectVehicleAdvance(request: DetectVehicleAdvanceRequest, runtime: Common.RuntimeObject): DetectVehicleResponse {

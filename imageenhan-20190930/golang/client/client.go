@@ -13,25 +13,25 @@ import (
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type" require:"true"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken" require:"true"`
+	Type                 *string `json:"type" xml:"type"`
+	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
 	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol" require:"true"`
+	Protocol             *string `json:"protocol" xml:"protocol"`
 	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent" require:"true"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout" require:"true"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout" require:"true"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr" require:"true"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy" require:"true"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy" require:"true"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy" require:"true"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy" require:"true"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	UserAgent            *string `json:"userAgent" xml:"userAgent"`
+	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
+	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
+	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
+	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
+	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
+	NoProxy              *string `json:"noProxy" xml:"noProxy"`
+	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
+	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
+	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
+	EndpointType         *string `json:"endpointType" xml:"endpointType"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
 }
 
 func (s Config) String() string {
@@ -134,6 +134,133 @@ func (s *Config) SetEndpointType(v string) *Config {
 
 func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	s.OpenPlatformEndpoint = &v
+	return s
+}
+
+type IntelligentCompositionRequest struct {
+	NumBoxes *int    `json:"NumBoxes" xml:"NumBoxes"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s IntelligentCompositionRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s IntelligentCompositionRequest) GoString() string {
+	return s.String()
+}
+
+func (s *IntelligentCompositionRequest) SetNumBoxes(v int) *IntelligentCompositionRequest {
+	s.NumBoxes = &v
+	return s
+}
+
+func (s *IntelligentCompositionRequest) SetImageURL(v string) *IntelligentCompositionRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type IntelligentCompositionResponse struct {
+	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *IntelligentCompositionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s IntelligentCompositionResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s IntelligentCompositionResponse) GoString() string {
+	return s.String()
+}
+
+func (s *IntelligentCompositionResponse) SetRequestId(v string) *IntelligentCompositionResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *IntelligentCompositionResponse) SetData(v *IntelligentCompositionResponseData) *IntelligentCompositionResponse {
+	s.Data = v
+	return s
+}
+
+type IntelligentCompositionResponseData struct {
+	Elements []*IntelligentCompositionResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s IntelligentCompositionResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s IntelligentCompositionResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *IntelligentCompositionResponseData) SetElements(v []*IntelligentCompositionResponseDataElements) *IntelligentCompositionResponseData {
+	s.Elements = v
+	return s
+}
+
+type IntelligentCompositionResponseDataElements struct {
+	MinX  *int     `json:"MinX" xml:"MinX" require:"true"`
+	MinY  *int     `json:"MinY" xml:"MinY" require:"true"`
+	MaxX  *int     `json:"MaxX" xml:"MaxX" require:"true"`
+	MaxY  *int     `json:"MaxY" xml:"MaxY" require:"true"`
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+}
+
+func (s IntelligentCompositionResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s IntelligentCompositionResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *IntelligentCompositionResponseDataElements) SetMinX(v int) *IntelligentCompositionResponseDataElements {
+	s.MinX = &v
+	return s
+}
+
+func (s *IntelligentCompositionResponseDataElements) SetMinY(v int) *IntelligentCompositionResponseDataElements {
+	s.MinY = &v
+	return s
+}
+
+func (s *IntelligentCompositionResponseDataElements) SetMaxX(v int) *IntelligentCompositionResponseDataElements {
+	s.MaxX = &v
+	return s
+}
+
+func (s *IntelligentCompositionResponseDataElements) SetMaxY(v int) *IntelligentCompositionResponseDataElements {
+	s.MaxY = &v
+	return s
+}
+
+func (s *IntelligentCompositionResponseDataElements) SetScore(v float32) *IntelligentCompositionResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+type IntelligentCompositionAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	NumBoxes       *int      `json:"NumBoxes" xml:"NumBoxes"`
+}
+
+func (s IntelligentCompositionAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s IntelligentCompositionAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *IntelligentCompositionAdvanceRequest) SetImageURLObject(v io.Reader) *IntelligentCompositionAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *IntelligentCompositionAdvanceRequest) SetNumBoxes(v int) *IntelligentCompositionAdvanceRequest {
+	s.NumBoxes = &v
 	return s
 }
 
@@ -570,6 +697,81 @@ func (client *Client) _request(action string, protocol string, method string, re
 	}
 
 	return _resp, _err
+}
+
+func (client *Client) IntelligentComposition(request *IntelligentCompositionRequest, runtime *common.RuntimeObject) (_result *IntelligentCompositionResponse, _err error) {
+	_result = &IntelligentCompositionResponse{}
+	_body, _err := client._request("IntelligentComposition", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) IntelligentCompositionAdvance(request *IntelligentCompositionAdvanceRequest, runtime *common.RuntimeObject) (_result *IntelligentCompositionResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	intelligentCompositionreq := &IntelligentCompositionRequest{}
+	common.Convert(request, intelligentCompositionreq)
+	intelligentCompositionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	intelligentCompositionResp, _err := client.IntelligentComposition(intelligentCompositionreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return intelligentCompositionResp, _err
 }
 
 func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {

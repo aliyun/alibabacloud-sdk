@@ -20,25 +20,25 @@ module imageseg {
   prop version = '2019-12-30';
 
   model Config {
-    accessKeyId?: string,
+    accessKeyId: string,
     accessKeySecret?: string,
-    type: string,
-    securityToken: string,
+    type?: string,
+    securityToken?: string,
     endpoint: string,
-    protocol: string,
+    protocol?: string,
     regionId: string,
-    userAgent: string,
-    readTimeout: number,
-    connectTimeout: number,
-    localAddr: string,
-    httpProxy: string,
-    httpsProxy: string,
-    noProxy: string,
-    socks5Proxy: string,
-    socks5NetWork: string,
-    maxIdleConns: number,
-    endpointType: string,
-    openPlatformEndpoint: string,
+    userAgent?: string,
+    readTimeout?: number,
+    connectTimeout?: number,
+    localAddr?: string,
+    httpProxy?: string,
+    httpsProxy?: string,
+    noProxy?: string,
+    socks5Proxy?: string,
+    socks5NetWork?: string,
+    maxIdleConns?: number,
+    endpointType?: string,
+    openPlatformEndpoint?: string,
   }
 
   init(config: Config);
@@ -92,6 +92,163 @@ module imageseg {
       period = Common.defaultNumber(runtime.backoffPeriod, 1)
     },
     ignoreSSL = runtime.ignoreSSL
+  }
+
+  model ParseFaceRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model ParseFaceResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      originImageURL: string(name='OriginImageURL', description='originImageUrl'),
+      elements: [
+        {
+          name: string(name='Name', description='name'),
+          imageURL: string(name='ImageURL', description='imageUrl'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function parseFace(request: ParseFaceRequest, runtime: Common.RuntimeObject): ParseFaceResponse {
+    return _request('ParseFace', 'HTTPS', 'GET', request, runtime);
+  }
+
+  model ParseFaceAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Common.RuntimeObject): ParseFaceResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imageseg',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var parseFacereq = new ParseFaceRequest{};
+    Common.convert(request, parseFacereq);
+    parseFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var parseFaceResp = parseFace(parseFacereq, runtime);
+    return parseFaceResp;
+  }
+
+  model SegmentVehicleRequest = {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }
+
+  model SegmentVehicleResponse = {
+    requestId: string(name='RequestId', description='requestId'),
+    data: {
+      elements: [
+        {
+          originImageURL: string(name='OriginImageURL', description='originImageUrl'),
+          imageURL: string(name='ImageURL', description='imageUrl'),
+        }
+      ](name='Elements', description='elements'),
+    }(name='Data', description='data'),
+  }
+
+  async function segmentVehicle(request: SegmentVehicleRequest, runtime: Common.RuntimeObject): SegmentVehicleResponse {
+    return _request('SegmentVehicle', 'HTTPS', 'POST', request, runtime);
+  }
+
+  model SegmentVehicleAdvanceRequest = {
+    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  }
+
+  async function segmentVehicleAdvance(request: SegmentVehicleAdvanceRequest, runtime: Common.RuntimeObject): SegmentVehicleResponse {
+    // Step 0: init client
+    var authConfig = new OpenPlatform.Config{
+      accessKeyId = @getAccessKeyId(),
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = 'openplatform.aliyuncs.com',
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var authClient = new OpenPlatform(authConfig);
+
+    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+      product = 'imageseg',
+      regionId = @regionId,
+    };
+    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    var ossConfig = new OSS.Config{
+      accessKeyId = authResponse.accessKeyId,
+      accessKeySecret = @getAccessKeySecret(),
+      type = 'access_key',
+      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+      protocol = @protocol,
+      regionId = @regionId,
+    };
+    var ossClient = new OSS(ossConfig);
+
+    var fileObj = new OSS.PostObjectRequest.header.file{
+      fileName = authResponse.objectKey,
+      content = request.imageURLObject,
+      contentType = '',
+    };
+    var ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.accessKeyId,
+      policy = authResponse.encodedPolicy,
+      signature = authResponse.signature,
+      key = authResponse.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    var uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, runtime);
+    // Step 2: request final api
+    var segmentVehiclereq = new SegmentVehicleRequest{};
+    Common.convert(request, segmentVehiclereq);
+    segmentVehiclereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    var segmentVehicleResp = segmentVehicle(segmentVehiclereq, runtime);
+    return segmentVehicleResp;
   }
 
   model SegmentHairRequest = {

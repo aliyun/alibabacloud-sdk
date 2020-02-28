@@ -13,25 +13,25 @@ import (
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type" require:"true"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken" require:"true"`
+	Type                 *string `json:"type" xml:"type"`
+	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
 	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol" require:"true"`
+	Protocol             *string `json:"protocol" xml:"protocol"`
 	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent" require:"true"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout" require:"true"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout" require:"true"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr" require:"true"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy" require:"true"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy" require:"true"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy" require:"true"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy" require:"true"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	UserAgent            *string `json:"userAgent" xml:"userAgent"`
+	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
+	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
+	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
+	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
+	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
+	NoProxy              *string `json:"noProxy" xml:"noProxy"`
+	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
+	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
+	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
+	EndpointType         *string `json:"endpointType" xml:"endpointType"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
 }
 
 func (s Config) String() string {
@@ -137,6 +137,587 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
+type RecognizeExpressionRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeExpressionRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeExpressionRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeExpressionRequest) SetImageURL(v string) *RecognizeExpressionRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeExpressionResponse struct {
+	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeExpressionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeExpressionResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeExpressionResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeExpressionResponse) SetRequestId(v string) *RecognizeExpressionResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeExpressionResponse) SetData(v *RecognizeExpressionResponseData) *RecognizeExpressionResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeExpressionResponseData struct {
+	Elements []*RecognizeExpressionResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeExpressionResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeExpressionResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeExpressionResponseData) SetElements(v []*RecognizeExpressionResponseDataElements) *RecognizeExpressionResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeExpressionResponseDataElements struct {
+	Expression      *string                                               `json:"Expression" xml:"Expression" require:"true"`
+	FaceProbability *float32                                              `json:"FaceProbability" xml:"FaceProbability" require:"true"`
+	FaceRectangle   *RecognizeExpressionResponseDataElementsFaceRectangle `json:"FaceRectangle" xml:"FaceRectangle" require:"true" type:"Struct"`
+}
+
+func (s RecognizeExpressionResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeExpressionResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeExpressionResponseDataElements) SetExpression(v string) *RecognizeExpressionResponseDataElements {
+	s.Expression = &v
+	return s
+}
+
+func (s *RecognizeExpressionResponseDataElements) SetFaceProbability(v float32) *RecognizeExpressionResponseDataElements {
+	s.FaceProbability = &v
+	return s
+}
+
+func (s *RecognizeExpressionResponseDataElements) SetFaceRectangle(v *RecognizeExpressionResponseDataElementsFaceRectangle) *RecognizeExpressionResponseDataElements {
+	s.FaceRectangle = v
+	return s
+}
+
+type RecognizeExpressionResponseDataElementsFaceRectangle struct {
+	Height *int `json:"Height" xml:"Height" require:"true"`
+	Left   *int `json:"Left" xml:"Left" require:"true"`
+	Top    *int `json:"Top" xml:"Top" require:"true"`
+	Width  *int `json:"Width" xml:"Width" require:"true"`
+}
+
+func (s RecognizeExpressionResponseDataElementsFaceRectangle) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeExpressionResponseDataElementsFaceRectangle) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeExpressionResponseDataElementsFaceRectangle) SetHeight(v int) *RecognizeExpressionResponseDataElementsFaceRectangle {
+	s.Height = &v
+	return s
+}
+
+func (s *RecognizeExpressionResponseDataElementsFaceRectangle) SetLeft(v int) *RecognizeExpressionResponseDataElementsFaceRectangle {
+	s.Left = &v
+	return s
+}
+
+func (s *RecognizeExpressionResponseDataElementsFaceRectangle) SetTop(v int) *RecognizeExpressionResponseDataElementsFaceRectangle {
+	s.Top = &v
+	return s
+}
+
+func (s *RecognizeExpressionResponseDataElementsFaceRectangle) SetWidth(v int) *RecognizeExpressionResponseDataElementsFaceRectangle {
+	s.Width = &v
+	return s
+}
+
+type RecognizeExpressionAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeExpressionAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizeExpressionAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeExpressionAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeExpressionAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizePublicFaceRequest struct {
+	Task []*RecognizePublicFaceRequestTask `json:"Task" xml:"Task" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePublicFaceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceRequest) SetTask(v []*RecognizePublicFaceRequestTask) *RecognizePublicFaceRequest {
+	s.Task = v
+	return s
+}
+
+type RecognizePublicFaceRequestTask struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizePublicFaceRequestTask) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceRequestTask) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceRequestTask) SetImageURL(v string) *RecognizePublicFaceRequestTask {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizePublicFaceResponse struct {
+	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizePublicFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizePublicFaceResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceResponse) SetRequestId(v string) *RecognizePublicFaceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponse) SetData(v *RecognizePublicFaceResponseData) *RecognizePublicFaceResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizePublicFaceResponseData struct {
+	Elements []*RecognizePublicFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePublicFaceResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceResponseData) SetElements(v []*RecognizePublicFaceResponseDataElements) *RecognizePublicFaceResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizePublicFaceResponseDataElements struct {
+	TaskId   *string                                           `json:"TaskId" xml:"TaskId" require:"true"`
+	ImageURL *string                                           `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Results  []*RecognizePublicFaceResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePublicFaceResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceResponseDataElements) SetTaskId(v string) *RecognizePublicFaceResponseDataElements {
+	s.TaskId = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElements) SetImageURL(v string) *RecognizePublicFaceResponseDataElements {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElements) SetResults(v []*RecognizePublicFaceResponseDataElementsResults) *RecognizePublicFaceResponseDataElements {
+	s.Results = v
+	return s
+}
+
+type RecognizePublicFaceResponseDataElementsResults struct {
+	Label      *string                                                     `json:"Label" xml:"Label" require:"true"`
+	Suggestion *string                                                     `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Rate       *float32                                                    `json:"Rate" xml:"Rate" require:"true"`
+	SubResults []*RecognizePublicFaceResponseDataElementsResultsSubResults `json:"SubResults" xml:"SubResults" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePublicFaceResponseDataElementsResults) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceResponseDataElementsResults) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResults) SetLabel(v string) *RecognizePublicFaceResponseDataElementsResults {
+	s.Label = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResults) SetSuggestion(v string) *RecognizePublicFaceResponseDataElementsResults {
+	s.Suggestion = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResults) SetRate(v float32) *RecognizePublicFaceResponseDataElementsResults {
+	s.Rate = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResults) SetSubResults(v []*RecognizePublicFaceResponseDataElementsResultsSubResults) *RecognizePublicFaceResponseDataElementsResults {
+	s.SubResults = v
+	return s
+}
+
+type RecognizePublicFaceResponseDataElementsResultsSubResults struct {
+	H     *float32                                                         `json:"H" xml:"H" require:"true"`
+	W     *float32                                                         `json:"W" xml:"W" require:"true"`
+	X     *float32                                                         `json:"X" xml:"X" require:"true"`
+	Y     *float32                                                         `json:"Y" xml:"Y" require:"true"`
+	Faces []*RecognizePublicFaceResponseDataElementsResultsSubResultsFaces `json:"Faces" xml:"Faces" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePublicFaceResponseDataElementsResultsSubResults) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceResponseDataElementsResultsSubResults) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResults) SetH(v float32) *RecognizePublicFaceResponseDataElementsResultsSubResults {
+	s.H = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResults) SetW(v float32) *RecognizePublicFaceResponseDataElementsResultsSubResults {
+	s.W = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResults) SetX(v float32) *RecognizePublicFaceResponseDataElementsResultsSubResults {
+	s.X = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResults) SetY(v float32) *RecognizePublicFaceResponseDataElementsResultsSubResults {
+	s.Y = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResults) SetFaces(v []*RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) *RecognizePublicFaceResponseDataElementsResultsSubResults {
+	s.Faces = v
+	return s
+}
+
+type RecognizePublicFaceResponseDataElementsResultsSubResultsFaces struct {
+	Id   *string  `json:"Id" xml:"Id" require:"true"`
+	Name *string  `json:"Name" xml:"Name" require:"true"`
+	Rate *float32 `json:"Rate" xml:"Rate" require:"true"`
+}
+
+func (s RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) String() string {
+	return service.Prettify(s)
+}
+
+func (s RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) SetId(v string) *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces {
+	s.Id = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) SetName(v string) *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) SetRate(v float32) *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces {
+	s.Rate = &v
+	return s
+}
+
+type DetectLivingFaceRequest struct {
+	Tasks []*DetectLivingFaceRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
+}
+
+func (s DetectLivingFaceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceRequest) SetTasks(v []*DetectLivingFaceRequestTasks) *DetectLivingFaceRequest {
+	s.Tasks = v
+	return s
+}
+
+type DetectLivingFaceRequestTasks struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectLivingFaceRequestTasks) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceRequestTasks) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceRequestTasks) SetImageURL(v string) *DetectLivingFaceRequestTasks {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectLivingFaceResponse struct {
+	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectLivingFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectLivingFaceResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceResponse) SetRequestId(v string) *DetectLivingFaceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponse) SetData(v *DetectLivingFaceResponseData) *DetectLivingFaceResponse {
+	s.Data = v
+	return s
+}
+
+type DetectLivingFaceResponseData struct {
+	Elements []*DetectLivingFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s DetectLivingFaceResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceResponseData) SetElements(v []*DetectLivingFaceResponseDataElements) *DetectLivingFaceResponseData {
+	s.Elements = v
+	return s
+}
+
+type DetectLivingFaceResponseDataElements struct {
+	TaskId   *string                                        `json:"TaskId" xml:"TaskId" require:"true"`
+	ImageURL *string                                        `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Results  []*DetectLivingFaceResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+}
+
+func (s DetectLivingFaceResponseDataElements) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceResponseDataElements) SetTaskId(v string) *DetectLivingFaceResponseDataElements {
+	s.TaskId = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponseDataElements) SetImageURL(v string) *DetectLivingFaceResponseDataElements {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponseDataElements) SetResults(v []*DetectLivingFaceResponseDataElementsResults) *DetectLivingFaceResponseDataElements {
+	s.Results = v
+	return s
+}
+
+type DetectLivingFaceResponseDataElementsResults struct {
+	Label      *string                                              `json:"Label" xml:"Label" require:"true"`
+	Suggestion *string                                              `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Rate       *float32                                             `json:"Rate" xml:"Rate" require:"true"`
+	Frames     []*DetectLivingFaceResponseDataElementsResultsFrames `json:"Frames" xml:"Frames" require:"true" type:"Repeated"`
+}
+
+func (s DetectLivingFaceResponseDataElementsResults) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceResponseDataElementsResults) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceResponseDataElementsResults) SetLabel(v string) *DetectLivingFaceResponseDataElementsResults {
+	s.Label = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponseDataElementsResults) SetSuggestion(v string) *DetectLivingFaceResponseDataElementsResults {
+	s.Suggestion = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponseDataElementsResults) SetRate(v float32) *DetectLivingFaceResponseDataElementsResults {
+	s.Rate = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponseDataElementsResults) SetFrames(v []*DetectLivingFaceResponseDataElementsResultsFrames) *DetectLivingFaceResponseDataElementsResults {
+	s.Frames = v
+	return s
+}
+
+type DetectLivingFaceResponseDataElementsResultsFrames struct {
+	Rate *float32 `json:"Rate" xml:"Rate" require:"true"`
+	Url  *string  `json:"Url" xml:"Url" require:"true"`
+}
+
+func (s DetectLivingFaceResponseDataElementsResultsFrames) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectLivingFaceResponseDataElementsResultsFrames) GoString() string {
+	return s.String()
+}
+
+func (s *DetectLivingFaceResponseDataElementsResultsFrames) SetRate(v float32) *DetectLivingFaceResponseDataElementsResultsFrames {
+	s.Rate = &v
+	return s
+}
+
+func (s *DetectLivingFaceResponseDataElementsResultsFrames) SetUrl(v string) *DetectLivingFaceResponseDataElementsResultsFrames {
+	s.Url = &v
+	return s
+}
+
+type DetectBodyCountRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectBodyCountRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectBodyCountRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectBodyCountRequest) SetImageURL(v string) *DetectBodyCountRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectBodyCountResponse struct {
+	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectBodyCountResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectBodyCountResponse) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectBodyCountResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectBodyCountResponse) SetRequestId(v string) *DetectBodyCountResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectBodyCountResponse) SetData(v *DetectBodyCountResponseData) *DetectBodyCountResponse {
+	s.Data = v
+	return s
+}
+
+type DetectBodyCountResponseData struct {
+	PersonNumber *int `json:"PersonNumber" xml:"PersonNumber" require:"true"`
+}
+
+func (s DetectBodyCountResponseData) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectBodyCountResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectBodyCountResponseData) SetPersonNumber(v int) *DetectBodyCountResponseData {
+	s.PersonNumber = &v
+	return s
+}
+
+type DetectBodyCountAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s DetectBodyCountAdvanceRequest) String() string {
+	return service.Prettify(s)
+}
+
+func (s DetectBodyCountAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectBodyCountAdvanceRequest) SetImageURLObject(v io.Reader) *DetectBodyCountAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type DetectMaskRequest struct {
 	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
@@ -218,8 +799,7 @@ func (s *DetectMaskAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMaskAdv
 }
 
 type RecognizeFaceRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s RecognizeFaceRequest) String() string {
@@ -228,11 +808,6 @@ func (s RecognizeFaceRequest) String() string {
 
 func (s RecognizeFaceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RecognizeFaceRequest) SetImageType(v int) *RecognizeFaceRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *RecognizeFaceRequest) SetImageURL(v string) *RecognizeFaceRequest {
@@ -294,7 +869,6 @@ func (s *RecognizeFaceResponseData) SetDenseFeatureLength(v int) *RecognizeFaceR
 
 type RecognizeFaceAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s RecognizeFaceAdvanceRequest) String() string {
@@ -310,13 +884,7 @@ func (s *RecognizeFaceAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeF
 	return s
 }
 
-func (s *RecognizeFaceAdvanceRequest) SetImageType(v int) *RecognizeFaceAdvanceRequest {
-	s.ImageType = &v
-	return s
-}
-
 type CompareFaceRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
 	ImageURLA *string `json:"ImageURLA" xml:"ImageURLA" require:"true"`
 	ImageURLB *string `json:"ImageURLB" xml:"ImageURLB" require:"true"`
 }
@@ -327,11 +895,6 @@ func (s CompareFaceRequest) String() string {
 
 func (s CompareFaceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CompareFaceRequest) SetImageType(v int) *CompareFaceRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *CompareFaceRequest) SetImageURLA(v string) *CompareFaceRequest {
@@ -385,8 +948,7 @@ func (s *CompareFaceResponseData) SetConfidence(v float32) *CompareFaceResponseD
 }
 
 type DetectFaceRequest struct {
-	ImageType *int    `json:"ImageType" xml:"ImageType"`
-	ImageURL  *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
 
 func (s DetectFaceRequest) String() string {
@@ -395,11 +957,6 @@ func (s DetectFaceRequest) String() string {
 
 func (s DetectFaceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DetectFaceRequest) SetImageType(v int) *DetectFaceRequest {
-	s.ImageType = &v
-	return s
 }
 
 func (s *DetectFaceRequest) SetImageURL(v string) *DetectFaceRequest {
@@ -455,7 +1012,6 @@ func (s *DetectFaceResponseData) SetLandmarkCount(v int) *DetectFaceResponseData
 
 type DetectFaceAdvanceRequest struct {
 	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ImageType      *int      `json:"ImageType" xml:"ImageType"`
 }
 
 func (s DetectFaceAdvanceRequest) String() string {
@@ -468,11 +1024,6 @@ func (s DetectFaceAdvanceRequest) GoString() string {
 
 func (s *DetectFaceAdvanceRequest) SetImageURLObject(v io.Reader) *DetectFaceAdvanceRequest {
 	s.ImageURLObject = v
-	return s
-}
-
-func (s *DetectFaceAdvanceRequest) SetImageType(v int) *DetectFaceAdvanceRequest {
-	s.ImageType = &v
 	return s
 }
 
@@ -576,6 +1127,176 @@ func (client *Client) _request(action string, protocol string, method string, re
 	}
 
 	return _resp, _err
+}
+
+func (client *Client) RecognizeExpression(request *RecognizeExpressionRequest, runtime *common.RuntimeObject) (_result *RecognizeExpressionResponse, _err error) {
+	_result = &RecognizeExpressionResponse{}
+	_body, _err := client._request("RecognizeExpression", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeExpressionResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	recognizeExpressionreq := &RecognizeExpressionRequest{}
+	common.Convert(request, recognizeExpressionreq)
+	recognizeExpressionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeExpressionResp, _err := client.RecognizeExpression(recognizeExpressionreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return recognizeExpressionResp, _err
+}
+
+func (client *Client) RecognizePublicFace(request *RecognizePublicFaceRequest, runtime *common.RuntimeObject) (_result *RecognizePublicFaceResponse, _err error) {
+	_result = &RecognizePublicFaceResponse{}
+	_body, _err := client._request("RecognizePublicFace", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectLivingFace(request *DetectLivingFaceRequest, runtime *common.RuntimeObject) (_result *DetectLivingFaceResponse, _err error) {
+	_result = &DetectLivingFaceResponse{}
+	_body, _err := client._request("DetectLivingFace", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectBodyCount(request *DetectBodyCountRequest, runtime *common.RuntimeObject) (_result *DetectBodyCountResponse, _err error) {
+	_result = &DetectBodyCountResponse{}
+	_body, _err := client._request("DetectBodyCount", "HTTPS", "POST", tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectBodyCountResponse, _err error) {
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(client.GetAccessKeyId()),
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &oss.PostObjectRequestHeaderFile{
+		FileName:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossClient.PostObject(uploadRequest, runtime)
+	detectBodyCountreq := &DetectBodyCountRequest{}
+	common.Convert(request, detectBodyCountreq)
+	detectBodyCountreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectBodyCountResp, _err := client.DetectBodyCount(detectBodyCountreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	return detectBodyCountResp, _err
 }
 
 func (client *Client) DetectMask(request *DetectMaskRequest, runtime *common.RuntimeObject) (_result *DetectMaskResponse, _err error) {

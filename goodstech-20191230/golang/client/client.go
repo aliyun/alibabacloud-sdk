@@ -13,25 +13,25 @@ import (
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type" require:"true"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken" require:"true"`
+	Type                 *string `json:"type" xml:"type"`
+	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
 	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol" require:"true"`
+	Protocol             *string `json:"protocol" xml:"protocol"`
 	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent" require:"true"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout" require:"true"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout" require:"true"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr" require:"true"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy" require:"true"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy" require:"true"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy" require:"true"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy" require:"true"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork" require:"true"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns" require:"true"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType" require:"true"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint" require:"true"`
+	UserAgent            *string `json:"userAgent" xml:"userAgent"`
+	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
+	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
+	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
+	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
+	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
+	NoProxy              *string `json:"noProxy" xml:"noProxy"`
+	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
+	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
+	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
+	EndpointType         *string `json:"endpointType" xml:"endpointType"`
+	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
 }
 
 func (s Config) String() string {
