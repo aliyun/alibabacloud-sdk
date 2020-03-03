@@ -11,7 +11,7 @@ import (
 type Config struct {
 	AccessKeyId     *string `json:"accessKeyId" xml:"accessKeyId"`
 	AccessKeySecret *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	CredentialType  *string `json:"credential type" xml:"credential type"`
+	Type            *string `json:"credential type" xml:"credential type"`
 	SecurityToken   *string `json:"securityToken" xml:"securityToken"`
 	Endpoint        *string `json:"endpoint" xml:"endpoint" require:"true"`
 	Protocol        *string `json:"protocol" xml:"protocol"`
@@ -45,8 +45,8 @@ func (s *Config) SetAccessKeySecret(v string) *Config {
 	return s
 }
 
-func (s *Config) SetCredentialType(v string) *Config {
-	s.CredentialType = &v
+func (s *Config) SetType(v string) *Config {
+	s.Type = &v
 	return s
 }
 
@@ -244,13 +244,13 @@ func (client *Client) init(config *Config) (_err error) {
 		return _err
 	}
 
-	if util.Empty(tea.StringValue(config.CredentialType)) {
-		config.CredentialType = tea.String("access_key")
+	if util.Empty(tea.StringValue(config.Type)) {
+		config.Type = tea.String("access_key")
 	}
 
 	credentialConfig := &credential.Config{
 		AccessKeyId:     config.AccessKeyId,
-		Type:            config.CredentialType,
+		Type:            config.Type,
 		AccessKeySecret: config.AccessKeySecret,
 		SecurityToken:   config.SecurityToken,
 	}
