@@ -146,7 +146,7 @@ type AuthorizeFileUploadResponse struct {
 	ObjectKey     *string `json:"ObjectKey" xml:"ObjectKey" require:"true"`
 	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
 	Signature     *string `json:"Signature" xml:"Signature" require:"true"`
-	UseAccelerate *string `json:"UseAccelerate" xml:"UseAccelerate" require:"true"`
+	UseAccelerate *bool   `json:"UseAccelerate" xml:"UseAccelerate" require:"true"`
 }
 
 func (s AuthorizeFileUploadResponse) String() string {
@@ -192,7 +192,7 @@ func (s *AuthorizeFileUploadResponse) SetSignature(v string) *AuthorizeFileUploa
 	return s
 }
 
-func (s *AuthorizeFileUploadResponse) SetUseAccelerate(v string) *AuthorizeFileUploadResponse {
+func (s *AuthorizeFileUploadResponse) SetUseAccelerate(v bool) *AuthorizeFileUploadResponse {
 	s.UseAccelerate = &v
 	return s
 }
