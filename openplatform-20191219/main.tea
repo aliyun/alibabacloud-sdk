@@ -1,114 +1,176 @@
-import Common;
-module OpenPlatform {
+import RPCUtil;
+import Util;
+import Credential;
 
-  type @endpoint = string
-  type @regionId = string
-  type @protocol = string
-  type @userAgent = string
-  type @endpointType = string
-  type @readTimeout = number
-  type @connectTimeout = number
-  type @httpProxy = string
-  type @httpsProxy = string
-  type @noProxy = string
-  type @maxIdleConns = number
-  type @getAccessKeySecret = (): string
-  type @getAccessKeyId = (): string
-  type @json = async ($Response): object
-  type @hasError = (object): boolean
+type @endpoint = string
+type @regionId = string
+type @protocol = string
+type @userAgent = string
+type @readTimeout = number
+type @connectTimeout = number
+type @httpProxy = string
+type @httpsProxy = string
+type @noProxy = string
+type @socks5Proxy = string
+type @socks5NetWork = string
+type @maxIdleConns = number
+type @credential = Credential
 
-  prop version = '2019-12-19';
-
-  model Config {
-    accessKeyId: string,
-    accessKeySecret: string,
-    type: string,
-    securityToken: string,
-    endpoint: string,
-    protocol: string,
-    regionId: string,
-    userAgent: string,
-    readTimeout: number,
-    connectTimeout: number,
-    localAddr: string,
-    httpProxy: string,
-    httpsProxy: string,
-    noProxy: string,
-    socks5Proxy: string,
-    socks5NetWork: string,
-    maxIdleConns: number,
-    endpointType: string,
-    openPlatformEndpoint: number,
-  }
-
-  init(config: Config);
-
-  model AuthorizeFileUploadRequest = {
-    product: string(name='Product', example='Ecs', description='用户请求的文件上传API所属的产品pop code'),
-    regionId?: string(name='RegionId', example='ap-southeast-1', description='用户请求的文件上传API所属的目标区域')
-  }
-
-  model AuthorizeFileUploadResponse = {
-    requestId: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E', description='请求ID'),
-    accessKeyId: string(name='AccessKeyId', example='', description='授权给用户上传文件使用的AK'),
-    encodedPolicy: string(name='EncodedPolicy', example='', description='post上传文件时携带的post policy编码串'),
-    signature: string(name='Signature', description='post policy的签名串'),
-    objectKey: string(name='ObjectKey', description='用户上传OSS时的文件路径'),
-    bucket: string(name='Bucket', example='bucket-a', description='授权给用户上传的目标OSS bucket'),
-    endpoint: string(name='Endpoint', example='oss-cn-beijing.aliyuncs.com', description='授权给用户上传的目标OSS bucket的外网endpoint'),
-    useAccelerate: boolean(name='UseAccelerate', example='false', description='目标OSS是否提供了加速访问功能，如果提供，可以使用加速endpoint访问OSS')
-  }
-
-  api authorizeFileUpload(request: AuthorizeFileUploadRequest, runtime: Common.RuntimeObject): AuthorizeFileUploadResponse {
-    protocol = @protocol;
-    method = 'GET';
-    pathname = '/';
-    query = Common.query({
-      Action = 'AuthorizeFileUpload',
-      Format = 'json',
-      RegionId = @regionId,
-      Timestamp = Common.getTimestamp(),
-      Date = Common.getTimestamp(),
-      Version = __module.version,
-      SignatureMethod = 'HMAC-SHA1',
-      SignatureVersion = '1.0',
-      SignatureNonce = Common.getNonce(),
-      AccessKeyId = @getAccessKeyId(),
-      ...request,
-    });
-    headers = {
-      host = Common.getHost('OpenPlatform', @regionId, @endpoint),
-      user-agent = Common.getUserAgent(@userAgent),
-    };
-    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
-  } returns {
-    var body = @json(__response);
-    if (@hasError(body)) {
-      throw {
-        message = body.Message,
-        data = body,
-        code = body.Code,
-      }
-    }
-    return {
-        ...body,
-    };
-  } runtime {
-    timeouted = 'retry',
-    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
-    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
-    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
-    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
-    noProxy = Common.default(runtime.noProxy, @noProxy),
-    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-    retry = {
-      retryable = runtime.autoretry,
-      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
-    },
-    backoff = {
-      policy = Common.default(runtime.backoffPolicy, 'no'),
-      period = Common.defaultNumber(runtime.backoffPeriod, 1)
-    },
-    ignoreSSL = runtime.ignoreSSL
-  }
+model Config {
+  accessKeyId?: string(description='accessKeyId', name='accessKeyId'),
+  accessKeySecret?: string(description='accessKeySecret', name='accessKeySecret'),
+  credentialType?: string(description='credential type', name='credential type'),
+  securityToken?: string(description='securityToken', name='securityToken'),
+  endpoint: string(description='endpoint', name='endpoint'),
+  protocol?: string(description='protocol', name='protocol'),
+  regionId: string(description='regionId', name='regionId'),
+  readTimeout?: number(description='read timeout', name='read timeout'),
+  connectTimeout?: number(description='connect timeout', name='connect timeout'),
+  httpProxy?: string(description='http proxy', name='http proxy'),
+  httpsProxy?: string(description='https proxy', name='https proxy'),
+  socks5Proxy?: string(description='socks5 proxy', name='socks5 proxy'),
+  socks5NetWork?: string(description='socks5 NetWork', name='socks5 NetWork'),
+  noProxy?: string(description='no proxy', name='no proxy'),
+  userAgent?: string(description='userAgent', name='userAgent'),
+  maxIdleConns?: number(description='maxIdleConns', name='maxIdleConns'),
 }
+
+init(config: Config){
+  if (Util.isUnset(config)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config' can not be unset"
+    };
+  }
+
+  if (Util.empty(config.endpoint)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.endpoint' can not be empty"
+    };
+  }
+
+  if (Util.empty(config.regionId)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.regionId' can not be empty"
+    };
+  }
+  if (Util.empty(config.credentialType)) {
+    config.credentialType = 'access_key';
+  }
+  var credentialConfig = new Credential.Config{
+    accessKeyId =  config.accessKeyId,
+    type = config.credentialType,
+    accessKeySecret =  config.accessKeySecret,
+    securityToken = config.securityToken,
+  };
+  @credential = new Credential(credentialConfig);
+  @endpoint = config.endpoint;
+  @protocol = config.protocol;
+  @regionId = config.regionId;
+  @userAgent = config.userAgent;
+  @readTimeout = config.readTimeout;
+  @connectTimeout = config.connectTimeout;
+  @httpProxy = config.httpProxy;
+  @httpsProxy = config.httpsProxy;
+  @noProxy = config.noProxy;
+  @socks5Proxy = config.socks5Proxy;
+  @socks5NetWork = config.socks5NetWork;
+  @maxIdleConns = config.maxIdleConns;
+}
+
+api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+  var accessKeyId = getAccessKeyId();
+  var accessKeySecret = getAccessKeySecret();
+  __request.protocol = Util.defaultString(@protocol, protocol);
+  __request.method = method;
+  __request.pathname = '/';
+  __request.query = RPCUtil.query({
+    Action = action,
+    Format = 'json',
+    RegionId = @regionId,
+    Timestamp = RPCUtil.getTimestamp(),
+    Version = '2019-12-19',
+    SignatureMethod = 'HMAC-SHA1',
+    SignatureVersion = '1.0',
+    SignatureNonce = Util.getNonce(),
+    AccessKeyId = accessKeyId,
+    ...request,
+  });
+  __request.headers = {
+    host = RPCUtil.getHost('OpenPlatform', @regionId, @endpoint),
+    user-agent = getUserAgent(),
+  };
+  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+} returns {
+  var obj = Util.readAsJSON(__response.body);
+  var body = Util.assertAsMap(obj);
+  if (RPCUtil.hasError(body)) {
+    throw {
+      message = body.Message,
+      data = body,
+      code = body.Code,
+    }
+  }
+  return body;
+} runtime {
+  timeouted = 'retry',
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 2)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 0)
+  },
+  ignoreSSL = runtime.ignoreSSL
+}
+
+model AuthorizeFileUploadRequest = {
+  product: string(name='Product', description='product'),
+  regionId?: string(name='RegionId', description='regionId'),
+}
+
+model AuthorizeFileUploadResponse = {
+  accessKeyId: string(name='AccessKeyId', description='data.accessKeyId'),
+  bucket: string(name='Bucket', description='data.bucket'),
+  encodedPolicy: string(name='EncodedPolicy', description='data.encodedPolicy'),
+  endpoint: string(name='Endpoint', description='data.endpoint'),
+  objectKey: string(name='ObjectKey', description='data.objectKey'),
+  requestId: string(name='RequestId', description='requestId'),
+  signature: string(name='Signature', description='data.signature'),
+  useAccelerate: string(name='UseAccelerate', description='data.useAccelerate'),
+}
+
+async function authorizeFileUpload(request: AuthorizeFileUploadRequest, runtime: Util.RuntimeOptions): AuthorizeFileUploadResponse {
+  return _request('AuthorizeFileUpload', 'HTTPS', 'GET', request, runtime);
+}
+
+function getUserAgent(): string {
+  var userAgent =  Util.getUserAgent(@userAgent);
+  return userAgent;
+}
+
+async function getAccessKeyId(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var accessKeyId = @credential.getAccessKeyId();
+  return accessKeyId;
+}
+
+async function getAccessKeySecret(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var secret = @credential.getAccessKeySecret();
+  return secret;
+}
+
