@@ -19,51 +19,41 @@ Before you begin, you need to sign up for an Alibaba Cloud account and retrieve 
 
 ## Demo
 ```go
-import (
-    "fmt"
-    "strings"
+func main() {
+	// init config
+	var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
+		SetAccessKeySecret("ACCESS_KEY_SECRET").
+		SetType("access_key")
 
-    common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
-	facebody "github.com/aliyun/alibabacloud-sdk/facebody-20191230/golang/client"
-)
+	// init client
+	client, err := facebody.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
 
-func main(){
-    // init config
-    var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
-	SetAccessKeySecret("ACCESS_KEY_SECRET").
-	SetType("access_key")
+	// init runtimeObject
+	runtimeObject := new(util.RuntimeOptions).SetAutoretry(false).
+		SetMaxIdleConns(3)
 
-    // create client
-    client, err := facebody.NewClient(config)
-    if err != nil {
-        panic(err)
-    }
+	// init request
+	request := new(facebody.DetectFaceRequest)
 
-    // init runtimeObject
-    var runtimeObject = new(common.RuntimeObject).SetAutoretry(false).
-	SetMaxIdleConns(3)
+	// call api
+	resp, err := client.DetectFace(request, runtimeObject)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(resp)
 
-    // init request
-    var request := new(facebody.DetectFaceRequest).SetFaceCount(10)
+	// file upload
+	uploadRequest := new(facebody.DetectFaceAdvanceRequest).SetImageURLObject(strings.NewReader("demo"))
 
-    // call api
-    resp, err := client.DetectFace(request, runtimeObject)
-    if err != nil {
-        fmt.Println(err.Error())
-    }
-    fmt.Println(resp)
-
-
-    // file upload
-    var uploadRequest := new(facebody.DetectFaceAdvanceRequest).SetFaceCount(10).
-       SetImageURLObject(strings.NewReader("demo"))
-
-    // call api
-    uploadResp, err := client.DetectFaceAdvance(request, runtimeObject)
-    if err != nil {
-        fmt.Println(err.Error())
-    }
-    fmt.Println(uploadResp)
+	// call api
+	uploadResp, err := client.DetectFaceAdvance(uploadRequest, runtimeObject)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(uploadResp)
 }
 ```
 
