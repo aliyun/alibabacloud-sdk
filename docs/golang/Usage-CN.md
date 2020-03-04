@@ -19,51 +19,41 @@ SDK 使用 [credentials-go](https://github.com/aliyun/credentials-go/blob/master
 
 ## 使用示例
 ```go
-import (
-    "fmt"
-    "strings"
+func main() {
+	// 初始化 config
+	var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
+		SetAccessKeySecret("ACCESS_KEY_SECRET").
+		SetType("access_key")
 
-    common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/common"
-	facebody "github.com/aliyun/alibabacloud-sdk/facebody-20191230/golang/client"
-)
+	// 创建客户端
+	client, err := facebody.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
 
-func main(){
-    // 初始化 config
-    var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
-	SetAccessKeySecret("ACCESS_KEY_SECRET").
-	SetType("access_key")
+	// 初始化 runtimeObject
+	runtimeObject := new(util.RuntimeOptions).SetAutoretry(false).
+		SetMaxIdleConns(3)
 
-    // 创建客户端
-    client, err := facebody.NewClient(config)
-    if err != nil {
-        panic(err)
-    }
+	// 初始化 request
+	request := new(facebody.DetectFaceRequest)
 
-    // 初始化 runtimeObject
-    var runtimeObject = new(common.RuntimeObject).SetAutoretry(false).
-	SetMaxIdleConns(3)
+	// 调用 api
+	resp, err := client.DetectFace(request, runtimeObject)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(resp)
 
-    // 初始化 request
-    var request := new(facebody.DetectFaceRequest).SetFaceCount(10)
+	// 使用文件上传
+	uploadRequest := new(facebody.DetectFaceAdvanceRequest).SetImageURLObject(strings.NewReader("demo"))
 
-    // 调用 api
-    resp, err := client.DetectFace(request, runtimeObject)
-    if err != nil {
-        fmt.Println(err.Error())
-    }
-    fmt.Println(resp)
-
-
-    // 使用文件上传
-    var uploadRequest := new(facebody.DetectFaceAdvanceRequest).SetFaceCount(10).
-       SetImageURLObject(strings.NewReader("demo"))
-
-    // 调用 api
-    uploadResp, err := client.DetectFaceAdvance(request, runtimeObject)
-    if err != nil {
-        fmt.Println(err.Error())
-    }
-    fmt.Println(uploadResp)
+	// 调用 api
+	uploadResp, err := client.DetectFaceAdvance(uploadRequest, runtimeObject)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(uploadResp)
 }
 ```
 
