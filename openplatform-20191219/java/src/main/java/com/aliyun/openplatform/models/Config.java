@@ -5,19 +5,15 @@ import com.aliyun.tea.*;
 
 public class Config extends TeaModel {
     @NameInMap("accessKeyId")
-    @Validation(required = true)
     public String accessKeyId;
 
     @NameInMap("accessKeySecret")
-    @Validation(required = true)
     public String accessKeySecret;
 
-    @NameInMap("type")
-    @Validation(required = true)
+    @NameInMap("credential type")
     public String type;
 
     @NameInMap("securityToken")
-    @Validation(required = true)
     public String securityToken;
 
     @NameInMap("endpoint")
@@ -25,60 +21,38 @@ public class Config extends TeaModel {
     public String endpoint;
 
     @NameInMap("protocol")
-    @Validation(required = true)
     public String protocol;
 
     @NameInMap("regionId")
     @Validation(required = true)
     public String regionId;
 
-    @NameInMap("userAgent")
-    @Validation(required = true)
-    public String userAgent;
-
-    @NameInMap("readTimeout")
-    @Validation(required = true)
+    @NameInMap("read timeout")
     public Integer readTimeout;
 
-    @NameInMap("connectTimeout")
-    @Validation(required = true)
+    @NameInMap("connect timeout")
     public Integer connectTimeout;
 
-    @NameInMap("localAddr")
-    @Validation(required = true)
-    public String localAddr;
-
-    @NameInMap("httpProxy")
-    @Validation(required = true)
+    @NameInMap("http proxy")
     public String httpProxy;
 
-    @NameInMap("httpsProxy")
-    @Validation(required = true)
+    @NameInMap("https proxy")
     public String httpsProxy;
 
-    @NameInMap("noProxy")
-    @Validation(required = true)
-    public String noProxy;
-
-    @NameInMap("socks5Proxy")
-    @Validation(required = true)
+    @NameInMap("socks5 proxy")
     public String socks5Proxy;
 
-    @NameInMap("socks5NetWork")
-    @Validation(required = true)
+    @NameInMap("socks5 NetWork")
     public String socks5NetWork;
 
+    @NameInMap("no proxy")
+    public String noProxy;
+
+    @NameInMap("userAgent")
+    public String userAgent;
+
     @NameInMap("maxIdleConns")
-    @Validation(required = true)
     public Integer maxIdleConns;
-
-    @NameInMap("endpointType")
-    @Validation(required = true)
-    public String endpointType;
-
-    @NameInMap("openPlatformEndpoint")
-    @Validation(required = true)
-    public Integer openPlatformEndpoint;
 
     public static Config build(java.util.Map<String, ?> map) throws Exception {
         Config self = new Config();
