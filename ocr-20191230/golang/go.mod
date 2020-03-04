@@ -1,13 +1,17 @@
 module github.com/aliyun/alibabacloud-sdk/ocr-20191230/golang
 
 require (
-	github.com/alibabacloud-go/tea v0.0.2
-	github.com/aliyun/alibabacloud-oss-sdk/baseclient/go v0.0.0-20200213080940-15b792e7a575 // indirect
-	github.com/aliyun/alibabacloud-oss-sdk/golang v0.0.0-20200213080940-15b792e7a575
-	github.com/aliyun/alibabacloud-rpc-util-sdk/golang v0.0.0-20200219123335-ddb7c7db0f77
-	github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang v0.0.0-20200213084936-57e6f6deceab
-	github.com/aliyun/rpc-client-go v1.0.1
-	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6 // indirect
-	golang.org/x/sys v0.0.0-20200219091948-cb0a6d8edb6c // indirect
-	golang.org/x/tools v0.0.0-20200219054238-753a1d49df85 // indirect
+	github.com/alibabacloud-go/tea v0.0.7
+	github.com/aliyun/alibabacloud-oss-sdk/baseclient/go v0.0.0-20200303053737-1dd3010eeb72 // indirect
+	github.com/aliyun/alibabacloud-oss-sdk/golang v0.0.0-20200303053737-1dd3010eeb72
+	github.com/aliyun/alibabacloud-oss-sdk/util/golang v0.0.0-20200303053737-1dd3010eeb72
+	github.com/aliyun/alibabacloud-rpc-util-sdk/golang v0.0.0-20200304051527-58f83444eb06
+	github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang v0.0.0-20200304051920-814d6f015b85
+	github.com/aliyun/credentials-go v0.0.3
+	github.com/aliyun/rpc-client-go v1.0.1 // indirect
+	github.com/aliyun/tea-fileform/golang v0.0.0-20200304031700-de51593f7849
+	github.com/aliyun/tea-util/golang v0.0.0-20200304025458-e369c7880d9a
+	github.com/aliyun/tea-xml/golang v0.0.0-20200303140639-a8e846846021 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	golang.org/x/tools v0.0.0-20200304024140-c4206d458c3f // indirect
 )

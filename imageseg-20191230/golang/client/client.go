@@ -2,18 +2,19 @@
 package client
 
 import (
-	"encoding/json"
-	"io"
-
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
+	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
+	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	"github.com/aliyun/rpc-client-go/service"
+	credential "github.com/aliyun/credentials-go/credentials"
+	fileform "github.com/aliyun/tea-fileform/golang/service"
+	util "github.com/aliyun/tea-util/golang/service"
+	"io"
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
 	Type                 *string `json:"type" xml:"type"`
 	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
@@ -23,7 +24,6 @@ type Config struct {
 	UserAgent            *string `json:"userAgent" xml:"userAgent"`
 	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
 	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
 	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
 	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
 	NoProxy              *string `json:"noProxy" xml:"noProxy"`
@@ -35,7 +35,7 @@ type Config struct {
 }
 
 func (s Config) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s Config) GoString() string {
@@ -92,11 +92,6 @@ func (s *Config) SetConnectTimeout(v int) *Config {
 	return s
 }
 
-func (s *Config) SetLocalAddr(v string) *Config {
-	s.LocalAddr = &v
-	return s
-}
-
 func (s *Config) SetHttpProxy(v string) *Config {
 	s.HttpProxy = &v
 	return s
@@ -142,7 +137,7 @@ type ParseFaceRequest struct {
 }
 
 func (s ParseFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ParseFaceRequest) GoString() string {
@@ -160,7 +155,7 @@ type ParseFaceResponse struct {
 }
 
 func (s ParseFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ParseFaceResponse) GoString() string {
@@ -183,7 +178,7 @@ type ParseFaceResponseData struct {
 }
 
 func (s ParseFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ParseFaceResponseData) GoString() string {
@@ -206,7 +201,7 @@ type ParseFaceResponseDataElements struct {
 }
 
 func (s ParseFaceResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ParseFaceResponseDataElements) GoString() string {
@@ -228,7 +223,7 @@ type ParseFaceAdvanceRequest struct {
 }
 
 func (s ParseFaceAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ParseFaceAdvanceRequest) GoString() string {
@@ -245,7 +240,7 @@ type SegmentVehicleRequest struct {
 }
 
 func (s SegmentVehicleRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentVehicleRequest) GoString() string {
@@ -263,7 +258,7 @@ type SegmentVehicleResponse struct {
 }
 
 func (s SegmentVehicleResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentVehicleResponse) GoString() string {
@@ -285,7 +280,7 @@ type SegmentVehicleResponseData struct {
 }
 
 func (s SegmentVehicleResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentVehicleResponseData) GoString() string {
@@ -303,7 +298,7 @@ type SegmentVehicleResponseDataElements struct {
 }
 
 func (s SegmentVehicleResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentVehicleResponseDataElements) GoString() string {
@@ -325,7 +320,7 @@ type SegmentVehicleAdvanceRequest struct {
 }
 
 func (s SegmentVehicleAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentVehicleAdvanceRequest) GoString() string {
@@ -342,7 +337,7 @@ type SegmentHairRequest struct {
 }
 
 func (s SegmentHairRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHairRequest) GoString() string {
@@ -360,7 +355,7 @@ type SegmentHairResponse struct {
 }
 
 func (s SegmentHairResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHairResponse) GoString() string {
@@ -382,7 +377,7 @@ type SegmentHairResponseData struct {
 }
 
 func (s SegmentHairResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHairResponseData) GoString() string {
@@ -403,7 +398,7 @@ type SegmentHairResponseDataElements struct {
 }
 
 func (s SegmentHairResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHairResponseDataElements) GoString() string {
@@ -440,7 +435,7 @@ type SegmentHairAdvanceRequest struct {
 }
 
 func (s SegmentHairAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHairAdvanceRequest) GoString() string {
@@ -457,7 +452,7 @@ type SegmentFaceRequest struct {
 }
 
 func (s SegmentFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentFaceRequest) GoString() string {
@@ -475,7 +470,7 @@ type SegmentFaceResponse struct {
 }
 
 func (s SegmentFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentFaceResponse) GoString() string {
@@ -497,7 +492,7 @@ type SegmentFaceResponseData struct {
 }
 
 func (s SegmentFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentFaceResponseData) GoString() string {
@@ -518,7 +513,7 @@ type SegmentFaceResponseDataElements struct {
 }
 
 func (s SegmentFaceResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentFaceResponseDataElements) GoString() string {
@@ -555,7 +550,7 @@ type SegmentFaceAdvanceRequest struct {
 }
 
 func (s SegmentFaceAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentFaceAdvanceRequest) GoString() string {
@@ -572,7 +567,7 @@ type SegmentHeadRequest struct {
 }
 
 func (s SegmentHeadRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHeadRequest) GoString() string {
@@ -590,7 +585,7 @@ type SegmentHeadResponse struct {
 }
 
 func (s SegmentHeadResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHeadResponse) GoString() string {
@@ -612,7 +607,7 @@ type SegmentHeadResponseData struct {
 }
 
 func (s SegmentHeadResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHeadResponseData) GoString() string {
@@ -633,7 +628,7 @@ type SegmentHeadResponseDataElements struct {
 }
 
 func (s SegmentHeadResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHeadResponseDataElements) GoString() string {
@@ -670,7 +665,7 @@ type SegmentHeadAdvanceRequest struct {
 }
 
 func (s SegmentHeadAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentHeadAdvanceRequest) GoString() string {
@@ -687,7 +682,7 @@ type SegmentCommodityRequest struct {
 }
 
 func (s SegmentCommodityRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommodityRequest) GoString() string {
@@ -705,7 +700,7 @@ type SegmentCommodityResponse struct {
 }
 
 func (s SegmentCommodityResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommodityResponse) GoString() string {
@@ -727,7 +722,7 @@ type SegmentCommodityResponseData struct {
 }
 
 func (s SegmentCommodityResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommodityResponseData) GoString() string {
@@ -744,7 +739,7 @@ type SegmentCommodityAdvanceRequest struct {
 }
 
 func (s SegmentCommodityAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommodityAdvanceRequest) GoString() string {
@@ -761,7 +756,7 @@ type SegmentBodyRequest struct {
 }
 
 func (s SegmentBodyRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentBodyRequest) GoString() string {
@@ -779,7 +774,7 @@ type SegmentBodyResponse struct {
 }
 
 func (s SegmentBodyResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentBodyResponse) GoString() string {
@@ -801,7 +796,7 @@ type SegmentBodyResponseData struct {
 }
 
 func (s SegmentBodyResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentBodyResponseData) GoString() string {
@@ -818,7 +813,7 @@ type SegmentBodyAdvanceRequest struct {
 }
 
 func (s SegmentBodyAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentBodyAdvanceRequest) GoString() string {
@@ -835,7 +830,7 @@ type SegmentCommonImageRequest struct {
 }
 
 func (s SegmentCommonImageRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommonImageRequest) GoString() string {
@@ -853,7 +848,7 @@ type SegmentCommonImageResponse struct {
 }
 
 func (s SegmentCommonImageResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommonImageResponse) GoString() string {
@@ -875,7 +870,7 @@ type SegmentCommonImageResponseData struct {
 }
 
 func (s SegmentCommonImageResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommonImageResponseData) GoString() string {
@@ -892,7 +887,7 @@ type SegmentCommonImageAdvanceRequest struct {
 }
 
 func (s SegmentCommonImageAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s SegmentCommonImageAdvanceRequest) GoString() string {
@@ -905,44 +900,106 @@ func (s *SegmentCommonImageAdvanceRequest) SetImageURLObject(v io.Reader) *Segme
 }
 
 type Client struct {
-	service.BaseClient
+	Endpoint             string
+	RegionId             string
+	Protocol             string
+	UserAgent            string
+	EndpointType         string
+	ReadTimeout          int
+	ConnectTimeout       int
+	HttpProxy            string
+	HttpsProxy           string
+	Socks5Proxy          string
+	Socks5NetWork        string
+	NoProxy              string
+	MaxIdleConns         int
+	OpenPlatformEndpoint string
+	Credential           credential.Credential
 }
 
 func NewClient(config *Config) (*Client, error) {
-	client := &Client{}
-	input := make(map[string]interface{})
-	byt, _ := json.Marshal(config)
-	err := json.Unmarshal(byt, &input)
-	if err != nil {
-		return nil, err
-	}
-	err = client.InitClient(input)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	client := new(Client)
+	err := client.init(config)
+	return client, err
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *common.RuntimeObject) (_result map[string]interface{}, _err error) {
+func (client *Client) init(config *Config) (_err error) {
+	if util.IsUnset(tea.ToMap(config)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config' can not be unset",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.RegionId)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.regionId' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Endpoint)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.endpoint' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Type)) {
+		config.Type = tea.String("access_key")
+	}
+
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	client.Credential, _err = credential.NewCredential(credentialConfig)
+	if _err != nil {
+		return _err
+	}
+
+	client.Endpoint = tea.StringValue(config.Endpoint)
+	client.Protocol = tea.StringValue(config.Protocol)
+	client.RegionId = tea.StringValue(config.RegionId)
+	client.UserAgent = tea.StringValue(config.UserAgent)
+	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
+	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
+	client.HttpProxy = tea.StringValue(config.HttpProxy)
+	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
+	client.NoProxy = tea.StringValue(config.NoProxy)
+	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
+	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
+	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
+	client.EndpointType = tea.StringValue(config.EndpointType)
+	client.OpenPlatformEndpoint = tea.StringValue(config.OpenPlatformEndpoint)
+	return nil
+}
+
+func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return make(map[string]interface{}), _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
-		"readTimeout":    common.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": common.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      common.Default(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     common.Default(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        common.Default(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   common.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
+		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
+		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
+		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
+		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
+		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
+		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
 		"retry": map[string]interface{}{
 			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": common.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
+			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
 		},
 		"backoff": map[string]interface{}{
-			"policy": common.Default(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": common.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
+			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
+			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
 		},
 		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
 	}
@@ -958,36 +1015,46 @@ func (client *Client) _request(action string, protocol string, method string, re
 
 		_resp, _err = func() (map[string]interface{}, error) {
 			request_ := tea.NewRequest()
-			request_.Protocol = common.Default(client.Protocol, protocol)
+			request_.Protocol = util.DefaultString(client.Protocol, protocol)
 			request_.Method = method
 			request_.Pathname = "/"
-			request_.Query = common.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        common.GetTimestamp(),
-				"Date":             common.GetTimestamp(),
-				"Version":          "2019-12-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   common.GetNonce(),
-				"AccessKeyId":      client.GetAccessKeyId(),
-			}, request))
-			request_.Headers = map[string]string{
-				"host":       common.GetHost("imageseg", client.RegionId, client.Endpoint),
-				"user-agent": common.GetUserAgent(client.UserAgent),
-			}
-			request_.Query["Signature"] = common.GetSignature(request_, client.GetAccessKeySecret())
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return make(map[string]interface{}), _err
-			}
-			body, _err := common.Json(response_)
+			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
 				return make(map[string]interface{}), _err
 			}
 
-			if common.HasError(body) {
+			accessKeySecret, _err := client.GetAccessKeySecret()
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
+				"Action":           action,
+				"Format":           "json",
+				"RegionId":         client.RegionId,
+				"Timestamp":        rpcutil.GetTimestamp(),
+				"Version":          "2019-12-30",
+				"SignatureMethod":  "HMAC-SHA1",
+				"SignatureVersion": "1.0",
+				"SignatureNonce":   util.GetNonce(),
+				"AccessKeyId":      accessKeyId,
+			}, request))
+			request_.Headers = map[string]string{
+				"host":       rpcutil.GetHost("imageseg", client.RegionId, client.Endpoint),
+				"user-agent": client.GetUserAgent(),
+			}
+			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			response_, _err := tea.DoRequest(request_, _runtime)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+			obj, _err := util.ReadAsJSON(response_.Body)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			body := util.AssertAsMap(obj)
+			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
 				_err = tea.NewSDKError(map[string]interface{}{
 					"message": body["Message"],
 					"data":    body,
@@ -996,7 +1063,8 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return make(map[string]interface{}), _err
 			}
 
-			return body, _err
+			_result = body
+			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
 			break
@@ -1006,7 +1074,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) ParseFace(request *ParseFaceRequest, runtime *common.RuntimeObject) (_result *ParseFaceResponse, _err error) {
+func (client *Client) ParseFace(request *ParseFaceRequest, runtime *util.RuntimeOptions) (_result *ParseFaceResponse, _err error) {
 	_result = &ParseFaceResponse{}
 	_body, _err := client._request("ParseFace", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1016,10 +1084,20 @@ func (client *Client) ParseFace(request *ParseFaceRequest, runtime *common.Runti
 	return _result, _err
 }
 
-func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime *common.RuntimeObject) (_result *ParseFaceResponse, _err error) {
+func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime *util.RuntimeOptions) (_result *ParseFaceResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1041,9 +1119,9 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1052,8 +1130,8 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1069,19 +1147,25 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	parseFacereq := &ParseFaceRequest{}
-	common.Convert(request, parseFacereq)
+	rpcutil.Convert(request, parseFacereq)
 	parseFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	parseFaceResp, _err := client.ParseFace(parseFacereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return parseFaceResp, _err
+	_result = parseFaceResp
+	return _result, _err
 }
 
-func (client *Client) SegmentVehicle(request *SegmentVehicleRequest, runtime *common.RuntimeObject) (_result *SegmentVehicleResponse, _err error) {
+func (client *Client) SegmentVehicle(request *SegmentVehicleRequest, runtime *util.RuntimeOptions) (_result *SegmentVehicleResponse, _err error) {
 	_result = &SegmentVehicleResponse{}
 	_body, _err := client._request("SegmentVehicle", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1091,10 +1175,20 @@ func (client *Client) SegmentVehicle(request *SegmentVehicleRequest, runtime *co
 	return _result, _err
 }
 
-func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentVehicleResponse, _err error) {
+func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentVehicleResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1116,9 +1210,9 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1127,8 +1221,8 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1144,19 +1238,25 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentVehiclereq := &SegmentVehicleRequest{}
-	common.Convert(request, segmentVehiclereq)
+	rpcutil.Convert(request, segmentVehiclereq)
 	segmentVehiclereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentVehicleResp, _err := client.SegmentVehicle(segmentVehiclereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentVehicleResp, _err
+	_result = segmentVehicleResp
+	return _result, _err
 }
 
-func (client *Client) SegmentHair(request *SegmentHairRequest, runtime *common.RuntimeObject) (_result *SegmentHairResponse, _err error) {
+func (client *Client) SegmentHair(request *SegmentHairRequest, runtime *util.RuntimeOptions) (_result *SegmentHairResponse, _err error) {
 	_result = &SegmentHairResponse{}
 	_body, _err := client._request("SegmentHair", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1166,10 +1266,20 @@ func (client *Client) SegmentHair(request *SegmentHairRequest, runtime *common.R
 	return _result, _err
 }
 
-func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentHairResponse, _err error) {
+func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentHairResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1191,9 +1301,9 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1202,8 +1312,8 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1219,19 +1329,25 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentHairreq := &SegmentHairRequest{}
-	common.Convert(request, segmentHairreq)
+	rpcutil.Convert(request, segmentHairreq)
 	segmentHairreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentHairResp, _err := client.SegmentHair(segmentHairreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentHairResp, _err
+	_result = segmentHairResp
+	return _result, _err
 }
 
-func (client *Client) SegmentFace(request *SegmentFaceRequest, runtime *common.RuntimeObject) (_result *SegmentFaceResponse, _err error) {
+func (client *Client) SegmentFace(request *SegmentFaceRequest, runtime *util.RuntimeOptions) (_result *SegmentFaceResponse, _err error) {
 	_result = &SegmentFaceResponse{}
 	_body, _err := client._request("SegmentFace", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1241,10 +1357,20 @@ func (client *Client) SegmentFace(request *SegmentFaceRequest, runtime *common.R
 	return _result, _err
 }
 
-func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentFaceResponse, _err error) {
+func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentFaceResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1266,9 +1392,9 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1277,8 +1403,8 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1294,19 +1420,25 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentFacereq := &SegmentFaceRequest{}
-	common.Convert(request, segmentFacereq)
+	rpcutil.Convert(request, segmentFacereq)
 	segmentFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentFaceResp, _err := client.SegmentFace(segmentFacereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentFaceResp, _err
+	_result = segmentFaceResp
+	return _result, _err
 }
 
-func (client *Client) SegmentHead(request *SegmentHeadRequest, runtime *common.RuntimeObject) (_result *SegmentHeadResponse, _err error) {
+func (client *Client) SegmentHead(request *SegmentHeadRequest, runtime *util.RuntimeOptions) (_result *SegmentHeadResponse, _err error) {
 	_result = &SegmentHeadResponse{}
 	_body, _err := client._request("SegmentHead", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1316,10 +1448,20 @@ func (client *Client) SegmentHead(request *SegmentHeadRequest, runtime *common.R
 	return _result, _err
 }
 
-func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentHeadResponse, _err error) {
+func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentHeadResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1341,9 +1483,9 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1352,8 +1494,8 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1369,19 +1511,25 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentHeadreq := &SegmentHeadRequest{}
-	common.Convert(request, segmentHeadreq)
+	rpcutil.Convert(request, segmentHeadreq)
 	segmentHeadreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentHeadResp, _err := client.SegmentHead(segmentHeadreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentHeadResp, _err
+	_result = segmentHeadResp
+	return _result, _err
 }
 
-func (client *Client) SegmentCommodity(request *SegmentCommodityRequest, runtime *common.RuntimeObject) (_result *SegmentCommodityResponse, _err error) {
+func (client *Client) SegmentCommodity(request *SegmentCommodityRequest, runtime *util.RuntimeOptions) (_result *SegmentCommodityResponse, _err error) {
 	_result = &SegmentCommodityResponse{}
 	_body, _err := client._request("SegmentCommodity", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1391,10 +1539,20 @@ func (client *Client) SegmentCommodity(request *SegmentCommodityRequest, runtime
 	return _result, _err
 }
 
-func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentCommodityResponse, _err error) {
+func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentCommodityResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1416,9 +1574,9 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1427,8 +1585,8 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1444,19 +1602,25 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentCommodityreq := &SegmentCommodityRequest{}
-	common.Convert(request, segmentCommodityreq)
+	rpcutil.Convert(request, segmentCommodityreq)
 	segmentCommodityreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentCommodityResp, _err := client.SegmentCommodity(segmentCommodityreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentCommodityResp, _err
+	_result = segmentCommodityResp
+	return _result, _err
 }
 
-func (client *Client) SegmentBody(request *SegmentBodyRequest, runtime *common.RuntimeObject) (_result *SegmentBodyResponse, _err error) {
+func (client *Client) SegmentBody(request *SegmentBodyRequest, runtime *util.RuntimeOptions) (_result *SegmentBodyResponse, _err error) {
 	_result = &SegmentBodyResponse{}
 	_body, _err := client._request("SegmentBody", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1466,10 +1630,20 @@ func (client *Client) SegmentBody(request *SegmentBodyRequest, runtime *common.R
 	return _result, _err
 }
 
-func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentBodyResponse, _err error) {
+func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentBodyResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1491,9 +1665,9 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1502,8 +1676,8 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1519,19 +1693,25 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentBodyreq := &SegmentBodyRequest{}
-	common.Convert(request, segmentBodyreq)
+	rpcutil.Convert(request, segmentBodyreq)
 	segmentBodyreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentBodyResp, _err := client.SegmentBody(segmentBodyreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentBodyResp, _err
+	_result = segmentBodyResp
+	return _result, _err
 }
 
-func (client *Client) SegmentCommonImage(request *SegmentCommonImageRequest, runtime *common.RuntimeObject) (_result *SegmentCommonImageResponse, _err error) {
+func (client *Client) SegmentCommonImage(request *SegmentCommonImageRequest, runtime *util.RuntimeOptions) (_result *SegmentCommonImageResponse, _err error) {
 	_result = &SegmentCommonImageResponse{}
 	_body, _err := client._request("SegmentCommonImage", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1541,10 +1721,20 @@ func (client *Client) SegmentCommonImage(request *SegmentCommonImageRequest, run
 	return _result, _err
 }
 
-func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvanceRequest, runtime *common.RuntimeObject) (_result *SegmentCommonImageResponse, _err error) {
+func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentCommonImageResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1566,9 +1756,9 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1577,8 +1767,8 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1594,14 +1784,56 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	segmentCommonImagereq := &SegmentCommonImageRequest{}
-	common.Convert(request, segmentCommonImagereq)
+	rpcutil.Convert(request, segmentCommonImagereq)
 	segmentCommonImagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentCommonImageResp, _err := client.SegmentCommonImage(segmentCommonImagereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return segmentCommonImageResp, _err
+	_result = segmentCommonImageResp
+	return _result, _err
+}
+
+func (client *Client) GetUserAgent() (_result string) {
+	userAgent := util.GetUserAgent(client.UserAgent)
+	_result = userAgent
+	return _result
+}
+
+func (client *Client) GetAccessKeyId() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = accessKeyId
+	return _result, _err
+}
+
+func (client *Client) GetAccessKeySecret() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	secret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = secret
+	return _result, _err
 }

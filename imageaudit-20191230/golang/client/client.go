@@ -2,40 +2,33 @@
 package client
 
 import (
-	"encoding/json"
-	"io"
-
 	"github.com/alibabacloud-go/tea/tea"
-	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
-	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	"github.com/aliyun/rpc-client-go/service"
+	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
+	credential "github.com/aliyun/credentials-go/credentials"
+	util "github.com/aliyun/tea-util/golang/service"
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
-	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
-	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol"`
-	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
+	AccessKeyId     *string `json:"accessKeyId" xml:"accessKeyId"`
+	AccessKeySecret *string `json:"accessKeySecret" xml:"accessKeySecret"`
+	Type            *string `json:"type" xml:"type"`
+	SecurityToken   *string `json:"securityToken" xml:"securityToken"`
+	Endpoint        *string `json:"endpoint" xml:"endpoint" require:"true"`
+	Protocol        *string `json:"protocol" xml:"protocol"`
+	RegionId        *string `json:"regionId" xml:"regionId" require:"true"`
+	ReadTimeout     *int    `json:"read timeout" xml:"read timeout"`
+	ConnectTimeout  *int    `json:"connect timeout" xml:"connect timeout"`
+	HttpProxy       *string `json:"http proxy" xml:"http proxy"`
+	HttpsProxy      *string `json:"https proxy" xml:"https proxy"`
+	Socks5Proxy     *string `json:"socks5 proxy" xml:"socks5 proxy"`
+	Socks5NetWork   *string `json:"socks5 NetWork" xml:"socks5 NetWork"`
+	NoProxy         *string `json:"no proxy" xml:"no proxy"`
+	UserAgent       *string `json:"userAgent" xml:"userAgent"`
+	MaxIdleConns    *int    `json:"maxIdleConns" xml:"maxIdleConns"`
 }
 
 func (s Config) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s Config) GoString() string {
@@ -77,11 +70,6 @@ func (s *Config) SetRegionId(v string) *Config {
 	return s
 }
 
-func (s *Config) SetUserAgent(v string) *Config {
-	s.UserAgent = &v
-	return s
-}
-
 func (s *Config) SetReadTimeout(v int) *Config {
 	s.ReadTimeout = &v
 	return s
@@ -89,11 +77,6 @@ func (s *Config) SetReadTimeout(v int) *Config {
 
 func (s *Config) SetConnectTimeout(v int) *Config {
 	s.ConnectTimeout = &v
-	return s
-}
-
-func (s *Config) SetLocalAddr(v string) *Config {
-	s.LocalAddr = &v
 	return s
 }
 
@@ -107,11 +90,6 @@ func (s *Config) SetHttpsProxy(v string) *Config {
 	return s
 }
 
-func (s *Config) SetNoProxy(v string) *Config {
-	s.NoProxy = &v
-	return s
-}
-
 func (s *Config) SetSocks5Proxy(v string) *Config {
 	s.Socks5Proxy = &v
 	return s
@@ -122,18 +100,18 @@ func (s *Config) SetSocks5NetWork(v string) *Config {
 	return s
 }
 
+func (s *Config) SetNoProxy(v string) *Config {
+	s.NoProxy = &v
+	return s
+}
+
+func (s *Config) SetUserAgent(v string) *Config {
+	s.UserAgent = &v
+	return s
+}
+
 func (s *Config) SetMaxIdleConns(v int) *Config {
 	s.MaxIdleConns = &v
-	return s
-}
-
-func (s *Config) SetEndpointType(v string) *Config {
-	s.EndpointType = &v
-	return s
-}
-
-func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
-	s.OpenPlatformEndpoint = &v
 	return s
 }
 
@@ -143,7 +121,7 @@ type ScanTextRequest struct {
 }
 
 func (s ScanTextRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextRequest) GoString() string {
@@ -165,7 +143,7 @@ type ScanTextRequestTasks struct {
 }
 
 func (s ScanTextRequestTasks) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextRequestTasks) GoString() string {
@@ -182,7 +160,7 @@ type ScanTextRequestLabels struct {
 }
 
 func (s ScanTextRequestLabels) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextRequestLabels) GoString() string {
@@ -200,7 +178,7 @@ type ScanTextResponse struct {
 }
 
 func (s ScanTextResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextResponse) GoString() string {
@@ -222,7 +200,7 @@ type ScanTextResponseData struct {
 }
 
 func (s ScanTextResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextResponseData) GoString() string {
@@ -240,7 +218,7 @@ type ScanTextResponseDataElements struct {
 }
 
 func (s ScanTextResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextResponseDataElements) GoString() string {
@@ -265,7 +243,7 @@ type ScanTextResponseDataElementsResults struct {
 }
 
 func (s ScanTextResponseDataElementsResults) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextResponseDataElementsResults) GoString() string {
@@ -293,12 +271,12 @@ func (s *ScanTextResponseDataElementsResults) SetDetails(v []*ScanTextResponseDa
 }
 
 type ScanTextResponseDataElementsResultsDetails struct {
-	Label     *string                                                `json:"Label" xml:"Label" require:"true"`
-	HintWords []*ScanTextResponseDataElementsResultsDetailsHintWords `json:"HintWords" xml:"HintWords" require:"true" type:"Repeated"`
+	Label    *string                                               `json:"Label" xml:"Label" require:"true"`
+	Contexts []*ScanTextResponseDataElementsResultsDetailsContexts `json:"Contexts" xml:"Contexts" require:"true" type:"Repeated"`
 }
 
 func (s ScanTextResponseDataElementsResultsDetails) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanTextResponseDataElementsResultsDetails) GoString() string {
@@ -310,24 +288,24 @@ func (s *ScanTextResponseDataElementsResultsDetails) SetLabel(v string) *ScanTex
 	return s
 }
 
-func (s *ScanTextResponseDataElementsResultsDetails) SetHintWords(v []*ScanTextResponseDataElementsResultsDetailsHintWords) *ScanTextResponseDataElementsResultsDetails {
-	s.HintWords = v
+func (s *ScanTextResponseDataElementsResultsDetails) SetContexts(v []*ScanTextResponseDataElementsResultsDetailsContexts) *ScanTextResponseDataElementsResultsDetails {
+	s.Contexts = v
 	return s
 }
 
-type ScanTextResponseDataElementsResultsDetailsHintWords struct {
+type ScanTextResponseDataElementsResultsDetailsContexts struct {
 	Context *string `json:"Context" xml:"Context" require:"true"`
 }
 
-func (s ScanTextResponseDataElementsResultsDetailsHintWords) String() string {
-	return service.Prettify(s)
+func (s ScanTextResponseDataElementsResultsDetailsContexts) String() string {
+	return tea.Prettify(s)
 }
 
-func (s ScanTextResponseDataElementsResultsDetailsHintWords) GoString() string {
+func (s ScanTextResponseDataElementsResultsDetailsContexts) GoString() string {
 	return s.String()
 }
 
-func (s *ScanTextResponseDataElementsResultsDetailsHintWords) SetContext(v string) *ScanTextResponseDataElementsResultsDetailsHintWords {
+func (s *ScanTextResponseDataElementsResultsDetailsContexts) SetContext(v string) *ScanTextResponseDataElementsResultsDetailsContexts {
 	s.Context = &v
 	return s
 }
@@ -338,7 +316,7 @@ type ScanImageRequest struct {
 }
 
 func (s ScanImageRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageRequest) GoString() string {
@@ -364,7 +342,7 @@ type ScanImageRequestTask struct {
 }
 
 func (s ScanImageRequestTask) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageRequestTask) GoString() string {
@@ -402,7 +380,7 @@ type ScanImageResponse struct {
 }
 
 func (s ScanImageResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponse) GoString() string {
@@ -424,7 +402,7 @@ type ScanImageResponseData struct {
 }
 
 func (s ScanImageResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseData) GoString() string {
@@ -444,7 +422,7 @@ type ScanImageResponseDataResults struct {
 }
 
 func (s ScanImageResponseDataResults) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResults) GoString() string {
@@ -484,7 +462,7 @@ type ScanImageResponseDataResultsSubResults struct {
 }
 
 func (s ScanImageResponseDataResultsSubResults) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResults) GoString() string {
@@ -542,7 +520,7 @@ type ScanImageResponseDataResultsSubResultsFrames struct {
 }
 
 func (s ScanImageResponseDataResultsSubResultsFrames) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResultsFrames) GoString() string {
@@ -564,7 +542,7 @@ type ScanImageResponseDataResultsSubResultsHintWordsInfoList struct {
 }
 
 func (s ScanImageResponseDataResultsSubResultsHintWordsInfoList) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResultsHintWordsInfoList) GoString() string {
@@ -584,7 +562,7 @@ type ScanImageResponseDataResultsSubResultsProgramCodeDataList struct {
 }
 
 func (s ScanImageResponseDataResultsSubResultsProgramCodeDataList) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResultsProgramCodeDataList) GoString() string {
@@ -621,7 +599,7 @@ type ScanImageResponseDataResultsSubResultsLogoDataList struct {
 }
 
 func (s ScanImageResponseDataResultsSubResultsLogoDataList) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResultsLogoDataList) GoString() string {
@@ -667,7 +645,7 @@ type ScanImageResponseDataResultsSubResultsSfaceDataList struct {
 }
 
 func (s ScanImageResponseDataResultsSubResultsSfaceDataList) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResultsSfaceDataList) GoString() string {
@@ -706,7 +684,7 @@ type ScanImageResponseDataResultsSubResultsSfaceDataListFaces struct {
 }
 
 func (s ScanImageResponseDataResultsSubResultsSfaceDataListFaces) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ScanImageResponseDataResultsSubResultsSfaceDataListFaces) GoString() string {
@@ -729,44 +707,102 @@ func (s *ScanImageResponseDataResultsSubResultsSfaceDataListFaces) SetId(v strin
 }
 
 type Client struct {
-	service.BaseClient
+	Endpoint       string
+	RegionId       string
+	Protocol       string
+	UserAgent      string
+	ReadTimeout    int
+	ConnectTimeout int
+	HttpProxy      string
+	HttpsProxy     string
+	NoProxy        string
+	Socks5Proxy    string
+	Socks5NetWork  string
+	MaxIdleConns   int
+	Credential     credential.Credential
 }
 
 func NewClient(config *Config) (*Client, error) {
-	client := &Client{}
-	input := make(map[string]interface{})
-	byt, _ := json.Marshal(config)
-	err := json.Unmarshal(byt, &input)
-	if err != nil {
-		return nil, err
-	}
-	err = client.InitClient(input)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	client := new(Client)
+	err := client.init(config)
+	return client, err
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *common.RuntimeObject) (_result map[string]interface{}, _err error) {
+func (client *Client) init(config *Config) (_err error) {
+	if util.IsUnset(tea.ToMap(config)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config' can not be unset",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Endpoint)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.endpoint' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.RegionId)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.regionId' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Type)) {
+		config.Type = tea.String("access_key")
+	}
+
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	client.Credential, _err = credential.NewCredential(credentialConfig)
+	if _err != nil {
+		return _err
+	}
+
+	client.Endpoint = tea.StringValue(config.Endpoint)
+	client.Protocol = tea.StringValue(config.Protocol)
+	client.RegionId = tea.StringValue(config.RegionId)
+	client.UserAgent = tea.StringValue(config.UserAgent)
+	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
+	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
+	client.HttpProxy = tea.StringValue(config.HttpProxy)
+	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
+	client.NoProxy = tea.StringValue(config.NoProxy)
+	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
+	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
+	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
+	return nil
+}
+
+func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return make(map[string]interface{}), _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
-		"readTimeout":    common.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": common.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      common.Default(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     common.Default(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        common.Default(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   common.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
+		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
+		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
+		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
+		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
+		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
+		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
 		"retry": map[string]interface{}{
 			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": common.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
+			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 2),
 		},
 		"backoff": map[string]interface{}{
-			"policy": common.Default(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": common.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
+			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
+			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 0),
 		},
 		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
 	}
@@ -782,36 +818,46 @@ func (client *Client) _request(action string, protocol string, method string, re
 
 		_resp, _err = func() (map[string]interface{}, error) {
 			request_ := tea.NewRequest()
-			request_.Protocol = common.Default(client.Protocol, protocol)
-			request_.Method = method
-			request_.Pathname = "/"
-			request_.Query = common.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        common.GetTimestamp(),
-				"Date":             common.GetTimestamp(),
-				"Version":          "2019-12-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   common.GetNonce(),
-				"AccessKeyId":      client.GetAccessKeyId(),
-			}, request))
-			request_.Headers = map[string]string{
-				"host":       common.GetHost("imageaudit", client.RegionId, client.Endpoint),
-				"user-agent": common.GetUserAgent(client.UserAgent),
-			}
-			request_.Query["Signature"] = common.GetSignature(request_, client.GetAccessKeySecret())
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return make(map[string]interface{}), _err
-			}
-			body, _err := common.Json(response_)
+			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
 				return make(map[string]interface{}), _err
 			}
 
-			if common.HasError(body) {
+			accessKeySecret, _err := client.GetAccessKeySecret()
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			request_.Protocol = util.DefaultString(client.Protocol, protocol)
+			request_.Method = method
+			request_.Pathname = "/"
+			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
+				"Action":           action,
+				"Format":           "json",
+				"RegionId":         client.RegionId,
+				"Timestamp":        rpcutil.GetTimestamp(),
+				"Version":          "2019-12-30",
+				"SignatureMethod":  "HMAC-SHA1",
+				"SignatureVersion": "1.0",
+				"SignatureNonce":   util.GetNonce(),
+				"AccessKeyId":      accessKeyId,
+			}, request))
+			request_.Headers = map[string]string{
+				"host":       rpcutil.GetHost("imageaudit", client.RegionId, client.Endpoint),
+				"user-agent": client.GetUserAgent(),
+			}
+			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			response_, _err := tea.DoRequest(request_, _runtime)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+			obj, _err := util.ReadAsJSON(response_.Body)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			body := util.AssertAsMap(obj)
+			if rpcutil.HasError(body) {
 				_err = tea.NewSDKError(map[string]interface{}{
 					"message": body["Message"],
 					"data":    body,
@@ -820,7 +866,8 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return make(map[string]interface{}), _err
 			}
 
-			return body, _err
+			_result = body
+			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
 			break
@@ -830,7 +877,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) ScanText(request *ScanTextRequest, runtime *common.RuntimeObject) (_result *ScanTextResponse, _err error) {
+func (client *Client) ScanText(request *ScanTextRequest, runtime *util.RuntimeOptions) (_result *ScanTextResponse, _err error) {
 	_result = &ScanTextResponse{}
 	_body, _err := client._request("ScanText", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -840,12 +887,48 @@ func (client *Client) ScanText(request *ScanTextRequest, runtime *common.Runtime
 	return _result, _err
 }
 
-func (client *Client) ScanImage(request *ScanImageRequest, runtime *common.RuntimeObject) (_result *ScanImageResponse, _err error) {
+func (client *Client) ScanImage(request *ScanImageRequest, runtime *util.RuntimeOptions) (_result *ScanImageResponse, _err error) {
 	_result = &ScanImageResponse{}
 	_body, _err := client._request("ScanImage", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
 	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetUserAgent() (_result string) {
+	userAgent := util.GetUserAgent(client.UserAgent)
+	_result = userAgent
+	return _result
+}
+
+func (client *Client) GetAccessKeyId() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = accessKeyId
+	return _result, _err
+}
+
+func (client *Client) GetAccessKeySecret() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	secret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = secret
 	return _result, _err
 }

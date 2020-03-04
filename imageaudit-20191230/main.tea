@@ -1,46 +1,38 @@
-import OSS;
-import OpenPlatform;
 import RPCUtil;
-import OSSUtil;
 import Util;
 import Credential;
-import FileForm;
 
 type @endpoint = string
 type @regionId = string
 type @protocol = string
 type @userAgent = string
-type @endpointType = string
 type @readTimeout = number
 type @connectTimeout = number
 type @httpProxy = string
 type @httpsProxy = string
+type @noProxy = string
 type @socks5Proxy = string
 type @socks5NetWork = string
-type @noProxy = string
 type @maxIdleConns = number
-type @openPlatformEndpoint = string
 type @credential = Credential
 
 model Config {
-  accessKeyId?: string,
-  accessKeySecret?: string,
-  type?: string,
-  securityToken?: string,
-  endpoint: string,
-  protocol?: string,
-  regionId: string,
-  userAgent?: string,
-  readTimeout?: number,
-  connectTimeout?: number,
-  httpProxy?: string,
-  httpsProxy?: string,
-  noProxy?: string,
-  socks5Proxy?: string,
-  socks5NetWork?: string,
-  maxIdleConns?: number,
-  endpointType?: string,
-  openPlatformEndpoint?: string,
+  accessKeyId?: string(description='accessKeyId', name='accessKeyId'),
+  accessKeySecret?: string(description='accessKeySecret', name='accessKeySecret'),
+  type?: string(description='credential type', name='type'),
+  securityToken?: string(description='securityToken', name='securityToken'),
+  endpoint: string(description='endpoint', name='endpoint'),
+  protocol?: string(description='protocol', name='protocol'),
+  regionId: string(description='regionId', name='regionId'),
+  readTimeout?: number(description='read timeout', name='read timeout'),
+  connectTimeout?: number(description='connect timeout', name='connect timeout'),
+  httpProxy?: string(description='http proxy', name='http proxy'),
+  httpsProxy?: string(description='https proxy', name='https proxy'),
+  socks5Proxy?: string(description='socks5 proxy', name='socks5 proxy'),
+  socks5NetWork?: string(description='socks5 NetWork', name='socks5 NetWork'),
+  noProxy?: string(description='no proxy', name='no proxy'),
+  userAgent?: string(description='userAgent', name='userAgent'),
+  maxIdleConns?: number(description='maxIdleConns', name='maxIdleConns'),
 }
 
 init(config: Config){
@@ -51,13 +43,6 @@ init(config: Config){
     };
   }
 
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-
   if (Util.empty(config.endpoint)) {
     throw {
       name = "ParameterMissing",
@@ -65,6 +50,12 @@ init(config: Config){
     };
   }
 
+  if (Util.empty(config.regionId)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.regionId' can not be empty"
+    };
+  }
   if (Util.empty(config.type)) {
     config.type = 'access_key';
   }
@@ -87,16 +78,14 @@ init(config: Config){
   @socks5Proxy = config.socks5Proxy;
   @socks5NetWork = config.socks5NetWork;
   @maxIdleConns = config.maxIdleConns;
-  @endpointType = config.endpointType;
-  @openPlatformEndpoint = config.openPlatformEndpoint;
 }
 
 api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+  var accessKeyId = getAccessKeyId();
+  var accessKeySecret = getAccessKeySecret();
   __request.protocol = Util.defaultString(@protocol, protocol);
   __request.method = method;
   __request.pathname = '/';
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
   __request.query = RPCUtil.query({
     Action = action,
     Format = 'json',
@@ -117,8 +106,8 @@ api _request(action: string, protocol: string, method: string, request: object, 
 } returns {
   var obj = Util.readAsJSON(__response.body);
   var body = Util.assertAsMap(obj);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-  throw {
+  if (RPCUtil.hasError(body)) {
+    throw {
       message = body.Message,
       data = body,
       code = body.Code,
@@ -135,25 +124,25 @@ api _request(action: string, protocol: string, method: string, request: object, 
   maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
   retry = {
     retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 2)
   },
   backoff = {
     policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+    period = Util.defaultNumber(runtime.backoffPeriod, 0)
   },
   ignoreSSL = runtime.ignoreSSL
 }
 
 model ScanTextRequest = {
   tasks: [
-    {
-      content: string(name='Content', description='content'),
-    }
+  {
+    content: string(name='Content', description='content'),
+  }
   ](name='Tasks', description='tasks'),
   labels: [
-    {
-      label: string(name='Label', description='label'),
-    }
+  {
+    label: string(name='Label', description='label'),
+  }
   ](name='Labels', description='labels'),
 }
 
@@ -191,13 +180,13 @@ async function scanText(request: ScanTextRequest, runtime: Util.RuntimeOptions):
 
 model ScanImageRequest = {
   task: [
-    {
-      dataId?: string(name='DataId', description='dataId'),
-      imageURL: string(name='ImageURL', description='imageUrl'),
-      imageTimeMillisecond?: long(name='ImageTimeMillisecond', description='imageTime'),
-      interval?: integer(name='Interval', description='interval'),
-      maxFrames?: integer(name='MaxFrames', description='maxFrames'),
-    }
+  {
+    dataId?: string(name='DataId', description='dataId'),
+    imageURL: string(name='ImageURL', description='imageUrl'),
+    imageTimeMillisecond?: long(name='ImageTimeMillisecond', description='imageTime'),
+    interval?: integer(name='Interval', description='interval'),
+    maxFrames?: integer(name='MaxFrames', description='maxFrames'),
+  }
   ](name='Task', description='tasks'),
   scene: [ string ](name='Scene', description='scenes'),
 }
@@ -272,7 +261,7 @@ async function scanImage(request: ScanImageRequest, runtime: Util.RuntimeOptions
 }
 
 function getUserAgent(): string {
-  var userAgent = Util.getUserAgent(@userAgent);
+  var userAgent =  Util.getUserAgent(@userAgent);
   return userAgent;
 }
 

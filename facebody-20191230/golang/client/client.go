@@ -2,18 +2,19 @@
 package client
 
 import (
-	"encoding/json"
-	"io"
-
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
+	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
+	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	"github.com/aliyun/rpc-client-go/service"
+	credential "github.com/aliyun/credentials-go/credentials"
+	fileform "github.com/aliyun/tea-fileform/golang/service"
+	util "github.com/aliyun/tea-util/golang/service"
+	"io"
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
 	Type                 *string `json:"type" xml:"type"`
 	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
@@ -23,7 +24,6 @@ type Config struct {
 	UserAgent            *string `json:"userAgent" xml:"userAgent"`
 	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
 	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
 	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
 	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
 	NoProxy              *string `json:"noProxy" xml:"noProxy"`
@@ -35,7 +35,7 @@ type Config struct {
 }
 
 func (s Config) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s Config) GoString() string {
@@ -92,11 +92,6 @@ func (s *Config) SetConnectTimeout(v int) *Config {
 	return s
 }
 
-func (s *Config) SetLocalAddr(v string) *Config {
-	s.LocalAddr = &v
-	return s
-}
-
 func (s *Config) SetHttpProxy(v string) *Config {
 	s.HttpProxy = &v
 	return s
@@ -142,7 +137,7 @@ type RecognizeExpressionRequest struct {
 }
 
 func (s RecognizeExpressionRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeExpressionRequest) GoString() string {
@@ -160,7 +155,7 @@ type RecognizeExpressionResponse struct {
 }
 
 func (s RecognizeExpressionResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeExpressionResponse) GoString() string {
@@ -182,7 +177,7 @@ type RecognizeExpressionResponseData struct {
 }
 
 func (s RecognizeExpressionResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeExpressionResponseData) GoString() string {
@@ -201,7 +196,7 @@ type RecognizeExpressionResponseDataElements struct {
 }
 
 func (s RecognizeExpressionResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeExpressionResponseDataElements) GoString() string {
@@ -231,7 +226,7 @@ type RecognizeExpressionResponseDataElementsFaceRectangle struct {
 }
 
 func (s RecognizeExpressionResponseDataElementsFaceRectangle) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeExpressionResponseDataElementsFaceRectangle) GoString() string {
@@ -263,7 +258,7 @@ type RecognizeExpressionAdvanceRequest struct {
 }
 
 func (s RecognizeExpressionAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeExpressionAdvanceRequest) GoString() string {
@@ -280,7 +275,7 @@ type RecognizePublicFaceRequest struct {
 }
 
 func (s RecognizePublicFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceRequest) GoString() string {
@@ -297,7 +292,7 @@ type RecognizePublicFaceRequestTask struct {
 }
 
 func (s RecognizePublicFaceRequestTask) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceRequestTask) GoString() string {
@@ -315,7 +310,7 @@ type RecognizePublicFaceResponse struct {
 }
 
 func (s RecognizePublicFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceResponse) GoString() string {
@@ -337,7 +332,7 @@ type RecognizePublicFaceResponseData struct {
 }
 
 func (s RecognizePublicFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceResponseData) GoString() string {
@@ -356,7 +351,7 @@ type RecognizePublicFaceResponseDataElements struct {
 }
 
 func (s RecognizePublicFaceResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceResponseDataElements) GoString() string {
@@ -386,7 +381,7 @@ type RecognizePublicFaceResponseDataElementsResults struct {
 }
 
 func (s RecognizePublicFaceResponseDataElementsResults) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceResponseDataElementsResults) GoString() string {
@@ -422,7 +417,7 @@ type RecognizePublicFaceResponseDataElementsResultsSubResults struct {
 }
 
 func (s RecognizePublicFaceResponseDataElementsResultsSubResults) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceResponseDataElementsResultsSubResults) GoString() string {
@@ -461,7 +456,7 @@ type RecognizePublicFaceResponseDataElementsResultsSubResultsFaces struct {
 }
 
 func (s RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) GoString() string {
@@ -488,7 +483,7 @@ type DetectLivingFaceRequest struct {
 }
 
 func (s DetectLivingFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceRequest) GoString() string {
@@ -505,7 +500,7 @@ type DetectLivingFaceRequestTasks struct {
 }
 
 func (s DetectLivingFaceRequestTasks) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceRequestTasks) GoString() string {
@@ -523,7 +518,7 @@ type DetectLivingFaceResponse struct {
 }
 
 func (s DetectLivingFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceResponse) GoString() string {
@@ -545,7 +540,7 @@ type DetectLivingFaceResponseData struct {
 }
 
 func (s DetectLivingFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceResponseData) GoString() string {
@@ -564,7 +559,7 @@ type DetectLivingFaceResponseDataElements struct {
 }
 
 func (s DetectLivingFaceResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceResponseDataElements) GoString() string {
@@ -594,7 +589,7 @@ type DetectLivingFaceResponseDataElementsResults struct {
 }
 
 func (s DetectLivingFaceResponseDataElementsResults) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceResponseDataElementsResults) GoString() string {
@@ -627,7 +622,7 @@ type DetectLivingFaceResponseDataElementsResultsFrames struct {
 }
 
 func (s DetectLivingFaceResponseDataElementsResultsFrames) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectLivingFaceResponseDataElementsResultsFrames) GoString() string {
@@ -649,7 +644,7 @@ type DetectBodyCountRequest struct {
 }
 
 func (s DetectBodyCountRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectBodyCountRequest) GoString() string {
@@ -667,7 +662,7 @@ type DetectBodyCountResponse struct {
 }
 
 func (s DetectBodyCountResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectBodyCountResponse) GoString() string {
@@ -689,7 +684,7 @@ type DetectBodyCountResponseData struct {
 }
 
 func (s DetectBodyCountResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectBodyCountResponseData) GoString() string {
@@ -706,7 +701,7 @@ type DetectBodyCountAdvanceRequest struct {
 }
 
 func (s DetectBodyCountAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectBodyCountAdvanceRequest) GoString() string {
@@ -723,7 +718,7 @@ type DetectMaskRequest struct {
 }
 
 func (s DetectMaskRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMaskRequest) GoString() string {
@@ -741,7 +736,7 @@ type DetectMaskResponse struct {
 }
 
 func (s DetectMaskResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMaskResponse) GoString() string {
@@ -764,7 +759,7 @@ type DetectMaskResponseData struct {
 }
 
 func (s DetectMaskResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMaskResponseData) GoString() string {
@@ -786,7 +781,7 @@ type DetectMaskAdvanceRequest struct {
 }
 
 func (s DetectMaskAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMaskAdvanceRequest) GoString() string {
@@ -803,7 +798,7 @@ type RecognizeFaceRequest struct {
 }
 
 func (s RecognizeFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeFaceRequest) GoString() string {
@@ -821,7 +816,7 @@ type RecognizeFaceResponse struct {
 }
 
 func (s RecognizeFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeFaceResponse) GoString() string {
@@ -845,7 +840,7 @@ type RecognizeFaceResponseData struct {
 }
 
 func (s RecognizeFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeFaceResponseData) GoString() string {
@@ -872,7 +867,7 @@ type RecognizeFaceAdvanceRequest struct {
 }
 
 func (s RecognizeFaceAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeFaceAdvanceRequest) GoString() string {
@@ -890,7 +885,7 @@ type CompareFaceRequest struct {
 }
 
 func (s CompareFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s CompareFaceRequest) GoString() string {
@@ -913,7 +908,7 @@ type CompareFaceResponse struct {
 }
 
 func (s CompareFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s CompareFaceResponse) GoString() string {
@@ -935,7 +930,7 @@ type CompareFaceResponseData struct {
 }
 
 func (s CompareFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s CompareFaceResponseData) GoString() string {
@@ -952,7 +947,7 @@ type DetectFaceRequest struct {
 }
 
 func (s DetectFaceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectFaceRequest) GoString() string {
@@ -970,7 +965,7 @@ type DetectFaceResponse struct {
 }
 
 func (s DetectFaceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectFaceResponse) GoString() string {
@@ -993,7 +988,7 @@ type DetectFaceResponseData struct {
 }
 
 func (s DetectFaceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectFaceResponseData) GoString() string {
@@ -1015,7 +1010,7 @@ type DetectFaceAdvanceRequest struct {
 }
 
 func (s DetectFaceAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectFaceAdvanceRequest) GoString() string {
@@ -1028,44 +1023,106 @@ func (s *DetectFaceAdvanceRequest) SetImageURLObject(v io.Reader) *DetectFaceAdv
 }
 
 type Client struct {
-	service.BaseClient
+	Endpoint             string
+	RegionId             string
+	Protocol             string
+	UserAgent            string
+	EndpointType         string
+	ReadTimeout          int
+	ConnectTimeout       int
+	HttpProxy            string
+	HttpsProxy           string
+	Socks5Proxy          string
+	Socks5NetWork        string
+	NoProxy              string
+	MaxIdleConns         int
+	OpenPlatformEndpoint string
+	Credential           credential.Credential
 }
 
 func NewClient(config *Config) (*Client, error) {
-	client := &Client{}
-	input := make(map[string]interface{})
-	byt, _ := json.Marshal(config)
-	err := json.Unmarshal(byt, &input)
-	if err != nil {
-		return nil, err
-	}
-	err = client.InitClient(input)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	client := new(Client)
+	err := client.init(config)
+	return client, err
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *common.RuntimeObject) (_result map[string]interface{}, _err error) {
+func (client *Client) init(config *Config) (_err error) {
+	if util.IsUnset(tea.ToMap(config)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config' can not be unset",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.RegionId)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.regionId' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Endpoint)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.endpoint' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Type)) {
+		config.Type = tea.String("access_key")
+	}
+
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	client.Credential, _err = credential.NewCredential(credentialConfig)
+	if _err != nil {
+		return _err
+	}
+
+	client.Endpoint = tea.StringValue(config.Endpoint)
+	client.Protocol = tea.StringValue(config.Protocol)
+	client.RegionId = tea.StringValue(config.RegionId)
+	client.UserAgent = tea.StringValue(config.UserAgent)
+	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
+	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
+	client.HttpProxy = tea.StringValue(config.HttpProxy)
+	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
+	client.NoProxy = tea.StringValue(config.NoProxy)
+	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
+	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
+	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
+	client.EndpointType = tea.StringValue(config.EndpointType)
+	client.OpenPlatformEndpoint = tea.StringValue(config.OpenPlatformEndpoint)
+	return nil
+}
+
+func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return make(map[string]interface{}), _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
-		"readTimeout":    common.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": common.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      common.Default(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     common.Default(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        common.Default(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   common.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
+		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
+		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
+		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
+		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
+		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
+		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
 		"retry": map[string]interface{}{
 			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": common.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
+			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
 		},
 		"backoff": map[string]interface{}{
-			"policy": common.Default(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": common.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
+			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
+			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
 		},
 		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
 	}
@@ -1081,36 +1138,46 @@ func (client *Client) _request(action string, protocol string, method string, re
 
 		_resp, _err = func() (map[string]interface{}, error) {
 			request_ := tea.NewRequest()
-			request_.Protocol = common.Default(client.Protocol, protocol)
+			request_.Protocol = util.DefaultString(client.Protocol, protocol)
 			request_.Method = method
 			request_.Pathname = "/"
-			request_.Query = common.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        common.GetTimestamp(),
-				"Date":             common.GetTimestamp(),
-				"Version":          "2019-12-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   common.GetNonce(),
-				"AccessKeyId":      client.GetAccessKeyId(),
-			}, request))
-			request_.Headers = map[string]string{
-				"host":       common.GetHost("facebody", client.RegionId, client.Endpoint),
-				"user-agent": common.GetUserAgent(client.UserAgent),
-			}
-			request_.Query["Signature"] = common.GetSignature(request_, client.GetAccessKeySecret())
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return make(map[string]interface{}), _err
-			}
-			body, _err := common.Json(response_)
+			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
 				return make(map[string]interface{}), _err
 			}
 
-			if common.HasError(body) {
+			accessKeySecret, _err := client.GetAccessKeySecret()
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
+				"Action":           action,
+				"Format":           "json",
+				"RegionId":         client.RegionId,
+				"Timestamp":        rpcutil.GetTimestamp(),
+				"Version":          "2019-12-30",
+				"SignatureMethod":  "HMAC-SHA1",
+				"SignatureVersion": "1.0",
+				"SignatureNonce":   util.GetNonce(),
+				"AccessKeyId":      accessKeyId,
+			}, request))
+			request_.Headers = map[string]string{
+				"host":       rpcutil.GetHost("facebody", client.RegionId, client.Endpoint),
+				"user-agent": client.GetUserAgent(),
+			}
+			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			response_, _err := tea.DoRequest(request_, _runtime)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+			obj, _err := util.ReadAsJSON(response_.Body)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			body := util.AssertAsMap(obj)
+			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
 				_err = tea.NewSDKError(map[string]interface{}{
 					"message": body["Message"],
 					"data":    body,
@@ -1119,7 +1186,8 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return make(map[string]interface{}), _err
 			}
 
-			return body, _err
+			_result = body
+			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
 			break
@@ -1129,7 +1197,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) RecognizeExpression(request *RecognizeExpressionRequest, runtime *common.RuntimeObject) (_result *RecognizeExpressionResponse, _err error) {
+func (client *Client) RecognizeExpression(request *RecognizeExpressionRequest, runtime *util.RuntimeOptions) (_result *RecognizeExpressionResponse, _err error) {
 	_result = &RecognizeExpressionResponse{}
 	_body, _err := client._request("RecognizeExpression", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1139,10 +1207,20 @@ func (client *Client) RecognizeExpression(request *RecognizeExpressionRequest, r
 	return _result, _err
 }
 
-func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeExpressionResponse, _err error) {
+func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeExpressionResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1164,9 +1242,9 @@ func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdv
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1175,8 +1253,8 @@ func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdv
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1192,19 +1270,25 @@ func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdv
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	recognizeExpressionreq := &RecognizeExpressionRequest{}
-	common.Convert(request, recognizeExpressionreq)
+	rpcutil.Convert(request, recognizeExpressionreq)
 	recognizeExpressionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeExpressionResp, _err := client.RecognizeExpression(recognizeExpressionreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return recognizeExpressionResp, _err
+	_result = recognizeExpressionResp
+	return _result, _err
 }
 
-func (client *Client) RecognizePublicFace(request *RecognizePublicFaceRequest, runtime *common.RuntimeObject) (_result *RecognizePublicFaceResponse, _err error) {
+func (client *Client) RecognizePublicFace(request *RecognizePublicFaceRequest, runtime *util.RuntimeOptions) (_result *RecognizePublicFaceResponse, _err error) {
 	_result = &RecognizePublicFaceResponse{}
 	_body, _err := client._request("RecognizePublicFace", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1214,7 +1298,7 @@ func (client *Client) RecognizePublicFace(request *RecognizePublicFaceRequest, r
 	return _result, _err
 }
 
-func (client *Client) DetectLivingFace(request *DetectLivingFaceRequest, runtime *common.RuntimeObject) (_result *DetectLivingFaceResponse, _err error) {
+func (client *Client) DetectLivingFace(request *DetectLivingFaceRequest, runtime *util.RuntimeOptions) (_result *DetectLivingFaceResponse, _err error) {
 	_result = &DetectLivingFaceResponse{}
 	_body, _err := client._request("DetectLivingFace", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1224,7 +1308,7 @@ func (client *Client) DetectLivingFace(request *DetectLivingFaceRequest, runtime
 	return _result, _err
 }
 
-func (client *Client) DetectBodyCount(request *DetectBodyCountRequest, runtime *common.RuntimeObject) (_result *DetectBodyCountResponse, _err error) {
+func (client *Client) DetectBodyCount(request *DetectBodyCountRequest, runtime *util.RuntimeOptions) (_result *DetectBodyCountResponse, _err error) {
 	_result = &DetectBodyCountResponse{}
 	_body, _err := client._request("DetectBodyCount", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1234,10 +1318,20 @@ func (client *Client) DetectBodyCount(request *DetectBodyCountRequest, runtime *
 	return _result, _err
 }
 
-func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectBodyCountResponse, _err error) {
+func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectBodyCountResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1259,9 +1353,9 @@ func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequ
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1270,8 +1364,8 @@ func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequ
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1287,19 +1381,25 @@ func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequ
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	detectBodyCountreq := &DetectBodyCountRequest{}
-	common.Convert(request, detectBodyCountreq)
+	rpcutil.Convert(request, detectBodyCountreq)
 	detectBodyCountreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	detectBodyCountResp, _err := client.DetectBodyCount(detectBodyCountreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return detectBodyCountResp, _err
+	_result = detectBodyCountResp
+	return _result, _err
 }
 
-func (client *Client) DetectMask(request *DetectMaskRequest, runtime *common.RuntimeObject) (_result *DetectMaskResponse, _err error) {
+func (client *Client) DetectMask(request *DetectMaskRequest, runtime *util.RuntimeOptions) (_result *DetectMaskResponse, _err error) {
 	_result = &DetectMaskResponse{}
 	_body, _err := client._request("DetectMask", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1309,10 +1409,20 @@ func (client *Client) DetectMask(request *DetectMaskRequest, runtime *common.Run
 	return _result, _err
 }
 
-func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectMaskResponse, _err error) {
+func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectMaskResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1334,9 +1444,9 @@ func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runti
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1345,8 +1455,8 @@ func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runti
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1362,19 +1472,25 @@ func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runti
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	detectMaskreq := &DetectMaskRequest{}
-	common.Convert(request, detectMaskreq)
+	rpcutil.Convert(request, detectMaskreq)
 	detectMaskreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	detectMaskResp, _err := client.DetectMask(detectMaskreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return detectMaskResp, _err
+	_result = detectMaskResp
+	return _result, _err
 }
 
-func (client *Client) RecognizeFace(request *RecognizeFaceRequest, runtime *common.RuntimeObject) (_result *RecognizeFaceResponse, _err error) {
+func (client *Client) RecognizeFace(request *RecognizeFaceRequest, runtime *util.RuntimeOptions) (_result *RecognizeFaceResponse, _err error) {
 	_result = &RecognizeFaceResponse{}
 	_body, _err := client._request("RecognizeFace", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1384,10 +1500,20 @@ func (client *Client) RecognizeFace(request *RecognizeFaceRequest, runtime *comm
 	return _result, _err
 }
 
-func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeFaceResponse, _err error) {
+func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeFaceResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1409,9 +1535,9 @@ func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest,
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1420,8 +1546,8 @@ func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest,
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1437,19 +1563,25 @@ func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest,
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	recognizeFacereq := &RecognizeFaceRequest{}
-	common.Convert(request, recognizeFacereq)
+	rpcutil.Convert(request, recognizeFacereq)
 	recognizeFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeFaceResp, _err := client.RecognizeFace(recognizeFacereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return recognizeFaceResp, _err
+	_result = recognizeFaceResp
+	return _result, _err
 }
 
-func (client *Client) CompareFace(request *CompareFaceRequest, runtime *common.RuntimeObject) (_result *CompareFaceResponse, _err error) {
+func (client *Client) CompareFace(request *CompareFaceRequest, runtime *util.RuntimeOptions) (_result *CompareFaceResponse, _err error) {
 	_result = &CompareFaceResponse{}
 	_body, _err := client._request("CompareFace", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1459,7 +1591,7 @@ func (client *Client) CompareFace(request *CompareFaceRequest, runtime *common.R
 	return _result, _err
 }
 
-func (client *Client) DetectFace(request *DetectFaceRequest, runtime *common.RuntimeObject) (_result *DetectFaceResponse, _err error) {
+func (client *Client) DetectFace(request *DetectFaceRequest, runtime *util.RuntimeOptions) (_result *DetectFaceResponse, _err error) {
 	_result = &DetectFaceResponse{}
 	_body, _err := client._request("DetectFace", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1469,10 +1601,20 @@ func (client *Client) DetectFace(request *DetectFaceRequest, runtime *common.Run
 	return _result, _err
 }
 
-func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectFaceResponse, _err error) {
+func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectFaceResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1494,9 +1636,9 @@ func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runti
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1505,8 +1647,8 @@ func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runti
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1522,14 +1664,56 @@ func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runti
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	detectFacereq := &DetectFaceRequest{}
-	common.Convert(request, detectFacereq)
+	rpcutil.Convert(request, detectFacereq)
 	detectFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	detectFaceResp, _err := client.DetectFace(detectFacereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return detectFaceResp, _err
+	_result = detectFaceResp
+	return _result, _err
+}
+
+func (client *Client) GetUserAgent() (_result string) {
+	userAgent := util.GetUserAgent(client.UserAgent)
+	_result = userAgent
+	return _result
+}
+
+func (client *Client) GetAccessKeyId() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = accessKeyId
+	return _result, _err
+}
+
+func (client *Client) GetAccessKeySecret() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	secret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = secret
+	return _result, _err
 }
