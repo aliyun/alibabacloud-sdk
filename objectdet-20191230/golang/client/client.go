@@ -2,18 +2,19 @@
 package client
 
 import (
-	"encoding/json"
-	"io"
-
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
+	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
+	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	"github.com/aliyun/rpc-client-go/service"
+	credential "github.com/aliyun/credentials-go/credentials"
+	fileform "github.com/aliyun/tea-fileform/golang/service"
+	util "github.com/aliyun/tea-util/golang/service"
+	"io"
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
 	Type                 *string `json:"type" xml:"type"`
 	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
@@ -23,7 +24,6 @@ type Config struct {
 	UserAgent            *string `json:"userAgent" xml:"userAgent"`
 	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
 	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
 	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
 	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
 	NoProxy              *string `json:"noProxy" xml:"noProxy"`
@@ -35,7 +35,7 @@ type Config struct {
 }
 
 func (s Config) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s Config) GoString() string {
@@ -92,11 +92,6 @@ func (s *Config) SetConnectTimeout(v int) *Config {
 	return s
 }
 
-func (s *Config) SetLocalAddr(v string) *Config {
-	s.LocalAddr = &v
-	return s
-}
-
 func (s *Config) SetHttpProxy(v string) *Config {
 	s.HttpProxy = &v
 	return s
@@ -142,7 +137,7 @@ type ClassifyVehicleInsuranceRequest struct {
 }
 
 func (s ClassifyVehicleInsuranceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ClassifyVehicleInsuranceRequest) GoString() string {
@@ -160,7 +155,7 @@ type ClassifyVehicleInsuranceResponse struct {
 }
 
 func (s ClassifyVehicleInsuranceResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ClassifyVehicleInsuranceResponse) GoString() string {
@@ -183,7 +178,7 @@ type ClassifyVehicleInsuranceResponseData struct {
 }
 
 func (s ClassifyVehicleInsuranceResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ClassifyVehicleInsuranceResponseData) GoString() string {
@@ -206,7 +201,7 @@ type ClassifyVehicleInsuranceResponseDataLabels struct {
 }
 
 func (s ClassifyVehicleInsuranceResponseDataLabels) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ClassifyVehicleInsuranceResponseDataLabels) GoString() string {
@@ -228,7 +223,7 @@ type ClassifyVehicleInsuranceAdvanceRequest struct {
 }
 
 func (s ClassifyVehicleInsuranceAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ClassifyVehicleInsuranceAdvanceRequest) GoString() string {
@@ -245,7 +240,7 @@ type RecognizeVehicleDashboardRequest struct {
 }
 
 func (s RecognizeVehicleDashboardRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDashboardRequest) GoString() string {
@@ -263,7 +258,7 @@ type RecognizeVehicleDashboardResponse struct {
 }
 
 func (s RecognizeVehicleDashboardResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDashboardResponse) GoString() string {
@@ -285,7 +280,7 @@ type RecognizeVehicleDashboardResponseData struct {
 }
 
 func (s RecognizeVehicleDashboardResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDashboardResponseData) GoString() string {
@@ -304,7 +299,7 @@ type RecognizeVehicleDashboardResponseDataElements struct {
 }
 
 func (s RecognizeVehicleDashboardResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDashboardResponseDataElements) GoString() string {
@@ -331,7 +326,7 @@ type RecognizeVehicleDashboardAdvanceRequest struct {
 }
 
 func (s RecognizeVehicleDashboardAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDashboardAdvanceRequest) GoString() string {
@@ -348,7 +343,7 @@ type RecognizeVehicleDamageRequest struct {
 }
 
 func (s RecognizeVehicleDamageRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDamageRequest) GoString() string {
@@ -366,7 +361,7 @@ type RecognizeVehicleDamageResponse struct {
 }
 
 func (s RecognizeVehicleDamageResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDamageResponse) GoString() string {
@@ -388,7 +383,7 @@ type RecognizeVehicleDamageResponseData struct {
 }
 
 func (s RecognizeVehicleDamageResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDamageResponseData) GoString() string {
@@ -406,7 +401,7 @@ type RecognizeVehicleDamageResponseDataElements struct {
 }
 
 func (s RecognizeVehicleDamageResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDamageResponseDataElements) GoString() string {
@@ -428,7 +423,7 @@ type RecognizeVehicleDamageAdvanceRequest struct {
 }
 
 func (s RecognizeVehicleDamageAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehicleDamageAdvanceRequest) GoString() string {
@@ -445,7 +440,7 @@ type RecognizeVehiclePartsRequest struct {
 }
 
 func (s RecognizeVehiclePartsRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehiclePartsRequest) GoString() string {
@@ -463,7 +458,7 @@ type RecognizeVehiclePartsResponse struct {
 }
 
 func (s RecognizeVehiclePartsResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehiclePartsResponse) GoString() string {
@@ -485,7 +480,7 @@ type RecognizeVehiclePartsResponseData struct {
 }
 
 func (s RecognizeVehiclePartsResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehiclePartsResponseData) GoString() string {
@@ -503,7 +498,7 @@ type RecognizeVehiclePartsResponseDataElements struct {
 }
 
 func (s RecognizeVehiclePartsResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehiclePartsResponseDataElements) GoString() string {
@@ -525,7 +520,7 @@ type RecognizeVehiclePartsAdvanceRequest struct {
 }
 
 func (s RecognizeVehiclePartsAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecognizeVehiclePartsAdvanceRequest) GoString() string {
@@ -542,7 +537,7 @@ type DetectVehicleRequest struct {
 }
 
 func (s DetectVehicleRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectVehicleRequest) GoString() string {
@@ -560,7 +555,7 @@ type DetectVehicleResponse struct {
 }
 
 func (s DetectVehicleResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectVehicleResponse) GoString() string {
@@ -584,7 +579,7 @@ type DetectVehicleResponseData struct {
 }
 
 func (s DetectVehicleResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectVehicleResponseData) GoString() string {
@@ -613,7 +608,7 @@ type DetectVehicleResponseDataDetectObjectInfoList struct {
 }
 
 func (s DetectVehicleResponseDataDetectObjectInfoList) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectVehicleResponseDataDetectObjectInfoList) GoString() string {
@@ -640,7 +635,7 @@ type DetectVehicleAdvanceRequest struct {
 }
 
 func (s DetectVehicleAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectVehicleAdvanceRequest) GoString() string {
@@ -657,7 +652,7 @@ type DetectMainBodyRequest struct {
 }
 
 func (s DetectMainBodyRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMainBodyRequest) GoString() string {
@@ -675,7 +670,7 @@ type DetectMainBodyResponse struct {
 }
 
 func (s DetectMainBodyResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMainBodyResponse) GoString() string {
@@ -697,7 +692,7 @@ type DetectMainBodyResponseData struct {
 }
 
 func (s DetectMainBodyResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMainBodyResponseData) GoString() string {
@@ -717,7 +712,7 @@ type DetectMainBodyResponseDataLocation struct {
 }
 
 func (s DetectMainBodyResponseDataLocation) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMainBodyResponseDataLocation) GoString() string {
@@ -749,7 +744,7 @@ type DetectMainBodyAdvanceRequest struct {
 }
 
 func (s DetectMainBodyAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s DetectMainBodyAdvanceRequest) GoString() string {
@@ -762,44 +757,106 @@ func (s *DetectMainBodyAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMai
 }
 
 type Client struct {
-	service.BaseClient
+	Endpoint             string
+	RegionId             string
+	Protocol             string
+	UserAgent            string
+	EndpointType         string
+	ReadTimeout          int
+	ConnectTimeout       int
+	HttpProxy            string
+	HttpsProxy           string
+	Socks5Proxy          string
+	Socks5NetWork        string
+	NoProxy              string
+	MaxIdleConns         int
+	OpenPlatformEndpoint string
+	Credential           credential.Credential
 }
 
 func NewClient(config *Config) (*Client, error) {
-	client := &Client{}
-	input := make(map[string]interface{})
-	byt, _ := json.Marshal(config)
-	err := json.Unmarshal(byt, &input)
-	if err != nil {
-		return nil, err
-	}
-	err = client.InitClient(input)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	client := new(Client)
+	err := client.init(config)
+	return client, err
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *common.RuntimeObject) (_result map[string]interface{}, _err error) {
+func (client *Client) init(config *Config) (_err error) {
+	if util.IsUnset(tea.ToMap(config)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config' can not be unset",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.RegionId)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.regionId' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Endpoint)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.endpoint' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Type)) {
+		config.Type = tea.String("access_key")
+	}
+
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	client.Credential, _err = credential.NewCredential(credentialConfig)
+	if _err != nil {
+		return _err
+	}
+
+	client.Endpoint = tea.StringValue(config.Endpoint)
+	client.Protocol = tea.StringValue(config.Protocol)
+	client.RegionId = tea.StringValue(config.RegionId)
+	client.UserAgent = tea.StringValue(config.UserAgent)
+	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
+	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
+	client.HttpProxy = tea.StringValue(config.HttpProxy)
+	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
+	client.NoProxy = tea.StringValue(config.NoProxy)
+	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
+	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
+	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
+	client.EndpointType = tea.StringValue(config.EndpointType)
+	client.OpenPlatformEndpoint = tea.StringValue(config.OpenPlatformEndpoint)
+	return nil
+}
+
+func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return make(map[string]interface{}), _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
-		"readTimeout":    common.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": common.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      common.Default(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     common.Default(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        common.Default(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   common.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
+		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
+		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
+		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
+		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
+		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
+		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
 		"retry": map[string]interface{}{
 			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": common.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
+			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
 		},
 		"backoff": map[string]interface{}{
-			"policy": common.Default(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": common.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
+			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
+			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
 		},
 		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
 	}
@@ -815,36 +872,46 @@ func (client *Client) _request(action string, protocol string, method string, re
 
 		_resp, _err = func() (map[string]interface{}, error) {
 			request_ := tea.NewRequest()
-			request_.Protocol = common.Default(client.Protocol, protocol)
+			request_.Protocol = util.DefaultString(client.Protocol, protocol)
 			request_.Method = method
 			request_.Pathname = "/"
-			request_.Query = common.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        common.GetTimestamp(),
-				"Date":             common.GetTimestamp(),
-				"Version":          "2019-12-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   common.GetNonce(),
-				"AccessKeyId":      client.GetAccessKeyId(),
-			}, request))
-			request_.Headers = map[string]string{
-				"host":       common.GetHost("objectdet", client.RegionId, client.Endpoint),
-				"user-agent": common.GetUserAgent(client.UserAgent),
-			}
-			request_.Query["Signature"] = common.GetSignature(request_, client.GetAccessKeySecret())
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return make(map[string]interface{}), _err
-			}
-			body, _err := common.Json(response_)
+			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
 				return make(map[string]interface{}), _err
 			}
 
-			if common.HasError(body) {
+			accessKeySecret, _err := client.GetAccessKeySecret()
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
+				"Action":           action,
+				"Format":           "json",
+				"RegionId":         client.RegionId,
+				"Timestamp":        rpcutil.GetTimestamp(),
+				"Version":          "2019-12-30",
+				"SignatureMethod":  "HMAC-SHA1",
+				"SignatureVersion": "1.0",
+				"SignatureNonce":   util.GetNonce(),
+				"AccessKeyId":      accessKeyId,
+			}, request))
+			request_.Headers = map[string]string{
+				"host":       rpcutil.GetHost("objectdet", client.RegionId, client.Endpoint),
+				"user-agent": client.GetUserAgent(),
+			}
+			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			response_, _err := tea.DoRequest(request_, _runtime)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+			obj, _err := util.ReadAsJSON(response_.Body)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			body := util.AssertAsMap(obj)
+			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
 				_err = tea.NewSDKError(map[string]interface{}{
 					"message": body["Message"],
 					"data":    body,
@@ -853,7 +920,8 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return make(map[string]interface{}), _err
 			}
 
-			return body, _err
+			_result = body
+			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
 			break
@@ -863,7 +931,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsuranceRequest, runtime *common.RuntimeObject) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsuranceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
 	_result = &ClassifyVehicleInsuranceResponse{}
 	_body, _err := client._request("ClassifyVehicleInsurance", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -873,10 +941,20 @@ func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsurance
 	return _result, _err
 }
 
-func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleInsuranceAdvanceRequest, runtime *common.RuntimeObject) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleInsuranceAdvanceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -898,9 +976,9 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -909,8 +987,8 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -926,19 +1004,25 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	classifyVehicleInsurancereq := &ClassifyVehicleInsuranceRequest{}
-	common.Convert(request, classifyVehicleInsurancereq)
+	rpcutil.Convert(request, classifyVehicleInsurancereq)
 	classifyVehicleInsurancereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	classifyVehicleInsuranceResp, _err := client.ClassifyVehicleInsurance(classifyVehicleInsurancereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return classifyVehicleInsuranceResp, _err
+	_result = classifyVehicleInsuranceResp
+	return _result, _err
 }
 
-func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboardRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDashboardResponse, _err error) {
+func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboardRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDashboardResponse, _err error) {
 	_result = &RecognizeVehicleDashboardResponse{}
 	_body, _err := client._request("RecognizeVehicleDashboard", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -948,10 +1032,20 @@ func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboa
 	return _result, _err
 }
 
-func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicleDashboardAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDashboardResponse, _err error) {
+func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicleDashboardAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDashboardResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -973,9 +1067,9 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -984,8 +1078,8 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1001,19 +1095,25 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	recognizeVehicleDashboardreq := &RecognizeVehicleDashboardRequest{}
-	common.Convert(request, recognizeVehicleDashboardreq)
+	rpcutil.Convert(request, recognizeVehicleDashboardreq)
 	recognizeVehicleDashboardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVehicleDashboardResp, _err := client.RecognizeVehicleDashboard(recognizeVehicleDashboardreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return recognizeVehicleDashboardResp, _err
+	_result = recognizeVehicleDashboardResp
+	return _result, _err
 }
 
-func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDamageResponse, _err error) {
+func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDamageResponse, _err error) {
 	_result = &RecognizeVehicleDamageResponse{}
 	_body, _err := client._request("RecognizeVehicleDamage", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1023,10 +1123,20 @@ func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequ
 	return _result, _err
 }
 
-func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDamageAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVehicleDamageResponse, _err error) {
+func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDamageAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDamageResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1048,9 +1158,9 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1059,8 +1169,8 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1076,19 +1186,25 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	recognizeVehicleDamagereq := &RecognizeVehicleDamageRequest{}
-	common.Convert(request, recognizeVehicleDamagereq)
+	rpcutil.Convert(request, recognizeVehicleDamagereq)
 	recognizeVehicleDamagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVehicleDamageResp, _err := client.RecognizeVehicleDamage(recognizeVehicleDamagereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return recognizeVehicleDamageResp, _err
+	_result = recognizeVehicleDamageResp
+	return _result, _err
 }
 
-func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsRequest, runtime *common.RuntimeObject) (_result *RecognizeVehiclePartsResponse, _err error) {
+func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehiclePartsResponse, _err error) {
 	_result = &RecognizeVehiclePartsResponse{}
 	_body, _err := client._request("RecognizeVehicleParts", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1098,10 +1214,20 @@ func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsReques
 	return _result, _err
 }
 
-func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePartsAdvanceRequest, runtime *common.RuntimeObject) (_result *RecognizeVehiclePartsResponse, _err error) {
+func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePartsAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehiclePartsResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1123,9 +1249,9 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1134,8 +1260,8 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1151,19 +1277,25 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	recognizeVehiclePartsreq := &RecognizeVehiclePartsRequest{}
-	common.Convert(request, recognizeVehiclePartsreq)
+	rpcutil.Convert(request, recognizeVehiclePartsreq)
 	recognizeVehiclePartsreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVehiclePartsResp, _err := client.RecognizeVehicleParts(recognizeVehiclePartsreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return recognizeVehiclePartsResp, _err
+	_result = recognizeVehiclePartsResp
+	return _result, _err
 }
 
-func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *common.RuntimeObject) (_result *DetectVehicleResponse, _err error) {
+func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *util.RuntimeOptions) (_result *DetectVehicleResponse, _err error) {
 	_result = &DetectVehicleResponse{}
 	_body, _err := client._request("DetectVehicle", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1173,10 +1305,20 @@ func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *comm
 	return _result, _err
 }
 
-func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectVehicleResponse, _err error) {
+func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectVehicleResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1198,9 +1340,9 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1209,8 +1351,8 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1226,19 +1368,25 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	detectVehiclereq := &DetectVehicleRequest{}
-	common.Convert(request, detectVehiclereq)
+	rpcutil.Convert(request, detectVehiclereq)
 	detectVehiclereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	detectVehicleResp, _err := client.DetectVehicle(detectVehiclereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return detectVehicleResp, _err
+	_result = detectVehicleResp
+	return _result, _err
 }
 
-func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *common.RuntimeObject) (_result *DetectMainBodyResponse, _err error) {
+func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *util.RuntimeOptions) (_result *DetectMainBodyResponse, _err error) {
 	_result = &DetectMainBodyResponse{}
 	_body, _err := client._request("DetectMainBody", "HTTPS", "GET", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -1248,10 +1396,20 @@ func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *co
 	return _result, _err
 }
 
-func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceRequest, runtime *common.RuntimeObject) (_result *DetectMainBodyResponse, _err error) {
+func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectMainBodyResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -1273,9 +1431,9 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -1284,8 +1442,8 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -1301,14 +1459,56 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	detectMainBodyreq := &DetectMainBodyRequest{}
-	common.Convert(request, detectMainBodyreq)
+	rpcutil.Convert(request, detectMainBodyreq)
 	detectMainBodyreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	detectMainBodyResp, _err := client.DetectMainBody(detectMainBodyreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return detectMainBodyResp, _err
+	_result = detectMainBodyResp
+	return _result, _err
+}
+
+func (client *Client) GetUserAgent() (_result string) {
+	userAgent := util.GetUserAgent(client.UserAgent)
+	_result = userAgent
+	return _result
+}
+
+func (client *Client) GetAccessKeyId() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = accessKeyId
+	return _result, _err
+}
+
+func (client *Client) GetAccessKeySecret() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	secret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = secret
+	return _result, _err
 }

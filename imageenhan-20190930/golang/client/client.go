@@ -2,18 +2,19 @@
 package client
 
 import (
-	"encoding/json"
-	"io"
-
 	"github.com/alibabacloud-go/tea/tea"
 	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	common "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
+	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
+	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	"github.com/aliyun/rpc-client-go/service"
+	credential "github.com/aliyun/credentials-go/credentials"
+	fileform "github.com/aliyun/tea-fileform/golang/service"
+	util "github.com/aliyun/tea-util/golang/service"
+	"io"
 )
 
 type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId" require:"true"`
+	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
 	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
 	Type                 *string `json:"type" xml:"type"`
 	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
@@ -23,7 +24,6 @@ type Config struct {
 	UserAgent            *string `json:"userAgent" xml:"userAgent"`
 	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
 	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	LocalAddr            *string `json:"localAddr" xml:"localAddr"`
 	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
 	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
 	NoProxy              *string `json:"noProxy" xml:"noProxy"`
@@ -35,7 +35,7 @@ type Config struct {
 }
 
 func (s Config) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s Config) GoString() string {
@@ -92,11 +92,6 @@ func (s *Config) SetConnectTimeout(v int) *Config {
 	return s
 }
 
-func (s *Config) SetLocalAddr(v string) *Config {
-	s.LocalAddr = &v
-	return s
-}
-
 func (s *Config) SetHttpProxy(v string) *Config {
 	s.HttpProxy = &v
 	return s
@@ -143,7 +138,7 @@ type IntelligentCompositionRequest struct {
 }
 
 func (s IntelligentCompositionRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s IntelligentCompositionRequest) GoString() string {
@@ -166,7 +161,7 @@ type IntelligentCompositionResponse struct {
 }
 
 func (s IntelligentCompositionResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s IntelligentCompositionResponse) GoString() string {
@@ -188,7 +183,7 @@ type IntelligentCompositionResponseData struct {
 }
 
 func (s IntelligentCompositionResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s IntelligentCompositionResponseData) GoString() string {
@@ -209,7 +204,7 @@ type IntelligentCompositionResponseDataElements struct {
 }
 
 func (s IntelligentCompositionResponseDataElements) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s IntelligentCompositionResponseDataElements) GoString() string {
@@ -247,7 +242,7 @@ type IntelligentCompositionAdvanceRequest struct {
 }
 
 func (s IntelligentCompositionAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s IntelligentCompositionAdvanceRequest) GoString() string {
@@ -271,7 +266,7 @@ type ChangeImageSizeRequest struct {
 }
 
 func (s ChangeImageSizeRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ChangeImageSizeRequest) GoString() string {
@@ -299,7 +294,7 @@ type ChangeImageSizeResponse struct {
 }
 
 func (s ChangeImageSizeResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ChangeImageSizeResponse) GoString() string {
@@ -321,7 +316,7 @@ type ChangeImageSizeResponseData struct {
 }
 
 func (s ChangeImageSizeResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ChangeImageSizeResponseData) GoString() string {
@@ -340,7 +335,7 @@ type ChangeImageSizeAdvanceRequest struct {
 }
 
 func (s ChangeImageSizeAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ChangeImageSizeAdvanceRequest) GoString() string {
@@ -368,7 +363,7 @@ type ExtendImageStyleRequest struct {
 }
 
 func (s ExtendImageStyleRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ExtendImageStyleRequest) GoString() string {
@@ -391,7 +386,7 @@ type ExtendImageStyleResponse struct {
 }
 
 func (s ExtendImageStyleResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ExtendImageStyleResponse) GoString() string {
@@ -414,7 +409,7 @@ type ExtendImageStyleResponseData struct {
 }
 
 func (s ExtendImageStyleResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s ExtendImageStyleResponseData) GoString() string {
@@ -436,7 +431,7 @@ type MakeSuperResolutionImageRequest struct {
 }
 
 func (s MakeSuperResolutionImageRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s MakeSuperResolutionImageRequest) GoString() string {
@@ -454,7 +449,7 @@ type MakeSuperResolutionImageResponse struct {
 }
 
 func (s MakeSuperResolutionImageResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s MakeSuperResolutionImageResponse) GoString() string {
@@ -476,7 +471,7 @@ type MakeSuperResolutionImageResponseData struct {
 }
 
 func (s MakeSuperResolutionImageResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s MakeSuperResolutionImageResponseData) GoString() string {
@@ -493,7 +488,7 @@ type MakeSuperResolutionImageAdvanceRequest struct {
 }
 
 func (s MakeSuperResolutionImageAdvanceRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s MakeSuperResolutionImageAdvanceRequest) GoString() string {
@@ -514,7 +509,7 @@ type RecolorImageRequest struct {
 }
 
 func (s RecolorImageRequest) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecolorImageRequest) GoString() string {
@@ -551,7 +546,7 @@ type RecolorImageRequestColorTemplate struct {
 }
 
 func (s RecolorImageRequestColorTemplate) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecolorImageRequestColorTemplate) GoString() string {
@@ -569,7 +564,7 @@ type RecolorImageResponse struct {
 }
 
 func (s RecolorImageResponse) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecolorImageResponse) GoString() string {
@@ -590,7 +585,7 @@ type RecolorImageResponseData struct {
 }
 
 func (s RecolorImageResponseData) String() string {
-	return service.Prettify(s)
+	return tea.Prettify(s)
 }
 
 func (s RecolorImageResponseData) GoString() string {
@@ -598,44 +593,106 @@ func (s RecolorImageResponseData) GoString() string {
 }
 
 type Client struct {
-	service.BaseClient
+	Endpoint             string
+	RegionId             string
+	Protocol             string
+	UserAgent            string
+	EndpointType         string
+	ReadTimeout          int
+	ConnectTimeout       int
+	HttpProxy            string
+	HttpsProxy           string
+	Socks5Proxy          string
+	Socks5NetWork        string
+	NoProxy              string
+	MaxIdleConns         int
+	OpenPlatformEndpoint string
+	Credential           credential.Credential
 }
 
 func NewClient(config *Config) (*Client, error) {
-	client := &Client{}
-	input := make(map[string]interface{})
-	byt, _ := json.Marshal(config)
-	err := json.Unmarshal(byt, &input)
-	if err != nil {
-		return nil, err
-	}
-	err = client.InitClient(input)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	client := new(Client)
+	err := client.init(config)
+	return client, err
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *common.RuntimeObject) (_result map[string]interface{}, _err error) {
+func (client *Client) init(config *Config) (_err error) {
+	if util.IsUnset(tea.ToMap(config)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config' can not be unset",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.RegionId)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.regionId' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Endpoint)) {
+		_err = tea.NewSDKError(map[string]interface{}{
+			"name":    "ParameterMissing",
+			"message": "'config.endpoint' can not be empty",
+		})
+		return _err
+	}
+
+	if util.Empty(tea.StringValue(config.Type)) {
+		config.Type = tea.String("access_key")
+	}
+
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	client.Credential, _err = credential.NewCredential(credentialConfig)
+	if _err != nil {
+		return _err
+	}
+
+	client.Endpoint = tea.StringValue(config.Endpoint)
+	client.Protocol = tea.StringValue(config.Protocol)
+	client.RegionId = tea.StringValue(config.RegionId)
+	client.UserAgent = tea.StringValue(config.UserAgent)
+	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
+	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
+	client.HttpProxy = tea.StringValue(config.HttpProxy)
+	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
+	client.NoProxy = tea.StringValue(config.NoProxy)
+	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
+	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
+	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
+	client.EndpointType = tea.StringValue(config.EndpointType)
+	client.OpenPlatformEndpoint = tea.StringValue(config.OpenPlatformEndpoint)
+	return nil
+}
+
+func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return make(map[string]interface{}), _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
-		"readTimeout":    common.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": common.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      common.Default(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     common.Default(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        common.Default(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   common.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
+		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
+		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
+		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
+		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
+		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
+		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
 		"retry": map[string]interface{}{
 			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": common.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
+			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
 		},
 		"backoff": map[string]interface{}{
-			"policy": common.Default(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": common.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
+			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
+			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
 		},
 		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
 	}
@@ -651,36 +708,46 @@ func (client *Client) _request(action string, protocol string, method string, re
 
 		_resp, _err = func() (map[string]interface{}, error) {
 			request_ := tea.NewRequest()
-			request_.Protocol = common.Default(client.Protocol, protocol)
+			request_.Protocol = util.DefaultString(client.Protocol, protocol)
 			request_.Method = method
 			request_.Pathname = "/"
-			request_.Query = common.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        common.GetTimestamp(),
-				"Date":             common.GetTimestamp(),
-				"Version":          "2019-09-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   common.GetNonce(),
-				"AccessKeyId":      client.GetAccessKeyId(),
-			}, request))
-			request_.Headers = map[string]string{
-				"host":       common.GetHost("imageenhan", client.RegionId, client.Endpoint),
-				"user-agent": common.GetUserAgent(client.UserAgent),
-			}
-			request_.Query["Signature"] = common.GetSignature(request_, client.GetAccessKeySecret())
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return make(map[string]interface{}), _err
-			}
-			body, _err := common.Json(response_)
+			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
 				return make(map[string]interface{}), _err
 			}
 
-			if common.HasError(body) {
+			accessKeySecret, _err := client.GetAccessKeySecret()
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
+				"Action":           action,
+				"Format":           "json",
+				"RegionId":         client.RegionId,
+				"Timestamp":        rpcutil.GetTimestamp(),
+				"Version":          "2019-09-30",
+				"SignatureMethod":  "HMAC-SHA1",
+				"SignatureVersion": "1.0",
+				"SignatureNonce":   util.GetNonce(),
+				"AccessKeyId":      accessKeyId,
+			}, request))
+			request_.Headers = map[string]string{
+				"host":       rpcutil.GetHost("imageenhan", client.RegionId, client.Endpoint),
+				"user-agent": client.GetUserAgent(),
+			}
+			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			response_, _err := tea.DoRequest(request_, _runtime)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+			obj, _err := util.ReadAsJSON(response_.Body)
+			if _err != nil {
+				return make(map[string]interface{}), _err
+			}
+
+			body := util.AssertAsMap(obj)
+			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
 				_err = tea.NewSDKError(map[string]interface{}{
 					"message": body["Message"],
 					"data":    body,
@@ -689,7 +756,8 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return make(map[string]interface{}), _err
 			}
 
-			return body, _err
+			_result = body
+			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
 			break
@@ -699,7 +767,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) IntelligentComposition(request *IntelligentCompositionRequest, runtime *common.RuntimeObject) (_result *IntelligentCompositionResponse, _err error) {
+func (client *Client) IntelligentComposition(request *IntelligentCompositionRequest, runtime *util.RuntimeOptions) (_result *IntelligentCompositionResponse, _err error) {
 	_result = &IntelligentCompositionResponse{}
 	_body, _err := client._request("IntelligentComposition", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -709,10 +777,20 @@ func (client *Client) IntelligentComposition(request *IntelligentCompositionRequ
 	return _result, _err
 }
 
-func (client *Client) IntelligentCompositionAdvance(request *IntelligentCompositionAdvanceRequest, runtime *common.RuntimeObject) (_result *IntelligentCompositionResponse, _err error) {
+func (client *Client) IntelligentCompositionAdvance(request *IntelligentCompositionAdvanceRequest, runtime *util.RuntimeOptions) (_result *IntelligentCompositionResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -734,9 +812,9 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -745,8 +823,8 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.ImageURLObject,
 		ContentType: tea.String(""),
 	}
@@ -762,19 +840,25 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	intelligentCompositionreq := &IntelligentCompositionRequest{}
-	common.Convert(request, intelligentCompositionreq)
+	rpcutil.Convert(request, intelligentCompositionreq)
 	intelligentCompositionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	intelligentCompositionResp, _err := client.IntelligentComposition(intelligentCompositionreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return intelligentCompositionResp, _err
+	_result = intelligentCompositionResp
+	return _result, _err
 }
 
-func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {
+func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *util.RuntimeOptions) (_result *ChangeImageSizeResponse, _err error) {
 	_result = &ChangeImageSizeResponse{}
 	_body, _err := client._request("ChangeImageSize", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -784,10 +868,20 @@ func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *
 	return _result, _err
 }
 
-func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequest, runtime *common.RuntimeObject) (_result *ChangeImageSizeResponse, _err error) {
+func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequest, runtime *util.RuntimeOptions) (_result *ChangeImageSizeResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -809,9 +903,9 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -820,8 +914,8 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.UrlObject,
 		ContentType: tea.String(""),
 	}
@@ -837,19 +931,25 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	changeImageSizereq := &ChangeImageSizeRequest{}
-	common.Convert(request, changeImageSizereq)
+	rpcutil.Convert(request, changeImageSizereq)
 	changeImageSizereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	changeImageSizeResp, _err := client.ChangeImageSize(changeImageSizereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return changeImageSizeResp, _err
+	_result = changeImageSizeResp
+	return _result, _err
 }
 
-func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime *common.RuntimeObject) (_result *ExtendImageStyleResponse, _err error) {
+func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime *util.RuntimeOptions) (_result *ExtendImageStyleResponse, _err error) {
 	_result = &ExtendImageStyleResponse{}
 	_body, _err := client._request("ExtendImageStyle", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -859,7 +959,7 @@ func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime
 	return _result, _err
 }
 
-func (client *Client) MakeSuperResolutionImage(request *MakeSuperResolutionImageRequest, runtime *common.RuntimeObject) (_result *MakeSuperResolutionImageResponse, _err error) {
+func (client *Client) MakeSuperResolutionImage(request *MakeSuperResolutionImageRequest, runtime *util.RuntimeOptions) (_result *MakeSuperResolutionImageResponse, _err error) {
 	_result = &MakeSuperResolutionImageResponse{}
 	_body, _err := client._request("MakeSuperResolutionImage", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
@@ -869,10 +969,20 @@ func (client *Client) MakeSuperResolutionImage(request *MakeSuperResolutionImage
 	return _result, _err
 }
 
-func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResolutionImageAdvanceRequest, runtime *common.RuntimeObject) (_result *MakeSuperResolutionImageResponse, _err error) {
+func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResolutionImageAdvanceRequest, runtime *util.RuntimeOptions) (_result *MakeSuperResolutionImageResponse, _err error) {
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
 	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(client.GetAccessKeyId()),
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
 		Protocol:        tea.String(client.Protocol),
@@ -894,9 +1004,9 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(client.GetAccessKeySecret()),
+		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(common.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
 		Protocol:        tea.String(client.Protocol),
 		RegionId:        tea.String(client.RegionId),
 	}
@@ -905,8 +1015,8 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 		return nil, _err
 	}
 
-	fileObj := &oss.PostObjectRequestHeaderFile{
-		FileName:    authResponse.ObjectKey,
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
 		Content:     request.UrlObject,
 		ContentType: tea.String(""),
 	}
@@ -922,24 +1032,66 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 		BucketName: authResponse.Bucket,
 		Header:     ossHeader,
 	}
-	ossClient.PostObject(uploadRequest, runtime)
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
 	makeSuperResolutionImagereq := &MakeSuperResolutionImageRequest{}
-	common.Convert(request, makeSuperResolutionImagereq)
+	rpcutil.Convert(request, makeSuperResolutionImagereq)
 	makeSuperResolutionImagereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	makeSuperResolutionImageResp, _err := client.MakeSuperResolutionImage(makeSuperResolutionImagereq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	return makeSuperResolutionImageResp, _err
+	_result = makeSuperResolutionImageResp
+	return _result, _err
 }
 
-func (client *Client) RecolorImage(request *RecolorImageRequest, runtime *common.RuntimeObject) (_result *RecolorImageResponse, _err error) {
+func (client *Client) RecolorImage(request *RecolorImageRequest, runtime *util.RuntimeOptions) (_result *RecolorImageResponse, _err error) {
 	_result = &RecolorImageResponse{}
 	_body, _err := client._request("RecolorImage", "HTTPS", "POST", tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
 	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetUserAgent() (_result string) {
+	userAgent := util.GetUserAgent(client.UserAgent)
+	_result = userAgent
+	return _result
+}
+
+func (client *Client) GetAccessKeyId() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = accessKeyId
+	return _result, _err
+}
+
+func (client *Client) GetAccessKeySecret() (_result string, _err error) {
+	if util.IsUnset(client.Credential) {
+		_result = ""
+		return _result, _err
+	}
+
+	secret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return "", _err
+	}
+
+	_result = secret
 	return _result, _err
 }
