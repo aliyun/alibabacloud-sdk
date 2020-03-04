@@ -1,176 +1,250 @@
 import OSS;
 import OpenPlatform;
-import Common;
-module goodstech {
+import RPCUtil;
+import OSSUtil;
+import Util;
+import Credential;
+import FileForm;
 
-  type @endpoint = string
-  type @regionId = string
-  type @protocol = string
-  type @userAgent = string
-  type @endpointType = string
-  type @readTimeout = number
-  type @connectTimeout = number
-  type @httpProxy = string
-  type @httpsProxy = string
-  type @noProxy = string
-  type @maxIdleConns = number
-  type @openPlatformEndpoint = string
-  type @getAccessKeyId = (): string
-  type @getAccessKeySecret = (): string
-  prop version = '2019-12-30';
+type @endpoint = string
+type @regionId = string
+type @protocol = string
+type @userAgent = string
+type @endpointType = string
+type @readTimeout = number
+type @connectTimeout = number
+type @httpProxy = string
+type @httpsProxy = string
+type @socks5Proxy = string
+type @socks5NetWork = string
+type @noProxy = string
+type @maxIdleConns = number
+type @openPlatformEndpoint = string
+type @credential = Credential
 
-  model Config {
-    accessKeyId: string,
-    accessKeySecret?: string,
-    type?: string,
-    securityToken?: string,
-    endpoint: string,
-    protocol?: string,
-    regionId: string,
-    userAgent?: string,
-    readTimeout?: number,
-    connectTimeout?: number,
-    localAddr?: string,
-    httpProxy?: string,
-    httpsProxy?: string,
-    noProxy?: string,
-    socks5Proxy?: string,
-    socks5NetWork?: string,
-    maxIdleConns?: number,
-    endpointType?: string,
-    openPlatformEndpoint?: string,
-  }
-
-  init(config: Config);
-
-  api _request(action: string, protocol: string, method: string, request: object, runtime: Common.RuntimeObject): object {
-    protocol = Common.default(@protocol, protocol);
-    method = method;
-    pathname = '/';
-    query = Common.query({
-      Action = action,
-      Format = 'json',
-      RegionId = @regionId,
-      Timestamp = Common.getTimestamp(),
-      Date = Common.getTimestamp(),
-      Version = __module.version,
-      SignatureMethod = 'HMAC-SHA1',
-      SignatureVersion = '1.0',
-      SignatureNonce = Common.getNonce(),
-      AccessKeyId = @getAccessKeyId(),
-      ...request,
-    });
-    headers = {
-      host = Common.getHost('goodstech', @regionId, @endpoint),
-      user-agent = Common.getUserAgent(@userAgent),
-    };
-    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
-  } returns {
-    var body = Common.json(__response);
-    if (Common.hasError(body)) {
-      throw {
-        message = body.Message,
-        data = body,
-        code = body.Code,
-      }
-    }
-    return body;
-  } runtime {
-    timeouted = 'retry',
-    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
-    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
-    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
-    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
-    noProxy = Common.default(runtime.noProxy, @noProxy),
-    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-    retry = {
-      retryable = runtime.autoretry,
-      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
-    },
-    backoff = {
-      policy = Common.default(runtime.backoffPolicy, 'no'),
-      period = Common.defaultNumber(runtime.backoffPeriod, 1)
-    },
-    ignoreSSL = runtime.ignoreSSL
-  }
-
-  model ClassifyCommodityRequest = {
-    imageURL: string(name='ImageURL', description='imageUrl'),
-  }
-
-  model ClassifyCommodityResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    data: {
-      categories: [
-        {
-          score: float(name='Score', description='score'),
-          categoryName: string(name='CategoryName', description='categoryName'),
-          categoryId: string(name='CategoryId', description='categoryId'),
-        }
-      ](name='Categories', description='categoryList'),
-    }(name='Data', description='data'),
-  }
-
-  async function classifyCommodity(request: ClassifyCommodityRequest, runtime: Common.RuntimeObject): ClassifyCommodityResponse {
-    return _request('ClassifyCommodity', 'HTTPS', 'GET', request, runtime);
-  }
-
-  model ClassifyCommodityAdvanceRequest = {
-    imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-  }
-
-  async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest, runtime: Common.RuntimeObject): ClassifyCommodityResponse {
-    // Step 0: init client
-    var authConfig = new OpenPlatform.Config{
-      accessKeyId = @getAccessKeyId(),
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = 'openplatform.aliyuncs.com',
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var authClient = new OpenPlatform(authConfig);
-
-    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-      product = 'goodstech',
-      regionId = @regionId,
-    };
-    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-    // Step 1: request OSS api to upload file
-    var ossConfig = new OSS.Config{
-      accessKeyId = authResponse.accessKeyId,
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var ossClient = new OSS(ossConfig);
-
-    var fileObj = new OSS.PostObjectRequest.header.file{
-      fileName = authResponse.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    var ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    var uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, runtime);
-    // Step 2: request final api
-    var classifyCommodityreq = new ClassifyCommodityRequest{};
-    Common.convert(request, classifyCommodityreq);
-    classifyCommodityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    var classifyCommodityResp = classifyCommodity(classifyCommodityreq, runtime);
-    return classifyCommodityResp;
-  }
-
+model Config {
+  accessKeyId?: string,
+  accessKeySecret?: string,
+  type?: string,
+  securityToken?: string,
+  endpoint: string,
+  protocol?: string,
+  regionId: string,
+  userAgent?: string,
+  readTimeout?: number,
+  connectTimeout?: number,
+  httpProxy?: string,
+  httpsProxy?: string,
+  noProxy?: string,
+  socks5Proxy?: string,
+  socks5NetWork?: string,
+  maxIdleConns?: number,
+  endpointType?: string,
+  openPlatformEndpoint?: string,
 }
+
+init(config: Config){
+  if (Util.isUnset(config)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config' can not be unset"
+    };
+  }
+
+  if (Util.empty(config.regionId)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.regionId' can not be empty"
+    };
+  }
+
+  if (Util.empty(config.endpoint)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.endpoint' can not be empty"
+    };
+  }
+
+  if (Util.empty(config.type)) {
+    config.type = 'access_key';
+  }
+  var credentialConfig = new Credential.Config{
+    accessKeyId =  config.accessKeyId,
+    type = config.type,
+    accessKeySecret =  config.accessKeySecret,
+    securityToken = config.securityToken,
+  };
+  @credential = new Credential(credentialConfig);
+  @endpoint = config.endpoint;
+  @protocol = config.protocol;
+  @regionId = config.regionId;
+  @userAgent = config.userAgent;
+  @readTimeout = config.readTimeout;
+  @connectTimeout = config.connectTimeout;
+  @httpProxy = config.httpProxy;
+  @httpsProxy = config.httpsProxy;
+  @noProxy = config.noProxy;
+  @socks5Proxy = config.socks5Proxy;
+  @socks5NetWork = config.socks5NetWork;
+  @maxIdleConns = config.maxIdleConns;
+  @endpointType = config.endpointType;
+  @openPlatformEndpoint = config.openPlatformEndpoint;
+}
+
+api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+  __request.protocol = Util.defaultString(@protocol, protocol);
+  __request.method = method;
+  __request.pathname = '/';
+  var accessKeyId = getAccessKeyId();
+  var accessKeySecret = getAccessKeySecret();
+  __request.query = RPCUtil.query({
+    Action = action,
+    Format = 'json',
+    RegionId = @regionId,
+    Timestamp = RPCUtil.getTimestamp(),
+    Version = '2019-12-30',
+    SignatureMethod = 'HMAC-SHA1',
+    SignatureVersion = '1.0',
+    SignatureNonce = Util.getNonce(),
+    AccessKeyId = accessKeyId,
+    ...request,
+  });
+  __request.headers = {
+    host = RPCUtil.getHost('goodstech', @regionId, @endpoint),
+    user-agent = getUserAgent(),
+  };
+  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+} returns {
+  var obj = Util.readAsJSON(__response.body);
+  var body = Util.assertAsMap(obj);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+  throw {
+      message = body.Message,
+      data = body,
+      code = body.Code,
+    }
+  }
+  return body;
+} runtime {
+  timeouted = 'retry',
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+  },
+  ignoreSSL = runtime.ignoreSSL
+}
+
+model ClassifyCommodityRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model ClassifyCommodityResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    categories: [
+      {
+        score: float(name='Score', description='score'),
+        categoryName: string(name='CategoryName', description='categoryName'),
+        categoryId: string(name='CategoryId', description='categoryId'),
+      }
+    ](name='Categories', description='categoryList'),
+  }(name='Data', description='data'),
+}
+
+async function classifyCommodity(request: ClassifyCommodityRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
+  return _request('ClassifyCommodity', 'HTTPS', 'GET', request, runtime);
+}
+
+model ClassifyCommodityAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'goodstech',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var classifyCommodityreq = new ClassifyCommodityRequest{};
+  RPCUtil.convert(request, classifyCommodityreq);
+  classifyCommodityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var classifyCommodityResp = classifyCommodity(classifyCommodityreq, runtime);
+  return classifyCommodityResp;
+}
+
+function getUserAgent(): string {
+  var userAgent = Util.getUserAgent(@userAgent);
+  return userAgent;
+}
+
+async function getAccessKeyId(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var accessKeyId = @credential.getAccessKeyId();
+  return accessKeyId;
+}
+
+async function getAccessKeySecret(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var secret = @credential.getAccessKeySecret();
+  return secret;
+}
+

@@ -1,369 +1,447 @@
 import OSS;
 import OpenPlatform;
-import Common;
-module ImageSearch {
+import RPCUtil;
+import OSSUtil;
+import Util;
+import Credential;
+import FileForm;
 
-  type @endpoint = string
-  type @regionId = string
-  type @protocol = string
-  type @userAgent = string
-  type @endpointType = string
-  type @readTimeout = number
-  type @connectTimeout = number
-  type @httpProxy = string
-  type @httpsProxy = string
-  type @noProxy = string
-  type @maxIdleConns = number
-  type @openPlatformEndpoint = string
-  type @getAccessKeyId = (): string
-  type @getAccessKeySecret = (): string
-  prop version = '2020-02-12';
+type @endpoint = string
+type @regionId = string
+type @protocol = string
+type @userAgent = string
+type @endpointType = string
+type @readTimeout = number
+type @connectTimeout = number
+type @httpProxy = string
+type @httpsProxy = string
+type @socks5Proxy = string
+type @socks5NetWork = string
+type @noProxy = string
+type @maxIdleConns = number
+type @openPlatformEndpoint = string
+type @credential = Credential
 
-  model Config {
-    accessKeyId: string,
-    accessKeySecret?: string,
-    type?: string,
-    securityToken?: string,
-    endpoint: string,
-    protocol?: string,
-    regionId: string,
-    userAgent?: string,
-    readTimeout?: number,
-    connectTimeout?: number,
-    localAddr?: string,
-    httpProxy?: string,
-    httpsProxy?: string,
-    noProxy?: string,
-    socks5Proxy?: string,
-    socks5NetWork?: string,
-    maxIdleConns?: number,
-    endpointType?: string,
-    openPlatformEndpoint?: string,
-  }
-
-  init(config: Config);
-
-  api _request(action: string, protocol: string, method: string, request: object, runtime: Common.RuntimeObject): object {
-    protocol = Common.default(@protocol, protocol);
-    method = method;
-    pathname = '/';
-    query = Common.query({
-      Action = action,
-      Format = 'json',
-      RegionId = @regionId,
-      Timestamp = Common.getTimestamp(),
-      Date = Common.getTimestamp(),
-      Version = __module.version,
-      SignatureMethod = 'HMAC-SHA1',
-      SignatureVersion = '1.0',
-      SignatureNonce = Common.getNonce(),
-      AccessKeyId = @getAccessKeyId(),
-      ...request,
-    });
-    headers = {
-      host = Common.getHost('ImageSearch', @regionId, @endpoint),
-      user-agent = Common.getUserAgent(@userAgent),
-    };
-    query.Signature = Common.getSignature(__request, @getAccessKeySecret());
-  } returns {
-    var body = Common.json(__response);
-    if (Common.hasError(body)) {
-      throw {
-        message = body.Message,
-        data = body,
-        code = body.Code,
-      }
-    }
-    return body;
-  } runtime {
-    timeouted = 'retry',
-    readTimeout = Common.defaultNumber(runtime.readTimeout, @readTimeout),
-    connectTimeout = Common.defaultNumber(runtime.connectTimeout, @connectTimeout),
-    httpProxy = Common.default(runtime.httpProxy, @httpProxy),
-    httpsProxy = Common.default(runtime.httpsProxy, @httpsProxy),
-    noProxy = Common.default(runtime.noProxy, @noProxy),
-    maxIdleConns = Common.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-    retry = {
-      retryable = runtime.autoretry,
-      maxAttempts = Common.defaultNumber(runtime.maxAttempts, 3)
-    },
-    backoff = {
-      policy = Common.default(runtime.backoffPolicy, 'no'),
-      period = Common.defaultNumber(runtime.backoffPeriod, 1)
-    },
-    ignoreSSL = runtime.ignoreSSL
-  }
-
-  model SearchImageByNameRequest = {
-    categoryId?: integer(name='CategoryId', description='categoryId'),
-    instanceName: string(name='InstanceName', description='instanceName'),
-    productId: string(name='ProductId', description='productId'),
-    picName: string(name='PicName', description='picName'),
-    num?: integer(name='Num', description='num'),
-    start?: integer(name='Start', description='start'),
-    filter?: string(name='Filter', description='filter'),
-  }
-
-  model SearchImageByNameResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    success: boolean(name='Success', description='success'),
-    code: integer(name='Code', description='code'),
-    msg: string(name='Msg', description='msg'),
-    auctions: [
-      {
-        categoryId: integer(name='CategoryId', description='categoryId'),
-        productId: string(name='ProductId', description='productId'),
-        picName: string(name='PicName', description='picName'),
-        customContent: string(name='CustomContent', description='customContent'),
-        sortExprValues: string(name='SortExprValues', description='sortExprValues'),
-        intAttr: integer(name='IntAttr', description='intAttr'),
-        strAttr: string(name='StrAttr', description='strAttr'),
-      }
-    ](name='Auctions', description='auctions'),
-    head: {
-      docsReturn: integer(name='DocsReturn', description='docsReturn'),
-      docsFound: integer(name='DocsFound', description='docsFound'),
-      searchTime: integer(name='SearchTime', description='searchTime'),
-    }(name='Head', description='head'),
-    picInfo: {
-      categoryId: integer(name='CategoryId', description='categoryId'),
-      region: string(name='Region', description='region'),
-      allCategories: [
-        {
-          id: integer(name='Id', description='id'),
-          name: string(name='Name', description='name'),
-        }
-      ](name='AllCategories', description='allCategories'),
-    }(name='PicInfo', description='picInfo'),
-  }
-
-  async function searchImageByName(request: SearchImageByNameRequest, runtime: Common.RuntimeObject): SearchImageByNameResponse {
-    return _request('SearchImageByName', 'HTTPS', 'POST', request, runtime);
-  }
-
-  model SearchImageByPicRequest = {
-    categoryId?: integer(name='CategoryId', description='categoryId'),
-    instanceName: string(name='InstanceName', description='instanceName'),
-    picContent: string(name='PicContent', description='picContent'),
-    crop?: boolean(name='Crop', description='crop'),
-    region?: string(name='Region', description='region'),
-    num?: integer(name='Num', description='num'),
-    start?: integer(name='Start', description='start'),
-    filter?: string(name='Filter', description='filter'),
-  }
-
-  model SearchImageByPicResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    success: boolean(name='Success', description='success'),
-    code: integer(name='Code', description='code'),
-    msg: string(name='Msg', description='msg'),
-    auctions: [
-      {
-        categoryId: integer(name='CategoryId', description='categoryId'),
-        productId: string(name='ProductId', description='productId'),
-        picName: string(name='PicName', description='picName'),
-        customContent: string(name='CustomContent', description='customContent'),
-        sortExprValues: string(name='SortExprValues', description='sortExprValues'),
-        intAttr: integer(name='IntAttr', description='intAttr'),
-        strAttr: string(name='StrAttr', description='strAttr'),
-      }
-    ](name='Auctions', description='auctions'),
-    head: {
-      docsReturn: integer(name='DocsReturn', description='docsReturn'),
-      docsFound: integer(name='DocsFound', description='docsFound'),
-      searchTime: integer(name='SearchTime', description='searchTime'),
-    }(name='Head', description='head'),
-    picInfo: {
-      categoryId: integer(name='CategoryId', description='categoryId'),
-      region: string(name='Region', description='region'),
-      allCategories: [
-        {
-          id: integer(name='Id', description='id'),
-          name: string(name='Name', description='name'),
-        }
-      ](name='AllCategories', description='allCategories'),
-    }(name='PicInfo', description='picInfo'),
-  }
-
-  async function searchImageByPic(request: SearchImageByPicRequest, runtime: Common.RuntimeObject): SearchImageByPicResponse {
-    return _request('SearchImageByPic', 'HTTPS', 'POST', request, runtime);
-  }
-
-  model SearchImageByPicAdvanceRequest = {
-    picContentObject: readable(description='PicContentObject', name='PicContentObject'),
-    categoryId?: integer(name='CategoryId', description='categoryId'),
-    instanceName: string(name='InstanceName', description='instanceName'),
-    crop?: boolean(name='Crop', description='crop'),
-    region?: string(name='Region', description='region'),
-    num?: integer(name='Num', description='num'),
-    start?: integer(name='Start', description='start'),
-    filter?: string(name='Filter', description='filter'),
-  }
-
-  async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, runtime: Common.RuntimeObject): SearchImageByPicResponse {
-    // Step 0: init client
-    var authConfig = new OpenPlatform.Config{
-      accessKeyId = @getAccessKeyId(),
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = 'openplatform.aliyuncs.com',
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var authClient = new OpenPlatform(authConfig);
-
-    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-      product = 'ImageSearch',
-      regionId = @regionId,
-    };
-    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-    // Step 1: request OSS api to upload file
-    var ossConfig = new OSS.Config{
-      accessKeyId = authResponse.accessKeyId,
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var ossClient = new OSS(ossConfig);
-
-    var fileObj = new OSS.PostObjectRequest.header.file{
-      fileName = authResponse.objectKey,
-      content = request.picContentObject,
-      contentType = '',
-    };
-    var ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    var uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, runtime);
-    // Step 2: request final api
-    var searchImageByPicreq = new SearchImageByPicRequest{};
-    Common.convert(request, searchImageByPicreq);
-    searchImageByPicreq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    var searchImageByPicResp = searchImageByPic(searchImageByPicreq, runtime);
-    return searchImageByPicResp;
-  }
-
-  model DeleteImageRequest = {
-    instanceName: string(name='InstanceName', description='instanceName'),
-    productId: string(name='ProductId', description='productId'),
-    picName?: string(name='PicName', description='picName'),
-  }
-
-  model DeleteImageResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    success: boolean(name='Success', description='success'),
-    message: string(name='Message', description='msg'),
-    code: integer(name='Code', description='code'),
-  }
-
-  async function deleteImage(request: DeleteImageRequest, runtime: Common.RuntimeObject): DeleteImageResponse {
-    return _request('DeleteImage', 'HTTPS', 'POST', request, runtime);
-  }
-
-  model AddImageRequest = {
-    instanceName: string(name='InstanceName', description='instanceName'),
-    categoryId?: integer(name='CategoryId', description='categoryId'),
-    productId: string(name='ProductId', description='productId'),
-    picName: string(name='PicName', description='picName'),
-    picContent: string(name='PicContent', description='picContent'),
-    crop?: boolean(name='Crop', description='crop'),
-    region?: string(name='Region', description='region'),
-    customContent?: string(name='CustomContent', description='customContent'),
-    intAttr?: integer(name='IntAttr', description='intAttr'),
-    strAttr?: string(name='StrAttr', description='strAttr'),
-  }
-
-  model AddImageResponse = {
-    requestId: string(name='RequestId', description='requestId'),
-    success: boolean(name='Success', description='success'),
-    message: string(name='Message', description='msg'),
-    code: integer(name='Code', description='code'),
-    picInfo: {
-      categoryId: integer(name='CategoryId', description='categoryId'),
-      region: string(name='Region', description='region'),
-    }(name='PicInfo', description='picInfo'),
-  }
-
-  async function addImage(request: AddImageRequest, runtime: Common.RuntimeObject): AddImageResponse {
-    return _request('AddImage', 'HTTPS', 'POST', request, runtime);
-  }
-
-  model AddImageAdvanceRequest = {
-    picContentObject: readable(description='PicContentObject', name='PicContentObject'),
-    instanceName: string(name='InstanceName', description='instanceName'),
-    categoryId?: integer(name='CategoryId', description='categoryId'),
-    productId: string(name='ProductId', description='productId'),
-    picName: string(name='PicName', description='picName'),
-    crop?: boolean(name='Crop', description='crop'),
-    region?: string(name='Region', description='region'),
-    customContent?: string(name='CustomContent', description='customContent'),
-    intAttr?: integer(name='IntAttr', description='intAttr'),
-    strAttr?: string(name='StrAttr', description='strAttr'),
-  }
-
-  async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Common.RuntimeObject): AddImageResponse {
-    // Step 0: init client
-    var authConfig = new OpenPlatform.Config{
-      accessKeyId = @getAccessKeyId(),
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = 'openplatform.aliyuncs.com',
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var authClient = new OpenPlatform(authConfig);
-
-    var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-      product = 'ImageSearch',
-      regionId = @regionId,
-    };
-    var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-    // Step 1: request OSS api to upload file
-    var ossConfig = new OSS.Config{
-      accessKeyId = authResponse.accessKeyId,
-      accessKeySecret = @getAccessKeySecret(),
-      type = 'access_key',
-      endpoint = Common.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-      protocol = @protocol,
-      regionId = @regionId,
-    };
-    var ossClient = new OSS(ossConfig);
-
-    var fileObj = new OSS.PostObjectRequest.header.file{
-      fileName = authResponse.objectKey,
-      content = request.picContentObject,
-      contentType = '',
-    };
-    var ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.accessKeyId,
-      policy = authResponse.encodedPolicy,
-      signature = authResponse.signature,
-      key = authResponse.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    var uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, runtime);
-    // Step 2: request final api
-    var addImagereq = new AddImageRequest{};
-    Common.convert(request, addImagereq);
-    addImagereq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    var addImageResp = addImage(addImagereq, runtime);
-    return addImageResp;
-  }
-
+model Config {
+  accessKeyId?: string,
+  accessKeySecret?: string,
+  type?: string,
+  securityToken?: string,
+  endpoint: string,
+  protocol?: string,
+  regionId: string,
+  userAgent?: string,
+  readTimeout?: number,
+  connectTimeout?: number,
+  httpProxy?: string,
+  httpsProxy?: string,
+  noProxy?: string,
+  socks5Proxy?: string,
+  socks5NetWork?: string,
+  maxIdleConns?: number,
+  endpointType?: string,
+  openPlatformEndpoint?: string,
 }
+
+init(config: Config){
+  if (Util.isUnset(config)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config' can not be unset"
+    };
+  }
+
+  if (Util.empty(config.regionId)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.regionId' can not be empty"
+    };
+  }
+
+  if (Util.empty(config.endpoint)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.endpoint' can not be empty"
+    };
+  }
+
+  if (Util.empty(config.type)) {
+    config.type = 'access_key';
+  }
+  var credentialConfig = new Credential.Config{
+    accessKeyId =  config.accessKeyId,
+    type = config.type,
+    accessKeySecret =  config.accessKeySecret,
+    securityToken = config.securityToken,
+  };
+  @credential = new Credential(credentialConfig);
+  @endpoint = config.endpoint;
+  @protocol = config.protocol;
+  @regionId = config.regionId;
+  @userAgent = config.userAgent;
+  @readTimeout = config.readTimeout;
+  @connectTimeout = config.connectTimeout;
+  @httpProxy = config.httpProxy;
+  @httpsProxy = config.httpsProxy;
+  @noProxy = config.noProxy;
+  @socks5Proxy = config.socks5Proxy;
+  @socks5NetWork = config.socks5NetWork;
+  @maxIdleConns = config.maxIdleConns;
+  @endpointType = config.endpointType;
+  @openPlatformEndpoint = config.openPlatformEndpoint;
+}
+
+api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+  __request.protocol = Util.defaultString(@protocol, protocol);
+  __request.method = method;
+  __request.pathname = '/';
+  var accessKeyId = getAccessKeyId();
+  var accessKeySecret = getAccessKeySecret();
+  __request.query = RPCUtil.query({
+    Action = action,
+    Format = 'json',
+    RegionId = @regionId,
+    Timestamp = RPCUtil.getTimestamp(),
+    Version = '2020-02-12',
+    SignatureMethod = 'HMAC-SHA1',
+    SignatureVersion = '1.0',
+    SignatureNonce = Util.getNonce(),
+    AccessKeyId = accessKeyId,
+    ...request,
+  });
+  __request.headers = {
+    host = RPCUtil.getHost('ImageSearch', @regionId, @endpoint),
+    user-agent = getUserAgent(),
+  };
+  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+} returns {
+  var obj = Util.readAsJSON(__response.body);
+  var body = Util.assertAsMap(obj);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+  throw {
+      message = body.Message,
+      data = body,
+      code = body.Code,
+    }
+  }
+  return body;
+} runtime {
+  timeouted = 'retry',
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+  },
+  ignoreSSL = runtime.ignoreSSL
+}
+
+model SearchImageByNameRequest = {
+  categoryId?: integer(name='CategoryId', description='categoryId'),
+  instanceName: string(name='InstanceName', description='instanceName'),
+  productId: string(name='ProductId', description='productId'),
+  picName: string(name='PicName', description='picName'),
+  num?: integer(name='Num', description='num'),
+  start?: integer(name='Start', description='start'),
+  filter?: string(name='Filter', description='filter'),
+}
+
+model SearchImageByNameResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  success: boolean(name='Success', description='success'),
+  code: integer(name='Code', description='code'),
+  msg: string(name='Msg', description='msg'),
+  auctions: [
+      {
+      categoryId: integer(name='CategoryId', description='categoryId'),
+      productId: string(name='ProductId', description='productId'),
+      picName: string(name='PicName', description='picName'),
+      customContent: string(name='CustomContent', description='customContent'),
+      sortExprValues: string(name='SortExprValues', description='sortExprValues'),
+      intAttr: integer(name='IntAttr', description='intAttr'),
+      strAttr: string(name='StrAttr', description='strAttr'),
+      }
+  ](name='Auctions', description='auctions'),
+  head: {
+    docsReturn: integer(name='DocsReturn', description='docsReturn'),
+    docsFound: integer(name='DocsFound', description='docsFound'),
+    searchTime: integer(name='SearchTime', description='searchTime'),
+  }(name='Head', description='head'),
+  picInfo: {
+    categoryId: integer(name='CategoryId', description='categoryId'),
+    region: string(name='Region', description='region'),
+    allCategories: [
+      {
+        id: integer(name='Id', description='id'),
+        name: string(name='Name', description='name'),
+      }
+    ](name='AllCategories', description='allCategories'),
+  }(name='PicInfo', description='picInfo'),
+}
+
+async function searchImageByName(request: SearchImageByNameRequest, runtime: Util.RuntimeOptions): SearchImageByNameResponse {
+  return _request('SearchImageByName', 'HTTPS', 'POST', request, runtime);
+}
+
+model SearchImageByPicRequest = {
+  categoryId?: integer(name='CategoryId', description='categoryId'),
+  instanceName: string(name='InstanceName', description='instanceName'),
+  picContent: string(name='PicContent', description='picContent'),
+  crop?: boolean(name='Crop', description='crop'),
+  region?: string(name='Region', description='region'),
+  num?: integer(name='Num', description='num'),
+  start?: integer(name='Start', description='start'),
+  filter?: string(name='Filter', description='filter'),
+}
+
+model SearchImageByPicResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  success: boolean(name='Success', description='success'),
+  code: integer(name='Code', description='code'),
+  msg: string(name='Msg', description='msg'),
+  auctions: [
+      {
+      categoryId: integer(name='CategoryId', description='categoryId'),
+      productId: string(name='ProductId', description='productId'),
+      picName: string(name='PicName', description='picName'),
+      customContent: string(name='CustomContent', description='customContent'),
+      sortExprValues: string(name='SortExprValues', description='sortExprValues'),
+      intAttr: integer(name='IntAttr', description='intAttr'),
+      strAttr: string(name='StrAttr', description='strAttr'),
+      }
+  ](name='Auctions', description='auctions'),
+  head: {
+    docsReturn: integer(name='DocsReturn', description='docsReturn'),
+    docsFound: integer(name='DocsFound', description='docsFound'),
+    searchTime: integer(name='SearchTime', description='searchTime'),
+  }(name='Head', description='head'),
+  picInfo: {
+    categoryId: integer(name='CategoryId', description='categoryId'),
+    region: string(name='Region', description='region'),
+    allCategories: [
+      {
+        id: integer(name='Id', description='id'),
+        name: string(name='Name', description='name'),
+      }
+    ](name='AllCategories', description='allCategories'),
+  }(name='PicInfo', description='picInfo'),
+}
+
+async function searchImageByPic(request: SearchImageByPicRequest, runtime: Util.RuntimeOptions): SearchImageByPicResponse {
+  return _request('SearchImageByPic', 'HTTPS', 'POST', request, runtime);
+}
+
+model SearchImageByPicAdvanceRequest = {
+  picContentObject: readable(description='PicContentObject', name='PicContentObject'),
+  categoryId?: integer(name='CategoryId', description='categoryId'),
+  instanceName: string(name='InstanceName', description='instanceName'),
+  crop?: boolean(name='Crop', description='crop'),
+  region?: string(name='Region', description='region'),
+  num?: integer(name='Num', description='num'),
+  start?: integer(name='Start', description='start'),
+  filter?: string(name='Filter', description='filter'),
+}
+
+async function searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, runtime: Util.RuntimeOptions): SearchImageByPicResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ImageSearch',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.picContentObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var searchImageByPicreq = new SearchImageByPicRequest{};
+  RPCUtil.convert(request, searchImageByPicreq);
+  searchImageByPicreq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var searchImageByPicResp = searchImageByPic(searchImageByPicreq, runtime);
+  return searchImageByPicResp;
+}
+
+model DeleteImageRequest = {
+  instanceName: string(name='InstanceName', description='instanceName'),
+  productId: string(name='ProductId', description='productId'),
+  picName?: string(name='PicName', description='picName'),
+}
+
+model DeleteImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  success: boolean(name='Success', description='success'),
+  message: string(name='Message', description='msg'),
+  code: integer(name='Code', description='code'),
+}
+
+async function deleteImage(request: DeleteImageRequest, runtime: Util.RuntimeOptions): DeleteImageResponse {
+  return _request('DeleteImage', 'HTTPS', 'POST', request, runtime);
+}
+
+model AddImageRequest = {
+  instanceName: string(name='InstanceName', description='instanceName'),
+  categoryId?: integer(name='CategoryId', description='categoryId'),
+  productId: string(name='ProductId', description='productId'),
+  picName: string(name='PicName', description='picName'),
+  picContent: string(name='PicContent', description='picContent'),
+  crop?: boolean(name='Crop', description='crop'),
+  region?: string(name='Region', description='region'),
+  customContent?: string(name='CustomContent', description='customContent'),
+  intAttr?: integer(name='IntAttr', description='intAttr'),
+  strAttr?: string(name='StrAttr', description='strAttr'),
+}
+
+model AddImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  success: boolean(name='Success', description='success'),
+  message: string(name='Message', description='msg'),
+  code: integer(name='Code', description='code'),
+  picInfo: {
+    categoryId: integer(name='CategoryId', description='categoryId'),
+    region: string(name='Region', description='region'),
+  }(name='PicInfo', description='picInfo'),
+}
+
+async function addImage(request: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  return _request('AddImage', 'HTTPS', 'POST', request, runtime);
+}
+
+model AddImageAdvanceRequest = {
+  picContentObject: readable(description='PicContentObject', name='PicContentObject'),
+  instanceName: string(name='InstanceName', description='instanceName'),
+  categoryId?: integer(name='CategoryId', description='categoryId'),
+  productId: string(name='ProductId', description='productId'),
+  picName: string(name='PicName', description='picName'),
+  crop?: boolean(name='Crop', description='crop'),
+  region?: string(name='Region', description='region'),
+  customContent?: string(name='CustomContent', description='customContent'),
+  intAttr?: integer(name='IntAttr', description='intAttr'),
+  strAttr?: string(name='StrAttr', description='strAttr'),
+}
+
+async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ImageSearch',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.picContentObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var addImagereq = new AddImageRequest{};
+  RPCUtil.convert(request, addImagereq);
+  addImagereq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var addImageResp = addImage(addImagereq, runtime);
+  return addImageResp;
+}
+
+function getUserAgent(): string {
+  var userAgent = Util.getUserAgent(@userAgent);
+  return userAgent;
+}
+
+async function getAccessKeyId(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var accessKeyId = @credential.getAccessKeyId();
+  return accessKeyId;
+}
+
+async function getAccessKeySecret(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var secret = @credential.getAccessKeySecret();
+  return secret;
+}
+
