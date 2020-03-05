@@ -19,6 +19,14 @@ SDK 使用 [credentials-go](https://github.com/aliyun/credentials-go/blob/master
 
 ## 使用示例
 ```go
+import (
+	"fmt"
+	"strings"
+
+	facebody "github.com/aliyun/alibabacloud-sdk/facebody-20191230/golang/client"
+	util "github.com/aliyun/tea-util/golang/service"
+)
+
 func main() {
 	// 初始化 config
 	var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
