@@ -22,7 +22,7 @@ public class SearchImageByNameResponse extends TeaModel {
 
     @NameInMap("Auctions")
     @Validation(required = true)
-    public SearchImageByNameResponseAuctions[] auctions;
+    public java.util.List<SearchImageByNameResponseAuctions> auctions;
 
     @NameInMap("Head")
     @Validation(required = true)
@@ -120,7 +120,7 @@ public class SearchImageByNameResponse extends TeaModel {
 
         @NameInMap("AllCategories")
         @Validation(required = true)
-        public SearchImageByNameResponsePicInfoAllCategories[] allCategories;
+        public java.util.List<SearchImageByNameResponsePicInfoAllCategories> allCategories;
 
         public static SearchImageByNameResponsePicInfo build(java.util.Map<String, ?> map) throws Exception {
             SearchImageByNameResponsePicInfo self = new SearchImageByNameResponsePicInfo();
