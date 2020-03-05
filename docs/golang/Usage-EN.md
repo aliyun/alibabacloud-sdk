@@ -19,6 +19,14 @@ Before you begin, you need to sign up for an Alibaba Cloud account and retrieve 
 
 ## Demo
 ```go
+import (
+	"fmt"
+	"strings"
+
+	facebody "github.com/aliyun/alibabacloud-sdk/facebody-20191230/golang/client"
+	util "github.com/aliyun/tea-util/golang/service"
+)
+
 func main() {
 	// init config
 	var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
