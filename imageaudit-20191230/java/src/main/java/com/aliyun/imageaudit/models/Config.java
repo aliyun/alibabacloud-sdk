@@ -5,7 +5,6 @@ import com.aliyun.tea.*;
 
 public class Config extends TeaModel {
     @NameInMap("accessKeyId")
-    @Validation(required = true)
     public String accessKeyId;
 
     @NameInMap("accessKeySecret")
@@ -28,41 +27,32 @@ public class Config extends TeaModel {
     @Validation(required = true)
     public String regionId;
 
+    @NameInMap("read timeout")
+    public Integer readTimeout;
+
+    @NameInMap("connect timeout")
+    public Integer connectTimeout;
+
+    @NameInMap("http proxy")
+    public String httpProxy;
+
+    @NameInMap("https proxy")
+    public String httpsProxy;
+
+    @NameInMap("socks5 proxy")
+    public String socks5Proxy;
+
+    @NameInMap("socks5 NetWork")
+    public String socks5NetWork;
+
+    @NameInMap("no proxy")
+    public String noProxy;
+
     @NameInMap("userAgent")
     public String userAgent;
 
-    @NameInMap("readTimeout")
-    public Integer readTimeout;
-
-    @NameInMap("connectTimeout")
-    public Integer connectTimeout;
-
-    @NameInMap("localAddr")
-    public String localAddr;
-
-    @NameInMap("httpProxy")
-    public String httpProxy;
-
-    @NameInMap("httpsProxy")
-    public String httpsProxy;
-
-    @NameInMap("noProxy")
-    public String noProxy;
-
-    @NameInMap("socks5Proxy")
-    public String socks5Proxy;
-
-    @NameInMap("socks5NetWork")
-    public String socks5NetWork;
-
     @NameInMap("maxIdleConns")
     public Integer maxIdleConns;
-
-    @NameInMap("endpointType")
-    public String endpointType;
-
-    @NameInMap("openPlatformEndpoint")
-    public String openPlatformEndpoint;
 
     public static Config build(java.util.Map<String, ?> map) throws Exception {
         Config self = new Config();

@@ -17,13 +17,13 @@ public class ScanTextResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
-    public static class ScanTextResponseDataElementsResultsDetailsHintWords extends TeaModel {
+    public static class ScanTextResponseDataElementsResultsDetailsContexts extends TeaModel {
         @NameInMap("Context")
         @Validation(required = true)
         public String context;
 
-        public static ScanTextResponseDataElementsResultsDetailsHintWords build(java.util.Map<String, ?> map) throws Exception {
-            ScanTextResponseDataElementsResultsDetailsHintWords self = new ScanTextResponseDataElementsResultsDetailsHintWords();
+        public static ScanTextResponseDataElementsResultsDetailsContexts build(java.util.Map<String, ?> map) throws Exception {
+            ScanTextResponseDataElementsResultsDetailsContexts self = new ScanTextResponseDataElementsResultsDetailsContexts();
             return TeaModel.build(map, self);
         }
 
@@ -34,9 +34,9 @@ public class ScanTextResponse extends TeaModel {
         @Validation(required = true)
         public String label;
 
-        @NameInMap("HintWords")
+        @NameInMap("Contexts")
         @Validation(required = true)
-        public ScanTextResponseDataElementsResultsDetailsHintWords[] hintWords;
+        public java.util.List<ScanTextResponseDataElementsResultsDetailsContexts> contexts;
 
         public static ScanTextResponseDataElementsResultsDetails build(java.util.Map<String, ?> map) throws Exception {
             ScanTextResponseDataElementsResultsDetails self = new ScanTextResponseDataElementsResultsDetails();
@@ -60,7 +60,7 @@ public class ScanTextResponse extends TeaModel {
 
         @NameInMap("Details")
         @Validation(required = true)
-        public ScanTextResponseDataElementsResultsDetails[] details;
+        public java.util.List<ScanTextResponseDataElementsResultsDetails> details;
 
         public static ScanTextResponseDataElementsResults build(java.util.Map<String, ?> map) throws Exception {
             ScanTextResponseDataElementsResults self = new ScanTextResponseDataElementsResults();
@@ -76,7 +76,7 @@ public class ScanTextResponse extends TeaModel {
 
         @NameInMap("Results")
         @Validation(required = true)
-        public ScanTextResponseDataElementsResults[] results;
+        public java.util.List<ScanTextResponseDataElementsResults> results;
 
         public static ScanTextResponseDataElements build(java.util.Map<String, ?> map) throws Exception {
             ScanTextResponseDataElements self = new ScanTextResponseDataElements();
@@ -88,7 +88,7 @@ public class ScanTextResponse extends TeaModel {
     public static class ScanTextResponseData extends TeaModel {
         @NameInMap("Elements")
         @Validation(required = true)
-        public ScanTextResponseDataElements[] elements;
+        public java.util.List<ScanTextResponseDataElements> elements;
 
         public static ScanTextResponseData build(java.util.Map<String, ?> map) throws Exception {
             ScanTextResponseData self = new ScanTextResponseData();
