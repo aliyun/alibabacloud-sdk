@@ -1,3 +1,6 @@
+### 2020-03-06 Version 1.0.1
+* Improved reference rpc-util 0.2.3
+
 ### 2020-02-20 Version 0.0.5
 * Recodegen csharp 
 
