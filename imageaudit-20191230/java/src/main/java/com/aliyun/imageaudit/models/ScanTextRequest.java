@@ -6,11 +6,11 @@ import com.aliyun.tea.*;
 public class ScanTextRequest extends TeaModel {
     @NameInMap("Tasks")
     @Validation(required = true)
-    public ScanTextRequestTasks[] tasks;
+    public java.util.List<ScanTextRequestTasks> tasks;
 
     @NameInMap("Labels")
     @Validation(required = true)
-    public ScanTextRequestLabels[] labels;
+    public java.util.List<ScanTextRequestLabels> labels;
 
     public static ScanTextRequest build(java.util.Map<String, ?> map) throws Exception {
         ScanTextRequest self = new ScanTextRequest();

@@ -6,11 +6,11 @@ import com.aliyun.tea.*;
 public class ScanImageRequest extends TeaModel {
     @NameInMap("Task")
     @Validation(required = true)
-    public ScanImageRequestTask[] task;
+    public java.util.List<ScanImageRequestTask> task;
 
     @NameInMap("Scene")
     @Validation(required = true)
-    public String[] scene;
+    public java.util.List<String> scene;
 
     public static ScanImageRequest build(java.util.Map<String, ?> map) throws Exception {
         ScanImageRequest self = new ScanImageRequest();
