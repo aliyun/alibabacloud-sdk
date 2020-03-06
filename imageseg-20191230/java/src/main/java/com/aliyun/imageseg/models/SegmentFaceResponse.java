@@ -48,7 +48,7 @@ public class SegmentFaceResponse extends TeaModel {
     public static class SegmentFaceResponseData extends TeaModel {
         @NameInMap("Elements")
         @Validation(required = true)
-        public SegmentFaceResponseDataElements[] elements;
+        public java.util.List<SegmentFaceResponseDataElements> elements;
 
         public static SegmentFaceResponseData build(java.util.Map<String, ?> map) throws Exception {
             SegmentFaceResponseData self = new SegmentFaceResponseData();

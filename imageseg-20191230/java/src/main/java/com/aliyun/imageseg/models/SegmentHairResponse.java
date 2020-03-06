@@ -48,7 +48,7 @@ public class SegmentHairResponse extends TeaModel {
     public static class SegmentHairResponseData extends TeaModel {
         @NameInMap("Elements")
         @Validation(required = true)
-        public SegmentHairResponseDataElements[] elements;
+        public java.util.List<SegmentHairResponseDataElements> elements;
 
         public static SegmentHairResponseData build(java.util.Map<String, ?> map) throws Exception {
             SegmentHairResponseData self = new SegmentHairResponseData();
