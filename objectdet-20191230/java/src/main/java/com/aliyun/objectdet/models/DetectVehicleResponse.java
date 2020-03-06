@@ -48,7 +48,7 @@ public class DetectVehicleResponse extends TeaModel {
 
         @NameInMap("DetectObjectInfoList")
         @Validation(required = true)
-        public DetectVehicleResponseDataDetectObjectInfoList[] detectObjectInfoList;
+        public java.util.List<DetectVehicleResponseDataDetectObjectInfoList> detectObjectInfoList;
 
         public static DetectVehicleResponseData build(java.util.Map<String, ?> map) throws Exception {
             DetectVehicleResponseData self = new DetectVehicleResponseData();

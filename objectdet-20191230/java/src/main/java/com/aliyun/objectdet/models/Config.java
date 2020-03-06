@@ -5,7 +5,6 @@ import com.aliyun.tea.*;
 
 public class Config extends TeaModel {
     @NameInMap("accessKeyId")
-    @Validation(required = true)
     public String accessKeyId;
 
     @NameInMap("accessKeySecret")
@@ -36,9 +35,6 @@ public class Config extends TeaModel {
 
     @NameInMap("connectTimeout")
     public Integer connectTimeout;
-
-    @NameInMap("localAddr")
-    public String localAddr;
 
     @NameInMap("httpProxy")
     public String httpProxy;
