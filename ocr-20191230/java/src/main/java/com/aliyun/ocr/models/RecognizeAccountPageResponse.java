@@ -176,19 +176,19 @@ public class RecognizeAccountPageResponse extends TeaModel {
 
         @NameInMap("InvalidStampAreas")
         @Validation(required = true)
-        public RecognizeAccountPageResponseDataInvalidStampAreas[] invalidStampAreas;
+        public java.util.List<RecognizeAccountPageResponseDataInvalidStampAreas> invalidStampAreas;
 
         @NameInMap("UndertakeStampAreas")
         @Validation(required = true)
-        public RecognizeAccountPageResponseDataUndertakeStampAreas[] undertakeStampAreas;
+        public java.util.List<RecognizeAccountPageResponseDataUndertakeStampAreas> undertakeStampAreas;
 
         @NameInMap("RegisterStampAreas")
         @Validation(required = true)
-        public RecognizeAccountPageResponseDataRegisterStampAreas[] registerStampAreas;
+        public java.util.List<RecognizeAccountPageResponseDataRegisterStampAreas> registerStampAreas;
 
         @NameInMap("OtherStampAreas")
         @Validation(required = true)
-        public RecognizeAccountPageResponseDataOtherStampAreas[] otherStampAreas;
+        public java.util.List<RecognizeAccountPageResponseDataOtherStampAreas> otherStampAreas;
 
         @NameInMap("TitleArea")
         @Validation(required = true)
