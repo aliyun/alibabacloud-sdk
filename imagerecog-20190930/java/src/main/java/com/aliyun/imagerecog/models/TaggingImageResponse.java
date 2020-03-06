@@ -36,7 +36,7 @@ public class TaggingImageResponse extends TeaModel {
     public static class TaggingImageResponseData extends TeaModel {
         @NameInMap("Tags")
         @Validation(required = true)
-        public TaggingImageResponseDataTags[] tags;
+        public java.util.List<TaggingImageResponseDataTags> tags;
 
         public static TaggingImageResponseData build(java.util.Map<String, ?> map) throws Exception {
             TaggingImageResponseData self = new TaggingImageResponseData();
