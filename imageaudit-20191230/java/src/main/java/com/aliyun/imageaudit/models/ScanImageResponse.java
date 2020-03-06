@@ -140,7 +140,7 @@ public class ScanImageResponse extends TeaModel {
 
         @NameInMap("Faces")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResultsSfaceDataListFaces[] faces;
+        public java.util.List<ScanImageResponseDataResultsSubResultsSfaceDataListFaces> faces;
 
         public static ScanImageResponseDataResultsSubResultsSfaceDataList build(java.util.Map<String, ?> map) throws Exception {
             ScanImageResponseDataResultsSubResultsSfaceDataList self = new ScanImageResponseDataResultsSubResultsSfaceDataList();
@@ -168,23 +168,23 @@ public class ScanImageResponse extends TeaModel {
 
         @NameInMap("Frames")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResultsFrames[] frames;
+        public java.util.List<ScanImageResponseDataResultsSubResultsFrames> frames;
 
         @NameInMap("HintWordsInfoList")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResultsHintWordsInfoList[] hintWordsInfoList;
+        public java.util.List<ScanImageResponseDataResultsSubResultsHintWordsInfoList> hintWordsInfoList;
 
         @NameInMap("ProgramCodeDataList")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResultsProgramCodeDataList[] programCodeDataList;
+        public java.util.List<ScanImageResponseDataResultsSubResultsProgramCodeDataList> programCodeDataList;
 
         @NameInMap("LogoDataList")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResultsLogoDataList[] logoDataList;
+        public java.util.List<ScanImageResponseDataResultsSubResultsLogoDataList> logoDataList;
 
         @NameInMap("SfaceDataList")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResultsSfaceDataList[] sfaceDataList;
+        public java.util.List<ScanImageResponseDataResultsSubResultsSfaceDataList> sfaceDataList;
 
         public static ScanImageResponseDataResultsSubResults build(java.util.Map<String, ?> map) throws Exception {
             ScanImageResponseDataResultsSubResults self = new ScanImageResponseDataResultsSubResults();
@@ -208,7 +208,7 @@ public class ScanImageResponse extends TeaModel {
 
         @NameInMap("SubResults")
         @Validation(required = true)
-        public ScanImageResponseDataResultsSubResults[] subResults;
+        public java.util.List<ScanImageResponseDataResultsSubResults> subResults;
 
         public static ScanImageResponseDataResults build(java.util.Map<String, ?> map) throws Exception {
             ScanImageResponseDataResults self = new ScanImageResponseDataResults();
@@ -220,7 +220,7 @@ public class ScanImageResponse extends TeaModel {
     public static class ScanImageResponseData extends TeaModel {
         @NameInMap("Results")
         @Validation(required = true)
-        public ScanImageResponseDataResults[] results;
+        public java.util.List<ScanImageResponseDataResults> results;
 
         public static ScanImageResponseData build(java.util.Map<String, ?> map) throws Exception {
             ScanImageResponseData self = new ScanImageResponseData();

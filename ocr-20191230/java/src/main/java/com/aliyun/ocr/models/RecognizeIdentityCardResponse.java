@@ -128,11 +128,11 @@ public class RecognizeIdentityCardResponse extends TeaModel {
 
         @NameInMap("CardAreas")
         @Validation(required = true)
-        public RecognizeIdentityCardResponseDataFrontResultCardAreas[] cardAreas;
+        public java.util.List<RecognizeIdentityCardResponseDataFrontResultCardAreas> cardAreas;
 
         @NameInMap("FaceRectVertices")
         @Validation(required = true)
-        public RecognizeIdentityCardResponseDataFrontResultFaceRectVertices[] faceRectVertices;
+        public java.util.List<RecognizeIdentityCardResponseDataFrontResultFaceRectVertices> faceRectVertices;
 
         @NameInMap("FaceRectangle")
         @Validation(required = true)

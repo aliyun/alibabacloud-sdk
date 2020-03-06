@@ -14,7 +14,7 @@ public class RecognizeCharacterAdvanceRequest extends TeaModel {
 
     @NameInMap("OutputProbability")
     @Validation(required = true)
-    public boolean outputProbability;
+    public Boolean outputProbability;
 
     public static RecognizeCharacterAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         RecognizeCharacterAdvanceRequest self = new RecognizeCharacterAdvanceRequest();

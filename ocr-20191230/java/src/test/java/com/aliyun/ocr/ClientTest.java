@@ -1,16 +1,14 @@
 // This file is auto-generated, don't edit it. Thanks.
 package com.aliyun.ocr;
 
-import com.aliyun.common.models.RuntimeObject;
 import com.aliyun.ocr.models.Config;
 
-import org.junit.Assert;
-import org.junit.Test;
-import java.io.ByteArrayInputStream;
-
 public class ClientTest {
-    @Test
-    public void clientTest() throws Exception {
+
+    public static void main(String[] args) throws Exception {
+        clientTest();
+    }
+    public static void clientTest() throws Exception {
         Config config = new Config();
         config.accessKeyId = System.getenv("AccessKeyID");
         config.accessKeySecret = System.getenv("AccessKeySecret");

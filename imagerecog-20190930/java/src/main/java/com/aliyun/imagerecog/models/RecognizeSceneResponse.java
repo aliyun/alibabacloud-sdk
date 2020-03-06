@@ -36,7 +36,7 @@ public class RecognizeSceneResponse extends TeaModel {
     public static class RecognizeSceneResponseData extends TeaModel {
         @NameInMap("Tags")
         @Validation(required = true)
-        public RecognizeSceneResponseDataTags[] tags;
+        public java.util.List<RecognizeSceneResponseDataTags> tags;
 
         public static RecognizeSceneResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeSceneResponseData self = new RecognizeSceneResponseData();

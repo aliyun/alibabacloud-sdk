@@ -52,7 +52,7 @@ public class RecognizeTableResponse extends TeaModel {
     public static class RecognizeTableResponseDataTablesTableRows extends TeaModel {
         @NameInMap("TableColumns")
         @Validation(required = true)
-        public RecognizeTableResponseDataTablesTableRowsTableColumns[] tableColumns;
+        public java.util.List<RecognizeTableResponseDataTablesTableRowsTableColumns> tableColumns;
 
         public static RecognizeTableResponseDataTablesTableRows build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTableResponseDataTablesTableRows self = new RecognizeTableResponseDataTablesTableRows();
@@ -72,7 +72,7 @@ public class RecognizeTableResponse extends TeaModel {
 
         @NameInMap("TableRows")
         @Validation(required = true)
-        public RecognizeTableResponseDataTablesTableRows[] tableRows;
+        public java.util.List<RecognizeTableResponseDataTablesTableRows> tableRows;
 
         public static RecognizeTableResponseDataTables build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTableResponseDataTables self = new RecognizeTableResponseDataTables();
@@ -88,7 +88,7 @@ public class RecognizeTableResponse extends TeaModel {
 
         @NameInMap("Tables")
         @Validation(required = true)
-        public RecognizeTableResponseDataTables[] tables;
+        public java.util.List<RecognizeTableResponseDataTables> tables;
 
         public static RecognizeTableResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTableResponseData self = new RecognizeTableResponseData();
