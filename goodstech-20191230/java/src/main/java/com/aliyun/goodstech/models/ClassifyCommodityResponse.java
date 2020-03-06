@@ -40,7 +40,7 @@ public class ClassifyCommodityResponse extends TeaModel {
     public static class ClassifyCommodityResponseData extends TeaModel {
         @NameInMap("Categories")
         @Validation(required = true)
-        public ClassifyCommodityResponseDataCategories[] categories;
+        public java.util.List<ClassifyCommodityResponseDataCategories> categories;
 
         public static ClassifyCommodityResponseData build(java.util.Map<String, ?> map) throws Exception {
             ClassifyCommodityResponseData self = new ClassifyCommodityResponseData();
