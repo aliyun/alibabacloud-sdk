@@ -40,7 +40,7 @@ public class RecognizeImageColorResponse extends TeaModel {
     public static class RecognizeImageColorResponseData extends TeaModel {
         @NameInMap("ColorTemplateList")
         @Validation(required = true)
-        public RecognizeImageColorResponseDataColorTemplateList[] colorTemplateList;
+        public java.util.List<RecognizeImageColorResponseDataColorTemplateList> colorTemplateList;
 
         public static RecognizeImageColorResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeImageColorResponseData self = new RecognizeImageColorResponseData();

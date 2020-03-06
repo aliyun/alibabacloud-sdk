@@ -52,7 +52,7 @@ public class DetectImageElementsResponse extends TeaModel {
     public static class DetectImageElementsResponseData extends TeaModel {
         @NameInMap("Elements")
         @Validation(required = true)
-        public DetectImageElementsResponseDataElements[] elements;
+        public java.util.List<DetectImageElementsResponseDataElements> elements;
 
         public static DetectImageElementsResponseData build(java.util.Map<String, ?> map) throws Exception {
             DetectImageElementsResponseData self = new DetectImageElementsResponseData();
