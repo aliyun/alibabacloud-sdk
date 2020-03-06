@@ -18,7 +18,7 @@ public class RecolorImageRequest extends TeaModel {
     public Integer colorCount;
 
     @NameInMap("ColorTemplate")
-    public RecolorImageRequestColorTemplate[] colorTemplate;
+    public java.util.List<RecolorImageRequestColorTemplate> colorTemplate;
 
     public static RecolorImageRequest build(java.util.Map<String, ?> map) throws Exception {
         RecolorImageRequest self = new RecolorImageRequest();
