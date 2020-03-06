@@ -72,7 +72,7 @@ public class RecognizeLicensePlateResponse extends TeaModel {
     public static class RecognizeLicensePlateResponseData extends TeaModel {
         @NameInMap("Plates")
         @Validation(required = true)
-        public RecognizeLicensePlateResponseDataPlates[] plates;
+        public java.util.List<RecognizeLicensePlateResponseDataPlates> plates;
 
         public static RecognizeLicensePlateResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeLicensePlateResponseData self = new RecognizeLicensePlateResponseData();

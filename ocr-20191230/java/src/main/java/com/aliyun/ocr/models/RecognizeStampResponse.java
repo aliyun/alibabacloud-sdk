@@ -76,7 +76,7 @@ public class RecognizeStampResponse extends TeaModel {
     public static class RecognizeStampResponseDataResults extends TeaModel {
         @NameInMap("GeneralText")
         @Validation(required = true)
-        public RecognizeStampResponseDataResultsGeneralText[] generalText;
+        public java.util.List<RecognizeStampResponseDataResultsGeneralText> generalText;
 
         @NameInMap("Roi")
         @Validation(required = true)
@@ -96,7 +96,7 @@ public class RecognizeStampResponse extends TeaModel {
     public static class RecognizeStampResponseData extends TeaModel {
         @NameInMap("Results")
         @Validation(required = true)
-        public RecognizeStampResponseDataResults[] results;
+        public java.util.List<RecognizeStampResponseDataResults> results;
 
         public static RecognizeStampResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeStampResponseData self = new RecognizeStampResponseData();

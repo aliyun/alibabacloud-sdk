@@ -68,7 +68,7 @@ public class RecognizeCharacterResponse extends TeaModel {
     public static class RecognizeCharacterResponseData extends TeaModel {
         @NameInMap("Results")
         @Validation(required = true)
-        public RecognizeCharacterResponseDataResults[] results;
+        public java.util.List<RecognizeCharacterResponseDataResults> results;
 
         public static RecognizeCharacterResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeCharacterResponseData self = new RecognizeCharacterResponseData();

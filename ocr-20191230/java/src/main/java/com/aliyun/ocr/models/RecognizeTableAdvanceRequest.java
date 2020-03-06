@@ -14,19 +14,19 @@ public class RecognizeTableAdvanceRequest extends TeaModel {
 
     @NameInMap("UseFinanceModel")
     @Validation(required = true)
-    public boolean useFinanceModel;
+    public Boolean useFinanceModel;
 
     @NameInMap("AssureDirection")
     @Validation(required = true)
-    public boolean assureDirection;
+    public Boolean assureDirection;
 
     @NameInMap("HasLine")
     @Validation(required = true)
-    public boolean hasLine;
+    public Boolean hasLine;
 
     @NameInMap("SkipDetection")
     @Validation(required = true)
-    public boolean skipDetection;
+    public Boolean skipDetection;
 
     public static RecognizeTableAdvanceRequest build(java.util.Map<String, ?> map) throws Exception {
         RecognizeTableAdvanceRequest self = new RecognizeTableAdvanceRequest();

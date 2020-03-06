@@ -116,7 +116,7 @@ public class RecognizeTaxiInvoiceResponse extends TeaModel {
 
         @NameInMap("Items")
         @Validation(required = true)
-        public RecognizeTaxiInvoiceResponseDataInvoicesItems[] items;
+        public java.util.List<RecognizeTaxiInvoiceResponseDataInvoicesItems> items;
 
         @NameInMap("InvoiceRoi")
         @Validation(required = true)
@@ -132,7 +132,7 @@ public class RecognizeTaxiInvoiceResponse extends TeaModel {
     public static class RecognizeTaxiInvoiceResponseData extends TeaModel {
         @NameInMap("Invoices")
         @Validation(required = true)
-        public RecognizeTaxiInvoiceResponseDataInvoices[] invoices;
+        public java.util.List<RecognizeTaxiInvoiceResponseDataInvoices> invoices;
 
         public static RecognizeTaxiInvoiceResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTaxiInvoiceResponseData self = new RecognizeTaxiInvoiceResponseData();
