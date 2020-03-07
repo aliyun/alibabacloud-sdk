@@ -17,6 +17,30 @@ public class RecognizeVehicleDamageResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public static class RecognizeVehicleDamageResponseDataElementsScores extends TeaModel {
+        @NameInMap("Score")
+        @Validation(required = true)
+        public Double score;
+
+        public static RecognizeVehicleDamageResponseDataElementsScores build(java.util.Map<String, ?> map) throws Exception {
+            RecognizeVehicleDamageResponseDataElementsScores self = new RecognizeVehicleDamageResponseDataElementsScores();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
+    public static class RecognizeVehicleDamageResponseDataElementsBoxes extends TeaModel {
+        @NameInMap("Box")
+        @Validation(required = true)
+        public Integer box;
+
+        public static RecognizeVehicleDamageResponseDataElementsBoxes build(java.util.Map<String, ?> map) throws Exception {
+            RecognizeVehicleDamageResponseDataElementsBoxes self = new RecognizeVehicleDamageResponseDataElementsBoxes();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
     public static class RecognizeVehicleDamageResponseDataElements extends TeaModel {
         @NameInMap("Score")
         @Validation(required = true)
@@ -25,6 +49,14 @@ public class RecognizeVehicleDamageResponse extends TeaModel {
         @NameInMap("Type")
         @Validation(required = true)
         public String type;
+
+        @NameInMap("Scores")
+        @Validation(required = true)
+        public java.util.List<RecognizeVehicleDamageResponseDataElementsScores> scores;
+
+        @NameInMap("Boxes")
+        @Validation(required = true)
+        public java.util.List<RecognizeVehicleDamageResponseDataElementsBoxes> boxes;
 
         public static RecognizeVehicleDamageResponseDataElements build(java.util.Map<String, ?> map) throws Exception {
             RecognizeVehicleDamageResponseDataElements self = new RecognizeVehicleDamageResponseDataElements();

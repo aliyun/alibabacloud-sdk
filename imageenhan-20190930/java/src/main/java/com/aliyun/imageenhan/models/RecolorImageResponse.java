@@ -17,7 +17,23 @@ public class RecolorImageResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public static class RecolorImageResponseDataImageList extends TeaModel {
+        @NameInMap("ImageList")
+        @Validation(required = true)
+        public String imageList;
+
+        public static RecolorImageResponseDataImageList build(java.util.Map<String, ?> map) throws Exception {
+            RecolorImageResponseDataImageList self = new RecolorImageResponseDataImageList();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
     public static class RecolorImageResponseData extends TeaModel {
+        @NameInMap("ImageList")
+        @Validation(required = true)
+        public java.util.List<RecolorImageResponseDataImageList> imageList;
+
         public static RecolorImageResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecolorImageResponseData self = new RecolorImageResponseData();
             return TeaModel.build(map, self);

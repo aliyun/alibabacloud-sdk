@@ -149,6 +149,18 @@ public class ScanImageResponse extends TeaModel {
 
     }
 
+    public static class ScanImageResponseDataResultsSubResultsOCRDataList extends TeaModel {
+        @NameInMap("OCRData")
+        @Validation(required = true)
+        public String OCRData;
+
+        public static ScanImageResponseDataResultsSubResultsOCRDataList build(java.util.Map<String, ?> map) throws Exception {
+            ScanImageResponseDataResultsSubResultsOCRDataList self = new ScanImageResponseDataResultsSubResultsOCRDataList();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
     public static class ScanImageResponseDataResultsSubResults extends TeaModel {
         @NameInMap("Label")
         @Validation(required = true)
@@ -185,6 +197,10 @@ public class ScanImageResponse extends TeaModel {
         @NameInMap("SfaceDataList")
         @Validation(required = true)
         public java.util.List<ScanImageResponseDataResultsSubResultsSfaceDataList> sfaceDataList;
+
+        @NameInMap("OCRDataList")
+        @Validation(required = true)
+        public java.util.List<ScanImageResponseDataResultsSubResultsOCRDataList> OCRDataList;
 
         public static ScanImageResponseDataResultsSubResults build(java.util.Map<String, ?> map) throws Exception {
             ScanImageResponseDataResultsSubResults self = new ScanImageResponseDataResultsSubResults();
