@@ -834,9 +834,19 @@ func (s *RecognizeFaceResponse) SetData(v *RecognizeFaceResponseData) *Recognize
 }
 
 type RecognizeFaceResponseData struct {
-	FaceCount          *int `json:"FaceCount" xml:"FaceCount" require:"true"`
-	LandmarkCount      *int `json:"LandmarkCount" xml:"LandmarkCount" require:"true"`
-	DenseFeatureLength *int `json:"DenseFeatureLength" xml:"DenseFeatureLength" require:"true"`
+	FaceCount           *int                                            `json:"FaceCount" xml:"FaceCount" require:"true"`
+	LandmarkCount       *int                                            `json:"LandmarkCount" xml:"LandmarkCount" require:"true"`
+	DenseFeatureLength  *int                                            `json:"DenseFeatureLength" xml:"DenseFeatureLength" require:"true"`
+	FaceRectangles      []*RecognizeFaceResponseDataFaceRectangles      `json:"FaceRectangles" xml:"FaceRectangles" require:"true" type:"Repeated"`
+	FaceProbabilityList []*RecognizeFaceResponseDataFaceProbabilityList `json:"FaceProbabilityList" xml:"FaceProbabilityList" require:"true" type:"Repeated"`
+	PoseList            []*RecognizeFaceResponseDataPoseList            `json:"PoseList" xml:"PoseList" require:"true" type:"Repeated"`
+	Landmarks           []*RecognizeFaceResponseDataLandmarks           `json:"Landmarks" xml:"Landmarks" require:"true" type:"Repeated"`
+	Pupils              []*RecognizeFaceResponseDataPupils              `json:"Pupils" xml:"Pupils" require:"true" type:"Repeated"`
+	GenderList          []*RecognizeFaceResponseDataGenderList          `json:"GenderList" xml:"GenderList" require:"true" type:"Repeated"`
+	AgeList             []*RecognizeFaceResponseDataAgeList             `json:"AgeList" xml:"AgeList" require:"true" type:"Repeated"`
+	Expressions         []*RecognizeFaceResponseDataExpressions         `json:"Expressions" xml:"Expressions" require:"true" type:"Repeated"`
+	Glasses             []*RecognizeFaceResponseDataGlasses             `json:"Glasses" xml:"Glasses" require:"true" type:"Repeated"`
+	DenseFeatures       []*RecognizeFaceResponseDataDenseFeatures       `json:"DenseFeatures" xml:"DenseFeatures" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeFaceResponseData) String() string {
@@ -859,6 +869,226 @@ func (s *RecognizeFaceResponseData) SetLandmarkCount(v int) *RecognizeFaceRespon
 
 func (s *RecognizeFaceResponseData) SetDenseFeatureLength(v int) *RecognizeFaceResponseData {
 	s.DenseFeatureLength = &v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetFaceRectangles(v []*RecognizeFaceResponseDataFaceRectangles) *RecognizeFaceResponseData {
+	s.FaceRectangles = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetFaceProbabilityList(v []*RecognizeFaceResponseDataFaceProbabilityList) *RecognizeFaceResponseData {
+	s.FaceProbabilityList = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetPoseList(v []*RecognizeFaceResponseDataPoseList) *RecognizeFaceResponseData {
+	s.PoseList = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetLandmarks(v []*RecognizeFaceResponseDataLandmarks) *RecognizeFaceResponseData {
+	s.Landmarks = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetPupils(v []*RecognizeFaceResponseDataPupils) *RecognizeFaceResponseData {
+	s.Pupils = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetGenderList(v []*RecognizeFaceResponseDataGenderList) *RecognizeFaceResponseData {
+	s.GenderList = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetAgeList(v []*RecognizeFaceResponseDataAgeList) *RecognizeFaceResponseData {
+	s.AgeList = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetExpressions(v []*RecognizeFaceResponseDataExpressions) *RecognizeFaceResponseData {
+	s.Expressions = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetGlasses(v []*RecognizeFaceResponseDataGlasses) *RecognizeFaceResponseData {
+	s.Glasses = v
+	return s
+}
+
+func (s *RecognizeFaceResponseData) SetDenseFeatures(v []*RecognizeFaceResponseDataDenseFeatures) *RecognizeFaceResponseData {
+	s.DenseFeatures = v
+	return s
+}
+
+type RecognizeFaceResponseDataFaceRectangles struct {
+	FaceRectangle *int `json:"FaceRectangle" xml:"FaceRectangle" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataFaceRectangles) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataFaceRectangles) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataFaceRectangles) SetFaceRectangle(v int) *RecognizeFaceResponseDataFaceRectangles {
+	s.FaceRectangle = &v
+	return s
+}
+
+type RecognizeFaceResponseDataFaceProbabilityList struct {
+	FaceProbability *float32 `json:"FaceProbability" xml:"FaceProbability" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataFaceProbabilityList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataFaceProbabilityList) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataFaceProbabilityList) SetFaceProbability(v float32) *RecognizeFaceResponseDataFaceProbabilityList {
+	s.FaceProbability = &v
+	return s
+}
+
+type RecognizeFaceResponseDataPoseList struct {
+	Pose *float32 `json:"Pose" xml:"Pose" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataPoseList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataPoseList) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataPoseList) SetPose(v float32) *RecognizeFaceResponseDataPoseList {
+	s.Pose = &v
+	return s
+}
+
+type RecognizeFaceResponseDataLandmarks struct {
+	Landmark *float32 `json:"Landmark" xml:"Landmark" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataLandmarks) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataLandmarks) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataLandmarks) SetLandmark(v float32) *RecognizeFaceResponseDataLandmarks {
+	s.Landmark = &v
+	return s
+}
+
+type RecognizeFaceResponseDataPupils struct {
+	Pupil *float32 `json:"Pupil" xml:"Pupil" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataPupils) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataPupils) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataPupils) SetPupil(v float32) *RecognizeFaceResponseDataPupils {
+	s.Pupil = &v
+	return s
+}
+
+type RecognizeFaceResponseDataGenderList struct {
+	Gender *int `json:"Gender" xml:"Gender" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataGenderList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataGenderList) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataGenderList) SetGender(v int) *RecognizeFaceResponseDataGenderList {
+	s.Gender = &v
+	return s
+}
+
+type RecognizeFaceResponseDataAgeList struct {
+	Age *int `json:"Age" xml:"Age" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataAgeList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataAgeList) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataAgeList) SetAge(v int) *RecognizeFaceResponseDataAgeList {
+	s.Age = &v
+	return s
+}
+
+type RecognizeFaceResponseDataExpressions struct {
+	Expression *int `json:"Expression" xml:"Expression" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataExpressions) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataExpressions) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataExpressions) SetExpression(v int) *RecognizeFaceResponseDataExpressions {
+	s.Expression = &v
+	return s
+}
+
+type RecognizeFaceResponseDataGlasses struct {
+	Glass *int `json:"Glass" xml:"Glass" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataGlasses) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataGlasses) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataGlasses) SetGlass(v int) *RecognizeFaceResponseDataGlasses {
+	s.Glass = &v
+	return s
+}
+
+type RecognizeFaceResponseDataDenseFeatures struct {
+	DenseFeature *string `json:"DenseFeature" xml:"DenseFeature" require:"true"`
+}
+
+func (s RecognizeFaceResponseDataDenseFeatures) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeFaceResponseDataDenseFeatures) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeFaceResponseDataDenseFeatures) SetDenseFeature(v string) *RecognizeFaceResponseDataDenseFeatures {
+	s.DenseFeature = &v
 	return s
 }
 
@@ -926,7 +1156,10 @@ func (s *CompareFaceResponse) SetData(v *CompareFaceResponseData) *CompareFaceRe
 }
 
 type CompareFaceResponseData struct {
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+	Confidence *float32                             `json:"Confidence" xml:"Confidence" require:"true"`
+	Thresholds []*CompareFaceResponseDataThresholds `json:"Thresholds" xml:"Thresholds" require:"true" type:"Repeated"`
+	RectAList  []*CompareFaceResponseDataRectAList  `json:"RectAList" xml:"RectAList" require:"true" type:"Repeated"`
+	RectBList  []*CompareFaceResponseDataRectBList  `json:"RectBList" xml:"RectBList" require:"true" type:"Repeated"`
 }
 
 func (s CompareFaceResponseData) String() string {
@@ -939,6 +1172,72 @@ func (s CompareFaceResponseData) GoString() string {
 
 func (s *CompareFaceResponseData) SetConfidence(v float32) *CompareFaceResponseData {
 	s.Confidence = &v
+	return s
+}
+
+func (s *CompareFaceResponseData) SetThresholds(v []*CompareFaceResponseDataThresholds) *CompareFaceResponseData {
+	s.Thresholds = v
+	return s
+}
+
+func (s *CompareFaceResponseData) SetRectAList(v []*CompareFaceResponseDataRectAList) *CompareFaceResponseData {
+	s.RectAList = v
+	return s
+}
+
+func (s *CompareFaceResponseData) SetRectBList(v []*CompareFaceResponseDataRectBList) *CompareFaceResponseData {
+	s.RectBList = v
+	return s
+}
+
+type CompareFaceResponseDataThresholds struct {
+	Threshold *float32 `json:"Threshold" xml:"Threshold" require:"true"`
+}
+
+func (s CompareFaceResponseDataThresholds) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CompareFaceResponseDataThresholds) GoString() string {
+	return s.String()
+}
+
+func (s *CompareFaceResponseDataThresholds) SetThreshold(v float32) *CompareFaceResponseDataThresholds {
+	s.Threshold = &v
+	return s
+}
+
+type CompareFaceResponseDataRectAList struct {
+	RectA *int `json:"RectA" xml:"RectA" require:"true"`
+}
+
+func (s CompareFaceResponseDataRectAList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CompareFaceResponseDataRectAList) GoString() string {
+	return s.String()
+}
+
+func (s *CompareFaceResponseDataRectAList) SetRectA(v int) *CompareFaceResponseDataRectAList {
+	s.RectA = &v
+	return s
+}
+
+type CompareFaceResponseDataRectBList struct {
+	RectB *int `json:"RectB" xml:"RectB" require:"true"`
+}
+
+func (s CompareFaceResponseDataRectBList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CompareFaceResponseDataRectBList) GoString() string {
+	return s.String()
+}
+
+func (s *CompareFaceResponseDataRectBList) SetRectB(v int) *CompareFaceResponseDataRectBList {
+	s.RectB = &v
 	return s
 }
 
@@ -983,8 +1282,13 @@ func (s *DetectFaceResponse) SetData(v *DetectFaceResponseData) *DetectFaceRespo
 }
 
 type DetectFaceResponseData struct {
-	FaceCount     *int `json:"FaceCount" xml:"FaceCount" require:"true"`
-	LandmarkCount *int `json:"LandmarkCount" xml:"LandmarkCount" require:"true"`
+	FaceCount           *int                                         `json:"FaceCount" xml:"FaceCount" require:"true"`
+	LandmarkCount       *int                                         `json:"LandmarkCount" xml:"LandmarkCount" require:"true"`
+	FaceRectangles      []*DetectFaceResponseDataFaceRectangles      `json:"FaceRectangles" xml:"FaceRectangles" require:"true" type:"Repeated"`
+	FaceProbabilityList []*DetectFaceResponseDataFaceProbabilityList `json:"FaceProbabilityList" xml:"FaceProbabilityList" require:"true" type:"Repeated"`
+	PoseList            []*DetectFaceResponseDataPoseList            `json:"PoseList" xml:"PoseList" require:"true" type:"Repeated"`
+	Landmarks           []*DetectFaceResponseDataLandmarks           `json:"Landmarks" xml:"Landmarks" require:"true" type:"Repeated"`
+	Pupils              []*DetectFaceResponseDataPupils              `json:"Pupils" xml:"Pupils" require:"true" type:"Repeated"`
 }
 
 func (s DetectFaceResponseData) String() string {
@@ -1002,6 +1306,116 @@ func (s *DetectFaceResponseData) SetFaceCount(v int) *DetectFaceResponseData {
 
 func (s *DetectFaceResponseData) SetLandmarkCount(v int) *DetectFaceResponseData {
 	s.LandmarkCount = &v
+	return s
+}
+
+func (s *DetectFaceResponseData) SetFaceRectangles(v []*DetectFaceResponseDataFaceRectangles) *DetectFaceResponseData {
+	s.FaceRectangles = v
+	return s
+}
+
+func (s *DetectFaceResponseData) SetFaceProbabilityList(v []*DetectFaceResponseDataFaceProbabilityList) *DetectFaceResponseData {
+	s.FaceProbabilityList = v
+	return s
+}
+
+func (s *DetectFaceResponseData) SetPoseList(v []*DetectFaceResponseDataPoseList) *DetectFaceResponseData {
+	s.PoseList = v
+	return s
+}
+
+func (s *DetectFaceResponseData) SetLandmarks(v []*DetectFaceResponseDataLandmarks) *DetectFaceResponseData {
+	s.Landmarks = v
+	return s
+}
+
+func (s *DetectFaceResponseData) SetPupils(v []*DetectFaceResponseDataPupils) *DetectFaceResponseData {
+	s.Pupils = v
+	return s
+}
+
+type DetectFaceResponseDataFaceRectangles struct {
+	FaceRectangle *int `json:"FaceRectangle" xml:"FaceRectangle" require:"true"`
+}
+
+func (s DetectFaceResponseDataFaceRectangles) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFaceResponseDataFaceRectangles) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFaceResponseDataFaceRectangles) SetFaceRectangle(v int) *DetectFaceResponseDataFaceRectangles {
+	s.FaceRectangle = &v
+	return s
+}
+
+type DetectFaceResponseDataFaceProbabilityList struct {
+	FaceProbability *float32 `json:"FaceProbability" xml:"FaceProbability" require:"true"`
+}
+
+func (s DetectFaceResponseDataFaceProbabilityList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFaceResponseDataFaceProbabilityList) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFaceResponseDataFaceProbabilityList) SetFaceProbability(v float32) *DetectFaceResponseDataFaceProbabilityList {
+	s.FaceProbability = &v
+	return s
+}
+
+type DetectFaceResponseDataPoseList struct {
+	Pose *float32 `json:"Pose" xml:"Pose" require:"true"`
+}
+
+func (s DetectFaceResponseDataPoseList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFaceResponseDataPoseList) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFaceResponseDataPoseList) SetPose(v float32) *DetectFaceResponseDataPoseList {
+	s.Pose = &v
+	return s
+}
+
+type DetectFaceResponseDataLandmarks struct {
+	Landmark *float32 `json:"Landmark" xml:"Landmark" require:"true"`
+}
+
+func (s DetectFaceResponseDataLandmarks) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFaceResponseDataLandmarks) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFaceResponseDataLandmarks) SetLandmark(v float32) *DetectFaceResponseDataLandmarks {
+	s.Landmark = &v
+	return s
+}
+
+type DetectFaceResponseDataPupils struct {
+	Pupil *float32 `json:"Pupil" xml:"Pupil" require:"true"`
+}
+
+func (s DetectFaceResponseDataPupils) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFaceResponseDataPupils) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFaceResponseDataPupils) SetPupil(v float32) *DetectFaceResponseDataPupils {
+	s.Pupil = &v
 	return s
 }
 
@@ -1106,7 +1520,7 @@ func (client *Client) init(config *Config) (_err error) {
 func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
-		return make(map[string]interface{}), _err
+		return nil, _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
@@ -1143,12 +1557,12 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Pathname = "/"
 			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			accessKeySecret, _err := client.GetAccessKeySecret()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
@@ -1169,11 +1583,11 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 			obj, _err := util.ReadAsJSON(response_.Body)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			body := util.AssertAsMap(obj)
@@ -1183,7 +1597,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 					"data":    body,
 					"code":    body["Code"],
 				})
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			_result = body

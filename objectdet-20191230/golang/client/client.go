@@ -293,9 +293,10 @@ func (s *RecognizeVehicleDashboardResponseData) SetElements(v []*RecognizeVehicl
 }
 
 type RecognizeVehicleDashboardResponseDataElements struct {
-	Score     *float32 `json:"Score" xml:"Score" require:"true"`
-	ClassName *string  `json:"ClassName" xml:"ClassName" require:"true"`
-	Label     *string  `json:"Label" xml:"Label" require:"true"`
+	Score     *float32                                              `json:"Score" xml:"Score" require:"true"`
+	ClassName *string                                               `json:"ClassName" xml:"ClassName" require:"true"`
+	Label     *string                                               `json:"Label" xml:"Label" require:"true"`
+	Boxes     []*RecognizeVehicleDashboardResponseDataElementsBoxes `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDashboardResponseDataElements) String() string {
@@ -318,6 +319,28 @@ func (s *RecognizeVehicleDashboardResponseDataElements) SetClassName(v string) *
 
 func (s *RecognizeVehicleDashboardResponseDataElements) SetLabel(v string) *RecognizeVehicleDashboardResponseDataElements {
 	s.Label = &v
+	return s
+}
+
+func (s *RecognizeVehicleDashboardResponseDataElements) SetBoxes(v []*RecognizeVehicleDashboardResponseDataElementsBoxes) *RecognizeVehicleDashboardResponseDataElements {
+	s.Boxes = v
+	return s
+}
+
+type RecognizeVehicleDashboardResponseDataElementsBoxes struct {
+	Box *float32 `json:"Box" xml:"Box" require:"true"`
+}
+
+func (s RecognizeVehicleDashboardResponseDataElementsBoxes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVehicleDashboardResponseDataElementsBoxes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDashboardResponseDataElementsBoxes) SetBox(v float32) *RecognizeVehicleDashboardResponseDataElementsBoxes {
+	s.Box = &v
 	return s
 }
 
@@ -396,8 +419,10 @@ func (s *RecognizeVehicleDamageResponseData) SetElements(v []*RecognizeVehicleDa
 }
 
 type RecognizeVehicleDamageResponseDataElements struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
+	Score  *float32                                            `json:"Score" xml:"Score" require:"true"`
+	Type   *string                                             `json:"Type" xml:"Type" require:"true"`
+	Scores []*RecognizeVehicleDamageResponseDataElementsScores `json:"Scores" xml:"Scores" require:"true" type:"Repeated"`
+	Boxes  []*RecognizeVehicleDamageResponseDataElementsBoxes  `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDamageResponseDataElements) String() string {
@@ -415,6 +440,50 @@ func (s *RecognizeVehicleDamageResponseDataElements) SetScore(v float32) *Recogn
 
 func (s *RecognizeVehicleDamageResponseDataElements) SetType(v string) *RecognizeVehicleDamageResponseDataElements {
 	s.Type = &v
+	return s
+}
+
+func (s *RecognizeVehicleDamageResponseDataElements) SetScores(v []*RecognizeVehicleDamageResponseDataElementsScores) *RecognizeVehicleDamageResponseDataElements {
+	s.Scores = v
+	return s
+}
+
+func (s *RecognizeVehicleDamageResponseDataElements) SetBoxes(v []*RecognizeVehicleDamageResponseDataElementsBoxes) *RecognizeVehicleDamageResponseDataElements {
+	s.Boxes = v
+	return s
+}
+
+type RecognizeVehicleDamageResponseDataElementsScores struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+}
+
+func (s RecognizeVehicleDamageResponseDataElementsScores) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageResponseDataElementsScores) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageResponseDataElementsScores) SetScore(v float32) *RecognizeVehicleDamageResponseDataElementsScores {
+	s.Score = &v
+	return s
+}
+
+type RecognizeVehicleDamageResponseDataElementsBoxes struct {
+	Box *int `json:"Box" xml:"Box" require:"true"`
+}
+
+func (s RecognizeVehicleDamageResponseDataElementsBoxes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVehicleDamageResponseDataElementsBoxes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehicleDamageResponseDataElementsBoxes) SetBox(v int) *RecognizeVehicleDamageResponseDataElementsBoxes {
+	s.Box = &v
 	return s
 }
 
@@ -476,7 +545,8 @@ func (s *RecognizeVehiclePartsResponse) SetData(v *RecognizeVehiclePartsResponse
 }
 
 type RecognizeVehiclePartsResponseData struct {
-	Elements []*RecognizeVehiclePartsResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements     []*RecognizeVehiclePartsResponseDataElements     `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	OriginShapes []*RecognizeVehiclePartsResponseDataOriginShapes `json:"OriginShapes" xml:"OriginShapes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehiclePartsResponseData) String() string {
@@ -492,9 +562,15 @@ func (s *RecognizeVehiclePartsResponseData) SetElements(v []*RecognizeVehiclePar
 	return s
 }
 
+func (s *RecognizeVehiclePartsResponseData) SetOriginShapes(v []*RecognizeVehiclePartsResponseDataOriginShapes) *RecognizeVehiclePartsResponseData {
+	s.OriginShapes = v
+	return s
+}
+
 type RecognizeVehiclePartsResponseDataElements struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
+	Score *float32                                          `json:"Score" xml:"Score" require:"true"`
+	Type  *string                                           `json:"Type" xml:"Type" require:"true"`
+	Boxes []*RecognizeVehiclePartsResponseDataElementsBoxes `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehiclePartsResponseDataElements) String() string {
@@ -512,6 +588,45 @@ func (s *RecognizeVehiclePartsResponseDataElements) SetScore(v float32) *Recogni
 
 func (s *RecognizeVehiclePartsResponseDataElements) SetType(v string) *RecognizeVehiclePartsResponseDataElements {
 	s.Type = &v
+	return s
+}
+
+func (s *RecognizeVehiclePartsResponseDataElements) SetBoxes(v []*RecognizeVehiclePartsResponseDataElementsBoxes) *RecognizeVehiclePartsResponseDataElements {
+	s.Boxes = v
+	return s
+}
+
+type RecognizeVehiclePartsResponseDataElementsBoxes struct {
+	Box *int `json:"Box" xml:"Box" require:"true"`
+}
+
+func (s RecognizeVehiclePartsResponseDataElementsBoxes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsResponseDataElementsBoxes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsResponseDataElementsBoxes) SetBox(v int) *RecognizeVehiclePartsResponseDataElementsBoxes {
+	s.Box = &v
+	return s
+}
+
+type RecognizeVehiclePartsResponseDataOriginShapes struct {
+	OriginShape *int `json:"OriginShape" xml:"OriginShape" require:"true"`
+}
+
+func (s RecognizeVehiclePartsResponseDataOriginShapes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVehiclePartsResponseDataOriginShapes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVehiclePartsResponseDataOriginShapes) SetOriginShape(v int) *RecognizeVehiclePartsResponseDataOriginShapes {
+	s.OriginShape = &v
 	return s
 }
 
@@ -602,9 +717,10 @@ func (s *DetectVehicleResponseData) SetDetectObjectInfoList(v []*DetectVehicleRe
 }
 
 type DetectVehicleResponseDataDetectObjectInfoList struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
-	Id    *int     `json:"Id" xml:"Id" require:"true"`
+	Score *float32                                              `json:"Score" xml:"Score" require:"true"`
+	Type  *string                                               `json:"Type" xml:"Type" require:"true"`
+	Id    *int                                                  `json:"Id" xml:"Id" require:"true"`
+	Boxes []*DetectVehicleResponseDataDetectObjectInfoListBoxes `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s DetectVehicleResponseDataDetectObjectInfoList) String() string {
@@ -627,6 +743,28 @@ func (s *DetectVehicleResponseDataDetectObjectInfoList) SetType(v string) *Detec
 
 func (s *DetectVehicleResponseDataDetectObjectInfoList) SetId(v int) *DetectVehicleResponseDataDetectObjectInfoList {
 	s.Id = &v
+	return s
+}
+
+func (s *DetectVehicleResponseDataDetectObjectInfoList) SetBoxes(v []*DetectVehicleResponseDataDetectObjectInfoListBoxes) *DetectVehicleResponseDataDetectObjectInfoList {
+	s.Boxes = v
+	return s
+}
+
+type DetectVehicleResponseDataDetectObjectInfoListBoxes struct {
+	Box *int `json:"Box" xml:"Box" require:"true"`
+}
+
+func (s DetectVehicleResponseDataDetectObjectInfoListBoxes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectVehicleResponseDataDetectObjectInfoListBoxes) GoString() string {
+	return s.String()
+}
+
+func (s *DetectVehicleResponseDataDetectObjectInfoListBoxes) SetBox(v int) *DetectVehicleResponseDataDetectObjectInfoListBoxes {
+	s.Box = &v
 	return s
 }
 
@@ -840,7 +978,7 @@ func (client *Client) init(config *Config) (_err error) {
 func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
-		return make(map[string]interface{}), _err
+		return nil, _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
@@ -877,12 +1015,12 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Pathname = "/"
 			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			accessKeySecret, _err := client.GetAccessKeySecret()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
@@ -903,11 +1041,11 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 			obj, _err := util.ReadAsJSON(response_.Body)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			body := util.AssertAsMap(obj)
@@ -917,7 +1055,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 					"data":    body,
 					"code":    body["Code"],
 				})
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			_result = body

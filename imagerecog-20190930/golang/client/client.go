@@ -788,6 +788,7 @@ func (s *RecognizeImageStyleResponse) SetData(v *RecognizeImageStyleResponseData
 }
 
 type RecognizeImageStyleResponseData struct {
+	Styles []*RecognizeImageStyleResponseDataStyles `json:"Styles" xml:"Styles" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeImageStyleResponseData) String() string {
@@ -796,6 +797,28 @@ func (s RecognizeImageStyleResponseData) String() string {
 
 func (s RecognizeImageStyleResponseData) GoString() string {
 	return s.String()
+}
+
+func (s *RecognizeImageStyleResponseData) SetStyles(v []*RecognizeImageStyleResponseDataStyles) *RecognizeImageStyleResponseData {
+	s.Styles = v
+	return s
+}
+
+type RecognizeImageStyleResponseDataStyles struct {
+	Style *string `json:"Style" xml:"Style" require:"true"`
+}
+
+func (s RecognizeImageStyleResponseDataStyles) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeImageStyleResponseDataStyles) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeImageStyleResponseDataStyles) SetStyle(v string) *RecognizeImageStyleResponseDataStyles {
+	s.Style = &v
+	return s
 }
 
 type RecognizeImageStyleAdvanceRequest struct {
@@ -899,7 +922,7 @@ func (client *Client) init(config *Config) (_err error) {
 func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
-		return make(map[string]interface{}), _err
+		return nil, _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
@@ -936,12 +959,12 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Pathname = "/"
 			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			accessKeySecret, _err := client.GetAccessKeySecret()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
@@ -962,11 +985,11 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 			obj, _err := util.ReadAsJSON(response_.Body)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			body := util.AssertAsMap(obj)
@@ -976,7 +999,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 					"data":    body,
 					"code":    body["Code"],
 				})
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			_result = body
