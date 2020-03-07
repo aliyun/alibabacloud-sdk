@@ -17,6 +17,18 @@ public class RecognizeTableResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
+    public static class RecognizeTableResponseDataTablesTableRowsTableColumnsTexts extends TeaModel {
+        @NameInMap("Text")
+        @Validation(required = true)
+        public String text;
+
+        public static RecognizeTableResponseDataTablesTableRowsTableColumnsTexts build(java.util.Map<String, ?> map) throws Exception {
+            RecognizeTableResponseDataTablesTableRowsTableColumnsTexts self = new RecognizeTableResponseDataTablesTableRowsTableColumnsTexts();
+            return TeaModel.build(map, self);
+        }
+
+    }
+
     public static class RecognizeTableResponseDataTablesTableRowsTableColumns extends TeaModel {
         @NameInMap("StartColumn")
         @Validation(required = true)
@@ -41,6 +53,10 @@ public class RecognizeTableResponse extends TeaModel {
         @NameInMap("Width")
         @Validation(required = true)
         public Integer width;
+
+        @NameInMap("Texts")
+        @Validation(required = true)
+        public java.util.List<RecognizeTableResponseDataTablesTableRowsTableColumnsTexts> texts;
 
         public static RecognizeTableResponseDataTablesTableRowsTableColumns build(java.util.Map<String, ?> map) throws Exception {
             RecognizeTableResponseDataTablesTableRowsTableColumns self = new RecognizeTableResponseDataTablesTableRowsTableColumns();
