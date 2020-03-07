@@ -1031,7 +1031,7 @@ func (client *Client) init(config *Config) (_err error) {
 func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
-		return make(map[string]interface{}), _err
+		return nil, _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
@@ -1068,12 +1068,12 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Pathname = "/"
 			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			accessKeySecret, _err := client.GetAccessKeySecret()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
@@ -1094,11 +1094,11 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 			obj, _err := util.ReadAsJSON(response_.Body)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			body := util.AssertAsMap(obj)
@@ -1108,7 +1108,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 					"data":    body,
 					"code":    body["Code"],
 				})
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			_result = body

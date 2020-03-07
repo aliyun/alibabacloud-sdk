@@ -236,9 +236,10 @@ func (s *RecognizeQrCodeResponseDataElements) SetResults(v []*RecognizeQrCodeRes
 }
 
 type RecognizeQrCodeResponseDataElementsResults struct {
-	Label      *string  `json:"Label" xml:"Label" require:"true"`
-	Suggestion *string  `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate       *float32 `json:"Rate" xml:"Rate" require:"true"`
+	Label       *string                                                  `json:"Label" xml:"Label" require:"true"`
+	Suggestion  *string                                                  `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Rate        *float32                                                 `json:"Rate" xml:"Rate" require:"true"`
+	QrCodesData []*RecognizeQrCodeResponseDataElementsResultsQrCodesData `json:"QrCodesData" xml:"QrCodesData" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeQrCodeResponseDataElementsResults) String() string {
@@ -261,6 +262,28 @@ func (s *RecognizeQrCodeResponseDataElementsResults) SetSuggestion(v string) *Re
 
 func (s *RecognizeQrCodeResponseDataElementsResults) SetRate(v float32) *RecognizeQrCodeResponseDataElementsResults {
 	s.Rate = &v
+	return s
+}
+
+func (s *RecognizeQrCodeResponseDataElementsResults) SetQrCodesData(v []*RecognizeQrCodeResponseDataElementsResultsQrCodesData) *RecognizeQrCodeResponseDataElementsResults {
+	s.QrCodesData = v
+	return s
+}
+
+type RecognizeQrCodeResponseDataElementsResultsQrCodesData struct {
+	QrCodeData *string `json:"QrCodeData" xml:"QrCodeData" require:"true"`
+}
+
+func (s RecognizeQrCodeResponseDataElementsResultsQrCodesData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeQrCodeResponseDataElementsResultsQrCodesData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeQrCodeResponseDataElementsResultsQrCodesData) SetQrCodeData(v string) *RecognizeQrCodeResponseDataElementsResultsQrCodesData {
+	s.QrCodeData = &v
 	return s
 }
 
@@ -459,6 +482,25 @@ func (s *RecognizeVATInvoiceResponseDataContent) SetClerk(v string) *RecognizeVA
 }
 
 type RecognizeVATInvoiceResponseDataBox struct {
+	InvoiceCodes      []*RecognizeVATInvoiceResponseDataBoxInvoiceCodes      `json:"InvoiceCodes" xml:"InvoiceCodes" require:"true" type:"Repeated"`
+	InvoiceNoes       []*RecognizeVATInvoiceResponseDataBoxInvoiceNoes       `json:"InvoiceNoes" xml:"InvoiceNoes" require:"true" type:"Repeated"`
+	InvoiceDates      []*RecognizeVATInvoiceResponseDataBoxInvoiceDates      `json:"InvoiceDates" xml:"InvoiceDates" require:"true" type:"Repeated"`
+	InvoiceFakeCodes  []*RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes  `json:"InvoiceFakeCodes" xml:"InvoiceFakeCodes" require:"true" type:"Repeated"`
+	PayerNames        []*RecognizeVATInvoiceResponseDataBoxPayerNames        `json:"PayerNames" xml:"PayerNames" require:"true" type:"Repeated"`
+	PayerRegisterNoes []*RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes `json:"PayerRegisterNoes" xml:"PayerRegisterNoes" require:"true" type:"Repeated"`
+	PayerAddresses    []*RecognizeVATInvoiceResponseDataBoxPayerAddresses    `json:"PayerAddresses" xml:"PayerAddresses" require:"true" type:"Repeated"`
+	PayerBankNames    []*RecognizeVATInvoiceResponseDataBoxPayerBankNames    `json:"PayerBankNames" xml:"PayerBankNames" require:"true" type:"Repeated"`
+	WithoutTaxAmounts []*RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts `json:"WithoutTaxAmounts" xml:"WithoutTaxAmounts" require:"true" type:"Repeated"`
+	TaxAmounts        []*RecognizeVATInvoiceResponseDataBoxTaxAmounts        `json:"TaxAmounts" xml:"TaxAmounts" require:"true" type:"Repeated"`
+	SumAmounts        []*RecognizeVATInvoiceResponseDataBoxSumAmounts        `json:"SumAmounts" xml:"SumAmounts" require:"true" type:"Repeated"`
+	InvoiceAmounts    []*RecognizeVATInvoiceResponseDataBoxInvoiceAmounts    `json:"InvoiceAmounts" xml:"InvoiceAmounts" require:"true" type:"Repeated"`
+	PayeeNames        []*RecognizeVATInvoiceResponseDataBoxPayeeNames        `json:"PayeeNames" xml:"PayeeNames" require:"true" type:"Repeated"`
+	PayeeRegisterNoes []*RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes `json:"PayeeRegisterNoes" xml:"PayeeRegisterNoes" require:"true" type:"Repeated"`
+	PayeeAddresses    []*RecognizeVATInvoiceResponseDataBoxPayeeAddresses    `json:"PayeeAddresses" xml:"PayeeAddresses" require:"true" type:"Repeated"`
+	PayeeBankNames    []*RecognizeVATInvoiceResponseDataBoxPayeeBankNames    `json:"PayeeBankNames" xml:"PayeeBankNames" require:"true" type:"Repeated"`
+	Payees            []*RecognizeVATInvoiceResponseDataBoxPayees            `json:"Payees" xml:"Payees" require:"true" type:"Repeated"`
+	Checkers          []*RecognizeVATInvoiceResponseDataBoxCheckers          `json:"Checkers" xml:"Checkers" require:"true" type:"Repeated"`
+	Clerks            []*RecognizeVATInvoiceResponseDataBoxClerks            `json:"Clerks" xml:"Clerks" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVATInvoiceResponseDataBox) String() string {
@@ -467,6 +509,424 @@ func (s RecognizeVATInvoiceResponseDataBox) String() string {
 
 func (s RecognizeVATInvoiceResponseDataBox) GoString() string {
 	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceCodes(v []*RecognizeVATInvoiceResponseDataBoxInvoiceCodes) *RecognizeVATInvoiceResponseDataBox {
+	s.InvoiceCodes = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceNoes(v []*RecognizeVATInvoiceResponseDataBoxInvoiceNoes) *RecognizeVATInvoiceResponseDataBox {
+	s.InvoiceNoes = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceDates(v []*RecognizeVATInvoiceResponseDataBoxInvoiceDates) *RecognizeVATInvoiceResponseDataBox {
+	s.InvoiceDates = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceFakeCodes(v []*RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) *RecognizeVATInvoiceResponseDataBox {
+	s.InvoiceFakeCodes = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerNames(v []*RecognizeVATInvoiceResponseDataBoxPayerNames) *RecognizeVATInvoiceResponseDataBox {
+	s.PayerNames = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerRegisterNoes(v []*RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) *RecognizeVATInvoiceResponseDataBox {
+	s.PayerRegisterNoes = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerAddresses(v []*RecognizeVATInvoiceResponseDataBoxPayerAddresses) *RecognizeVATInvoiceResponseDataBox {
+	s.PayerAddresses = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerBankNames(v []*RecognizeVATInvoiceResponseDataBoxPayerBankNames) *RecognizeVATInvoiceResponseDataBox {
+	s.PayerBankNames = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetWithoutTaxAmounts(v []*RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) *RecognizeVATInvoiceResponseDataBox {
+	s.WithoutTaxAmounts = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetTaxAmounts(v []*RecognizeVATInvoiceResponseDataBoxTaxAmounts) *RecognizeVATInvoiceResponseDataBox {
+	s.TaxAmounts = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetSumAmounts(v []*RecognizeVATInvoiceResponseDataBoxSumAmounts) *RecognizeVATInvoiceResponseDataBox {
+	s.SumAmounts = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceAmounts(v []*RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) *RecognizeVATInvoiceResponseDataBox {
+	s.InvoiceAmounts = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeNames(v []*RecognizeVATInvoiceResponseDataBoxPayeeNames) *RecognizeVATInvoiceResponseDataBox {
+	s.PayeeNames = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeRegisterNoes(v []*RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) *RecognizeVATInvoiceResponseDataBox {
+	s.PayeeRegisterNoes = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeAddresses(v []*RecognizeVATInvoiceResponseDataBoxPayeeAddresses) *RecognizeVATInvoiceResponseDataBox {
+	s.PayeeAddresses = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeBankNames(v []*RecognizeVATInvoiceResponseDataBoxPayeeBankNames) *RecognizeVATInvoiceResponseDataBox {
+	s.PayeeBankNames = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayees(v []*RecognizeVATInvoiceResponseDataBoxPayees) *RecognizeVATInvoiceResponseDataBox {
+	s.Payees = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetCheckers(v []*RecognizeVATInvoiceResponseDataBoxCheckers) *RecognizeVATInvoiceResponseDataBox {
+	s.Checkers = v
+	return s
+}
+
+func (s *RecognizeVATInvoiceResponseDataBox) SetClerks(v []*RecognizeVATInvoiceResponseDataBoxClerks) *RecognizeVATInvoiceResponseDataBox {
+	s.Clerks = v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxInvoiceCodes struct {
+	InvoiceCode *float32 `json:"InvoiceCode" xml:"InvoiceCode" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceCodes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceCodes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxInvoiceCodes) SetInvoiceCode(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceCodes {
+	s.InvoiceCode = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxInvoiceNoes struct {
+	InvoiceNo *float32 `json:"InvoiceNo" xml:"InvoiceNo" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceNoes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceNoes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxInvoiceNoes) SetInvoiceNo(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceNoes {
+	s.InvoiceNo = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxInvoiceDates struct {
+	InvoiceDate *float32 `json:"InvoiceDate" xml:"InvoiceDate" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceDates) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceDates) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxInvoiceDates) SetInvoiceDate(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceDates {
+	s.InvoiceDate = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes struct {
+	InvoiceFakeCode *float32 `json:"InvoiceFakeCode" xml:"InvoiceFakeCode" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) SetInvoiceFakeCode(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes {
+	s.InvoiceFakeCode = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayerNames struct {
+	PayerName *float32 `json:"PayerName" xml:"PayerName" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerNames) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerNames) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayerNames) SetPayerName(v float32) *RecognizeVATInvoiceResponseDataBoxPayerNames {
+	s.PayerName = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes struct {
+	PayerRegisterNo *float32 `json:"PayerRegisterNo" xml:"PayerRegisterNo" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) SetPayerRegisterNo(v float32) *RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes {
+	s.PayerRegisterNo = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayerAddresses struct {
+	PayerAddress *float32 `json:"PayerAddress" xml:"PayerAddress" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerAddresses) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerAddresses) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayerAddresses) SetPayerAddress(v float32) *RecognizeVATInvoiceResponseDataBoxPayerAddresses {
+	s.PayerAddress = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayerBankNames struct {
+	PayerBankNames *float32 `json:"PayerBankNames" xml:"PayerBankNames" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerBankNames) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayerBankNames) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayerBankNames) SetPayerBankNames(v float32) *RecognizeVATInvoiceResponseDataBoxPayerBankNames {
+	s.PayerBankNames = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts struct {
+	WithoutTaxAmount *float32 `json:"WithoutTaxAmount" xml:"WithoutTaxAmount" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) SetWithoutTaxAmount(v float32) *RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts {
+	s.WithoutTaxAmount = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxTaxAmounts struct {
+	TaxAmount *float32 `json:"TaxAmount" xml:"TaxAmount" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxTaxAmounts) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxTaxAmounts) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxTaxAmounts) SetTaxAmount(v float32) *RecognizeVATInvoiceResponseDataBoxTaxAmounts {
+	s.TaxAmount = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxSumAmounts struct {
+	SumAmount *float32 `json:"SumAmount" xml:"SumAmount" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxSumAmounts) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxSumAmounts) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxSumAmounts) SetSumAmount(v float32) *RecognizeVATInvoiceResponseDataBoxSumAmounts {
+	s.SumAmount = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxInvoiceAmounts struct {
+	InvoiceAmount *float32 `json:"InvoiceAmount" xml:"InvoiceAmount" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) SetInvoiceAmount(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceAmounts {
+	s.InvoiceAmount = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayeeNames struct {
+	PayeeName *float32 `json:"PayeeName" xml:"PayeeName" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeNames) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeNames) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayeeNames) SetPayeeName(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeNames {
+	s.PayeeName = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes struct {
+	PayeeRegisterNo *float32 `json:"PayeeRegisterNo" xml:"PayeeRegisterNo" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) SetPayeeRegisterNo(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes {
+	s.PayeeRegisterNo = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayeeAddresses struct {
+	PayeeAddress *float32 `json:"PayeeAddress" xml:"PayeeAddress" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeAddresses) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeAddresses) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayeeAddresses) SetPayeeAddress(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeAddresses {
+	s.PayeeAddress = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayeeBankNames struct {
+	PayeeBankName *float32 `json:"PayeeBankName" xml:"PayeeBankName" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeBankNames) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayeeBankNames) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayeeBankNames) SetPayeeBankName(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeBankNames {
+	s.PayeeBankName = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxPayees struct {
+	Payee *float32 `json:"Payee" xml:"Payee" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayees) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxPayees) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxPayees) SetPayee(v float32) *RecognizeVATInvoiceResponseDataBoxPayees {
+	s.Payee = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxCheckers struct {
+	Checker *float32 `json:"Checker" xml:"Checker" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxCheckers) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxCheckers) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxCheckers) SetChecker(v float32) *RecognizeVATInvoiceResponseDataBoxCheckers {
+	s.Checker = &v
+	return s
+}
+
+type RecognizeVATInvoiceResponseDataBoxClerks struct {
+	Clerk *float32 `json:"Clerk" xml:"Clerk" require:"true"`
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxClerks) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVATInvoiceResponseDataBoxClerks) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVATInvoiceResponseDataBoxClerks) SetClerk(v float32) *RecognizeVATInvoiceResponseDataBoxClerks {
+	s.Clerk = &v
+	return s
 }
 
 type RecognizeVATInvoiceAdvanceRequest struct {
@@ -1493,12 +1953,13 @@ func (s *RecognizeTableResponseDataTablesTableRows) SetTableColumns(v []*Recogni
 }
 
 type RecognizeTableResponseDataTablesTableRowsTableColumns struct {
-	StartColumn *int `json:"StartColumn" xml:"StartColumn" require:"true"`
-	StartRow    *int `json:"StartRow" xml:"StartRow" require:"true"`
-	EndColumn   *int `json:"EndColumn" xml:"EndColumn" require:"true"`
-	EndRow      *int `json:"EndRow" xml:"EndRow" require:"true"`
-	Height      *int `json:"Height" xml:"Height" require:"true"`
-	Width       *int `json:"Width" xml:"Width" require:"true"`
+	StartColumn *int                                                          `json:"StartColumn" xml:"StartColumn" require:"true"`
+	StartRow    *int                                                          `json:"StartRow" xml:"StartRow" require:"true"`
+	EndColumn   *int                                                          `json:"EndColumn" xml:"EndColumn" require:"true"`
+	EndRow      *int                                                          `json:"EndRow" xml:"EndRow" require:"true"`
+	Height      *int                                                          `json:"Height" xml:"Height" require:"true"`
+	Width       *int                                                          `json:"Width" xml:"Width" require:"true"`
+	Texts       []*RecognizeTableResponseDataTablesTableRowsTableColumnsTexts `json:"Texts" xml:"Texts" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseDataTablesTableRowsTableColumns) String() string {
@@ -1536,6 +1997,28 @@ func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetHeight(v int)
 
 func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetWidth(v int) *RecognizeTableResponseDataTablesTableRowsTableColumns {
 	s.Width = &v
+	return s
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetTexts(v []*RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+	s.Texts = v
+	return s
+}
+
+type RecognizeTableResponseDataTablesTableRowsTableColumnsTexts struct {
+	Text *string `json:"Text" xml:"Text" require:"true"`
+}
+
+func (s RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) SetText(v string) *RecognizeTableResponseDataTablesTableRowsTableColumnsTexts {
+	s.Text = &v
 	return s
 }
 
@@ -2742,7 +3225,14 @@ func (s *RecognizeBusinessCardResponse) SetData(v *RecognizeBusinessCardResponse
 }
 
 type RecognizeBusinessCardResponseData struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name               *string                                                `json:"Name" xml:"Name" require:"true"`
+	Companies          []*RecognizeBusinessCardResponseDataCompanies          `json:"Companies" xml:"Companies" require:"true" type:"Repeated"`
+	Departments        []*RecognizeBusinessCardResponseDataDepartments        `json:"Departments" xml:"Departments" require:"true" type:"Repeated"`
+	Titles             []*RecognizeBusinessCardResponseDataTitles             `json:"Titles" xml:"Titles" require:"true" type:"Repeated"`
+	CellPhoneNumbers   []*RecognizeBusinessCardResponseDataCellPhoneNumbers   `json:"CellPhoneNumbers" xml:"CellPhoneNumbers" require:"true" type:"Repeated"`
+	OfficePhoneNumbers []*RecognizeBusinessCardResponseDataOfficePhoneNumbers `json:"OfficePhoneNumbers" xml:"OfficePhoneNumbers" require:"true" type:"Repeated"`
+	Addresses          []*RecognizeBusinessCardResponseDataAddresses          `json:"Addresses" xml:"Addresses" require:"true" type:"Repeated"`
+	Emails             []*RecognizeBusinessCardResponseDataEmails             `json:"Emails" xml:"Emails" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeBusinessCardResponseData) String() string {
@@ -2755,6 +3245,160 @@ func (s RecognizeBusinessCardResponseData) GoString() string {
 
 func (s *RecognizeBusinessCardResponseData) SetName(v string) *RecognizeBusinessCardResponseData {
 	s.Name = &v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetCompanies(v []*RecognizeBusinessCardResponseDataCompanies) *RecognizeBusinessCardResponseData {
+	s.Companies = v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetDepartments(v []*RecognizeBusinessCardResponseDataDepartments) *RecognizeBusinessCardResponseData {
+	s.Departments = v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetTitles(v []*RecognizeBusinessCardResponseDataTitles) *RecognizeBusinessCardResponseData {
+	s.Titles = v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetCellPhoneNumbers(v []*RecognizeBusinessCardResponseDataCellPhoneNumbers) *RecognizeBusinessCardResponseData {
+	s.CellPhoneNumbers = v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetOfficePhoneNumbers(v []*RecognizeBusinessCardResponseDataOfficePhoneNumbers) *RecognizeBusinessCardResponseData {
+	s.OfficePhoneNumbers = v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetAddresses(v []*RecognizeBusinessCardResponseDataAddresses) *RecognizeBusinessCardResponseData {
+	s.Addresses = v
+	return s
+}
+
+func (s *RecognizeBusinessCardResponseData) SetEmails(v []*RecognizeBusinessCardResponseDataEmails) *RecognizeBusinessCardResponseData {
+	s.Emails = v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataCompanies struct {
+	Company *string `json:"Company" xml:"Company" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataCompanies) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataCompanies) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataCompanies) SetCompany(v string) *RecognizeBusinessCardResponseDataCompanies {
+	s.Company = &v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataDepartments struct {
+	Department *string `json:"Department" xml:"Department" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataDepartments) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataDepartments) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataDepartments) SetDepartment(v string) *RecognizeBusinessCardResponseDataDepartments {
+	s.Department = &v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataTitles struct {
+	Title *string `json:"Title" xml:"Title" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataTitles) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataTitles) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataTitles) SetTitle(v string) *RecognizeBusinessCardResponseDataTitles {
+	s.Title = &v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataCellPhoneNumbers struct {
+	CellPhoneNumber *string `json:"CellPhoneNumber" xml:"CellPhoneNumber" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataCellPhoneNumbers) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataCellPhoneNumbers) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataCellPhoneNumbers) SetCellPhoneNumber(v string) *RecognizeBusinessCardResponseDataCellPhoneNumbers {
+	s.CellPhoneNumber = &v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataOfficePhoneNumbers struct {
+	OfficePhoneNumber *string `json:"OfficePhoneNumber" xml:"OfficePhoneNumber" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataOfficePhoneNumbers) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataOfficePhoneNumbers) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataOfficePhoneNumbers) SetOfficePhoneNumber(v string) *RecognizeBusinessCardResponseDataOfficePhoneNumbers {
+	s.OfficePhoneNumber = &v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataAddresses struct {
+	Address *string `json:"Address" xml:"Address" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataAddresses) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataAddresses) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataAddresses) SetAddress(v string) *RecognizeBusinessCardResponseDataAddresses {
+	s.Address = &v
+	return s
+}
+
+type RecognizeBusinessCardResponseDataEmails struct {
+	Email *string `json:"Email" xml:"Email" require:"true"`
+}
+
+func (s RecognizeBusinessCardResponseDataEmails) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeBusinessCardResponseDataEmails) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeBusinessCardResponseDataEmails) SetEmail(v string) *RecognizeBusinessCardResponseDataEmails {
+	s.Email = &v
 	return s
 }
 
@@ -3225,7 +3869,7 @@ func (client *Client) init(config *Config) (_err error) {
 func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
-		return make(map[string]interface{}), _err
+		return nil, _err
 	}
 	_runtime := map[string]interface{}{
 		"timeouted":      "retry",
@@ -3262,12 +3906,12 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Pathname = "/"
 			accessKeyId, _err := client.GetAccessKeyId()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			accessKeySecret, _err := client.GetAccessKeySecret()
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
@@ -3288,11 +3932,11 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 			obj, _err := util.ReadAsJSON(response_.Body)
 			if _err != nil {
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			body := util.AssertAsMap(obj)
@@ -3302,7 +3946,7 @@ func (client *Client) _request(action string, protocol string, method string, re
 					"data":    body,
 					"code":    body["Code"],
 				})
-				return make(map[string]interface{}), _err
+				return nil, _err
 			}
 
 			_result = body
