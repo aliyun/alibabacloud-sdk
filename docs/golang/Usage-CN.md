@@ -89,7 +89,7 @@ type Config struct {
 	OpenPlatformEndpoint *string // 文件上传时授权使用的域名(目前暂不需要填写)
 }
 
-type RuntimeObject struct {
+type RuntimeOptions struct {
 	Autoretry        *bool       // 是否开启重试
 	IgnoreSSL        *bool       // 是否忽略 SSL 校验
 	MaxAttempts      *int        // 最大重试次数， 默认为 3
