@@ -27,15 +27,15 @@ namespace AlibabaCloud.Imagerecog.Models
                     public class RecognizeLogoResponseDataElementsResults : TeaModel {
                             public string Label { get; set; }
                             public string Suggestion { get; set; }
-                            public float Rate { get; set; }
+                            public float? Rate { get; set; }
                             public List<RecognizeLogoResponseDataElementsResultsLogosData> LogosData { get; set; }
                             public class RecognizeLogoResponseDataElementsResultsLogosData : TeaModel {
                                     public string Name { get; set; }
                                     public string Type { get; set; }
-                                    public float X { get; set; }
-                                    public float Y { get; set; }
-                                    public float H { get; set; }
-                                    public float W { get; set; }
+                                    public float? X { get; set; }
+                                    public float? Y { get; set; }
+                                    public float? H { get; set; }
+                                    public float? W { get; set; }
                             }
                     }
             }

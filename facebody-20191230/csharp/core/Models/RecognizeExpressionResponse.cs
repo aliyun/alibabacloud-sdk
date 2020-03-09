@@ -22,7 +22,7 @@ namespace AlibabaCloud.Facebody.Models
             public List<RecognizeExpressionResponseDataElements> Elements { get; set; }
             public class RecognizeExpressionResponseDataElements : TeaModel {
                     public string Expression { get; set; }
-                    public float FaceProbability { get; set; }
+                    public float? FaceProbability { get; set; }
                     public RecognizeExpressionResponseDataElementsFaceRectangle FaceRectangle { get; set; }
                     public class RecognizeExpressionResponseDataElementsFaceRectangle : TeaModel {
                         [NameInMap("Height")]

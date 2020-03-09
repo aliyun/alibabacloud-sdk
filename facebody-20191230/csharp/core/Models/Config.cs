@@ -10,7 +10,7 @@ namespace AlibabaCloud.Facebody.Models
 {
     public class Config : TeaModel {
         [NameInMap("accessKeyId")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string AccessKeyId { get; set; }
 
         [NameInMap("accessKeySecret")]
@@ -48,10 +48,6 @@ namespace AlibabaCloud.Facebody.Models
         [NameInMap("connectTimeout")]
         [Validation(Required=false)]
         public int? ConnectTimeout { get; set; }
-
-        [NameInMap("localAddr")]
-        [Validation(Required=false)]
-        public string LocalAddr { get; set; }
 
         [NameInMap("httpProxy")]
         [Validation(Required=false)]

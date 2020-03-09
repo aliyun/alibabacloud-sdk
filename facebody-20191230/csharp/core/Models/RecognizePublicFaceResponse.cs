@@ -27,18 +27,18 @@ namespace AlibabaCloud.Facebody.Models
                     public class RecognizePublicFaceResponseDataElementsResults : TeaModel {
                             public string Label { get; set; }
                             public string Suggestion { get; set; }
-                            public float Rate { get; set; }
+                            public float? Rate { get; set; }
                             public List<RecognizePublicFaceResponseDataElementsResultsSubResults> SubResults { get; set; }
                             public class RecognizePublicFaceResponseDataElementsResultsSubResults : TeaModel {
-                                    public float H { get; set; }
-                                    public float W { get; set; }
-                                    public float X { get; set; }
-                                    public float Y { get; set; }
+                                    public float? H { get; set; }
+                                    public float? W { get; set; }
+                                    public float? X { get; set; }
+                                    public float? Y { get; set; }
                                     public List<RecognizePublicFaceResponseDataElementsResultsSubResultsFaces> Faces { get; set; }
                                     public class RecognizePublicFaceResponseDataElementsResultsSubResultsFaces : TeaModel {
                                             public string Id { get; set; }
                                             public string Name { get; set; }
-                                            public float Rate { get; set; }
+                                            public float? Rate { get; set; }
                                     }
                             }
                     }

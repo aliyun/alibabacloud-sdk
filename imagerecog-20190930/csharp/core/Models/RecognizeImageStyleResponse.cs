@@ -17,6 +17,12 @@ namespace AlibabaCloud.Imagerecog.Models
         [Validation(Required=true)]
         public RecognizeImageStyleResponseData Data { get; set; }
         public class RecognizeImageStyleResponseData : TeaModel {
+            [NameInMap("Styles")]
+            [Validation(Required=true)]
+            public List<RecognizeImageStyleResponseDataStyles> Styles { get; set; }
+            public class RecognizeImageStyleResponseDataStyles : TeaModel {
+                    public string Style { get; set; }
+            }
         };
 
     }

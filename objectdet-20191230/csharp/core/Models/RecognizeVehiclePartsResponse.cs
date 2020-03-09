@@ -21,8 +21,18 @@ namespace AlibabaCloud.Objectdet.Models
             [Validation(Required=true)]
             public List<RecognizeVehiclePartsResponseDataElements> Elements { get; set; }
             public class RecognizeVehiclePartsResponseDataElements : TeaModel {
-                    public float Score { get; set; }
+                    public float? Score { get; set; }
                     public string Type { get; set; }
+                    public List<RecognizeVehiclePartsResponseDataElementsBoxes> Boxes { get; set; }
+                    public class RecognizeVehiclePartsResponseDataElementsBoxes : TeaModel {
+                            public int? Box { get; set; }
+                    }
+            }
+            [NameInMap("OriginShapes")]
+            [Validation(Required=true)]
+            public List<RecognizeVehiclePartsResponseDataOriginShapes> OriginShapes { get; set; }
+            public class RecognizeVehiclePartsResponseDataOriginShapes : TeaModel {
+                    public int? OriginShape { get; set; }
             }
         };
 

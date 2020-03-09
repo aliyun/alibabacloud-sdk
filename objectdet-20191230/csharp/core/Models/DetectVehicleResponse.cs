@@ -27,9 +27,13 @@ namespace AlibabaCloud.Objectdet.Models
             [Validation(Required=true)]
             public List<DetectVehicleResponseDataDetectObjectInfoList> DetectObjectInfoList { get; set; }
             public class DetectVehicleResponseDataDetectObjectInfoList : TeaModel {
-                    public float Score { get; set; }
+                    public float? Score { get; set; }
                     public string Type { get; set; }
                     public int? Id { get; set; }
+                    public List<DetectVehicleResponseDataDetectObjectInfoListBoxes> Boxes { get; set; }
+                    public class DetectVehicleResponseDataDetectObjectInfoListBoxes : TeaModel {
+                            public int? Box { get; set; }
+                    }
             }
         };
 

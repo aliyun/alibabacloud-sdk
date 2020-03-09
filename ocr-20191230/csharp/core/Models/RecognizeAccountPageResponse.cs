@@ -19,7 +19,7 @@ namespace AlibabaCloud.Ocr.Models
         public class RecognizeAccountPageResponseData : TeaModel {
             [NameInMap("Angle")]
             [Validation(Required=true)]
-            public float Angle { get; set; }
+            public float? Angle { get; set; }
             [NameInMap("Name")]
             [Validation(Required=true)]
             public string Name { get; set; }

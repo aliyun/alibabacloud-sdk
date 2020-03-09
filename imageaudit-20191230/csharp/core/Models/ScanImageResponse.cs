@@ -28,11 +28,11 @@ namespace AlibabaCloud.Imageaudit.Models
                     public class ScanImageResponseDataResultsSubResults : TeaModel {
                             public string Label { get; set; }
                             public string Suggestion { get; set; }
-                            public float Rate { get; set; }
+                            public float? Rate { get; set; }
                             public string Scene { get; set; }
                             public List<ScanImageResponseDataResultsSubResultsFrames> Frames { get; set; }
                             public class ScanImageResponseDataResultsSubResultsFrames : TeaModel {
-                                    public float Rate { get; set; }
+                                    public float? Rate { get; set; }
                                     public string URL { get; set; }
                             }
                             public List<ScanImageResponseDataResultsSubResultsHintWordsInfoList> HintWordsInfoList { get; set; }
@@ -41,32 +41,36 @@ namespace AlibabaCloud.Imageaudit.Models
                             }
                             public List<ScanImageResponseDataResultsSubResultsProgramCodeDataList> ProgramCodeDataList { get; set; }
                             public class ScanImageResponseDataResultsSubResultsProgramCodeDataList : TeaModel {
-                                    public float X { get; set; }
-                                    public float Y { get; set; }
-                                    public float Width { get; set; }
-                                    public float Height { get; set; }
+                                    public float? X { get; set; }
+                                    public float? Y { get; set; }
+                                    public float? Width { get; set; }
+                                    public float? Height { get; set; }
                             }
                             public List<ScanImageResponseDataResultsSubResultsLogoDataList> LogoDataList { get; set; }
                             public class ScanImageResponseDataResultsSubResultsLogoDataList : TeaModel {
                                     public string Type { get; set; }
                                     public string Name { get; set; }
-                                    public float X { get; set; }
-                                    public float Y { get; set; }
-                                    public float Width { get; set; }
-                                    public float Height { get; set; }
+                                    public float? X { get; set; }
+                                    public float? Y { get; set; }
+                                    public float? Width { get; set; }
+                                    public float? Height { get; set; }
                             }
                             public List<ScanImageResponseDataResultsSubResultsSfaceDataList> SfaceDataList { get; set; }
                             public class ScanImageResponseDataResultsSubResultsSfaceDataList : TeaModel {
-                                    public float X { get; set; }
-                                    public float Y { get; set; }
-                                    public float Width { get; set; }
-                                    public float Height { get; set; }
+                                    public float? X { get; set; }
+                                    public float? Y { get; set; }
+                                    public float? Width { get; set; }
+                                    public float? Height { get; set; }
                                     public List<ScanImageResponseDataResultsSubResultsSfaceDataListFaces> Faces { get; set; }
                                     public class ScanImageResponseDataResultsSubResultsSfaceDataListFaces : TeaModel {
                                             public string Name { get; set; }
-                                            public float Rate { get; set; }
+                                            public float? Rate { get; set; }
                                             public string Id { get; set; }
                                     }
+                            }
+                            public List<ScanImageResponseDataResultsSubResultsOCRDataList> OCRDataList { get; set; }
+                            public class ScanImageResponseDataResultsSubResultsOCRDataList : TeaModel {
+                                    public string OCRData { get; set; }
                             }
                     }
             }

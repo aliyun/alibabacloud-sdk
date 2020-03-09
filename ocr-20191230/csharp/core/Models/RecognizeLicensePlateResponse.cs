@@ -21,10 +21,10 @@ namespace AlibabaCloud.Ocr.Models
             [Validation(Required=true)]
             public List<RecognizeLicensePlateResponseDataPlates> Plates { get; set; }
             public class RecognizeLicensePlateResponseDataPlates : TeaModel {
-                    public float Confidence { get; set; }
+                    public float? Confidence { get; set; }
                     public string PlateNumber { get; set; }
                     public string PlateType { get; set; }
-                    public float PlateTypeConfidence { get; set; }
+                    public float? PlateTypeConfidence { get; set; }
                     public RecognizeLicensePlateResponseDataPlatesRoi Roi { get; set; }
                     public class RecognizeLicensePlateResponseDataPlatesRoi : TeaModel {
                         [NameInMap("H")]
