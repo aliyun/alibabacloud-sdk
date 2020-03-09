@@ -89,7 +89,7 @@ type Config struct {
 	OpenPlatformEndpoint *string // endpoint used when the file is uploaded(Not at the moment)
 }
 
-type RuntimeObject struct {
+type RuntimeOptions struct {
 	Autoretry        *bool       // whether to enable retry
 	IgnoreSSL        *bool       // whether SSL validation is ignored
 	MaxAttempts      *int        // maximum number of retries， defaut: 3
