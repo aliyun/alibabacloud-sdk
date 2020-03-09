@@ -30,7 +30,7 @@ The following code example shows the three main steps to use Alibaba Cloud SDK f
 4. Initiate the request and handle the response or exceptions.
 
 ```java
-import com.aliyun.common.models.RuntimeObject;
+import com.aliyun.common.models.RuntimeOptions;
 import com.aliyun.ocr.Client;
 import com.aliyun.ocr.models.Config;
 import com.aliyun.ocr.models.RecognizeBankCardAdvanceRequest;
@@ -50,13 +50,13 @@ public class TeaDemo {
         authConfig.regionId = "cn-beijing";
         Client authClient = new Client(authConfig);
         // 2 Create and set up parameters RuntimeObject instance.
-        RuntimeObject runtimeObject =  new RuntimeObject();
+        RuntimeOptions runtime = new RuntimeOptions();
         // 3 Create an API request and set parameters.
         RecognizeBankCardAdvanceRequest request = new RecognizeBankCardAdvanceRequest();
         InputStream inputStream = new FileInputStream("your file");
         request.imageURLObject = inputStream;
         // 4 Initiate the request and handle the response or exceptions.
-        RecognizeBankCardResponse authResponse = authClient.recognizeBankCardAdvance(request, runtimeObject);
+        RecognizeBankCardResponse authResponse = authClient.recognizeBankCardAdvance(request, runtime);
     }
 }
 ```

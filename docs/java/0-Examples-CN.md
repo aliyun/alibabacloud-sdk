@@ -27,7 +27,7 @@
 
 4. 发起请求并处理应答或异常。
 ```java
-import com.aliyun.common.models.RuntimeObject;
+import com.aliyun.common.models.RuntimeOptions;
 import com.aliyun.ocr.Client;
 import com.aliyun.ocr.models.Config;
 import com.aliyun.ocr.models.RecognizeBankCardAdvanceRequest;
@@ -47,13 +47,13 @@ public class TeaDemo {
         authConfig.regionId = "cn-hangzhou";
         Client authClient = new Client(authConfig);
         // 2 创建RuntimeObject实例并设置运行参数
-        RuntimeObject runtimeObject =  new RuntimeObject();
+        RuntimeOptions runtime = new RuntimeOptions();
         // 3 创建API请求并设置参数。
         RecognizeBankCardAdvanceRequest request = new RecognizeBankCardAdvanceRequest();
         InputStream inputStream = new FileInputStream("your file");
         request.imageURLObject = inputStream;
         // 4 发起请求并处理应答或异常。
-        RecognizeBankCardResponse authResponse = authClient.recognizeBankCardAdvance(request, runtimeObject);
+        RecognizeBankCardResponse authResponse = authClient.recognizeBankCardAdvance(request, runtime);
     }
 }
 ```
