@@ -26,12 +26,12 @@ namespace AlibabaCloud.Imageaudit.Models
                     public class ScanTextResponseDataElementsResults : TeaModel {
                             public string Label { get; set; }
                             public string Suggestion { get; set; }
-                            public float Rate { get; set; }
+                            public float? Rate { get; set; }
                             public List<ScanTextResponseDataElementsResultsDetails> Details { get; set; }
                             public class ScanTextResponseDataElementsResultsDetails : TeaModel {
                                     public string Label { get; set; }
-                                    public List<ScanTextResponseDataElementsResultsDetailsHintWords> HintWords { get; set; }
-                                    public class ScanTextResponseDataElementsResultsDetailsHintWords : TeaModel {
+                                    public List<ScanTextResponseDataElementsResultsDetailsContexts> Contexts { get; set; }
+                                    public class ScanTextResponseDataElementsResultsDetailsContexts : TeaModel {
                                             public string Context { get; set; }
                                     }
                             }

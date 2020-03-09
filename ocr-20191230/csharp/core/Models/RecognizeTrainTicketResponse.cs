@@ -40,7 +40,7 @@ namespace AlibabaCloud.Ocr.Models
             public string Seat { get; set; }
             [NameInMap("Price")]
             [Validation(Required=true)]
-            public float Price { get; set; }
+            public float? Price { get; set; }
         };
 
     }

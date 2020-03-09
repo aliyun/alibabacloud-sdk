@@ -29,7 +29,7 @@ namespace AlibabaCloud.Ocr.Models
                             public class RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi : TeaModel {
                                 [NameInMap("Angle")]
                                 [Validation(Required=true)]
-                                public float Angle { get; set; }
+                                public float? Angle { get; set; }
 
                                 [NameInMap("Center")]
                                 [Validation(Required=true)]
@@ -37,10 +37,10 @@ namespace AlibabaCloud.Ocr.Models
                                 public class RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter : TeaModel {
                                     [NameInMap("X")]
                                     [Validation(Required=true)]
-                                    public float X { get; set; }
+                                    public float? X { get; set; }
                                     [NameInMap("Y")]
                                     [Validation(Required=true)]
-                                    public float Y { get; set; }
+                                    public float? Y { get; set; }
                                 };
 
                                 [NameInMap("Size")]
@@ -49,10 +49,10 @@ namespace AlibabaCloud.Ocr.Models
                                 public class RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize : TeaModel {
                                     [NameInMap("H")]
                                     [Validation(Required=true)]
-                                    public float H { get; set; }
+                                    public float? H { get; set; }
                                     [NameInMap("W")]
                                     [Validation(Required=true)]
-                                    public float W { get; set; }
+                                    public float? W { get; set; }
                                 };
 
                             }
@@ -61,19 +61,19 @@ namespace AlibabaCloud.Ocr.Models
                     public class RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi : TeaModel {
                         [NameInMap("H")]
                         [Validation(Required=true)]
-                        public float H { get; set; }
+                        public float? H { get; set; }
 
                         [NameInMap("W")]
                         [Validation(Required=true)]
-                        public float W { get; set; }
+                        public float? W { get; set; }
 
                         [NameInMap("X")]
                         [Validation(Required=true)]
-                        public float X { get; set; }
+                        public float? X { get; set; }
 
                         [NameInMap("Y")]
                         [Validation(Required=true)]
-                        public float Y { get; set; }
+                        public float? Y { get; set; }
 
                     }
             }

@@ -26,7 +26,7 @@ namespace AlibabaCloud.Imagerecog.Models
                     public int? Y { get; set; }
                     public int? Width { get; set; }
                     public int? Height { get; set; }
-                    public float Score { get; set; }
+                    public float? Score { get; set; }
             }
         };
 

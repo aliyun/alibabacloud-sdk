@@ -21,7 +21,7 @@ namespace AlibabaCloud.Ocr.Models
             [Validation(Required=true)]
             public List<RecognizeCharacterResponseDataResults> Results { get; set; }
             public class RecognizeCharacterResponseDataResults : TeaModel {
-                    public float Probability { get; set; }
+                    public float? Probability { get; set; }
                     public string Text { get; set; }
                     public RecognizeCharacterResponseDataResultsTextRectangles TextRectangles { get; set; }
                     public class RecognizeCharacterResponseDataResultsTextRectangles : TeaModel {

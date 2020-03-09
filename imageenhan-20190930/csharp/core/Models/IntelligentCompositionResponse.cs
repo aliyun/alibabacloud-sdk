@@ -25,7 +25,7 @@ namespace AlibabaCloud.Imageenhan.Models
                     public int? MinY { get; set; }
                     public int? MaxX { get; set; }
                     public int? MaxY { get; set; }
-                    public float Score { get; set; }
+                    public float? Score { get; set; }
             }
         };
 

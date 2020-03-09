@@ -51,11 +51,11 @@ namespace AlibabaCloud.Ocr.Models
                 public class RecognizeIdentityCardResponseDataFrontResultCardAreas : TeaModel {
                     [NameInMap("X")]
                     [Validation(Required=true)]
-                    public float X { get; set; }
+                    public float? X { get; set; }
 
                     [NameInMap("Y")]
                     [Validation(Required=true)]
-                    public float Y { get; set; }
+                    public float? Y { get; set; }
 
                 }
 
@@ -65,11 +65,11 @@ namespace AlibabaCloud.Ocr.Models
                 public class RecognizeIdentityCardResponseDataFrontResultFaceRectVertices : TeaModel {
                     [NameInMap("X")]
                     [Validation(Required=true)]
-                    public float X { get; set; }
+                    public float? X { get; set; }
 
                     [NameInMap("Y")]
                     [Validation(Required=true)]
-                    public float Y { get; set; }
+                    public float? Y { get; set; }
 
                 }
 
@@ -79,18 +79,18 @@ namespace AlibabaCloud.Ocr.Models
                 public class RecognizeIdentityCardResponseDataFrontResultFaceRectangle : TeaModel {
                     [NameInMap("Angle")]
                     [Validation(Required=true)]
-                    public float Angle { get; set; }
+                    public float? Angle { get; set; }
                     [NameInMap("Center")]
                     [Validation(Required=true)]
                     public RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter Center { get; set; }
                     public class RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter : TeaModel {
                         [NameInMap("X")]
                         [Validation(Required=true)]
-                        public float X { get; set; }
+                        public float? X { get; set; }
 
                         [NameInMap("Y")]
                         [Validation(Required=true)]
-                        public float Y { get; set; }
+                        public float? Y { get; set; }
 
                     }
                     [NameInMap("Size")]
@@ -99,11 +99,11 @@ namespace AlibabaCloud.Ocr.Models
                     public class RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize : TeaModel {
                         [NameInMap("Height")]
                         [Validation(Required=true)]
-                        public float Height { get; set; }
+                        public float? Height { get; set; }
 
                         [NameInMap("Width")]
                         [Validation(Required=true)]
-                        public float Width { get; set; }
+                        public float? Width { get; set; }
 
                     }
                 };

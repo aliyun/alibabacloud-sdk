@@ -24,7 +24,7 @@ namespace AlibabaCloud.Ocr.Models
                     public List<RecognizeStampResponseDataResultsGeneralText> GeneralText { get; set; }
                     public class RecognizeStampResponseDataResultsGeneralText : TeaModel {
                             public string Content { get; set; }
-                            public float Confidence { get; set; }
+                            public float? Confidence { get; set; }
                     }
                     public RecognizeStampResponseDataResultsRoi Roi { get; set; }
                     public class RecognizeStampResponseDataResultsRoi : TeaModel {
@@ -53,7 +53,7 @@ namespace AlibabaCloud.Ocr.Models
 
                         [NameInMap("Confidence")]
                         [Validation(Required=true)]
-                        public float Confidence { get; set; }
+                        public float? Confidence { get; set; }
 
                     }
             }

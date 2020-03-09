@@ -19,12 +19,12 @@ namespace AlibabaCloud.Objectdet.Models
         public class ClassifyVehicleInsuranceResponseData : TeaModel {
             [NameInMap("Threshold")]
             [Validation(Required=true)]
-            public float Threshold { get; set; }
+            public float? Threshold { get; set; }
             [NameInMap("Labels")]
             [Validation(Required=true)]
             public List<ClassifyVehicleInsuranceResponseDataLabels> Labels { get; set; }
             public class ClassifyVehicleInsuranceResponseDataLabels : TeaModel {
-                    public float Score { get; set; }
+                    public float? Score { get; set; }
                     public string Name { get; set; }
             }
         };

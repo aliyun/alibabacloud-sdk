@@ -27,7 +27,11 @@ namespace AlibabaCloud.Ocr.Models
                     public class RecognizeQrCodeResponseDataElementsResults : TeaModel {
                             public string Label { get; set; }
                             public string Suggestion { get; set; }
-                            public float Rate { get; set; }
+                            public float? Rate { get; set; }
+                            public List<RecognizeQrCodeResponseDataElementsResultsQrCodesData> QrCodesData { get; set; }
+                            public class RecognizeQrCodeResponseDataElementsResultsQrCodesData : TeaModel {
+                                    public string QrCodeData { get; set; }
+                            }
                     }
             }
         };

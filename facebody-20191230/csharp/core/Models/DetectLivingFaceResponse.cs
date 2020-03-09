@@ -27,10 +27,10 @@ namespace AlibabaCloud.Facebody.Models
                     public class DetectLivingFaceResponseDataElementsResults : TeaModel {
                             public string Label { get; set; }
                             public string Suggestion { get; set; }
-                            public float Rate { get; set; }
+                            public float? Rate { get; set; }
                             public List<DetectLivingFaceResponseDataElementsResultsFrames> Frames { get; set; }
                             public class DetectLivingFaceResponseDataElementsResultsFrames : TeaModel {
-                                    public float Rate { get; set; }
+                                    public float? Rate { get; set; }
                                     public string Url { get; set; }
                             }
                     }

@@ -21,7 +21,7 @@ namespace AlibabaCloud.Imagerecog.Models
             [Validation(Required=true)]
             public List<RecognizeSceneResponseDataTags> Tags { get; set; }
             public class RecognizeSceneResponseDataTags : TeaModel {
-                    public float Confidence { get; set; }
+                    public float? Confidence { get; set; }
                     public string Value { get; set; }
             }
         };

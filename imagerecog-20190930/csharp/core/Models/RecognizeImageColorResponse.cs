@@ -23,7 +23,7 @@ namespace AlibabaCloud.Imagerecog.Models
             public class RecognizeImageColorResponseDataColorTemplateList : TeaModel {
                     public string Color { get; set; }
                     public string Label { get; set; }
-                    public float Percentage { get; set; }
+                    public float? Percentage { get; set; }
             }
         };
 

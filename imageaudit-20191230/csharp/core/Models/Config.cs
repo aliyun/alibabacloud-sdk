@@ -10,7 +10,7 @@ namespace AlibabaCloud.Imageaudit.Models
 {
     public class Config : TeaModel {
         [NameInMap("accessKeyId")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string AccessKeyId { get; set; }
 
         [NameInMap("accessKeySecret")]
@@ -37,53 +37,41 @@ namespace AlibabaCloud.Imageaudit.Models
         [Validation(Required=true)]
         public string RegionId { get; set; }
 
+        [NameInMap("read timeout")]
+        [Validation(Required=false)]
+        public int? ReadTimeout { get; set; }
+
+        [NameInMap("connect timeout")]
+        [Validation(Required=false)]
+        public int? ConnectTimeout { get; set; }
+
+        [NameInMap("http proxy")]
+        [Validation(Required=false)]
+        public string HttpProxy { get; set; }
+
+        [NameInMap("https proxy")]
+        [Validation(Required=false)]
+        public string HttpsProxy { get; set; }
+
+        [NameInMap("socks5 proxy")]
+        [Validation(Required=false)]
+        public string Socks5Proxy { get; set; }
+
+        [NameInMap("socks5 NetWork")]
+        [Validation(Required=false)]
+        public string Socks5NetWork { get; set; }
+
+        [NameInMap("no proxy")]
+        [Validation(Required=false)]
+        public string NoProxy { get; set; }
+
         [NameInMap("userAgent")]
         [Validation(Required=false)]
         public string UserAgent { get; set; }
 
-        [NameInMap("readTimeout")]
-        [Validation(Required=false)]
-        public int? ReadTimeout { get; set; }
-
-        [NameInMap("connectTimeout")]
-        [Validation(Required=false)]
-        public int? ConnectTimeout { get; set; }
-
-        [NameInMap("localAddr")]
-        [Validation(Required=false)]
-        public string LocalAddr { get; set; }
-
-        [NameInMap("httpProxy")]
-        [Validation(Required=false)]
-        public string HttpProxy { get; set; }
-
-        [NameInMap("httpsProxy")]
-        [Validation(Required=false)]
-        public string HttpsProxy { get; set; }
-
-        [NameInMap("noProxy")]
-        [Validation(Required=false)]
-        public string NoProxy { get; set; }
-
-        [NameInMap("socks5Proxy")]
-        [Validation(Required=false)]
-        public string Socks5Proxy { get; set; }
-
-        [NameInMap("socks5NetWork")]
-        [Validation(Required=false)]
-        public string Socks5NetWork { get; set; }
-
         [NameInMap("maxIdleConns")]
         [Validation(Required=false)]
         public int? MaxIdleConns { get; set; }
-
-        [NameInMap("endpointType")]
-        [Validation(Required=false)]
-        public string EndpointType { get; set; }
-
-        [NameInMap("openPlatformEndpoint")]
-        [Validation(Required=false)]
-        public string OpenPlatformEndpoint { get; set; }
 
     }
 

@@ -22,7 +22,7 @@ namespace AlibabaCloud.Facebody.Models
             public int? Mask { get; set; }
             [NameInMap("FaceProbability")]
             [Validation(Required=true)]
-            public float FaceProbability { get; set; }
+            public float? FaceProbability { get; set; }
         };
 
     }
