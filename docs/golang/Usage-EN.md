@@ -31,6 +31,8 @@ func main() {
 	// init config
 	var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
 		SetAccessKeySecret("ACCESS_KEY_SECRET").
+		SetRegionId("cn-hangzhou").
+		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com").
 		SetType("access_key")
 
 	// init client
