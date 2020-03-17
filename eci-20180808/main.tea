@@ -1,0 +1,1891 @@
+import RPCUtil;
+import Util;
+import Credential;
+
+type @endpoint = string
+type @regionId = string
+type @protocol = string
+type @userAgent = string
+type @readTimeout = number
+type @connectTimeout = number
+type @httpProxy = string
+type @httpsProxy = string
+type @noProxy = string
+type @socks5Proxy = string
+type @socks5NetWork = string
+type @maxIdleConns = number
+type @credential = Credential
+
+model Config {
+  accessKeyId?: string(description='accessKeyId', name='accessKeyId'),
+  accessKeySecret?: string(description='accessKeySecret', name='accessKeySecret'),
+  type?: string(description='credential type', name='type'),
+  securityToken?: string(description='securityToken', name='securityToken'),
+  endpoint: string(description='endpoint', name='endpoint'),
+  protocol?: string(description='protocol', name='protocol'),
+  regionId: string(description='regionId', name='regionId'),
+  readTimeout?: number(description='read timeout', name='read timeout'),
+  connectTimeout?: number(description='connect timeout', name='connect timeout'),
+  httpProxy?: string(description='http proxy', name='http proxy'),
+  httpsProxy?: string(description='https proxy', name='https proxy'),
+  socks5Proxy?: string(description='socks5 proxy', name='socks5 proxy'),
+  socks5NetWork?: string(description='socks5 NetWork', name='socks5 NetWork'),
+  noProxy?: string(description='no proxy', name='no proxy'),
+  userAgent?: string(description='userAgent', name='userAgent'),
+  maxIdleConns?: number(description='maxIdleConns', name='maxIdleConns'),
+}
+
+init(config: Config){
+  if (Util.isUnset(config)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config' can not be unset"
+    };
+  }
+
+  if (Util.empty(config.endpoint)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.endpoint' can not be empty"
+    };
+  }
+
+  if (Util.empty(config.regionId)) {
+    throw {
+      name = "ParameterMissing",
+      message = "'config.regionId' can not be empty"
+    };
+  }
+  if (Util.empty(config.type)) {
+    config.type = 'access_key';
+  }
+  var credentialConfig = new Credential.Config{
+    accessKeyId =  config.accessKeyId,
+    type = config.type,
+    accessKeySecret =  config.accessKeySecret,
+    securityToken = config.securityToken,
+  };
+  @credential = new Credential(credentialConfig);
+  @endpoint = config.endpoint;
+  @protocol = config.protocol;
+  @regionId = config.regionId;
+  @userAgent = config.userAgent;
+  @readTimeout = config.readTimeout;
+  @connectTimeout = config.connectTimeout;
+  @httpProxy = config.httpProxy;
+  @httpsProxy = config.httpsProxy;
+  @noProxy = config.noProxy;
+  @socks5Proxy = config.socks5Proxy;
+  @socks5NetWork = config.socks5NetWork;
+  @maxIdleConns = config.maxIdleConns;
+}
+
+api _request(action: string, protocol: string, method: string, authType: string,query: object, body: object, runtime: Util.RuntimeOptions): object {
+  __request.protocol = Util.defaultString(@protocol, protocol);
+  __request.method = method;
+  __request.pathname = '/';
+  __request.query = RPCUtil.query({
+    Action = action,
+    Format = 'json',
+    RegionId = @regionId,
+    Timestamp = RPCUtil.getTimestamp(),
+    Version = '2018-08-08',
+    SignatureNonce = Util.getNonce(),
+    ...query,
+  });
+  if (!Util.isUnset(body)) {
+    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
+    __request.body = Util.toFormString(tmp);
+  }
+  __request.headers = {
+    host = RPCUtil.getHost('Eci', @regionId, @endpoint),
+    user-agent = getUserAgent(),
+  };
+  if (!Util.equalString(authType, 'Anonymous')) {
+    var accessKeyId = getAccessKeyId();
+    var accessKeySecret = getAccessKeySecret();
+    __request.query.SignatureMethod = 'HMAC-SHA1';
+    __request.query.SignatureVersion = '1.0';
+    __request.query.AccessKeyId = accessKeyId;
+    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  }
+} returns {
+  var obj = Util.readAsJSON(__response.body);
+  var body = Util.assertAsMap(obj);
+  if (RPCUtil.hasError(body)) {
+    throw {
+      message = body.Message,
+      data = body,
+      code = body.Code,
+    }
+  }
+  return body;
+} runtime {
+  timeouted = 'retry',
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 2)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 0)
+  },
+  ignoreSSL = runtime.ignoreSSL
+}
+
+model DescribeRegionsRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId?: string(name='RegionId', description='regionId'),
+}
+
+model DescribeRegionsResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  regions: [
+    {
+      regionId: string(name='RegionId', description='id'),
+      regionEndpoint: string(name='RegionEndpoint', description='endpoint'),
+      zones: [
+        {
+          zone: string (name='Zone', description='Zone'),
+        }
+      ](name='Zones', description='zones'),
+    }
+  ](name='Regions', description='data'),
+}
+
+async function describeRegions(request: DescribeRegionsRequest, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  return _request('DescribeRegions', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DescribeImageCachesRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  imageCacheId?: string(name='ImageCacheId', description='imageCacheId'),
+  imageCacheName?: string(name='ImageCacheName', description='imageCacheName'),
+  snapshotId?: string(name='SnapshotId', description='snapshotId'),
+  image?: string(name='Image', description='image'),
+}
+
+model DescribeImageCachesResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  imageCaches: [
+    {
+      containerGroupId: string(name='ContainerGroupId', description='containerGroupId'),
+      imageCacheId: string(name='ImageCacheId', description='imageCacheId'),
+      imageCacheName: string(name='ImageCacheName', description='imageCacheName'),
+      snapshotId: string(name='SnapshotId', description='snapshotId'),
+      progress: string(name='Progress', description='progress'),
+      status: string(name='Status', description='status'),
+      expireDateTime: string(name='ExpireDateTime', description='expireDate'),
+      creationTime: string(name='CreationTime', description='creationTime'),
+      events: [
+        {
+          count: integer(name='Count', description='count'),
+          type: string(name='Type', description='type'),
+          name: string(name='Name', description='name'),
+          message: string(name='Message', description='message'),
+          firstTimestamp: string(name='FirstTimestamp', description='firstTimestamp'),
+          lastTimestamp: string(name='LastTimestamp', description='lastTimestamp'),
+        }
+      ](name='Events', description='events'),
+      images: [
+        {
+          image: string (name='Image', description='Image'),
+        }
+      ](name='Images', description='images'),
+    }
+  ](name='ImageCaches', description='data'),
+}
+
+async function describeImageCaches(request: DescribeImageCachesRequest, runtime: Util.RuntimeOptions): DescribeImageCachesResponse {
+  return _request('DescribeImageCaches', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DeleteImageCacheRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  imageCacheId: string(name='ImageCacheId', description='imageCacheId'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+}
+
+model DeleteImageCacheResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteImageCache(request: DeleteImageCacheRequest, runtime: Util.RuntimeOptions): DeleteImageCacheResponse {
+  return _request('DeleteImageCache', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model CreateImageCacheRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  zoneId?: string(name='ZoneId', description='zoneId'),
+  securityGroupId: string(name='SecurityGroupId', description='linkedSecurityGroupId'),
+  VSwitchId: string(name='VSwitchId', description='linkedVSwitchId'),
+  imageCacheName: string(name='ImageCacheName', description='containerGroupName'),
+  imageRegistryCredential?: [
+    {
+      server: string(name='Server', description='server'),
+      userName: string(name='UserName', description='userName'),
+      password: string(name='Password', description='password'),
+    }
+  ](name='ImageRegistryCredential', description='imageRegistryCredentials'),
+  eipInstanceId?: string(name='EipInstanceId', description='eipInstanceId'),
+  resourceGroupId?: string(name='ResourceGroupId', description='resourceGroupId'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+  image: [ string ](name='Image', description='images'),
+  imageCacheSize?: integer(name='ImageCacheSize', description='imageCacheSize'),
+  retentionDays?: integer(name='RetentionDays', description='retentionDays'),
+}
+
+model CreateImageCacheResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  imageCacheId: string(name='ImageCacheId', description='data.imageCacheId'),
+  containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
+}
+
+async function createImageCache(request: CreateImageCacheRequest, runtime: Util.RuntimeOptions): CreateImageCacheResponse {
+  return _request('CreateImageCache', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DescribeMultiContainerGroupMetricRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupIds: string(name='ContainerGroupIds', description='containerGroupIdParam'),
+  resourceGroupId?: string(name='ResourceGroupId', description='resourceGroupId'),
+  metricType?: string(name='MetricType', description='metricType'),
+}
+
+model DescribeMultiContainerGroupMetricResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  monitorDatas: [
+    {
+      containerGroupId: string(name='ContainerGroupId', description='containerGroupId'),
+      records: [
+        {
+          timestamp: string(name='Timestamp', description='timestamp'),
+          containers: [
+            {
+              name: string(name='Name', description='containerName'),
+              CPU: {
+                limit: long(name='Limit', description='limit'),
+                load: long(name='Load', description='load'),
+                usageCoreNanoSeconds: long(name='UsageCoreNanoSeconds', description='usageCoreNanoSeconds'),
+                usageNanoCores: long(name='UsageNanoCores', description='usageNanoCores'),
+              }(name='CPU', description='cpuStats'),
+              memory: {
+                availableBytes: long(name='AvailableBytes', description='availableBytes'),
+                usageBytes: long(name='UsageBytes', description='usageBytes'),
+                cache: long(name='Cache', description='cache'),
+                workingSet: long(name='WorkingSet', description='workingSet'),
+                rss: long(name='Rss', description='rss'),
+              }(name='Memory', description='memoryStats'),
+            }
+          ](name='Containers', description='containerStatss'),
+          CPU: {
+            limit: long(name='Limit', description='limit'),
+            load: long(name='Load', description='load'),
+            usageCoreNanoSeconds: long(name='UsageCoreNanoSeconds', description='usageCoreNanoSeconds'),
+            usageNanoCores: long(name='UsageNanoCores', description='usageNanoCores'),
+          }(name='CPU', description='cpuStats'),
+          memory: {
+            availableBytes: long(name='AvailableBytes', description='availableBytes'),
+            usageBytes: long(name='UsageBytes', description='usageBytes'),
+            cache: long(name='Cache', description='cache'),
+            workingSet: long(name='WorkingSet', description='workingSet'),
+            rss: long(name='Rss', description='rss'),
+          }(name='Memory', description='memoryStats'),
+          network: {
+            interfaces: [
+              {
+                txBytes: long(name='TxBytes', description='txBytes'),
+                rxBytes: long(name='RxBytes', description='rxBytes'),
+                txErrors: long(name='TxErrors', description='txErrors'),
+                rxErrors: long(name='RxErrors', description='rxErrors'),
+                name: string(name='Name', description='name'),
+              }
+            ](name='Interfaces', description='interfaces'),
+          }(name='Network', description='networkStats'),
+        }
+      ](name='Records', description='podStats'),
+      containerInfos: [
+        {
+          id: string(name='Id', description='id'),
+          name: string(name='Name', description='name'),
+          namespace: string(name='Namespace', description='namespace'),
+          labels: string(name='Labels', description='labelsForPop'),
+          containerStats: [
+            {
+              timestamp: string(name='Timestamp', description='timestamp'),
+              fsStats: [
+                {
+                  device: string(name='Device', description='device'),
+                  type: string(name='Type', description='type'),
+                  limit: long(name='Limit', description='limit'),
+                  usage: long(name='Usage', description='usage'),
+                  baseUsage: long(name='BaseUsage', description='baseUsage'),
+                  available: long(name='Available', description='available'),
+                  hasInodes: boolean(name='HasInodes', description='hasInodes'),
+                  inodes: long(name='Inodes', description='inodes'),
+                  inodesFree: long(name='InodesFree', description='inodesFree'),
+                  readsCompleted: long(name='ReadsCompleted', description='readsCompleted'),
+                  readsMerged: long(name='ReadsMerged', description='readsMerged'),
+                  sectorsRead: long(name='SectorsRead', description='sectorsRead'),
+                  readTime: long(name='ReadTime', description='readTime'),
+                  writesCompleted: long(name='WritesCompleted', description='writesCompleted'),
+                  writesMerged: long(name='WritesMerged', description='writesMerged'),
+                  sectorsWritten: long(name='SectorsWritten', description='sectorsWritten'),
+                  writeTime: long(name='WriteTime', description='writeTime'),
+                  ioInProgress: long(name='IoInProgress', description='ioInProgress'),
+                  ioTime: long(name='IoTime', description='ioTime'),
+                  weightedIoTime: long(name='WeightedIoTime', description='weightedIoTime'),
+                }
+              ](name='FsStats', description='fsStats'),
+              acceleratorStats: [
+                {
+                  id: string(name='Id', description='id'),
+                  make: string(name='Make', description='make'),
+                  model: string(name='Model', description='model'),
+                  memoryTotal: long(name='MemoryTotal', description='memoryTotal'),
+                  memoryUsed: long(name='MemoryUsed', description='memoryUsed'),
+                  dutyCycle: long(name='DutyCycle', description='dutyCycle'),
+                }
+              ](name='AcceleratorStats', description='acceleratorStats'),
+              cpuStats: {
+                loadAverage: long(name='LoadAverage', description='loadAverage'),
+                cpuUsage: {
+                  total: long(name='Total', description='total'),
+                  user: long(name='User', description='user'),
+                  system: long(name='System', description='system'),
+                  perCpuUsages: [
+                    {
+                      perCpuUsage: long (name='PerCpuUsage', description='PerCpuUsage'),
+                    }
+                  ](name='PerCpuUsages', description='perCpuUsages'),
+                }(name='CpuUsage', description='usage'),
+                cpuCFS: {
+                  periods: long(name='Periods', description='periods'),
+                  throttledPeriods: long(name='ThrottledPeriods', description='throttledPeriods'),
+                  throttledTime: long(name='ThrottledTime', description='throttledTime'),
+                }(name='CpuCFS', description='cfs'),
+              }(name='CpuStats', description='cpu'),
+              diskIoStats: {
+                ioServiceBytes: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoServiceBytes', description='ioServiceBytes'),
+                ioServiced: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoServiced', description='ioServiced'),
+                ioQueued: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoQueued', description='ioQueued'),
+                sectors: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='Sectors', description='sectors'),
+                ioServiceTime: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoServiceTime', description='ioServiceTime'),
+                ioWaitTime: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoWaitTime', description='ioWaitTime'),
+                ioMerged: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoMerged', description='ioMerged'),
+                ioTime: [
+                  {
+                    device: string(name='Device', description='device'),
+                    major: long(name='Major', description='major'),
+                    minor: long(name='Minor', description='minor'),
+                    stats: string(name='Stats', description='statsForPop'),
+                  }
+                ](name='IoTime', description='ioTime'),
+              }(name='DiskIoStats', description='diskIo'),
+              memoryStats: {
+                usage: long(name='Usage', description='usage'),
+                maxUsage: long(name='MaxUsage', description='maxUsage'),
+                cache: long(name='Cache', description='cache'),
+                rss: long(name='Rss', description='rss'),
+                swap: long(name='Swap', description='swap'),
+                workingSet: long(name='WorkingSet', description='workingSet'),
+                failCnt: long(name='FailCnt', description='failCnt'),
+                containerData: {
+                  pgFault: long(name='PgFault', description='pgFault'),
+                  pgmajFault: long(name='PgmajFault', description='pgmajFault'),
+                }(name='ContainerData', description='containerData'),
+                hierarchicalData: {
+                  pgFault: long(name='PgFault', description='pgFault'),
+                  pgmajFault: long(name='PgmajFault', description='pgmajFault'),
+                }(name='HierarchicalData', description='hierarchicalData'),
+              }(name='MemoryStats', description='memory'),
+              networkStats: {
+                name: string(name='Name', description='name'),
+                rxBytes: long(name='RxBytes', description='rxBytes'),
+                rxPackets: long(name='RxPackets', description='rxPackets'),
+                rxErrors: long(name='RxErrors', description='rxErrors'),
+                rxDropped: long(name='RxDropped', description='rxDropped'),
+                txBytes: long(name='TxBytes', description='txBytes'),
+                txPackets: long(name='TxPackets', description='txPackets'),
+                txDropped: long(name='TxDropped', description='txDropped'),
+                txErrors: long(name='TxErrors', description='txErrors'),
+                interfaceStats: [
+                  {
+                    name: string(name='Name', description='name'),
+                    rxBytes: long(name='RxBytes', description='rxBytes'),
+                    rxPackets: long(name='RxPackets', description='rxPackets'),
+                    rxErrors: long(name='RxErrors', description='rxErrors'),
+                    rxDropped: long(name='RxDropped', description='rxDropped'),
+                    txBytes: long(name='TxBytes', description='txBytes'),
+                    txPackets: long(name='TxPackets', description='txPackets'),
+                    txDropped: long(name='TxDropped', description='txDropped'),
+                    txErrors: long(name='TxErrors', description='txErrors'),
+                  }
+                ](name='InterfaceStats', description='interfaceStats'),
+                tcp: {
+                  established: long(name='Established', description='established'),
+                  synSent: long(name='SynSent', description='synSent'),
+                  synRecv: long(name='SynRecv', description='synRecv'),
+                  finWait1: long(name='FinWait1', description='finWait1'),
+                  finWait2: long(name='FinWait2', description='finWait2'),
+                  timeWait: long(name='TimeWait', description='timeWait'),
+                  close: long(name='Close', description='close'),
+                  closeWait: long(name='CloseWait', description='closeWait'),
+                  lastAck: long(name='LastAck', description='lastAck'),
+                  listen: long(name='Listen', description='listen'),
+                  closing: long(name='Closing', description='closing'),
+                }(name='Tcp', description='tcp'),
+                tcp6: {
+                  established: long(name='Established', description='established'),
+                  synSent: long(name='SynSent', description='synSent'),
+                  synRecv: long(name='SynRecv', description='synRecv'),
+                  finWait1: long(name='FinWait1', description='finWait1'),
+                  finWait2: long(name='FinWait2', description='finWait2'),
+                  timeWait: long(name='TimeWait', description='timeWait'),
+                  close: long(name='Close', description='close'),
+                  closeWait: long(name='CloseWait', description='closeWait'),
+                  lastAck: long(name='LastAck', description='lastAck'),
+                  listen: long(name='Listen', description='listen'),
+                  closing: long(name='Closing', description='closing'),
+                }(name='Tcp6', description='tcp6'),
+                udp: {
+                  listen: long(name='Listen', description='listen'),
+                  dropped: long(name='Dropped', description='dropped'),
+                  rxQueued: long(name='RxQueued', description='rxQueued'),
+                  txQueued: long(name='TxQueued', description='txQueued'),
+                }(name='Udp', description='udp'),
+                udp6: {
+                  listen: long(name='Listen', description='listen'),
+                  dropped: long(name='Dropped', description='dropped'),
+                  rxQueued: long(name='RxQueued', description='rxQueued'),
+                  txQueued: long(name='TxQueued', description='txQueued'),
+                }(name='Udp6', description='udp6'),
+              }(name='NetworkStats', description='network'),
+              taskStats: {
+                nrSleeping: long(name='NrSleeping', description='nrSleeping'),
+                nrRunning: long(name='NrRunning', description='nrRunning'),
+                nrStopped: long(name='NrStopped', description='nrStopped'),
+                nrUninterruptible: long(name='NrUninterruptible', description='nrUninterruptible'),
+                nrIoWait: long(name='NrIoWait', description='nrIoWait'),
+              }(name='TaskStats', description='taskStats'),
+            }
+          ](name='ContainerStats', description='stats'),
+          containerSpec: {
+            creationTime: string(name='CreationTime', description='creationTime'),
+            hasCpu: boolean(name='HasCpu', description='hasCpu'),
+            hasMemory: boolean(name='HasMemory', description='hasMemory'),
+            hasNetwork: boolean(name='HasNetwork', description='hasNetwork'),
+            hasFilesystem: boolean(name='HasFilesystem', description='hasFilesystem'),
+            hasDiskIo: boolean(name='HasDiskIo', description='hasDiskIo'),
+            hasCustomMetrics: boolean(name='HasCustomMetrics', description='hasCustomMetrics'),
+            image: string(name='Image', description='image'),
+            labels: string(name='Labels', description='labelsForPop'),
+            envs: string(name='Envs', description='envsForPop'),
+            containerCpu: {
+              limit: long(name='Limit', description='limit'),
+              maxLimit: long(name='MaxLimit', description='maxLimit'),
+              mask: string(name='Mask', description='mask'),
+              quota: long(name='Quota', description='quota'),
+              period: long(name='Period', description='period'),
+            }(name='ContainerCpu', description='cpu'),
+            containerMemory: {
+              limit: long(name='Limit', description='limit'),
+              reservation: long(name='Reservation', description='reservation'),
+              swapLimit: long(name='SwapLimit', description='swapLimit'),
+            }(name='ContainerMemory', description='memory'),
+          }(name='ContainerSpec', description='spec'),
+          aliases: [
+            {
+              aliase: string (name='Aliase', description='Aliase'),
+            }
+          ](name='Aliases', description='aliases'),
+        }
+      ](name='ContainerInfos', description='containerInfos'),
+    }
+  ](name='MonitorDatas', description='data'),
+}
+
+async function describeMultiContainerGroupMetric(request: DescribeMultiContainerGroupMetricRequest, runtime: Util.RuntimeOptions): DescribeMultiContainerGroupMetricResponse {
+  return _request('DescribeMultiContainerGroupMetric', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DescribeContainerGroupMetricRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupId: string(name='ContainerGroupId', description='bazaarInstanceId'),
+  startTime?: string(name='StartTime', description='startTime'),
+  endTime?: string(name='EndTime', description='endTime'),
+  period?: string(name='Period', description='period'),
+}
+
+model DescribeContainerGroupMetricResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
+  records: [
+    {
+      timestamp: string(name='Timestamp', description='timestamp'),
+      containers: [
+        {
+          name: string(name='Name', description='containerName'),
+          CPU: {
+            usageNanoCores: long(name='UsageNanoCores', description='usageNanoCores'),
+            usageCoreNanoSeconds: long(name='UsageCoreNanoSeconds', description='usageCoreNanoSeconds'),
+            load: long(name='Load', description='load'),
+            limit: long(name='Limit', description='limit'),
+          }(name='CPU', description='cpuStats'),
+          memory: {
+            availableBytes: long(name='AvailableBytes', description='availableBytes'),
+            usageBytes: long(name='UsageBytes', description='usageBytes'),
+            cache: long(name='Cache', description='cache'),
+            workingSet: long(name='WorkingSet', description='workingSet'),
+            rss: long(name='Rss', description='rss'),
+          }(name='Memory', description='memoryStats'),
+        }
+      ](name='Containers', description='containerStatss'),
+      CPU: {
+        usageNanoCores: long(name='UsageNanoCores', description='usageNanoCores'),
+        usageCoreNanoSeconds: long(name='UsageCoreNanoSeconds', description='usageCoreNanoSeconds'),
+        load: long(name='Load', description='load'),
+        limit: long(name='Limit', description='limit'),
+      }(name='CPU', description='cpuStats'),
+      memory: {
+        availableBytes: long(name='AvailableBytes', description='availableBytes'),
+        usageBytes: long(name='UsageBytes', description='usageBytes'),
+        cache: long(name='Cache', description='cache'),
+        workingSet: long(name='WorkingSet', description='workingSet'),
+        rss: long(name='Rss', description='rss'),
+      }(name='Memory', description='memoryStats'),
+      network: {
+        interfaces: [
+          {
+            txBytes: long(name='TxBytes', description='txBytes'),
+            rxBytes: long(name='RxBytes', description='rxBytes'),
+            txErrors: long(name='TxErrors', description='txErrors'),
+            rxErrors: long(name='RxErrors', description='rxErrors'),
+            name: string(name='Name', description='name'),
+          }
+        ](name='Interfaces', description='interfaces'),
+      }(name='Network', description='networkStats'),
+    }
+  ](name='Records', description='data.podStats'),
+}
+
+async function describeContainerGroupMetric(request: DescribeContainerGroupMetricRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupMetricResponse {
+  return _request('DescribeContainerGroupMetric', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model UpdateContainerGroupByTemplateRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  template: string(name='Template', description='jsonUserTemplate'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+}
+
+model UpdateContainerGroupByTemplateResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function updateContainerGroupByTemplate(request: UpdateContainerGroupByTemplateRequest, runtime: Util.RuntimeOptions): UpdateContainerGroupByTemplateResponse {
+  return _request('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', 'AK', request, null, runtime);
+}
+
+model CreateContainerGroupFromTemplateRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  template: string(name='Template', description='jsonUserTemplate'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+}
+
+model CreateContainerGroupFromTemplateResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
+}
+
+async function createContainerGroupFromTemplate(request: CreateContainerGroupFromTemplateRequest, runtime: Util.RuntimeOptions): CreateContainerGroupFromTemplateResponse {
+  return _request('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', 'AK', request, null, runtime);
+}
+
+model ExportContainerGroupTemplateRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId?: string(name='RegionId', description='regionId'),
+  containerGroupId?: string(name='ContainerGroupId', description='containerGroupId'),
+}
+
+model ExportContainerGroupTemplateResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  template: {
+    regionId: string(name='RegionId', description='regionId'),
+    zoneId: string(name='ZoneId', description='zoneId'),
+    securityGroupId: string(name='SecurityGroupId', description='securityGroupId'),
+    VSwitchId: string(name='VSwitchId', description='vSwitchId'),
+    resourceGroupId: string(name='ResourceGroupId', description='resourceGroupId'),
+    eipInstanceId: string(name='EipInstanceId', description='eipInstanceId'),
+    containerGroupName: string(name='ContainerGroupName', description='containerGroupName'),
+    instanceType: string(name='InstanceType', description='instanceType'),
+    tags: [
+      {
+        key: string(name='Key', description='key'),
+        value: string(name='Value', description='value'),
+      }
+    ](name='Tags', description='tags'),
+    resources: {
+      cpu: float(name='Cpu', description='bigCpuForPop'),
+      memory: float(name='Memory', description='bigMemForPop'),
+    }(name='Resources', description='resources'),
+    spec: {
+      restartPolicy: string(name='RestartPolicy', description='restartPolicy'),
+      dnsPolicy: string(name='DnsPolicy', description='dnsPolicy'),
+      volumes: [
+        {
+          name: string(name='Name', description='name'),
+          configFile: {
+            defaultMode: integer(name='DefaultMode', description='defaultMode'),
+            items: [
+              {
+                mode: integer(name='Mode', description='mode'),
+                path: string(name='Path', description='path'),
+                content: string(name='Content', description='content'),
+              }
+            ](name='Items', description='items'),
+          }(name='ConfigFile', description='configFile'),
+          emptyDir: {
+            sizeLimit: string(name='SizeLimit', description='sizeLimit'),
+          }(name='EmptyDir', description='emptyDir'),
+          nfs: {
+            server: string(name='Server', description='server'),
+            path: string(name='Path', description='path'),
+            readOnly: boolean(name='ReadOnly', description='readOnly'),
+          }(name='Nfs', description='nfs'),
+        }
+      ](name='Volumes', description='volumes'),
+      initContainers: [
+        {
+          name: string(name='Name', description='name'),
+          image: string(name='Image', description='image'),
+          imagePullPolicy: string(name='ImagePullPolicy', description='imagePullPolicy'),
+          stdin: boolean(name='Stdin', description='stdin'),
+          stdinOnce: boolean(name='StdinOnce', description='stdinOnce'),
+          tty: boolean(name='Tty', description='tty'),
+          workingDir: string(name='WorkingDir', description='workingDir'),
+          env: [
+            {
+              name: string(name='Name', description='key'),
+              value: string(name='Value', description='value'),
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: string(name='FieldPath', description='fieldPath'),
+                }(name='FieldRef', description='fieldRef'),
+              }(name='ValueFrom', description='valueFrom'),
+            }
+          ](name='Env', description='env'),
+          ports: [
+            {
+              name: string(name='Name', description='name'),
+              protocol: string(name='Protocol', description='protocol'),
+              containerPort: integer(name='ContainerPort', description='port'),
+            }
+          ](name='Ports', description='ports'),
+          volumeMounts: [
+            {
+              name: string(name='Name', description='name'),
+              subPath: string(name='SubPath', description='subPath'),
+              mountPath: string(name='MountPath', description='mountPath'),
+              readOnly: boolean(name='ReadOnly', description='readOnly'),
+            }
+          ](name='VolumeMounts', description='volumeMounts'),
+          securityContext: {
+            sysctls: [
+              {
+                name: string(name='Name', description='name'),
+                value: string(name='Value', description='value'),
+              }
+            ](name='Sysctls', description='sysctls'),
+          }(name='SecurityContext', description='securityContext'),
+          resources: {
+            cpu: float(name='Cpu', description='bigCpuForPop'),
+            memory: float(name='Memory', description='bigMemForPop'),
+          }(name='Resources', description='resources'),
+          command: [
+            {
+              command: string (name='Command', description='Command'),
+            }
+          ](name='Command', description='command'),
+          args: [
+            {
+              arg: string (name='Arg', description='Arg'),
+            }
+          ](name='Args', description='args'),
+        }
+      ](name='InitContainers', description='initContainers'),
+      containers: [
+        {
+          name: string(name='Name', description='name'),
+          image: string(name='Image', description='image'),
+          imagePullPolicy: string(name='ImagePullPolicy', description='imagePullPolicy'),
+          stdin: boolean(name='Stdin', description='stdin'),
+          stdinOnce: boolean(name='StdinOnce', description='stdinOnce'),
+          tty: boolean(name='Tty', description='tty'),
+          workingDir: string(name='WorkingDir', description='workingDir'),
+          env: [
+            {
+              name: string(name='Name', description='key'),
+              value: string(name='Value', description='value'),
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: string(name='FieldPath', description='fieldPath'),
+                }(name='FieldRef', description='fieldRef'),
+              }(name='ValueFrom', description='valueFrom'),
+            }
+          ](name='Env', description='env'),
+          ports: [
+            {
+              name: string(name='Name', description='name'),
+              protocol: string(name='Protocol', description='protocol'),
+              containerPort: integer(name='ContainerPort', description='port'),
+            }
+          ](name='Ports', description='ports'),
+          volumeMounts: [
+            {
+              name: string(name='Name', description='name'),
+              subPath: string(name='SubPath', description='subPath'),
+              mountPath: string(name='MountPath', description='mountPath'),
+              readOnly: boolean(name='ReadOnly', description='readOnly'),
+            }
+          ](name='VolumeMounts', description='volumeMounts'),
+          securityContext: {
+            sysctls: [
+              {
+                name: string(name='Name', description='name'),
+                value: string(name='Value', description='value'),
+              }
+            ](name='Sysctls', description='sysctls'),
+          }(name='SecurityContext', description='securityContext'),
+          resources: {
+            cpu: float(name='Cpu', description='bigCpuForPop'),
+            memory: float(name='Memory', description='bigMemForPop'),
+          }(name='Resources', description='resources'),
+          readinessProbe: {
+            initialDelaySeconds: integer(name='InitialDelaySeconds', description='initialDelaySeconds'),
+            periodSeconds: integer(name='PeriodSeconds', description='periodSeconds'),
+            successThreshold: integer(name='SuccessThreshold', description='successThreshold'),
+            failureThreshold: integer(name='FailureThreshold', description='failureThreshold'),
+            timeoutSeconds: integer(name='TimeoutSeconds', description='timeoutSeconds'),
+            exec: {
+              command: [
+                {
+                  command: string (name='Command', description='Command'),
+                }
+              ](name='Command', description='command'),
+            }(name='Exec', description='exec'),
+            tcpSocket: {
+              port: integer(name='Port', description='port'),
+            }(name='TcpSocket', description='tcpSocket'),
+            httpGet: {
+              scheme: string(name='Scheme', description='scheme'),
+              path: string(name='Path', description='path'),
+              port: integer(name='Port', description='port'),
+            }(name='HttpGet', description='httpGet'),
+          }(name='ReadinessProbe', description='readinessProbe'),
+          livenessProbe: {
+            initialDelaySeconds: integer(name='InitialDelaySeconds', description='initialDelaySeconds'),
+            periodSeconds: integer(name='PeriodSeconds', description='periodSeconds'),
+            successThreshold: integer(name='SuccessThreshold', description='successThreshold'),
+            failureThreshold: integer(name='FailureThreshold', description='failureThreshold'),
+            timeoutSeconds: integer(name='TimeoutSeconds', description='timeoutSeconds'),
+            exec: {
+              command: [
+                {
+                  command: string (name='Command', description='Command'),
+                }
+              ](name='Command', description='command'),
+            }(name='Exec', description='exec'),
+            tcpSocket: {
+              port: integer(name='Port', description='port'),
+            }(name='TcpSocket', description='tcpSocket'),
+            httpGet: {
+              scheme: string(name='Scheme', description='scheme'),
+              path: string(name='Path', description='path'),
+              port: integer(name='Port', description='port'),
+            }(name='HttpGet', description='httpGet'),
+          }(name='LivenessProbe', description='livenessProbe'),
+          command: [
+            {
+              command: string (name='Command', description='Command'),
+            }
+          ](name='Command', description='command'),
+          args: [
+            {
+              arg: string (name='Arg', description='Arg'),
+            }
+          ](name='Args', description='args'),
+        }
+      ](name='Containers', description='containers'),
+      dnsConfig: {
+        options: [
+          {
+            name: string(name='Name', description='name'),
+            value: string(name='Value', description='value'),
+          }
+        ](name='Options', description='dnsConfigOptions'),
+        nameServers: [
+          {
+            nameServer: string (name='NameServer', description='NameServer'),
+          }
+        ](name='NameServers', description='dnsConfigNameServers'),
+        searches: [
+          {
+            search: string (name='Search', description='Search'),
+          }
+        ](name='Searches', description='dnsConfigSearches'),
+      }(name='DnsConfig', description='dnsConfig'),
+      securityContext: {
+        sysctls: [
+          {
+            name: string(name='Name', description='name'),
+            value: string(name='Value', description='value'),
+          }
+        ](name='Sysctls', description='sysctls'),
+      }(name='SecurityContext', description='podSecurityContext'),
+    }(name='Spec', description='spec'),
+  }(name='Template', description='data'),
+}
+
+async function exportContainerGroupTemplate(request: ExportContainerGroupTemplateRequest, runtime: Util.RuntimeOptions): ExportContainerGroupTemplateResponse {
+  return _request('ExportContainerGroupTemplate', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model RestartContainerGroupRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupId: string(name='ContainerGroupId', description='containerGroupId'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+}
+
+model RestartContainerGroupResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function restartContainerGroup(request: RestartContainerGroupRequest, runtime: Util.RuntimeOptions): RestartContainerGroupResponse {
+  return _request('RestartContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model UpdateContainerGroupRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupId: string(name='ContainerGroupId', description='bazaarInstanceId'),
+  restartPolicy?: string(name='RestartPolicy', description='restartPolicy'),
+  tag?: [
+    {
+      key?: string(name='Key', description='key'),
+      value?: string(name='Value', description='value'),
+    }
+  ](name='Tag', description='labels'),
+  volume?: [
+    {
+      name?: string(name='Name', description='name'),
+      type?: string(name='Type', description='type'),
+      NFSVolume: {
+        server?: string(name='Server', description='nfsVolumeServer'),
+        path?: string(name='Path', description='nfsVolumePath'),
+        readOnly?: boolean(name='ReadOnly', description='nfsVolumeReadOnly'),
+      }(name='NFSVolume', description='NFSVolume'),
+      configFileVolume: {
+        configFileToPath: [
+          {
+            content?: string(name='Content', description='content'),
+            path?: string(name='Path', description='path'),
+          }
+        ](name='ConfigFileToPath', description='configFileVolumeConfigFileToPaths'),
+      }(name='ConfigFileVolume', description='ConfigFileVolume'),
+      emptyDirVolume: {
+        medium?: string(name='Medium', description='emptyDirVolumeMedium'),
+      }(name='EmptyDirVolume', description='EmptyDirVolume'),
+    }
+  ](name='Volume', description='volumes'),
+  dnsConfig: {
+    nameServer?: [ string ](name='NameServer', description='dnsConfigNameServers'),
+    search?: [ string ](name='Search', description='dnsConfigSearches'),
+    option?: [
+      {
+        name?: string(name='Name', description='name'),
+        value?: string(name='Value', description='value'),
+      }
+    ](name='Option', description='dnsConfigOptions'),
+  }(name='DnsConfig', description='DnsConfig'),
+  container?: [
+    {
+      name?: string(name='Name', description='name'),
+      image?: string(name='Image', description='image'),
+      cpu?: float(name='Cpu', description='cpu'),
+      memory?: float(name='Memory', description='mem'),
+      workingDir?: string(name='WorkingDir', description='workingDir'),
+      imagePullPolicy?: string(name='ImagePullPolicy', description='imagePullPolicy'),
+      stdin?: boolean(name='Stdin', description='stdin'),
+      stdinOnce?: boolean(name='StdinOnce', description='stdinOnce'),
+      tty?: boolean(name='Tty', description='tty'),
+      command: [ string ](name='Command', description='command'),
+      arg: [ string ](name='Arg', description='args'),
+      environmentVar: [
+        {
+          key?: string(name='Key', description='key'),
+          value?: string(name='Value', description='value'),
+        }
+      ](name='EnvironmentVar', description='env'),
+      port: [
+        {
+          protocol?: string(name='Protocol', description='protocol'),
+          port?: integer(name='Port', description='port'),
+        }
+      ](name='Port', description='ports'),
+      volumeMount: [
+        {
+          name?: string(name='Name', description='name'),
+          mountPath?: string(name='MountPath', description='mountPath'),
+          subPath?: string(name='SubPath', description='subPath'),
+          readOnly?: boolean(name='ReadOnly', description='readOnly'),
+        }
+      ](name='VolumeMount', description='volumeMounts'),
+      readinessProbe: {
+        tcpSocket: {
+          port?: integer(name='Port', description='readinessProbeTcpSocketPort'),
+        }(name='TcpSocket', description='TcpSocket'),
+        exec: {
+          command: [ string ](name='Command', description='readinessProbeExec'),
+        }(name='Exec', description='Exec'),
+        httpGet: {
+          path?: string(name='Path', description='readinessProbeHttpGetPath'),
+          port?: integer(name='Port', description='readinessProbeHttpGetPort'),
+          scheme?: string(name='Scheme', description='readinessProbeHttpGetScheme'),
+        }(name='HttpGet', description='HttpGet'),
+        initialDelaySeconds?: integer(name='InitialDelaySeconds', description='readinessProbeInitialDelaySeconds'),
+        periodSeconds?: integer(name='PeriodSeconds', description='readinessProbePeriodSeconds'),
+        successThreshold?: integer(name='SuccessThreshold', description='readinessProbeSuccessThreshold'),
+        failureThreshold?: integer(name='FailureThreshold', description='readinessProbeFailureThreshold'),
+        timeoutSeconds?: integer(name='TimeoutSeconds', description='readinessProbeTimeoutSeconds'),
+      }(name='ReadinessProbe', description='ReadinessProbe'),
+      livenessProbe: {
+        tcpSocket: {
+          port?: integer(name='Port', description='livenessProbeTcpSocketPort'),
+        }(name='TcpSocket', description='TcpSocket'),
+        exec: {
+          command: [ string ](name='Command', description='livenessProbeExec'),
+        }(name='Exec', description='Exec'),
+        httpGet: {
+          path?: string(name='Path', description='livenessProbeHttpGetPath'),
+          port?: integer(name='Port', description='livenessProbeHttpGetPort'),
+          scheme?: string(name='Scheme', description='livenessProbeHttpGetScheme'),
+        }(name='HttpGet', description='HttpGet'),
+        initialDelaySeconds?: integer(name='InitialDelaySeconds', description='livenessProbeInitialDelaySeconds'),
+        periodSeconds?: integer(name='PeriodSeconds', description='livenessProbePeriodSeconds'),
+        successThreshold?: integer(name='SuccessThreshold', description='livenessProbeSuccessThreshold'),
+        failureThreshold: integer(name='FailureThreshold', description='livenessProbeFailureThreshold'),
+        timeoutSeconds?: integer(name='TimeoutSeconds', description='livenessProbeTimeoutSeconds'),
+      }(name='LivenessProbe', description='LivenessProbe'),
+      securityContext: {
+        readOnlyRootFilesystem?: boolean(name='ReadOnlyRootFilesystem', description='securityContextReadOnlyRootFilesystem'),
+        runAsUser?: long(name='RunAsUser', description='securityContextRunAsUser'),
+        capability: {
+          add: [ string ](name='Add', description='securityContextCapabilityAdds'),
+        }(name='Capability', description='Capability'),
+      }(name='SecurityContext', description='SecurityContext'),
+      gpu?: integer(name='Gpu', description='gpu'),
+    }
+  ](name='Container', description='containers'),
+  initContainer?: [
+    {
+      name?: string(name='Name', description='name'),
+      image?: string(name='Image', description='image'),
+      cpu?: float(name='Cpu', description='cpu'),
+      memory?: float(name='Memory', description='mem'),
+      workingDir?: string(name='WorkingDir', description='workingDir'),
+      imagePullPolicy?: string(name='ImagePullPolicy', description='imagePullPolicy'),
+      stdin?: boolean(name='Stdin', description='stdin'),
+      stdinOnce?: boolean(name='StdinOnce', description='stdinOnce'),
+      tty?: boolean(name='Tty', description='tty'),
+      command: [ string ](name='Command', description='command'),
+      arg: [ string ](name='Arg', description='args'),
+      environmentVar: [
+        {
+          key?: string(name='Key', description='key'),
+          value?: string(name='Value', description='value'),
+        }
+      ](name='EnvironmentVar', description='env'),
+      port: [
+        {
+          port?: integer(name='Port', description='port'),
+          protocol: string(name='Protocol', description='protocol'),
+        }
+      ](name='Port', description='ports'),
+      volumeMount: [
+        {
+          name?: string(name='Name', description='name'),
+          mountPath?: string(name='MountPath', description='mountPath'),
+          subPath?: string(name='SubPath', description='subPath'),
+          readOnly?: boolean(name='ReadOnly', description='readOnly'),
+        }
+      ](name='VolumeMount', description='volumeMounts'),
+      securityContext: {
+        readOnlyRootFilesystem?: boolean(name='ReadOnlyRootFilesystem', description='securityContextReadOnlyRootFilesystem'),
+        runAsUser?: long(name='RunAsUser', description='securityContextRunAsUser'),
+        capability: {
+          add: [ string ](name='Add', description='securityContextCapabilityAdds'),
+        }(name='Capability', description='Capability'),
+      }(name='SecurityContext', description='SecurityContext'),
+      gpu?: integer(name='Gpu', description='gpu'),
+    }
+  ](name='InitContainer', description='initContainers'),
+  imageRegistryCredential?: [
+    {
+      server?: string(name='Server', description='server'),
+      userName?: string(name='UserName', description='userName'),
+      password?: string(name='Password', description='password'),
+    }
+  ](name='ImageRegistryCredential', description='imageRegistryCredentials'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+  cpu?: float(name='Cpu', description='cpu'),
+  memory?: float(name='Memory', description='mem'),
+}
+
+model UpdateContainerGroupResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function updateContainerGroup(request: UpdateContainerGroupRequest, runtime: Util.RuntimeOptions): UpdateContainerGroupResponse {
+  return _request('UpdateContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DescribeContainerGroupPriceRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  cpu: float(name='Cpu', description='cpu'),
+  memory: float(name='Memory', description='memory'),
+}
+
+model DescribeContainerGroupPriceResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  priceInfo: {
+    rules: {
+      rule: [
+        {
+          ruleId: long(name='RuleId', description='ruleId'),
+          description: string(name='Description', description='description'),
+        }
+      ](name='Rule', description='Rule'),
+    }(name='Rules', description='rules'),
+    price: {
+      originalPrice: float(name='OriginalPrice', description='originalPrice'),
+      discountPrice: float(name='DiscountPrice', description='discountPrice'),
+      tradePrice: float(name='TradePrice', description='tradePrice'),
+      currency: string(name='Currency', description='currency'),
+      detailInfos: {
+        detailInfo: [
+          {
+            resource: string(name='Resource', description='resource'),
+            originalPrice: float(name='OriginalPrice', description='originalPrice'),
+            discountPrice: float(name='DiscountPrice', description='discountPrice'),
+            tradePrice: float(name='TradePrice', description='tradePrice'),
+            rules: {
+              rule: [
+                {
+                  ruleId: long(name='RuleId', description='ruleId'),
+                  description: string(name='Description', description='description'),
+                }
+              ](name='Rule', description='Rule'),
+            }(name='Rules', description='rules'),
+          }
+        ](name='DetailInfo', description='DetailInfo'),
+      }(name='DetailInfos', description='detailInfos'),
+    }(name='Price', description='price'),
+  }(name='PriceInfo', description='data'),
+}
+
+async function describeContainerGroupPrice(request: DescribeContainerGroupPriceRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupPriceResponse {
+  return _request('DescribeContainerGroupPrice', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model ExecContainerCommandRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupId: string(name='ContainerGroupId', description='containerGroupId'),
+  containerName: string(name='ContainerName', description='containerName'),
+  command: string(name='Command', description='command'),
+  TTY?: boolean(name='TTY', description='tty'),
+}
+
+model ExecContainerCommandResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  webSocketUri: string(name='WebSocketUri', description='data'),
+}
+
+async function execContainerCommand(request: ExecContainerCommandRequest, runtime: Util.RuntimeOptions): ExecContainerCommandResponse {
+  return _request('ExecContainerCommand', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DescribeContainerLogRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupId: string(name='ContainerGroupId', description='containerGroupId'),
+  containerName: string(name='ContainerName', description='containerName'),
+  startTime?: string(name='StartTime', description='startTime'),
+  tail?: integer(name='Tail', description='tail'),
+  lastTime?: boolean(name='LastTime', description='previous'),
+  sinceSeconds?: integer(name='SinceSeconds', description='sinceSeconds'),
+}
+
+model DescribeContainerLogResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  containerName: string(name='ContainerName', description='data.containerName'),
+  content: string(name='Content', description='data.log'),
+}
+
+async function describeContainerLog(request: DescribeContainerLogRequest, runtime: Util.RuntimeOptions): DescribeContainerLogResponse {
+  return _request('DescribeContainerLog', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model CreateContainerGroupRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  zoneId?: string(name='ZoneId', description='zoneId'),
+  securityGroupId: string(name='SecurityGroupId', description='linkedSecurityGroupId'),
+  VSwitchId: string(name='VSwitchId', description='linkedVSwitchId'),
+  containerGroupName: string(name='ContainerGroupName', description='containerGroupName'),
+  restartPolicy?: string(name='RestartPolicy', description='restartPolicy'),
+  tag?: [
+    {
+      key: string(name='Key', description='key'),
+      value: string(name='Value', description='value'),
+    }
+  ](name='Tag', description='labels'),
+  imageRegistryCredential?: [
+    {
+      server: string(name='Server', description='server'),
+      userName: string(name='UserName', description='userName'),
+      password: string(name='Password', description='password'),
+    }
+  ](name='ImageRegistryCredential', description='imageRegistryCredentials'),
+  container: [
+    {
+      image: string(name='Image', description='image'),
+      name: string(name='Name', description='name'),
+      cpu?: float(name='Cpu', description='cpu'),
+      memory?: float(name='Memory', description='mem'),
+      workingDir?: string(name='WorkingDir', description='workingDir'),
+      imagePullPolicy?: string(name='ImagePullPolicy', description='imagePullPolicy'),
+      command?: [ string ](name='Command', description='command'),
+      arg?: [ string ](name='Arg', description='args'),
+      volumeMount?: [
+        {
+          mountPath: string(name='MountPath', description='mountPath'),
+          readOnly: boolean(name='ReadOnly', description='readOnly'),
+          name?: string(name='Name', description='name'),
+          subPath?: string(name='SubPath', description='subPath'),
+        }
+      ](name='VolumeMount', description='volumeMounts'),
+      port?: [
+        {
+          protocol: string(name='Protocol', description='protocol'),
+          port: integer(name='Port', description='port'),
+        }
+      ](name='Port', description='ports'),
+      environmentVar?: [
+        {
+          key?: string(name='Key', description='key'),
+          value?: string(name='Value', description='value'),
+          fieldRef: {
+            fieldPath?: string(name='FieldPath', description='fieldRefFieldPath'),
+          }(name='FieldRef', description='FieldRef'),
+        }
+      ](name='EnvironmentVar', description='env'),
+      readinessProbe: {
+        httpGet: {
+          path?: string(name='Path', description='readinessProbeHttpGetPath'),
+          port?: integer(name='Port', description='readinessProbeHttpGetPort'),
+          scheme?: string(name='Scheme', description='readinessProbeHttpGetScheme'),
+        }(name='HttpGet', description='HttpGet'),
+        initialDelaySeconds?: integer(name='InitialDelaySeconds', description='readinessProbeInitialDelaySeconds'),
+        periodSeconds?: integer(name='PeriodSeconds', description='readinessProbePeriodSeconds'),
+        successThreshold?: integer(name='SuccessThreshold', description='readinessProbeSuccessThreshold'),
+        failureThreshold?: integer(name='FailureThreshold', description='readinessProbeFailureThreshold'),
+        timeoutSeconds?: integer(name='TimeoutSeconds', description='readinessProbeTimeoutSeconds'),
+        exec: {
+          command: [ string ](name='Command', description='readinessProbeExec'),
+        }(name='Exec', description='Exec'),
+        tcpSocket: {
+          port?: integer(name='Port', description='readinessProbeTcpSocketPort'),
+        }(name='TcpSocket', description='TcpSocket'),
+      }(name='ReadinessProbe', description='ReadinessProbe'),
+      livenessProbe: {
+        httpGet: {
+          path?: string(name='Path', description='livenessProbeHttpGetPath'),
+          port?: integer(name='Port', description='livenessProbeHttpGetPort'),
+          scheme?: string(name='Scheme', description='livenessProbeHttpGetScheme'),
+        }(name='HttpGet', description='HttpGet'),
+        initialDelaySeconds?: integer(name='InitialDelaySeconds', description='livenessProbeInitialDelaySeconds'),
+        periodSeconds?: integer(name='PeriodSeconds', description='livenessProbePeriodSeconds'),
+        successThreshold?: integer(name='SuccessThreshold', description='livenessProbeSuccessThreshold'),
+        failureThreshold?: integer(name='FailureThreshold', description='livenessProbeFailureThreshold'),
+        timeoutSeconds?: integer(name='TimeoutSeconds', description='livenessProbeTimeoutSeconds'),
+        exec: {
+          command: [ string ](name='Command', description='livenessProbeExec'),
+        }(name='Exec', description='Exec'),
+        tcpSocket: {
+          port?: integer(name='Port', description='livenessProbeTcpSocketPort'),
+        }(name='TcpSocket', description='TcpSocket'),
+      }(name='LivenessProbe', description='LivenessProbe'),
+      securityContext: {
+        capability: {
+          add: [ string ](name='Add', description='securityContextCapabilityAdds'),
+        }(name='Capability', description='Capability'),
+        readOnlyRootFilesystem?: boolean(name='ReadOnlyRootFilesystem', description='securityContextReadOnlyRootFilesystem'),
+        runAsUser?: long(name='RunAsUser', description='securityContextRunAsUser'),
+      }(name='SecurityContext', description='SecurityContext'),
+      stdin?: boolean(name='Stdin', description='stdin'),
+      stdinOnce?: boolean(name='StdinOnce', description='stdinOnce'),
+      tty?: boolean(name='Tty', description='tty'),
+      gpu?: integer(name='Gpu', description='gpu'),
+      lifecyclePostStartHandlerHttpGetHost?: string(name='LifecyclePostStartHandlerHttpGetHost', description='lifecyclePostStartHandlerHttpGetHost'),
+      lifecyclePostStartHandlerHttpGetPort?: integer(name='LifecyclePostStartHandlerHttpGetPort', description='lifecyclePostStartHandlerHttpGetPort'),
+      lifecyclePostStartHandlerHttpGetPath?: string(name='LifecyclePostStartHandlerHttpGetPath', description='lifecyclePostStartHandlerHttpGetPath'),
+      lifecyclePostStartHandlerHttpGetScheme?: string(name='LifecyclePostStartHandlerHttpGetScheme', description='lifecyclePostStartHandlerHttpGetScheme'),
+      lifecyclePostStartHandlerHttpGetHttpHeader?: [
+        {
+          name?: string(name='Name', description='name'),
+          value?: string(name='Value', description='value'),
+        }
+      ](name='LifecyclePostStartHandlerHttpGetHttpHeader', description='lifecyclePostStartHandlerHttpGetHttpHeaders'),
+      lifecyclePostStartHandlerExec?: [ string ](name='LifecyclePostStartHandlerExec', description='lifecyclePostStartHandlerExec'),
+      lifecyclePostStartHandlerTcpSocketHost?: string(name='LifecyclePostStartHandlerTcpSocketHost', description='lifecyclePostStartHandlerTcpSocketHost'),
+      lifecyclePostStartHandlerTcpSocketPort?: integer(name='LifecyclePostStartHandlerTcpSocketPort', description='lifecyclePostStartHandlerTcpSocketPort'),
+      lifecyclePreStopHandlerHttpGetHost?: string(name='LifecyclePreStopHandlerHttpGetHost', description='lifecyclePreStopHandlerHttpGetHost'),
+      lifecyclePreStopHandlerHttpGetPort?: integer(name='LifecyclePreStopHandlerHttpGetPort', description='lifecyclePreStopHandlerHttpGetPort'),
+      lifecyclePreStopHandlerHttpGetPath?: string(name='LifecyclePreStopHandlerHttpGetPath', description='lifecyclePreStopHandlerHttpGetPath'),
+      lifecyclePreStopHandlerHttpGetScheme?: string(name='LifecyclePreStopHandlerHttpGetScheme', description='lifecyclePreStopHandlerHttpGetScheme'),
+      lifecyclePreStopHandlerHttpGetHttpHeader?: [
+        {
+          name?: string(name='Name', description='name'),
+          value?: string(name='Value', description='value'),
+        }
+      ](name='LifecyclePreStopHandlerHttpGetHttpHeader', description='lifecyclePreStopHandlerHttpGetHttpHeaders'),
+      lifecyclePreStopHandlerExec?: [ string ](name='LifecyclePreStopHandlerExec', description='lifecyclePreStopHandlerExec'),
+      lifecyclePreStopHandlerTcpSocketHost?: string(name='LifecyclePreStopHandlerTcpSocketHost', description='lifecyclePreStopHandlerTcpSocketHost'),
+      lifecyclePreStopHandlerTcpSocketPort?: integer(name='LifecyclePreStopHandlerTcpSocketPort', description='lifecyclePreStopHandlerTcpSocketPort'),
+    }
+  ](name='Container', description='containers'),
+  volume?: [
+    {
+      name?: string(name='Name', description='name'),
+      NFSVolume: {
+        server?: string(name='Server', description='nfsVolumeServer'),
+        path?: string(name='Path', description='nfsVolumePath'),
+        readOnly?: boolean(name='ReadOnly', description='nfsVolumeReadOnly'),
+      }(name='NFSVolume', description='NFSVolume'),
+      configFileVolume: {
+        configFileToPath: [
+          {
+            content?: string(name='Content', description='content'),
+            path?: string(name='Path', description='path'),
+            mode?: integer(name='Mode', description='mode'),
+          }
+        ](name='ConfigFileToPath', description='configFileVolumeConfigFileToPaths'),
+        defaultModel?: integer(name='DefaultModel', description='configFileVolumeDefaultModel'),
+      }(name='ConfigFileVolume', description='ConfigFileVolume'),
+      type?: string(name='Type', description='type'),
+      emptyDirVolume: {
+        medium?: string(name='Medium', description='emptyDirVolumeMedium'),
+      }(name='EmptyDirVolume', description='EmptyDirVolume'),
+      diskVolume: {
+        diskId?: string(name='DiskId', description='diskVolumeDiskId'),
+        fsType?: string(name='FsType', description='diskVolumeFsType'),
+        diskSize?: integer(name='DiskSize', description='diskVolumeDiskSize'),
+      }(name='DiskVolume', description='DiskVolume'),
+      flexVolume: {
+        driver?: string(name='Driver', description='flexVolumeDriver'),
+        fsType?: string(name='FsType', description='flexVolumeFsType'),
+        options?: string(name='Options', description='flexVolumeOptions'),
+      }(name='FlexVolume', description='FlexVolume'),
+      hostPathVolume: {
+        type?: string(name='Type', description='hostPathVolumeType'),
+        path?: string(name='Path', description='hostPathVolumePath'),
+      }(name='HostPathVolume', description='HostPathVolume'),
+    }
+  ](name='Volume', description='volumes'),
+  eipInstanceId?: string(name='EipInstanceId', description='eipInstanceId'),
+  initContainer?: [
+    {
+      name?: string(name='Name', description='name'),
+      image?: string(name='Image', description='image'),
+      cpu?: float(name='Cpu', description='cpu'),
+      memory?: float(name='Memory', description='mem'),
+      workingDir?: string(name='WorkingDir', description='workingDir'),
+      imagePullPolicy?: string(name='ImagePullPolicy', description='imagePullPolicy'),
+      command: [ string ](name='Command', description='command'),
+      arg: [ string ](name='Arg', description='args'),
+      volumeMount: [
+        {
+          mountPath?: string(name='MountPath', description='mountPath'),
+          readOnly?: boolean(name='ReadOnly', description='readOnly'),
+          name?: string(name='Name', description='name'),
+          subPath?: string(name='SubPath', description='subPath'),
+        }
+      ](name='VolumeMount', description='volumeMounts'),
+      port: [
+        {
+          protocol?: string(name='Protocol', description='protocol'),
+          port?: integer(name='Port', description='port'),
+        }
+      ](name='Port', description='ports'),
+      environmentVar: [
+        {
+          key?: string(name='Key', description='key'),
+          value?: string(name='Value', description='value'),
+          fieldRef: {
+            fieldPath?: string(name='FieldPath', description='fieldRefFieldPath'),
+          }(name='FieldRef', description='FieldRef'),
+        }
+      ](name='EnvironmentVar', description='env'),
+      securityContext: {
+        capability: {
+          add: [ string ](name='Add', description='securityContextCapabilityAdds'),
+        }(name='Capability', description='Capability'),
+        readOnlyRootFilesystem?: boolean(name='ReadOnlyRootFilesystem', description='securityContextReadOnlyRootFilesystem'),
+        runAsUser?: long(name='RunAsUser', description='securityContextRunAsUser'),
+      }(name='SecurityContext', description='SecurityContext'),
+      gpu?: integer(name='Gpu', description='gpu'),
+    }
+  ](name='InitContainer', description='initContainers'),
+  dnsConfig: {
+    nameServer?: [ string ](name='NameServer', description='dnsConfigNameServers'),
+    search?: [ string ](name='Search', description='dnsConfigSearches'),
+    option?: [
+      {
+        name?: string(name='Name', description='name'),
+        value?: string(name='Value', description='value'),
+      }
+    ](name='Option', description='dnsConfigOptions'),
+  }(name='DnsConfig', description='DnsConfig'),
+  cpu?: float(name='Cpu', description='cpu'),
+  memory?: float(name='Memory', description='mem'),
+  resourceGroupId?: string(name='ResourceGroupId', description='resourceGroupId'),
+  dnsPolicy?: string(name='DnsPolicy', description='dnsPolicy'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+  hostAliase?: [
+    {
+      ip?: string(name='Ip', description='ip'),
+      hostname: [ string ](name='Hostname', description='hostnames'),
+    }
+  ](name='HostAliase', description='hostAliases'),
+  arn?: [
+    {
+      roleArn?: string(name='RoleArn', description='roleArn'),
+      roleType?: string(name='RoleType', description='roleType'),
+      assumeRoleFor?: string(name='AssumeRoleFor', description='assumeRoleFor'),
+    }
+  ](name='Arn', description='arns'),
+  instanceType?: string(name='InstanceType', description='instanceType'),
+  securityContext: {
+    sysctl?: [
+      {
+        name?: string(name='Name', description='name'),
+        value?: string(name='Value', description='value'),
+      }
+    ](name='Sysctl', description='PodSecurityContextSysctls'),
+  }(name='SecurityContext', description='SecurityContext'),
+  slsEnable?: boolean(name='SlsEnable', description='slsEnable'),
+  imageSnapshotId?: string(name='ImageSnapshotId', description='imageSnapshotId'),
+  ramRoleName?: string(name='RamRoleName', description='ramRoleName'),
+  ntpServer?: [ string ](name='NtpServer', description='ntpServers'),
+  terminationGracePeriodSeconds?: long(name='TerminationGracePeriodSeconds', description='terminationGracePeriodSeconds'),
+  autoMatchImageCache?: boolean(name='AutoMatchImageCache', description='autoMatchImageCache'),
+  ipv6AddressCount?: integer(name='Ipv6AddressCount', description='ipv6AddressCount'),
+  activeDeadlineSeconds?: long(name='ActiveDeadlineSeconds', description='activeDeadlineSeconds'),
+  spotStrategy?: string(name='SpotStrategy', description='spotStrategy'),
+  spotPriceLimit?: float(name='SpotPriceLimit', description='spotPriceLimit'),
+  VSwitchStrategy?: string(name='VSwitchStrategy', description='multiVswitchStrategy'),
+}
+
+model CreateContainerGroupResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
+}
+
+async function createContainerGroup(request: CreateContainerGroupRequest, runtime: Util.RuntimeOptions): CreateContainerGroupResponse {
+  return _request('CreateContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DescribeContainerGroupsRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  zoneId?: string(name='ZoneId', description='zoneId'),
+  VSwitchId?: string(name='VSwitchId', description='vSwitchId'),
+  nextToken?: string(name='NextToken', description='nextToken'),
+  limit?: integer(name='Limit', description='limit'),
+  tag?: [
+    {
+      key: string(name='Key', description='key'),
+      value: string(name='Value', description='value'),
+    }
+  ](name='Tag', description='labels'),
+  containerGroupIds?: string(name='ContainerGroupIds', description='containerGroupIdParam'),
+  containerGroupName?: string(name='ContainerGroupName', description='containerGroupName'),
+  status?: string(name='Status', description='status'),
+  resourceGroupId?: string(name='ResourceGroupId', description='resourceGroupId'),
+  withEvent?: boolean(name='WithEvent', description='withEvent'),
+}
+
+model DescribeContainerGroupsResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  nextToken: string(name='NextToken', description='data.nextToken'),
+  totalCount: integer(name='TotalCount', description='data.totalCount'),
+  containerGroups: [
+    {
+      containerGroupId: string(name='ContainerGroupId', description='containerGroupId'),
+      containerGroupName: string(name='ContainerGroupName', description='containerGroupName'),
+      regionId: string(name='RegionId', description='regionId'),
+      zoneId: string(name='ZoneId', description='zoneId'),
+      memory: float(name='Memory', description='mem'),
+      cpu: float(name='Cpu', description='cpu'),
+      VSwitchId: string(name='VSwitchId', description='vSwitchId'),
+      securityGroupId: string(name='SecurityGroupId', description='securityGroupId'),
+      restartPolicy: string(name='RestartPolicy', description='restartPolicy'),
+      intranetIp: string(name='IntranetIp', description='intranetIp'),
+      status: string(name='Status', description='status'),
+      internetIp: string(name='InternetIp', description='internetIp'),
+      creationTime: string(name='CreationTime', description='gmtCreate'),
+      succeededTime: string(name='SucceededTime', description='gmtSucceeded'),
+      eniInstanceId: string(name='EniInstanceId', description='eniInstanceId'),
+      instanceType: string(name='InstanceType', description='instanceType'),
+      expiredTime: string(name='ExpiredTime', description='gmtExpired'),
+      failedTime: string(name='FailedTime', description='gmtFailed'),
+      ramRoleName: string(name='RamRoleName', description='ramRoleName'),
+      ipv6Address: string(name='Ipv6Address', description='ipv6Address'),
+      vpcId: string(name='VpcId', description='vpcInstanceId'),
+      discount: integer(name='Discount', description='discount'),
+      resourceGroupId: string(name='ResourceGroupId', description='resourceGroupId'),
+      tags: [
+        {
+          key: string(name='Key', description='key'),
+          value: string(name='Value', description='value'),
+        }
+      ](name='Tags', description='labels'),
+      events: [
+        {
+          count: integer(name='Count', description='count'),
+          type: string(name='Type', description='type'),
+          name: string(name='Name', description='name'),
+          message: string(name='Message', description='message'),
+          firstTimestamp: string(name='FirstTimestamp', description='firstTimestamp'),
+          lastTimestamp: string(name='LastTimestamp', description='lastTimestamp'),
+          reason: string(name='Reason', description='reason'),
+        }
+      ](name='Events', description='events'),
+      containers: [
+        {
+          name: string(name='Name', description='name'),
+          image: string(name='Image', description='image'),
+          memory: float(name='Memory', description='bigMemForPop'),
+          cpu: float(name='Cpu', description='bigCpuForPop'),
+          restartCount: integer(name='RestartCount', description='restartCount'),
+          workingDir: string(name='WorkingDir', description='workingDir'),
+          imagePullPolicy: string(name='ImagePullPolicy', description='imagePullPolicy'),
+          ready: boolean(name='Ready', description='ready'),
+          gpu: integer(name='Gpu', description='gpu'),
+          stdin: boolean(name='Stdin', description='stdin'),
+          stdinOnce: boolean(name='StdinOnce', description='stdinOnce'),
+          tty: boolean(name='Tty', description='tty'),
+          volumeMounts: [
+            {
+              name: string(name='Name', description='name'),
+              mountPath: string(name='MountPath', description='mountPath'),
+              readOnly: boolean(name='ReadOnly', description='readOnly'),
+            }
+          ](name='VolumeMounts', description='volumeMounts'),
+          ports: [
+            {
+              port: integer(name='Port', description='port'),
+              protocol: string(name='Protocol', description='protocol'),
+            }
+          ](name='Ports', description='ports'),
+          environmentVars: [
+            {
+              key: string(name='Key', description='key'),
+              value: string(name='Value', description='value'),
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: string(name='FieldPath', description='fieldPath'),
+                }(name='FieldRef', description='fieldRef'),
+              }(name='ValueFrom', description='valueFrom'),
+            }
+          ](name='EnvironmentVars', description='env'),
+          previousState: {
+            state: string(name='State', description='state'),
+            detailStatus: string(name='DetailStatus', description='detailStatus'),
+            exitCode: integer(name='ExitCode', description='exitCode'),
+            startTime: string(name='StartTime', description='startTime'),
+            finishTime: string(name='FinishTime', description='finishTime'),
+            reason: string(name='Reason', description='reason'),
+            message: string(name='Message', description='message'),
+            signal: integer(name='Signal', description='signal'),
+          }(name='PreviousState', description='previousState'),
+          currentState: {
+            state: string(name='State', description='state'),
+            detailStatus: string(name='DetailStatus', description='detailStatus'),
+            exitCode: integer(name='ExitCode', description='exitCode'),
+            startTime: string(name='StartTime', description='startTime'),
+            finishTime: string(name='FinishTime', description='finishTime'),
+            reason: string(name='Reason', description='reason'),
+            message: string(name='Message', description='message'),
+            signal: integer(name='Signal', description='signal'),
+          }(name='CurrentState', description='currentState'),
+          readinessProbe: {
+            initialDelaySeconds: integer(name='InitialDelaySeconds', description='initialDelaySeconds'),
+            periodSeconds: integer(name='PeriodSeconds', description='periodSeconds'),
+            timeoutSeconds: integer(name='TimeoutSeconds', description='timeoutSeconds'),
+            successThreshold: integer(name='SuccessThreshold', description='successThreshold'),
+            failureThreshold: integer(name='FailureThreshold', description='failureThreshold'),
+            httpGet: {
+              path: string(name='Path', description='path'),
+              port: integer(name='Port', description='port'),
+              scheme: string(name='Scheme', description='scheme'),
+            }(name='HttpGet', description='httpGet'),
+            tcpSocket: {
+              host: string(name='Host', description='host'),
+              port: integer(name='Port', description='port'),
+            }(name='TcpSocket', description='tcpSocket'),
+            execs: [
+              {
+                exec: string (name='Exec', description='Exec'),
+              }
+            ](name='Execs', description='exec'),
+          }(name='ReadinessProbe', description='innerReadinessProbe'),
+          livenessProbe: {
+            initialDelaySeconds: integer(name='InitialDelaySeconds', description='initialDelaySeconds'),
+            periodSeconds: integer(name='PeriodSeconds', description='periodSeconds'),
+            timeoutSeconds: integer(name='TimeoutSeconds', description='timeoutSeconds'),
+            successThreshold: integer(name='SuccessThreshold', description='successThreshold'),
+            failureThreshold: integer(name='FailureThreshold', description='failureThreshold'),
+            httpGet: {
+              path: string(name='Path', description='path'),
+              port: integer(name='Port', description='port'),
+              scheme: string(name='Scheme', description='scheme'),
+            }(name='HttpGet', description='httpGet'),
+            tcpSocket: {
+              host: string(name='Host', description='host'),
+              port: integer(name='Port', description='port'),
+            }(name='TcpSocket', description='tcpSocket'),
+            execs: [
+              {
+                exec: string (name='Exec', description='Exec'),
+              }
+            ](name='Execs', description='exec'),
+          }(name='LivenessProbe', description='innerLivenessProbe'),
+          securityContext: {
+            readOnlyRootFilesystem: boolean(name='ReadOnlyRootFilesystem', description='readOnlyRootFilesystem'),
+            runAsUser: long(name='RunAsUser', description='runAsUser'),
+            capability: {
+              adds: [
+                {
+                  add: string (name='Add', description='Add'),
+                }
+              ](name='Adds', description='adds'),
+            }(name='Capability', description='capability'),
+          }(name='SecurityContext', description='securityContext'),
+          commands: [
+            {
+              command: string (name='Command', description='Command'),
+            }
+          ](name='Commands', description='command'),
+          args: [
+            {
+              arg: string (name='Arg', description='Arg'),
+            }
+          ](name='Args', description='args'),
+        }
+      ](name='Containers', description='containers'),
+      volumes: [
+        {
+          type: string(name='Type', description='type'),
+          name: string(name='Name', description='name'),
+          NFSVolumePath: string(name='NFSVolumePath', description='nfsVolumePath'),
+          NFSVolumeServer: string(name='NFSVolumeServer', description='nfsVolumeServer'),
+          NFSVolumeReadOnly: boolean(name='NFSVolumeReadOnly', description='nfsVolumeReadOnly'),
+          diskVolumeDiskId: string(name='DiskVolumeDiskId', description='diskVolumeDiskId'),
+          diskVolumeFsType: string(name='DiskVolumeFsType', description='diskVolumeFsType'),
+          flexVolumeDriver: string(name='FlexVolumeDriver', description='flexVolumeDriver'),
+          flexVolumeFsType: string(name='FlexVolumeFsType', description='flexVolumeFsType'),
+          flexVolumeOptions: string(name='FlexVolumeOptions', description='flexVolumeOptions'),
+          configFileVolumeConfigFileToPaths: [
+            {
+              content: string(name='Content', description='content'),
+              path: string(name='Path', description='path'),
+            }
+          ](name='ConfigFileVolumeConfigFileToPaths', description='configFileVolumeConfigFileToPaths'),
+        }
+      ](name='Volumes', description='volumes'),
+      initContainers: [
+        {
+          name: string(name='Name', description='name'),
+          image: string(name='Image', description='image'),
+          cpu: float(name='Cpu', description='bigCpuForPop'),
+          memory: float(name='Memory', description='bigMemForPop'),
+          restartCount: integer(name='RestartCount', description='restartCount'),
+          workingDir: string(name='WorkingDir', description='workingDir'),
+          imagePullPolicy: string(name='ImagePullPolicy', description='imagePullPolicy'),
+          ready: boolean(name='Ready', description='ready'),
+          gpu: integer(name='Gpu', description='gpu'),
+          volumeMounts: [
+            {
+              name: string(name='Name', description='name'),
+              mountPath: string(name='MountPath', description='mountPath'),
+              readOnly: boolean(name='ReadOnly', description='readOnly'),
+            }
+          ](name='VolumeMounts', description='volumeMounts'),
+          ports: [
+            {
+              port: integer(name='Port', description='port'),
+              protocol: string(name='Protocol', description='protocol'),
+            }
+          ](name='Ports', description='ports'),
+          environmentVars: [
+            {
+              key: string(name='Key', description='key'),
+              value: string(name='Value', description='value'),
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: string(name='FieldPath', description='fieldPath'),
+                }(name='FieldRef', description='fieldRef'),
+              }(name='ValueFrom', description='valueFrom'),
+            }
+          ](name='EnvironmentVars', description='env'),
+          previousState: {
+            state: string(name='State', description='state'),
+            detailStatus: string(name='DetailStatus', description='detailStatus'),
+            exitCode: integer(name='ExitCode', description='exitCode'),
+            startTime: string(name='StartTime', description='startTime'),
+            finishTime: string(name='FinishTime', description='finishTime'),
+            reason: string(name='Reason', description='reason'),
+            message: string(name='Message', description='message'),
+            signal: integer(name='Signal', description='signal'),
+          }(name='PreviousState', description='previousState'),
+          currentState: {
+            state: string(name='State', description='state'),
+            detailStatus: string(name='DetailStatus', description='detailStatus'),
+            exitCode: integer(name='ExitCode', description='exitCode'),
+            startTime: string(name='StartTime', description='startTime'),
+            finishTime: string(name='FinishTime', description='finishTime'),
+            reason: string(name='Reason', description='reason'),
+            message: string(name='Message', description='message'),
+            signal: integer(name='Signal', description='signal'),
+          }(name='CurrentState', description='currentState'),
+          securityContext: {
+            readOnlyRootFilesystem: boolean(name='ReadOnlyRootFilesystem', description='readOnlyRootFilesystem'),
+            runAsUser: long(name='RunAsUser', description='runAsUser'),
+            capability: {
+              adds: [
+                {
+                  add: string (name='Add', description='Add'),
+                }
+              ](name='Adds', description='adds'),
+            }(name='Capability', description='capability'),
+          }(name='SecurityContext', description='securityContext'),
+          command: [
+            {
+              command: string (name='Command', description='Command'),
+            }
+          ](name='Command', description='command'),
+          args: [
+            {
+              arg: string (name='Arg', description='Arg'),
+            }
+          ](name='Args', description='args'),
+        }
+      ](name='InitContainers', description='initContainers'),
+      hostAliases: [
+        {
+          ip: string(name='Ip', description='ip'),
+          hostnames: [
+            {
+              hostname: string (name='Hostname', description='Hostname'),
+            }
+          ](name='Hostnames', description='hostnames'),
+        }
+      ](name='HostAliases', description='hostAliases'),
+      dnsConfig: {
+        options: [
+          {
+            name: string(name='Name', description='name'),
+            value: string(name='Value', description='value'),
+          }
+        ](name='Options', description='dnsConfigOptions'),
+        nameServers: [
+          {
+            nameServer: string (name='NameServer', description='NameServer'),
+          }
+        ](name='NameServers', description='dnsConfigNameServers'),
+        searches: [
+          {
+            search: string (name='Search', description='Search'),
+          }
+        ](name='Searches', description='dnsConfigSearches'),
+      }(name='DnsConfig', description='dnsConfig'),
+      eciSecurityContext: {
+        sysctls: [
+          {
+            name: string(name='Name', description='name'),
+            value: string(name='Value', description='value'),
+          }
+        ](name='Sysctls', description='sysctls'),
+      }(name='EciSecurityContext', description='podSecurityContext'),
+    }
+  ](name='ContainerGroups', description='data.data'),
+}
+
+async function describeContainerGroups(request: DescribeContainerGroupsRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupsResponse {
+  return _request('DescribeContainerGroups', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+model DeleteContainerGroupRequest = {
+  ownerId?: long(name='OwnerId', description='ownerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', description='resourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId', description='resourceOwnerId'),
+  ownerAccount?: string(name='OwnerAccount', description='ownerAccount'),
+  regionId: string(name='RegionId', description='regionId'),
+  containerGroupId: string(name='ContainerGroupId', description='bazaarInstanceId'),
+  clientToken?: string(name='ClientToken', description='clientToken'),
+}
+
+model DeleteContainerGroupResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteContainerGroup(request: DeleteContainerGroupRequest, runtime: Util.RuntimeOptions): DeleteContainerGroupResponse {
+  return _request('DeleteContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+}
+
+function getUserAgent(): string {
+  var userAgent =  Util.getUserAgent(@userAgent);
+  return userAgent;
+}
+
+async function getAccessKeyId(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var accessKeyId = @credential.getAccessKeyId();
+  return accessKeyId;
+}
+
+async function getAccessKeySecret(): string{
+  if (Util.isUnset(@credential)) {
+    return '';
+  }
+  var secret = @credential.getAccessKeySecret();
+  return secret;
+}
+
