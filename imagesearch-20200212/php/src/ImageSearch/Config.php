@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
 use AlibabaCloud\Tea\Model;
 
@@ -23,6 +23,8 @@ class Config extends Model{
 
     public $regionId;
 
+    public $userAgent;
+
     public $readTimeout;
 
     public $connectTimeout;
@@ -31,14 +33,16 @@ class Config extends Model{
 
     public $httpsProxy;
 
+    public $noProxy;
+
     public $socks5Proxy;
 
     public $socks5NetWork;
 
-    public $noProxy;
-
-    public $userAgent;
-
     public $maxIdleConns;
+
+    public $endpointType;
+
+    public $openPlatformEndpoint;
 
 }
