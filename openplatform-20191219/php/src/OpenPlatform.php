@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\OpenPlatform;
+namespace AlibabaCloud\SDK\OpenPlatform\V20191219;
 
 use AlibabaCloud\Tea\Tea;
 use AlibabaCloud\Tea\Request;
@@ -13,8 +13,8 @@ use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-use AlibabaCloud\SDK\OpenPlatform\Models\AuthorizeFileUploadRequest;
-use AlibabaCloud\SDK\OpenPlatform\Models\Config;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\Config;
 
 class OpenPlatform {
     protected $_name = [];
