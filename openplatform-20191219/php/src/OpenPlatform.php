@@ -8,13 +8,11 @@ use AlibabaCloud\Tea\Tea;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\Exception\TeaError;
 use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
-use AlibabaCloud\Tea\RpcUtils\RpcUtils;
-use AlibabaCloud\Tea\Utils\Utils;
-use AlibabaCloud\Credentials\Credential;
-use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
+use Util\RuntimeOptions;
 
-use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\Config;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Credential;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config;
 
 class OpenPlatform {
     protected $_name = [];
@@ -46,28 +44,28 @@ class OpenPlatform {
     private $_credential;
 
     public function __construct(Config $config){
-        if (Utils::isUnset($config)) {
+        if (Util::isUnset($config)) {
             throw new TeaError([
                 "name" => "ParameterMissing",
                 "message" => "'config' can not be unset"
             ]);
         }
-        if (Utils::_empty($config->endpoint)) {
+        if (Util::_empty($config->endpoint)) {
             throw new TeaError([
                 "name" => "ParameterMissing",
                 "message" => "'config.endpoint' can not be empty"
             ]);
         }
-        if (Utils::_empty($config->regionId)) {
+        if (Util::_empty($config->regionId)) {
             throw new TeaError([
                 "name" => "ParameterMissing",
                 "message" => "'config.regionId' can not be empty"
             ]);
         }
-        if (Utils::_empty($config->type)) {
+        if (Util::_empty($config->type)) {
             $config->type = "access_key";
         }
-        $credentialConfig = new \AlibabaCloud\Credentials\Credential\Config([
+        $credentialConfig = new Credential\Config([
             "accessKeyId" => $config->accessKeyId,
             "type" => $config->type,
             "accessKeySecret" => $config->accessKeySecret,
@@ -92,19 +90,19 @@ class OpenPlatform {
         $runtime->validate();
         $_runtime = [
             "timeouted" => "retry",
-            "readTimeout" => Utils::defaultNumber($runtime->readTimeout, $this->_readTimeout),
-            "connectTimeout" => Utils::defaultNumber($runtime->connectTimeout, $this->_connectTimeout),
-            "httpProxy" => Utils::defaultString($runtime->httpProxy, $this->_httpProxy),
-            "httpsProxy" => Utils::defaultString($runtime->httpsProxy, $this->_httpsProxy),
-            "noProxy" => Utils::defaultString($runtime->noProxy, $this->_noProxy),
-            "maxIdleConns" => Utils::defaultNumber($runtime->maxIdleConns, $this->_maxIdleConns),
+            "readTimeout" => Util::defaultNumber($runtime->readTimeout, $this->_readTimeout),
+            "connectTimeout" => Util::defaultNumber($runtime->connectTimeout, $this->_connectTimeout),
+            "httpProxy" => Util::defaultString($runtime->httpProxy, $this->_httpProxy),
+            "httpsProxy" => Util::defaultString($runtime->httpsProxy, $this->_httpsProxy),
+            "noProxy" => Util::defaultString($runtime->noProxy, $this->_noProxy),
+            "maxIdleConns" => Util::defaultNumber($runtime->maxIdleConns, $this->_maxIdleConns),
             "retry" => [
                 "retryable" => $runtime->autoretry,
-                "maxAttempts" => Utils::defaultNumber($runtime->maxAttempts, 2)
+                "maxAttempts" => Util::defaultNumber($runtime->maxAttempts, 2)
             ],
             "backoff" => [
-                "policy" => Utils::defaultString($runtime->backoffPolicy, "no"),
-                "period" => Utils::defaultNumber($runtime->backoffPeriod, 0)
+                "policy" => Util::defaultString($runtime->backoffPolicy, "no"),
+                "period" => Util::defaultNumber($runtime->backoffPeriod, 0)
             ],
             "ignoreSSL" => $runtime->ignoreSSL
         ];
@@ -123,31 +121,31 @@ class OpenPlatform {
                 $_request = new Request();
                 $accessKeyId = $this->getAccessKeyId();
                 $accessKeySecret = $this->getAccessKeySecret();
-                $_request->protocol = Utils::defaultString($this->_protocol, $protocol);
+                $_request->protocol = Util::defaultString($this->_protocol, $protocol);
                 $_request->method = $method;
                 $_request->pathname = "/";
-                $_request->query = RpcUtils::query([
+                $_request->query = RPCUtil::query([
                     "Action" => $action,
                     "Format" => "json",
                     "RegionId" => $this->_regionId,
-                    "Timestamp" => RpcUtils::getTimestamp(),
+                    "Timestamp" => RPCUtil::getTimestamp(),
                     "Version" => "2019-12-19",
                     "SignatureMethod" => "HMAC-SHA1",
                     "SignatureVersion" => "1.0",
-                    "SignatureNonce" => Utils::getNonce(),
+                    "SignatureNonce" => Util::getNonce(),
                     "AccessKeyId" => $accessKeyId,
                     $request
                 ]);
                 $_request->headers = [
-                    "host" => RpcUtils::getHost("OpenPlatform", $this->_regionId, $this->_endpoint),
+                    "host" => RPCUtil::getHost("OpenPlatform", $this->_regionId, $this->_endpoint),
                     "user-agent" => $this->getUserAgent()
                 ];
-                $_request->query["Signature"] = RpcUtils::getSignature($_request, $accessKeySecret);
+                $_request->query["Signature"] = RPCUtil::getSignature($_request, $accessKeySecret);
                 $_lastRequest = $_request;
                 $_response= Tea::send($_request, $_runtime);
-                $obj = Utils::readAsJSON($_response->body);
-                $body = Utils::assertAsMap($obj);
-                if (RpcUtils::hasError($body)) {
+                $obj = Util::readAsJSON($_response->body);
+                $body = Util::assertAsMap($obj);
+                if (RPCUtil::hasError($body)) {
                     throw new TeaError([
                         "message" => $body["Message"],
                         "data" => $body,
@@ -171,12 +169,12 @@ class OpenPlatform {
     }
 
     public function getUserAgent(){
-        $userAgent = Utils::getUserAgent($this->_userAgent);
+        $userAgent = Util::getUserAgent($this->_userAgent);
         return $userAgent;
     }
 
     public function getAccessKeyId(){
-        if (Utils::isUnset($this->_credential)) {
+        if (Util::isUnset($this->_credential)) {
             return "";
         }
         $accessKeyId = $this->_credential->getAccessKeyId();
@@ -184,7 +182,7 @@ class OpenPlatform {
     }
 
     public function getAccessKeySecret(){
-        if (Utils::isUnset($this->_credential)) {
+        if (Util::isUnset($this->_credential)) {
             return "";
         }
         $secret = $this->_credential->getAccessKeySecret();
