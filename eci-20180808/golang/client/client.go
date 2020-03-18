@@ -180,9 +180,9 @@ func (s *DescribeRegionsResponse) SetRegions(v []*DescribeRegionsResponseRegions
 }
 
 type DescribeRegionsResponseRegions struct {
-	RegionId       *string                                `json:"RegionId" xml:"RegionId" require:"true"`
-	RegionEndpoint *string                                `json:"RegionEndpoint" xml:"RegionEndpoint" require:"true"`
-	Zones          []*DescribeRegionsResponseRegionsZones `json:"Zones" xml:"Zones" require:"true" type:"Repeated"`
+	RegionId       *string   `json:"RegionId" xml:"RegionId" require:"true"`
+	RegionEndpoint *string   `json:"RegionEndpoint" xml:"RegionEndpoint" require:"true"`
+	Zones          []*string `json:"Zones" xml:"Zones" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -203,25 +203,8 @@ func (s *DescribeRegionsResponseRegions) SetRegionEndpoint(v string) *DescribeRe
 	return s
 }
 
-func (s *DescribeRegionsResponseRegions) SetZones(v []*DescribeRegionsResponseRegionsZones) *DescribeRegionsResponseRegions {
+func (s *DescribeRegionsResponseRegions) SetZones(v []*string) *DescribeRegionsResponseRegions {
 	s.Zones = v
-	return s
-}
-
-type DescribeRegionsResponseRegionsZones struct {
-	Zone *string `json:"Zone" xml:"Zone" require:"true"`
-}
-
-func (s DescribeRegionsResponseRegionsZones) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeRegionsResponseRegionsZones) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeRegionsResponseRegionsZones) SetZone(v string) *DescribeRegionsResponseRegionsZones {
-	s.Zone = &v
 	return s
 }
 
@@ -323,7 +306,7 @@ type DescribeImageCachesResponseImageCaches struct {
 	ExpireDateTime   *string                                         `json:"ExpireDateTime" xml:"ExpireDateTime" require:"true"`
 	CreationTime     *string                                         `json:"CreationTime" xml:"CreationTime" require:"true"`
 	Events           []*DescribeImageCachesResponseImageCachesEvents `json:"Events" xml:"Events" require:"true" type:"Repeated"`
-	Images           []*DescribeImageCachesResponseImageCachesImages `json:"Images" xml:"Images" require:"true" type:"Repeated"`
+	Images           []*string                                       `json:"Images" xml:"Images" require:"true" type:"Repeated"`
 }
 
 func (s DescribeImageCachesResponseImageCaches) String() string {
@@ -379,7 +362,7 @@ func (s *DescribeImageCachesResponseImageCaches) SetEvents(v []*DescribeImageCac
 	return s
 }
 
-func (s *DescribeImageCachesResponseImageCaches) SetImages(v []*DescribeImageCachesResponseImageCachesImages) *DescribeImageCachesResponseImageCaches {
+func (s *DescribeImageCachesResponseImageCaches) SetImages(v []*string) *DescribeImageCachesResponseImageCaches {
 	s.Images = v
 	return s
 }
@@ -428,23 +411,6 @@ func (s *DescribeImageCachesResponseImageCachesEvents) SetFirstTimestamp(v strin
 
 func (s *DescribeImageCachesResponseImageCachesEvents) SetLastTimestamp(v string) *DescribeImageCachesResponseImageCachesEvents {
 	s.LastTimestamp = &v
-	return s
-}
-
-type DescribeImageCachesResponseImageCachesImages struct {
-	Image *string `json:"Image" xml:"Image" require:"true"`
-}
-
-func (s DescribeImageCachesResponseImageCachesImages) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeImageCachesResponseImageCachesImages) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeImageCachesResponseImageCachesImages) SetImage(v string) *DescribeImageCachesResponseImageCachesImages {
-	s.Image = &v
 	return s
 }
 
@@ -1081,7 +1047,7 @@ type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos struct 
 	Labels         *string                                                                              `json:"Labels" xml:"Labels" require:"true"`
 	ContainerStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStats `json:"ContainerStats" xml:"ContainerStats" require:"true" type:"Repeated"`
 	ContainerSpec  *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpec    `json:"ContainerSpec" xml:"ContainerSpec" require:"true" type:"Struct"`
-	Aliases        []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases        `json:"Aliases" xml:"Aliases" require:"true" type:"Repeated"`
+	Aliases        []*string                                                                            `json:"Aliases" xml:"Aliases" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos) String() string {
@@ -1122,7 +1088,7 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos) Se
 	return s
 }
 
-func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos) SetAliases(v []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos {
+func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos) SetAliases(v []*string) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos {
 	s.Aliases = v
 	return s
 }
@@ -1394,10 +1360,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage struct {
-	Total        *int64                                                                                                           `json:"Total" xml:"Total" require:"true"`
-	User         *int64                                                                                                           `json:"User" xml:"User" require:"true"`
-	System       *int64                                                                                                           `json:"System" xml:"System" require:"true"`
-	PerCpuUsages []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages `json:"PerCpuUsages" xml:"PerCpuUsages" require:"true" type:"Repeated"`
+	Total        *int64    `json:"Total" xml:"Total" require:"true"`
+	User         *int64    `json:"User" xml:"User" require:"true"`
+	System       *int64    `json:"System" xml:"System" require:"true"`
+	PerCpuUsages []*string `json:"PerCpuUsages" xml:"PerCpuUsages" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) String() string {
@@ -1423,25 +1389,8 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 	return s
 }
 
-func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) SetPerCpuUsages(v []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage {
+func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) SetPerCpuUsages(v []*string) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage {
 	s.PerCpuUsages = v
-	return s
-}
-
-type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages struct {
-	PerCpuUsage *int64 `json:"PerCpuUsage" xml:"PerCpuUsage" require:"true"`
-}
-
-func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages) SetPerCpuUsage(v int64) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages {
-	s.PerCpuUsage = &v
 	return s
 }
 
@@ -2502,23 +2451,6 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 	return s
 }
 
-type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases struct {
-	Aliase *string `json:"Aliase" xml:"Aliase" require:"true"`
-}
-
-func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases) SetAliase(v string) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases {
-	s.Aliase = &v
-	return s
-}
-
 type DescribeContainerGroupMetricRequest struct {
 	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
 	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
@@ -3431,8 +3363,8 @@ type ExportContainerGroupTemplateResponseTemplateSpecInitContainers struct {
 	VolumeMounts    []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersVolumeMounts  `json:"VolumeMounts" xml:"VolumeMounts" require:"true" type:"Repeated"`
 	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContext `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
 	Resources       *ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources       `json:"Resources" xml:"Resources" require:"true" type:"Struct"`
-	Command         []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand       `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Args            []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs          `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Command         []*string                                                                      `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Args            []*string                                                                      `json:"Args" xml:"Args" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainers) String() string {
@@ -3503,12 +3435,12 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainers) SetReso
 	return s
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainers) SetCommand(v []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand) *ExportContainerGroupTemplateResponseTemplateSpecInitContainers {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainers) SetCommand(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecInitContainers {
 	s.Command = v
 	return s
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainers) SetArgs(v []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs) *ExportContainerGroupTemplateResponseTemplateSpecInitContainers {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainers) SetArgs(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecInitContainers {
 	s.Args = v
 	return s
 }
@@ -3703,40 +3635,6 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources
 	return s
 }
 
-type ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand struct {
-	Command *string `json:"Command" xml:"Command" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand) SetCommand(v string) *ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand {
-	s.Command = &v
-	return s
-}
-
-type ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs struct {
-	Arg *string `json:"Arg" xml:"Arg" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs) SetArg(v string) *ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs {
-	s.Arg = &v
-	return s
-}
-
 type ExportContainerGroupTemplateResponseTemplateSpecContainers struct {
 	Name            *string                                                                    `json:"Name" xml:"Name" require:"true"`
 	Image           *string                                                                    `json:"Image" xml:"Image" require:"true"`
@@ -3752,8 +3650,8 @@ type ExportContainerGroupTemplateResponseTemplateSpecContainers struct {
 	Resources       *ExportContainerGroupTemplateResponseTemplateSpecContainersResources       `json:"Resources" xml:"Resources" require:"true" type:"Struct"`
 	ReadinessProbe  *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbe  `json:"ReadinessProbe" xml:"ReadinessProbe" require:"true" type:"Struct"`
 	LivenessProbe   *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe   `json:"LivenessProbe" xml:"LivenessProbe" require:"true" type:"Struct"`
-	Command         []*ExportContainerGroupTemplateResponseTemplateSpecContainersCommand       `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Args            []*ExportContainerGroupTemplateResponseTemplateSpecContainersArgs          `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Command         []*string                                                                  `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Args            []*string                                                                  `json:"Args" xml:"Args" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainers) String() string {
@@ -3834,12 +3732,12 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainers) SetLiveness
 	return s
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainers) SetCommand(v []*ExportContainerGroupTemplateResponseTemplateSpecContainersCommand) *ExportContainerGroupTemplateResponseTemplateSpecContainers {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecContainers) SetCommand(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecContainers {
 	s.Command = v
 	return s
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainers) SetArgs(v []*ExportContainerGroupTemplateResponseTemplateSpecContainersArgs) *ExportContainerGroupTemplateResponseTemplateSpecContainers {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecContainers) SetArgs(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecContainers {
 	s.Args = v
 	return s
 }
@@ -4094,7 +3992,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProb
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec struct {
-	Command []*ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec) String() string {
@@ -4105,25 +4003,8 @@ func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbe
 	return s.String()
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec) SetCommand(v []*ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand) *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec) SetCommand(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec {
 	s.Command = v
-	return s
-}
-
-type ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand struct {
-	Command *string `json:"Command" xml:"Command" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand) SetCommand(v string) *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand {
-	s.Command = &v
 	return s
 }
 
@@ -4233,7 +4114,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec struct {
-	Command []*ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec) String() string {
@@ -4244,25 +4125,8 @@ func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeE
 	return s.String()
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec) SetCommand(v []*ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand) *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec) SetCommand(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec {
 	s.Command = v
-	return s
-}
-
-type ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand struct {
-	Command *string `json:"Command" xml:"Command" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand) SetCommand(v string) *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand {
-	s.Command = &v
 	return s
 }
 
@@ -4312,44 +4176,10 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe
 	return s
 }
 
-type ExportContainerGroupTemplateResponseTemplateSpecContainersCommand struct {
-	Command *string `json:"Command" xml:"Command" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersCommand) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersCommand) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersCommand) SetCommand(v string) *ExportContainerGroupTemplateResponseTemplateSpecContainersCommand {
-	s.Command = &v
-	return s
-}
-
-type ExportContainerGroupTemplateResponseTemplateSpecContainersArgs struct {
-	Arg *string `json:"Arg" xml:"Arg" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersArgs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecContainersArgs) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersArgs) SetArg(v string) *ExportContainerGroupTemplateResponseTemplateSpecContainersArgs {
-	s.Arg = &v
-	return s
-}
-
 type ExportContainerGroupTemplateResponseTemplateSpecDnsConfig struct {
-	Options     []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions     `json:"Options" xml:"Options" require:"true" type:"Repeated"`
-	NameServers []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers `json:"NameServers" xml:"NameServers" require:"true" type:"Repeated"`
-	Searches    []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches    `json:"Searches" xml:"Searches" require:"true" type:"Repeated"`
+	Options     []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions `json:"Options" xml:"Options" require:"true" type:"Repeated"`
+	NameServers []*string                                                           `json:"NameServers" xml:"NameServers" require:"true" type:"Repeated"`
+	Searches    []*string                                                           `json:"Searches" xml:"Searches" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) String() string {
@@ -4365,12 +4195,12 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) SetOptions(v
 	return s
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) SetNameServers(v []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) SetNameServers(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig {
 	s.NameServers = v
 	return s
 }
 
-func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) SetSearches(v []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig {
+func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) SetSearches(v []*string) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig {
 	s.Searches = v
 	return s
 }
@@ -4395,40 +4225,6 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions) SetNa
 
 func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions) SetValue(v string) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions {
 	s.Value = &v
-	return s
-}
-
-type ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers struct {
-	NameServer *string `json:"NameServer" xml:"NameServer" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers) SetNameServer(v string) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers {
-	s.NameServer = &v
-	return s
-}
-
-type ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches struct {
-	Search *string `json:"Search" xml:"Search" require:"true"`
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches) GoString() string {
-	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches) SetSearch(v string) *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches {
-	s.Search = &v
 	return s
 }
 
@@ -8130,8 +7926,8 @@ type DescribeContainerGroupsResponseContainerGroupsContainers struct {
 	ReadinessProbe  *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe    `json:"ReadinessProbe" xml:"ReadinessProbe" require:"true" type:"Struct"`
 	LivenessProbe   *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe     `json:"LivenessProbe" xml:"LivenessProbe" require:"true" type:"Struct"`
 	SecurityContext *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext   `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Commands        []*DescribeContainerGroupsResponseContainerGroupsContainersCommands        `json:"Commands" xml:"Commands" require:"true" type:"Repeated"`
-	Args            []*DescribeContainerGroupsResponseContainerGroupsContainersArgs            `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Commands        []*string                                                                  `json:"Commands" xml:"Commands" require:"true" type:"Repeated"`
+	Args            []*string                                                                  `json:"Args" xml:"Args" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainers) String() string {
@@ -8242,12 +8038,12 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainers) SetSecurityCo
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsContainers) SetCommands(v []*DescribeContainerGroupsResponseContainerGroupsContainersCommands) *DescribeContainerGroupsResponseContainerGroupsContainers {
+func (s *DescribeContainerGroupsResponseContainerGroupsContainers) SetCommands(v []*string) *DescribeContainerGroupsResponseContainerGroupsContainers {
 	s.Commands = v
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsContainers) SetArgs(v []*DescribeContainerGroupsResponseContainerGroupsContainersArgs) *DescribeContainerGroupsResponseContainerGroupsContainers {
+func (s *DescribeContainerGroupsResponseContainerGroupsContainers) SetArgs(v []*string) *DescribeContainerGroupsResponseContainerGroupsContainers {
 	s.Args = v
 	return s
 }
@@ -8493,7 +8289,7 @@ type DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe stru
 	FailureThreshold    *int                                                                             `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
 	HttpGet             *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
 	TcpSocket           *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	Execs               []*DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs   `json:"Execs" xml:"Execs" require:"true" type:"Repeated"`
+	Execs               []*string                                                                        `json:"Execs" xml:"Execs" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe) String() string {
@@ -8539,7 +8335,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe)
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe) SetExecs(v []*DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs) *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe {
+func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe) SetExecs(v []*string) *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe {
 	s.Execs = v
 	return s
 }
@@ -8596,23 +8392,6 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeT
 	return s
 }
 
-type DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs struct {
-	Exec *string `json:"Exec" xml:"Exec" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs) SetExec(v string) *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs {
-	s.Exec = &v
-	return s
-}
-
 type DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe struct {
 	InitialDelaySeconds *int                                                                            `json:"InitialDelaySeconds" xml:"InitialDelaySeconds" require:"true"`
 	PeriodSeconds       *int                                                                            `json:"PeriodSeconds" xml:"PeriodSeconds" require:"true"`
@@ -8621,7 +8400,7 @@ type DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe struc
 	FailureThreshold    *int                                                                            `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
 	HttpGet             *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
 	TcpSocket           *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	Execs               []*DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs   `json:"Execs" xml:"Execs" require:"true" type:"Repeated"`
+	Execs               []*string                                                                       `json:"Execs" xml:"Execs" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe) String() string {
@@ -8667,7 +8446,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe) 
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe) SetExecs(v []*DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs) *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe {
+func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe) SetExecs(v []*string) *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe {
 	s.Execs = v
 	return s
 }
@@ -8724,23 +8503,6 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTc
 	return s
 }
 
-type DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs struct {
-	Exec *string `json:"Exec" xml:"Exec" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs) SetExec(v string) *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs {
-	s.Exec = &v
-	return s
-}
-
 type DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext struct {
 	ReadOnlyRootFilesystem *bool                                                                              `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem" require:"true"`
 	RunAsUser              *int64                                                                             `json:"RunAsUser" xml:"RunAsUser" require:"true"`
@@ -8771,7 +8533,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability struct {
-	Adds []*DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds `json:"Adds" xml:"Adds" require:"true" type:"Repeated"`
+	Adds []*string `json:"Adds" xml:"Adds" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability) String() string {
@@ -8782,59 +8544,8 @@ func (s DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextC
 	return s.String()
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability) SetAdds(v []*DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds) *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability {
+func (s *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability) SetAdds(v []*string) *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability {
 	s.Adds = v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds struct {
-	Add *string `json:"Add" xml:"Add" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds) SetAdd(v string) *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds {
-	s.Add = &v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsContainersCommands struct {
-	Command *string `json:"Command" xml:"Command" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersCommands) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersCommands) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersCommands) SetCommand(v string) *DescribeContainerGroupsResponseContainerGroupsContainersCommands {
-	s.Command = &v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsContainersArgs struct {
-	Arg *string `json:"Arg" xml:"Arg" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersArgs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsContainersArgs) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsContainersArgs) SetArg(v string) *DescribeContainerGroupsResponseContainerGroupsContainersArgs {
-	s.Arg = &v
 	return s
 }
 
@@ -8954,8 +8665,8 @@ type DescribeContainerGroupsResponseContainerGroupsInitContainers struct {
 	PreviousState   *DescribeContainerGroupsResponseContainerGroupsInitContainersPreviousState     `json:"PreviousState" xml:"PreviousState" require:"true" type:"Struct"`
 	CurrentState    *DescribeContainerGroupsResponseContainerGroupsInitContainersCurrentState      `json:"CurrentState" xml:"CurrentState" require:"true" type:"Struct"`
 	SecurityContext *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext   `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Command         []*DescribeContainerGroupsResponseContainerGroupsInitContainersCommand         `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Args            []*DescribeContainerGroupsResponseContainerGroupsInitContainersArgs            `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Command         []*string                                                                      `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Args            []*string                                                                      `json:"Args" xml:"Args" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainers) String() string {
@@ -9041,12 +8752,12 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainers) SetSecuri
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsInitContainers) SetCommand(v []*DescribeContainerGroupsResponseContainerGroupsInitContainersCommand) *DescribeContainerGroupsResponseContainerGroupsInitContainers {
+func (s *DescribeContainerGroupsResponseContainerGroupsInitContainers) SetCommand(v []*string) *DescribeContainerGroupsResponseContainerGroupsInitContainers {
 	s.Command = v
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsInitContainers) SetArgs(v []*DescribeContainerGroupsResponseContainerGroupsInitContainersArgs) *DescribeContainerGroupsResponseContainerGroupsInitContainers {
+func (s *DescribeContainerGroupsResponseContainerGroupsInitContainers) SetArgs(v []*string) *DescribeContainerGroupsResponseContainerGroupsInitContainers {
 	s.Args = v
 	return s
 }
@@ -9314,7 +9025,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityCon
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability struct {
-	Adds []*DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds `json:"Adds" xml:"Adds" require:"true" type:"Repeated"`
+	Adds []*string `json:"Adds" xml:"Adds" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability) String() string {
@@ -9325,65 +9036,14 @@ func (s DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityCont
 	return s.String()
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability) SetAdds(v []*DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds) *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability {
+func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability) SetAdds(v []*string) *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability {
 	s.Adds = v
 	return s
 }
 
-type DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds struct {
-	Add *string `json:"Add" xml:"Add" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds) SetAdd(v string) *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds {
-	s.Add = &v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsInitContainersCommand struct {
-	Command *string `json:"Command" xml:"Command" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsInitContainersCommand) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsInitContainersCommand) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersCommand) SetCommand(v string) *DescribeContainerGroupsResponseContainerGroupsInitContainersCommand {
-	s.Command = &v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsInitContainersArgs struct {
-	Arg *string `json:"Arg" xml:"Arg" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsInitContainersArgs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsInitContainersArgs) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersArgs) SetArg(v string) *DescribeContainerGroupsResponseContainerGroupsInitContainersArgs {
-	s.Arg = &v
-	return s
-}
-
 type DescribeContainerGroupsResponseContainerGroupsHostAliases struct {
-	Ip        *string                                                               `json:"Ip" xml:"Ip" require:"true"`
-	Hostnames []*DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames `json:"Hostnames" xml:"Hostnames" require:"true" type:"Repeated"`
+	Ip        *string   `json:"Ip" xml:"Ip" require:"true"`
+	Hostnames []*string `json:"Hostnames" xml:"Hostnames" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsHostAliases) String() string {
@@ -9399,32 +9059,15 @@ func (s *DescribeContainerGroupsResponseContainerGroupsHostAliases) SetIp(v stri
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsHostAliases) SetHostnames(v []*DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames) *DescribeContainerGroupsResponseContainerGroupsHostAliases {
+func (s *DescribeContainerGroupsResponseContainerGroupsHostAliases) SetHostnames(v []*string) *DescribeContainerGroupsResponseContainerGroupsHostAliases {
 	s.Hostnames = v
 	return s
 }
 
-type DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames struct {
-	Hostname *string `json:"Hostname" xml:"Hostname" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames) SetHostname(v string) *DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames {
-	s.Hostname = &v
-	return s
-}
-
 type DescribeContainerGroupsResponseContainerGroupsDnsConfig struct {
-	Options     []*DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions     `json:"Options" xml:"Options" require:"true" type:"Repeated"`
-	NameServers []*DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers `json:"NameServers" xml:"NameServers" require:"true" type:"Repeated"`
-	Searches    []*DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches    `json:"Searches" xml:"Searches" require:"true" type:"Repeated"`
+	Options     []*DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions `json:"Options" xml:"Options" require:"true" type:"Repeated"`
+	NameServers []*string                                                         `json:"NameServers" xml:"NameServers" require:"true" type:"Repeated"`
+	Searches    []*string                                                         `json:"Searches" xml:"Searches" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsDnsConfig) String() string {
@@ -9440,12 +9083,12 @@ func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfig) SetOptions(v [
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfig) SetNameServers(v []*DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers) *DescribeContainerGroupsResponseContainerGroupsDnsConfig {
+func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfig) SetNameServers(v []*string) *DescribeContainerGroupsResponseContainerGroupsDnsConfig {
 	s.NameServers = v
 	return s
 }
 
-func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfig) SetSearches(v []*DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches) *DescribeContainerGroupsResponseContainerGroupsDnsConfig {
+func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfig) SetSearches(v []*string) *DescribeContainerGroupsResponseContainerGroupsDnsConfig {
 	s.Searches = v
 	return s
 }
@@ -9470,40 +9113,6 @@ func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions) SetName
 
 func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions) SetValue(v string) *DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions {
 	s.Value = &v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers struct {
-	NameServer *string `json:"NameServer" xml:"NameServer" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers) SetNameServer(v string) *DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers {
-	s.NameServer = &v
-	return s
-}
-
-type DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches struct {
-	Search *string `json:"Search" xml:"Search" require:"true"`
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches) SetSearch(v string) *DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches {
-	s.Search = &v
 	return s
 }
 
