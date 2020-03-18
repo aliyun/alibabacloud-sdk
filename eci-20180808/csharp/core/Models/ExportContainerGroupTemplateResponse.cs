@@ -252,23 +252,11 @@ namespace AlibabaCloud.SDK.ECI.Models
 
                     [NameInMap("Command")]
                     [Validation(Required=true)]
-                    public List<ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand> Command { get; set; }
-                    public class ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand : TeaModel {
-                        [NameInMap("Command")]
-                        [Validation(Required=true)]
-                        public string Command { get; set; }
-
-                    }
+                    public List<string> Command { get; set; }
 
                     [NameInMap("Args")]
                     [Validation(Required=true)]
-                    public List<ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs> Args { get; set; }
-                    public class ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs : TeaModel {
-                        [NameInMap("Arg")]
-                        [Validation(Required=true)]
-                        public string Arg { get; set; }
-
-                    }
+                    public List<string> Args { get; set; }
 
                 }
 
@@ -423,13 +411,7 @@ namespace AlibabaCloud.SDK.ECI.Models
                         public class ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec : TeaModel {
                             [NameInMap("Command")]
                             [Validation(Required=true)]
-                            public List<ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand> Command { get; set; }
-                            public class ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand : TeaModel {
-                                [NameInMap("Command")]
-                                [Validation(Required=true)]
-                                public string Command { get; set; }
-
-                            }
+                            public List<string> Command { get; set; }
 
                         }
                         [NameInMap("TcpSocket")]
@@ -485,13 +467,7 @@ namespace AlibabaCloud.SDK.ECI.Models
                         public class ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec : TeaModel {
                             [NameInMap("Command")]
                             [Validation(Required=true)]
-                            public List<ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand> Command { get; set; }
-                            public class ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand : TeaModel {
-                                [NameInMap("Command")]
-                                [Validation(Required=true)]
-                                public string Command { get; set; }
-
-                            }
+                            public List<string> Command { get; set; }
 
                         }
                         [NameInMap("TcpSocket")]
@@ -524,23 +500,11 @@ namespace AlibabaCloud.SDK.ECI.Models
 
                     [NameInMap("Command")]
                     [Validation(Required=true)]
-                    public List<ExportContainerGroupTemplateResponseTemplateSpecContainersCommand> Command { get; set; }
-                    public class ExportContainerGroupTemplateResponseTemplateSpecContainersCommand : TeaModel {
-                        [NameInMap("Command")]
-                        [Validation(Required=true)]
-                        public string Command { get; set; }
-
-                    }
+                    public List<string> Command { get; set; }
 
                     [NameInMap("Args")]
                     [Validation(Required=true)]
-                    public List<ExportContainerGroupTemplateResponseTemplateSpecContainersArgs> Args { get; set; }
-                    public class ExportContainerGroupTemplateResponseTemplateSpecContainersArgs : TeaModel {
-                        [NameInMap("Arg")]
-                        [Validation(Required=true)]
-                        public string Arg { get; set; }
-
-                    }
+                    public List<string> Args { get; set; }
 
                 }
 
@@ -557,16 +521,10 @@ namespace AlibabaCloud.SDK.ECI.Models
                     }
                     [NameInMap("NameServers")]
                     [Validation(Required=true)]
-                    public List<ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers> NameServers { get; set; }
-                    public class ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers : TeaModel {
-                            public string NameServer { get; set; }
-                    }
+                    public List<string> NameServers { get; set; }
                     [NameInMap("Searches")]
                     [Validation(Required=true)]
-                    public List<ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches> Searches { get; set; }
-                    public class ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches : TeaModel {
-                            public string Search { get; set; }
-                    }
+                    public List<string> Searches { get; set; }
                 };
 
                 [NameInMap("SecurityContext")]

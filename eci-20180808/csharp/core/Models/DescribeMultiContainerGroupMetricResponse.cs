@@ -304,13 +304,7 @@ namespace AlibabaCloud.SDK.ECI.Models
 
                             [NameInMap("PerCpuUsages")]
                             [Validation(Required=true)]
-                            public List<DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages> PerCpuUsages { get; set; }
-                            public class DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages : TeaModel {
-                                [NameInMap("PerCpuUsage")]
-                                [Validation(Required=true)]
-                                public long PerCpuUsage { get; set; }
-
-                            }
+                            public List<string> PerCpuUsages { get; set; }
 
                         }
                         [NameInMap("CpuCFS")]
@@ -753,13 +747,7 @@ namespace AlibabaCloud.SDK.ECI.Models
 
                 [NameInMap("Aliases")]
                 [Validation(Required=true)]
-                public List<DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases> Aliases { get; set; }
-                public class DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases : TeaModel {
-                    [NameInMap("Aliase")]
-                    [Validation(Required=true)]
-                    public string Aliase { get; set; }
-
-                }
+                public List<string> Aliases { get; set; }
 
             }
 
