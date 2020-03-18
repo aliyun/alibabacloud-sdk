@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
 use AlibabaCloud\Tea\Model;
 
-class Config extends Model{
-    protected $_name = [];
-
+class Config extends Model
+{
     public $accessKeyId;
 
     public $accessKeySecret;
@@ -44,5 +43,5 @@ class Config extends Model{
     public $endpointType;
 
     public $openPlatformEndpoint;
-
+    protected $_name = [];
 }
