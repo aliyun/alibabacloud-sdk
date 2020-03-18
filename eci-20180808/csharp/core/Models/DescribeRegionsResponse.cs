@@ -27,13 +27,7 @@ namespace AlibabaCloud.SDK.ECI.Models
 
             [NameInMap("Zones")]
             [Validation(Required=true)]
-            public List<DescribeRegionsResponseRegionsZones> Zones { get; set; }
-            public class DescribeRegionsResponseRegionsZones : TeaModel {
-                [NameInMap("Zone")]
-                [Validation(Required=true)]
-                public string Zone { get; set; }
-
-            }
+            public List<string> Zones { get; set; }
 
         }
 

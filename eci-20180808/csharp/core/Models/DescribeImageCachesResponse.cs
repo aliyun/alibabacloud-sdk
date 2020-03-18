@@ -81,13 +81,7 @@ namespace AlibabaCloud.SDK.ECI.Models
 
             [NameInMap("Images")]
             [Validation(Required=true)]
-            public List<DescribeImageCachesResponseImageCachesImages> Images { get; set; }
-            public class DescribeImageCachesResponseImageCachesImages : TeaModel {
-                [NameInMap("Image")]
-                [Validation(Required=true)]
-                public string Image { get; set; }
-
-            }
+            public List<string> Images { get; set; }
 
         }
 
