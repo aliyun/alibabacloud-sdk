@@ -9775,17 +9775,17 @@ func (client *Client) _request(action string, protocol string, method string, au
 				return nil, _err
 			}
 
-			body := util.AssertAsMap(obj)
-			if rpcutil.HasError(body) {
+			res := util.AssertAsMap(obj)
+			if rpcutil.HasError(res) {
 				_err = tea.NewSDKError(map[string]interface{}{
-					"message": body["Message"],
-					"data":    body,
-					"code":    body["Code"],
+					"message": res["Message"],
+					"data":    res,
+					"code":    res["Code"],
 				})
 				return nil, _err
 			}
 
-			_result = body
+			_result = res
 			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
