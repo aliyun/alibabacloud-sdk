@@ -6,11 +6,10 @@ namespace AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 
 use AlibabaCloud\Tea\Model;
 
-class AuthorizeFileUploadRequest extends Model{
-    protected $_name = [];
-
+class AuthorizeFileUploadRequest extends Model
+{
     public $product;
 
     public $regionId;
-
+    protected $_name = [];
 }

@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 
 use AlibabaCloud\Tea\Model;
 
-class Config extends Model{
-    protected $_name = [];
-
+class Config extends Model
+{
     public $accessKeyId;
 
     public $accessKeySecret;
@@ -40,5 +39,5 @@ class Config extends Model{
     public $userAgent;
 
     public $maxIdleConns;
-
+    protected $_name = [];
 }

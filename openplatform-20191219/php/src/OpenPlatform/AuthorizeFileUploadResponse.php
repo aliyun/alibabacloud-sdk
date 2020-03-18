@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 
 use AlibabaCloud\Tea\Model;
 
-class AuthorizeFileUploadResponse extends Model{
-    protected $_name = [];
-
+class AuthorizeFileUploadResponse extends Model
+{
     public $accessKeyId;
 
     public $bucket;
@@ -24,5 +23,5 @@ class AuthorizeFileUploadResponse extends Model{
     public $signature;
 
     public $useAccelerate;
-
+    protected $_name = [];
 }
