@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
 use AlibabaCloud\Tea\Model;
 
-class SearchImageByNameRequest extends Model{
-    protected $_name = [];
-
+class SearchImageByNameRequest extends Model
+{
     public $categoryId;
 
     public $instanceName;
@@ -22,5 +21,5 @@ class SearchImageByNameRequest extends Model{
     public $start;
 
     public $filter;
-
+    protected $_name = [];
 }

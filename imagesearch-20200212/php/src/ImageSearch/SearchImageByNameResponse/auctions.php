@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameRe
 
 use AlibabaCloud\Tea\Model;
 
-class auctions extends Model{
-    protected $_name = [];
-
+class auctions extends Model
+{
     public $categoryId;
 
     public $productId;
@@ -22,5 +21,5 @@ class auctions extends Model{
     public $intAttr;
 
     public $strAttr;
-
+    protected $_name = [];
 }

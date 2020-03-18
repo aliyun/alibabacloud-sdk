@@ -6,11 +6,10 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicRes
 
 use AlibabaCloud\Tea\Model;
 
-class allCategories extends Model{
-    protected $_name = [];
-
+class allCategories extends Model
+{
     public $id;
 
     public $name;
-
+    protected $_name = [];
 }

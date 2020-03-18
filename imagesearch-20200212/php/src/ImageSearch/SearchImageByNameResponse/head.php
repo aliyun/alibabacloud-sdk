@@ -6,13 +6,12 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameRe
 
 use AlibabaCloud\Tea\Model;
 
-class head extends Model{
-    protected $_name = [];
-
+class head extends Model
+{
     public $docsReturn;
 
     public $docsFound;
 
     public $searchTime;
-
+    protected $_name = [];
 }

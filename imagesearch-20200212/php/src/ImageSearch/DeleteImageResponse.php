@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
 use AlibabaCloud\Tea\Model;
 
-class DeleteImageResponse extends Model{
-    protected $_name = [];
-
+class DeleteImageResponse extends Model
+{
     public $requestId;
 
     public $success;
@@ -16,5 +15,5 @@ class DeleteImageResponse extends Model{
     public $message;
 
     public $code;
-
+    protected $_name = [];
 }

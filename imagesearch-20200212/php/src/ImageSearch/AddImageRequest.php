@@ -6,9 +6,8 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
 use AlibabaCloud\Tea\Model;
 
-class AddImageRequest extends Model{
-    protected $_name = [];
-
+class AddImageRequest extends Model
+{
     public $instanceName;
 
     public $categoryId;
@@ -28,5 +27,5 @@ class AddImageRequest extends Model{
     public $intAttr;
 
     public $strAttr;
-
+    protected $_name = [];
 }

@@ -6,11 +6,10 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageResponse;
 
 use AlibabaCloud\Tea\Model;
 
-class picInfo extends Model{
-    protected $_name = [];
-
+class picInfo extends Model
+{
     public $categoryId;
 
     public $region;
-
+    protected $_name = [];
 }
