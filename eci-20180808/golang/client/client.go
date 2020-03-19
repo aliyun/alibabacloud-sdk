@@ -1360,10 +1360,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage struct {
-	Total        *int64    `json:"Total" xml:"Total" require:"true"`
-	User         *int64    `json:"User" xml:"User" require:"true"`
-	System       *int64    `json:"System" xml:"System" require:"true"`
-	PerCpuUsages []*string `json:"PerCpuUsages" xml:"PerCpuUsages" require:"true" type:"Repeated"`
+	Total        *int64   `json:"Total" xml:"Total" require:"true"`
+	User         *int64   `json:"User" xml:"User" require:"true"`
+	System       *int64   `json:"System" xml:"System" require:"true"`
+	PerCpuUsages []*int64 `json:"PerCpuUsages" xml:"PerCpuUsages" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) String() string {
@@ -1389,7 +1389,7 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 	return s
 }
 
-func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) SetPerCpuUsages(v []*string) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage {
+func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) SetPerCpuUsages(v []*int64) *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage {
 	s.PerCpuUsages = v
 	return s
 }
