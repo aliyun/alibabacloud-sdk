@@ -142,18 +142,20 @@ class ImageSearch
                 $_request->pathname = '/';
                 $accessKeyId        = $this->getAccessKeyId();
                 $accessKeySecret    = $this->getAccessKeySecret();
-                $_request->query    = RpcUtils::query([
-                    'Action'           => $action,
-                    'Format'           => 'json',
-                    'RegionId'         => $this->_regionId,
-                    'Timestamp'        => RpcUtils::getTimestamp(),
-                    'Version'          => '2020-02-12',
-                    'SignatureMethod'  => 'HMAC-SHA1',
-                    'SignatureVersion' => '1.0',
-                    'SignatureNonce'   => Utils::getNonce(),
-                    'AccessKeyId'      => $accessKeyId,
-                    $request,
-                ]);
+                $_request->query    = RpcUtils::query(array_merge(
+                    [
+                        'Action'           => $action,
+                        'Format'           => 'json',
+                        'RegionId'         => $this->_regionId,
+                        'Timestamp'        => RpcUtils::getTimestamp(),
+                        'Version'          => '2020-02-12',
+                        'SignatureMethod'  => 'HMAC-SHA1',
+                        'SignatureVersion' => '1.0',
+                        'SignatureNonce'   => Utils::getNonce(),
+                        'AccessKeyId'      => $accessKeyId,
+                    ],
+                    $request
+                ));
                 $_request->headers = [
                     'host'       => RpcUtils::getHost('ImageSearch', $this->_regionId, $this->_endpoint),
                     'user-agent' => $this->getUserAgent(),
@@ -211,7 +213,7 @@ class ImageSearch
             'product'  => 'ImageSearch',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $this->authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
         $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
@@ -240,7 +242,7 @@ class ImageSearch
         ]);
         $ossRuntime = new \AlibabaCloud\SDK\OSS\OSS\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
-        $this->ossClient->postObject($uploadRequest, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
         $searchImageByPicreq = new SearchImageByPicRequest([]);
         RpcUtils::convert($request, $searchImageByPicreq);
         $searchImageByPicreq->picContent = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -275,7 +277,7 @@ class ImageSearch
             'product'  => 'ImageSearch',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $this->authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
         $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
@@ -304,7 +306,7 @@ class ImageSearch
         ]);
         $ossRuntime = new \AlibabaCloud\SDK\OSS\OSS\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
-        $this->ossClient->postObject($uploadRequest, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
         $addImagereq = new AddImageRequest([]);
         RpcUtils::convert($request, $addImagereq);
         $addImagereq->picContent = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
