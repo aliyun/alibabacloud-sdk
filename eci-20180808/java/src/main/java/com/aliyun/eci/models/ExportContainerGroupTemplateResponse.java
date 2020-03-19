@@ -273,30 +273,6 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
     }
 
-    public static class ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand extends TeaModel {
-        @NameInMap("Command")
-        @Validation(required = true)
-        public String command;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand self = new ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs extends TeaModel {
-        @NameInMap("Arg")
-        @Validation(required = true)
-        public String arg;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs self = new ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class ExportContainerGroupTemplateResponseTemplateSpecInitContainers extends TeaModel {
         @NameInMap("Name")
         @Validation(required = true)
@@ -348,11 +324,11 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
         @NameInMap("Command")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecInitContainersCommand> command;
+        public java.util.List<String> command;
 
         @NameInMap("Args")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecInitContainersArgs> args;
+        public java.util.List<String> args;
 
         public static ExportContainerGroupTemplateResponseTemplateSpecInitContainers build(java.util.Map<String, ?> map) throws Exception {
             ExportContainerGroupTemplateResponseTemplateSpecInitContainers self = new ExportContainerGroupTemplateResponseTemplateSpecInitContainers();
@@ -493,22 +469,10 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
     }
 
-    public static class ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand extends TeaModel {
-        @NameInMap("Command")
-        @Validation(required = true)
-        public String command;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand self = new ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec extends TeaModel {
         @NameInMap("Command")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExecCommand> command;
+        public java.util.List<String> command;
 
         public static ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec build(java.util.Map<String, ?> map) throws Exception {
             ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec self = new ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec();
@@ -589,22 +553,10 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
     }
 
-    public static class ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand extends TeaModel {
-        @NameInMap("Command")
-        @Validation(required = true)
-        public String command;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand self = new ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec extends TeaModel {
         @NameInMap("Command")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExecCommand> command;
+        public java.util.List<String> command;
 
         public static ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec build(java.util.Map<String, ?> map) throws Exception {
             ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec self = new ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec();
@@ -685,30 +637,6 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
     }
 
-    public static class ExportContainerGroupTemplateResponseTemplateSpecContainersCommand extends TeaModel {
-        @NameInMap("Command")
-        @Validation(required = true)
-        public String command;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecContainersCommand build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecContainersCommand self = new ExportContainerGroupTemplateResponseTemplateSpecContainersCommand();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class ExportContainerGroupTemplateResponseTemplateSpecContainersArgs extends TeaModel {
-        @NameInMap("Arg")
-        @Validation(required = true)
-        public String arg;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecContainersArgs build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecContainersArgs self = new ExportContainerGroupTemplateResponseTemplateSpecContainersArgs();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class ExportContainerGroupTemplateResponseTemplateSpecContainers extends TeaModel {
         @NameInMap("Name")
         @Validation(required = true)
@@ -768,11 +696,11 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
         @NameInMap("Command")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecContainersCommand> command;
+        public java.util.List<String> command;
 
         @NameInMap("Args")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecContainersArgs> args;
+        public java.util.List<String> args;
 
         public static ExportContainerGroupTemplateResponseTemplateSpecContainers build(java.util.Map<String, ?> map) throws Exception {
             ExportContainerGroupTemplateResponseTemplateSpecContainers self = new ExportContainerGroupTemplateResponseTemplateSpecContainers();
@@ -797,30 +725,6 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
     }
 
-    public static class ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers extends TeaModel {
-        @NameInMap("NameServer")
-        @Validation(required = true)
-        public String nameServer;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers self = new ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches extends TeaModel {
-        @NameInMap("Search")
-        @Validation(required = true)
-        public String search;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches self = new ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class ExportContainerGroupTemplateResponseTemplateSpecDnsConfig extends TeaModel {
         @NameInMap("Options")
         @Validation(required = true)
@@ -828,11 +732,11 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
         @NameInMap("NameServers")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers> nameServers;
+        public java.util.List<String> nameServers;
 
         @NameInMap("Searches")
         @Validation(required = true)
-        public java.util.List<ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches> searches;
+        public java.util.List<String> searches;
 
         public static ExportContainerGroupTemplateResponseTemplateSpecDnsConfig build(java.util.Map<String, ?> map) throws Exception {
             ExportContainerGroupTemplateResponseTemplateSpecDnsConfig self = new ExportContainerGroupTemplateResponseTemplateSpecDnsConfig();

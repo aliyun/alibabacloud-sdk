@@ -329,18 +329,6 @@ public class DescribeMultiContainerGroupMetricResponse extends TeaModel {
 
     }
 
-    public static class DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages extends TeaModel {
-        @NameInMap("PerCpuUsage")
-        @Validation(required = true)
-        public Long perCpuUsage;
-
-        public static DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages build(java.util.Map<String, ?> map) throws Exception {
-            DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages self = new DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage extends TeaModel {
         @NameInMap("Total")
         @Validation(required = true)
@@ -356,7 +344,7 @@ public class DescribeMultiContainerGroupMetricResponse extends TeaModel {
 
         @NameInMap("PerCpuUsages")
         @Validation(required = true)
-        public java.util.List<DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsagePerCpuUsages> perCpuUsages;
+        public java.util.List<String> perCpuUsages;
 
         public static DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage build(java.util.Map<String, ?> map) throws Exception {
             DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage self = new DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage();
@@ -1145,18 +1133,6 @@ public class DescribeMultiContainerGroupMetricResponse extends TeaModel {
 
     }
 
-    public static class DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases extends TeaModel {
-        @NameInMap("Aliase")
-        @Validation(required = true)
-        public String aliase;
-
-        public static DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases build(java.util.Map<String, ?> map) throws Exception {
-            DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases self = new DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos extends TeaModel {
         @NameInMap("Id")
         @Validation(required = true)
@@ -1184,7 +1160,7 @@ public class DescribeMultiContainerGroupMetricResponse extends TeaModel {
 
         @NameInMap("Aliases")
         @Validation(required = true)
-        public java.util.List<DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosAliases> aliases;
+        public java.util.List<String> aliases;
 
         public static DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos build(java.util.Map<String, ?> map) throws Exception {
             DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos self = new DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos();

@@ -17,18 +17,6 @@ public class DescribeRegionsResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
-    public static class DescribeRegionsResponseRegionsZones extends TeaModel {
-        @NameInMap("Zone")
-        @Validation(required = true)
-        public String zone;
-
-        public static DescribeRegionsResponseRegionsZones build(java.util.Map<String, ?> map) throws Exception {
-            DescribeRegionsResponseRegionsZones self = new DescribeRegionsResponseRegionsZones();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeRegionsResponseRegions extends TeaModel {
         @NameInMap("RegionId")
         @Validation(required = true)
@@ -40,7 +28,7 @@ public class DescribeRegionsResponse extends TeaModel {
 
         @NameInMap("Zones")
         @Validation(required = true)
-        public java.util.List<DescribeRegionsResponseRegionsZones> zones;
+        public java.util.List<String> zones;
 
         public static DescribeRegionsResponseRegions build(java.util.Map<String, ?> map) throws Exception {
             DescribeRegionsResponseRegions self = new DescribeRegionsResponseRegions();

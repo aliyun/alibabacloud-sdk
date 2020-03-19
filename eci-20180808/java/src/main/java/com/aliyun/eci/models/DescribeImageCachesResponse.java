@@ -49,18 +49,6 @@ public class DescribeImageCachesResponse extends TeaModel {
 
     }
 
-    public static class DescribeImageCachesResponseImageCachesImages extends TeaModel {
-        @NameInMap("Image")
-        @Validation(required = true)
-        public String image;
-
-        public static DescribeImageCachesResponseImageCachesImages build(java.util.Map<String, ?> map) throws Exception {
-            DescribeImageCachesResponseImageCachesImages self = new DescribeImageCachesResponseImageCachesImages();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeImageCachesResponseImageCaches extends TeaModel {
         @NameInMap("ContainerGroupId")
         @Validation(required = true)
@@ -100,7 +88,7 @@ public class DescribeImageCachesResponse extends TeaModel {
 
         @NameInMap("Images")
         @Validation(required = true)
-        public java.util.List<DescribeImageCachesResponseImageCachesImages> images;
+        public java.util.List<String> images;
 
         public static DescribeImageCachesResponseImageCaches build(java.util.Map<String, ?> map) throws Exception {
             DescribeImageCachesResponseImageCaches self = new DescribeImageCachesResponseImageCaches();
