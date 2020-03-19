@@ -273,18 +273,6 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
     }
 
-    public static class DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs extends TeaModel {
-        @NameInMap("Exec")
-        @Validation(required = true)
-        public String exec;
-
-        public static DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs self = new DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe extends TeaModel {
         @NameInMap("InitialDelaySeconds")
         @Validation(required = true)
@@ -316,7 +304,7 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("Execs")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeExecs> execs;
+        public java.util.List<String> execs;
 
         public static DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe self = new DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe();
@@ -361,18 +349,6 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
     }
 
-    public static class DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs extends TeaModel {
-        @NameInMap("Exec")
-        @Validation(required = true)
-        public String exec;
-
-        public static DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs self = new DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe extends TeaModel {
         @NameInMap("InitialDelaySeconds")
         @Validation(required = true)
@@ -404,7 +380,7 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("Execs")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeExecs> execs;
+        public java.util.List<String> execs;
 
         public static DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe self = new DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe();
@@ -413,22 +389,10 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
     }
 
-    public static class DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds extends TeaModel {
-        @NameInMap("Add")
-        @Validation(required = true)
-        public String add;
-
-        public static DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds self = new DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability extends TeaModel {
         @NameInMap("Adds")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapabilityAdds> adds;
+        public java.util.List<String> adds;
 
         public static DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability self = new DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability();
@@ -452,30 +416,6 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         public static DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext self = new DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsContainersCommands extends TeaModel {
-        @NameInMap("Command")
-        @Validation(required = true)
-        public String command;
-
-        public static DescribeContainerGroupsResponseContainerGroupsContainersCommands build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsContainersCommands self = new DescribeContainerGroupsResponseContainerGroupsContainersCommands();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsContainersArgs extends TeaModel {
-        @NameInMap("Arg")
-        @Validation(required = true)
-        public String arg;
-
-        public static DescribeContainerGroupsResponseContainerGroupsContainersArgs build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsContainersArgs self = new DescribeContainerGroupsResponseContainerGroupsContainersArgs();
             return TeaModel.build(map, self);
         }
 
@@ -564,11 +504,11 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("Commands")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsContainersCommands> commands;
+        public java.util.List<String> commands;
 
         @NameInMap("Args")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsContainersArgs> args;
+        public java.util.List<String> args;
 
         public static DescribeContainerGroupsResponseContainerGroupsContainers build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsContainers self = new DescribeContainerGroupsResponseContainerGroupsContainers();
@@ -805,22 +745,10 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
     }
 
-    public static class DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds extends TeaModel {
-        @NameInMap("Add")
-        @Validation(required = true)
-        public String add;
-
-        public static DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds self = new DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability extends TeaModel {
         @NameInMap("Adds")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapabilityAdds> adds;
+        public java.util.List<String> adds;
 
         public static DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability self = new DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability();
@@ -844,30 +772,6 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         public static DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext self = new DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsInitContainersCommand extends TeaModel {
-        @NameInMap("Command")
-        @Validation(required = true)
-        public String command;
-
-        public static DescribeContainerGroupsResponseContainerGroupsInitContainersCommand build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsInitContainersCommand self = new DescribeContainerGroupsResponseContainerGroupsInitContainersCommand();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsInitContainersArgs extends TeaModel {
-        @NameInMap("Arg")
-        @Validation(required = true)
-        public String arg;
-
-        public static DescribeContainerGroupsResponseContainerGroupsInitContainersArgs build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsInitContainersArgs self = new DescribeContainerGroupsResponseContainerGroupsInitContainersArgs();
             return TeaModel.build(map, self);
         }
 
@@ -936,26 +840,14 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("Command")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsInitContainersCommand> command;
+        public java.util.List<String> command;
 
         @NameInMap("Args")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsInitContainersArgs> args;
+        public java.util.List<String> args;
 
         public static DescribeContainerGroupsResponseContainerGroupsInitContainers build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsInitContainers self = new DescribeContainerGroupsResponseContainerGroupsInitContainers();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames extends TeaModel {
-        @NameInMap("Hostname")
-        @Validation(required = true)
-        public String hostname;
-
-        public static DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames self = new DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames();
             return TeaModel.build(map, self);
         }
 
@@ -968,7 +860,7 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("Hostnames")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsHostAliasesHostnames> hostnames;
+        public java.util.List<String> hostnames;
 
         public static DescribeContainerGroupsResponseContainerGroupsHostAliases build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsHostAliases self = new DescribeContainerGroupsResponseContainerGroupsHostAliases();
@@ -993,30 +885,6 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
     }
 
-    public static class DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers extends TeaModel {
-        @NameInMap("NameServer")
-        @Validation(required = true)
-        public String nameServer;
-
-        public static DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers self = new DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches extends TeaModel {
-        @NameInMap("Search")
-        @Validation(required = true)
-        public String search;
-
-        public static DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches self = new DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DescribeContainerGroupsResponseContainerGroupsDnsConfig extends TeaModel {
         @NameInMap("Options")
         @Validation(required = true)
@@ -1024,11 +892,11 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("NameServers")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers> nameServers;
+        public java.util.List<String> nameServers;
 
         @NameInMap("Searches")
         @Validation(required = true)
-        public java.util.List<DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches> searches;
+        public java.util.List<String> searches;
 
         public static DescribeContainerGroupsResponseContainerGroupsDnsConfig build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsDnsConfig self = new DescribeContainerGroupsResponseContainerGroupsDnsConfig();

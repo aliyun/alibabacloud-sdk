@@ -75,30 +75,6 @@ public class Config extends TeaModel {
 
     }
 
-    public static class ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers extends TeaModel {
-        @NameInMap("NameServer")
-        @Validation(required = true)
-        public String nameServer;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers self = new ExportContainerGroupTemplateResponseTemplateSpecDnsConfigNameServers();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches extends TeaModel {
-        @NameInMap("Search")
-        @Validation(required = true)
-        public String search;
-
-        public static ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches build(java.util.Map<String, ?> map) throws Exception {
-            ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches self = new ExportContainerGroupTemplateResponseTemplateSpecDnsConfigSearches();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class UpdateContainerGroupRequestDnsConfigOption extends TeaModel {
         @NameInMap("Name")
         public String name;
@@ -138,30 +114,6 @@ public class Config extends TeaModel {
 
         public static DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions build(java.util.Map<String, ?> map) throws Exception {
             DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions self = new DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers extends TeaModel {
-        @NameInMap("NameServer")
-        @Validation(required = true)
-        public String nameServer;
-
-        public static DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers self = new DescribeContainerGroupsResponseContainerGroupsDnsConfigNameServers();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches extends TeaModel {
-        @NameInMap("Search")
-        @Validation(required = true)
-        public String search;
-
-        public static DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches build(java.util.Map<String, ?> map) throws Exception {
-            DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches self = new DescribeContainerGroupsResponseContainerGroupsDnsConfigSearches();
             return TeaModel.build(map, self);
         }
 
