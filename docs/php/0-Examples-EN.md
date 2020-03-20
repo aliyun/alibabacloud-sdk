@@ -56,9 +56,13 @@ $runtime->maxIdleConns   = 3;
 $runtime->connectTimeout = 10000;
 $runtime->readTimeout    = 10000;
 
-$response = $client->searchImageByName($request, $runtime);
+try {
+    $response = $client->searchImageByName($request, $runtime);
+    var_dump($response);
+} catch (TeaError $e) {
+    var_dump($e->getErrorInfo());
+}
 
-var_dump($response);
 ```
 
 ***
