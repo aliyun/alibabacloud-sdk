@@ -7,11 +7,15 @@ namespace AlibabaCloud\SDK\ImageSearch\V20200212;
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageAdvanceRequest;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageResponse;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\Config;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\DeleteImageRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\DeleteImageResponse;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameResponse;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicAdvanceRequest;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
 use AlibabaCloud\Tea\Exception\TeaError;
@@ -102,6 +106,16 @@ class ImageSearch
         $this->_openPlatformEndpoint = $config->openPlatformEndpoint;
     }
 
+    /**
+     * @param string $action
+     * @param string $protocol
+     * @param string $method
+     * @param object $request
+     *
+     * @throws \Exception
+     *
+     * @return array|object
+     */
     public function _request($action, $protocol, $method, $request, RuntimeOptions $runtime)
     {
         $runtime->validate();
@@ -186,16 +200,31 @@ class ImageSearch
         throw new TeaUnableRetryError($_lastRequest);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return SearchImageByNameResponse
+     */
     public function searchImageByName(SearchImageByNameRequest $request, RuntimeOptions $runtime)
     {
-        return $this->_request('SearchImageByName', 'HTTPS', 'POST', $request, $runtime);
+        return Model::toModel($this->_request('SearchImageByName', 'HTTPS', 'POST', $request, $runtime), new SearchImageByNameResponse());
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return SearchImageByPicResponse
+     */
     public function searchImageByPic(SearchImageByPicRequest $request, RuntimeOptions $runtime)
     {
-        return $this->_request('SearchImageByPic', 'HTTPS', 'POST', $request, $runtime);
+        return Model::toModel($this->_request('SearchImageByPic', 'HTTPS', 'POST', $request, $runtime), new SearchImageByPicResponse());
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return SearchImageByPicResponse
+     */
     public function searchImageByPicAdvance(SearchImageByPicAdvanceRequest $request, RuntimeOptions $runtime)
     {
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -240,7 +269,7 @@ class ImageSearch
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
-        $ossRuntime = new \AlibabaCloud\SDK\OSS\OSS\RuntimeOptions([]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
         $searchImageByPicreq = new SearchImageByPicRequest([]);
@@ -250,16 +279,31 @@ class ImageSearch
         return $this->searchImageByPic($searchImageByPicreq, $runtime);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return DeleteImageResponse
+     */
     public function deleteImage(DeleteImageRequest $request, RuntimeOptions $runtime)
     {
-        return $this->_request('DeleteImage', 'HTTPS', 'POST', $request, $runtime);
+        return Model::toModel($this->_request('DeleteImage', 'HTTPS', 'POST', $request, $runtime), new DeleteImageResponse());
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return AddImageResponse
+     */
     public function addImage(AddImageRequest $request, RuntimeOptions $runtime)
     {
-        return $this->_request('AddImage', 'HTTPS', 'POST', $request, $runtime);
+        return Model::toModel($this->_request('AddImage', 'HTTPS', 'POST', $request, $runtime), new AddImageResponse());
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return AddImageResponse
+     */
     public function addImageAdvance(AddImageAdvanceRequest $request, RuntimeOptions $runtime)
     {
         $accessKeyId     = $this->_credential->getAccessKeyId();
@@ -304,7 +348,7 @@ class ImageSearch
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
-        $ossRuntime = new \AlibabaCloud\SDK\OSS\OSS\RuntimeOptions([]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
         $addImagereq = new AddImageRequest([]);
@@ -314,11 +358,21 @@ class ImageSearch
         return $this->addImage($addImagereq, $runtime);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
     public function getUserAgent()
     {
         return Utils::getUserAgent($this->_userAgent);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
     public function getAccessKeyId()
     {
         if (Utils::isUnset($this->_credential)) {
@@ -328,6 +382,11 @@ class ImageSearch
         return $this->_credential->getAccessKeyId();
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
     public function getAccessKeySecret()
     {
         if (Utils::isUnset($this->_credential)) {
