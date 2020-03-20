@@ -42,6 +42,8 @@ $config = new Config([
     'type'            => 'access_key',
     'accessKeyId'     => '<Access-Key-Id>',
     'accessKeySecret' => '<Access-Key-Secret>',
+    'regionId'        => 'cn-shanghai',
+    'endpoint'        => 'imagesearch.cn-shanghai.aliyuncs.com',
 ]);
 
 $client = new ImageSearch($config);
