@@ -10,6 +10,7 @@ use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadResp
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config;
 use AlibabaCloud\Tea\Exception\TeaError;
 use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
+use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Tea;
@@ -140,7 +141,7 @@ class OpenPlatform
                 $_request->protocol = Utils::defaultString($this->_protocol, $protocol);
                 $_request->method   = $method;
                 $_request->pathname = '/';
-                $_request->query    = RpcUtils::query(array_merge(
+                $_request->query    = RpcUtils::query(Tea::merge(
                     [
                         'Action'           => $action,
                         'Format'           => 'json',
@@ -173,7 +174,7 @@ class OpenPlatform
 
                 return $body;
             } catch (\Exception $e) {
-                if (Tea::isRetryable($e)) {
+                if (Tea::isRetryable($_runtime['retry'], $_retryTimes)) {
                     continue;
                 }
 
