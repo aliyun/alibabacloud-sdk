@@ -6,6 +6,7 @@ namespace AlibabaCloud\SDK\OpenPlatform\V20191219;
 
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config;
 use AlibabaCloud\Tea\Exception\TeaError;
 use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
@@ -89,6 +90,16 @@ class OpenPlatform
         $this->_maxIdleConns   = $config->maxIdleConns;
     }
 
+    /**
+     * @param string $action
+     * @param string $protocol
+     * @param string $method
+     * @param object $request
+     *
+     * @throws \Exception
+     *
+     * @return array|object
+     */
     public function _request($action, $protocol, $method, $request, RuntimeOptions $runtime)
     {
         $runtime->validate();
@@ -173,16 +184,31 @@ class OpenPlatform
         throw new TeaUnableRetryError($_lastRequest);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return AuthorizeFileUploadResponse
+     */
     public function authorizeFileUpload(AuthorizeFileUploadRequest $request, RuntimeOptions $runtime)
     {
-        return $this->_request('AuthorizeFileUpload', 'HTTPS', 'GET', $request, $runtime);
+        return Model::toModel($this->_request('AuthorizeFileUpload', 'HTTPS', 'GET', $request, $runtime), new AuthorizeFileUploadResponse());
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
     public function getUserAgent()
     {
         return Utils::getUserAgent($this->_userAgent);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
     public function getAccessKeyId()
     {
         if (Utils::isUnset($this->_credential)) {
@@ -192,6 +218,11 @@ class OpenPlatform
         return $this->_credential->getAccessKeyId();
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
     public function getAccessKeySecret()
     {
         if (Utils::isUnset($this->_credential)) {
