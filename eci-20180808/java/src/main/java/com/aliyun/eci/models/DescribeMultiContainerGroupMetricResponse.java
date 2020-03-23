@@ -344,7 +344,7 @@ public class DescribeMultiContainerGroupMetricResponse extends TeaModel {
 
         @NameInMap("PerCpuUsages")
         @Validation(required = true)
-        public java.util.List<String> perCpuUsages;
+        public java.util.List<Long> perCpuUsages;
 
         public static DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage build(java.util.Map<String, ?> map) throws Exception {
             DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage self = new DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage();
