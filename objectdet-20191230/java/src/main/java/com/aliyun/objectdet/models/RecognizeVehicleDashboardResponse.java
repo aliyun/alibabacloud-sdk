@@ -17,18 +17,6 @@ public class RecognizeVehicleDashboardResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
-    public static class RecognizeVehicleDashboardResponseDataElementsBoxes extends TeaModel {
-        @NameInMap("Box")
-        @Validation(required = true)
-        public Double box;
-
-        public static RecognizeVehicleDashboardResponseDataElementsBoxes build(java.util.Map<String, ?> map) throws Exception {
-            RecognizeVehicleDashboardResponseDataElementsBoxes self = new RecognizeVehicleDashboardResponseDataElementsBoxes();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class RecognizeVehicleDashboardResponseDataElements extends TeaModel {
         @NameInMap("Score")
         @Validation(required = true)
@@ -44,7 +32,7 @@ public class RecognizeVehicleDashboardResponse extends TeaModel {
 
         @NameInMap("Boxes")
         @Validation(required = true)
-        public java.util.List<RecognizeVehicleDashboardResponseDataElementsBoxes> boxes;
+        public java.util.List<Double> boxes;
 
         public static RecognizeVehicleDashboardResponseDataElements build(java.util.Map<String, ?> map) throws Exception {
             RecognizeVehicleDashboardResponseDataElements self = new RecognizeVehicleDashboardResponseDataElements();

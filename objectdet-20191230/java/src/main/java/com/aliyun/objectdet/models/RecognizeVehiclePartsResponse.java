@@ -17,18 +17,6 @@ public class RecognizeVehiclePartsResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
-    public static class RecognizeVehiclePartsResponseDataElementsBoxes extends TeaModel {
-        @NameInMap("Box")
-        @Validation(required = true)
-        public Integer box;
-
-        public static RecognizeVehiclePartsResponseDataElementsBoxes build(java.util.Map<String, ?> map) throws Exception {
-            RecognizeVehiclePartsResponseDataElementsBoxes self = new RecognizeVehiclePartsResponseDataElementsBoxes();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class RecognizeVehiclePartsResponseDataElements extends TeaModel {
         @NameInMap("Score")
         @Validation(required = true)
@@ -40,22 +28,10 @@ public class RecognizeVehiclePartsResponse extends TeaModel {
 
         @NameInMap("Boxes")
         @Validation(required = true)
-        public java.util.List<RecognizeVehiclePartsResponseDataElementsBoxes> boxes;
+        public java.util.List<Integer> boxes;
 
         public static RecognizeVehiclePartsResponseDataElements build(java.util.Map<String, ?> map) throws Exception {
             RecognizeVehiclePartsResponseDataElements self = new RecognizeVehiclePartsResponseDataElements();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class RecognizeVehiclePartsResponseDataOriginShapes extends TeaModel {
-        @NameInMap("OriginShape")
-        @Validation(required = true)
-        public Integer originShape;
-
-        public static RecognizeVehiclePartsResponseDataOriginShapes build(java.util.Map<String, ?> map) throws Exception {
-            RecognizeVehiclePartsResponseDataOriginShapes self = new RecognizeVehiclePartsResponseDataOriginShapes();
             return TeaModel.build(map, self);
         }
 
@@ -68,7 +44,7 @@ public class RecognizeVehiclePartsResponse extends TeaModel {
 
         @NameInMap("OriginShapes")
         @Validation(required = true)
-        public java.util.List<RecognizeVehiclePartsResponseDataOriginShapes> originShapes;
+        public java.util.List<Integer> originShapes;
 
         public static RecognizeVehiclePartsResponseData build(java.util.Map<String, ?> map) throws Exception {
             RecognizeVehiclePartsResponseData self = new RecognizeVehiclePartsResponseData();
