@@ -100,7 +100,7 @@ api _request(action: string, protocol: string, method: string, authType: string,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
+    Version = '2020-03-20',
     SignatureNonce = Util.getNonce(),
     ...query,
   });
@@ -109,7 +109,7 @@ api _request(action: string, protocol: string, method: string, authType: string,
     __request.body = Util.toFormString(tmp);
   }
   __request.headers = {
-    host = RPCUtil.getHost('goodstech', @regionId, @endpoint),
+    host = RPCUtil.getHost('imgsearch', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
   if (!Util.equalString(authType, 'Anonymous')) {
@@ -150,196 +150,79 @@ api _request(action: string, protocol: string, method: string, authType: string,
   ignoreSSL = runtime.ignoreSSL
 }
 
-model RecognizeFurnitureAttributeRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+model ListImageDbsRequest = {
 }
 
-model RecognizeFurnitureAttributeResponse = {
+model ListImageDbsResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
-    predStyleId: string(name='PredStyleId', description='predStyleId'),
-    predStyle: string(name='PredStyle', description='predStyle'),
-    predProbability: float(name='PredProbability', description='predProbability'),
-  }(name='Data', description='data'),
-}
-
-async function recognizeFurnitureAttribute(request: RecognizeFurnitureAttributeRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
-  return _request('RecognizeFurnitureAttribute', 'HTTPS', 'POST', 'AK', null, request, runtime);
-}
-
-model RecognizeFurnitureAttributeAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-}
-
-async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAttributeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
-    regionId = @regionId,
-  };
-  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-  // Step 1: request OSS api to upload file
-  var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  var ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  var uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeFurnitureAttributereq = new RecognizeFurnitureAttributeRequest{};
-  RPCUtil.convert(request, recognizeFurnitureAttributereq);
-  recognizeFurnitureAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFurnitureAttributeResp = recognizeFurnitureAttribute(recognizeFurnitureAttributereq, runtime);
-  return recognizeFurnitureAttributeResp;
-}
-
-model RecognizeFurnitureSpuRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
-  XLength: float(name='XLength', description='xLength'),
-  YLength: float(name='YLength', description='yLength'),
-  ZLength: float(name='ZLength', description='zLength'),
-}
-
-model RecognizeFurnitureSpuResponse = {
-  requestId: string(name='RequestId', description='requestId'),
-  data: {
-    predCateId: string(name='PredCateId', description='predCateId'),
-    predCate: string(name='PredCate', description='predCate'),
-    predProbability: float(name='PredProbability', description='predProbability'),
-  }(name='Data', description='data'),
-}
-
-async function recognizeFurnitureSpu(request: RecognizeFurnitureSpuRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
-  return _request('RecognizeFurnitureSpu', 'HTTPS', 'POST', 'AK', null, request, runtime);
-}
-
-model RecognizeFurnitureSpuAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-  XLength: float(name='XLength', description='xLength'),
-  YLength: float(name='YLength', description='yLength'),
-  ZLength: float(name='ZLength', description='zLength'),
-}
-
-async function recognizeFurnitureSpuAdvance(request: RecognizeFurnitureSpuAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
-    regionId = @regionId,
-  };
-  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-  // Step 1: request OSS api to upload file
-  var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  var ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  var uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeFurnitureSpureq = new RecognizeFurnitureSpuRequest{};
-  RPCUtil.convert(request, recognizeFurnitureSpureq);
-  recognizeFurnitureSpureq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFurnitureSpuResp = recognizeFurnitureSpu(recognizeFurnitureSpureq, runtime);
-  return recognizeFurnitureSpuResp;
-}
-
-model ClassifyCommodityRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
-}
-
-model ClassifyCommodityResponse = {
-  requestId: string(name='RequestId', description='requestId'),
-  data: {
-    categories: [
+    dbList: [
       {
-        score: float(name='Score', description='score'),
-        categoryName: string(name='CategoryName', description='categoryName'),
-        categoryId: string(name='CategoryId', description='categoryId'),
+        name: string(name='Name', description='name'),
       }
-    ](name='Categories', description='categoryList'),
+    ](name='DbList', description='dbList'),
   }(name='Data', description='data'),
 }
 
-async function classifyCommodity(request: ClassifyCommodityRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
-  return _request('ClassifyCommodity', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function listImageDbs(request: ListImageDbsRequest, runtime: Util.RuntimeOptions): ListImageDbsResponse {
+  return _request('ListImageDbs', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
-model ClassifyCommodityAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+model ListImagesRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  fromScrollId?: string(name='FromScrollId', description='fromScrollId'),
 }
 
-async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
+model ListImagesResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    scrollId: string(name='ScrollId', description='scrollId'),
+    imageList: [
+      {
+        dataId: string(name='DataId', description='dataId'),
+        extraData: string(name='ExtraData', description='extraData'),
+        imageUrl: string(name='ImageUrl', description='imageUrl'),
+        entityId: string(name='EntityId', description='entityId'),
+      }
+    ](name='ImageList', description='imageList'),
+  }(name='Data', description='data'),
+}
+
+async function listImages(request: ListImagesRequest, runtime: Util.RuntimeOptions): ListImagesResponse {
+  return _request('ListImages', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model SearchImageRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  imageUrl: string(name='ImageUrl', description='imageUrl'),
+  limit: integer(name='Limit', description='limit'),
+}
+
+model SearchImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    matchList: [
+      {
+        dataId: string(name='DataId', description='dataId'),
+        extraData: string(name='ExtraData', description='extraData'),
+        imageUrl: string(name='ImageUrl', description='imageUrl'),
+        entityId: string(name='EntityId', description='entityId'),
+      }
+    ](name='MatchList', description='matchList'),
+  }(name='Data', description='data'),
+}
+
+async function searchImage(request: SearchImageRequest, runtime: Util.RuntimeOptions): SearchImageResponse {
+  return _request('SearchImage', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model SearchImageAdvanceRequest = {
+  imageUrlObject: readable(description='ImageUrlObject', name='ImageUrlObject'),
+  dbName: string(name='DbName', description='dbName'),
+  limit: integer(name='Limit', description='limit'),
+}
+
+async function searchImageAdvance(request: SearchImageAdvanceRequest, runtime: Util.RuntimeOptions): SearchImageResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -354,7 +237,7 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
   var authClient = new OpenPlatform(authConfig);
 
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
+    product = 'imgsearch',
     regionId = @regionId,
   };
   var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
@@ -371,7 +254,7 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
 
   var fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
-    content = request.imageURLObject,
+    content = request.imageUrlObject,
     contentType = '',
   };
   var ossHeader = new OSS.PostObjectRequest.header{
@@ -390,11 +273,130 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
   RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
   // Step 2: request final api
-  var classifyCommodityreq = new ClassifyCommodityRequest{};
-  RPCUtil.convert(request, classifyCommodityreq);
-  classifyCommodityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var classifyCommodityResp = classifyCommodity(classifyCommodityreq, runtime);
-  return classifyCommodityResp;
+  var searchImagereq = new SearchImageRequest{};
+  RPCUtil.convert(request, searchImagereq);
+  searchImagereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var searchImageResp = searchImage(searchImagereq, runtime);
+  return searchImageResp;
+}
+
+model AddImageRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  dataId: string(name='DataId', description='dataId'),
+  imageUrl: string(name='ImageUrl', description='imageUrl'),
+  extraData?: string(name='ExtraData', description='extraData'),
+  entityId: string(name='EntityId', description='entityId'),
+}
+
+model AddImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function addImage(request: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  return _request('AddImage', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model AddImageAdvanceRequest = {
+  imageUrlObject: readable(description='ImageUrlObject', name='ImageUrlObject'),
+  dbName: string(name='DbName', description='dbName'),
+  dataId: string(name='DataId', description='dataId'),
+  extraData?: string(name='ExtraData', description='extraData'),
+  entityId: string(name='EntityId', description='entityId'),
+}
+
+async function addImageAdvance(request: AddImageAdvanceRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imgsearch',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var addImagereq = new AddImageRequest{};
+  RPCUtil.convert(request, addImagereq);
+  addImagereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var addImageResp = addImage(addImagereq, runtime);
+  return addImageResp;
+}
+
+model DeleteImageDbRequest = {
+  name: string(name='Name', description='name'),
+}
+
+model DeleteImageDbResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteImageDb(request: DeleteImageDbRequest, runtime: Util.RuntimeOptions): DeleteImageDbResponse {
+  return _request('DeleteImageDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model CreateImageDbRequest = {
+  name: string(name='Name', description='name'),
+}
+
+model CreateImageDbResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function createImageDb(request: CreateImageDbRequest, runtime: Util.RuntimeOptions): CreateImageDbResponse {
+  return _request('CreateImageDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model DeleteImageRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  dataId: string(name='DataId', description='dataId'),
+}
+
+model DeleteImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteImage(request: DeleteImageRequest, runtime: Util.RuntimeOptions): DeleteImageResponse {
+  return _request('DeleteImage', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 function getUserAgent(): string {

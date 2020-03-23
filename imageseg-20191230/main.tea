@@ -91,40 +91,46 @@ init(config: Config){
   @openPlatformEndpoint = config.openPlatformEndpoint;
 }
 
-api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
   __request.protocol = Util.defaultString(@protocol, protocol);
   __request.method = method;
   __request.pathname = '/';
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
   __request.query = RPCUtil.query({
     Action = action,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
     Version = '2019-12-30',
-    SignatureMethod = 'HMAC-SHA1',
-    SignatureVersion = '1.0',
     SignatureNonce = Util.getNonce(),
-    AccessKeyId = accessKeyId,
-    ...request,
+    ...query,
   });
+  if (!Util.isUnset(body)) {
+    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
+    __request.body = Util.toFormString(tmp);
+  }
   __request.headers = {
     host = RPCUtil.getHost('imageseg', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
-  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  if (!Util.equalString(authType, 'Anonymous')) {
+    var accessKeyId = getAccessKeyId();
+    var accessKeySecret = getAccessKeySecret();
+    __request.query.SignatureMethod = 'HMAC-SHA1';
+    __request.query.SignatureVersion = '1.0';
+    __request.query.AccessKeyId = accessKeyId;
+    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  }
 } returns {
   var obj = Util.readAsJSON(__response.body);
-  var body = Util.assertAsMap(obj);
+  var res = Util.assertAsMap(obj);
   if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
   throw {
-      message = body.Message,
-      data = body,
-      code = body.Code,
+      message = res.Message,
+      data = res,
+      code = res.Code,
     }
   }
-  return body;
+  return res;
 } runtime {
   timeouted = 'retry',
   readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
@@ -142,6 +148,170 @@ api _request(action: string, protocol: string, method: string, request: object, 
     period = Util.defaultNumber(runtime.backoffPeriod, 1)
   },
   ignoreSSL = runtime.ignoreSSL
+}
+
+model SegmentFurnitureRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model SegmentFurnitureResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        imageURL: string(name='ImageURL', description='imageUrl'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function segmentFurniture(request: SegmentFurnitureRequest, runtime: Util.RuntimeOptions): SegmentFurnitureResponse {
+  return _request('SegmentFurniture', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model SegmentFurnitureAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function segmentFurnitureAdvance(request: SegmentFurnitureAdvanceRequest, runtime: Util.RuntimeOptions): SegmentFurnitureResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var segmentFurniturereq = new SegmentFurnitureRequest{};
+  RPCUtil.convert(request, segmentFurniturereq);
+  segmentFurniturereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentFurnitureResp = segmentFurniture(segmentFurniturereq, runtime);
+  return segmentFurnitureResp;
+}
+
+model RefineMaskRequest = {
+  maskImageURL: string(name='MaskImageURL', description='maskImageUrl'),
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model RefineMaskResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        imageURL: string(name='ImageURL', description='imageUrl'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function refineMask(request: RefineMaskRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
+  return _request('RefineMask', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RefineMaskAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  maskImageURL: string(name='MaskImageURL', description='maskImageUrl'),
+}
+
+async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var refineMaskreq = new RefineMaskRequest{};
+  RPCUtil.convert(request, refineMaskreq);
+  refineMaskreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var refineMaskResp = refineMask(refineMaskreq, runtime);
+  return refineMaskResp;
 }
 
 model ParseFaceRequest = {
@@ -162,7 +332,7 @@ model ParseFaceResponse = {
 }
 
 async function parseFace(request: ParseFaceRequest, runtime: Util.RuntimeOptions): ParseFaceResponse {
-  return _request('ParseFace', 'HTTPS', 'GET', request, runtime);
+  return _request('ParseFace', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model ParseFaceAdvanceRequest = {
@@ -244,7 +414,7 @@ model SegmentVehicleResponse = {
 }
 
 async function segmentVehicle(request: SegmentVehicleRequest, runtime: Util.RuntimeOptions): SegmentVehicleResponse {
-  return _request('SegmentVehicle', 'HTTPS', 'POST', request, runtime);
+  return _request('SegmentVehicle', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model SegmentVehicleAdvanceRequest = {
@@ -329,7 +499,7 @@ model SegmentHairResponse = {
 }
 
 async function segmentHair(request: SegmentHairRequest, runtime: Util.RuntimeOptions): SegmentHairResponse {
-  return _request('SegmentHair', 'HTTPS', 'GET', request, runtime);
+  return _request('SegmentHair', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model SegmentHairAdvanceRequest = {
@@ -414,7 +584,7 @@ model SegmentFaceResponse = {
 }
 
 async function segmentFace(request: SegmentFaceRequest, runtime: Util.RuntimeOptions): SegmentFaceResponse {
-  return _request('SegmentFace', 'HTTPS', 'GET', request, runtime);
+  return _request('SegmentFace', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model SegmentFaceAdvanceRequest = {
@@ -499,7 +669,7 @@ model SegmentHeadResponse = {
 }
 
 async function segmentHead(request: SegmentHeadRequest, runtime: Util.RuntimeOptions): SegmentHeadResponse {
-  return _request('SegmentHead', 'HTTPS', 'GET', request, runtime);
+  return _request('SegmentHead', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model SegmentHeadAdvanceRequest = {
@@ -576,7 +746,7 @@ model SegmentCommodityResponse = {
 }
 
 async function segmentCommodity(request: SegmentCommodityRequest, runtime: Util.RuntimeOptions): SegmentCommodityResponse {
-  return _request('SegmentCommodity', 'HTTPS', 'GET', request, runtime);
+  return _request('SegmentCommodity', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model SegmentCommodityAdvanceRequest = {
@@ -653,7 +823,7 @@ model SegmentBodyResponse = {
 }
 
 async function segmentBody(request: SegmentBodyRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
-  return _request('SegmentBody', 'HTTPS', 'GET', request, runtime);
+  return _request('SegmentBody', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model SegmentBodyAdvanceRequest = {
@@ -730,7 +900,7 @@ model SegmentCommonImageResponse = {
 }
 
 async function segmentCommonImage(request: SegmentCommonImageRequest, runtime: Util.RuntimeOptions): SegmentCommonImageResponse {
-  return _request('SegmentCommonImage', 'HTTPS', 'GET', request, runtime);
+  return _request('SegmentCommonImage', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model SegmentCommonImageAdvanceRequest = {

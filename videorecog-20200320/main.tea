@@ -100,7 +100,7 @@ api _request(action: string, protocol: string, method: string, authType: string,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
+    Version = '2020-03-20',
     SignatureNonce = Util.getNonce(),
     ...query,
   });
@@ -109,7 +109,7 @@ api _request(action: string, protocol: string, method: string, authType: string,
     __request.body = Util.toFormString(tmp);
   }
   __request.headers = {
-    host = RPCUtil.getHost('goodstech', @regionId, @endpoint),
+    host = RPCUtil.getHost('videorecog', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
   if (!Util.equalString(authType, 'Anonymous')) {
@@ -150,28 +150,26 @@ api _request(action: string, protocol: string, method: string, authType: string,
   ignoreSSL = runtime.ignoreSSL
 }
 
-model RecognizeFurnitureAttributeRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
+model DetectVideoShotRequest = {
+  videoUrl: string(name='VideoUrl', description='videoUrl'),
 }
 
-model RecognizeFurnitureAttributeResponse = {
+model DetectVideoShotResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
-    predStyleId: string(name='PredStyleId', description='predStyleId'),
-    predStyle: string(name='PredStyle', description='predStyle'),
-    predProbability: float(name='PredProbability', description='predProbability'),
+    shotFrameIds: [ integer ](name='ShotFrameIds', description='shotFrameIds'),
   }(name='Data', description='data'),
 }
 
-async function recognizeFurnitureAttribute(request: RecognizeFurnitureAttributeRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
-  return _request('RecognizeFurnitureAttribute', 'HTTPS', 'POST', 'AK', null, request, runtime);
+async function detectVideoShot(request: DetectVideoShotRequest, runtime: Util.RuntimeOptions): DetectVideoShotResponse {
+  return _request('DetectVideoShot', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
-model RecognizeFurnitureAttributeAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+model DetectVideoShotAdvanceRequest = {
+  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
 }
 
-async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAttributeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureAttributeResponse {
+async function detectVideoShotAdvance(request: DetectVideoShotAdvanceRequest, runtime: Util.RuntimeOptions): DetectVideoShotResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -186,7 +184,7 @@ async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAtt
   var authClient = new OpenPlatform(authConfig);
 
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
+    product = 'videorecog',
     regionId = @regionId,
   };
   var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
@@ -203,7 +201,7 @@ async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAtt
 
   var fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
-    content = request.imageURLObject,
+    content = request.videoUrlObject,
     contentType = '',
   };
   var ossHeader = new OSS.PostObjectRequest.header{
@@ -222,124 +220,44 @@ async function recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAtt
   RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
   // Step 2: request final api
-  var recognizeFurnitureAttributereq = new RecognizeFurnitureAttributeRequest{};
-  RPCUtil.convert(request, recognizeFurnitureAttributereq);
-  recognizeFurnitureAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFurnitureAttributeResp = recognizeFurnitureAttribute(recognizeFurnitureAttributereq, runtime);
-  return recognizeFurnitureAttributeResp;
+  var detectVideoShotreq = new DetectVideoShotRequest{};
+  RPCUtil.convert(request, detectVideoShotreq);
+  detectVideoShotreq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectVideoShotResp = detectVideoShot(detectVideoShotreq, runtime);
+  return detectVideoShotResp;
 }
 
-model RecognizeFurnitureSpuRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
-  XLength: float(name='XLength', description='xLength'),
-  YLength: float(name='YLength', description='yLength'),
-  ZLength: float(name='ZLength', description='zLength'),
+model GenerateVideoCoverRequest = {
+  videoUrl: string(name='VideoUrl', description='videoUrl'),
+  isGif: boolean(name='IsGif', description='isGif'),
 }
 
-model RecognizeFurnitureSpuResponse = {
+model GenerateVideoCoverResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
-    predCateId: string(name='PredCateId', description='predCateId'),
-    predCate: string(name='PredCate', description='predCate'),
-    predProbability: float(name='PredProbability', description='predProbability'),
-  }(name='Data', description='data'),
-}
-
-async function recognizeFurnitureSpu(request: RecognizeFurnitureSpuRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
-  return _request('RecognizeFurnitureSpu', 'HTTPS', 'POST', 'AK', null, request, runtime);
-}
-
-model RecognizeFurnitureSpuAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
-  XLength: float(name='XLength', description='xLength'),
-  YLength: float(name='YLength', description='yLength'),
-  ZLength: float(name='ZLength', description='zLength'),
-}
-
-async function recognizeFurnitureSpuAdvance(request: RecognizeFurnitureSpuAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeFurnitureSpuResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = 'openplatform.aliyuncs.com',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
-    regionId = @regionId,
-  };
-  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
-  // Step 1: request OSS api to upload file
-  var ossConfig = new OSS.Config{
-    accessKeyId = authResponse.accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{
-    filename = authResponse.objectKey,
-    content = request.imageURLObject,
-    contentType = '',
-  };
-  var ossHeader = new OSS.PostObjectRequest.header{
-    accessKeyId = authResponse.accessKeyId,
-    policy = authResponse.encodedPolicy,
-    signature = authResponse.signature,
-    key = authResponse.objectKey,
-    file = fileObj,
-    successActionStatus = '201',
-  };
-  var uploadRequest = new OSS.PostObjectRequest{
-    bucketName = authResponse.bucket,
-    header = ossHeader,
-  };
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  RPCUtil.convert(runtime, ossRuntime);
-  ossClient.postObject(uploadRequest, ossRuntime);
-  // Step 2: request final api
-  var recognizeFurnitureSpureq = new RecognizeFurnitureSpuRequest{};
-  RPCUtil.convert(request, recognizeFurnitureSpureq);
-  recognizeFurnitureSpureq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var recognizeFurnitureSpuResp = recognizeFurnitureSpu(recognizeFurnitureSpureq, runtime);
-  return recognizeFurnitureSpuResp;
-}
-
-model ClassifyCommodityRequest = {
-  imageURL: string(name='ImageURL', description='imageUrl'),
-}
-
-model ClassifyCommodityResponse = {
-  requestId: string(name='RequestId', description='requestId'),
-  data: {
-    categories: [
+    outputs: [
       {
-        score: float(name='Score', description='score'),
-        categoryName: string(name='CategoryName', description='categoryName'),
-        categoryId: string(name='CategoryId', description='categoryId'),
+        imageURL: string(name='ImageURL', description='imageUrl'),
+        confidence: float(name='Confidence', description='confidence'),
+        time: float(name='Time', description='time'),
+        faceCount: float(name='FaceCount', description='faceCount'),
+        startTime: float(name='StartTime', description='startTime'),
+        endTime: float(name='EndTime', description='endTime'),
       }
-    ](name='Categories', description='categoryList'),
+    ](name='Outputs', description='outputs'),
   }(name='Data', description='data'),
 }
 
-async function classifyCommodity(request: ClassifyCommodityRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
-  return _request('ClassifyCommodity', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function generateVideoCover(request: GenerateVideoCoverRequest, runtime: Util.RuntimeOptions): GenerateVideoCoverResponse {
+  return _request('GenerateVideoCover', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
-model ClassifyCommodityAdvanceRequest = {
-  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+model GenerateVideoCoverAdvanceRequest = {
+  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
+  isGif: boolean(name='IsGif', description='isGif'),
 }
 
-async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest, runtime: Util.RuntimeOptions): ClassifyCommodityResponse {
+async function generateVideoCoverAdvance(request: GenerateVideoCoverAdvanceRequest, runtime: Util.RuntimeOptions): GenerateVideoCoverResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
@@ -354,7 +272,7 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
   var authClient = new OpenPlatform(authConfig);
 
   var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'goodstech',
+    product = 'videorecog',
     regionId = @regionId,
   };
   var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
@@ -371,7 +289,7 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
 
   var fileObj = new FileForm.FileField{
     filename = authResponse.objectKey,
-    content = request.imageURLObject,
+    content = request.videoUrlObject,
     contentType = '',
   };
   var ossHeader = new OSS.PostObjectRequest.header{
@@ -390,11 +308,30 @@ async function classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest
   RPCUtil.convert(runtime, ossRuntime);
   ossClient.postObject(uploadRequest, ossRuntime);
   // Step 2: request final api
-  var classifyCommodityreq = new ClassifyCommodityRequest{};
-  RPCUtil.convert(request, classifyCommodityreq);
-  classifyCommodityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-  var classifyCommodityResp = classifyCommodity(classifyCommodityreq, runtime);
-  return classifyCommodityResp;
+  var generateVideoCoverreq = new GenerateVideoCoverRequest{};
+  RPCUtil.convert(request, generateVideoCoverreq);
+  generateVideoCoverreq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var generateVideoCoverResp = generateVideoCover(generateVideoCoverreq, runtime);
+  return generateVideoCoverResp;
+}
+
+model GetAsyncJobResultRequest = {
+  jobId: string(name='JobId', description='jobId'),
+}
+
+model GetAsyncJobResultResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    jobId: string(name='JobId', description='jobId'),
+    status: string(name='Status', description='status'),
+    result: string(name='Result', description='result'),
+    errorCode: string(name='ErrorCode', description='errorCode'),
+    errorMessage: string(name='ErrorMessage', description='errorMessage'),
+  }(name='Data', description='data'),
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  return _request('GetAsyncJobResult', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 function getUserAgent(): string {

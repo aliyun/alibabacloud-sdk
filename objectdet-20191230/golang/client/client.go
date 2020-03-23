@@ -132,6 +132,303 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
+type DetectTransparentImageRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectTransparentImageRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectTransparentImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectTransparentImageRequest) SetImageURL(v string) *DetectTransparentImageRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectTransparentImageResponse struct {
+	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectTransparentImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectTransparentImageResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectTransparentImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectTransparentImageResponse) SetRequestId(v string) *DetectTransparentImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectTransparentImageResponse) SetData(v *DetectTransparentImageResponseData) *DetectTransparentImageResponse {
+	s.Data = v
+	return s
+}
+
+type DetectTransparentImageResponseData struct {
+	Elements []*DetectTransparentImageResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s DetectTransparentImageResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectTransparentImageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectTransparentImageResponseData) SetElements(v []*DetectTransparentImageResponseDataElements) *DetectTransparentImageResponseData {
+	s.Elements = v
+	return s
+}
+
+type DetectTransparentImageResponseDataElements struct {
+	TransparentImage *int `json:"TransparentImage" xml:"TransparentImage" require:"true"`
+}
+
+func (s DetectTransparentImageResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectTransparentImageResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectTransparentImageResponseDataElements) SetTransparentImage(v int) *DetectTransparentImageResponseDataElements {
+	s.TransparentImage = &v
+	return s
+}
+
+type DetectTransparentImageAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s DetectTransparentImageAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectTransparentImageAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectTransparentImageAdvanceRequest) SetImageURLObject(v io.Reader) *DetectTransparentImageAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type DetectObjectRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectObjectRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectObjectRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectObjectRequest) SetImageURL(v string) *DetectObjectRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectObjectResponse struct {
+	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectObjectResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectObjectResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectObjectResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectObjectResponse) SetRequestId(v string) *DetectObjectResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectObjectResponse) SetData(v *DetectObjectResponseData) *DetectObjectResponse {
+	s.Data = v
+	return s
+}
+
+type DetectObjectResponseData struct {
+	Width    *int                                `json:"Width" xml:"Width" require:"true"`
+	Height   *int                                `json:"Height" xml:"Height" require:"true"`
+	Elements []*DetectObjectResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s DetectObjectResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectObjectResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectObjectResponseData) SetWidth(v int) *DetectObjectResponseData {
+	s.Width = &v
+	return s
+}
+
+func (s *DetectObjectResponseData) SetHeight(v int) *DetectObjectResponseData {
+	s.Height = &v
+	return s
+}
+
+func (s *DetectObjectResponseData) SetElements(v []*DetectObjectResponseDataElements) *DetectObjectResponseData {
+	s.Elements = v
+	return s
+}
+
+type DetectObjectResponseDataElements struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Type  *string  `json:"Type" xml:"Type" require:"true"`
+	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+}
+
+func (s DetectObjectResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectObjectResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectObjectResponseDataElements) SetScore(v float32) *DetectObjectResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+func (s *DetectObjectResponseDataElements) SetType(v string) *DetectObjectResponseDataElements {
+	s.Type = &v
+	return s
+}
+
+func (s *DetectObjectResponseDataElements) SetBoxes(v []*int) *DetectObjectResponseDataElements {
+	s.Boxes = v
+	return s
+}
+
+type DetectObjectAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s DetectObjectAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectObjectAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectObjectAdvanceRequest) SetImageURLObject(v io.Reader) *DetectObjectAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type DetectWhiteBaseImageRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s DetectWhiteBaseImageRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectWhiteBaseImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectWhiteBaseImageRequest) SetImageURL(v string) *DetectWhiteBaseImageRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectWhiteBaseImageResponse struct {
+	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectWhiteBaseImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectWhiteBaseImageResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectWhiteBaseImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectWhiteBaseImageResponse) SetRequestId(v string) *DetectWhiteBaseImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectWhiteBaseImageResponse) SetData(v *DetectWhiteBaseImageResponseData) *DetectWhiteBaseImageResponse {
+	s.Data = v
+	return s
+}
+
+type DetectWhiteBaseImageResponseData struct {
+	Elements []*DetectWhiteBaseImageResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s DetectWhiteBaseImageResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectWhiteBaseImageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectWhiteBaseImageResponseData) SetElements(v []*DetectWhiteBaseImageResponseDataElements) *DetectWhiteBaseImageResponseData {
+	s.Elements = v
+	return s
+}
+
+type DetectWhiteBaseImageResponseDataElements struct {
+	WhiteBase *int `json:"WhiteBase" xml:"WhiteBase" require:"true"`
+}
+
+func (s DetectWhiteBaseImageResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectWhiteBaseImageResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectWhiteBaseImageResponseDataElements) SetWhiteBase(v int) *DetectWhiteBaseImageResponseDataElements {
+	s.WhiteBase = &v
+	return s
+}
+
+type DetectWhiteBaseImageAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s DetectWhiteBaseImageAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectWhiteBaseImageAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectWhiteBaseImageAdvanceRequest) SetImageURLObject(v io.Reader) *DetectWhiteBaseImageAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type ClassifyVehicleInsuranceRequest struct {
 	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
 }
@@ -293,10 +590,10 @@ func (s *RecognizeVehicleDashboardResponseData) SetElements(v []*RecognizeVehicl
 }
 
 type RecognizeVehicleDashboardResponseDataElements struct {
-	Score     *float32                                              `json:"Score" xml:"Score" require:"true"`
-	ClassName *string                                               `json:"ClassName" xml:"ClassName" require:"true"`
-	Label     *string                                               `json:"Label" xml:"Label" require:"true"`
-	Boxes     []*RecognizeVehicleDashboardResponseDataElementsBoxes `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score     *float32   `json:"Score" xml:"Score" require:"true"`
+	ClassName *string    `json:"ClassName" xml:"ClassName" require:"true"`
+	Label     *string    `json:"Label" xml:"Label" require:"true"`
+	Boxes     []*float32 `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDashboardResponseDataElements) String() string {
@@ -322,25 +619,8 @@ func (s *RecognizeVehicleDashboardResponseDataElements) SetLabel(v string) *Reco
 	return s
 }
 
-func (s *RecognizeVehicleDashboardResponseDataElements) SetBoxes(v []*RecognizeVehicleDashboardResponseDataElementsBoxes) *RecognizeVehicleDashboardResponseDataElements {
+func (s *RecognizeVehicleDashboardResponseDataElements) SetBoxes(v []*float32) *RecognizeVehicleDashboardResponseDataElements {
 	s.Boxes = v
-	return s
-}
-
-type RecognizeVehicleDashboardResponseDataElementsBoxes struct {
-	Box *float32 `json:"Box" xml:"Box" require:"true"`
-}
-
-func (s RecognizeVehicleDashboardResponseDataElementsBoxes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVehicleDashboardResponseDataElementsBoxes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVehicleDashboardResponseDataElementsBoxes) SetBox(v float32) *RecognizeVehicleDashboardResponseDataElementsBoxes {
-	s.Box = &v
 	return s
 }
 
@@ -419,10 +699,10 @@ func (s *RecognizeVehicleDamageResponseData) SetElements(v []*RecognizeVehicleDa
 }
 
 type RecognizeVehicleDamageResponseDataElements struct {
-	Score  *float32                                            `json:"Score" xml:"Score" require:"true"`
-	Type   *string                                             `json:"Type" xml:"Type" require:"true"`
-	Scores []*RecognizeVehicleDamageResponseDataElementsScores `json:"Scores" xml:"Scores" require:"true" type:"Repeated"`
-	Boxes  []*RecognizeVehicleDamageResponseDataElementsBoxes  `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score  *float32   `json:"Score" xml:"Score" require:"true"`
+	Type   *string    `json:"Type" xml:"Type" require:"true"`
+	Scores []*float32 `json:"Scores" xml:"Scores" require:"true" type:"Repeated"`
+	Boxes  []*int     `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleDamageResponseDataElements) String() string {
@@ -443,47 +723,13 @@ func (s *RecognizeVehicleDamageResponseDataElements) SetType(v string) *Recogniz
 	return s
 }
 
-func (s *RecognizeVehicleDamageResponseDataElements) SetScores(v []*RecognizeVehicleDamageResponseDataElementsScores) *RecognizeVehicleDamageResponseDataElements {
+func (s *RecognizeVehicleDamageResponseDataElements) SetScores(v []*float32) *RecognizeVehicleDamageResponseDataElements {
 	s.Scores = v
 	return s
 }
 
-func (s *RecognizeVehicleDamageResponseDataElements) SetBoxes(v []*RecognizeVehicleDamageResponseDataElementsBoxes) *RecognizeVehicleDamageResponseDataElements {
+func (s *RecognizeVehicleDamageResponseDataElements) SetBoxes(v []*int) *RecognizeVehicleDamageResponseDataElements {
 	s.Boxes = v
-	return s
-}
-
-type RecognizeVehicleDamageResponseDataElementsScores struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-}
-
-func (s RecognizeVehicleDamageResponseDataElementsScores) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVehicleDamageResponseDataElementsScores) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVehicleDamageResponseDataElementsScores) SetScore(v float32) *RecognizeVehicleDamageResponseDataElementsScores {
-	s.Score = &v
-	return s
-}
-
-type RecognizeVehicleDamageResponseDataElementsBoxes struct {
-	Box *int `json:"Box" xml:"Box" require:"true"`
-}
-
-func (s RecognizeVehicleDamageResponseDataElementsBoxes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVehicleDamageResponseDataElementsBoxes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVehicleDamageResponseDataElementsBoxes) SetBox(v int) *RecognizeVehicleDamageResponseDataElementsBoxes {
-	s.Box = &v
 	return s
 }
 
@@ -545,8 +791,8 @@ func (s *RecognizeVehiclePartsResponse) SetData(v *RecognizeVehiclePartsResponse
 }
 
 type RecognizeVehiclePartsResponseData struct {
-	Elements     []*RecognizeVehiclePartsResponseDataElements     `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
-	OriginShapes []*RecognizeVehiclePartsResponseDataOriginShapes `json:"OriginShapes" xml:"OriginShapes" require:"true" type:"Repeated"`
+	Elements     []*RecognizeVehiclePartsResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	OriginShapes []*int                                       `json:"OriginShapes" xml:"OriginShapes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehiclePartsResponseData) String() string {
@@ -562,15 +808,15 @@ func (s *RecognizeVehiclePartsResponseData) SetElements(v []*RecognizeVehiclePar
 	return s
 }
 
-func (s *RecognizeVehiclePartsResponseData) SetOriginShapes(v []*RecognizeVehiclePartsResponseDataOriginShapes) *RecognizeVehiclePartsResponseData {
+func (s *RecognizeVehiclePartsResponseData) SetOriginShapes(v []*int) *RecognizeVehiclePartsResponseData {
 	s.OriginShapes = v
 	return s
 }
 
 type RecognizeVehiclePartsResponseDataElements struct {
-	Score *float32                                          `json:"Score" xml:"Score" require:"true"`
-	Type  *string                                           `json:"Type" xml:"Type" require:"true"`
-	Boxes []*RecognizeVehiclePartsResponseDataElementsBoxes `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Type  *string  `json:"Type" xml:"Type" require:"true"`
+	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehiclePartsResponseDataElements) String() string {
@@ -591,42 +837,8 @@ func (s *RecognizeVehiclePartsResponseDataElements) SetType(v string) *Recognize
 	return s
 }
 
-func (s *RecognizeVehiclePartsResponseDataElements) SetBoxes(v []*RecognizeVehiclePartsResponseDataElementsBoxes) *RecognizeVehiclePartsResponseDataElements {
+func (s *RecognizeVehiclePartsResponseDataElements) SetBoxes(v []*int) *RecognizeVehiclePartsResponseDataElements {
 	s.Boxes = v
-	return s
-}
-
-type RecognizeVehiclePartsResponseDataElementsBoxes struct {
-	Box *int `json:"Box" xml:"Box" require:"true"`
-}
-
-func (s RecognizeVehiclePartsResponseDataElementsBoxes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVehiclePartsResponseDataElementsBoxes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVehiclePartsResponseDataElementsBoxes) SetBox(v int) *RecognizeVehiclePartsResponseDataElementsBoxes {
-	s.Box = &v
-	return s
-}
-
-type RecognizeVehiclePartsResponseDataOriginShapes struct {
-	OriginShape *int `json:"OriginShape" xml:"OriginShape" require:"true"`
-}
-
-func (s RecognizeVehiclePartsResponseDataOriginShapes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVehiclePartsResponseDataOriginShapes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVehiclePartsResponseDataOriginShapes) SetOriginShape(v int) *RecognizeVehiclePartsResponseDataOriginShapes {
-	s.OriginShape = &v
 	return s
 }
 
@@ -717,10 +929,10 @@ func (s *DetectVehicleResponseData) SetDetectObjectInfoList(v []*DetectVehicleRe
 }
 
 type DetectVehicleResponseDataDetectObjectInfoList struct {
-	Score *float32                                              `json:"Score" xml:"Score" require:"true"`
-	Type  *string                                               `json:"Type" xml:"Type" require:"true"`
-	Id    *int                                                  `json:"Id" xml:"Id" require:"true"`
-	Boxes []*DetectVehicleResponseDataDetectObjectInfoListBoxes `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Type  *string  `json:"Type" xml:"Type" require:"true"`
+	Id    *int     `json:"Id" xml:"Id" require:"true"`
+	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
 }
 
 func (s DetectVehicleResponseDataDetectObjectInfoList) String() string {
@@ -746,25 +958,8 @@ func (s *DetectVehicleResponseDataDetectObjectInfoList) SetId(v int) *DetectVehi
 	return s
 }
 
-func (s *DetectVehicleResponseDataDetectObjectInfoList) SetBoxes(v []*DetectVehicleResponseDataDetectObjectInfoListBoxes) *DetectVehicleResponseDataDetectObjectInfoList {
+func (s *DetectVehicleResponseDataDetectObjectInfoList) SetBoxes(v []*int) *DetectVehicleResponseDataDetectObjectInfoList {
 	s.Boxes = v
-	return s
-}
-
-type DetectVehicleResponseDataDetectObjectInfoListBoxes struct {
-	Box *int `json:"Box" xml:"Box" require:"true"`
-}
-
-func (s DetectVehicleResponseDataDetectObjectInfoListBoxes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DetectVehicleResponseDataDetectObjectInfoListBoxes) GoString() string {
-	return s.String()
-}
-
-func (s *DetectVehicleResponseDataDetectObjectInfoListBoxes) SetBox(v int) *DetectVehicleResponseDataDetectObjectInfoListBoxes {
-	s.Box = &v
 	return s
 }
 
@@ -914,11 +1109,11 @@ type Client struct {
 
 func NewClient(config *Config) (*Client, error) {
 	client := new(Client)
-	err := client.init(config)
+	err := client.Init(config)
 	return client, err
 }
 
-func (client *Client) init(config *Config) (_err error) {
+func (client *Client) Init(config *Config) (_err error) {
 	if util.IsUnset(tea.ToMap(config)) {
 		_err = tea.NewSDKError(map[string]interface{}{
 			"name":    "ParameterMissing",
@@ -975,7 +1170,7 @@ func (client *Client) init(config *Config) (_err error) {
 	return nil
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
+func (client *Client) _request(action string, protocol string, method string, authType string, query map[string]interface{}, body map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return nil, _err
@@ -1013,32 +1208,40 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Protocol = util.DefaultString(client.Protocol, protocol)
 			request_.Method = method
 			request_.Pathname = "/"
-			accessKeyId, _err := client.GetAccessKeyId()
-			if _err != nil {
-				return nil, _err
-			}
-
-			accessKeySecret, _err := client.GetAccessKeySecret()
-			if _err != nil {
-				return nil, _err
-			}
-
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        rpcutil.GetTimestamp(),
-				"Version":          "2019-12-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   util.GetNonce(),
-				"AccessKeyId":      accessKeyId,
-			}, request))
+				"Action":         action,
+				"Format":         "json",
+				"RegionId":       client.RegionId,
+				"Timestamp":      rpcutil.GetTimestamp(),
+				"Version":        "2019-12-30",
+				"SignatureNonce": util.GetNonce(),
+			}, query))
+			if !util.IsUnset(body) {
+				tmp := util.AnyifyMapValue(rpcutil.Query(body))
+				request_.Body = tea.ToReader(util.ToFormString(tmp))
+			}
+
 			request_.Headers = map[string]string{
 				"host":       rpcutil.GetHost("objectdet", client.RegionId, client.Endpoint),
 				"user-agent": client.GetUserAgent(),
 			}
-			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			if !util.EqualString(authType, "Anonymous") {
+				accessKeyId, _err := client.GetAccessKeyId()
+				if _err != nil {
+					return nil, _err
+				}
+
+				accessKeySecret, _err := client.GetAccessKeySecret()
+				if _err != nil {
+					return nil, _err
+				}
+
+				request_.Query["SignatureMethod"] = "HMAC-SHA1"
+				request_.Query["SignatureVersion"] = "1.0"
+				request_.Query["AccessKeyId"] = accessKeyId
+				request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			}
+
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
 				return nil, _err
@@ -1048,17 +1251,17 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return nil, _err
 			}
 
-			body := util.AssertAsMap(obj)
+			res := util.AssertAsMap(obj)
 			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
 				_err = tea.NewSDKError(map[string]interface{}{
-					"message": body["Message"],
-					"data":    body,
-					"code":    body["Code"],
+					"message": res["Message"],
+					"data":    res,
+					"code":    res["Code"],
 				})
 				return nil, _err
 			}
 
-			_result = body
+			_result = res
 			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
@@ -1069,9 +1272,9 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsuranceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
-	_result = &ClassifyVehicleInsuranceResponse{}
-	_body, _err := client._request("ClassifyVehicleInsurance", "HTTPS", "POST", tea.ToMap(request), runtime)
+func (client *Client) DetectTransparentImage(request *DetectTransparentImageRequest, runtime *util.RuntimeOptions) (_result *DetectTransparentImageResponse, _err error) {
+	_result = &DetectTransparentImageResponse{}
+	_body, _err := client._request("DetectTransparentImage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1079,7 +1282,8 @@ func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsurance
 	return _result, _err
 }
 
-func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleInsuranceAdvanceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentImageAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectTransparentImageResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -1112,6 +1316,7 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -1148,6 +1353,289 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
+	detectTransparentImagereq := &DetectTransparentImageRequest{}
+	rpcutil.Convert(request, detectTransparentImagereq)
+	detectTransparentImagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectTransparentImageResp, _err := client.DetectTransparentImage(detectTransparentImagereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = detectTransparentImageResp
+	return _result, _err
+}
+
+func (client *Client) DetectObject(request *DetectObjectRequest, runtime *util.RuntimeOptions) (_result *DetectObjectResponse, _err error) {
+	_result = &DetectObjectResponse{}
+	_body, _err := client._request("DetectObject", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectObjectResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	detectObjectreq := &DetectObjectRequest{}
+	rpcutil.Convert(request, detectObjectreq)
+	detectObjectreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectObjectResp, _err := client.DetectObject(detectObjectreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = detectObjectResp
+	return _result, _err
+}
+
+func (client *Client) DetectWhiteBaseImage(request *DetectWhiteBaseImageRequest, runtime *util.RuntimeOptions) (_result *DetectWhiteBaseImageResponse, _err error) {
+	_result = &DetectWhiteBaseImageResponse{}
+	_body, _err := client._request("DetectWhiteBaseImage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectWhiteBaseImageResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	detectWhiteBaseImagereq := &DetectWhiteBaseImageRequest{}
+	rpcutil.Convert(request, detectWhiteBaseImagereq)
+	detectWhiteBaseImagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectWhiteBaseImageResp, _err := client.DetectWhiteBaseImage(detectWhiteBaseImagereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = detectWhiteBaseImageResp
+	return _result, _err
+}
+
+func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsuranceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+	_result = &ClassifyVehicleInsuranceResponse{}
+	_body, _err := client._request("ClassifyVehicleInsurance", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleInsuranceAdvanceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("objectdet"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
 	classifyVehicleInsurancereq := &ClassifyVehicleInsuranceRequest{}
 	rpcutil.Convert(request, classifyVehicleInsurancereq)
 	classifyVehicleInsurancereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -1162,7 +1650,7 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 
 func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboardRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDashboardResponse, _err error) {
 	_result = &RecognizeVehicleDashboardResponse{}
-	_body, _err := client._request("RecognizeVehicleDashboard", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeVehicleDashboard", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1171,6 +1659,7 @@ func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboa
 }
 
 func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicleDashboardAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDashboardResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -1203,6 +1692,7 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -1239,6 +1729,7 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeVehicleDashboardreq := &RecognizeVehicleDashboardRequest{}
 	rpcutil.Convert(request, recognizeVehicleDashboardreq)
 	recognizeVehicleDashboardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -1253,7 +1744,7 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 
 func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDamageResponse, _err error) {
 	_result = &RecognizeVehicleDamageResponse{}
-	_body, _err := client._request("RecognizeVehicleDamage", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeVehicleDamage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1262,6 +1753,7 @@ func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequ
 }
 
 func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDamageAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDamageResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -1294,6 +1786,7 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -1330,6 +1823,7 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeVehicleDamagereq := &RecognizeVehicleDamageRequest{}
 	rpcutil.Convert(request, recognizeVehicleDamagereq)
 	recognizeVehicleDamagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -1344,7 +1838,7 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 
 func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehiclePartsResponse, _err error) {
 	_result = &RecognizeVehiclePartsResponse{}
-	_body, _err := client._request("RecognizeVehicleParts", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeVehicleParts", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1353,6 +1847,7 @@ func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsReques
 }
 
 func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePartsAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehiclePartsResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -1385,6 +1880,7 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -1421,6 +1917,7 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeVehiclePartsreq := &RecognizeVehiclePartsRequest{}
 	rpcutil.Convert(request, recognizeVehiclePartsreq)
 	recognizeVehiclePartsreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -1435,7 +1932,7 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 
 func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *util.RuntimeOptions) (_result *DetectVehicleResponse, _err error) {
 	_result = &DetectVehicleResponse{}
-	_body, _err := client._request("DetectVehicle", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("DetectVehicle", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1444,6 +1941,7 @@ func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *util
 }
 
 func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectVehicleResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -1476,6 +1974,7 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -1512,6 +2011,7 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	detectVehiclereq := &DetectVehicleRequest{}
 	rpcutil.Convert(request, detectVehiclereq)
 	detectVehiclereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -1526,7 +2026,7 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 
 func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *util.RuntimeOptions) (_result *DetectMainBodyResponse, _err error) {
 	_result = &DetectMainBodyResponse{}
-	_body, _err := client._request("DetectMainBody", "HTTPS", "GET", tea.ToMap(request), runtime)
+	_body, _err := client._request("DetectMainBody", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1535,6 +2035,7 @@ func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *ut
 }
 
 func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectMainBodyResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -1567,6 +2068,7 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -1603,6 +2105,7 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	detectMainBodyreq := &DetectMainBodyRequest{}
 	rpcutil.Convert(request, detectMainBodyreq)
 	detectMainBodyreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))

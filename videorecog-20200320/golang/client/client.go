@@ -132,314 +132,291 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
-type RecognizeFurnitureAttributeRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+type DetectVideoShotRequest struct {
+	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
 }
 
-func (s RecognizeFurnitureAttributeRequest) String() string {
+func (s DetectVideoShotRequest) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureAttributeRequest) GoString() string {
+func (s DetectVideoShotRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureAttributeRequest) SetImageURL(v string) *RecognizeFurnitureAttributeRequest {
-	s.ImageURL = &v
+func (s *DetectVideoShotRequest) SetVideoUrl(v string) *DetectVideoShotRequest {
+	s.VideoUrl = &v
 	return s
 }
 
-type RecognizeFurnitureAttributeResponse struct {
-	RequestId *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeFurnitureAttributeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+type DetectVideoShotResponse struct {
+	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectVideoShotResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
 }
 
-func (s RecognizeFurnitureAttributeResponse) String() string {
+func (s DetectVideoShotResponse) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureAttributeResponse) GoString() string {
+func (s DetectVideoShotResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureAttributeResponse) SetRequestId(v string) *RecognizeFurnitureAttributeResponse {
+func (s *DetectVideoShotResponse) SetRequestId(v string) *DetectVideoShotResponse {
 	s.RequestId = &v
 	return s
 }
 
-func (s *RecognizeFurnitureAttributeResponse) SetData(v *RecognizeFurnitureAttributeResponseData) *RecognizeFurnitureAttributeResponse {
+func (s *DetectVideoShotResponse) SetData(v *DetectVideoShotResponseData) *DetectVideoShotResponse {
 	s.Data = v
 	return s
 }
 
-type RecognizeFurnitureAttributeResponseData struct {
-	PredStyleId     *string  `json:"PredStyleId" xml:"PredStyleId" require:"true"`
-	PredStyle       *string  `json:"PredStyle" xml:"PredStyle" require:"true"`
-	PredProbability *float32 `json:"PredProbability" xml:"PredProbability" require:"true"`
+type DetectVideoShotResponseData struct {
+	ShotFrameIds []*int `json:"ShotFrameIds" xml:"ShotFrameIds" require:"true" type:"Repeated"`
 }
 
-func (s RecognizeFurnitureAttributeResponseData) String() string {
+func (s DetectVideoShotResponseData) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureAttributeResponseData) GoString() string {
+func (s DetectVideoShotResponseData) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureAttributeResponseData) SetPredStyleId(v string) *RecognizeFurnitureAttributeResponseData {
-	s.PredStyleId = &v
+func (s *DetectVideoShotResponseData) SetShotFrameIds(v []*int) *DetectVideoShotResponseData {
+	s.ShotFrameIds = v
 	return s
 }
 
-func (s *RecognizeFurnitureAttributeResponseData) SetPredStyle(v string) *RecognizeFurnitureAttributeResponseData {
-	s.PredStyle = &v
-	return s
+type DetectVideoShotAdvanceRequest struct {
+	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
 }
 
-func (s *RecognizeFurnitureAttributeResponseData) SetPredProbability(v float32) *RecognizeFurnitureAttributeResponseData {
-	s.PredProbability = &v
-	return s
-}
-
-type RecognizeFurnitureAttributeAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-}
-
-func (s RecognizeFurnitureAttributeAdvanceRequest) String() string {
+func (s DetectVideoShotAdvanceRequest) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureAttributeAdvanceRequest) GoString() string {
+func (s DetectVideoShotAdvanceRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureAttributeAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeFurnitureAttributeAdvanceRequest {
-	s.ImageURLObject = v
+func (s *DetectVideoShotAdvanceRequest) SetVideoUrlObject(v io.Reader) *DetectVideoShotAdvanceRequest {
+	s.VideoUrlObject = v
 	return s
 }
 
-type RecognizeFurnitureSpuRequest struct {
-	ImageURL *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	XLength  *float32 `json:"XLength" xml:"XLength" require:"true"`
-	YLength  *float32 `json:"YLength" xml:"YLength" require:"true"`
-	ZLength  *float32 `json:"ZLength" xml:"ZLength" require:"true"`
+type GenerateVideoCoverRequest struct {
+	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	IsGif    *bool   `json:"IsGif" xml:"IsGif" require:"true"`
 }
 
-func (s RecognizeFurnitureSpuRequest) String() string {
+func (s GenerateVideoCoverRequest) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureSpuRequest) GoString() string {
+func (s GenerateVideoCoverRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureSpuRequest) SetImageURL(v string) *RecognizeFurnitureSpuRequest {
-	s.ImageURL = &v
+func (s *GenerateVideoCoverRequest) SetVideoUrl(v string) *GenerateVideoCoverRequest {
+	s.VideoUrl = &v
 	return s
 }
 
-func (s *RecognizeFurnitureSpuRequest) SetXLength(v float32) *RecognizeFurnitureSpuRequest {
-	s.XLength = &v
+func (s *GenerateVideoCoverRequest) SetIsGif(v bool) *GenerateVideoCoverRequest {
+	s.IsGif = &v
 	return s
 }
 
-func (s *RecognizeFurnitureSpuRequest) SetYLength(v float32) *RecognizeFurnitureSpuRequest {
-	s.YLength = &v
-	return s
+type GenerateVideoCoverResponse struct {
+	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *GenerateVideoCoverResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
 }
 
-func (s *RecognizeFurnitureSpuRequest) SetZLength(v float32) *RecognizeFurnitureSpuRequest {
-	s.ZLength = &v
-	return s
-}
-
-type RecognizeFurnitureSpuResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeFurnitureSpuResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
-}
-
-func (s RecognizeFurnitureSpuResponse) String() string {
+func (s GenerateVideoCoverResponse) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureSpuResponse) GoString() string {
+func (s GenerateVideoCoverResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureSpuResponse) SetRequestId(v string) *RecognizeFurnitureSpuResponse {
+func (s *GenerateVideoCoverResponse) SetRequestId(v string) *GenerateVideoCoverResponse {
 	s.RequestId = &v
 	return s
 }
 
-func (s *RecognizeFurnitureSpuResponse) SetData(v *RecognizeFurnitureSpuResponseData) *RecognizeFurnitureSpuResponse {
+func (s *GenerateVideoCoverResponse) SetData(v *GenerateVideoCoverResponseData) *GenerateVideoCoverResponse {
 	s.Data = v
 	return s
 }
 
-type RecognizeFurnitureSpuResponseData struct {
-	PredCateId      *string  `json:"PredCateId" xml:"PredCateId" require:"true"`
-	PredCate        *string  `json:"PredCate" xml:"PredCate" require:"true"`
-	PredProbability *float32 `json:"PredProbability" xml:"PredProbability" require:"true"`
+type GenerateVideoCoverResponseData struct {
+	Outputs []*GenerateVideoCoverResponseDataOutputs `json:"Outputs" xml:"Outputs" require:"true" type:"Repeated"`
 }
 
-func (s RecognizeFurnitureSpuResponseData) String() string {
+func (s GenerateVideoCoverResponseData) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureSpuResponseData) GoString() string {
+func (s GenerateVideoCoverResponseData) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureSpuResponseData) SetPredCateId(v string) *RecognizeFurnitureSpuResponseData {
-	s.PredCateId = &v
+func (s *GenerateVideoCoverResponseData) SetOutputs(v []*GenerateVideoCoverResponseDataOutputs) *GenerateVideoCoverResponseData {
+	s.Outputs = v
 	return s
 }
 
-func (s *RecognizeFurnitureSpuResponseData) SetPredCate(v string) *RecognizeFurnitureSpuResponseData {
-	s.PredCate = &v
-	return s
+type GenerateVideoCoverResponseDataOutputs struct {
+	ImageURL   *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+	Time       *float32 `json:"Time" xml:"Time" require:"true"`
+	FaceCount  *float32 `json:"FaceCount" xml:"FaceCount" require:"true"`
+	StartTime  *float32 `json:"StartTime" xml:"StartTime" require:"true"`
+	EndTime    *float32 `json:"EndTime" xml:"EndTime" require:"true"`
 }
 
-func (s *RecognizeFurnitureSpuResponseData) SetPredProbability(v float32) *RecognizeFurnitureSpuResponseData {
-	s.PredProbability = &v
-	return s
-}
-
-type RecognizeFurnitureSpuAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	XLength        *float32  `json:"XLength" xml:"XLength" require:"true"`
-	YLength        *float32  `json:"YLength" xml:"YLength" require:"true"`
-	ZLength        *float32  `json:"ZLength" xml:"ZLength" require:"true"`
-}
-
-func (s RecognizeFurnitureSpuAdvanceRequest) String() string {
+func (s GenerateVideoCoverResponseDataOutputs) String() string {
 	return tea.Prettify(s)
 }
 
-func (s RecognizeFurnitureSpuAdvanceRequest) GoString() string {
+func (s GenerateVideoCoverResponseDataOutputs) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeFurnitureSpuAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeFurnitureSpuAdvanceRequest {
-	s.ImageURLObject = v
-	return s
-}
-
-func (s *RecognizeFurnitureSpuAdvanceRequest) SetXLength(v float32) *RecognizeFurnitureSpuAdvanceRequest {
-	s.XLength = &v
-	return s
-}
-
-func (s *RecognizeFurnitureSpuAdvanceRequest) SetYLength(v float32) *RecognizeFurnitureSpuAdvanceRequest {
-	s.YLength = &v
-	return s
-}
-
-func (s *RecognizeFurnitureSpuAdvanceRequest) SetZLength(v float32) *RecognizeFurnitureSpuAdvanceRequest {
-	s.ZLength = &v
-	return s
-}
-
-type ClassifyCommodityRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-}
-
-func (s ClassifyCommodityRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ClassifyCommodityRequest) GoString() string {
-	return s.String()
-}
-
-func (s *ClassifyCommodityRequest) SetImageURL(v string) *ClassifyCommodityRequest {
+func (s *GenerateVideoCoverResponseDataOutputs) SetImageURL(v string) *GenerateVideoCoverResponseDataOutputs {
 	s.ImageURL = &v
 	return s
 }
 
-type ClassifyCommodityResponse struct {
+func (s *GenerateVideoCoverResponseDataOutputs) SetConfidence(v float32) *GenerateVideoCoverResponseDataOutputs {
+	s.Confidence = &v
+	return s
+}
+
+func (s *GenerateVideoCoverResponseDataOutputs) SetTime(v float32) *GenerateVideoCoverResponseDataOutputs {
+	s.Time = &v
+	return s
+}
+
+func (s *GenerateVideoCoverResponseDataOutputs) SetFaceCount(v float32) *GenerateVideoCoverResponseDataOutputs {
+	s.FaceCount = &v
+	return s
+}
+
+func (s *GenerateVideoCoverResponseDataOutputs) SetStartTime(v float32) *GenerateVideoCoverResponseDataOutputs {
+	s.StartTime = &v
+	return s
+}
+
+func (s *GenerateVideoCoverResponseDataOutputs) SetEndTime(v float32) *GenerateVideoCoverResponseDataOutputs {
+	s.EndTime = &v
+	return s
+}
+
+type GenerateVideoCoverAdvanceRequest struct {
+	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
+	IsGif          *bool     `json:"IsGif" xml:"IsGif" require:"true"`
+}
+
+func (s GenerateVideoCoverAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVideoCoverAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVideoCoverAdvanceRequest) SetVideoUrlObject(v io.Reader) *GenerateVideoCoverAdvanceRequest {
+	s.VideoUrlObject = v
+	return s
+}
+
+func (s *GenerateVideoCoverAdvanceRequest) SetIsGif(v bool) *GenerateVideoCoverAdvanceRequest {
+	s.IsGif = &v
+	return s
+}
+
+type GetAsyncJobResultRequest struct {
+	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+}
+
+func (s GetAsyncJobResultRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest {
+	s.JobId = &v
+	return s
+}
+
+type GetAsyncJobResultResponse struct {
 	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ClassifyCommodityResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
 }
 
-func (s ClassifyCommodityResponse) String() string {
+func (s GetAsyncJobResultResponse) String() string {
 	return tea.Prettify(s)
 }
 
-func (s ClassifyCommodityResponse) GoString() string {
+func (s GetAsyncJobResultResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ClassifyCommodityResponse) SetRequestId(v string) *ClassifyCommodityResponse {
+func (s *GetAsyncJobResultResponse) SetRequestId(v string) *GetAsyncJobResultResponse {
 	s.RequestId = &v
 	return s
 }
 
-func (s *ClassifyCommodityResponse) SetData(v *ClassifyCommodityResponseData) *ClassifyCommodityResponse {
+func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *GetAsyncJobResultResponse {
 	s.Data = v
 	return s
 }
 
-type ClassifyCommodityResponseData struct {
-	Categories []*ClassifyCommodityResponseDataCategories `json:"Categories" xml:"Categories" require:"true" type:"Repeated"`
+type GetAsyncJobResultResponseData struct {
+	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
+	Status       *string `json:"Status" xml:"Status" require:"true"`
+	Result       *string `json:"Result" xml:"Result" require:"true"`
+	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
 }
 
-func (s ClassifyCommodityResponseData) String() string {
+func (s GetAsyncJobResultResponseData) String() string {
 	return tea.Prettify(s)
 }
 
-func (s ClassifyCommodityResponseData) GoString() string {
+func (s GetAsyncJobResultResponseData) GoString() string {
 	return s.String()
 }
 
-func (s *ClassifyCommodityResponseData) SetCategories(v []*ClassifyCommodityResponseDataCategories) *ClassifyCommodityResponseData {
-	s.Categories = v
+func (s *GetAsyncJobResultResponseData) SetJobId(v string) *GetAsyncJobResultResponseData {
+	s.JobId = &v
 	return s
 }
 
-type ClassifyCommodityResponseDataCategories struct {
-	Score        *float32 `json:"Score" xml:"Score" require:"true"`
-	CategoryName *string  `json:"CategoryName" xml:"CategoryName" require:"true"`
-	CategoryId   *string  `json:"CategoryId" xml:"CategoryId" require:"true"`
-}
-
-func (s ClassifyCommodityResponseDataCategories) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ClassifyCommodityResponseDataCategories) GoString() string {
-	return s.String()
-}
-
-func (s *ClassifyCommodityResponseDataCategories) SetScore(v float32) *ClassifyCommodityResponseDataCategories {
-	s.Score = &v
+func (s *GetAsyncJobResultResponseData) SetStatus(v string) *GetAsyncJobResultResponseData {
+	s.Status = &v
 	return s
 }
 
-func (s *ClassifyCommodityResponseDataCategories) SetCategoryName(v string) *ClassifyCommodityResponseDataCategories {
-	s.CategoryName = &v
+func (s *GetAsyncJobResultResponseData) SetResult(v string) *GetAsyncJobResultResponseData {
+	s.Result = &v
 	return s
 }
 
-func (s *ClassifyCommodityResponseDataCategories) SetCategoryId(v string) *ClassifyCommodityResponseDataCategories {
-	s.CategoryId = &v
+func (s *GetAsyncJobResultResponseData) SetErrorCode(v string) *GetAsyncJobResultResponseData {
+	s.ErrorCode = &v
 	return s
 }
 
-type ClassifyCommodityAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-}
-
-func (s ClassifyCommodityAdvanceRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ClassifyCommodityAdvanceRequest) GoString() string {
-	return s.String()
-}
-
-func (s *ClassifyCommodityAdvanceRequest) SetImageURLObject(v io.Reader) *ClassifyCommodityAdvanceRequest {
-	s.ImageURLObject = v
+func (s *GetAsyncJobResultResponseData) SetErrorMessage(v string) *GetAsyncJobResultResponseData {
+	s.ErrorMessage = &v
 	return s
 }
 
@@ -567,7 +544,7 @@ func (client *Client) _request(action string, protocol string, method string, au
 				"Format":         "json",
 				"RegionId":       client.RegionId,
 				"Timestamp":      rpcutil.GetTimestamp(),
-				"Version":        "2019-12-30",
+				"Version":        "2020-03-20",
 				"SignatureNonce": util.GetNonce(),
 			}, query))
 			if !util.IsUnset(body) {
@@ -576,7 +553,7 @@ func (client *Client) _request(action string, protocol string, method string, au
 			}
 
 			request_.Headers = map[string]string{
-				"host":       rpcutil.GetHost("goodstech", client.RegionId, client.Endpoint),
+				"host":       rpcutil.GetHost("videorecog", client.RegionId, client.Endpoint),
 				"user-agent": client.GetUserAgent(),
 			}
 			if !util.EqualString(authType, "Anonymous") {
@@ -626,9 +603,9 @@ func (client *Client) _request(action string, protocol string, method string, au
 	return _resp, _err
 }
 
-func (client *Client) RecognizeFurnitureAttribute(request *RecognizeFurnitureAttributeRequest, runtime *util.RuntimeOptions) (_result *RecognizeFurnitureAttributeResponse, _err error) {
-	_result = &RecognizeFurnitureAttributeResponse{}
-	_body, _err := client._request("RecognizeFurnitureAttribute", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+func (client *Client) DetectVideoShot(request *DetectVideoShotRequest, runtime *util.RuntimeOptions) (_result *DetectVideoShotResponse, _err error) {
+	_result = &DetectVideoShotResponse{}
+	_body, _err := client._request("DetectVideoShot", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -636,7 +613,7 @@ func (client *Client) RecognizeFurnitureAttribute(request *RecognizeFurnitureAtt
 	return _result, _err
 }
 
-func (client *Client) RecognizeFurnitureAttributeAdvance(request *RecognizeFurnitureAttributeAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeFurnitureAttributeResponse, _err error) {
+func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectVideoShotResponse, _err error) {
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
@@ -662,7 +639,7 @@ func (client *Client) RecognizeFurnitureAttributeAdvance(request *RecognizeFurni
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("goodstech"),
+		Product:  tea.String("videorecog"),
 		RegionId: tea.String(client.RegionId),
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
@@ -686,7 +663,7 @@ func (client *Client) RecognizeFurnitureAttributeAdvance(request *RecognizeFurni
 
 	fileObj := &fileform.FileField{
 		Filename:    authResponse.ObjectKey,
-		Content:     request.ImageURLObject,
+		Content:     request.VideoUrlObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -708,21 +685,21 @@ func (client *Client) RecognizeFurnitureAttributeAdvance(request *RecognizeFurni
 		return
 	}
 	// Step 2: request final api
-	recognizeFurnitureAttributereq := &RecognizeFurnitureAttributeRequest{}
-	rpcutil.Convert(request, recognizeFurnitureAttributereq)
-	recognizeFurnitureAttributereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeFurnitureAttributeResp, _err := client.RecognizeFurnitureAttribute(recognizeFurnitureAttributereq, runtime)
+	detectVideoShotreq := &DetectVideoShotRequest{}
+	rpcutil.Convert(request, detectVideoShotreq)
+	detectVideoShotreq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectVideoShotResp, _err := client.DetectVideoShot(detectVideoShotreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	_result = recognizeFurnitureAttributeResp
+	_result = detectVideoShotResp
 	return _result, _err
 }
 
-func (client *Client) RecognizeFurnitureSpu(request *RecognizeFurnitureSpuRequest, runtime *util.RuntimeOptions) (_result *RecognizeFurnitureSpuResponse, _err error) {
-	_result = &RecognizeFurnitureSpuResponse{}
-	_body, _err := client._request("RecognizeFurnitureSpu", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+func (client *Client) GenerateVideoCover(request *GenerateVideoCoverRequest, runtime *util.RuntimeOptions) (_result *GenerateVideoCoverResponse, _err error) {
+	_result = &GenerateVideoCoverResponse{}
+	_body, _err := client._request("GenerateVideoCover", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -730,7 +707,7 @@ func (client *Client) RecognizeFurnitureSpu(request *RecognizeFurnitureSpuReques
 	return _result, _err
 }
 
-func (client *Client) RecognizeFurnitureSpuAdvance(request *RecognizeFurnitureSpuAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeFurnitureSpuResponse, _err error) {
+func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvanceRequest, runtime *util.RuntimeOptions) (_result *GenerateVideoCoverResponse, _err error) {
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
@@ -756,7 +733,7 @@ func (client *Client) RecognizeFurnitureSpuAdvance(request *RecognizeFurnitureSp
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("goodstech"),
+		Product:  tea.String("videorecog"),
 		RegionId: tea.String(client.RegionId),
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
@@ -780,7 +757,7 @@ func (client *Client) RecognizeFurnitureSpuAdvance(request *RecognizeFurnitureSp
 
 	fileObj := &fileform.FileField{
 		Filename:    authResponse.ObjectKey,
-		Content:     request.ImageURLObject,
+		Content:     request.VideoUrlObject,
 		ContentType: tea.String(""),
 	}
 	ossHeader := &oss.PostObjectRequestHeader{
@@ -802,109 +779,25 @@ func (client *Client) RecognizeFurnitureSpuAdvance(request *RecognizeFurnitureSp
 		return
 	}
 	// Step 2: request final api
-	recognizeFurnitureSpureq := &RecognizeFurnitureSpuRequest{}
-	rpcutil.Convert(request, recognizeFurnitureSpureq)
-	recognizeFurnitureSpureq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	recognizeFurnitureSpuResp, _err := client.RecognizeFurnitureSpu(recognizeFurnitureSpureq, runtime)
+	generateVideoCoverreq := &GenerateVideoCoverRequest{}
+	rpcutil.Convert(request, generateVideoCoverreq)
+	generateVideoCoverreq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	generateVideoCoverResp, _err := client.GenerateVideoCover(generateVideoCoverreq, runtime)
 	if _err != nil {
 		return nil, _err
 	}
 
-	_result = recognizeFurnitureSpuResp
+	_result = generateVideoCoverResp
 	return _result, _err
 }
 
-func (client *Client) ClassifyCommodity(request *ClassifyCommodityRequest, runtime *util.RuntimeOptions) (_result *ClassifyCommodityResponse, _err error) {
-	_result = &ClassifyCommodityResponse{}
-	_body, _err := client._request("ClassifyCommodity", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
+	_result = &GetAsyncJobResultResponse{}
+	_body, _err := client._request("GetAsyncJobResult", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
 	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) ClassifyCommodityAdvance(request *ClassifyCommodityAdvanceRequest, runtime *util.RuntimeOptions) (_result *ClassifyCommodityResponse, _err error) {
-	// Step 0: init client
-	accessKeyId, _err := client.Credential.GetAccessKeyId()
-	if _err != nil {
-		return nil, _err
-	}
-
-	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
-	if _err != nil {
-		return nil, _err
-	}
-
-	authConfig := &openplatform.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	authClient, _err := openplatform.NewClient(authConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	authRequest := &openplatform.AuthorizeFileUploadRequest{
-		Product:  tea.String("goodstech"),
-		RegionId: tea.String(client.RegionId),
-	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	// Step 1: request OSS api to upload file
-	ossConfig := &oss.Config{
-		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
-		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
-	}
-	ossClient, _err := oss.NewClient(ossConfig)
-	if _err != nil {
-		return nil, _err
-	}
-
-	fileObj := &fileform.FileField{
-		Filename:    authResponse.ObjectKey,
-		Content:     request.ImageURLObject,
-		ContentType: tea.String(""),
-	}
-	ossHeader := &oss.PostObjectRequestHeader{
-		AccessKeyId:         authResponse.AccessKeyId,
-		Policy:              authResponse.EncodedPolicy,
-		Signature:           authResponse.Signature,
-		Key:                 authResponse.ObjectKey,
-		File:                fileObj,
-		SuccessActionStatus: tea.String("201"),
-	}
-	uploadRequest := &oss.PostObjectRequest{
-		BucketName: authResponse.Bucket,
-		Header:     ossHeader,
-	}
-	ossRuntime := &ossutil.RuntimeOptions{}
-	rpcutil.Convert(runtime, ossRuntime)
-	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
-	if _err != nil {
-		return
-	}
-	// Step 2: request final api
-	classifyCommodityreq := &ClassifyCommodityRequest{}
-	rpcutil.Convert(request, classifyCommodityreq)
-	classifyCommodityreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
-	classifyCommodityResp, _err := client.ClassifyCommodity(classifyCommodityreq, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-
-	_result = classifyCommodityResp
 	return _result, _err
 }
 

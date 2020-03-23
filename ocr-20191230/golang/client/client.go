@@ -132,6 +132,683 @@ func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
 	return s
 }
 
+type GetAsyncJobResultRequest struct {
+	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+}
+
+func (s GetAsyncJobResultRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest {
+	s.JobId = &v
+	return s
+}
+
+type GetAsyncJobResultResponse struct {
+	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s GetAsyncJobResultResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultResponse) SetRequestId(v string) *GetAsyncJobResultResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *GetAsyncJobResultResponse {
+	s.Data = v
+	return s
+}
+
+type GetAsyncJobResultResponseData struct {
+	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
+	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
+	Result       *string `json:"Result" xml:"Result" require:"true"`
+	Status       *string `json:"Status" xml:"Status" require:"true"`
+}
+
+func (s GetAsyncJobResultResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultResponseData) SetErrorCode(v string) *GetAsyncJobResultResponseData {
+	s.ErrorCode = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetErrorMessage(v string) *GetAsyncJobResultResponseData {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetJobId(v string) *GetAsyncJobResultResponseData {
+	s.JobId = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetResult(v string) *GetAsyncJobResultResponseData {
+	s.Result = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetStatus(v string) *GetAsyncJobResultResponseData {
+	s.Status = &v
+	return s
+}
+
+type TrimDocumentRequest struct {
+	FileURL    *string `json:"FileURL" xml:"FileURL" require:"true"`
+	FileType   *string `json:"FileType" xml:"FileType" require:"true"`
+	OutputType *string `json:"OutputType" xml:"OutputType" require:"true"`
+}
+
+func (s TrimDocumentRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TrimDocumentRequest) GoString() string {
+	return s.String()
+}
+
+func (s *TrimDocumentRequest) SetFileURL(v string) *TrimDocumentRequest {
+	s.FileURL = &v
+	return s
+}
+
+func (s *TrimDocumentRequest) SetFileType(v string) *TrimDocumentRequest {
+	s.FileType = &v
+	return s
+}
+
+func (s *TrimDocumentRequest) SetOutputType(v string) *TrimDocumentRequest {
+	s.OutputType = &v
+	return s
+}
+
+type TrimDocumentResponse struct {
+	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *TrimDocumentResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s TrimDocumentResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TrimDocumentResponse) GoString() string {
+	return s.String()
+}
+
+func (s *TrimDocumentResponse) SetRequestId(v string) *TrimDocumentResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *TrimDocumentResponse) SetData(v *TrimDocumentResponseData) *TrimDocumentResponse {
+	s.Data = v
+	return s
+}
+
+type TrimDocumentResponseData struct {
+	Content *string `json:"Content" xml:"Content" require:"true"`
+}
+
+func (s TrimDocumentResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TrimDocumentResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *TrimDocumentResponseData) SetContent(v string) *TrimDocumentResponseData {
+	s.Content = &v
+	return s
+}
+
+type TrimDocumentAdvanceRequest struct {
+	FileURLObject io.Reader `json:"FileURLObject" xml:"FileURLObject" require:"true"`
+	FileType      *string   `json:"FileType" xml:"FileType" require:"true"`
+	OutputType    *string   `json:"OutputType" xml:"OutputType" require:"true"`
+}
+
+func (s TrimDocumentAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TrimDocumentAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *TrimDocumentAdvanceRequest) SetFileURLObject(v io.Reader) *TrimDocumentAdvanceRequest {
+	s.FileURLObject = v
+	return s
+}
+
+func (s *TrimDocumentAdvanceRequest) SetFileType(v string) *TrimDocumentAdvanceRequest {
+	s.FileType = &v
+	return s
+}
+
+func (s *TrimDocumentAdvanceRequest) SetOutputType(v string) *TrimDocumentAdvanceRequest {
+	s.OutputType = &v
+	return s
+}
+
+type RecognizeChinapassportRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeChinapassportRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeChinapassportRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeChinapassportRequest) SetImageURL(v string) *RecognizeChinapassportRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeChinapassportResponse struct {
+	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeChinapassportResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeChinapassportResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeChinapassportResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeChinapassportResponse) SetRequestId(v string) *RecognizeChinapassportResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponse) SetData(v *RecognizeChinapassportResponseData) *RecognizeChinapassportResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeChinapassportResponseData struct {
+	Authority      *string `json:"Authority" xml:"Authority" require:"true"`
+	BirthDate      *string `json:"BirthDate" xml:"BirthDate" require:"true"`
+	BirthDay       *string `json:"BirthDay" xml:"BirthDay" require:"true"`
+	BirthPlace     *string `json:"BirthPlace" xml:"BirthPlace" require:"true"`
+	BirthPlaceRaw  *string `json:"BirthPlaceRaw" xml:"BirthPlaceRaw" require:"true"`
+	Country        *string `json:"Country" xml:"Country" require:"true"`
+	ExpiryDate     *string `json:"ExpiryDate" xml:"ExpiryDate" require:"true"`
+	ExpiryDay      *string `json:"ExpiryDay" xml:"ExpiryDay" require:"true"`
+	IssueDate      *string `json:"IssueDate" xml:"IssueDate" require:"true"`
+	IssuePlace     *string `json:"IssuePlace" xml:"IssuePlace" require:"true"`
+	IssuePlaceRaw  *string `json:"IssuePlaceRaw" xml:"IssuePlaceRaw" require:"true"`
+	LineZero       *string `json:"LineZero" xml:"LineZero" require:"true"`
+	LineOne        *string `json:"LineOne" xml:"LineOne" require:"true"`
+	Name           *string `json:"Name" xml:"Name" require:"true"`
+	NameChinese    *string `json:"NameChinese" xml:"NameChinese" require:"true"`
+	NameChineseRaw *string `json:"NameChineseRaw" xml:"NameChineseRaw" require:"true"`
+	PassportNo     *string `json:"PassportNo" xml:"PassportNo" require:"true"`
+	PersonId       *string `json:"PersonId" xml:"PersonId" require:"true"`
+	Sex            *string `json:"Sex" xml:"Sex" require:"true"`
+	SourceCountry  *string `json:"SourceCountry" xml:"SourceCountry" require:"true"`
+	Success        *bool   `json:"Success" xml:"Success" require:"true"`
+	Type           *string `json:"Type" xml:"Type" require:"true"`
+}
+
+func (s RecognizeChinapassportResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeChinapassportResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeChinapassportResponseData) SetAuthority(v string) *RecognizeChinapassportResponseData {
+	s.Authority = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetBirthDate(v string) *RecognizeChinapassportResponseData {
+	s.BirthDate = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetBirthDay(v string) *RecognizeChinapassportResponseData {
+	s.BirthDay = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetBirthPlace(v string) *RecognizeChinapassportResponseData {
+	s.BirthPlace = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetBirthPlaceRaw(v string) *RecognizeChinapassportResponseData {
+	s.BirthPlaceRaw = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetCountry(v string) *RecognizeChinapassportResponseData {
+	s.Country = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetExpiryDate(v string) *RecognizeChinapassportResponseData {
+	s.ExpiryDate = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetExpiryDay(v string) *RecognizeChinapassportResponseData {
+	s.ExpiryDay = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetIssueDate(v string) *RecognizeChinapassportResponseData {
+	s.IssueDate = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetIssuePlace(v string) *RecognizeChinapassportResponseData {
+	s.IssuePlace = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetIssuePlaceRaw(v string) *RecognizeChinapassportResponseData {
+	s.IssuePlaceRaw = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetLineZero(v string) *RecognizeChinapassportResponseData {
+	s.LineZero = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetLineOne(v string) *RecognizeChinapassportResponseData {
+	s.LineOne = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetName(v string) *RecognizeChinapassportResponseData {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetNameChinese(v string) *RecognizeChinapassportResponseData {
+	s.NameChinese = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetNameChineseRaw(v string) *RecognizeChinapassportResponseData {
+	s.NameChineseRaw = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetPassportNo(v string) *RecognizeChinapassportResponseData {
+	s.PassportNo = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetPersonId(v string) *RecognizeChinapassportResponseData {
+	s.PersonId = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetSex(v string) *RecognizeChinapassportResponseData {
+	s.Sex = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetSourceCountry(v string) *RecognizeChinapassportResponseData {
+	s.SourceCountry = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetSuccess(v bool) *RecognizeChinapassportResponseData {
+	s.Success = &v
+	return s
+}
+
+func (s *RecognizeChinapassportResponseData) SetType(v string) *RecognizeChinapassportResponseData {
+	s.Type = &v
+	return s
+}
+
+type RecognizeChinapassportAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeChinapassportAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeChinapassportAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeChinapassportAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeChinapassportAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizeVerificationcodeRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeVerificationcodeRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVerificationcodeRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVerificationcodeRequest) SetImageURL(v string) *RecognizeVerificationcodeRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeVerificationcodeResponse struct {
+	RequestId *string                                `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeVerificationcodeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeVerificationcodeResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVerificationcodeResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVerificationcodeResponse) SetRequestId(v string) *RecognizeVerificationcodeResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeVerificationcodeResponse) SetData(v *RecognizeVerificationcodeResponseData) *RecognizeVerificationcodeResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeVerificationcodeResponseData struct {
+	Content *string `json:"Content" xml:"Content" require:"true"`
+}
+
+func (s RecognizeVerificationcodeResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVerificationcodeResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVerificationcodeResponseData) SetContent(v string) *RecognizeVerificationcodeResponseData {
+	s.Content = &v
+	return s
+}
+
+type RecognizeVerificationcodeAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeVerificationcodeAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeVerificationcodeAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeVerificationcodeAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeVerificationcodeAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizePassportMRZRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizePassportMRZRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizePassportMRZRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePassportMRZRequest) SetImageURL(v string) *RecognizePassportMRZRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizePassportMRZResponse struct {
+	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizePassportMRZResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizePassportMRZResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizePassportMRZResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePassportMRZResponse) SetRequestId(v string) *RecognizePassportMRZResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizePassportMRZResponse) SetData(v *RecognizePassportMRZResponseData) *RecognizePassportMRZResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizePassportMRZResponseData struct {
+	Regions []*RecognizePassportMRZResponseDataRegions `json:"Regions" xml:"Regions" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePassportMRZResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizePassportMRZResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePassportMRZResponseData) SetRegions(v []*RecognizePassportMRZResponseDataRegions) *RecognizePassportMRZResponseData {
+	s.Regions = v
+	return s
+}
+
+type RecognizePassportMRZResponseDataRegions struct {
+	Name             *string    `json:"Name" xml:"Name" require:"true"`
+	RecognitionScore *float32   `json:"RecognitionScore" xml:"RecognitionScore" require:"true"`
+	Content          *string    `json:"Content" xml:"Content" require:"true"`
+	DetectionScore   *float32   `json:"DetectionScore" xml:"DetectionScore" require:"true"`
+	BandBoxes        []*float32 `json:"BandBoxes" xml:"BandBoxes" require:"true" type:"Repeated"`
+}
+
+func (s RecognizePassportMRZResponseDataRegions) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizePassportMRZResponseDataRegions) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePassportMRZResponseDataRegions) SetName(v string) *RecognizePassportMRZResponseDataRegions {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizePassportMRZResponseDataRegions) SetRecognitionScore(v float32) *RecognizePassportMRZResponseDataRegions {
+	s.RecognitionScore = &v
+	return s
+}
+
+func (s *RecognizePassportMRZResponseDataRegions) SetContent(v string) *RecognizePassportMRZResponseDataRegions {
+	s.Content = &v
+	return s
+}
+
+func (s *RecognizePassportMRZResponseDataRegions) SetDetectionScore(v float32) *RecognizePassportMRZResponseDataRegions {
+	s.DetectionScore = &v
+	return s
+}
+
+func (s *RecognizePassportMRZResponseDataRegions) SetBandBoxes(v []*float32) *RecognizePassportMRZResponseDataRegions {
+	s.BandBoxes = v
+	return s
+}
+
+type RecognizePassportMRZAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizePassportMRZAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizePassportMRZAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizePassportMRZAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizePassportMRZAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type RecognizeTakeoutOrderRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s RecognizeTakeoutOrderRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeTakeoutOrderRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTakeoutOrderRequest) SetImageURL(v string) *RecognizeTakeoutOrderRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type RecognizeTakeoutOrderResponse struct {
+	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *RecognizeTakeoutOrderResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s RecognizeTakeoutOrderResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeTakeoutOrderResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTakeoutOrderResponse) SetRequestId(v string) *RecognizeTakeoutOrderResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeTakeoutOrderResponse) SetData(v *RecognizeTakeoutOrderResponseData) *RecognizeTakeoutOrderResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeTakeoutOrderResponseData struct {
+	Elements []*RecognizeTakeoutOrderResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeTakeoutOrderResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeTakeoutOrderResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTakeoutOrderResponseData) SetElements(v []*RecognizeTakeoutOrderResponseDataElements) *RecognizeTakeoutOrderResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeTakeoutOrderResponseDataElements struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Name  *string  `json:"Name" xml:"Name" require:"true"`
+	Value *string  `json:"Value" xml:"Value" require:"true"`
+	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeTakeoutOrderResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeTakeoutOrderResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTakeoutOrderResponseDataElements) SetScore(v float32) *RecognizeTakeoutOrderResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+func (s *RecognizeTakeoutOrderResponseDataElements) SetName(v string) *RecognizeTakeoutOrderResponseDataElements {
+	s.Name = &v
+	return s
+}
+
+func (s *RecognizeTakeoutOrderResponseDataElements) SetValue(v string) *RecognizeTakeoutOrderResponseDataElements {
+	s.Value = &v
+	return s
+}
+
+func (s *RecognizeTakeoutOrderResponseDataElements) SetBoxes(v []*int) *RecognizeTakeoutOrderResponseDataElements {
+	s.Boxes = v
+	return s
+}
+
+type RecognizeTakeoutOrderAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s RecognizeTakeoutOrderAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeTakeoutOrderAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeTakeoutOrderAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeTakeoutOrderAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type RecognizeQrCodeRequest struct {
 	Tasks []*RecognizeQrCodeRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
 }
@@ -236,10 +913,10 @@ func (s *RecognizeQrCodeResponseDataElements) SetResults(v []*RecognizeQrCodeRes
 }
 
 type RecognizeQrCodeResponseDataElementsResults struct {
-	Label       *string                                                  `json:"Label" xml:"Label" require:"true"`
-	Suggestion  *string                                                  `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate        *float32                                                 `json:"Rate" xml:"Rate" require:"true"`
-	QrCodesData []*RecognizeQrCodeResponseDataElementsResultsQrCodesData `json:"QrCodesData" xml:"QrCodesData" require:"true" type:"Repeated"`
+	Label       *string   `json:"Label" xml:"Label" require:"true"`
+	Suggestion  *string   `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Rate        *float32  `json:"Rate" xml:"Rate" require:"true"`
+	QrCodesData []*string `json:"QrCodesData" xml:"QrCodesData" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeQrCodeResponseDataElementsResults) String() string {
@@ -265,25 +942,8 @@ func (s *RecognizeQrCodeResponseDataElementsResults) SetRate(v float32) *Recogni
 	return s
 }
 
-func (s *RecognizeQrCodeResponseDataElementsResults) SetQrCodesData(v []*RecognizeQrCodeResponseDataElementsResultsQrCodesData) *RecognizeQrCodeResponseDataElementsResults {
+func (s *RecognizeQrCodeResponseDataElementsResults) SetQrCodesData(v []*string) *RecognizeQrCodeResponseDataElementsResults {
 	s.QrCodesData = v
-	return s
-}
-
-type RecognizeQrCodeResponseDataElementsResultsQrCodesData struct {
-	QrCodeData *string `json:"QrCodeData" xml:"QrCodeData" require:"true"`
-}
-
-func (s RecognizeQrCodeResponseDataElementsResultsQrCodesData) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeQrCodeResponseDataElementsResultsQrCodesData) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeQrCodeResponseDataElementsResultsQrCodesData) SetQrCodeData(v string) *RecognizeQrCodeResponseDataElementsResultsQrCodesData {
-	s.QrCodeData = &v
 	return s
 }
 
@@ -482,25 +1142,25 @@ func (s *RecognizeVATInvoiceResponseDataContent) SetClerk(v string) *RecognizeVA
 }
 
 type RecognizeVATInvoiceResponseDataBox struct {
-	InvoiceCodes      []*RecognizeVATInvoiceResponseDataBoxInvoiceCodes      `json:"InvoiceCodes" xml:"InvoiceCodes" require:"true" type:"Repeated"`
-	InvoiceNoes       []*RecognizeVATInvoiceResponseDataBoxInvoiceNoes       `json:"InvoiceNoes" xml:"InvoiceNoes" require:"true" type:"Repeated"`
-	InvoiceDates      []*RecognizeVATInvoiceResponseDataBoxInvoiceDates      `json:"InvoiceDates" xml:"InvoiceDates" require:"true" type:"Repeated"`
-	InvoiceFakeCodes  []*RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes  `json:"InvoiceFakeCodes" xml:"InvoiceFakeCodes" require:"true" type:"Repeated"`
-	PayerNames        []*RecognizeVATInvoiceResponseDataBoxPayerNames        `json:"PayerNames" xml:"PayerNames" require:"true" type:"Repeated"`
-	PayerRegisterNoes []*RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes `json:"PayerRegisterNoes" xml:"PayerRegisterNoes" require:"true" type:"Repeated"`
-	PayerAddresses    []*RecognizeVATInvoiceResponseDataBoxPayerAddresses    `json:"PayerAddresses" xml:"PayerAddresses" require:"true" type:"Repeated"`
-	PayerBankNames    []*RecognizeVATInvoiceResponseDataBoxPayerBankNames    `json:"PayerBankNames" xml:"PayerBankNames" require:"true" type:"Repeated"`
-	WithoutTaxAmounts []*RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts `json:"WithoutTaxAmounts" xml:"WithoutTaxAmounts" require:"true" type:"Repeated"`
-	TaxAmounts        []*RecognizeVATInvoiceResponseDataBoxTaxAmounts        `json:"TaxAmounts" xml:"TaxAmounts" require:"true" type:"Repeated"`
-	SumAmounts        []*RecognizeVATInvoiceResponseDataBoxSumAmounts        `json:"SumAmounts" xml:"SumAmounts" require:"true" type:"Repeated"`
-	InvoiceAmounts    []*RecognizeVATInvoiceResponseDataBoxInvoiceAmounts    `json:"InvoiceAmounts" xml:"InvoiceAmounts" require:"true" type:"Repeated"`
-	PayeeNames        []*RecognizeVATInvoiceResponseDataBoxPayeeNames        `json:"PayeeNames" xml:"PayeeNames" require:"true" type:"Repeated"`
-	PayeeRegisterNoes []*RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes `json:"PayeeRegisterNoes" xml:"PayeeRegisterNoes" require:"true" type:"Repeated"`
-	PayeeAddresses    []*RecognizeVATInvoiceResponseDataBoxPayeeAddresses    `json:"PayeeAddresses" xml:"PayeeAddresses" require:"true" type:"Repeated"`
-	PayeeBankNames    []*RecognizeVATInvoiceResponseDataBoxPayeeBankNames    `json:"PayeeBankNames" xml:"PayeeBankNames" require:"true" type:"Repeated"`
-	Payees            []*RecognizeVATInvoiceResponseDataBoxPayees            `json:"Payees" xml:"Payees" require:"true" type:"Repeated"`
-	Checkers          []*RecognizeVATInvoiceResponseDataBoxCheckers          `json:"Checkers" xml:"Checkers" require:"true" type:"Repeated"`
-	Clerks            []*RecognizeVATInvoiceResponseDataBoxClerks            `json:"Clerks" xml:"Clerks" require:"true" type:"Repeated"`
+	InvoiceCodes      []*float32 `json:"InvoiceCodes" xml:"InvoiceCodes" require:"true" type:"Repeated"`
+	InvoiceNoes       []*float32 `json:"InvoiceNoes" xml:"InvoiceNoes" require:"true" type:"Repeated"`
+	InvoiceDates      []*float32 `json:"InvoiceDates" xml:"InvoiceDates" require:"true" type:"Repeated"`
+	InvoiceFakeCodes  []*float32 `json:"InvoiceFakeCodes" xml:"InvoiceFakeCodes" require:"true" type:"Repeated"`
+	PayerNames        []*float32 `json:"PayerNames" xml:"PayerNames" require:"true" type:"Repeated"`
+	PayerRegisterNoes []*float32 `json:"PayerRegisterNoes" xml:"PayerRegisterNoes" require:"true" type:"Repeated"`
+	PayerAddresses    []*float32 `json:"PayerAddresses" xml:"PayerAddresses" require:"true" type:"Repeated"`
+	PayerBankNames    []*float32 `json:"PayerBankNames" xml:"PayerBankNames" require:"true" type:"Repeated"`
+	WithoutTaxAmounts []*float32 `json:"WithoutTaxAmounts" xml:"WithoutTaxAmounts" require:"true" type:"Repeated"`
+	TaxAmounts        []*float32 `json:"TaxAmounts" xml:"TaxAmounts" require:"true" type:"Repeated"`
+	SumAmounts        []*float32 `json:"SumAmounts" xml:"SumAmounts" require:"true" type:"Repeated"`
+	InvoiceAmounts    []*float32 `json:"InvoiceAmounts" xml:"InvoiceAmounts" require:"true" type:"Repeated"`
+	PayeeNames        []*float32 `json:"PayeeNames" xml:"PayeeNames" require:"true" type:"Repeated"`
+	PayeeRegisterNoes []*float32 `json:"PayeeRegisterNoes" xml:"PayeeRegisterNoes" require:"true" type:"Repeated"`
+	PayeeAddresses    []*float32 `json:"PayeeAddresses" xml:"PayeeAddresses" require:"true" type:"Repeated"`
+	PayeeBankNames    []*float32 `json:"PayeeBankNames" xml:"PayeeBankNames" require:"true" type:"Repeated"`
+	Payees            []*float32 `json:"Payees" xml:"Payees" require:"true" type:"Repeated"`
+	Checkers          []*float32 `json:"Checkers" xml:"Checkers" require:"true" type:"Repeated"`
+	Clerks            []*float32 `json:"Clerks" xml:"Clerks" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVATInvoiceResponseDataBox) String() string {
@@ -511,421 +1171,98 @@ func (s RecognizeVATInvoiceResponseDataBox) GoString() string {
 	return s.String()
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceCodes(v []*RecognizeVATInvoiceResponseDataBoxInvoiceCodes) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceCodes(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.InvoiceCodes = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceNoes(v []*RecognizeVATInvoiceResponseDataBoxInvoiceNoes) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceNoes(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.InvoiceNoes = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceDates(v []*RecognizeVATInvoiceResponseDataBoxInvoiceDates) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceDates(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.InvoiceDates = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceFakeCodes(v []*RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceFakeCodes(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.InvoiceFakeCodes = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayerNames(v []*RecognizeVATInvoiceResponseDataBoxPayerNames) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerNames(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayerNames = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayerRegisterNoes(v []*RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerRegisterNoes(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayerRegisterNoes = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayerAddresses(v []*RecognizeVATInvoiceResponseDataBoxPayerAddresses) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerAddresses(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayerAddresses = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayerBankNames(v []*RecognizeVATInvoiceResponseDataBoxPayerBankNames) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayerBankNames(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayerBankNames = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetWithoutTaxAmounts(v []*RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetWithoutTaxAmounts(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.WithoutTaxAmounts = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetTaxAmounts(v []*RecognizeVATInvoiceResponseDataBoxTaxAmounts) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetTaxAmounts(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.TaxAmounts = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetSumAmounts(v []*RecognizeVATInvoiceResponseDataBoxSumAmounts) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetSumAmounts(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.SumAmounts = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceAmounts(v []*RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetInvoiceAmounts(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.InvoiceAmounts = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeNames(v []*RecognizeVATInvoiceResponseDataBoxPayeeNames) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeNames(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayeeNames = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeRegisterNoes(v []*RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeRegisterNoes(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayeeRegisterNoes = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeAddresses(v []*RecognizeVATInvoiceResponseDataBoxPayeeAddresses) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeAddresses(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayeeAddresses = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeBankNames(v []*RecognizeVATInvoiceResponseDataBoxPayeeBankNames) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayeeBankNames(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.PayeeBankNames = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetPayees(v []*RecognizeVATInvoiceResponseDataBoxPayees) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetPayees(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.Payees = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetCheckers(v []*RecognizeVATInvoiceResponseDataBoxCheckers) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetCheckers(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.Checkers = v
 	return s
 }
 
-func (s *RecognizeVATInvoiceResponseDataBox) SetClerks(v []*RecognizeVATInvoiceResponseDataBoxClerks) *RecognizeVATInvoiceResponseDataBox {
+func (s *RecognizeVATInvoiceResponseDataBox) SetClerks(v []*float32) *RecognizeVATInvoiceResponseDataBox {
 	s.Clerks = v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxInvoiceCodes struct {
-	InvoiceCode *float32 `json:"InvoiceCode" xml:"InvoiceCode" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceCodes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceCodes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxInvoiceCodes) SetInvoiceCode(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceCodes {
-	s.InvoiceCode = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxInvoiceNoes struct {
-	InvoiceNo *float32 `json:"InvoiceNo" xml:"InvoiceNo" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceNoes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceNoes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxInvoiceNoes) SetInvoiceNo(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceNoes {
-	s.InvoiceNo = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxInvoiceDates struct {
-	InvoiceDate *float32 `json:"InvoiceDate" xml:"InvoiceDate" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceDates) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceDates) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxInvoiceDates) SetInvoiceDate(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceDates {
-	s.InvoiceDate = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes struct {
-	InvoiceFakeCode *float32 `json:"InvoiceFakeCode" xml:"InvoiceFakeCode" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes) SetInvoiceFakeCode(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceFakeCodes {
-	s.InvoiceFakeCode = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayerNames struct {
-	PayerName *float32 `json:"PayerName" xml:"PayerName" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerNames) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerNames) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayerNames) SetPayerName(v float32) *RecognizeVATInvoiceResponseDataBoxPayerNames {
-	s.PayerName = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes struct {
-	PayerRegisterNo *float32 `json:"PayerRegisterNo" xml:"PayerRegisterNo" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes) SetPayerRegisterNo(v float32) *RecognizeVATInvoiceResponseDataBoxPayerRegisterNoes {
-	s.PayerRegisterNo = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayerAddresses struct {
-	PayerAddress *float32 `json:"PayerAddress" xml:"PayerAddress" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerAddresses) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerAddresses) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayerAddresses) SetPayerAddress(v float32) *RecognizeVATInvoiceResponseDataBoxPayerAddresses {
-	s.PayerAddress = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayerBankNames struct {
-	PayerBankNames *float32 `json:"PayerBankNames" xml:"PayerBankNames" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerBankNames) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayerBankNames) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayerBankNames) SetPayerBankNames(v float32) *RecognizeVATInvoiceResponseDataBoxPayerBankNames {
-	s.PayerBankNames = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts struct {
-	WithoutTaxAmount *float32 `json:"WithoutTaxAmount" xml:"WithoutTaxAmount" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts) SetWithoutTaxAmount(v float32) *RecognizeVATInvoiceResponseDataBoxWithoutTaxAmounts {
-	s.WithoutTaxAmount = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxTaxAmounts struct {
-	TaxAmount *float32 `json:"TaxAmount" xml:"TaxAmount" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxTaxAmounts) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxTaxAmounts) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxTaxAmounts) SetTaxAmount(v float32) *RecognizeVATInvoiceResponseDataBoxTaxAmounts {
-	s.TaxAmount = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxSumAmounts struct {
-	SumAmount *float32 `json:"SumAmount" xml:"SumAmount" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxSumAmounts) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxSumAmounts) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxSumAmounts) SetSumAmount(v float32) *RecognizeVATInvoiceResponseDataBoxSumAmounts {
-	s.SumAmount = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxInvoiceAmounts struct {
-	InvoiceAmount *float32 `json:"InvoiceAmount" xml:"InvoiceAmount" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxInvoiceAmounts) SetInvoiceAmount(v float32) *RecognizeVATInvoiceResponseDataBoxInvoiceAmounts {
-	s.InvoiceAmount = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayeeNames struct {
-	PayeeName *float32 `json:"PayeeName" xml:"PayeeName" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeNames) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeNames) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayeeNames) SetPayeeName(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeNames {
-	s.PayeeName = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes struct {
-	PayeeRegisterNo *float32 `json:"PayeeRegisterNo" xml:"PayeeRegisterNo" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes) SetPayeeRegisterNo(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeRegisterNoes {
-	s.PayeeRegisterNo = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayeeAddresses struct {
-	PayeeAddress *float32 `json:"PayeeAddress" xml:"PayeeAddress" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeAddresses) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeAddresses) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayeeAddresses) SetPayeeAddress(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeAddresses {
-	s.PayeeAddress = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayeeBankNames struct {
-	PayeeBankName *float32 `json:"PayeeBankName" xml:"PayeeBankName" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeBankNames) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayeeBankNames) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayeeBankNames) SetPayeeBankName(v float32) *RecognizeVATInvoiceResponseDataBoxPayeeBankNames {
-	s.PayeeBankName = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxPayees struct {
-	Payee *float32 `json:"Payee" xml:"Payee" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayees) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxPayees) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxPayees) SetPayee(v float32) *RecognizeVATInvoiceResponseDataBoxPayees {
-	s.Payee = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxCheckers struct {
-	Checker *float32 `json:"Checker" xml:"Checker" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxCheckers) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxCheckers) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxCheckers) SetChecker(v float32) *RecognizeVATInvoiceResponseDataBoxCheckers {
-	s.Checker = &v
-	return s
-}
-
-type RecognizeVATInvoiceResponseDataBoxClerks struct {
-	Clerk *float32 `json:"Clerk" xml:"Clerk" require:"true"`
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxClerks) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeVATInvoiceResponseDataBoxClerks) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeVATInvoiceResponseDataBoxClerks) SetClerk(v float32) *RecognizeVATInvoiceResponseDataBoxClerks {
-	s.Clerk = &v
 	return s
 }
 
@@ -1953,13 +2290,13 @@ func (s *RecognizeTableResponseDataTablesTableRows) SetTableColumns(v []*Recogni
 }
 
 type RecognizeTableResponseDataTablesTableRowsTableColumns struct {
-	StartColumn *int                                                          `json:"StartColumn" xml:"StartColumn" require:"true"`
-	StartRow    *int                                                          `json:"StartRow" xml:"StartRow" require:"true"`
-	EndColumn   *int                                                          `json:"EndColumn" xml:"EndColumn" require:"true"`
-	EndRow      *int                                                          `json:"EndRow" xml:"EndRow" require:"true"`
-	Height      *int                                                          `json:"Height" xml:"Height" require:"true"`
-	Width       *int                                                          `json:"Width" xml:"Width" require:"true"`
-	Texts       []*RecognizeTableResponseDataTablesTableRowsTableColumnsTexts `json:"Texts" xml:"Texts" require:"true" type:"Repeated"`
+	StartColumn *int      `json:"StartColumn" xml:"StartColumn" require:"true"`
+	StartRow    *int      `json:"StartRow" xml:"StartRow" require:"true"`
+	EndColumn   *int      `json:"EndColumn" xml:"EndColumn" require:"true"`
+	EndRow      *int      `json:"EndRow" xml:"EndRow" require:"true"`
+	Height      *int      `json:"Height" xml:"Height" require:"true"`
+	Width       *int      `json:"Width" xml:"Width" require:"true"`
+	Texts       []*string `json:"Texts" xml:"Texts" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseDataTablesTableRowsTableColumns) String() string {
@@ -2000,25 +2337,8 @@ func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetWidth(v int) 
 	return s
 }
 
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetTexts(v []*RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) *RecognizeTableResponseDataTablesTableRowsTableColumns {
+func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetTexts(v []*string) *RecognizeTableResponseDataTablesTableRowsTableColumns {
 	s.Texts = v
-	return s
-}
-
-type RecognizeTableResponseDataTablesTableRowsTableColumnsTexts struct {
-	Text *string `json:"Text" xml:"Text" require:"true"`
-}
-
-func (s RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeTableResponseDataTablesTableRowsTableColumnsTexts) SetText(v string) *RecognizeTableResponseDataTablesTableRowsTableColumnsTexts {
-	s.Text = &v
 	return s
 }
 
@@ -3225,14 +3545,14 @@ func (s *RecognizeBusinessCardResponse) SetData(v *RecognizeBusinessCardResponse
 }
 
 type RecognizeBusinessCardResponseData struct {
-	Name               *string                                                `json:"Name" xml:"Name" require:"true"`
-	Companies          []*RecognizeBusinessCardResponseDataCompanies          `json:"Companies" xml:"Companies" require:"true" type:"Repeated"`
-	Departments        []*RecognizeBusinessCardResponseDataDepartments        `json:"Departments" xml:"Departments" require:"true" type:"Repeated"`
-	Titles             []*RecognizeBusinessCardResponseDataTitles             `json:"Titles" xml:"Titles" require:"true" type:"Repeated"`
-	CellPhoneNumbers   []*RecognizeBusinessCardResponseDataCellPhoneNumbers   `json:"CellPhoneNumbers" xml:"CellPhoneNumbers" require:"true" type:"Repeated"`
-	OfficePhoneNumbers []*RecognizeBusinessCardResponseDataOfficePhoneNumbers `json:"OfficePhoneNumbers" xml:"OfficePhoneNumbers" require:"true" type:"Repeated"`
-	Addresses          []*RecognizeBusinessCardResponseDataAddresses          `json:"Addresses" xml:"Addresses" require:"true" type:"Repeated"`
-	Emails             []*RecognizeBusinessCardResponseDataEmails             `json:"Emails" xml:"Emails" require:"true" type:"Repeated"`
+	Name               *string   `json:"Name" xml:"Name" require:"true"`
+	Companies          []*string `json:"Companies" xml:"Companies" require:"true" type:"Repeated"`
+	Departments        []*string `json:"Departments" xml:"Departments" require:"true" type:"Repeated"`
+	Titles             []*string `json:"Titles" xml:"Titles" require:"true" type:"Repeated"`
+	CellPhoneNumbers   []*string `json:"CellPhoneNumbers" xml:"CellPhoneNumbers" require:"true" type:"Repeated"`
+	OfficePhoneNumbers []*string `json:"OfficePhoneNumbers" xml:"OfficePhoneNumbers" require:"true" type:"Repeated"`
+	Addresses          []*string `json:"Addresses" xml:"Addresses" require:"true" type:"Repeated"`
+	Emails             []*string `json:"Emails" xml:"Emails" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeBusinessCardResponseData) String() string {
@@ -3248,157 +3568,38 @@ func (s *RecognizeBusinessCardResponseData) SetName(v string) *RecognizeBusiness
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetCompanies(v []*RecognizeBusinessCardResponseDataCompanies) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetCompanies(v []*string) *RecognizeBusinessCardResponseData {
 	s.Companies = v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetDepartments(v []*RecognizeBusinessCardResponseDataDepartments) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetDepartments(v []*string) *RecognizeBusinessCardResponseData {
 	s.Departments = v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetTitles(v []*RecognizeBusinessCardResponseDataTitles) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetTitles(v []*string) *RecognizeBusinessCardResponseData {
 	s.Titles = v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetCellPhoneNumbers(v []*RecognizeBusinessCardResponseDataCellPhoneNumbers) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetCellPhoneNumbers(v []*string) *RecognizeBusinessCardResponseData {
 	s.CellPhoneNumbers = v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetOfficePhoneNumbers(v []*RecognizeBusinessCardResponseDataOfficePhoneNumbers) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetOfficePhoneNumbers(v []*string) *RecognizeBusinessCardResponseData {
 	s.OfficePhoneNumbers = v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetAddresses(v []*RecognizeBusinessCardResponseDataAddresses) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetAddresses(v []*string) *RecognizeBusinessCardResponseData {
 	s.Addresses = v
 	return s
 }
 
-func (s *RecognizeBusinessCardResponseData) SetEmails(v []*RecognizeBusinessCardResponseDataEmails) *RecognizeBusinessCardResponseData {
+func (s *RecognizeBusinessCardResponseData) SetEmails(v []*string) *RecognizeBusinessCardResponseData {
 	s.Emails = v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataCompanies struct {
-	Company *string `json:"Company" xml:"Company" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataCompanies) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataCompanies) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataCompanies) SetCompany(v string) *RecognizeBusinessCardResponseDataCompanies {
-	s.Company = &v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataDepartments struct {
-	Department *string `json:"Department" xml:"Department" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataDepartments) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataDepartments) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataDepartments) SetDepartment(v string) *RecognizeBusinessCardResponseDataDepartments {
-	s.Department = &v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataTitles struct {
-	Title *string `json:"Title" xml:"Title" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataTitles) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataTitles) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataTitles) SetTitle(v string) *RecognizeBusinessCardResponseDataTitles {
-	s.Title = &v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataCellPhoneNumbers struct {
-	CellPhoneNumber *string `json:"CellPhoneNumber" xml:"CellPhoneNumber" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataCellPhoneNumbers) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataCellPhoneNumbers) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataCellPhoneNumbers) SetCellPhoneNumber(v string) *RecognizeBusinessCardResponseDataCellPhoneNumbers {
-	s.CellPhoneNumber = &v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataOfficePhoneNumbers struct {
-	OfficePhoneNumber *string `json:"OfficePhoneNumber" xml:"OfficePhoneNumber" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataOfficePhoneNumbers) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataOfficePhoneNumbers) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataOfficePhoneNumbers) SetOfficePhoneNumber(v string) *RecognizeBusinessCardResponseDataOfficePhoneNumbers {
-	s.OfficePhoneNumber = &v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataAddresses struct {
-	Address *string `json:"Address" xml:"Address" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataAddresses) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataAddresses) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataAddresses) SetAddress(v string) *RecognizeBusinessCardResponseDataAddresses {
-	s.Address = &v
-	return s
-}
-
-type RecognizeBusinessCardResponseDataEmails struct {
-	Email *string `json:"Email" xml:"Email" require:"true"`
-}
-
-func (s RecognizeBusinessCardResponseDataEmails) String() string {
-	return tea.Prettify(s)
-}
-
-func (s RecognizeBusinessCardResponseDataEmails) GoString() string {
-	return s.String()
-}
-
-func (s *RecognizeBusinessCardResponseDataEmails) SetEmail(v string) *RecognizeBusinessCardResponseDataEmails {
-	s.Email = &v
 	return s
 }
 
@@ -3805,11 +4006,11 @@ type Client struct {
 
 func NewClient(config *Config) (*Client, error) {
 	client := new(Client)
-	err := client.init(config)
+	err := client.Init(config)
 	return client, err
 }
 
-func (client *Client) init(config *Config) (_err error) {
+func (client *Client) Init(config *Config) (_err error) {
 	if util.IsUnset(tea.ToMap(config)) {
 		_err = tea.NewSDKError(map[string]interface{}{
 			"name":    "ParameterMissing",
@@ -3866,7 +4067,7 @@ func (client *Client) init(config *Config) (_err error) {
 	return nil
 }
 
-func (client *Client) _request(action string, protocol string, method string, request map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
+func (client *Client) _request(action string, protocol string, method string, authType string, query map[string]interface{}, body map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
 	_err = tea.Validate(runtime)
 	if _err != nil {
 		return nil, _err
@@ -3904,32 +4105,40 @@ func (client *Client) _request(action string, protocol string, method string, re
 			request_.Protocol = util.DefaultString(client.Protocol, protocol)
 			request_.Method = method
 			request_.Pathname = "/"
-			accessKeyId, _err := client.GetAccessKeyId()
-			if _err != nil {
-				return nil, _err
-			}
-
-			accessKeySecret, _err := client.GetAccessKeySecret()
-			if _err != nil {
-				return nil, _err
-			}
-
 			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
-				"Action":           action,
-				"Format":           "json",
-				"RegionId":         client.RegionId,
-				"Timestamp":        rpcutil.GetTimestamp(),
-				"Version":          "2019-12-30",
-				"SignatureMethod":  "HMAC-SHA1",
-				"SignatureVersion": "1.0",
-				"SignatureNonce":   util.GetNonce(),
-				"AccessKeyId":      accessKeyId,
-			}, request))
+				"Action":         action,
+				"Format":         "json",
+				"RegionId":       client.RegionId,
+				"Timestamp":      rpcutil.GetTimestamp(),
+				"Version":        "2019-12-30",
+				"SignatureNonce": util.GetNonce(),
+			}, query))
+			if !util.IsUnset(body) {
+				tmp := util.AnyifyMapValue(rpcutil.Query(body))
+				request_.Body = tea.ToReader(util.ToFormString(tmp))
+			}
+
 			request_.Headers = map[string]string{
 				"host":       rpcutil.GetHost("ocr", client.RegionId, client.Endpoint),
 				"user-agent": client.GetUserAgent(),
 			}
-			request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			if !util.EqualString(authType, "Anonymous") {
+				accessKeyId, _err := client.GetAccessKeyId()
+				if _err != nil {
+					return nil, _err
+				}
+
+				accessKeySecret, _err := client.GetAccessKeySecret()
+				if _err != nil {
+					return nil, _err
+				}
+
+				request_.Query["SignatureMethod"] = "HMAC-SHA1"
+				request_.Query["SignatureVersion"] = "1.0"
+				request_.Query["AccessKeyId"] = accessKeyId
+				request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
+			}
+
 			response_, _err := tea.DoRequest(request_, _runtime)
 			if _err != nil {
 				return nil, _err
@@ -3939,17 +4148,17 @@ func (client *Client) _request(action string, protocol string, method string, re
 				return nil, _err
 			}
 
-			body := util.AssertAsMap(obj)
+			res := util.AssertAsMap(obj)
 			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
 				_err = tea.NewSDKError(map[string]interface{}{
-					"message": body["Message"],
-					"data":    body,
-					"code":    body["Code"],
+					"message": res["Message"],
+					"data":    res,
+					"code":    res["Code"],
 				})
 				return nil, _err
 			}
 
-			_result = body
+			_result = res
 			return _result, _err
 		}()
 		if !tea.Retryable(_err) {
@@ -3960,9 +4169,9 @@ func (client *Client) _request(action string, protocol string, method string, re
 	return _resp, _err
 }
 
-func (client *Client) RecognizeQrCode(request *RecognizeQrCodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeQrCodeResponse, _err error) {
-	_result = &RecognizeQrCodeResponse{}
-	_body, _err := client._request("RecognizeQrCode", "HTTPS", "POST", tea.ToMap(request), runtime)
+func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
+	_result = &GetAsyncJobResultResponse{}
+	_body, _err := client._request("GetAsyncJobResult", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3970,9 +4179,9 @@ func (client *Client) RecognizeQrCode(request *RecognizeQrCodeRequest, runtime *
 	return _result, _err
 }
 
-func (client *Client) RecognizeVATInvoice(request *RecognizeVATInvoiceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVATInvoiceResponse, _err error) {
-	_result = &RecognizeVATInvoiceResponse{}
-	_body, _err := client._request("RecognizeVATInvoice", "HTTPS", "POST", tea.ToMap(request), runtime)
+func (client *Client) TrimDocument(request *TrimDocumentRequest, runtime *util.RuntimeOptions) (_result *TrimDocumentResponse, _err error) {
+	_result = &TrimDocumentResponse{}
+	_body, _err := client._request("TrimDocument", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3980,7 +4189,8 @@ func (client *Client) RecognizeVATInvoice(request *RecognizeVATInvoiceRequest, r
 	return _result, _err
 }
 
-func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVATInvoiceResponse, _err error) {
+func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, runtime *util.RuntimeOptions) (_result *TrimDocumentResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4013,6 +4223,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4049,6 +4260,487 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
+	trimDocumentreq := &TrimDocumentRequest{}
+	rpcutil.Convert(request, trimDocumentreq)
+	trimDocumentreq.FileURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	trimDocumentResp, _err := client.TrimDocument(trimDocumentreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = trimDocumentResp
+	return _result, _err
+}
+
+func (client *Client) RecognizeChinapassport(request *RecognizeChinapassportRequest, runtime *util.RuntimeOptions) (_result *RecognizeChinapassportResponse, _err error) {
+	_result = &RecognizeChinapassportResponse{}
+	_body, _err := client._request("RecognizeChinapassport", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassportAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeChinapassportResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	recognizeChinapassportreq := &RecognizeChinapassportRequest{}
+	rpcutil.Convert(request, recognizeChinapassportreq)
+	recognizeChinapassportreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeChinapassportResp, _err := client.RecognizeChinapassport(recognizeChinapassportreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = recognizeChinapassportResp
+	return _result, _err
+}
+
+func (client *Client) RecognizeVerificationcode(request *RecognizeVerificationcodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeVerificationcodeResponse, _err error) {
+	_result = &RecognizeVerificationcodeResponse{}
+	_body, _err := client._request("RecognizeVerificationcode", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerificationcodeAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVerificationcodeResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	recognizeVerificationcodereq := &RecognizeVerificationcodeRequest{}
+	rpcutil.Convert(request, recognizeVerificationcodereq)
+	recognizeVerificationcodereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeVerificationcodeResp, _err := client.RecognizeVerificationcode(recognizeVerificationcodereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = recognizeVerificationcodeResp
+	return _result, _err
+}
+
+func (client *Client) RecognizePassportMRZ(request *RecognizePassportMRZRequest, runtime *util.RuntimeOptions) (_result *RecognizePassportMRZResponse, _err error) {
+	_result = &RecognizePassportMRZResponse{}
+	_body, _err := client._request("RecognizePassportMRZ", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizePassportMRZResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	recognizePassportMRZreq := &RecognizePassportMRZRequest{}
+	rpcutil.Convert(request, recognizePassportMRZreq)
+	recognizePassportMRZreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizePassportMRZResp, _err := client.RecognizePassportMRZ(recognizePassportMRZreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = recognizePassportMRZResp
+	return _result, _err
+}
+
+func (client *Client) RecognizeTakeoutOrder(request *RecognizeTakeoutOrderRequest, runtime *util.RuntimeOptions) (_result *RecognizeTakeoutOrderResponse, _err error) {
+	_result = &RecognizeTakeoutOrderResponse{}
+	_body, _err := client._request("RecognizeTakeoutOrder", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrderAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeTakeoutOrderResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	recognizeTakeoutOrderreq := &RecognizeTakeoutOrderRequest{}
+	rpcutil.Convert(request, recognizeTakeoutOrderreq)
+	recognizeTakeoutOrderreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recognizeTakeoutOrderResp, _err := client.RecognizeTakeoutOrder(recognizeTakeoutOrderreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = recognizeTakeoutOrderResp
+	return _result, _err
+}
+
+func (client *Client) RecognizeQrCode(request *RecognizeQrCodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeQrCodeResponse, _err error) {
+	_result = &RecognizeQrCodeResponse{}
+	_body, _err := client._request("RecognizeQrCode", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVATInvoice(request *RecognizeVATInvoiceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVATInvoiceResponse, _err error) {
+	_result = &RecognizeVATInvoiceResponse{}
+	_body, _err := client._request("RecognizeVATInvoice", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVATInvoiceResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &openplatform.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("ocr"),
+		RegionId: tea.String(client.RegionId),
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: tea.String(accessKeySecret),
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
+		Protocol:        tea.String(client.Protocol),
+		RegionId:        tea.String(client.RegionId),
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.FileURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
 	recognizeVATInvoicereq := &RecognizeVATInvoiceRequest{}
 	rpcutil.Convert(request, recognizeVATInvoicereq)
 	recognizeVATInvoicereq.FileURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4063,7 +4755,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 
 func (client *Client) RecognizeCharacter(request *RecognizeCharacterRequest, runtime *util.RuntimeOptions) (_result *RecognizeCharacterResponse, _err error) {
 	_result = &RecognizeCharacterResponse{}
-	_body, _err := client._request("RecognizeCharacter", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeCharacter", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4072,6 +4764,7 @@ func (client *Client) RecognizeCharacter(request *RecognizeCharacterRequest, run
 }
 
 func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeCharacterResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4104,6 +4797,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4140,6 +4834,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeCharacterreq := &RecognizeCharacterRequest{}
 	rpcutil.Convert(request, recognizeCharacterreq)
 	recognizeCharacterreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4154,7 +4849,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 
 func (client *Client) RecognizeTaxiInvoice(request *RecognizeTaxiInvoiceRequest, runtime *util.RuntimeOptions) (_result *RecognizeTaxiInvoiceResponse, _err error) {
 	_result = &RecognizeTaxiInvoiceResponse{}
-	_body, _err := client._request("RecognizeTaxiInvoice", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeTaxiInvoice", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4163,6 +4858,7 @@ func (client *Client) RecognizeTaxiInvoice(request *RecognizeTaxiInvoiceRequest,
 }
 
 func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeTaxiInvoiceResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4195,6 +4891,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4231,6 +4928,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeTaxiInvoicereq := &RecognizeTaxiInvoiceRequest{}
 	rpcutil.Convert(request, recognizeTaxiInvoicereq)
 	recognizeTaxiInvoicereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4245,7 +4943,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 
 func (client *Client) RecognizeIdentityCard(request *RecognizeIdentityCardRequest, runtime *util.RuntimeOptions) (_result *RecognizeIdentityCardResponse, _err error) {
 	_result = &RecognizeIdentityCardResponse{}
-	_body, _err := client._request("RecognizeIdentityCard", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeIdentityCard", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4254,6 +4952,7 @@ func (client *Client) RecognizeIdentityCard(request *RecognizeIdentityCardReques
 }
 
 func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCardAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeIdentityCardResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4286,6 +4985,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4322,6 +5022,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeIdentityCardreq := &RecognizeIdentityCardRequest{}
 	rpcutil.Convert(request, recognizeIdentityCardreq)
 	recognizeIdentityCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4336,7 +5037,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 
 func (client *Client) RecognizeLicensePlate(request *RecognizeLicensePlateRequest, runtime *util.RuntimeOptions) (_result *RecognizeLicensePlateResponse, _err error) {
 	_result = &RecognizeLicensePlateResponse{}
-	_body, _err := client._request("RecognizeLicensePlate", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeLicensePlate", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4345,6 +5046,7 @@ func (client *Client) RecognizeLicensePlate(request *RecognizeLicensePlateReques
 }
 
 func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlateAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeLicensePlateResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4377,6 +5079,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4413,6 +5116,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeLicensePlatereq := &RecognizeLicensePlateRequest{}
 	rpcutil.Convert(request, recognizeLicensePlatereq)
 	recognizeLicensePlatereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4427,7 +5131,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 
 func (client *Client) RecognizeTable(request *RecognizeTableRequest, runtime *util.RuntimeOptions) (_result *RecognizeTableResponse, _err error) {
 	_result = &RecognizeTableResponse{}
-	_body, _err := client._request("RecognizeTable", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeTable", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4436,6 +5140,7 @@ func (client *Client) RecognizeTable(request *RecognizeTableRequest, runtime *ut
 }
 
 func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeTableResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4468,6 +5173,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4504,6 +5210,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeTablereq := &RecognizeTableRequest{}
 	rpcutil.Convert(request, recognizeTablereq)
 	recognizeTablereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4518,7 +5225,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 
 func (client *Client) RecognizeDrivingLicense(request *RecognizeDrivingLicenseRequest, runtime *util.RuntimeOptions) (_result *RecognizeDrivingLicenseResponse, _err error) {
 	_result = &RecognizeDrivingLicenseResponse{}
-	_body, _err := client._request("RecognizeDrivingLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeDrivingLicense", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4527,6 +5234,7 @@ func (client *Client) RecognizeDrivingLicense(request *RecognizeDrivingLicenseRe
 }
 
 func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLicenseAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeDrivingLicenseResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4559,6 +5267,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4595,6 +5304,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeDrivingLicensereq := &RecognizeDrivingLicenseRequest{}
 	rpcutil.Convert(request, recognizeDrivingLicensereq)
 	recognizeDrivingLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4609,7 +5319,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 
 func (client *Client) RecognizeBankCard(request *RecognizeBankCardRequest, runtime *util.RuntimeOptions) (_result *RecognizeBankCardResponse, _err error) {
 	_result = &RecognizeBankCardResponse{}
-	_body, _err := client._request("RecognizeBankCard", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeBankCard", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4618,6 +5328,7 @@ func (client *Client) RecognizeBankCard(request *RecognizeBankCardRequest, runti
 }
 
 func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeBankCardResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4650,6 +5361,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4686,6 +5398,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeBankCardreq := &RecognizeBankCardRequest{}
 	rpcutil.Convert(request, recognizeBankCardreq)
 	recognizeBankCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4700,7 +5413,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 
 func (client *Client) RecognizeTrainTicket(request *RecognizeTrainTicketRequest, runtime *util.RuntimeOptions) (_result *RecognizeTrainTicketResponse, _err error) {
 	_result = &RecognizeTrainTicketResponse{}
-	_body, _err := client._request("RecognizeTrainTicket", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeTrainTicket", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4709,6 +5422,7 @@ func (client *Client) RecognizeTrainTicket(request *RecognizeTrainTicketRequest,
 }
 
 func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeTrainTicketResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4741,6 +5455,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4777,6 +5492,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeTrainTicketreq := &RecognizeTrainTicketRequest{}
 	rpcutil.Convert(request, recognizeTrainTicketreq)
 	recognizeTrainTicketreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4791,7 +5507,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 
 func (client *Client) RecognizeDriverLicense(request *RecognizeDriverLicenseRequest, runtime *util.RuntimeOptions) (_result *RecognizeDriverLicenseResponse, _err error) {
 	_result = &RecognizeDriverLicenseResponse{}
-	_body, _err := client._request("RecognizeDriverLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeDriverLicense", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4800,6 +5516,7 @@ func (client *Client) RecognizeDriverLicense(request *RecognizeDriverLicenseRequ
 }
 
 func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLicenseAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeDriverLicenseResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4832,6 +5549,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4868,6 +5586,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeDriverLicensereq := &RecognizeDriverLicenseRequest{}
 	rpcutil.Convert(request, recognizeDriverLicensereq)
 	recognizeDriverLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4882,7 +5601,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 
 func (client *Client) RecognizeAccountPage(request *RecognizeAccountPageRequest, runtime *util.RuntimeOptions) (_result *RecognizeAccountPageResponse, _err error) {
 	_result = &RecognizeAccountPageResponse{}
-	_body, _err := client._request("RecognizeAccountPage", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeAccountPage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4891,6 +5610,7 @@ func (client *Client) RecognizeAccountPage(request *RecognizeAccountPageRequest,
 }
 
 func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeAccountPageResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -4923,6 +5643,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -4959,6 +5680,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeAccountPagereq := &RecognizeAccountPageRequest{}
 	rpcutil.Convert(request, recognizeAccountPagereq)
 	recognizeAccountPagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -4973,7 +5695,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 
 func (client *Client) RecognizeStamp(request *RecognizeStampRequest, runtime *util.RuntimeOptions) (_result *RecognizeStampResponse, _err error) {
 	_result = &RecognizeStampResponse{}
-	_body, _err := client._request("RecognizeStamp", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeStamp", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4982,6 +5704,7 @@ func (client *Client) RecognizeStamp(request *RecognizeStampRequest, runtime *ut
 }
 
 func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeStampResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -5014,6 +5737,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -5050,6 +5774,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeStampreq := &RecognizeStampRequest{}
 	rpcutil.Convert(request, recognizeStampreq)
 	recognizeStampreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -5064,7 +5789,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 
 func (client *Client) RecognizeBusinessCard(request *RecognizeBusinessCardRequest, runtime *util.RuntimeOptions) (_result *RecognizeBusinessCardResponse, _err error) {
 	_result = &RecognizeBusinessCardResponse{}
-	_body, _err := client._request("RecognizeBusinessCard", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeBusinessCard", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5073,6 +5798,7 @@ func (client *Client) RecognizeBusinessCard(request *RecognizeBusinessCardReques
 }
 
 func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCardAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeBusinessCardResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -5105,6 +5831,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -5141,6 +5868,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeBusinessCardreq := &RecognizeBusinessCardRequest{}
 	rpcutil.Convert(request, recognizeBusinessCardreq)
 	recognizeBusinessCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -5155,7 +5883,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 
 func (client *Client) RecognizeVINCode(request *RecognizeVINCodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeVINCodeResponse, _err error) {
 	_result = &RecognizeVINCodeResponse{}
-	_body, _err := client._request("RecognizeVINCode", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeVINCode", "HTTPS", "POST", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5164,6 +5892,7 @@ func (client *Client) RecognizeVINCode(request *RecognizeVINCodeRequest, runtime
 }
 
 func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVINCodeResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -5196,6 +5925,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -5232,6 +5962,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeVINCodereq := &RecognizeVINCodeRequest{}
 	rpcutil.Convert(request, recognizeVINCodereq)
 	recognizeVINCodereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
@@ -5246,7 +5977,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 
 func (client *Client) RecognizeBusinessLicense(request *RecognizeBusinessLicenseRequest, runtime *util.RuntimeOptions) (_result *RecognizeBusinessLicenseResponse, _err error) {
 	_result = &RecognizeBusinessLicenseResponse{}
-	_body, _err := client._request("RecognizeBusinessLicense", "HTTPS", "POST", tea.ToMap(request), runtime)
+	_body, _err := client._request("RecognizeBusinessLicense", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5255,6 +5986,7 @@ func (client *Client) RecognizeBusinessLicense(request *RecognizeBusinessLicense
 }
 
 func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusinessLicenseAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecognizeBusinessLicenseResponse, _err error) {
+	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
 		return nil, _err
@@ -5287,6 +6019,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 		return nil, _err
 	}
 
+	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
 		AccessKeySecret: tea.String(accessKeySecret),
@@ -5323,6 +6056,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	if _err != nil {
 		return
 	}
+	// Step 2: request final api
 	recognizeBusinessLicensereq := &RecognizeBusinessLicenseRequest{}
 	rpcutil.Convert(request, recognizeBusinessLicensereq)
 	recognizeBusinessLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
