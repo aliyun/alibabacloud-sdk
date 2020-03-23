@@ -91,40 +91,46 @@ init(config: Config){
   @openPlatformEndpoint = config.openPlatformEndpoint;
 }
 
-api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
   __request.protocol = Util.defaultString(@protocol, protocol);
   __request.method = method;
   __request.pathname = '/';
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
   __request.query = RPCUtil.query({
     Action = action,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
     Version = '2019-09-30',
-    SignatureMethod = 'HMAC-SHA1',
-    SignatureVersion = '1.0',
     SignatureNonce = Util.getNonce(),
-    AccessKeyId = accessKeyId,
-    ...request,
+    ...query,
   });
+  if (!Util.isUnset(body)) {
+    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
+    __request.body = Util.toFormString(tmp);
+  }
   __request.headers = {
     host = RPCUtil.getHost('imageenhan', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
-  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  if (!Util.equalString(authType, 'Anonymous')) {
+    var accessKeyId = getAccessKeyId();
+    var accessKeySecret = getAccessKeySecret();
+    __request.query.SignatureMethod = 'HMAC-SHA1';
+    __request.query.SignatureVersion = '1.0';
+    __request.query.AccessKeyId = accessKeyId;
+    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  }
 } returns {
   var obj = Util.readAsJSON(__response.body);
-  var body = Util.assertAsMap(obj);
+  var res = Util.assertAsMap(obj);
   if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
   throw {
-      message = body.Message,
-      data = body,
-      code = body.Code,
+      message = res.Message,
+      data = res,
+      code = res.Code,
     }
   }
-  return body;
+  return res;
 } runtime {
   timeouted = 'retry',
   readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
@@ -142,6 +148,344 @@ api _request(action: string, protocol: string, method: string, request: object, 
     period = Util.defaultNumber(runtime.backoffPeriod, 1)
   },
   ignoreSSL = runtime.ignoreSSL
+}
+
+model ImageBlindCharacterWatermarkRequest = {
+  functionType: string(name='FunctionType', description='functionType'),
+  text?: string(name='Text', description='text'),
+  watermarkImageURL?: string(name='WatermarkImageURL', description='watermarkImageUrl'),
+  outputFileType?: string(name='OutputFileType', description='outputFileType'),
+  qualityFactor: integer(name='QualityFactor', description='qualityFactor'),
+  originImageURL: string(name='OriginImageURL', description='originImageUrl'),
+}
+
+model ImageBlindCharacterWatermarkResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    watermarkImageURL: string(name='WatermarkImageURL', description='watermarkImageUrl'),
+    textImageURL: string(name='TextImageURL', description='textImageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function imageBlindCharacterWatermark(request: ImageBlindCharacterWatermarkRequest, runtime: Util.RuntimeOptions): ImageBlindCharacterWatermarkResponse {
+  return _request('ImageBlindCharacterWatermark', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model ImageBlindCharacterWatermarkAdvanceRequest = {
+  originImageURLObject: readable(description='OriginImageURLObject', name='OriginImageURLObject'),
+  functionType: string(name='FunctionType', description='functionType'),
+  text?: string(name='Text', description='text'),
+  watermarkImageURL?: string(name='WatermarkImageURL', description='watermarkImageUrl'),
+  outputFileType?: string(name='OutputFileType', description='outputFileType'),
+  qualityFactor: integer(name='QualityFactor', description='qualityFactor'),
+}
+
+async function imageBlindCharacterWatermarkAdvance(request: ImageBlindCharacterWatermarkAdvanceRequest, runtime: Util.RuntimeOptions): ImageBlindCharacterWatermarkResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.originImageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var imageBlindCharacterWatermarkreq = new ImageBlindCharacterWatermarkRequest{};
+  RPCUtil.convert(request, imageBlindCharacterWatermarkreq);
+  imageBlindCharacterWatermarkreq.originImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var imageBlindCharacterWatermarkResp = imageBlindCharacterWatermark(imageBlindCharacterWatermarkreq, runtime);
+  return imageBlindCharacterWatermarkResp;
+}
+
+model RemoveImageSubtitlesRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  BX?: float(name='BX', description='bx'),
+  BY?: float(name='BY', description='by'),
+  BW?: float(name='BW', description='bw'),
+  BH?: float(name='BH', description='bh'),
+}
+
+model RemoveImageSubtitlesResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function removeImageSubtitles(request: RemoveImageSubtitlesRequest, runtime: Util.RuntimeOptions): RemoveImageSubtitlesResponse {
+  return _request('RemoveImageSubtitles', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RemoveImageSubtitlesAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  BX?: float(name='BX', description='bx'),
+  BY?: float(name='BY', description='by'),
+  BW?: float(name='BW', description='bw'),
+  BH?: float(name='BH', description='bh'),
+}
+
+async function removeImageSubtitlesAdvance(request: RemoveImageSubtitlesAdvanceRequest, runtime: Util.RuntimeOptions): RemoveImageSubtitlesResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var removeImageSubtitlesreq = new RemoveImageSubtitlesRequest{};
+  RPCUtil.convert(request, removeImageSubtitlesreq);
+  removeImageSubtitlesreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var removeImageSubtitlesResp = removeImageSubtitles(removeImageSubtitlesreq, runtime);
+  return removeImageSubtitlesResp;
+}
+
+model RemoveImageWatermarkRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model RemoveImageWatermarkResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function removeImageWatermark(request: RemoveImageWatermarkRequest, runtime: Util.RuntimeOptions): RemoveImageWatermarkResponse {
+  return _request('RemoveImageWatermark', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RemoveImageWatermarkAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function removeImageWatermarkAdvance(request: RemoveImageWatermarkAdvanceRequest, runtime: Util.RuntimeOptions): RemoveImageWatermarkResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var removeImageWatermarkreq = new RemoveImageWatermarkRequest{};
+  RPCUtil.convert(request, removeImageWatermarkreq);
+  removeImageWatermarkreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var removeImageWatermarkResp = removeImageWatermark(removeImageWatermarkreq, runtime);
+  return removeImageWatermarkResp;
+}
+
+model ImageBlindPicWatermarkRequest = {
+  functionType: string(name='FunctionType', description='functionType'),
+  logoURL?: string(name='LogoURL', description='logoUrl'),
+  watermarkImageURL?: string(name='WatermarkImageURL', description='watermarkImageUrl'),
+  outputFileType?: string(name='OutputFileType', description='outputFileType'),
+  qualityFactor: integer(name='QualityFactor', description='qualityFactor'),
+  originImageURL: string(name='OriginImageURL', description='originImageUrl'),
+}
+
+model ImageBlindPicWatermarkResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    watermarkImageURL: string(name='WatermarkImageURL', description='watermarkImageUrl'),
+    logoURL: string(name='LogoURL', description='logoUrl'),
+  }(name='Data', description='data'),
+}
+
+async function imageBlindPicWatermark(request: ImageBlindPicWatermarkRequest, runtime: Util.RuntimeOptions): ImageBlindPicWatermarkResponse {
+  return _request('ImageBlindPicWatermark', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model ImageBlindPicWatermarkAdvanceRequest = {
+  originImageURLObject: readable(description='OriginImageURLObject', name='OriginImageURLObject'),
+  functionType: string(name='FunctionType', description='functionType'),
+  logoURL?: string(name='LogoURL', description='logoUrl'),
+  watermarkImageURL?: string(name='WatermarkImageURL', description='watermarkImageUrl'),
+  outputFileType?: string(name='OutputFileType', description='outputFileType'),
+  qualityFactor: integer(name='QualityFactor', description='qualityFactor'),
+}
+
+async function imageBlindPicWatermarkAdvance(request: ImageBlindPicWatermarkAdvanceRequest, runtime: Util.RuntimeOptions): ImageBlindPicWatermarkResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.originImageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var imageBlindPicWatermarkreq = new ImageBlindPicWatermarkRequest{};
+  RPCUtil.convert(request, imageBlindPicWatermarkreq);
+  imageBlindPicWatermarkreq.originImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var imageBlindPicWatermarkResp = imageBlindPicWatermark(imageBlindPicWatermarkreq, runtime);
+  return imageBlindPicWatermarkResp;
 }
 
 model IntelligentCompositionRequest = {
@@ -165,7 +509,7 @@ model IntelligentCompositionResponse = {
 }
 
 async function intelligentComposition(request: IntelligentCompositionRequest, runtime: Util.RuntimeOptions): IntelligentCompositionResponse {
-  return _request('IntelligentComposition', 'HTTPS', 'POST', request, runtime);
+  return _request('IntelligentComposition', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model IntelligentCompositionAdvanceRequest = {
@@ -241,11 +585,17 @@ model ChangeImageSizeResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
     url: string(name='Url', description='url'),
+    retainLocation: {
+      x: integer(name='X', description='x'),
+      y: integer(name='Y', description='y'),
+      width: integer(name='Width', description='width'),
+      height: integer(name='Height', description='height'),
+    }(name='RetainLocation', description='retainLocation'),
   }(name='Data', description='data'),
 }
 
 async function changeImageSize(request: ChangeImageSizeRequest, runtime: Util.RuntimeOptions): ChangeImageSizeResponse {
-  return _request('ChangeImageSize', 'HTTPS', 'POST', request, runtime);
+  return _request('ChangeImageSize', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model ChangeImageSizeAdvanceRequest = {
@@ -326,7 +676,7 @@ model ExtendImageStyleResponse = {
 }
 
 async function extendImageStyle(request: ExtendImageStyleRequest, runtime: Util.RuntimeOptions): ExtendImageStyleResponse {
-  return _request('ExtendImageStyle', 'HTTPS', 'POST', request, runtime);
+  return _request('ExtendImageStyle', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model MakeSuperResolutionImageRequest = {
@@ -341,7 +691,7 @@ model MakeSuperResolutionImageResponse = {
 }
 
 async function makeSuperResolutionImage(request: MakeSuperResolutionImageRequest, runtime: Util.RuntimeOptions): MakeSuperResolutionImageResponse {
-  return _request('MakeSuperResolutionImage', 'HTTPS', 'POST', request, runtime);
+  return _request('MakeSuperResolutionImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model MakeSuperResolutionImageAdvanceRequest = {
@@ -421,16 +771,12 @@ model RecolorImageRequest = {
 model RecolorImageResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
-    imageList: [
-      {
-        imageList: string (name='ImageList', description='ImageList'),
-      }
-    ](name='ImageList', description='imageList'),
+    imageList: [ string ](name='ImageList', description='imageList'),
   }(name='Data', description='data'),
 }
 
 async function recolorImage(request: RecolorImageRequest, runtime: Util.RuntimeOptions): RecolorImageResponse {
-  return _request('RecolorImage', 'HTTPS', 'POST', request, runtime);
+  return _request('RecolorImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 function getUserAgent(): string {

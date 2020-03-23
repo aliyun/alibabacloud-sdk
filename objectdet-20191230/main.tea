@@ -91,40 +91,46 @@ init(config: Config){
   @openPlatformEndpoint = config.openPlatformEndpoint;
 }
 
-api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
   __request.protocol = Util.defaultString(@protocol, protocol);
   __request.method = method;
   __request.pathname = '/';
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
   __request.query = RPCUtil.query({
     Action = action,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
     Version = '2019-12-30',
-    SignatureMethod = 'HMAC-SHA1',
-    SignatureVersion = '1.0',
     SignatureNonce = Util.getNonce(),
-    AccessKeyId = accessKeyId,
-    ...request,
+    ...query,
   });
+  if (!Util.isUnset(body)) {
+    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
+    __request.body = Util.toFormString(tmp);
+  }
   __request.headers = {
     host = RPCUtil.getHost('objectdet', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
-  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  if (!Util.equalString(authType, 'Anonymous')) {
+    var accessKeyId = getAccessKeyId();
+    var accessKeySecret = getAccessKeySecret();
+    __request.query.SignatureMethod = 'HMAC-SHA1';
+    __request.query.SignatureVersion = '1.0';
+    __request.query.AccessKeyId = accessKeyId;
+    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  }
 } returns {
   var obj = Util.readAsJSON(__response.body);
-  var body = Util.assertAsMap(obj);
+  var res = Util.assertAsMap(obj);
   if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
   throw {
-      message = body.Message,
-      data = body,
-      code = body.Code,
+      message = res.Message,
+      data = res,
+      code = res.Code,
     }
   }
-  return body;
+  return res;
 } runtime {
   timeouted = 'retry',
   readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
@@ -142,6 +148,253 @@ api _request(action: string, protocol: string, method: string, request: object, 
     period = Util.defaultNumber(runtime.backoffPeriod, 1)
   },
   ignoreSSL = runtime.ignoreSSL
+}
+
+model DetectTransparentImageRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model DetectTransparentImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        transparentImage: integer(name='TransparentImage', description='transparentImage'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function detectTransparentImage(request: DetectTransparentImageRequest, runtime: Util.RuntimeOptions): DetectTransparentImageResponse {
+  return _request('DetectTransparentImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model DetectTransparentImageAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function detectTransparentImageAdvance(request: DetectTransparentImageAdvanceRequest, runtime: Util.RuntimeOptions): DetectTransparentImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'objectdet',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectTransparentImagereq = new DetectTransparentImageRequest{};
+  RPCUtil.convert(request, detectTransparentImagereq);
+  detectTransparentImagereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectTransparentImageResp = detectTransparentImage(detectTransparentImagereq, runtime);
+  return detectTransparentImageResp;
+}
+
+model DetectObjectRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model DetectObjectResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    width: integer(name='Width', description='width'),
+    height: integer(name='Height', description='height'),
+    elements: [
+      {
+        score: float(name='Score', description='score'),
+        type: string(name='Type', description='type'),
+        boxes: [ integer ](name='Boxes', description='boxes'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function detectObject(request: DetectObjectRequest, runtime: Util.RuntimeOptions): DetectObjectResponse {
+  return _request('DetectObject', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model DetectObjectAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime: Util.RuntimeOptions): DetectObjectResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'objectdet',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectObjectreq = new DetectObjectRequest{};
+  RPCUtil.convert(request, detectObjectreq);
+  detectObjectreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectObjectResp = detectObject(detectObjectreq, runtime);
+  return detectObjectResp;
+}
+
+model DetectWhiteBaseImageRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model DetectWhiteBaseImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        whiteBase: integer(name='WhiteBase', description='whiteBase'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function detectWhiteBaseImage(request: DetectWhiteBaseImageRequest, runtime: Util.RuntimeOptions): DetectWhiteBaseImageResponse {
+  return _request('DetectWhiteBaseImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model DetectWhiteBaseImageAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceRequest, runtime: Util.RuntimeOptions): DetectWhiteBaseImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'objectdet',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectWhiteBaseImagereq = new DetectWhiteBaseImageRequest{};
+  RPCUtil.convert(request, detectWhiteBaseImagereq);
+  detectWhiteBaseImagereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectWhiteBaseImageResp = detectWhiteBaseImage(detectWhiteBaseImagereq, runtime);
+  return detectWhiteBaseImageResp;
 }
 
 model ClassifyVehicleInsuranceRequest = {
@@ -162,7 +415,7 @@ model ClassifyVehicleInsuranceResponse = {
 }
 
 async function classifyVehicleInsurance(request: ClassifyVehicleInsuranceRequest, runtime: Util.RuntimeOptions): ClassifyVehicleInsuranceResponse {
-  return _request('ClassifyVehicleInsurance', 'HTTPS', 'POST', request, runtime);
+  return _request('ClassifyVehicleInsurance', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model ClassifyVehicleInsuranceAdvanceRequest = {
@@ -239,18 +492,14 @@ model RecognizeVehicleDashboardResponse = {
         score: float(name='Score', description='score'),
         className: string(name='ClassName', description='className'),
         label: string(name='Label', description='label'),
-        boxes: [
-          {
-            box: float (name='Box', description='Box'),
-          }
-        ](name='Boxes', description='boxes'),
+        boxes: [ float ](name='Boxes', description='boxes'),
       }
     ](name='Elements', description='elements'),
   }(name='Data', description='data'),
 }
 
 async function recognizeVehicleDashboard(request: RecognizeVehicleDashboardRequest, runtime: Util.RuntimeOptions): RecognizeVehicleDashboardResponse {
-  return _request('RecognizeVehicleDashboard', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeVehicleDashboard', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeVehicleDashboardAdvanceRequest = {
@@ -326,23 +575,15 @@ model RecognizeVehicleDamageResponse = {
       {
         score: float(name='Score', description='score'),
         type: string(name='Type', description='type'),
-        scores: [
-          {
-            score: float (name='Score', description='Score'),
-          }
-        ](name='Scores', description='scores'),
-        boxes: [
-          {
-            box: integer (name='Box', description='Box'),
-          }
-        ](name='Boxes', description='boxes'),
+        scores: [ float ](name='Scores', description='scores'),
+        boxes: [ integer ](name='Boxes', description='boxes'),
       }
     ](name='Elements', description='elements'),
   }(name='Data', description='data'),
 }
 
 async function recognizeVehicleDamage(request: RecognizeVehicleDamageRequest, runtime: Util.RuntimeOptions): RecognizeVehicleDamageResponse {
-  return _request('RecognizeVehicleDamage', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeVehicleDamage', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeVehicleDamageAdvanceRequest = {
@@ -418,23 +659,15 @@ model RecognizeVehiclePartsResponse = {
       {
         score: float(name='Score', description='score'),
         type: string(name='Type', description='type'),
-        boxes: [
-          {
-            box: integer (name='Box', description='Box'),
-          }
-        ](name='Boxes', description='boxes'),
+        boxes: [ integer ](name='Boxes', description='boxes'),
       }
     ](name='Elements', description='elements'),
-    originShapes: [
-      {
-        originShape: integer (name='OriginShape', description='OriginShape'),
-      }
-    ](name='OriginShapes', description='originShapes'),
+    originShapes: [ integer ](name='OriginShapes', description='originShapes'),
   }(name='Data', description='data'),
 }
 
 async function recognizeVehicleParts(request: RecognizeVehiclePartsRequest, runtime: Util.RuntimeOptions): RecognizeVehiclePartsResponse {
-  return _request('RecognizeVehicleParts', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeVehicleParts', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeVehiclePartsAdvanceRequest = {
@@ -513,18 +746,14 @@ model DetectVehicleResponse = {
         score: float(name='Score', description='score'),
         type: string(name='Type', description='type'),
         id: integer(name='Id', description='id'),
-        boxes: [
-          {
-            box: integer (name='Box', description='Box'),
-          }
-        ](name='Boxes', description='boxes'),
+        boxes: [ integer ](name='Boxes', description='boxes'),
       }
     ](name='DetectObjectInfoList', description='detectObjectInfoList'),
   }(name='Data', description='data'),
 }
 
 async function detectVehicle(request: DetectVehicleRequest, runtime: Util.RuntimeOptions): DetectVehicleResponse {
-  return _request('DetectVehicle', 'HTTPS', 'POST', request, runtime);
+  return _request('DetectVehicle', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectVehicleAdvanceRequest = {
@@ -606,7 +835,7 @@ model DetectMainBodyResponse = {
 }
 
 async function detectMainBody(request: DetectMainBodyRequest, runtime: Util.RuntimeOptions): DetectMainBodyResponse {
-  return _request('DetectMainBody', 'HTTPS', 'GET', request, runtime);
+  return _request('DetectMainBody', 'HTTPS', 'GET', 'AK', request, null, runtime);
 }
 
 model DetectMainBodyAdvanceRequest = {

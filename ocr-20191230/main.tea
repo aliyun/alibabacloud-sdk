@@ -91,40 +91,46 @@ init(config: Config){
   @openPlatformEndpoint = config.openPlatformEndpoint;
 }
 
-api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
   __request.protocol = Util.defaultString(@protocol, protocol);
   __request.method = method;
   __request.pathname = '/';
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
   __request.query = RPCUtil.query({
     Action = action,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
     Version = '2019-12-30',
-    SignatureMethod = 'HMAC-SHA1',
-    SignatureVersion = '1.0',
     SignatureNonce = Util.getNonce(),
-    AccessKeyId = accessKeyId,
-    ...request,
+    ...query,
   });
+  if (!Util.isUnset(body)) {
+    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
+    __request.body = Util.toFormString(tmp);
+  }
   __request.headers = {
     host = RPCUtil.getHost('ocr', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
-  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  if (!Util.equalString(authType, 'Anonymous')) {
+    var accessKeyId = getAccessKeyId();
+    var accessKeySecret = getAccessKeySecret();
+    __request.query.SignatureMethod = 'HMAC-SHA1';
+    __request.query.SignatureVersion = '1.0';
+    __request.query.AccessKeyId = accessKeyId;
+    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  }
 } returns {
   var obj = Util.readAsJSON(__response.body);
-  var body = Util.assertAsMap(obj);
+  var res = Util.assertAsMap(obj);
   if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
   throw {
-      message = body.Message,
-      data = body,
-      code = body.Code,
+      message = res.Message,
+      data = res,
+      code = res.Code,
     }
   }
-  return body;
+  return res;
 } runtime {
   timeouted = 'retry',
   readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
@@ -142,6 +148,450 @@ api _request(action: string, protocol: string, method: string, request: object, 
     period = Util.defaultNumber(runtime.backoffPeriod, 1)
   },
   ignoreSSL = runtime.ignoreSSL
+}
+
+model GetAsyncJobResultRequest = {
+  jobId: string(name='JobId', description='jobId'),
+}
+
+model GetAsyncJobResultResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    errorCode: string(name='ErrorCode', description='errorCode'),
+    errorMessage: string(name='ErrorMessage', description='errorMessage'),
+    jobId: string(name='JobId', description='jobId'),
+    result: string(name='Result', description='result'),
+    status: string(name='Status', description='status'),
+  }(name='Data', description='data'),
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  return _request('GetAsyncJobResult', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model TrimDocumentRequest = {
+  fileURL: string(name='FileURL', description='fileUrl'),
+  fileType: string(name='FileType', description='fileType'),
+  outputType: string(name='OutputType', description='outputType'),
+}
+
+model TrimDocumentResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    content: string(name='Content', description='content'),
+  }(name='Data', description='data'),
+}
+
+async function trimDocument(request: TrimDocumentRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
+  return _request('TrimDocument', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model TrimDocumentAdvanceRequest = {
+  fileURLObject: readable(description='FileURLObject', name='FileURLObject'),
+  fileType: string(name='FileType', description='fileType'),
+  outputType: string(name='OutputType', description='outputType'),
+}
+
+async function trimDocumentAdvance(request: TrimDocumentAdvanceRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.fileURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var trimDocumentreq = new TrimDocumentRequest{};
+  RPCUtil.convert(request, trimDocumentreq);
+  trimDocumentreq.fileURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var trimDocumentResp = trimDocument(trimDocumentreq, runtime);
+  return trimDocumentResp;
+}
+
+model RecognizeChinapassportRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model RecognizeChinapassportResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    authority: string(name='Authority', description='authority'),
+    birthDate: string(name='BirthDate', description='birthDate'),
+    birthDay: string(name='BirthDay', description='birthDay'),
+    birthPlace: string(name='BirthPlace', description='birthPlace'),
+    birthPlaceRaw: string(name='BirthPlaceRaw', description='birthPlaceRaw'),
+    country: string(name='Country', description='country'),
+    expiryDate: string(name='ExpiryDate', description='expiryDate'),
+    expiryDay: string(name='ExpiryDay', description='expiryDay'),
+    issueDate: string(name='IssueDate', description='issueDate'),
+    issuePlace: string(name='IssuePlace', description='issuePlace'),
+    issuePlaceRaw: string(name='IssuePlaceRaw', description='issuePlaceRaw'),
+    lineZero: string(name='LineZero', description='lineZero'),
+    lineOne: string(name='LineOne', description='lineOne'),
+    name: string(name='Name', description='name'),
+    nameChinese: string(name='NameChinese', description='nameChinese'),
+    nameChineseRaw: string(name='NameChineseRaw', description='nameChineseRaw'),
+    passportNo: string(name='PassportNo', description='passportNo'),
+    personId: string(name='PersonId', description='personId'),
+    sex: string(name='Sex', description='sex'),
+    sourceCountry: string(name='SourceCountry', description='sourceCountry'),
+    success: boolean(name='Success', description='success'),
+    type: string(name='Type', description='type'),
+  }(name='Data', description='data'),
+}
+
+async function recognizeChinapassport(request: RecognizeChinapassportRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
+  return _request('RecognizeChinapassport', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RecognizeChinapassportAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function recognizeChinapassportAdvance(request: RecognizeChinapassportAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var recognizeChinapassportreq = new RecognizeChinapassportRequest{};
+  RPCUtil.convert(request, recognizeChinapassportreq);
+  recognizeChinapassportreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeChinapassportResp = recognizeChinapassport(recognizeChinapassportreq, runtime);
+  return recognizeChinapassportResp;
+}
+
+model RecognizeVerificationcodeRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model RecognizeVerificationcodeResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    content: string(name='Content', description='content'),
+  }(name='Data', description='data'),
+}
+
+async function recognizeVerificationcode(request: RecognizeVerificationcodeRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
+  return _request('RecognizeVerificationcode', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RecognizeVerificationcodeAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function recognizeVerificationcodeAdvance(request: RecognizeVerificationcodeAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var recognizeVerificationcodereq = new RecognizeVerificationcodeRequest{};
+  RPCUtil.convert(request, recognizeVerificationcodereq);
+  recognizeVerificationcodereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeVerificationcodeResp = recognizeVerificationcode(recognizeVerificationcodereq, runtime);
+  return recognizeVerificationcodeResp;
+}
+
+model RecognizePassportMRZRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model RecognizePassportMRZResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    regions: [
+      {
+        name: string(name='Name', description='name'),
+        recognitionScore: float(name='RecognitionScore', description='recognitionScore'),
+        content: string(name='Content', description='content'),
+        detectionScore: float(name='DetectionScore', description='detectionScore'),
+        bandBoxes: [ float ](name='BandBoxes', description='bandBoxes'),
+      }
+    ](name='Regions', description='regions'),
+  }(name='Data', description='data'),
+}
+
+async function recognizePassportMRZ(request: RecognizePassportMRZRequest, runtime: Util.RuntimeOptions): RecognizePassportMRZResponse {
+  return _request('RecognizePassportMRZ', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RecognizePassportMRZAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function recognizePassportMRZAdvance(request: RecognizePassportMRZAdvanceRequest, runtime: Util.RuntimeOptions): RecognizePassportMRZResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var recognizePassportMRZreq = new RecognizePassportMRZRequest{};
+  RPCUtil.convert(request, recognizePassportMRZreq);
+  recognizePassportMRZreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizePassportMRZResp = recognizePassportMRZ(recognizePassportMRZreq, runtime);
+  return recognizePassportMRZResp;
+}
+
+model RecognizeTakeoutOrderRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model RecognizeTakeoutOrderResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        score: float(name='Score', description='score'),
+        name: string(name='Name', description='name'),
+        value: string(name='Value', description='value'),
+        boxes: [ integer ](name='Boxes', description='boxes'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function recognizeTakeoutOrder(request: RecognizeTakeoutOrderRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
+  return _request('RecognizeTakeoutOrder', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model RecognizeTakeoutOrderAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'ocr',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var recognizeTakeoutOrderreq = new RecognizeTakeoutOrderRequest{};
+  RPCUtil.convert(request, recognizeTakeoutOrderreq);
+  recognizeTakeoutOrderreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recognizeTakeoutOrderResp = recognizeTakeoutOrder(recognizeTakeoutOrderreq, runtime);
+  return recognizeTakeoutOrderResp;
 }
 
 model RecognizeQrCodeRequest = {
@@ -164,11 +614,7 @@ model RecognizeQrCodeResponse = {
             label: string(name='Label', description='label'),
             suggestion: string(name='Suggestion', description='suggestion'),
             rate: float(name='Rate', description='rate'),
-            qrCodesData: [
-              {
-                qrCodeData: string (name='QrCodeData', description='QrCodeData'),
-              }
-            ](name='QrCodesData', description='qrCodesData'),
+            qrCodesData: [ string ](name='QrCodesData', description='qrCodesData'),
           }
         ](name='Results', description='results'),
       }
@@ -177,7 +623,7 @@ model RecognizeQrCodeResponse = {
 }
 
 async function recognizeQrCode(request: RecognizeQrCodeRequest, runtime: Util.RuntimeOptions): RecognizeQrCodeResponse {
-  return _request('RecognizeQrCode', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeQrCode', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeVATInvoiceRequest = {
@@ -210,107 +656,31 @@ model RecognizeVATInvoiceResponse = {
       clerk: string(name='Clerk', description='clerk'),
     }(name='Content', description='content'),
     box: {
-      invoiceCodes: [
-        {
-          invoiceCode: float (name='InvoiceCode', description='InvoiceCode'),
-        }
-      ](name='InvoiceCodes', description='invoiceCodes'),
-      invoiceNoes: [
-        {
-          invoiceNo: float (name='InvoiceNo', description='InvoiceNo'),
-        }
-      ](name='InvoiceNoes', description='invoiceNoes'),
-      invoiceDates: [
-        {
-          invoiceDate: float (name='InvoiceDate', description='InvoiceDate'),
-        }
-      ](name='InvoiceDates', description='invoiceDates'),
-      invoiceFakeCodes: [
-        {
-          invoiceFakeCode: float (name='InvoiceFakeCode', description='InvoiceFakeCode'),
-        }
-      ](name='InvoiceFakeCodes', description='invoiceFakeCodes'),
-      payerNames: [
-        {
-          payerName: float (name='PayerName', description='PayerName'),
-        }
-      ](name='PayerNames', description='payerNames'),
-      payerRegisterNoes: [
-        {
-          payerRegisterNo: float (name='PayerRegisterNo', description='PayerRegisterNo'),
-        }
-      ](name='PayerRegisterNoes', description='payerRegisterNoes'),
-      payerAddresses: [
-        {
-          payerAddress: float (name='PayerAddress', description='PayerAddress'),
-        }
-      ](name='PayerAddresses', description='payerAddresses'),
-      payerBankNames: [
-        {
-          payerBankNames: float (name='PayerBankNames', description='PayerBankNames'),
-        }
-      ](name='PayerBankNames', description='payerBankNames'),
-      withoutTaxAmounts: [
-        {
-          withoutTaxAmount: float (name='WithoutTaxAmount', description='WithoutTaxAmount'),
-        }
-      ](name='WithoutTaxAmounts', description='withoutTaxAmounts'),
-      taxAmounts: [
-        {
-          taxAmount: float (name='TaxAmount', description='TaxAmount'),
-        }
-      ](name='TaxAmounts', description='taxAmounts'),
-      sumAmounts: [
-        {
-          sumAmount: float (name='SumAmount', description='SumAmount'),
-        }
-      ](name='SumAmounts', description='sumAmounts'),
-      invoiceAmounts: [
-        {
-          invoiceAmount: float (name='InvoiceAmount', description='InvoiceAmount'),
-        }
-      ](name='InvoiceAmounts', description='invoiceAmounts'),
-      payeeNames: [
-        {
-          payeeName: float (name='PayeeName', description='PayeeName'),
-        }
-      ](name='PayeeNames', description='payeeNames'),
-      payeeRegisterNoes: [
-        {
-          payeeRegisterNo: float (name='PayeeRegisterNo', description='PayeeRegisterNo'),
-        }
-      ](name='PayeeRegisterNoes', description='payeeRegisterNoes'),
-      payeeAddresses: [
-        {
-          payeeAddress: float (name='PayeeAddress', description='PayeeAddress'),
-        }
-      ](name='PayeeAddresses', description='payeeAddresses'),
-      payeeBankNames: [
-        {
-          payeeBankName: float (name='PayeeBankName', description='PayeeBankName'),
-        }
-      ](name='PayeeBankNames', description='payeeBankNames'),
-      payees: [
-        {
-          payee: float (name='Payee', description='Payee'),
-        }
-      ](name='Payees', description='payees'),
-      checkers: [
-        {
-          checker: float (name='Checker', description='Checker'),
-        }
-      ](name='Checkers', description='checkers'),
-      clerks: [
-        {
-          clerk: float (name='Clerk', description='Clerk'),
-        }
-      ](name='Clerks', description='clerks'),
+      invoiceCodes: [ float ](name='InvoiceCodes', description='invoiceCodes'),
+      invoiceNoes: [ float ](name='InvoiceNoes', description='invoiceNoes'),
+      invoiceDates: [ float ](name='InvoiceDates', description='invoiceDates'),
+      invoiceFakeCodes: [ float ](name='InvoiceFakeCodes', description='invoiceFakeCodes'),
+      payerNames: [ float ](name='PayerNames', description='payerNames'),
+      payerRegisterNoes: [ float ](name='PayerRegisterNoes', description='payerRegisterNoes'),
+      payerAddresses: [ float ](name='PayerAddresses', description='payerAddresses'),
+      payerBankNames: [ float ](name='PayerBankNames', description='payerBankNames'),
+      withoutTaxAmounts: [ float ](name='WithoutTaxAmounts', description='withoutTaxAmounts'),
+      taxAmounts: [ float ](name='TaxAmounts', description='taxAmounts'),
+      sumAmounts: [ float ](name='SumAmounts', description='sumAmounts'),
+      invoiceAmounts: [ float ](name='InvoiceAmounts', description='invoiceAmounts'),
+      payeeNames: [ float ](name='PayeeNames', description='payeeNames'),
+      payeeRegisterNoes: [ float ](name='PayeeRegisterNoes', description='payeeRegisterNoes'),
+      payeeAddresses: [ float ](name='PayeeAddresses', description='payeeAddresses'),
+      payeeBankNames: [ float ](name='PayeeBankNames', description='payeeBankNames'),
+      payees: [ float ](name='Payees', description='payees'),
+      checkers: [ float ](name='Checkers', description='checkers'),
+      clerks: [ float ](name='Clerks', description='clerks'),
     }(name='Box', description='box'),
   }(name='Data', description='data'),
 }
 
 async function recognizeVATInvoice(request: RecognizeVATInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeVATInvoiceResponse {
-  return _request('RecognizeVATInvoice', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeVATInvoice', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeVATInvoiceAdvanceRequest = {
@@ -402,7 +772,7 @@ model RecognizeCharacterResponse = {
 }
 
 async function recognizeCharacter(request: RecognizeCharacterRequest, runtime: Util.RuntimeOptions): RecognizeCharacterResponse {
-  return _request('RecognizeCharacter', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeCharacter', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeCharacterAdvanceRequest = {
@@ -507,7 +877,7 @@ model RecognizeTaxiInvoiceResponse = {
 }
 
 async function recognizeTaxiInvoice(request: RecognizeTaxiInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeTaxiInvoiceResponse {
-  return _request('RecognizeTaxiInvoice', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeTaxiInvoice', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeTaxiInvoiceAdvanceRequest = {
@@ -620,7 +990,7 @@ model RecognizeIdentityCardResponse = {
 }
 
 async function recognizeIdentityCard(request: RecognizeIdentityCardRequest, runtime: Util.RuntimeOptions): RecognizeIdentityCardResponse {
-  return _request('RecognizeIdentityCard', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeIdentityCard', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeIdentityCardAdvanceRequest = {
@@ -711,7 +1081,7 @@ model RecognizeLicensePlateResponse = {
 }
 
 async function recognizeLicensePlate(request: RecognizeLicensePlateRequest, runtime: Util.RuntimeOptions): RecognizeLicensePlateResponse {
-  return _request('RecognizeLicensePlate', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeLicensePlate', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeLicensePlateAdvanceRequest = {
@@ -803,11 +1173,7 @@ model RecognizeTableResponse = {
                 endRow: integer(name='EndRow', description='endRow'),
                 height: integer(name='Height', description='height'),
                 width: integer(name='Width', description='width'),
-                texts: [
-                  {
-                    text: string (name='Text', description='Text'),
-                  }
-                ](name='Texts', description='texts'),
+                texts: [ string ](name='Texts', description='texts'),
               }
             ](name='TableColumns', description='tableColumns'),
           }
@@ -818,7 +1184,7 @@ model RecognizeTableResponse = {
 }
 
 async function recognizeTable(request: RecognizeTableRequest, runtime: Util.RuntimeOptions): RecognizeTableResponse {
-  return _request('RecognizeTable', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeTable', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeTableAdvanceRequest = {
@@ -924,7 +1290,7 @@ model RecognizeDrivingLicenseResponse = {
 }
 
 async function recognizeDrivingLicense(request: RecognizeDrivingLicenseRequest, runtime: Util.RuntimeOptions): RecognizeDrivingLicenseResponse {
-  return _request('RecognizeDrivingLicense', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeDrivingLicense', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeDrivingLicenseAdvanceRequest = {
@@ -1004,7 +1370,7 @@ model RecognizeBankCardResponse = {
 }
 
 async function recognizeBankCard(request: RecognizeBankCardRequest, runtime: Util.RuntimeOptions): RecognizeBankCardResponse {
-  return _request('RecognizeBankCard', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeBankCard', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeBankCardAdvanceRequest = {
@@ -1088,7 +1454,7 @@ model RecognizeTrainTicketResponse = {
 }
 
 async function recognizeTrainTicket(request: RecognizeTrainTicketRequest, runtime: Util.RuntimeOptions): RecognizeTrainTicketResponse {
-  return _request('RecognizeTrainTicket', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeTrainTicket', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeTrainTicketAdvanceRequest = {
@@ -1178,7 +1544,7 @@ model RecognizeDriverLicenseResponse = {
 }
 
 async function recognizeDriverLicense(request: RecognizeDriverLicenseRequest, runtime: Util.RuntimeOptions): RecognizeDriverLicenseResponse {
-  return _request('RecognizeDriverLicense', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeDriverLicense', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeDriverLicenseAdvanceRequest = {
@@ -1302,7 +1668,7 @@ model RecognizeAccountPageResponse = {
 }
 
 async function recognizeAccountPage(request: RecognizeAccountPageRequest, runtime: Util.RuntimeOptions): RecognizeAccountPageResponse {
-  return _request('RecognizeAccountPage', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeAccountPage', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeAccountPageAdvanceRequest = {
@@ -1398,7 +1764,7 @@ model RecognizeStampResponse = {
 }
 
 async function recognizeStamp(request: RecognizeStampRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
-  return _request('RecognizeStamp', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeStamp', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeStampAdvanceRequest = {
@@ -1471,46 +1837,18 @@ model RecognizeBusinessCardResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
     name: string(name='Name', description='name'),
-    companies: [
-      {
-        company: string (name='Company', description='Company'),
-      }
-    ](name='Companies', description='company'),
-    departments: [
-      {
-        department: string (name='Department', description='Department'),
-      }
-    ](name='Departments', description='department'),
-    titles: [
-      {
-        title: string (name='Title', description='Title'),
-      }
-    ](name='Titles', description='title'),
-    cellPhoneNumbers: [
-      {
-        cellPhoneNumber: string (name='CellPhoneNumber', description='CellPhoneNumber'),
-      }
-    ](name='CellPhoneNumbers', description='cellNumber'),
-    officePhoneNumbers: [
-      {
-        officePhoneNumber: string (name='OfficePhoneNumber', description='OfficePhoneNumber'),
-      }
-    ](name='OfficePhoneNumbers', description='officePhoneNumber'),
-    addresses: [
-      {
-        address: string (name='Address', description='Address'),
-      }
-    ](name='Addresses', description='address'),
-    emails: [
-      {
-        email: string (name='Email', description='Email'),
-      }
-    ](name='Emails', description='email'),
+    companies: [ string ](name='Companies', description='company'),
+    departments: [ string ](name='Departments', description='department'),
+    titles: [ string ](name='Titles', description='title'),
+    cellPhoneNumbers: [ string ](name='CellPhoneNumbers', description='cellNumber'),
+    officePhoneNumbers: [ string ](name='OfficePhoneNumbers', description='officePhoneNumber'),
+    addresses: [ string ](name='Addresses', description='address'),
+    emails: [ string ](name='Emails', description='email'),
   }(name='Data', description='data'),
 }
 
 async function recognizeBusinessCard(request: RecognizeBusinessCardRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
-  return _request('RecognizeBusinessCard', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeBusinessCard', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeBusinessCardAdvanceRequest = {
@@ -1587,7 +1925,7 @@ model RecognizeVINCodeResponse = {
 }
 
 async function recognizeVINCode(request: RecognizeVINCodeRequest, runtime: Util.RuntimeOptions): RecognizeVINCodeResponse {
-  return _request('RecognizeVINCode', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeVINCode', 'HTTPS', 'POST', 'AK', request, null, runtime);
 }
 
 model RecognizeVINCodeAdvanceRequest = {
@@ -1697,7 +2035,7 @@ model RecognizeBusinessLicenseResponse = {
 }
 
 async function recognizeBusinessLicense(request: RecognizeBusinessLicenseRequest, runtime: Util.RuntimeOptions): RecognizeBusinessLicenseResponse {
-  return _request('RecognizeBusinessLicense', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeBusinessLicense', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeBusinessLicenseAdvanceRequest = {

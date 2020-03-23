@@ -91,40 +91,46 @@ init(config: Config){
   @openPlatformEndpoint = config.openPlatformEndpoint;
 }
 
-api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
+api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
   __request.protocol = Util.defaultString(@protocol, protocol);
   __request.method = method;
   __request.pathname = '/';
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
   __request.query = RPCUtil.query({
     Action = action,
     Format = 'json',
     RegionId = @regionId,
     Timestamp = RPCUtil.getTimestamp(),
     Version = '2019-12-30',
-    SignatureMethod = 'HMAC-SHA1',
-    SignatureVersion = '1.0',
     SignatureNonce = Util.getNonce(),
-    AccessKeyId = accessKeyId,
-    ...request,
+    ...query,
   });
+  if (!Util.isUnset(body)) {
+    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
+    __request.body = Util.toFormString(tmp);
+  }
   __request.headers = {
     host = RPCUtil.getHost('facebody', @regionId, @endpoint),
     user-agent = getUserAgent(),
   };
-  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  if (!Util.equalString(authType, 'Anonymous')) {
+    var accessKeyId = getAccessKeyId();
+    var accessKeySecret = getAccessKeySecret();
+    __request.query.SignatureMethod = 'HMAC-SHA1';
+    __request.query.SignatureVersion = '1.0';
+    __request.query.AccessKeyId = accessKeyId;
+    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
+  }
 } returns {
   var obj = Util.readAsJSON(__response.body);
-  var body = Util.assertAsMap(obj);
+  var res = Util.assertAsMap(obj);
   if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
   throw {
-      message = body.Message,
-      data = body,
-      code = body.Code,
+      message = res.Message,
+      data = res,
+      code = res.Code,
     }
   }
-  return body;
+  return res;
 } runtime {
   timeouted = 'retry',
   readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
@@ -142,6 +148,966 @@ api _request(action: string, protocol: string, method: string, request: object, 
     period = Util.defaultNumber(runtime.backoffPeriod, 1)
   },
   ignoreSSL = runtime.ignoreSSL
+}
+
+model FaceMakeupRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  makeupType: string(name='MakeupType', description='makeupType'),
+  resourceType: string(name='ResourceType', description='resourceType'),
+  strength: float(name='Strength', description='strength'),
+}
+
+model FaceMakeupResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function faceMakeup(request: FaceMakeupRequest, runtime: Util.RuntimeOptions): FaceMakeupResponse {
+  return _request('FaceMakeup', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model FaceMakeupAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  makeupType: string(name='MakeupType', description='makeupType'),
+  resourceType: string(name='ResourceType', description='resourceType'),
+  strength: float(name='Strength', description='strength'),
+}
+
+async function faceMakeupAdvance(request: FaceMakeupAdvanceRequest, runtime: Util.RuntimeOptions): FaceMakeupResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var faceMakeupreq = new FaceMakeupRequest{};
+  RPCUtil.convert(request, faceMakeupreq);
+  faceMakeupreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var faceMakeupResp = faceMakeup(faceMakeupreq, runtime);
+  return faceMakeupResp;
+}
+
+model HandPostureRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model HandPostureResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    outputs: [
+      {
+        handCount: integer(name='HandCount', description='handCount'),
+        results: [
+          {
+            box: {
+              confident: float(name='Confident', description='confident'),
+              positions: [
+                {
+                  points: [ float ](name='Points', description='points'),
+                }
+              ](name='Positions', description='positions'),
+            }(name='Box', description='box'),
+            hands: {
+              confident: float(name='Confident', description='confident'),
+              keyPoints: [
+                {
+                  label: string(name='Label', description='label'),
+                  positions: [
+                    {
+                      points: [ float ](name='Points', description='points'),
+                    }
+                  ](name='Positions', description='positions'),
+                }
+              ](name='KeyPoints', description='keypoints'),
+            }(name='Hands', description='hands'),
+          }
+        ](name='Results', description='results'),
+      }
+    ](name='Outputs', description='outputs'),
+    metaObject: {
+      height: integer(name='Height', description='height'),
+      width: integer(name='Width', description='width'),
+    }(name='MetaObject', description='meta'),
+  }(name='Data', description='data'),
+}
+
+async function handPosture(request: HandPostureRequest, runtime: Util.RuntimeOptions): HandPostureResponse {
+  return _request('HandPosture', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model HandPostureAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function handPostureAdvance(request: HandPostureAdvanceRequest, runtime: Util.RuntimeOptions): HandPostureResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var handPosturereq = new HandPostureRequest{};
+  RPCUtil.convert(request, handPosturereq);
+  handPosturereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var handPostureResp = handPosture(handPosturereq, runtime);
+  return handPostureResp;
+}
+
+model BodyPostureRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model BodyPostureResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    outputs: [
+      {
+        humanCount: integer(name='HumanCount', description='humanCount'),
+        results: [
+          {
+            bodies: [
+              {
+                confident: float(name='Confident', description='confident'),
+                label: string(name='Label', description='label'),
+                positions: [
+                  {
+                    points: [ float ](name='Points', description='points'),
+                  }
+                ](name='Positions', description='positions'),
+              }
+            ](name='Bodies', description='bodies'),
+          }
+        ](name='Results', description='results'),
+      }
+    ](name='Outputs', description='outputs'),
+    metaObject: {
+      height: integer(name='Height', description='height'),
+      width: integer(name='Width', description='width'),
+    }(name='MetaObject', description='meta'),
+  }(name='Data', description='data'),
+}
+
+async function bodyPosture(request: BodyPostureRequest, runtime: Util.RuntimeOptions): BodyPostureResponse {
+  return _request('BodyPosture', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model BodyPostureAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function bodyPostureAdvance(request: BodyPostureAdvanceRequest, runtime: Util.RuntimeOptions): BodyPostureResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var bodyPosturereq = new BodyPostureRequest{};
+  RPCUtil.convert(request, bodyPosturereq);
+  bodyPosturereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var bodyPostureResp = bodyPosture(bodyPosturereq, runtime);
+  return bodyPostureResp;
+}
+
+model DetectPedestrianRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model DetectPedestrianResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    width: integer(name='Width', description='width'),
+    height: integer(name='Height', description='height'),
+    elements: [
+      {
+        score: float(name='Score', description='score'),
+        type: string(name='Type', description='type'),
+        boxes: [ integer ](name='Boxes', description='boxes'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function detectPedestrian(request: DetectPedestrianRequest, runtime: Util.RuntimeOptions): DetectPedestrianResponse {
+  return _request('DetectPedestrian', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model DetectPedestrianAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function detectPedestrianAdvance(request: DetectPedestrianAdvanceRequest, runtime: Util.RuntimeOptions): DetectPedestrianResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectPedestrianreq = new DetectPedestrianRequest{};
+  RPCUtil.convert(request, detectPedestrianreq);
+  detectPedestrianreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectPedestrianResp = detectPedestrian(detectPedestrianreq, runtime);
+  return detectPedestrianResp;
+}
+
+model FaceBeautyRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  sharp: float(name='Sharp', description='sharp'),
+  smooth: float(name='Smooth', description='smooth'),
+  white: float(name='White', description='white'),
+}
+
+model FaceBeautyResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function faceBeauty(request: FaceBeautyRequest, runtime: Util.RuntimeOptions): FaceBeautyResponse {
+  return _request('FaceBeauty', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model FaceBeautyAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  sharp: float(name='Sharp', description='sharp'),
+  smooth: float(name='Smooth', description='smooth'),
+  white: float(name='White', description='white'),
+}
+
+async function faceBeautyAdvance(request: FaceBeautyAdvanceRequest, runtime: Util.RuntimeOptions): FaceBeautyResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var faceBeautyreq = new FaceBeautyRequest{};
+  RPCUtil.convert(request, faceBeautyreq);
+  faceBeautyreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var faceBeautyResp = faceBeauty(faceBeautyreq, runtime);
+  return faceBeautyResp;
+}
+
+model FaceFilterRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  resourceType: string(name='ResourceType', description='resourceType'),
+  strength: float(name='Strength', description='strength'),
+}
+
+model FaceFilterResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function faceFilter(request: FaceFilterRequest, runtime: Util.RuntimeOptions): FaceFilterResponse {
+  return _request('FaceFilter', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model FaceFilterAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  resourceType: string(name='ResourceType', description='resourceType'),
+  strength: float(name='Strength', description='strength'),
+}
+
+async function faceFilterAdvance(request: FaceFilterAdvanceRequest, runtime: Util.RuntimeOptions): FaceFilterResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var faceFilterreq = new FaceFilterRequest{};
+  RPCUtil.convert(request, faceFilterreq);
+  faceFilterreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var faceFilterResp = faceFilter(faceFilterreq, runtime);
+  return faceFilterResp;
+}
+
+model EnhanceFaceRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model EnhanceFaceResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function enhanceFace(request: EnhanceFaceRequest, runtime: Util.RuntimeOptions): EnhanceFaceResponse {
+  return _request('EnhanceFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model EnhanceFaceAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function enhanceFaceAdvance(request: EnhanceFaceAdvanceRequest, runtime: Util.RuntimeOptions): EnhanceFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var enhanceFacereq = new EnhanceFaceRequest{};
+  RPCUtil.convert(request, enhanceFacereq);
+  enhanceFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var enhanceFaceResp = enhanceFace(enhanceFacereq, runtime);
+  return enhanceFaceResp;
+}
+
+model FaceTidyupRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  shapeType: integer(name='ShapeType', description='shapeType'),
+  strength: float(name='Strength', description='strength'),
+}
+
+model FaceTidyupResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function faceTidyup(request: FaceTidyupRequest, runtime: Util.RuntimeOptions): FaceTidyupResponse {
+  return _request('FaceTidyup', 'HTTPS', 'POST', 'AK', null, request, runtime);
+}
+
+model FaceTidyupAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  shapeType: integer(name='ShapeType', description='shapeType'),
+  strength: float(name='Strength', description='strength'),
+}
+
+async function faceTidyupAdvance(request: FaceTidyupAdvanceRequest, runtime: Util.RuntimeOptions): FaceTidyupResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var faceTidyupreq = new FaceTidyupRequest{};
+  RPCUtil.convert(request, faceTidyupreq);
+  faceTidyupreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var faceTidyupResp = faceTidyup(faceTidyupreq, runtime);
+  return faceTidyupResp;
+}
+
+model SearchFaceRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  imageUrl: string(name='ImageUrl', description='imageUrl'),
+  limit: integer(name='Limit', description='limit'),
+}
+
+model SearchFaceResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    matchList: [
+      {
+        faceItems: [
+          {
+            faceId: string(name='FaceId', description='faceId'),
+            score: float(name='Score', description='score'),
+            extraData: string(name='ExtraData', description='extraData'),
+            entityId: string(name='EntityId', description='entityId'),
+            imageUrl: string(name='ImageUrl', description='imageUrl'),
+          }
+        ](name='FaceItems', description='faceItems'),
+        location: {
+          x: integer(name='X', description='x'),
+          y: integer(name='Y', description='y'),
+          width: integer(name='Width', description='width'),
+          height: integer(name='Height', description='height'),
+        }(name='Location', description='location'),
+      }
+    ](name='MatchList', description='matchList'),
+  }(name='Data', description='data'),
+}
+
+async function searchFace(request: SearchFaceRequest, runtime: Util.RuntimeOptions): SearchFaceResponse {
+  return _request('SearchFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model SearchFaceAdvanceRequest = {
+  imageUrlObject: readable(description='ImageUrlObject', name='ImageUrlObject'),
+  dbName: string(name='DbName', description='dbName'),
+  limit: integer(name='Limit', description='limit'),
+}
+
+async function searchFaceAdvance(request: SearchFaceAdvanceRequest, runtime: Util.RuntimeOptions): SearchFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var searchFacereq = new SearchFaceRequest{};
+  RPCUtil.convert(request, searchFacereq);
+  searchFacereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var searchFaceResp = searchFace(searchFacereq, runtime);
+  return searchFaceResp;
+}
+
+model ListFaceDbsRequest = {
+}
+
+model ListFaceDbsResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    dbList: [
+      {
+        name: string(name='Name', description='name'),
+      }
+    ](name='DbList', description='dbList'),
+  }(name='Data', description='data'),
+}
+
+async function listFaceDbs(request: ListFaceDbsRequest, runtime: Util.RuntimeOptions): ListFaceDbsResponse {
+  return _request('ListFaceDbs', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model ListFacesRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  fromScrollId?: string(name='FromScrollId', description='fromScrollId'),
+}
+
+model ListFacesResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    scrollId: string(name='ScrollId', description='scrollId'),
+    faceList: [
+      {
+        faceId: string(name='FaceId', description='faceId'),
+        extraData: string(name='ExtraData', description='extraData'),
+        entityId: string(name='EntityId', description='entityId'),
+        imageUrl: string(name='ImageUrl', description='imageUrl'),
+      }
+    ](name='FaceList', description='faceList'),
+  }(name='Data', description='data'),
+}
+
+async function listFaces(request: ListFacesRequest, runtime: Util.RuntimeOptions): ListFacesResponse {
+  return _request('ListFaces', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model CreateFaceDbRequest = {
+  name: string(name='Name', description='name'),
+}
+
+model CreateFaceDbResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function createFaceDb(request: CreateFaceDbRequest, runtime: Util.RuntimeOptions): CreateFaceDbResponse {
+  return _request('CreateFaceDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model DeleteFaceRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  faceId: string(name='FaceId', description='faceId'),
+}
+
+model DeleteFaceResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteFace(request: DeleteFaceRequest, runtime: Util.RuntimeOptions): DeleteFaceResponse {
+  return _request('DeleteFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model DeleteFaceDbRequest = {
+  name: string(name='Name', description='name'),
+}
+
+model DeleteFaceDbResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteFaceDb(request: DeleteFaceDbRequest, runtime: Util.RuntimeOptions): DeleteFaceDbResponse {
+  return _request('DeleteFaceDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model AddFaceRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  faceId: string(name='FaceId', description='faceId'),
+  imageUrl: string(name='ImageUrl', description='imageUrl'),
+  entityId: string(name='EntityId', description='entityId'),
+  extraData?: string(name='ExtraData', description='extraData'),
+}
+
+model AddFaceResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function addFace(request: AddFaceRequest, runtime: Util.RuntimeOptions): AddFaceResponse {
+  return _request('AddFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model AddFaceAdvanceRequest = {
+  imageUrlObject: readable(description='ImageUrlObject', name='ImageUrlObject'),
+  dbName: string(name='DbName', description='dbName'),
+  faceId: string(name='FaceId', description='faceId'),
+  entityId: string(name='EntityId', description='entityId'),
+  extraData?: string(name='ExtraData', description='extraData'),
+}
+
+async function addFaceAdvance(request: AddFaceAdvanceRequest, runtime: Util.RuntimeOptions): AddFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new OpenPlatform.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageUrlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var addFacereq = new AddFaceRequest{};
+  RPCUtil.convert(request, addFacereq);
+  addFacereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var addFaceResp = addFace(addFacereq, runtime);
+  return addFaceResp;
 }
 
 model RecognizeExpressionRequest = {
@@ -167,7 +1133,7 @@ model RecognizeExpressionResponse = {
 }
 
 async function recognizeExpression(request: RecognizeExpressionRequest, runtime: Util.RuntimeOptions): RecognizeExpressionResponse {
-  return _request('RecognizeExpression', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeExpression', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeExpressionAdvanceRequest = {
@@ -275,7 +1241,7 @@ model RecognizePublicFaceResponse = {
 }
 
 async function recognizePublicFace(request: RecognizePublicFaceRequest, runtime: Util.RuntimeOptions): RecognizePublicFaceResponse {
-  return _request('RecognizePublicFace', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizePublicFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectLivingFaceRequest = {
@@ -312,7 +1278,7 @@ model DetectLivingFaceResponse = {
 }
 
 async function detectLivingFace(request: DetectLivingFaceRequest, runtime: Util.RuntimeOptions): DetectLivingFaceResponse {
-  return _request('DetectLivingFace', 'HTTPS', 'POST', request, runtime);
+  return _request('DetectLivingFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectBodyCountRequest = {
@@ -327,7 +1293,7 @@ model DetectBodyCountResponse = {
 }
 
 async function detectBodyCount(request: DetectBodyCountRequest, runtime: Util.RuntimeOptions): DetectBodyCountResponse {
-  return _request('DetectBodyCount', 'HTTPS', 'POST', request, runtime);
+  return _request('DetectBodyCount', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectBodyCountAdvanceRequest = {
@@ -405,7 +1371,7 @@ model DetectMaskResponse = {
 }
 
 async function detectMask(request: DetectMaskRequest, runtime: Util.RuntimeOptions): DetectMaskResponse {
-  return _request('DetectMask', 'HTTPS', 'POST', request, runtime);
+  return _request('DetectMask', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectMaskAdvanceRequest = {
@@ -480,61 +1446,21 @@ model RecognizeFaceResponse = {
     faceCount: integer(name='FaceCount', description='faceCount'),
     landmarkCount: integer(name='LandmarkCount', description='landmarkCount'),
     denseFeatureLength: integer(name='DenseFeatureLength', description='denseFeatureLength'),
-    faceRectangles: [
-      {
-        faceRectangle: integer (name='FaceRectangle', description='FaceRectangle'),
-      }
-    ](name='FaceRectangles', description='faceRectangles'),
-    faceProbabilityList: [
-      {
-        faceProbability: float (name='FaceProbability', description='FaceProbability'),
-      }
-    ](name='FaceProbabilityList', description='faceProbabilityList'),
-    poseList: [
-      {
-        pose: float (name='Pose', description='Pose'),
-      }
-    ](name='PoseList', description='poseList'),
-    landmarks: [
-      {
-        landmark: float (name='Landmark', description='Landmark'),
-      }
-    ](name='Landmarks', description='landmarks'),
-    pupils: [
-      {
-        pupil: float (name='Pupil', description='Pupil'),
-      }
-    ](name='Pupils', description='pupils'),
-    genderList: [
-      {
-        gender: integer (name='Gender', description='Gender'),
-      }
-    ](name='GenderList', description='genderList'),
-    ageList: [
-      {
-        age: integer (name='Age', description='Age'),
-      }
-    ](name='AgeList', description='ageList'),
-    expressions: [
-      {
-        expression: integer (name='Expression', description='Expression'),
-      }
-    ](name='Expressions', description='expressions'),
-    glasses: [
-      {
-        glass: integer (name='Glass', description='Glass'),
-      }
-    ](name='Glasses', description='glasses'),
-    denseFeatures: [
-      {
-        denseFeature: string (name='DenseFeature', description='DenseFeature'),
-      }
-    ](name='DenseFeatures', description='denseFeatures'),
+    faceRectangles: [ integer ](name='FaceRectangles', description='faceRectangles'),
+    faceProbabilityList: [ float ](name='FaceProbabilityList', description='faceProbabilityList'),
+    poseList: [ float ](name='PoseList', description='poseList'),
+    landmarks: [ float ](name='Landmarks', description='landmarks'),
+    pupils: [ float ](name='Pupils', description='pupils'),
+    genderList: [ integer ](name='GenderList', description='genderList'),
+    ageList: [ integer ](name='AgeList', description='ageList'),
+    expressions: [ integer ](name='Expressions', description='expressions'),
+    glasses: [ integer ](name='Glasses', description='glasses'),
+    denseFeatures: [ string ](name='DenseFeatures', description='denseFeatures'),
   }(name='Data', description='data'),
 }
 
 async function recognizeFace(request: RecognizeFaceRequest, runtime: Util.RuntimeOptions): RecognizeFaceResponse {
-  return _request('RecognizeFace', 'HTTPS', 'POST', request, runtime);
+  return _request('RecognizeFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeFaceAdvanceRequest = {
@@ -608,26 +1534,14 @@ model CompareFaceResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
     confidence: float(name='Confidence', description='confidence'),
-    thresholds: [
-      {
-        threshold: float (name='Threshold', description='Threshold'),
-      }
-    ](name='Thresholds', description='thresholds'),
-    rectAList: [
-      {
-        rectA: integer (name='RectA', description='RectA'),
-      }
-    ](name='RectAList', description='rectAList'),
-    rectBList: [
-      {
-        rectB: integer (name='RectB', description='RectB'),
-      }
-    ](name='RectBList', description='rectBList'),
+    thresholds: [ float ](name='Thresholds', description='thresholds'),
+    rectAList: [ integer ](name='RectAList', description='rectAList'),
+    rectBList: [ integer ](name='RectBList', description='rectBList'),
   }(name='Data', description='data'),
 }
 
 async function compareFace(request: CompareFaceRequest, runtime: Util.RuntimeOptions): CompareFaceResponse {
-  return _request('CompareFace', 'HTTPS', 'POST', request, runtime);
+  return _request('CompareFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectFaceRequest = {
@@ -639,36 +1553,16 @@ model DetectFaceResponse = {
   data: {
     faceCount: integer(name='FaceCount', description='faceCount'),
     landmarkCount: integer(name='LandmarkCount', description='landmarkCount'),
-    faceRectangles: [
-      {
-        faceRectangle: integer (name='FaceRectangle', description='FaceRectangle'),
-      }
-    ](name='FaceRectangles', description='faceRectangles'),
-    faceProbabilityList: [
-      {
-        faceProbability: float (name='FaceProbability', description='FaceProbability'),
-      }
-    ](name='FaceProbabilityList', description='faceProbability'),
-    poseList: [
-      {
-        pose: float (name='Pose', description='Pose'),
-      }
-    ](name='PoseList', description='pose'),
-    landmarks: [
-      {
-        landmark: float (name='Landmark', description='Landmark'),
-      }
-    ](name='Landmarks', description='landmarks'),
-    pupils: [
-      {
-        pupil: float (name='Pupil', description='Pupil'),
-      }
-    ](name='Pupils', description='pupils'),
+    faceRectangles: [ integer ](name='FaceRectangles', description='faceRectangles'),
+    faceProbabilityList: [ float ](name='FaceProbabilityList', description='faceProbability'),
+    poseList: [ float ](name='PoseList', description='pose'),
+    landmarks: [ float ](name='Landmarks', description='landmarks'),
+    pupils: [ float ](name='Pupils', description='pupils'),
   }(name='Data', description='data'),
 }
 
 async function detectFace(request: DetectFaceRequest, runtime: Util.RuntimeOptions): DetectFaceResponse {
-  return _request('DetectFace', 'HTTPS', 'POST', request, runtime);
+  return _request('DetectFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectFaceAdvanceRequest = {
