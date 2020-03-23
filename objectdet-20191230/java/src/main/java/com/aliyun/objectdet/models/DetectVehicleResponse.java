@@ -17,18 +17,6 @@ public class DetectVehicleResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
-    public static class DetectVehicleResponseDataDetectObjectInfoListBoxes extends TeaModel {
-        @NameInMap("Box")
-        @Validation(required = true)
-        public Integer box;
-
-        public static DetectVehicleResponseDataDetectObjectInfoListBoxes build(java.util.Map<String, ?> map) throws Exception {
-            DetectVehicleResponseDataDetectObjectInfoListBoxes self = new DetectVehicleResponseDataDetectObjectInfoListBoxes();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class DetectVehicleResponseDataDetectObjectInfoList extends TeaModel {
         @NameInMap("Score")
         @Validation(required = true)
@@ -44,7 +32,7 @@ public class DetectVehicleResponse extends TeaModel {
 
         @NameInMap("Boxes")
         @Validation(required = true)
-        public java.util.List<DetectVehicleResponseDataDetectObjectInfoListBoxes> boxes;
+        public java.util.List<Integer> boxes;
 
         public static DetectVehicleResponseDataDetectObjectInfoList build(java.util.Map<String, ?> map) throws Exception {
             DetectVehicleResponseDataDetectObjectInfoList self = new DetectVehicleResponseDataDetectObjectInfoList();
