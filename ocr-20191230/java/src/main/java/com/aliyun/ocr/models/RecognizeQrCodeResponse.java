@@ -17,18 +17,6 @@ public class RecognizeQrCodeResponse extends TeaModel {
         return TeaModel.build(map, self);
     }
 
-    public static class RecognizeQrCodeResponseDataElementsResultsQrCodesData extends TeaModel {
-        @NameInMap("QrCodeData")
-        @Validation(required = true)
-        public String qrCodeData;
-
-        public static RecognizeQrCodeResponseDataElementsResultsQrCodesData build(java.util.Map<String, ?> map) throws Exception {
-            RecognizeQrCodeResponseDataElementsResultsQrCodesData self = new RecognizeQrCodeResponseDataElementsResultsQrCodesData();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
     public static class RecognizeQrCodeResponseDataElementsResults extends TeaModel {
         @NameInMap("Label")
         @Validation(required = true)
@@ -44,7 +32,7 @@ public class RecognizeQrCodeResponse extends TeaModel {
 
         @NameInMap("QrCodesData")
         @Validation(required = true)
-        public java.util.List<RecognizeQrCodeResponseDataElementsResultsQrCodesData> qrCodesData;
+        public java.util.List<String> qrCodesData;
 
         public static RecognizeQrCodeResponseDataElementsResults build(java.util.Map<String, ?> map) throws Exception {
             RecognizeQrCodeResponseDataElementsResults self = new RecognizeQrCodeResponseDataElementsResults();
