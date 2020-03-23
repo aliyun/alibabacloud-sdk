@@ -19,10 +19,7 @@ namespace AlibabaCloud.Imageenhan.Models
         public class RecolorImageResponseData : TeaModel {
             [NameInMap("ImageList")]
             [Validation(Required=true)]
-            public List<RecolorImageResponseDataImageList> ImageList { get; set; }
-            public class RecolorImageResponseDataImageList : TeaModel {
-                    public string ImageList { get; set; }
-            }
+            public List<string> ImageList { get; set; }
         };
 
     }

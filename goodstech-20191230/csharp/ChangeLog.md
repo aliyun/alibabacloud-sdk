@@ -1,3 +1,6 @@
+### 2020-03-23 Version 1.0.1
+* Supported parser 2.x
+
 ### 2020-02-28 Version 0.0.3
 * Recodegen
 

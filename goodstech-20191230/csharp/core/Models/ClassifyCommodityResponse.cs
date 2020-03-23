@@ -21,7 +21,7 @@ namespace AlibabaCloud.Goodstech.Models
             [Validation(Required=true)]
             public List<ClassifyCommodityResponseDataCategories> Categories { get; set; }
             public class ClassifyCommodityResponseDataCategories : TeaModel {
-                    public float Score { get; set; }
+                    public float? Score { get; set; }
                     public string CategoryName { get; set; }
                     public string CategoryId { get; set; }
             }

@@ -36,10 +36,7 @@ namespace AlibabaCloud.Ocr.Models
                                     public int? EndRow { get; set; }
                                     public int? Height { get; set; }
                                     public int? Width { get; set; }
-                                    public List<RecognizeTableResponseDataTablesTableRowsTableColumnsTexts> Texts { get; set; }
-                                    public class RecognizeTableResponseDataTablesTableRowsTableColumnsTexts : TeaModel {
-                                            public string Text { get; set; }
-                                    }
+                                    public List<string> Texts { get; set; }
                             }
                     }
             }
