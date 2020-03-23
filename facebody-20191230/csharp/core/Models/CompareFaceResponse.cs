@@ -22,22 +22,13 @@ namespace AlibabaCloud.Facebody.Models
             public float? Confidence { get; set; }
             [NameInMap("Thresholds")]
             [Validation(Required=true)]
-            public List<CompareFaceResponseDataThresholds> Thresholds { get; set; }
-            public class CompareFaceResponseDataThresholds : TeaModel {
-                    public float? Threshold { get; set; }
-            }
+            public List<string> Thresholds { get; set; }
             [NameInMap("RectAList")]
             [Validation(Required=true)]
-            public List<CompareFaceResponseDataRectAList> RectAList { get; set; }
-            public class CompareFaceResponseDataRectAList : TeaModel {
-                    public int? RectA { get; set; }
-            }
+            public List<string> RectAList { get; set; }
             [NameInMap("RectBList")]
             [Validation(Required=true)]
-            public List<CompareFaceResponseDataRectBList> RectBList { get; set; }
-            public class CompareFaceResponseDataRectBList : TeaModel {
-                    public int? RectB { get; set; }
-            }
+            public List<string> RectBList { get; set; }
         };
 
     }

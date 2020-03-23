@@ -23,14 +23,8 @@ namespace AlibabaCloud.Objectdet.Models
             public class RecognizeVehicleDamageResponseDataElements : TeaModel {
                     public float? Score { get; set; }
                     public string Type { get; set; }
-                    public List<RecognizeVehicleDamageResponseDataElementsScores> Scores { get; set; }
-                    public class RecognizeVehicleDamageResponseDataElementsScores : TeaModel {
-                            public float? Score { get; set; }
-                    }
-                    public List<RecognizeVehicleDamageResponseDataElementsBoxes> Boxes { get; set; }
-                    public class RecognizeVehicleDamageResponseDataElementsBoxes : TeaModel {
-                            public int? Box { get; set; }
-                    }
+                    public List<string> Scores { get; set; }
+                    public List<string> Boxes { get; set; }
             }
         };
 

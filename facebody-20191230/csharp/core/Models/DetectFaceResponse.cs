@@ -25,34 +25,19 @@ namespace AlibabaCloud.Facebody.Models
             public int? LandmarkCount { get; set; }
             [NameInMap("FaceRectangles")]
             [Validation(Required=true)]
-            public List<DetectFaceResponseDataFaceRectangles> FaceRectangles { get; set; }
-            public class DetectFaceResponseDataFaceRectangles : TeaModel {
-                    public int? FaceRectangle { get; set; }
-            }
+            public List<string> FaceRectangles { get; set; }
             [NameInMap("FaceProbabilityList")]
             [Validation(Required=true)]
-            public List<DetectFaceResponseDataFaceProbabilityList> FaceProbabilityList { get; set; }
-            public class DetectFaceResponseDataFaceProbabilityList : TeaModel {
-                    public float? FaceProbability { get; set; }
-            }
+            public List<string> FaceProbabilityList { get; set; }
             [NameInMap("PoseList")]
             [Validation(Required=true)]
-            public List<DetectFaceResponseDataPoseList> PoseList { get; set; }
-            public class DetectFaceResponseDataPoseList : TeaModel {
-                    public float? Pose { get; set; }
-            }
+            public List<string> PoseList { get; set; }
             [NameInMap("Landmarks")]
             [Validation(Required=true)]
-            public List<DetectFaceResponseDataLandmarks> Landmarks { get; set; }
-            public class DetectFaceResponseDataLandmarks : TeaModel {
-                    public float? Landmark { get; set; }
-            }
+            public List<string> Landmarks { get; set; }
             [NameInMap("Pupils")]
             [Validation(Required=true)]
-            public List<DetectFaceResponseDataPupils> Pupils { get; set; }
-            public class DetectFaceResponseDataPupils : TeaModel {
-                    public float? Pupil { get; set; }
-            }
+            public List<string> Pupils { get; set; }
         };
 
     }

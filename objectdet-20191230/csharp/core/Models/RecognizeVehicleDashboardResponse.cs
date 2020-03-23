@@ -24,10 +24,7 @@ namespace AlibabaCloud.Objectdet.Models
                     public float? Score { get; set; }
                     public string ClassName { get; set; }
                     public string Label { get; set; }
-                    public List<RecognizeVehicleDashboardResponseDataElementsBoxes> Boxes { get; set; }
-                    public class RecognizeVehicleDashboardResponseDataElementsBoxes : TeaModel {
-                            public float? Box { get; set; }
-                    }
+                    public List<string> Boxes { get; set; }
             }
         };
 

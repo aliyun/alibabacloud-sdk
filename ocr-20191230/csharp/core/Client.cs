@@ -84,7 +84,7 @@ namespace AlibabaCloud.Ocr
             this._openPlatformEndpoint = config.OpenPlatformEndpoint;
         }
 
-        public Dictionary<string, object> _request(string action, string protocol, string method, Dictionary<string, object> request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public Dictionary<string, object> _request(string action, string protocol, string method, string authType, Dictionary<string, object> query, Dictionary<string, object> body, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             Dictionary<string, object> runtime_ = new Dictionary<string, object>
             {
@@ -129,8 +129,6 @@ namespace AlibabaCloud.Ocr
                     request_.Protocol = AlibabaCloud.TeaUtil.Common.DefaultString(_protocol, protocol);
                     request_.Method = method;
                     request_.Pathname = "/";
-                    string accessKeyId = GetAccessKeyId();
-                    string accessKeySecret = GetAccessKeySecret();
                     request_.Query = AlibabaCloud.Commons.Common.Query(TeaConverter.merge<object>
                     (
                         new Dictionary<string, object>()
@@ -140,34 +138,44 @@ namespace AlibabaCloud.Ocr
                             {"RegionId", _regionId},
                             {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-12-30"},
-                            {"SignatureMethod", "HMAC-SHA1"},
-                            {"SignatureVersion", "1.0"},
                             {"SignatureNonce", AlibabaCloud.TeaUtil.Common.GetNonce()},
-                            {"AccessKeyId", accessKeyId},
                         },
-                        request
+                        query
                     ));
+                    if (!AlibabaCloud.TeaUtil.Common.IsUnset(body))
+                    {
+                        Dictionary<string, object> tmp = AlibabaCloud.TeaUtil.Common.AnyifyMapValue(AlibabaCloud.Commons.Common.Query(body));
+                        request_.Body = TeaCore.BytesReadable(AlibabaCloud.TeaUtil.Common.ToFormString(tmp));
+                    }
                     request_.Headers = new Dictionary<string, string>
                     {
                         {"host", AlibabaCloud.Commons.Common.GetHost("ocr", _regionId, _endpoint)},
                         {"user-agent", GetUserAgent()},
                     };
-                    request_.Query["Signature"] = AlibabaCloud.Commons.Common.GetSignature(request_, accessKeySecret);
+                    if (!AlibabaCloud.TeaUtil.Common.EqualString(authType, "Anonymous"))
+                    {
+                        string accessKeyId = GetAccessKeyId();
+                        string accessKeySecret = GetAccessKeySecret();
+                        request_.Query["SignatureMethod"] = "HMAC-SHA1";
+                        request_.Query["SignatureVersion"] = "1.0";
+                        request_.Query["AccessKeyId"] = accessKeyId;
+                        request_.Query["Signature"] = AlibabaCloud.Commons.Common.GetSignature(request_, accessKeySecret);
+                    }
                     _lastRequest = request_;
                     TeaResponse response_ = TeaCore.DoAction(request_, runtime_);
 
                     object obj = AlibabaCloud.TeaUtil.Common.ReadAsJSON(response_.Body);
-                    Dictionary<string, object> body = AlibabaCloud.TeaUtil.Common.AssertAsMap(obj);
+                    Dictionary<string, object> res = AlibabaCloud.TeaUtil.Common.AssertAsMap(obj);
                     if (AlibabaCloud.TeaUtil.Common.Is4xx(response_.StatusCode) || AlibabaCloud.TeaUtil.Common.Is5xx(response_.StatusCode))
                     {
                         throw new TeaException(new Dictionary<string, object>
                         {
-                            {"message", body["Message"]},
-                            {"data", body},
-                            {"code", body["Code"]},
+                            {"message", res["Message"]},
+                            {"data", res},
+                            {"code", res["Code"]},
                         });
                     }
-                    return body;
+                    return res;
                 }
                 catch (Exception e)
                 {
@@ -183,7 +191,7 @@ namespace AlibabaCloud.Ocr
             throw new TeaUnretryableException(_lastRequest, _lastException);
         }
 
-        public async Task<Dictionary<string, object>> _requestAsync(string action, string protocol, string method, Dictionary<string, object> request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<Dictionary<string, object>> _requestAsync(string action, string protocol, string method, string authType, Dictionary<string, object> query, Dictionary<string, object> body, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             Dictionary<string, object> runtime_ = new Dictionary<string, object>
             {
@@ -228,8 +236,6 @@ namespace AlibabaCloud.Ocr
                     request_.Protocol = AlibabaCloud.TeaUtil.Common.DefaultString(_protocol, protocol);
                     request_.Method = method;
                     request_.Pathname = "/";
-                    string accessKeyId = await GetAccessKeyIdAsync();
-                    string accessKeySecret = await GetAccessKeySecretAsync();
                     request_.Query = AlibabaCloud.Commons.Common.Query(TeaConverter.merge<object>
                     (
                         new Dictionary<string, object>()
@@ -239,34 +245,44 @@ namespace AlibabaCloud.Ocr
                             {"RegionId", _regionId},
                             {"Timestamp", AlibabaCloud.Commons.Common.GetTimestamp()},
                             {"Version", "2019-12-30"},
-                            {"SignatureMethod", "HMAC-SHA1"},
-                            {"SignatureVersion", "1.0"},
                             {"SignatureNonce", AlibabaCloud.TeaUtil.Common.GetNonce()},
-                            {"AccessKeyId", accessKeyId},
                         },
-                        request
+                        query
                     ));
+                    if (!AlibabaCloud.TeaUtil.Common.IsUnset(body))
+                    {
+                        Dictionary<string, object> tmp = AlibabaCloud.TeaUtil.Common.AnyifyMapValue(AlibabaCloud.Commons.Common.Query(body));
+                        request_.Body = TeaCore.BytesReadable(AlibabaCloud.TeaUtil.Common.ToFormString(tmp));
+                    }
                     request_.Headers = new Dictionary<string, string>
                     {
                         {"host", AlibabaCloud.Commons.Common.GetHost("ocr", _regionId, _endpoint)},
                         {"user-agent", GetUserAgent()},
                     };
-                    request_.Query["Signature"] = AlibabaCloud.Commons.Common.GetSignature(request_, accessKeySecret);
+                    if (!AlibabaCloud.TeaUtil.Common.EqualString(authType, "Anonymous"))
+                    {
+                        string accessKeyId = await GetAccessKeyIdAsync();
+                        string accessKeySecret = await GetAccessKeySecretAsync();
+                        request_.Query["SignatureMethod"] = "HMAC-SHA1";
+                        request_.Query["SignatureVersion"] = "1.0";
+                        request_.Query["AccessKeyId"] = accessKeyId;
+                        request_.Query["Signature"] = AlibabaCloud.Commons.Common.GetSignature(request_, accessKeySecret);
+                    }
                     _lastRequest = request_;
                     TeaResponse response_ = await TeaCore.DoActionAsync(request_, runtime_);
 
                     object obj = AlibabaCloud.TeaUtil.Common.ReadAsJSON(response_.Body);
-                    Dictionary<string, object> body = AlibabaCloud.TeaUtil.Common.AssertAsMap(obj);
+                    Dictionary<string, object> res = AlibabaCloud.TeaUtil.Common.AssertAsMap(obj);
                     if (AlibabaCloud.TeaUtil.Common.Is4xx(response_.StatusCode) || AlibabaCloud.TeaUtil.Common.Is5xx(response_.StatusCode))
                     {
                         throw new TeaException(new Dictionary<string, object>
                         {
-                            {"message", body["Message"]},
-                            {"data", body},
-                            {"code", body["Code"]},
+                            {"message", res["Message"]},
+                            {"data", res},
+                            {"code", res["Code"]},
                         });
                     }
-                    return body;
+                    return res;
                 }
                 catch (Exception e)
                 {
@@ -282,28 +298,29 @@ namespace AlibabaCloud.Ocr
             throw new TeaUnretryableException(_lastRequest, _lastException);
         }
 
-        public RecognizeQrCodeResponse RecognizeQrCode(RecognizeQrCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public GetAsyncJobResultResponse GetAsyncJobResult(GetAsyncJobResultRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeQrCodeResponse>(_request("RecognizeQrCode", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<GetAsyncJobResultResponse>(_request("GetAsyncJobResult", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
-        public async Task<RecognizeQrCodeResponse> RecognizeQrCodeAsync(RecognizeQrCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<GetAsyncJobResultResponse> GetAsyncJobResultAsync(GetAsyncJobResultRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeQrCodeResponse>(await _requestAsync("RecognizeQrCode", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<GetAsyncJobResultResponse>(await _requestAsync("GetAsyncJobResult", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
-        public RecognizeVATInvoiceResponse RecognizeVATInvoice(RecognizeVATInvoiceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public TrimDocumentResponse TrimDocument(TrimDocumentRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeVATInvoiceResponse>(_request("RecognizeVATInvoice", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<TrimDocumentResponse>(_request("TrimDocument", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
-        public async Task<RecognizeVATInvoiceResponse> RecognizeVATInvoiceAsync(RecognizeVATInvoiceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<TrimDocumentResponse> TrimDocumentAsync(TrimDocumentRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeVATInvoiceResponse>(await _requestAsync("RecognizeVATInvoice", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<TrimDocumentResponse>(await _requestAsync("TrimDocument", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
-        public RecognizeVATInvoiceResponse RecognizeVATInvoiceAdvance(RecognizeVATInvoiceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public TrimDocumentResponse TrimDocumentAdvance(TrimDocumentAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -322,6 +339,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -355,6 +373,697 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            TrimDocumentRequest trimDocumentreq = new TrimDocumentRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, trimDocumentreq);
+            trimDocumentreq.FileURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            TrimDocumentResponse trimDocumentResp = TrimDocument(trimDocumentreq, runtime);
+            return trimDocumentResp;
+        }
+
+        public async Task<TrimDocumentResponse> TrimDocumentAdvanceAsync(TrimDocumentAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = await this._credential.GetAccessKeyIdAsync();
+            string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.FileURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            TrimDocumentRequest trimDocumentreq = new TrimDocumentRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, trimDocumentreq);
+            trimDocumentreq.FileURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            TrimDocumentResponse trimDocumentResp = await TrimDocumentAsync(trimDocumentreq, runtime);
+            return trimDocumentResp;
+        }
+
+        public RecognizeChinapassportResponse RecognizeChinapassport(RecognizeChinapassportRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeChinapassportResponse>(_request("RecognizeChinapassport", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeChinapassportResponse> RecognizeChinapassportAsync(RecognizeChinapassportRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeChinapassportResponse>(await _requestAsync("RecognizeChinapassport", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RecognizeChinapassportResponse RecognizeChinapassportAdvance(RecognizeChinapassportAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = this._credential.GetAccessKeyId();
+            string accessKeySecret = this._credential.GetAccessKeySecret();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizeChinapassportRequest recognizeChinapassportreq = new RecognizeChinapassportRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeChinapassportreq);
+            recognizeChinapassportreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeChinapassportResponse recognizeChinapassportResp = RecognizeChinapassport(recognizeChinapassportreq, runtime);
+            return recognizeChinapassportResp;
+        }
+
+        public async Task<RecognizeChinapassportResponse> RecognizeChinapassportAdvanceAsync(RecognizeChinapassportAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = await this._credential.GetAccessKeyIdAsync();
+            string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizeChinapassportRequest recognizeChinapassportreq = new RecognizeChinapassportRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeChinapassportreq);
+            recognizeChinapassportreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeChinapassportResponse recognizeChinapassportResp = await RecognizeChinapassportAsync(recognizeChinapassportreq, runtime);
+            return recognizeChinapassportResp;
+        }
+
+        public RecognizeVerificationcodeResponse RecognizeVerificationcode(RecognizeVerificationcodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeVerificationcodeResponse>(_request("RecognizeVerificationcode", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeVerificationcodeResponse> RecognizeVerificationcodeAsync(RecognizeVerificationcodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeVerificationcodeResponse>(await _requestAsync("RecognizeVerificationcode", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RecognizeVerificationcodeResponse RecognizeVerificationcodeAdvance(RecognizeVerificationcodeAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = this._credential.GetAccessKeyId();
+            string accessKeySecret = this._credential.GetAccessKeySecret();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizeVerificationcodeRequest recognizeVerificationcodereq = new RecognizeVerificationcodeRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeVerificationcodereq);
+            recognizeVerificationcodereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeVerificationcodeResponse recognizeVerificationcodeResp = RecognizeVerificationcode(recognizeVerificationcodereq, runtime);
+            return recognizeVerificationcodeResp;
+        }
+
+        public async Task<RecognizeVerificationcodeResponse> RecognizeVerificationcodeAdvanceAsync(RecognizeVerificationcodeAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = await this._credential.GetAccessKeyIdAsync();
+            string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizeVerificationcodeRequest recognizeVerificationcodereq = new RecognizeVerificationcodeRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeVerificationcodereq);
+            recognizeVerificationcodereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeVerificationcodeResponse recognizeVerificationcodeResp = await RecognizeVerificationcodeAsync(recognizeVerificationcodereq, runtime);
+            return recognizeVerificationcodeResp;
+        }
+
+        public RecognizePassportMRZResponse RecognizePassportMRZ(RecognizePassportMRZRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizePassportMRZResponse>(_request("RecognizePassportMRZ", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizePassportMRZResponse> RecognizePassportMRZAsync(RecognizePassportMRZRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizePassportMRZResponse>(await _requestAsync("RecognizePassportMRZ", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RecognizePassportMRZResponse RecognizePassportMRZAdvance(RecognizePassportMRZAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = this._credential.GetAccessKeyId();
+            string accessKeySecret = this._credential.GetAccessKeySecret();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizePassportMRZRequest recognizePassportMRZreq = new RecognizePassportMRZRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizePassportMRZreq);
+            recognizePassportMRZreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizePassportMRZResponse recognizePassportMRZResp = RecognizePassportMRZ(recognizePassportMRZreq, runtime);
+            return recognizePassportMRZResp;
+        }
+
+        public async Task<RecognizePassportMRZResponse> RecognizePassportMRZAdvanceAsync(RecognizePassportMRZAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = await this._credential.GetAccessKeyIdAsync();
+            string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizePassportMRZRequest recognizePassportMRZreq = new RecognizePassportMRZRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizePassportMRZreq);
+            recognizePassportMRZreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizePassportMRZResponse recognizePassportMRZResp = await RecognizePassportMRZAsync(recognizePassportMRZreq, runtime);
+            return recognizePassportMRZResp;
+        }
+
+        public RecognizeTakeoutOrderResponse RecognizeTakeoutOrder(RecognizeTakeoutOrderRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeTakeoutOrderResponse>(_request("RecognizeTakeoutOrder", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeTakeoutOrderResponse> RecognizeTakeoutOrderAsync(RecognizeTakeoutOrderRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeTakeoutOrderResponse>(await _requestAsync("RecognizeTakeoutOrder", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RecognizeTakeoutOrderResponse RecognizeTakeoutOrderAdvance(RecognizeTakeoutOrderAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = this._credential.GetAccessKeyId();
+            string accessKeySecret = this._credential.GetAccessKeySecret();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizeTakeoutOrderRequest recognizeTakeoutOrderreq = new RecognizeTakeoutOrderRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeTakeoutOrderreq);
+            recognizeTakeoutOrderreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeTakeoutOrderResponse recognizeTakeoutOrderResp = RecognizeTakeoutOrder(recognizeTakeoutOrderreq, runtime);
+            return recognizeTakeoutOrderResp;
+        }
+
+        public async Task<RecognizeTakeoutOrderResponse> RecognizeTakeoutOrderAdvanceAsync(RecognizeTakeoutOrderAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = await this._credential.GetAccessKeyIdAsync();
+            string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.ImageURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
+            RecognizeTakeoutOrderRequest recognizeTakeoutOrderreq = new RecognizeTakeoutOrderRequest() { };
+            AlibabaCloud.Commons.Common.Convert(request, recognizeTakeoutOrderreq);
+            recognizeTakeoutOrderreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
+            RecognizeTakeoutOrderResponse recognizeTakeoutOrderResp = await RecognizeTakeoutOrderAsync(recognizeTakeoutOrderreq, runtime);
+            return recognizeTakeoutOrderResp;
+        }
+
+        public RecognizeQrCodeResponse RecognizeQrCode(RecognizeQrCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeQrCodeResponse>(_request("RecognizeQrCode", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeQrCodeResponse> RecognizeQrCodeAsync(RecognizeQrCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeQrCodeResponse>(await _requestAsync("RecognizeQrCode", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RecognizeVATInvoiceResponse RecognizeVATInvoice(RecognizeVATInvoiceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeVATInvoiceResponse>(_request("RecognizeVATInvoice", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public async Task<RecognizeVATInvoiceResponse> RecognizeVATInvoiceAsync(RecognizeVATInvoiceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            return TeaModel.ToObject<RecognizeVATInvoiceResponse>(await _requestAsync("RecognizeVATInvoice", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+        }
+
+        public RecognizeVATInvoiceResponse RecognizeVATInvoiceAdvance(RecognizeVATInvoiceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            // Step 0: init client
+            string accessKeyId = this._credential.GetAccessKeyId();
+            string accessKeySecret = this._credential.GetAccessKeySecret();
+            AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
+            {
+                AccessKeyId = accessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = "openplatform.aliyuncs.com",
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Client authClient = new AlibabaCloud.SDK.OpenPlatform.Client(authConfig);
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest authRequest = new AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadRequest
+            {
+                Product = "ocr",
+                RegionId = _regionId,
+            };
+            AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
+            AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                AccessKeySecret = accessKeySecret,
+                Type = "access_key",
+                Endpoint = AlibabaCloud.Commons.Common.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, _endpointType),
+                Protocol = _protocol,
+                RegionId = _regionId,
+            };
+            AlibabaCloud.OSS.Client ossClient = new AlibabaCloud.OSS.Client(ossConfig);
+            AlibabaCloud.SDK.TeaFileform.Models.FileField fileObj = new AlibabaCloud.SDK.TeaFileform.Models.FileField
+            {
+                Filename = authResponse.ObjectKey,
+                Content = request.FileURLObject,
+                ContentType = "",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader ossHeader = new AlibabaCloud.OSS.Models.PostObjectRequest.PostObjectRequestHeader
+            {
+                AccessKeyId = authResponse.AccessKeyId,
+                Policy = authResponse.EncodedPolicy,
+                Signature = authResponse.Signature,
+                Key = authResponse.ObjectKey,
+                File = fileObj,
+                SuccessActionStatus = "201",
+            };
+            AlibabaCloud.OSS.Models.PostObjectRequest uploadRequest = new AlibabaCloud.OSS.Models.PostObjectRequest
+            {
+                BucketName = authResponse.Bucket,
+                Header = ossHeader,
+            };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
+            ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeVATInvoiceRequest recognizeVATInvoicereq = new RecognizeVATInvoiceRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeVATInvoicereq);
             recognizeVATInvoicereq.FileURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -364,6 +1073,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeVATInvoiceResponse> RecognizeVATInvoiceAdvanceAsync(RecognizeVATInvoiceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -382,6 +1092,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -415,6 +1126,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeVATInvoiceRequest recognizeVATInvoicereq = new RecognizeVATInvoiceRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeVATInvoicereq);
             recognizeVATInvoicereq.FileURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -424,16 +1136,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeCharacterResponse RecognizeCharacter(RecognizeCharacterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeCharacterResponse>(_request("RecognizeCharacter", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeCharacterResponse>(_request("RecognizeCharacter", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeCharacterResponse> RecognizeCharacterAsync(RecognizeCharacterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeCharacterResponse>(await _requestAsync("RecognizeCharacter", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeCharacterResponse>(await _requestAsync("RecognizeCharacter", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeCharacterResponse RecognizeCharacterAdvance(RecognizeCharacterAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -452,6 +1165,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -485,6 +1199,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeCharacterRequest recognizeCharacterreq = new RecognizeCharacterRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeCharacterreq);
             recognizeCharacterreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -494,6 +1209,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeCharacterResponse> RecognizeCharacterAdvanceAsync(RecognizeCharacterAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -512,6 +1228,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -545,6 +1262,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeCharacterRequest recognizeCharacterreq = new RecognizeCharacterRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeCharacterreq);
             recognizeCharacterreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -554,16 +1272,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeTaxiInvoiceResponse RecognizeTaxiInvoice(RecognizeTaxiInvoiceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeTaxiInvoiceResponse>(_request("RecognizeTaxiInvoice", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeTaxiInvoiceResponse>(_request("RecognizeTaxiInvoice", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeTaxiInvoiceResponse> RecognizeTaxiInvoiceAsync(RecognizeTaxiInvoiceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeTaxiInvoiceResponse>(await _requestAsync("RecognizeTaxiInvoice", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeTaxiInvoiceResponse>(await _requestAsync("RecognizeTaxiInvoice", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeTaxiInvoiceResponse RecognizeTaxiInvoiceAdvance(RecognizeTaxiInvoiceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -582,6 +1301,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -615,6 +1335,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeTaxiInvoiceRequest recognizeTaxiInvoicereq = new RecognizeTaxiInvoiceRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeTaxiInvoicereq);
             recognizeTaxiInvoicereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -624,6 +1345,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeTaxiInvoiceResponse> RecognizeTaxiInvoiceAdvanceAsync(RecognizeTaxiInvoiceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -642,6 +1364,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -675,6 +1398,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeTaxiInvoiceRequest recognizeTaxiInvoicereq = new RecognizeTaxiInvoiceRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeTaxiInvoicereq);
             recognizeTaxiInvoicereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -684,16 +1408,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeIdentityCardResponse RecognizeIdentityCard(RecognizeIdentityCardRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeIdentityCardResponse>(_request("RecognizeIdentityCard", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeIdentityCardResponse>(_request("RecognizeIdentityCard", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeIdentityCardResponse> RecognizeIdentityCardAsync(RecognizeIdentityCardRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeIdentityCardResponse>(await _requestAsync("RecognizeIdentityCard", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeIdentityCardResponse>(await _requestAsync("RecognizeIdentityCard", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeIdentityCardResponse RecognizeIdentityCardAdvance(RecognizeIdentityCardAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -712,6 +1437,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -745,6 +1471,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeIdentityCardRequest recognizeIdentityCardreq = new RecognizeIdentityCardRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeIdentityCardreq);
             recognizeIdentityCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -754,6 +1481,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeIdentityCardResponse> RecognizeIdentityCardAdvanceAsync(RecognizeIdentityCardAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -772,6 +1500,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -805,6 +1534,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeIdentityCardRequest recognizeIdentityCardreq = new RecognizeIdentityCardRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeIdentityCardreq);
             recognizeIdentityCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -814,16 +1544,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeLicensePlateResponse RecognizeLicensePlate(RecognizeLicensePlateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeLicensePlateResponse>(_request("RecognizeLicensePlate", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeLicensePlateResponse>(_request("RecognizeLicensePlate", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeLicensePlateResponse> RecognizeLicensePlateAsync(RecognizeLicensePlateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeLicensePlateResponse>(await _requestAsync("RecognizeLicensePlate", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeLicensePlateResponse>(await _requestAsync("RecognizeLicensePlate", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeLicensePlateResponse RecognizeLicensePlateAdvance(RecognizeLicensePlateAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -842,6 +1573,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -875,6 +1607,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeLicensePlateRequest recognizeLicensePlatereq = new RecognizeLicensePlateRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeLicensePlatereq);
             recognizeLicensePlatereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -884,6 +1617,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeLicensePlateResponse> RecognizeLicensePlateAdvanceAsync(RecognizeLicensePlateAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -902,6 +1636,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -935,6 +1670,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeLicensePlateRequest recognizeLicensePlatereq = new RecognizeLicensePlateRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeLicensePlatereq);
             recognizeLicensePlatereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -944,16 +1680,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeTableResponse RecognizeTable(RecognizeTableRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeTableResponse>(_request("RecognizeTable", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeTableResponse>(_request("RecognizeTable", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeTableResponse> RecognizeTableAsync(RecognizeTableRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeTableResponse>(await _requestAsync("RecognizeTable", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeTableResponse>(await _requestAsync("RecognizeTable", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeTableResponse RecognizeTableAdvance(RecognizeTableAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -972,6 +1709,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1005,6 +1743,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeTableRequest recognizeTablereq = new RecognizeTableRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeTablereq);
             recognizeTablereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1014,6 +1753,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeTableResponse> RecognizeTableAdvanceAsync(RecognizeTableAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1032,6 +1772,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1065,6 +1806,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeTableRequest recognizeTablereq = new RecognizeTableRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeTablereq);
             recognizeTablereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1074,16 +1816,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeDrivingLicenseResponse RecognizeDrivingLicense(RecognizeDrivingLicenseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeDrivingLicenseResponse>(_request("RecognizeDrivingLicense", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeDrivingLicenseResponse>(_request("RecognizeDrivingLicense", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeDrivingLicenseResponse> RecognizeDrivingLicenseAsync(RecognizeDrivingLicenseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeDrivingLicenseResponse>(await _requestAsync("RecognizeDrivingLicense", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeDrivingLicenseResponse>(await _requestAsync("RecognizeDrivingLicense", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeDrivingLicenseResponse RecognizeDrivingLicenseAdvance(RecognizeDrivingLicenseAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1102,6 +1845,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1135,6 +1879,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeDrivingLicenseRequest recognizeDrivingLicensereq = new RecognizeDrivingLicenseRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeDrivingLicensereq);
             recognizeDrivingLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1144,6 +1889,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeDrivingLicenseResponse> RecognizeDrivingLicenseAdvanceAsync(RecognizeDrivingLicenseAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1162,6 +1908,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1195,6 +1942,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeDrivingLicenseRequest recognizeDrivingLicensereq = new RecognizeDrivingLicenseRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeDrivingLicensereq);
             recognizeDrivingLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1204,16 +1952,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeBankCardResponse RecognizeBankCard(RecognizeBankCardRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeBankCardResponse>(_request("RecognizeBankCard", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeBankCardResponse>(_request("RecognizeBankCard", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeBankCardResponse> RecognizeBankCardAsync(RecognizeBankCardRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeBankCardResponse>(await _requestAsync("RecognizeBankCard", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeBankCardResponse>(await _requestAsync("RecognizeBankCard", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeBankCardResponse RecognizeBankCardAdvance(RecognizeBankCardAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1232,6 +1981,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1265,6 +2015,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeBankCardRequest recognizeBankCardreq = new RecognizeBankCardRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeBankCardreq);
             recognizeBankCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1274,6 +2025,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeBankCardResponse> RecognizeBankCardAdvanceAsync(RecognizeBankCardAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1292,6 +2044,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1325,6 +2078,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeBankCardRequest recognizeBankCardreq = new RecognizeBankCardRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeBankCardreq);
             recognizeBankCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1334,16 +2088,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeTrainTicketResponse RecognizeTrainTicket(RecognizeTrainTicketRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeTrainTicketResponse>(_request("RecognizeTrainTicket", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeTrainTicketResponse>(_request("RecognizeTrainTicket", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeTrainTicketResponse> RecognizeTrainTicketAsync(RecognizeTrainTicketRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeTrainTicketResponse>(await _requestAsync("RecognizeTrainTicket", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeTrainTicketResponse>(await _requestAsync("RecognizeTrainTicket", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeTrainTicketResponse RecognizeTrainTicketAdvance(RecognizeTrainTicketAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1362,6 +2117,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1395,6 +2151,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeTrainTicketRequest recognizeTrainTicketreq = new RecognizeTrainTicketRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeTrainTicketreq);
             recognizeTrainTicketreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1404,6 +2161,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeTrainTicketResponse> RecognizeTrainTicketAdvanceAsync(RecognizeTrainTicketAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1422,6 +2180,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1455,6 +2214,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeTrainTicketRequest recognizeTrainTicketreq = new RecognizeTrainTicketRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeTrainTicketreq);
             recognizeTrainTicketreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1464,16 +2224,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeDriverLicenseResponse RecognizeDriverLicense(RecognizeDriverLicenseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeDriverLicenseResponse>(_request("RecognizeDriverLicense", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeDriverLicenseResponse>(_request("RecognizeDriverLicense", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeDriverLicenseResponse> RecognizeDriverLicenseAsync(RecognizeDriverLicenseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeDriverLicenseResponse>(await _requestAsync("RecognizeDriverLicense", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeDriverLicenseResponse>(await _requestAsync("RecognizeDriverLicense", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeDriverLicenseResponse RecognizeDriverLicenseAdvance(RecognizeDriverLicenseAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1492,6 +2253,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1525,6 +2287,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeDriverLicenseRequest recognizeDriverLicensereq = new RecognizeDriverLicenseRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeDriverLicensereq);
             recognizeDriverLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1534,6 +2297,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeDriverLicenseResponse> RecognizeDriverLicenseAdvanceAsync(RecognizeDriverLicenseAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1552,6 +2316,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1585,6 +2350,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeDriverLicenseRequest recognizeDriverLicensereq = new RecognizeDriverLicenseRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeDriverLicensereq);
             recognizeDriverLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1594,16 +2360,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeAccountPageResponse RecognizeAccountPage(RecognizeAccountPageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeAccountPageResponse>(_request("RecognizeAccountPage", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeAccountPageResponse>(_request("RecognizeAccountPage", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeAccountPageResponse> RecognizeAccountPageAsync(RecognizeAccountPageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeAccountPageResponse>(await _requestAsync("RecognizeAccountPage", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeAccountPageResponse>(await _requestAsync("RecognizeAccountPage", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeAccountPageResponse RecognizeAccountPageAdvance(RecognizeAccountPageAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1622,6 +2389,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1655,6 +2423,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeAccountPageRequest recognizeAccountPagereq = new RecognizeAccountPageRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeAccountPagereq);
             recognizeAccountPagereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1664,6 +2433,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeAccountPageResponse> RecognizeAccountPageAdvanceAsync(RecognizeAccountPageAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1682,6 +2452,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1715,6 +2486,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeAccountPageRequest recognizeAccountPagereq = new RecognizeAccountPageRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeAccountPagereq);
             recognizeAccountPagereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1724,16 +2496,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeStampResponse RecognizeStamp(RecognizeStampRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeStampResponse>(_request("RecognizeStamp", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeStampResponse>(_request("RecognizeStamp", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeStampResponse> RecognizeStampAsync(RecognizeStampRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeStampResponse>(await _requestAsync("RecognizeStamp", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeStampResponse>(await _requestAsync("RecognizeStamp", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeStampResponse RecognizeStampAdvance(RecognizeStampAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1752,6 +2525,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1785,6 +2559,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeStampRequest recognizeStampreq = new RecognizeStampRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeStampreq);
             recognizeStampreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1794,6 +2569,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeStampResponse> RecognizeStampAdvanceAsync(RecognizeStampAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1812,6 +2588,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1845,6 +2622,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeStampRequest recognizeStampreq = new RecognizeStampRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeStampreq);
             recognizeStampreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1854,16 +2632,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeBusinessCardResponse RecognizeBusinessCard(RecognizeBusinessCardRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeBusinessCardResponse>(_request("RecognizeBusinessCard", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeBusinessCardResponse>(_request("RecognizeBusinessCard", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeBusinessCardResponse> RecognizeBusinessCardAsync(RecognizeBusinessCardRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeBusinessCardResponse>(await _requestAsync("RecognizeBusinessCard", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeBusinessCardResponse>(await _requestAsync("RecognizeBusinessCard", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeBusinessCardResponse RecognizeBusinessCardAdvance(RecognizeBusinessCardAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1882,6 +2661,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1915,6 +2695,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeBusinessCardRequest recognizeBusinessCardreq = new RecognizeBusinessCardRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeBusinessCardreq);
             recognizeBusinessCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1924,6 +2705,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeBusinessCardResponse> RecognizeBusinessCardAdvanceAsync(RecognizeBusinessCardAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -1942,6 +2724,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -1975,6 +2758,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeBusinessCardRequest recognizeBusinessCardreq = new RecognizeBusinessCardRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeBusinessCardreq);
             recognizeBusinessCardreq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -1984,16 +2768,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeVINCodeResponse RecognizeVINCode(RecognizeVINCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeVINCodeResponse>(_request("RecognizeVINCode", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeVINCodeResponse>(_request("RecognizeVINCode", "HTTPS", "POST", "AK", request.ToMap(), null, runtime));
         }
 
         public async Task<RecognizeVINCodeResponse> RecognizeVINCodeAsync(RecognizeVINCodeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeVINCodeResponse>(await _requestAsync("RecognizeVINCode", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeVINCodeResponse>(await _requestAsync("RecognizeVINCode", "HTTPS", "POST", "AK", request.ToMap(), null, runtime));
         }
 
         public RecognizeVINCodeResponse RecognizeVINCodeAdvance(RecognizeVINCodeAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -2012,6 +2797,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -2045,6 +2831,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeVINCodeRequest recognizeVINCodereq = new RecognizeVINCodeRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeVINCodereq);
             recognizeVINCodereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -2054,6 +2841,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeVINCodeResponse> RecognizeVINCodeAdvanceAsync(RecognizeVINCodeAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -2072,6 +2860,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -2105,6 +2894,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeVINCodeRequest recognizeVINCodereq = new RecognizeVINCodeRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeVINCodereq);
             recognizeVINCodereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -2114,16 +2904,17 @@ namespace AlibabaCloud.Ocr
 
         public RecognizeBusinessLicenseResponse RecognizeBusinessLicense(RecognizeBusinessLicenseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeBusinessLicenseResponse>(_request("RecognizeBusinessLicense", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeBusinessLicenseResponse>(_request("RecognizeBusinessLicense", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeBusinessLicenseResponse> RecognizeBusinessLicenseAsync(RecognizeBusinessLicenseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
-            return TeaModel.ToObject<RecognizeBusinessLicenseResponse>(await _requestAsync("RecognizeBusinessLicense", "HTTPS", "POST", request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeBusinessLicenseResponse>(await _requestAsync("RecognizeBusinessLicense", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeBusinessLicenseResponse RecognizeBusinessLicenseAdvance(RecognizeBusinessLicenseAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -2142,6 +2933,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -2175,6 +2967,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeBusinessLicenseRequest recognizeBusinessLicensereq = new RecognizeBusinessLicenseRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeBusinessLicensereq);
             recognizeBusinessLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
@@ -2184,6 +2977,7 @@ namespace AlibabaCloud.Ocr
 
         public async Task<RecognizeBusinessLicenseResponse> RecognizeBusinessLicenseAdvanceAsync(RecognizeBusinessLicenseAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -2202,6 +2996,7 @@ namespace AlibabaCloud.Ocr
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -2235,6 +3030,7 @@ namespace AlibabaCloud.Ocr
             AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
+            // Step 2: request final api
             RecognizeBusinessLicenseRequest recognizeBusinessLicensereq = new RecognizeBusinessLicenseRequest() { };
             AlibabaCloud.Commons.Common.Convert(request, recognizeBusinessLicensereq);
             recognizeBusinessLicensereq.ImageURL = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;

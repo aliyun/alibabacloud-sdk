@@ -22,46 +22,25 @@ namespace AlibabaCloud.Ocr.Models
             public string Name { get; set; }
             [NameInMap("Companies")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataCompanies> Companies { get; set; }
-            public class RecognizeBusinessCardResponseDataCompanies : TeaModel {
-                    public string Company { get; set; }
-            }
+            public List<string> Companies { get; set; }
             [NameInMap("Departments")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataDepartments> Departments { get; set; }
-            public class RecognizeBusinessCardResponseDataDepartments : TeaModel {
-                    public string Department { get; set; }
-            }
+            public List<string> Departments { get; set; }
             [NameInMap("Titles")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataTitles> Titles { get; set; }
-            public class RecognizeBusinessCardResponseDataTitles : TeaModel {
-                    public string Title { get; set; }
-            }
+            public List<string> Titles { get; set; }
             [NameInMap("CellPhoneNumbers")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataCellPhoneNumbers> CellPhoneNumbers { get; set; }
-            public class RecognizeBusinessCardResponseDataCellPhoneNumbers : TeaModel {
-                    public string CellPhoneNumber { get; set; }
-            }
+            public List<string> CellPhoneNumbers { get; set; }
             [NameInMap("OfficePhoneNumbers")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataOfficePhoneNumbers> OfficePhoneNumbers { get; set; }
-            public class RecognizeBusinessCardResponseDataOfficePhoneNumbers : TeaModel {
-                    public string OfficePhoneNumber { get; set; }
-            }
+            public List<string> OfficePhoneNumbers { get; set; }
             [NameInMap("Addresses")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataAddresses> Addresses { get; set; }
-            public class RecognizeBusinessCardResponseDataAddresses : TeaModel {
-                    public string Address { get; set; }
-            }
+            public List<string> Addresses { get; set; }
             [NameInMap("Emails")]
             [Validation(Required=true)]
-            public List<RecognizeBusinessCardResponseDataEmails> Emails { get; set; }
-            public class RecognizeBusinessCardResponseDataEmails : TeaModel {
-                    public string Email { get; set; }
-            }
+            public List<string> Emails { get; set; }
         };
 
     }

@@ -20,6 +20,27 @@ namespace AlibabaCloud.Imageenhan.Models
             [NameInMap("Url")]
             [Validation(Required=true)]
             public string Url { get; set; }
+            [NameInMap("RetainLocation")]
+            [Validation(Required=true)]
+            public ChangeImageSizeResponseDataRetainLocation RetainLocation { get; set; }
+            public class ChangeImageSizeResponseDataRetainLocation : TeaModel {
+                [NameInMap("X")]
+                [Validation(Required=true)]
+                public int? X { get; set; }
+
+                [NameInMap("Y")]
+                [Validation(Required=true)]
+                public int? Y { get; set; }
+
+                [NameInMap("Width")]
+                [Validation(Required=true)]
+                public int? Width { get; set; }
+
+                [NameInMap("Height")]
+                [Validation(Required=true)]
+                public int? Height { get; set; }
+
+            }
         };
 
     }

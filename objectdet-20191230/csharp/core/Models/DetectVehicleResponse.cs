@@ -30,10 +30,7 @@ namespace AlibabaCloud.Objectdet.Models
                     public float? Score { get; set; }
                     public string Type { get; set; }
                     public int? Id { get; set; }
-                    public List<DetectVehicleResponseDataDetectObjectInfoListBoxes> Boxes { get; set; }
-                    public class DetectVehicleResponseDataDetectObjectInfoListBoxes : TeaModel {
-                            public int? Box { get; set; }
-                    }
+                    public List<string> Boxes { get; set; }
             }
         };
 
