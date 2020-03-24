@@ -157,20 +157,17 @@ class ImageSearch
                 $_request->pathname = '/';
                 $accessKeyId        = $this->getAccessKeyId();
                 $accessKeySecret    = $this->getAccessKeySecret();
-                $_request->query    = RpcUtils::query(Tea::merge(
-                    [
-                        'Action'           => $action,
-                        'Format'           => 'json',
-                        'RegionId'         => $this->_regionId,
-                        'Timestamp'        => RpcUtils::getTimestamp(),
-                        'Version'          => '2020-02-12',
-                        'SignatureMethod'  => 'HMAC-SHA1',
-                        'SignatureVersion' => '1.0',
-                        'SignatureNonce'   => Utils::getNonce(),
-                        'AccessKeyId'      => $accessKeyId,
-                    ],
-                    $request
-                ));
+                $_request->query    = RpcUtils::query(Tea::merge([
+                    'Action'           => $action,
+                    'Format'           => 'json',
+                    'RegionId'         => $this->_regionId,
+                    'Timestamp'        => RpcUtils::getTimestamp(),
+                    'Version'          => '2020-02-12',
+                    'SignatureMethod'  => 'HMAC-SHA1',
+                    'SignatureVersion' => '1.0',
+                    'SignatureNonce'   => Utils::getNonce(),
+                    'AccessKeyId'      => $accessKeyId,
+                ], $request));
                 $_request->headers = [
                     'host'       => RpcUtils::getHost('ImageSearch', $this->_regionId, $this->_endpoint),
                     'user-agent' => $this->getUserAgent(),
