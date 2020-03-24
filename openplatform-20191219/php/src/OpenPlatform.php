@@ -141,20 +141,17 @@ class OpenPlatform
                 $_request->protocol = Utils::defaultString($this->_protocol, $protocol);
                 $_request->method   = $method;
                 $_request->pathname = '/';
-                $_request->query    = RpcUtils::query(Tea::merge(
-                    [
-                        'Action'           => $action,
-                        'Format'           => 'json',
-                        'RegionId'         => $this->_regionId,
-                        'Timestamp'        => RpcUtils::getTimestamp(),
-                        'Version'          => '2019-12-19',
-                        'SignatureMethod'  => 'HMAC-SHA1',
-                        'SignatureVersion' => '1.0',
-                        'SignatureNonce'   => Utils::getNonce(),
-                        'AccessKeyId'      => $accessKeyId,
-                    ],
-                    $request
-                ));
+                $_request->query    = RpcUtils::query(Tea::merge([
+                    'Action'           => $action,
+                    'Format'           => 'json',
+                    'RegionId'         => $this->_regionId,
+                    'Timestamp'        => RpcUtils::getTimestamp(),
+                    'Version'          => '2019-12-19',
+                    'SignatureMethod'  => 'HMAC-SHA1',
+                    'SignatureVersion' => '1.0',
+                    'SignatureNonce'   => Utils::getNonce(),
+                    'AccessKeyId'      => $accessKeyId,
+                ], $request));
                 $_request->headers = [
                     'host'       => RpcUtils::getHost('OpenPlatform', $this->_regionId, $this->_endpoint),
                     'user-agent' => $this->getUserAgent(),
