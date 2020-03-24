@@ -21,5 +21,13 @@ class DescribeContainerGroupPriceRequest extends Model
     public $cpu;
 
     public $memory;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'cpu'                  => 'Cpu',
+        'memory'               => 'Memory',
+    ];
 }

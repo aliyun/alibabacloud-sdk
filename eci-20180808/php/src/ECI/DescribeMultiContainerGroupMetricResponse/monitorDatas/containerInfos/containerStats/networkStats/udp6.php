@@ -15,5 +15,10 @@ class udp6 extends Model
     public $rxQueued;
 
     public $txQueued;
-    protected $_name = [];
+    protected $_name = [
+        'listen'   => 'Listen',
+        'dropped'  => 'Dropped',
+        'rxQueued' => 'RxQueued',
+        'txQueued' => 'TxQueued',
+    ];
 }

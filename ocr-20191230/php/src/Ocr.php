@@ -84,7 +84,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Ocr
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

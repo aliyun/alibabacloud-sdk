@@ -11,5 +11,8 @@ class data extends Model
     public $fileContent;
 
     public $tables;
-    protected $_name = [];
+    protected $_name = [
+        'fileContent' => 'FileContent',
+        'tables'      => 'Tables',
+    ];
 }

@@ -19,5 +19,12 @@ class elements extends Model
     public $height;
 
     public $score;
-    protected $_name = [];
+    protected $_name = [
+        'type'   => 'Type',
+        'x'      => 'X',
+        'y'      => 'Y',
+        'width'  => 'Width',
+        'height' => 'Height',
+        'score'  => 'Score',
+    ];
 }

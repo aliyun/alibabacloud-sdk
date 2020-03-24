@@ -13,5 +13,9 @@ class imageRegistryCredential extends Model
     public $userName;
 
     public $password;
-    protected $_name = [];
+    protected $_name = [
+        'server'   => 'Server',
+        'userName' => 'UserName',
+        'password' => 'Password',
+    ];
 }

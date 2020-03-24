@@ -11,5 +11,8 @@ class matchList extends Model
     public $faceItems;
 
     public $location;
-    protected $_name = [];
+    protected $_name = [
+        'faceItems' => 'FaceItems',
+        'location'  => 'Location',
+    ];
 }

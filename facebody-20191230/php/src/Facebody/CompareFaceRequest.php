@@ -11,5 +11,8 @@ class CompareFaceRequest extends Model
     public $imageURLA;
 
     public $imageURLB;
-    protected $_name = [];
+    protected $_name = [
+        'imageURLA' => 'ImageURLA',
+        'imageURLB' => 'ImageURLB',
+    ];
 }

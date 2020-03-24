@@ -23,5 +23,14 @@ class SearchImageByPicRequest extends Model
     public $start;
 
     public $filter;
-    protected $_name = [];
+    protected $_name = [
+        'categoryId'   => 'CategoryId',
+        'instanceName' => 'InstanceName',
+        'picContent'   => 'PicContent',
+        'crop'         => 'Crop',
+        'region'       => 'Region',
+        'num'          => 'Num',
+        'start'        => 'Start',
+        'filter'       => 'Filter',
+    ];
 }

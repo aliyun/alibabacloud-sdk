@@ -25,5 +25,15 @@ class DescribeImageCachesRequest extends Model
     public $snapshotId;
 
     public $image;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'imageCacheId'         => 'ImageCacheId',
+        'imageCacheName'       => 'ImageCacheName',
+        'snapshotId'           => 'SnapshotId',
+        'image'                => 'Image',
+    ];
 }

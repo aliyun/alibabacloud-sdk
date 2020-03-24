@@ -17,5 +17,11 @@ class RecolorImageRequest extends Model
     public $colorCount;
 
     public $colorTemplate;
-    protected $_name = [];
+    protected $_name = [
+        'url'           => 'Url',
+        'mode'          => 'Mode',
+        'refUrl'        => 'RefUrl',
+        'colorCount'    => 'ColorCount',
+        'colorTemplate' => 'ColorTemplate',
+    ];
 }

@@ -13,5 +13,9 @@ class elements extends Model
     public $imageURL;
 
     public $results;
-    protected $_name = [];
+    protected $_name = [
+        'taskId'   => 'TaskId',
+        'imageURL' => 'ImageURL',
+        'results'  => 'Results',
+    ];
 }

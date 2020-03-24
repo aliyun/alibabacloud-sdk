@@ -11,5 +11,8 @@ class ExtendImageStyleRequest extends Model
     public $styleUrl;
 
     public $majorUrl;
-    protected $_name = [];
+    protected $_name = [
+        'styleUrl' => 'StyleUrl',
+        'majorUrl' => 'MajorUrl',
+    ];
 }

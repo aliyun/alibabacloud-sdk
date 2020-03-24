@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class colorTemplate extends Model
 {
     public $color;
-    protected $_name = [];
+    protected $_name = [
+        'color' => 'Color',
+    ];
 }

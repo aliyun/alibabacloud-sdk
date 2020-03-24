@@ -15,5 +15,10 @@ class volumes extends Model
     public $emptyDir;
 
     public $nfs;
-    protected $_name = [];
+    protected $_name = [
+        'name'       => 'Name',
+        'configFile' => 'ConfigFile',
+        'emptyDir'   => 'EmptyDir',
+        'nfs'        => 'Nfs',
+    ];
 }

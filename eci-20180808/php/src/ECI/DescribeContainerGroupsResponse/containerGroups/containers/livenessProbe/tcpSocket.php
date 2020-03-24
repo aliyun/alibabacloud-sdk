@@ -11,5 +11,8 @@ class tcpSocket extends Model
     public $host;
 
     public $port;
-    protected $_name = [];
+    protected $_name = [
+        'host' => 'Host',
+        'port' => 'Port',
+    ];
 }

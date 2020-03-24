@@ -13,5 +13,9 @@ class items extends Model
     public $path;
 
     public $content;
-    protected $_name = [];
+    protected $_name = [
+        'mode'    => 'Mode',
+        'path'    => 'Path',
+        'content' => 'Content',
+    ];
 }

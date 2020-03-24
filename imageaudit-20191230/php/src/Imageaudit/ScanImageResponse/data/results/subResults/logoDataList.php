@@ -19,5 +19,12 @@ class logoDataList extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'type'   => 'Type',
+        'name'   => 'Name',
+        'x'      => 'X',
+        'y'      => 'Y',
+        'width'  => 'Width',
+        'height' => 'Height',
+    ];
 }

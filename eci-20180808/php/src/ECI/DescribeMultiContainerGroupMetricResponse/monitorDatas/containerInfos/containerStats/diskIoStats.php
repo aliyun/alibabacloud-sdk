@@ -23,5 +23,14 @@ class diskIoStats extends Model
     public $ioMerged;
 
     public $ioTime;
-    protected $_name = [];
+    protected $_name = [
+        'ioServiceBytes' => 'IoServiceBytes',
+        'ioServiced'     => 'IoServiced',
+        'ioQueued'       => 'IoQueued',
+        'sectors'        => 'Sectors',
+        'ioServiceTime'  => 'IoServiceTime',
+        'ioWaitTime'     => 'IoWaitTime',
+        'ioMerged'       => 'IoMerged',
+        'ioTime'         => 'IoTime',
+    ];
 }

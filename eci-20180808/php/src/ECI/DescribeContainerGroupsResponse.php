@@ -15,5 +15,10 @@ class DescribeContainerGroupsResponse extends Model
     public $totalCount;
 
     public $containerGroups;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'       => 'RequestId',
+        'nextToken'       => 'NextToken',
+        'totalCount'      => 'TotalCount',
+        'containerGroups' => 'ContainerGroups',
+    ];
 }

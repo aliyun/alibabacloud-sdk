@@ -11,5 +11,8 @@ class RecognizeDrivingLicenseRequest extends Model
     public $imageURL;
 
     public $side;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL' => 'ImageURL',
+        'side'     => 'Side',
+    ];
 }

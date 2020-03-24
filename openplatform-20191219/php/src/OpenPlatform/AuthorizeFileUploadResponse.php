@@ -23,5 +23,14 @@ class AuthorizeFileUploadResponse extends Model
     public $signature;
 
     public $useAccelerate;
-    protected $_name = [];
+    protected $_name = [
+        'accessKeyId'   => 'AccessKeyId',
+        'bucket'        => 'Bucket',
+        'encodedPolicy' => 'EncodedPolicy',
+        'endpoint'      => 'Endpoint',
+        'objectKey'     => 'ObjectKey',
+        'requestId'     => 'RequestId',
+        'signature'     => 'Signature',
+        'useAccelerate' => 'UseAccelerate',
+    ];
 }

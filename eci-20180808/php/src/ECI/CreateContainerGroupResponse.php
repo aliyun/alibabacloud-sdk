@@ -11,5 +11,8 @@ class CreateContainerGroupResponse extends Model
     public $requestId;
 
     public $containerGroupId;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'        => 'RequestId',
+        'containerGroupId' => 'ContainerGroupId',
+    ];
 }

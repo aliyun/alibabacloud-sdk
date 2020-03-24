@@ -29,7 +29,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Goodstech
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

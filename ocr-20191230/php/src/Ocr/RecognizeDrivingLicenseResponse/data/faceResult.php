@@ -27,5 +27,16 @@ class faceResult extends Model
     public $registerDate;
 
     public $issueDate;
-    protected $_name = [];
+    protected $_name = [
+        'plateNumber'  => 'PlateNumber',
+        'vehicleType'  => 'VehicleType',
+        'owner'        => 'Owner',
+        'useCharacter' => 'UseCharacter',
+        'address'      => 'Address',
+        'model'        => 'Model',
+        'vin'          => 'Vin',
+        'engineNumber' => 'EngineNumber',
+        'registerDate' => 'RegisterDate',
+        'issueDate'    => 'IssueDate',
+    ];
 }

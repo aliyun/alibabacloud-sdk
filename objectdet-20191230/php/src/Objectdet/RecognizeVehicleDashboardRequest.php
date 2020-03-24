@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class RecognizeVehicleDashboardRequest extends Model
 {
     public $imageURL;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL' => 'ImageURL',
+    ];
 }

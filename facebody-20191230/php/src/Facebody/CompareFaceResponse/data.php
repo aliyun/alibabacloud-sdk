@@ -15,5 +15,10 @@ class data extends Model
     public $rectAList;
 
     public $rectBList;
-    protected $_name = [];
+    protected $_name = [
+        'confidence' => 'Confidence',
+        'thresholds' => 'Thresholds',
+        'rectAList'  => 'RectAList',
+        'rectBList'  => 'RectBList',
+    ];
 }

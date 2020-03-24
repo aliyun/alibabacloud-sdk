@@ -15,5 +15,10 @@ class CPU extends Model
     public $load;
 
     public $limit;
-    protected $_name = [];
+    protected $_name = [
+        'usageNanoCores'       => 'UsageNanoCores',
+        'usageCoreNanoSeconds' => 'UsageCoreNanoSeconds',
+        'load'                 => 'Load',
+        'limit'                => 'Limit',
+    ];
 }

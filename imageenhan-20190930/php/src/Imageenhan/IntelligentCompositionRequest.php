@@ -11,5 +11,8 @@ class IntelligentCompositionRequest extends Model
     public $numBoxes;
 
     public $imageURL;
-    protected $_name = [];
+    protected $_name = [
+        'numBoxes' => 'NumBoxes',
+        'imageURL' => 'ImageURL',
+    ];
 }

@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class emptyDir extends Model
 {
     public $sizeLimit;
-    protected $_name = [];
+    protected $_name = [
+        'sizeLimit' => 'SizeLimit',
+    ];
 }

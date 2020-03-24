@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class securityContext extends Model
 {
     public $sysctls;
-    protected $_name = [];
+    protected $_name = [
+        'sysctls' => 'Sysctls',
+    ];
 }

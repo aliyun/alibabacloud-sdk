@@ -21,5 +21,13 @@ class spec extends Model
     public $dnsConfig;
 
     public $securityContext;
-    protected $_name = [];
+    protected $_name = [
+        'restartPolicy'   => 'RestartPolicy',
+        'dnsPolicy'       => 'DnsPolicy',
+        'volumes'         => 'Volumes',
+        'initContainers'  => 'InitContainers',
+        'containers'      => 'Containers',
+        'dnsConfig'       => 'DnsConfig',
+        'securityContext' => 'SecurityContext',
+    ];
 }

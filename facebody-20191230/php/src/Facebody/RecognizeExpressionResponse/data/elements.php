@@ -13,5 +13,9 @@ class elements extends Model
     public $faceProbability;
 
     public $faceRectangle;
-    protected $_name = [];
+    protected $_name = [
+        'expression'      => 'Expression',
+        'faceProbability' => 'FaceProbability',
+        'faceRectangle'   => 'FaceRectangle',
+    ];
 }

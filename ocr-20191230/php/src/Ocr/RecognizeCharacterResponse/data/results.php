@@ -13,5 +13,9 @@ class results extends Model
     public $text;
 
     public $textRectangles;
-    protected $_name = [];
+    protected $_name = [
+        'probability'    => 'Probability',
+        'text'           => 'Text',
+        'textRectangles' => 'TextRectangles',
+    ];
 }

@@ -11,5 +11,8 @@ class hostPathVolume extends Model
     public $type;
 
     public $path;
-    protected $_name = [];
+    protected $_name = [
+        'type' => 'Type',
+        'path' => 'Path',
+    ];
 }

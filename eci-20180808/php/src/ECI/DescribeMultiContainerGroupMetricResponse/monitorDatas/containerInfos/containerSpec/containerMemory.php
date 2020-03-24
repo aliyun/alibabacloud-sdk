@@ -13,5 +13,9 @@ class containerMemory extends Model
     public $reservation;
 
     public $swapLimit;
-    protected $_name = [];
+    protected $_name = [
+        'limit'       => 'Limit',
+        'reservation' => 'Reservation',
+        'swapLimit'   => 'SwapLimit',
+    ];
 }

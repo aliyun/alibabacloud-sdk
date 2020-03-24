@@ -17,5 +17,11 @@ class faceItems extends Model
     public $entityId;
 
     public $imageUrl;
-    protected $_name = [];
+    protected $_name = [
+        'faceId'    => 'FaceId',
+        'score'     => 'Score',
+        'extraData' => 'ExtraData',
+        'entityId'  => 'EntityId',
+        'imageUrl'  => 'ImageUrl',
+    ];
 }

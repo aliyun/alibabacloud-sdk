@@ -13,5 +13,9 @@ class FaceTidyupAdvanceRequest extends Model
     public $shapeType;
 
     public $strength;
-    protected $_name = [];
+    protected $_name = [
+        'imageURLObject' => 'ImageURLObject',
+        'shapeType'      => 'ShapeType',
+        'strength'       => 'Strength',
+    ];
 }

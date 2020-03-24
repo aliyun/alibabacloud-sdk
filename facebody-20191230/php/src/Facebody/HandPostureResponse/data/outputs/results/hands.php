@@ -11,5 +11,8 @@ class hands extends Model
     public $confident;
 
     public $keyPoints;
-    protected $_name = [];
+    protected $_name = [
+        'confident' => 'Confident',
+        'keyPoints' => 'KeyPoints',
+    ];
 }

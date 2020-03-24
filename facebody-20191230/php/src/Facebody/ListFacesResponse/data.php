@@ -11,5 +11,8 @@ class data extends Model
     public $scrollId;
 
     public $faceList;
-    protected $_name = [];
+    protected $_name = [
+        'scrollId' => 'ScrollId',
+        'faceList' => 'FaceList',
+    ];
 }

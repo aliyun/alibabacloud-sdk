@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class emptyDirVolume extends Model
 {
     public $medium;
-    protected $_name = [];
+    protected $_name = [
+        'medium' => 'Medium',
+    ];
 }

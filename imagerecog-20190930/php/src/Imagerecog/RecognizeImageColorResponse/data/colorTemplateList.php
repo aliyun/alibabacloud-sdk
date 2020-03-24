@@ -13,5 +13,9 @@ class colorTemplateList extends Model
     public $label;
 
     public $percentage;
-    protected $_name = [];
+    protected $_name = [
+        'color'      => 'Color',
+        'label'      => 'Label',
+        'percentage' => 'Percentage',
+    ];
 }

@@ -17,5 +17,11 @@ class price extends Model
     public $currency;
 
     public $detailInfos;
-    protected $_name = [];
+    protected $_name = [
+        'originalPrice' => 'OriginalPrice',
+        'discountPrice' => 'DiscountPrice',
+        'tradePrice'    => 'TradePrice',
+        'currency'      => 'Currency',
+        'detailInfos'   => 'DetailInfos',
+    ];
 }

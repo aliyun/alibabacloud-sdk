@@ -19,5 +19,12 @@ class logosData extends Model
     public $h;
 
     public $w;
-    protected $_name = [];
+    protected $_name = [
+        'name' => 'Name',
+        'type' => 'Type',
+        'x'    => 'X',
+        'y'    => 'Y',
+        'h'    => 'H',
+        'w'    => 'W',
+    ];
 }

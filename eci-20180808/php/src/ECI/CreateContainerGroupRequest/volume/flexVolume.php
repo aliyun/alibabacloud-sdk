@@ -13,5 +13,9 @@ class flexVolume extends Model
     public $fsType;
 
     public $options;
-    protected $_name = [];
+    protected $_name = [
+        'driver'  => 'Driver',
+        'fsType'  => 'FsType',
+        'options' => 'Options',
+    ];
 }

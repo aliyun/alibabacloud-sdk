@@ -11,5 +11,8 @@ class ScanTextRequest extends Model
     public $tasks;
 
     public $labels;
-    protected $_name = [];
+    protected $_name = [
+        'tasks'  => 'Tasks',
+        'labels' => 'Labels',
+    ];
 }

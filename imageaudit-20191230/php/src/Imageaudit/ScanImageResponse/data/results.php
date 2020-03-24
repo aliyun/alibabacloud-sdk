@@ -15,5 +15,10 @@ class results extends Model
     public $imageURL;
 
     public $subResults;
-    protected $_name = [];
+    protected $_name = [
+        'dataId'     => 'DataId',
+        'taskId'     => 'TaskId',
+        'imageURL'   => 'ImageURL',
+        'subResults' => 'SubResults',
+    ];
 }

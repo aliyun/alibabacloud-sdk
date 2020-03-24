@@ -13,5 +13,9 @@ class DescribeContainerLogResponse extends Model
     public $containerName;
 
     public $content;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'     => 'RequestId',
+        'containerName' => 'ContainerName',
+        'content'       => 'Content',
+    ];
 }

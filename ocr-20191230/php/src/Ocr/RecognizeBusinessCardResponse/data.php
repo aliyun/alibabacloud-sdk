@@ -23,5 +23,14 @@ class data extends Model
     public $addresses;
 
     public $emails;
-    protected $_name = [];
+    protected $_name = [
+        'name'               => 'Name',
+        'companies'          => 'Companies',
+        'departments'        => 'Departments',
+        'titles'             => 'Titles',
+        'cellPhoneNumbers'   => 'CellPhoneNumbers',
+        'officePhoneNumbers' => 'OfficePhoneNumbers',
+        'addresses'          => 'Addresses',
+        'emails'             => 'Emails',
+    ];
 }

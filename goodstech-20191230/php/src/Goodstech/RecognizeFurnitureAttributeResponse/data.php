@@ -13,5 +13,9 @@ class data extends Model
     public $predStyle;
 
     public $predProbability;
-    protected $_name = [];
+    protected $_name = [
+        'predStyleId'     => 'PredStyleId',
+        'predStyle'       => 'PredStyle',
+        'predProbability' => 'PredProbability',
+    ];
 }

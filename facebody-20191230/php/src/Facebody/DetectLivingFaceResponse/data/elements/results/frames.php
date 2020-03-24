@@ -11,5 +11,8 @@ class frames extends Model
     public $rate;
 
     public $url;
-    protected $_name = [];
+    protected $_name = [
+        'rate' => 'Rate',
+        'url'  => 'Url',
+    ];
 }

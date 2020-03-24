@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class tcpSocket extends Model
 {
     public $port;
-    protected $_name = [];
+    protected $_name = [
+        'port' => 'Port',
+    ];
 }

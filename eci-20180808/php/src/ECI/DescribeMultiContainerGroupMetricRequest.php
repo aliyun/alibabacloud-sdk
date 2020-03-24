@@ -23,5 +23,14 @@ class DescribeMultiContainerGroupMetricRequest extends Model
     public $resourceGroupId;
 
     public $metricType;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'containerGroupIds'    => 'ContainerGroupIds',
+        'resourceGroupId'      => 'ResourceGroupId',
+        'metricType'           => 'MetricType',
+    ];
 }

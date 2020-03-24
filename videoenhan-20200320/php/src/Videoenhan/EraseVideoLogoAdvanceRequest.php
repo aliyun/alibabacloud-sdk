@@ -11,5 +11,8 @@ class EraseVideoLogoAdvanceRequest extends Model
     public $videoUrlObject;
 
     public $boxes;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'boxes'          => 'Boxes',
+    ];
 }

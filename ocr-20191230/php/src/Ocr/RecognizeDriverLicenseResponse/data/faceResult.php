@@ -23,5 +23,14 @@ class faceResult extends Model
     public $address;
 
     public $gender;
-    protected $_name = [];
+    protected $_name = [
+        'name'          => 'Name',
+        'licenseNumber' => 'LicenseNumber',
+        'vehicleType'   => 'VehicleType',
+        'startDate'     => 'StartDate',
+        'endDate'       => 'EndDate',
+        'issueDate'     => 'IssueDate',
+        'address'       => 'Address',
+        'gender'        => 'Gender',
+    ];
 }

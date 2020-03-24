@@ -11,5 +11,8 @@ class AbstractFilmVideoAdvanceRequest extends Model
     public $videoUrlObject;
 
     public $length;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'length'         => 'Length',
+    ];
 }

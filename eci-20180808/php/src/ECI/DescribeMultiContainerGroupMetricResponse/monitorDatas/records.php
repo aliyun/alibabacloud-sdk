@@ -17,5 +17,11 @@ class records extends Model
     public $memory;
 
     public $network;
-    protected $_name = [];
+    protected $_name = [
+        'timestamp'  => 'Timestamp',
+        'containers' => 'Containers',
+        'CPU'        => 'CPU',
+        'memory'     => 'Memory',
+        'network'    => 'Network',
+    ];
 }

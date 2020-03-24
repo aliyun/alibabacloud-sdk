@@ -19,5 +19,12 @@ class ExportContainerGroupTemplateRequest extends Model
     public $regionId;
 
     public $containerGroupId;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'containerGroupId'     => 'ContainerGroupId',
+    ];
 }

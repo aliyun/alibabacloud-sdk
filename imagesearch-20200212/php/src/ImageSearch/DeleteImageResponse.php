@@ -15,5 +15,10 @@ class DeleteImageResponse extends Model
     public $message;
 
     public $code;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'success'   => 'Success',
+        'message'   => 'Message',
+        'code'      => 'Code',
+    ];
 }

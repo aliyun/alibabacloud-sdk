@@ -19,5 +19,12 @@ class RecognizeTableRequest extends Model
     public $hasLine;
 
     public $skipDetection;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL'        => 'ImageURL',
+        'outputFormat'    => 'OutputFormat',
+        'useFinanceModel' => 'UseFinanceModel',
+        'assureDirection' => 'AssureDirection',
+        'hasLine'         => 'HasLine',
+        'skipDetection'   => 'SkipDetection',
+    ];
 }

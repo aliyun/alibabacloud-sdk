@@ -15,5 +15,10 @@ class AbstractEcommerceVideoAdvanceRequest extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'duration'       => 'Duration',
+        'width'          => 'Width',
+        'height'         => 'Height',
+    ];
 }

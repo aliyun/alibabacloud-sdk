@@ -75,5 +75,40 @@ class container extends Model
     public $lifecyclePreStopHandlerTcpSocketHost;
 
     public $lifecyclePreStopHandlerTcpSocketPort;
-    protected $_name = [];
+    protected $_name = [
+        'image'                                      => 'Image',
+        'name'                                       => 'Name',
+        'cpu'                                        => 'Cpu',
+        'memory'                                     => 'Memory',
+        'workingDir'                                 => 'WorkingDir',
+        'imagePullPolicy'                            => 'ImagePullPolicy',
+        'command'                                    => 'Command',
+        'arg'                                        => 'Arg',
+        'volumeMount'                                => 'VolumeMount',
+        'port'                                       => 'Port',
+        'environmentVar'                             => 'EnvironmentVar',
+        'readinessProbe'                             => 'ReadinessProbe',
+        'livenessProbe'                              => 'LivenessProbe',
+        'securityContext'                            => 'SecurityContext',
+        'stdin'                                      => 'Stdin',
+        'stdinOnce'                                  => 'StdinOnce',
+        'tty'                                        => 'Tty',
+        'gpu'                                        => 'Gpu',
+        'lifecyclePostStartHandlerHttpGetHost'       => 'LifecyclePostStartHandlerHttpGetHost',
+        'lifecyclePostStartHandlerHttpGetPort'       => 'LifecyclePostStartHandlerHttpGetPort',
+        'lifecyclePostStartHandlerHttpGetPath'       => 'LifecyclePostStartHandlerHttpGetPath',
+        'lifecyclePostStartHandlerHttpGetScheme'     => 'LifecyclePostStartHandlerHttpGetScheme',
+        'lifecyclePostStartHandlerHttpGetHttpHeader' => 'LifecyclePostStartHandlerHttpGetHttpHeader',
+        'lifecyclePostStartHandlerExec'              => 'LifecyclePostStartHandlerExec',
+        'lifecyclePostStartHandlerTcpSocketHost'     => 'LifecyclePostStartHandlerTcpSocketHost',
+        'lifecyclePostStartHandlerTcpSocketPort'     => 'LifecyclePostStartHandlerTcpSocketPort',
+        'lifecyclePreStopHandlerHttpGetHost'         => 'LifecyclePreStopHandlerHttpGetHost',
+        'lifecyclePreStopHandlerHttpGetPort'         => 'LifecyclePreStopHandlerHttpGetPort',
+        'lifecyclePreStopHandlerHttpGetPath'         => 'LifecyclePreStopHandlerHttpGetPath',
+        'lifecyclePreStopHandlerHttpGetScheme'       => 'LifecyclePreStopHandlerHttpGetScheme',
+        'lifecyclePreStopHandlerHttpGetHttpHeader'   => 'LifecyclePreStopHandlerHttpGetHttpHeader',
+        'lifecyclePreStopHandlerExec'                => 'LifecyclePreStopHandlerExec',
+        'lifecyclePreStopHandlerTcpSocketHost'       => 'LifecyclePreStopHandlerTcpSocketHost',
+        'lifecyclePreStopHandlerTcpSocketPort'       => 'LifecyclePreStopHandlerTcpSocketPort',
+    ];
 }

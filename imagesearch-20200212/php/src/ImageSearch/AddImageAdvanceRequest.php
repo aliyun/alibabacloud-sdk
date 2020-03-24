@@ -27,5 +27,16 @@ class AddImageAdvanceRequest extends Model
     public $intAttr;
 
     public $strAttr;
-    protected $_name = [];
+    protected $_name = [
+        'picContentObject' => 'PicContentObject',
+        'instanceName'     => 'InstanceName',
+        'categoryId'       => 'CategoryId',
+        'productId'        => 'ProductId',
+        'picName'          => 'PicName',
+        'crop'             => 'Crop',
+        'region'           => 'Region',
+        'customContent'    => 'CustomContent',
+        'intAttr'          => 'IntAttr',
+        'strAttr'          => 'StrAttr',
+    ];
 }

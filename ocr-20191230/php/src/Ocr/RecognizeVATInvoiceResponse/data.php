@@ -11,5 +11,8 @@ class data extends Model
     public $content;
 
     public $box;
-    protected $_name = [];
+    protected $_name = [
+        'content' => 'Content',
+        'box'     => 'Box',
+    ];
 }

@@ -22,7 +22,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Imageaudit
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

@@ -21,5 +21,13 @@ class DeleteContainerGroupRequest extends Model
     public $containerGroupId;
 
     public $clientToken;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'containerGroupId'     => 'ContainerGroupId',
+        'clientToken'          => 'ClientToken',
+    ];
 }

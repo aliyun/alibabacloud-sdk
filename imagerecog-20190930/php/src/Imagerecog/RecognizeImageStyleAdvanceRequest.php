@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class RecognizeImageStyleAdvanceRequest extends Model
 {
     public $urlObject;
-    protected $_name = [];
+    protected $_name = [
+        'urlObject' => 'UrlObject',
+    ];
 }

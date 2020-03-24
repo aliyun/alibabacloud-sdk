@@ -23,5 +23,14 @@ class volume extends Model
     public $flexVolume;
 
     public $hostPathVolume;
-    protected $_name = [];
+    protected $_name = [
+        'name'             => 'Name',
+        'NFSVolume'        => 'NFSVolume',
+        'configFileVolume' => 'ConfigFileVolume',
+        'type'             => 'Type',
+        'emptyDirVolume'   => 'EmptyDirVolume',
+        'diskVolume'       => 'DiskVolume',
+        'flexVolume'       => 'FlexVolume',
+        'hostPathVolume'   => 'HostPathVolume',
+    ];
 }

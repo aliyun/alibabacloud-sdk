@@ -13,5 +13,9 @@ class SearchFaceAdvanceRequest extends Model
     public $dbName;
 
     public $limit;
-    protected $_name = [];
+    protected $_name = [
+        'imageUrlObject' => 'ImageUrlObject',
+        'dbName'         => 'DbName',
+        'limit'          => 'Limit',
+    ];
 }

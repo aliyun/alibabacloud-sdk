@@ -39,5 +39,22 @@ class CreateImageCacheRequest extends Model
     public $imageCacheSize;
 
     public $retentionDays;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'                 => 'OwnerId',
+        'resourceOwnerAccount'    => 'ResourceOwnerAccount',
+        'resourceOwnerId'         => 'ResourceOwnerId',
+        'ownerAccount'            => 'OwnerAccount',
+        'regionId'                => 'RegionId',
+        'zoneId'                  => 'ZoneId',
+        'securityGroupId'         => 'SecurityGroupId',
+        'VSwitchId'               => 'VSwitchId',
+        'imageCacheName'          => 'ImageCacheName',
+        'imageRegistryCredential' => 'ImageRegistryCredential',
+        'eipInstanceId'           => 'EipInstanceId',
+        'resourceGroupId'         => 'ResourceGroupId',
+        'clientToken'             => 'ClientToken',
+        'image'                   => 'Image',
+        'imageCacheSize'          => 'ImageCacheSize',
+        'retentionDays'           => 'RetentionDays',
+    ];
 }

@@ -11,5 +11,8 @@ class AuthorizeFileUploadRequest extends Model
     public $product;
 
     public $regionId;
-    protected $_name = [];
+    protected $_name = [
+        'product'  => 'Product',
+        'regionId' => 'RegionId',
+    ];
 }

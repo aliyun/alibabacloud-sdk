@@ -13,5 +13,9 @@ class cpuStats extends Model
     public $cpuUsage;
 
     public $cpuCFS;
-    protected $_name = [];
+    protected $_name = [
+        'loadAverage' => 'LoadAverage',
+        'cpuUsage'    => 'CpuUsage',
+        'cpuCFS'      => 'CpuCFS',
+    ];
 }

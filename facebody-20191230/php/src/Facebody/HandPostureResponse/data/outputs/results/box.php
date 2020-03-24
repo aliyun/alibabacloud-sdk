@@ -11,5 +11,8 @@ class box extends Model
     public $confident;
 
     public $positions;
-    protected $_name = [];
+    protected $_name = [
+        'confident' => 'Confident',
+        'positions' => 'Positions',
+    ];
 }

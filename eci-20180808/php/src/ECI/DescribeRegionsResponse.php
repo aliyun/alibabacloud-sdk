@@ -11,5 +11,8 @@ class DescribeRegionsResponse extends Model
     public $requestId;
 
     public $regions;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'regions'   => 'Regions',
+    ];
 }

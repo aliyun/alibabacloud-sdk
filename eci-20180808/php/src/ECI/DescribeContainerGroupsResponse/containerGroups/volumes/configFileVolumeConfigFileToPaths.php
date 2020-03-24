@@ -11,5 +11,8 @@ class configFileVolumeConfigFileToPaths extends Model
     public $content;
 
     public $path;
-    protected $_name = [];
+    protected $_name = [
+        'content' => 'Content',
+        'path'    => 'Path',
+    ];
 }

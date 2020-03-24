@@ -29,5 +29,17 @@ class tcp6 extends Model
     public $listen;
 
     public $closing;
-    protected $_name = [];
+    protected $_name = [
+        'established' => 'Established',
+        'synSent'     => 'SynSent',
+        'synRecv'     => 'SynRecv',
+        'finWait1'    => 'FinWait1',
+        'finWait2'    => 'FinWait2',
+        'timeWait'    => 'TimeWait',
+        'close'       => 'Close',
+        'closeWait'   => 'CloseWait',
+        'lastAck'     => 'LastAck',
+        'listen'      => 'Listen',
+        'closing'     => 'Closing',
+    ];
 }

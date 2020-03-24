@@ -40,7 +40,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Videoenhan
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

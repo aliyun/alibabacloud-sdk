@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class DeleteImageDbResponse extends Model
 {
     public $requestId;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+    ];
 }

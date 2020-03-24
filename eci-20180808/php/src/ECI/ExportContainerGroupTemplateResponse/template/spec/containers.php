@@ -39,5 +39,22 @@ class containers extends Model
     public $command;
 
     public $args;
-    protected $_name = [];
+    protected $_name = [
+        'name'            => 'Name',
+        'image'           => 'Image',
+        'imagePullPolicy' => 'ImagePullPolicy',
+        'stdin'           => 'Stdin',
+        'stdinOnce'       => 'StdinOnce',
+        'tty'             => 'Tty',
+        'workingDir'      => 'WorkingDir',
+        'env'             => 'Env',
+        'ports'           => 'Ports',
+        'volumeMounts'    => 'VolumeMounts',
+        'securityContext' => 'SecurityContext',
+        'resources'       => 'Resources',
+        'readinessProbe'  => 'ReadinessProbe',
+        'livenessProbe'   => 'LivenessProbe',
+        'command'         => 'Command',
+        'args'            => 'Args',
+    ];
 }

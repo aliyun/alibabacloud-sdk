@@ -13,5 +13,9 @@ class NFSVolume extends Model
     public $path;
 
     public $readOnly;
-    protected $_name = [];
+    protected $_name = [
+        'server'   => 'Server',
+        'path'     => 'Path',
+        'readOnly' => 'ReadOnly',
+    ];
 }

@@ -11,5 +11,8 @@ class hostAliase extends Model
     public $ip;
 
     public $hostname;
-    protected $_name = [];
+    protected $_name = [
+        'ip'       => 'Ip',
+        'hostname' => 'Hostname',
+    ];
 }

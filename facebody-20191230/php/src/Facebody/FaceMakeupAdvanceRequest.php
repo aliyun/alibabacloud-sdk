@@ -15,5 +15,10 @@ class FaceMakeupAdvanceRequest extends Model
     public $resourceType;
 
     public $strength;
-    protected $_name = [];
+    protected $_name = [
+        'imageURLObject' => 'ImageURLObject',
+        'makeupType'     => 'MakeupType',
+        'resourceType'   => 'ResourceType',
+        'strength'       => 'Strength',
+    ];
 }

@@ -15,5 +15,10 @@ class FaceBeautyRequest extends Model
     public $smooth;
 
     public $white;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL' => 'ImageURL',
+        'sharp'    => 'Sharp',
+        'smooth'   => 'Smooth',
+        'white'    => 'White',
+    ];
 }

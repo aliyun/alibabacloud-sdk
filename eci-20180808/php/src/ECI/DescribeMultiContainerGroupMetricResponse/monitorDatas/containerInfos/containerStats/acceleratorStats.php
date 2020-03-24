@@ -19,5 +19,12 @@ class acceleratorStats extends Model
     public $memoryUsed;
 
     public $dutyCycle;
-    protected $_name = [];
+    protected $_name = [
+        'id'          => 'Id',
+        'make'        => 'Make',
+        'model'       => 'Model',
+        'memoryTotal' => 'MemoryTotal',
+        'memoryUsed'  => 'MemoryUsed',
+        'dutyCycle'   => 'DutyCycle',
+    ];
 }

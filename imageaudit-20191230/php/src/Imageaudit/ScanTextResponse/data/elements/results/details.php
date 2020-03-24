@@ -11,5 +11,8 @@ class details extends Model
     public $label;
 
     public $contexts;
-    protected $_name = [];
+    protected $_name = [
+        'label'    => 'Label',
+        'contexts' => 'Contexts',
+    ];
 }

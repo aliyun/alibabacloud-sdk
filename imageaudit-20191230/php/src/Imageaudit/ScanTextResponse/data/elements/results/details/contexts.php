@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class contexts extends Model
 {
     public $context;
-    protected $_name = [];
+    protected $_name = [
+        'context' => 'Context',
+    ];
 }

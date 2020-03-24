@@ -11,5 +11,8 @@ class configFile extends Model
     public $defaultMode;
 
     public $items;
-    protected $_name = [];
+    protected $_name = [
+        'defaultMode' => 'DefaultMode',
+        'items'       => 'Items',
+    ];
 }

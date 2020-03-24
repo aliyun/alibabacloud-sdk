@@ -11,5 +11,8 @@ class data extends Model
     public $videoUrl;
 
     public $videoCoverUrl;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrl'      => 'VideoUrl',
+        'videoCoverUrl' => 'VideoCoverUrl',
+    ];
 }

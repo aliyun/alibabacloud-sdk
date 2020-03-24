@@ -17,5 +17,11 @@ class detailInfo extends Model
     public $tradePrice;
 
     public $rules;
-    protected $_name = [];
+    protected $_name = [
+        'resource'      => 'Resource',
+        'originalPrice' => 'OriginalPrice',
+        'discountPrice' => 'DiscountPrice',
+        'tradePrice'    => 'TradePrice',
+        'rules'         => 'Rules',
+    ];
 }

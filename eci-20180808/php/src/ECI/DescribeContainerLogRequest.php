@@ -29,5 +29,17 @@ class DescribeContainerLogRequest extends Model
     public $lastTime;
 
     public $sinceSeconds;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'containerGroupId'     => 'ContainerGroupId',
+        'containerName'        => 'ContainerName',
+        'startTime'            => 'StartTime',
+        'tail'                 => 'Tail',
+        'lastTime'             => 'LastTime',
+        'sinceSeconds'         => 'SinceSeconds',
+    ];
 }

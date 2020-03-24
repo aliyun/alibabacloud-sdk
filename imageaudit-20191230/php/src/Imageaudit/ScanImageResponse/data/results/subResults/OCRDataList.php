@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class OCRDataList extends Model
 {
     public $OCRData;
-    protected $_name = [];
+    protected $_name = [
+        'OCRData' => 'OCRData',
+    ];
 }

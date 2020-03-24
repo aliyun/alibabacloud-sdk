@@ -17,5 +17,11 @@ class EraseVideoSubtitlesRequest extends Model
     public $BW;
 
     public $BH;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrl' => 'VideoUrl',
+        'BX'       => 'BX',
+        'BY'       => 'BY',
+        'BW'       => 'BW',
+        'BH'       => 'BH',
+    ];
 }

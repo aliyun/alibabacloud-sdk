@@ -21,5 +21,13 @@ class SearchImageByPicResponse extends Model
     public $head;
 
     public $picInfo;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'success'   => 'Success',
+        'code'      => 'Code',
+        'msg'       => 'Msg',
+        'auctions'  => 'Auctions',
+        'head'      => 'Head',
+        'picInfo'   => 'PicInfo',
+    ];
 }

@@ -11,5 +11,8 @@ class data extends Model
     public $url;
 
     public $retainLocation;
-    protected $_name = [];
+    protected $_name = [
+        'url'            => 'Url',
+        'retainLocation' => 'RetainLocation',
+    ];
 }

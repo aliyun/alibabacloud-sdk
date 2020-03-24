@@ -17,5 +17,11 @@ class AdjustVideoColorAdvanceRequest extends Model
     public $videoFormat;
 
     public $mode;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'videoBitrate'   => 'VideoBitrate',
+        'videoCode'      => 'VideoCode',
+        'videoFormat'    => 'VideoFormat',
+        'mode'           => 'Mode',
+    ];
 }

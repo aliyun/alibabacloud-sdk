@@ -17,5 +17,11 @@ class containerCpu extends Model
     public $quota;
 
     public $period;
-    protected $_name = [];
+    protected $_name = [
+        'limit'    => 'Limit',
+        'maxLimit' => 'MaxLimit',
+        'mask'     => 'Mask',
+        'quota'    => 'Quota',
+        'period'   => 'Period',
+    ];
 }

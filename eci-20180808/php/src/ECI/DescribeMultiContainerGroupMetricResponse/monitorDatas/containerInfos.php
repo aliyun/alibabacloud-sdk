@@ -21,5 +21,13 @@ class containerInfos extends Model
     public $containerSpec;
 
     public $aliases;
-    protected $_name = [];
+    protected $_name = [
+        'id'             => 'Id',
+        'name'           => 'Name',
+        'namespace'      => 'Namespace',
+        'labels'         => 'Labels',
+        'containerStats' => 'ContainerStats',
+        'containerSpec'  => 'ContainerSpec',
+        'aliases'        => 'Aliases',
+    ];
 }

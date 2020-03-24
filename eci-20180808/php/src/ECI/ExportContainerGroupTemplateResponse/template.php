@@ -29,5 +29,17 @@ class template extends Model
     public $resources;
 
     public $spec;
-    protected $_name = [];
+    protected $_name = [
+        'regionId'           => 'RegionId',
+        'zoneId'             => 'ZoneId',
+        'securityGroupId'    => 'SecurityGroupId',
+        'VSwitchId'          => 'VSwitchId',
+        'resourceGroupId'    => 'ResourceGroupId',
+        'eipInstanceId'      => 'EipInstanceId',
+        'containerGroupName' => 'ContainerGroupName',
+        'instanceType'       => 'InstanceType',
+        'tags'               => 'Tags',
+        'resources'          => 'Resources',
+        'spec'               => 'Spec',
+    ];
 }

@@ -15,5 +15,10 @@ class cpuUsage extends Model
     public $system;
 
     public $perCpuUsages;
-    protected $_name = [];
+    protected $_name = [
+        'total'        => 'Total',
+        'user'         => 'User',
+        'system'       => 'System',
+        'perCpuUsages' => 'PerCpuUsages',
+    ];
 }

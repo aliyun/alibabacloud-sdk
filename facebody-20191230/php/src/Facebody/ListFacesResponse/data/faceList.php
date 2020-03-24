@@ -15,5 +15,10 @@ class faceList extends Model
     public $entityId;
 
     public $imageUrl;
-    protected $_name = [];
+    protected $_name = [
+        'faceId'    => 'FaceId',
+        'extraData' => 'ExtraData',
+        'entityId'  => 'EntityId',
+        'imageUrl'  => 'ImageUrl',
+    ];
 }

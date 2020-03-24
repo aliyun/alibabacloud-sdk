@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class detailInfos extends Model
 {
     public $detailInfo;
-    protected $_name = [];
+    protected $_name = [
+        'detailInfo' => 'DetailInfo',
+    ];
 }

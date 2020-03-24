@@ -17,5 +17,11 @@ class AddImageResponse extends Model
     public $code;
 
     public $picInfo;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'success'   => 'Success',
+        'message'   => 'Message',
+        'code'      => 'Code',
+        'picInfo'   => 'PicInfo',
+    ];
 }

@@ -11,5 +11,8 @@ class keyPoints extends Model
     public $label;
 
     public $positions;
-    protected $_name = [];
+    protected $_name = [
+        'label'     => 'Label',
+        'positions' => 'Positions',
+    ];
 }

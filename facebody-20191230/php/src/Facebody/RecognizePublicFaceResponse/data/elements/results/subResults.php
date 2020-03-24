@@ -17,5 +17,11 @@ class subResults extends Model
     public $y;
 
     public $faces;
-    protected $_name = [];
+    protected $_name = [
+        'h'     => 'H',
+        'w'     => 'W',
+        'x'     => 'X',
+        'y'     => 'Y',
+        'faces' => 'Faces',
+    ];
 }

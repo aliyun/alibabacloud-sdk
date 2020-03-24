@@ -29,5 +29,17 @@ class volumes extends Model
     public $flexVolumeOptions;
 
     public $configFileVolumeConfigFileToPaths;
-    protected $_name = [];
+    protected $_name = [
+        'type'                              => 'Type',
+        'name'                              => 'Name',
+        'NFSVolumePath'                     => 'NFSVolumePath',
+        'NFSVolumeServer'                   => 'NFSVolumeServer',
+        'NFSVolumeReadOnly'                 => 'NFSVolumeReadOnly',
+        'diskVolumeDiskId'                  => 'DiskVolumeDiskId',
+        'diskVolumeFsType'                  => 'DiskVolumeFsType',
+        'flexVolumeDriver'                  => 'FlexVolumeDriver',
+        'flexVolumeFsType'                  => 'FlexVolumeFsType',
+        'flexVolumeOptions'                 => 'FlexVolumeOptions',
+        'configFileVolumeConfigFileToPaths' => 'ConfigFileVolumeConfigFileToPaths',
+    ];
 }

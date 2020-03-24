@@ -13,5 +13,9 @@ class volumeMounts extends Model
     public $mountPath;
 
     public $readOnly;
-    protected $_name = [];
+    protected $_name = [
+        'name'      => 'Name',
+        'mountPath' => 'MountPath',
+        'readOnly'  => 'ReadOnly',
+    ];
 }

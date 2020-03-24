@@ -13,5 +13,9 @@ class data extends Model
     public $cardNumber;
 
     public $validDate;
-    protected $_name = [];
+    protected $_name = [
+        'bankName'   => 'BankName',
+        'cardNumber' => 'CardNumber',
+        'validDate'  => 'ValidDate',
+    ];
 }

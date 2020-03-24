@@ -11,5 +11,8 @@ class configFileVolume extends Model
     public $configFileToPath;
 
     public $defaultModel;
-    protected $_name = [];
+    protected $_name = [
+        'configFileToPath' => 'ConfigFileToPath',
+        'defaultModel'     => 'DefaultModel',
+    ];
 }

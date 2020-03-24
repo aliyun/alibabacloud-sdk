@@ -17,5 +17,11 @@ class AddFaceAdvanceRequest extends Model
     public $entityId;
 
     public $extraData;
-    protected $_name = [];
+    protected $_name = [
+        'imageUrlObject' => 'ImageUrlObject',
+        'dbName'         => 'DbName',
+        'faceId'         => 'FaceId',
+        'entityId'       => 'EntityId',
+        'extraData'      => 'ExtraData',
+    ];
 }

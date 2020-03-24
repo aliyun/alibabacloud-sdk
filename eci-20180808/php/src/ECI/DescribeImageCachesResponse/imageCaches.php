@@ -27,5 +27,16 @@ class imageCaches extends Model
     public $events;
 
     public $images;
-    protected $_name = [];
+    protected $_name = [
+        'containerGroupId' => 'ContainerGroupId',
+        'imageCacheId'     => 'ImageCacheId',
+        'imageCacheName'   => 'ImageCacheName',
+        'snapshotId'       => 'SnapshotId',
+        'progress'         => 'Progress',
+        'status'           => 'Status',
+        'expireDateTime'   => 'ExpireDateTime',
+        'creationTime'     => 'CreationTime',
+        'events'           => 'Events',
+        'images'           => 'Images',
+    ];
 }

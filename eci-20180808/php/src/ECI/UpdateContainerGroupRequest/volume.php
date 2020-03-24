@@ -17,5 +17,11 @@ class volume extends Model
     public $configFileVolume;
 
     public $emptyDirVolume;
-    protected $_name = [];
+    protected $_name = [
+        'name'             => 'Name',
+        'type'             => 'Type',
+        'NFSVolume'        => 'NFSVolume',
+        'configFileVolume' => 'ConfigFileVolume',
+        'emptyDirVolume'   => 'EmptyDirVolume',
+    ];
 }

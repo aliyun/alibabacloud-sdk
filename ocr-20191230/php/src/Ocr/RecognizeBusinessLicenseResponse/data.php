@@ -35,5 +35,20 @@ class data extends Model
     public $stamp;
 
     public $QRCode;
-    protected $_name = [];
+    protected $_name = [
+        'angle'          => 'Angle',
+        'registerNumber' => 'RegisterNumber',
+        'name'           => 'Name',
+        'type'           => 'Type',
+        'legalPerson'    => 'LegalPerson',
+        'establishDate'  => 'EstablishDate',
+        'validPeriod'    => 'ValidPeriod',
+        'address'        => 'Address',
+        'capital'        => 'Capital',
+        'business'       => 'Business',
+        'emblem'         => 'Emblem',
+        'title'          => 'Title',
+        'stamp'          => 'Stamp',
+        'QRCode'         => 'QRCode',
+    ];
 }

@@ -13,5 +13,9 @@ class DescribeContainerGroupMetricResponse extends Model
     public $containerGroupId;
 
     public $records;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'        => 'RequestId',
+        'containerGroupId' => 'ContainerGroupId',
+        'records'          => 'Records',
+    ];
 }

@@ -15,5 +15,10 @@ class detectObjectInfoList extends Model
     public $id;
 
     public $boxes;
-    protected $_name = [];
+    protected $_name = [
+        'score' => 'Score',
+        'type'  => 'Type',
+        'id'    => 'Id',
+        'boxes' => 'Boxes',
+    ];
 }

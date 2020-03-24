@@ -11,5 +11,8 @@ class ExportContainerGroupTemplateResponse extends Model
     public $requestId;
 
     public $template;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'template'  => 'Template',
+    ];
 }

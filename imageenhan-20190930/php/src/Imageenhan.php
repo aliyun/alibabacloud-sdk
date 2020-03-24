@@ -45,7 +45,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Imageenhan
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

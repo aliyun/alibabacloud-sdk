@@ -31,5 +31,18 @@ class containerSpec extends Model
     public $containerCpu;
 
     public $containerMemory;
-    protected $_name = [];
+    protected $_name = [
+        'creationTime'     => 'CreationTime',
+        'hasCpu'           => 'HasCpu',
+        'hasMemory'        => 'HasMemory',
+        'hasNetwork'       => 'HasNetwork',
+        'hasFilesystem'    => 'HasFilesystem',
+        'hasDiskIo'        => 'HasDiskIo',
+        'hasCustomMetrics' => 'HasCustomMetrics',
+        'image'            => 'Image',
+        'labels'           => 'Labels',
+        'envs'             => 'Envs',
+        'containerCpu'     => 'ContainerCpu',
+        'containerMemory'  => 'ContainerMemory',
+    ];
 }

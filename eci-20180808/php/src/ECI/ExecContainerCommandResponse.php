@@ -11,5 +11,8 @@ class ExecContainerCommandResponse extends Model
     public $requestId;
 
     public $webSocketUri;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'    => 'RequestId',
+        'webSocketUri' => 'WebSocketUri',
+    ];
 }

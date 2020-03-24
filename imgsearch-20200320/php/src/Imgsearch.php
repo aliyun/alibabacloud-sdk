@@ -36,7 +36,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Imgsearch
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

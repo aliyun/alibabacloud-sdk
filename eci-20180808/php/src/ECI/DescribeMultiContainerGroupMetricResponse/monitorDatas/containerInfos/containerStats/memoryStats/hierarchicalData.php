@@ -11,5 +11,8 @@ class hierarchicalData extends Model
     public $pgFault;
 
     public $pgmajFault;
-    protected $_name = [];
+    protected $_name = [
+        'pgFault'    => 'PgFault',
+        'pgmajFault' => 'PgmajFault',
+    ];
 }

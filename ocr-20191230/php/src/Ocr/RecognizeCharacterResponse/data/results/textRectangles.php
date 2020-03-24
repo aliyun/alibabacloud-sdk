@@ -17,5 +17,11 @@ class textRectangles extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'angle'  => 'Angle',
+        'left'   => 'Left',
+        'top'    => 'Top',
+        'width'  => 'Width',
+        'height' => 'Height',
+    ];
 }

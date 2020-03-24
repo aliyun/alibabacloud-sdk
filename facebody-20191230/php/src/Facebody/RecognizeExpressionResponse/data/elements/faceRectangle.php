@@ -15,5 +15,10 @@ class faceRectangle extends Model
     public $top;
 
     public $width;
-    protected $_name = [];
+    protected $_name = [
+        'height' => 'Height',
+        'left'   => 'Left',
+        'top'    => 'Top',
+        'width'  => 'Width',
+    ];
 }

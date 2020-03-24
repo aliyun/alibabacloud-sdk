@@ -21,5 +21,13 @@ class SearchImageByNameRequest extends Model
     public $start;
 
     public $filter;
-    protected $_name = [];
+    protected $_name = [
+        'categoryId'   => 'CategoryId',
+        'instanceName' => 'InstanceName',
+        'productId'    => 'ProductId',
+        'picName'      => 'PicName',
+        'num'          => 'Num',
+        'start'        => 'Start',
+        'filter'       => 'Filter',
+    ];
 }

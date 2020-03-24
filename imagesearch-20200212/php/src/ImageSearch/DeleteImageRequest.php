@@ -13,5 +13,9 @@ class DeleteImageRequest extends Model
     public $productId;
 
     public $picName;
-    protected $_name = [];
+    protected $_name = [
+        'instanceName' => 'InstanceName',
+        'productId'    => 'ProductId',
+        'picName'      => 'PicName',
+    ];
 }

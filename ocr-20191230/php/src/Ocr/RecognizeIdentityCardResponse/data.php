@@ -11,5 +11,8 @@ class data extends Model
     public $frontResult;
 
     public $backResult;
-    protected $_name = [];
+    protected $_name = [
+        'frontResult' => 'FrontResult',
+        'backResult'  => 'BackResult',
+    ];
 }

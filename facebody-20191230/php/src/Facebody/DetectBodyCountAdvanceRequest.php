@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class DetectBodyCountAdvanceRequest extends Model
 {
     public $imageURLObject;
-    protected $_name = [];
+    protected $_name = [
+        'imageURLObject' => 'ImageURLObject',
+    ];
 }

@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class exec extends Model
 {
     public $command;
-    protected $_name = [];
+    protected $_name = [
+        'command' => 'Command',
+    ];
 }

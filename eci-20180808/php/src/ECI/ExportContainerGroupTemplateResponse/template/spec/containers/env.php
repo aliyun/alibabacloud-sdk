@@ -13,5 +13,9 @@ class env extends Model
     public $value;
 
     public $valueFrom;
-    protected $_name = [];
+    protected $_name = [
+        'name'      => 'Name',
+        'value'     => 'Value',
+        'valueFrom' => 'ValueFrom',
+    ];
 }

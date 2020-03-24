@@ -11,5 +11,8 @@ class generalText extends Model
     public $content;
 
     public $confidence;
-    protected $_name = [];
+    protected $_name = [
+        'content'    => 'Content',
+        'confidence' => 'Confidence',
+    ];
 }

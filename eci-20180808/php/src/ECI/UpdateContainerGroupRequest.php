@@ -39,5 +39,22 @@ class UpdateContainerGroupRequest extends Model
     public $cpu;
 
     public $memory;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'                 => 'OwnerId',
+        'resourceOwnerAccount'    => 'ResourceOwnerAccount',
+        'resourceOwnerId'         => 'ResourceOwnerId',
+        'ownerAccount'            => 'OwnerAccount',
+        'regionId'                => 'RegionId',
+        'containerGroupId'        => 'ContainerGroupId',
+        'restartPolicy'           => 'RestartPolicy',
+        'tag'                     => 'Tag',
+        'volume'                  => 'Volume',
+        'dnsConfig'               => 'DnsConfig',
+        'container'               => 'Container',
+        'initContainer'           => 'InitContainer',
+        'imageRegistryCredential' => 'ImageRegistryCredential',
+        'clientToken'             => 'ClientToken',
+        'cpu'                     => 'Cpu',
+        'memory'                  => 'Memory',
+    ];
 }

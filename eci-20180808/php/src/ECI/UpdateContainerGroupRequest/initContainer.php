@@ -39,5 +39,22 @@ class initContainer extends Model
     public $securityContext;
 
     public $gpu;
-    protected $_name = [];
+    protected $_name = [
+        'name'            => 'Name',
+        'image'           => 'Image',
+        'cpu'             => 'Cpu',
+        'memory'          => 'Memory',
+        'workingDir'      => 'WorkingDir',
+        'imagePullPolicy' => 'ImagePullPolicy',
+        'stdin'           => 'Stdin',
+        'stdinOnce'       => 'StdinOnce',
+        'tty'             => 'Tty',
+        'command'         => 'Command',
+        'arg'             => 'Arg',
+        'environmentVar'  => 'EnvironmentVar',
+        'port'            => 'Port',
+        'volumeMount'     => 'VolumeMount',
+        'securityContext' => 'SecurityContext',
+        'gpu'             => 'Gpu',
+    ];
 }

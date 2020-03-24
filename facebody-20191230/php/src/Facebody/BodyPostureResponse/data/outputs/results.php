@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     public $bodies;
-    protected $_name = [];
+    protected $_name = [
+        'bodies' => 'Bodies',
+    ];
 }

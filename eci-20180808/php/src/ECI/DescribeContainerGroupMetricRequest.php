@@ -25,5 +25,15 @@ class DescribeContainerGroupMetricRequest extends Model
     public $endTime;
 
     public $period;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'containerGroupId'     => 'ContainerGroupId',
+        'startTime'            => 'StartTime',
+        'endTime'              => 'EndTime',
+        'period'               => 'Period',
+    ];
 }

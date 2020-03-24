@@ -25,5 +25,15 @@ class frontResult extends Model
     public $faceRectVertices;
 
     public $faceRectangle;
-    protected $_name = [];
+    protected $_name = [
+        'address'          => 'Address',
+        'name'             => 'Name',
+        'nationality'      => 'Nationality',
+        'IDNumber'         => 'IDNumber',
+        'gender'           => 'Gender',
+        'birthDate'        => 'BirthDate',
+        'cardAreas'        => 'CardAreas',
+        'faceRectVertices' => 'FaceRectVertices',
+        'faceRectangle'    => 'FaceRectangle',
+    ];
 }

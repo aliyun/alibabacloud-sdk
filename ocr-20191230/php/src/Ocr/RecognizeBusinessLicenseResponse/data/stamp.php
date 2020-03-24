@@ -15,5 +15,10 @@ class stamp extends Model
     public $height;
 
     public $width;
-    protected $_name = [];
+    protected $_name = [
+        'top'    => 'Top',
+        'left'   => 'Left',
+        'height' => 'Height',
+        'width'  => 'Width',
+    ];
 }

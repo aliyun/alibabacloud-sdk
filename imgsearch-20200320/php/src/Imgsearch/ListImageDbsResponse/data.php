@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $dbList;
-    protected $_name = [];
+    protected $_name = [
+        'dbList' => 'DbList',
+    ];
 }

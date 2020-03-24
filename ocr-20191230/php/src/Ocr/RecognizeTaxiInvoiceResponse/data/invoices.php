@@ -13,5 +13,9 @@ class invoices extends Model
     public $items;
 
     public $invoiceRoi;
-    protected $_name = [];
+    protected $_name = [
+        'rotateType' => 'RotateType',
+        'items'      => 'Items',
+        'invoiceRoi' => 'InvoiceRoi',
+    ];
 }

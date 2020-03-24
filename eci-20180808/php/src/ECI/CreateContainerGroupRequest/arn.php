@@ -13,5 +13,9 @@ class arn extends Model
     public $roleType;
 
     public $assumeRoleFor;
-    protected $_name = [];
+    protected $_name = [
+        'roleArn'       => 'RoleArn',
+        'roleType'      => 'RoleType',
+        'assumeRoleFor' => 'AssumeRoleFor',
+    ];
 }
