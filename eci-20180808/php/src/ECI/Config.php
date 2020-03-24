@@ -39,5 +39,22 @@ class Config extends Model
     public $userAgent;
 
     public $maxIdleConns;
-    protected $_name = [];
+    protected $_name = [
+        'accessKeyId'     => 'accessKeyId',
+        'accessKeySecret' => 'accessKeySecret',
+        'type'            => 'type',
+        'securityToken'   => 'securityToken',
+        'endpoint'        => 'endpoint',
+        'protocol'        => 'protocol',
+        'regionId'        => 'regionId',
+        'readTimeout'     => 'read timeout',
+        'connectTimeout'  => 'connect timeout',
+        'httpProxy'       => 'http proxy',
+        'httpsProxy'      => 'https proxy',
+        'socks5Proxy'     => 'socks5 proxy',
+        'socks5NetWork'   => 'socks5 NetWork',
+        'noProxy'         => 'no proxy',
+        'userAgent'       => 'userAgent',
+        'maxIdleConns'    => 'maxIdleConns',
+    ];
 }

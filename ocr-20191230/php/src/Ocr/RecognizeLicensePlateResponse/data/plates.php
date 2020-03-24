@@ -17,5 +17,11 @@ class plates extends Model
     public $plateTypeConfidence;
 
     public $roi;
-    protected $_name = [];
+    protected $_name = [
+        'confidence'          => 'Confidence',
+        'plateNumber'         => 'PlateNumber',
+        'plateType'           => 'PlateType',
+        'plateTypeConfidence' => 'PlateTypeConfidence',
+        'roi'                 => 'Roi',
+    ];
 }

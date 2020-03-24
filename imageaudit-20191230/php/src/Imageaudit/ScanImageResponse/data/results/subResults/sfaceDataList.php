@@ -17,5 +17,11 @@ class sfaceDataList extends Model
     public $height;
 
     public $faces;
-    protected $_name = [];
+    protected $_name = [
+        'x'      => 'X',
+        'y'      => 'Y',
+        'width'  => 'Width',
+        'height' => 'Height',
+        'faces'  => 'Faces',
+    ];
 }

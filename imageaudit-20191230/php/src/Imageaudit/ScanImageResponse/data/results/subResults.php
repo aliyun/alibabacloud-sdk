@@ -27,5 +27,16 @@ class subResults extends Model
     public $sfaceDataList;
 
     public $OCRDataList;
-    protected $_name = [];
+    protected $_name = [
+        'label'               => 'Label',
+        'suggestion'          => 'Suggestion',
+        'rate'                => 'Rate',
+        'scene'               => 'Scene',
+        'frames'              => 'Frames',
+        'hintWordsInfoList'   => 'HintWordsInfoList',
+        'programCodeDataList' => 'ProgramCodeDataList',
+        'logoDataList'        => 'LogoDataList',
+        'sfaceDataList'       => 'SfaceDataList',
+        'OCRDataList'         => 'OCRDataList',
+    ];
 }

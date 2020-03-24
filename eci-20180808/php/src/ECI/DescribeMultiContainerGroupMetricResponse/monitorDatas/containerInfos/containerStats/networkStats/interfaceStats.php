@@ -25,5 +25,15 @@ class interfaceStats extends Model
     public $txDropped;
 
     public $txErrors;
-    protected $_name = [];
+    protected $_name = [
+        'name'      => 'Name',
+        'rxBytes'   => 'RxBytes',
+        'rxPackets' => 'RxPackets',
+        'rxErrors'  => 'RxErrors',
+        'rxDropped' => 'RxDropped',
+        'txBytes'   => 'TxBytes',
+        'txPackets' => 'TxPackets',
+        'txDropped' => 'TxDropped',
+        'txErrors'  => 'TxErrors',
+    ];
 }

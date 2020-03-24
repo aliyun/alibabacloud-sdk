@@ -11,5 +11,8 @@ class GenerateVideoCoverAdvanceRequest extends Model
     public $videoUrlObject;
 
     public $isGif;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'isGif'          => 'IsGif',
+    ];
 }

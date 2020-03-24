@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class valueFrom extends Model
 {
     public $fieldRef;
-    protected $_name = [];
+    protected $_name = [
+        'fieldRef' => 'FieldRef',
+    ];
 }

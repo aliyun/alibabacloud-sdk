@@ -13,5 +13,9 @@ class regions extends Model
     public $regionEndpoint;
 
     public $zones;
-    protected $_name = [];
+    protected $_name = [
+        'regionId'       => 'RegionId',
+        'regionEndpoint' => 'RegionEndpoint',
+        'zones'          => 'Zones',
+    ];
 }

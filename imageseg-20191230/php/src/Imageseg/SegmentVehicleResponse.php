@@ -11,5 +11,8 @@ class SegmentVehicleResponse extends Model
     public $requestId;
 
     public $data;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'data'      => 'Data',
+    ];
 }

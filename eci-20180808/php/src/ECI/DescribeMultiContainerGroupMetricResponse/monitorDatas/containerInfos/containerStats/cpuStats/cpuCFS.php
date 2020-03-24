@@ -13,5 +13,9 @@ class cpuCFS extends Model
     public $throttledPeriods;
 
     public $throttledTime;
-    protected $_name = [];
+    protected $_name = [
+        'periods'          => 'Periods',
+        'throttledPeriods' => 'ThrottledPeriods',
+        'throttledTime'    => 'ThrottledTime',
+    ];
 }

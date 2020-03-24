@@ -47,5 +47,26 @@ class fsStats extends Model
     public $ioTime;
 
     public $weightedIoTime;
-    protected $_name = [];
+    protected $_name = [
+        'device'          => 'Device',
+        'type'            => 'Type',
+        'limit'           => 'Limit',
+        'usage'           => 'Usage',
+        'baseUsage'       => 'BaseUsage',
+        'available'       => 'Available',
+        'hasInodes'       => 'HasInodes',
+        'inodes'          => 'Inodes',
+        'inodesFree'      => 'InodesFree',
+        'readsCompleted'  => 'ReadsCompleted',
+        'readsMerged'     => 'ReadsMerged',
+        'sectorsRead'     => 'SectorsRead',
+        'readTime'        => 'ReadTime',
+        'writesCompleted' => 'WritesCompleted',
+        'writesMerged'    => 'WritesMerged',
+        'sectorsWritten'  => 'SectorsWritten',
+        'writeTime'       => 'WriteTime',
+        'ioInProgress'    => 'IoInProgress',
+        'ioTime'          => 'IoTime',
+        'weightedIoTime'  => 'WeightedIoTime',
+    ];
 }

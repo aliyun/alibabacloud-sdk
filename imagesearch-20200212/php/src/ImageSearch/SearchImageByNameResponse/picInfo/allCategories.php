@@ -11,5 +11,8 @@ class allCategories extends Model
     public $id;
 
     public $name;
-    protected $_name = [];
+    protected $_name = [
+        'id'   => 'Id',
+        'name' => 'Name',
+    ];
 }

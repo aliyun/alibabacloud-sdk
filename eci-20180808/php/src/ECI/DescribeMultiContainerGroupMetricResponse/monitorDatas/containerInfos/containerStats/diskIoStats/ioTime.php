@@ -15,5 +15,10 @@ class ioTime extends Model
     public $minor;
 
     public $stats;
-    protected $_name = [];
+    protected $_name = [
+        'device' => 'Device',
+        'major'  => 'Major',
+        'minor'  => 'Minor',
+        'stats'  => 'Stats',
+    ];
 }

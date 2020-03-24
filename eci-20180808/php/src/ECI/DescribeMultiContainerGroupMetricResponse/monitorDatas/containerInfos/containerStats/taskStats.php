@@ -17,5 +17,11 @@ class taskStats extends Model
     public $nrUninterruptible;
 
     public $nrIoWait;
-    protected $_name = [];
+    protected $_name = [
+        'nrSleeping'        => 'NrSleeping',
+        'nrRunning'         => 'NrRunning',
+        'nrStopped'         => 'NrStopped',
+        'nrUninterruptible' => 'NrUninterruptible',
+        'nrIoWait'          => 'NrIoWait',
+    ];
 }

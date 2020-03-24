@@ -17,5 +17,11 @@ class memory extends Model
     public $workingSet;
 
     public $rss;
-    protected $_name = [];
+    protected $_name = [
+        'availableBytes' => 'AvailableBytes',
+        'usageBytes'     => 'UsageBytes',
+        'cache'          => 'Cache',
+        'workingSet'     => 'WorkingSet',
+        'rss'            => 'Rss',
+    ];
 }

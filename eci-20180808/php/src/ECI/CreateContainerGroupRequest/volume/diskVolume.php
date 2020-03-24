@@ -13,5 +13,9 @@ class diskVolume extends Model
     public $fsType;
 
     public $diskSize;
-    protected $_name = [];
+    protected $_name = [
+        'diskId'   => 'DiskId',
+        'fsType'   => 'FsType',
+        'diskSize' => 'DiskSize',
+    ];
 }

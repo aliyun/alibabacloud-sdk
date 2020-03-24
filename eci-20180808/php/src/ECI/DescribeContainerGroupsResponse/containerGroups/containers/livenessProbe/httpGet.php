@@ -13,5 +13,9 @@ class httpGet extends Model
     public $port;
 
     public $scheme;
-    protected $_name = [];
+    protected $_name = [
+        'path'   => 'Path',
+        'port'   => 'Port',
+        'scheme' => 'Scheme',
+    ];
 }

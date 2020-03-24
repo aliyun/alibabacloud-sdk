@@ -11,5 +11,8 @@ class results extends Model
     public $box;
 
     public $hands;
-    protected $_name = [];
+    protected $_name = [
+        'box'   => 'Box',
+        'hands' => 'Hands',
+    ];
 }

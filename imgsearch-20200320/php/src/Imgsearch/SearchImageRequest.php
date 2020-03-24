@@ -13,5 +13,9 @@ class SearchImageRequest extends Model
     public $imageUrl;
 
     public $limit;
-    protected $_name = [];
+    protected $_name = [
+        'dbName'   => 'DbName',
+        'imageUrl' => 'ImageUrl',
+        'limit'    => 'Limit',
+    ];
 }

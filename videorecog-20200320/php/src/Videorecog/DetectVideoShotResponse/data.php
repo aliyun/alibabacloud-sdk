@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $shotFrameIds;
-    protected $_name = [];
+    protected $_name = [
+        'shotFrameIds' => 'ShotFrameIds',
+    ];
 }

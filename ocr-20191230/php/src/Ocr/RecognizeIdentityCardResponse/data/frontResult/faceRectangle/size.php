@@ -11,5 +11,8 @@ class size extends Model
     public $height;
 
     public $width;
-    protected $_name = [];
+    protected $_name = [
+        'height' => 'Height',
+        'width'  => 'Width',
+    ];
 }

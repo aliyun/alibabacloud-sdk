@@ -28,7 +28,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Videorecog
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

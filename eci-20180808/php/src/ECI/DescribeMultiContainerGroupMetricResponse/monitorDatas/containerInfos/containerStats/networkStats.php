@@ -35,5 +35,20 @@ class networkStats extends Model
     public $udp;
 
     public $udp6;
-    protected $_name = [];
+    protected $_name = [
+        'name'           => 'Name',
+        'rxBytes'        => 'RxBytes',
+        'rxPackets'      => 'RxPackets',
+        'rxErrors'       => 'RxErrors',
+        'rxDropped'      => 'RxDropped',
+        'txBytes'        => 'TxBytes',
+        'txPackets'      => 'TxPackets',
+        'txDropped'      => 'TxDropped',
+        'txErrors'       => 'TxErrors',
+        'interfaceStats' => 'InterfaceStats',
+        'tcp'            => 'Tcp',
+        'tcp6'           => 'Tcp6',
+        'udp'            => 'Udp',
+        'udp6'           => 'Udp6',
+    ];
 }

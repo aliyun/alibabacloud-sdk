@@ -11,5 +11,8 @@ class elements extends Model
     public $name;
 
     public $imageURL;
-    protected $_name = [];
+    protected $_name = [
+        'name'     => 'Name',
+        'imageURL' => 'ImageURL',
+    ];
 }

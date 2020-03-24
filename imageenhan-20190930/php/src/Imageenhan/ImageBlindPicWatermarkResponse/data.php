@@ -11,5 +11,8 @@ class data extends Model
     public $watermarkImageURL;
 
     public $logoURL;
-    protected $_name = [];
+    protected $_name = [
+        'watermarkImageURL' => 'WatermarkImageURL',
+        'logoURL'           => 'LogoURL',
+    ];
 }

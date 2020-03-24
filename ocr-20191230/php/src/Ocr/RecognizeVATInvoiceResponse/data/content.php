@@ -45,5 +45,25 @@ class content extends Model
     public $checker;
 
     public $clerk;
-    protected $_name = [];
+    protected $_name = [
+        'invoiceCode'      => 'InvoiceCode',
+        'invoiceNo'        => 'InvoiceNo',
+        'invoiceDate'      => 'InvoiceDate',
+        'antiFakeCode'     => 'AntiFakeCode',
+        'payerName'        => 'PayerName',
+        'payerRegisterNo'  => 'PayerRegisterNo',
+        'payerAddress'     => 'PayerAddress',
+        'payerBankName'    => 'PayerBankName',
+        'withoutTaxAmount' => 'WithoutTaxAmount',
+        'taxAmount'        => 'TaxAmount',
+        'sumAmount'        => 'SumAmount',
+        'invoiceAmount'    => 'InvoiceAmount',
+        'payeeName'        => 'PayeeName',
+        'payeeRegisterNo'  => 'PayeeRegisterNo',
+        'payeeAddress'     => 'PayeeAddress',
+        'payeeBankName'    => 'PayeeBankName',
+        'payee'            => 'Payee',
+        'checker'          => 'Checker',
+        'clerk'            => 'Clerk',
+    ];
 }

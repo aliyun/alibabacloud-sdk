@@ -13,5 +13,9 @@ class head extends Model
     public $docsFound;
 
     public $searchTime;
-    protected $_name = [];
+    protected $_name = [
+        'docsReturn' => 'DocsReturn',
+        'docsFound'  => 'DocsFound',
+        'searchTime' => 'SearchTime',
+    ];
 }

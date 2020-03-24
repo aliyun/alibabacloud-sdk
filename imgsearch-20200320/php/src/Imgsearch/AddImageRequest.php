@@ -17,5 +17,11 @@ class AddImageRequest extends Model
     public $extraData;
 
     public $entityId;
-    protected $_name = [];
+    protected $_name = [
+        'dbName'    => 'DbName',
+        'dataId'    => 'DataId',
+        'imageUrl'  => 'ImageUrl',
+        'extraData' => 'ExtraData',
+        'entityId'  => 'EntityId',
+    ];
 }

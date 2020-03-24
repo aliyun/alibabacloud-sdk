@@ -11,5 +11,8 @@ class resources extends Model
     public $cpu;
 
     public $memory;
-    protected $_name = [];
+    protected $_name = [
+        'cpu'    => 'Cpu',
+        'memory' => 'Memory',
+    ];
 }

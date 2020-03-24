@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class GetAsyncJobResultRequest extends Model
 {
     public $jobId;
-    protected $_name = [];
+    protected $_name = [
+        'jobId' => 'JobId',
+    ];
 }

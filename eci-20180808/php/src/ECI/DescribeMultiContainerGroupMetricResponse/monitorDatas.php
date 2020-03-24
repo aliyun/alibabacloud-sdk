@@ -13,5 +13,9 @@ class monitorDatas extends Model
     public $records;
 
     public $containerInfos;
-    protected $_name = [];
+    protected $_name = [
+        'containerGroupId' => 'ContainerGroupId',
+        'records'          => 'Records',
+        'containerInfos'   => 'ContainerInfos',
+    ];
 }

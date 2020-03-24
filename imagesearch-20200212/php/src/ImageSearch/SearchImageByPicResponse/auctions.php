@@ -21,5 +21,13 @@ class auctions extends Model
     public $intAttr;
 
     public $strAttr;
-    protected $_name = [];
+    protected $_name = [
+        'categoryId'     => 'CategoryId',
+        'productId'      => 'ProductId',
+        'picName'        => 'PicName',
+        'customContent'  => 'CustomContent',
+        'sortExprValues' => 'SortExprValues',
+        'intAttr'        => 'IntAttr',
+        'strAttr'        => 'StrAttr',
+    ];
 }

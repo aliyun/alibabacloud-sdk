@@ -13,5 +13,9 @@ class FaceFilterAdvanceRequest extends Model
     public $resourceType;
 
     public $strength;
-    protected $_name = [];
+    protected $_name = [
+        'imageURLObject' => 'ImageURLObject',
+        'resourceType'   => 'ResourceType',
+        'strength'       => 'Strength',
+    ];
 }

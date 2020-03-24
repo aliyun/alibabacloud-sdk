@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class fieldRef extends Model
 {
     public $fieldPath;
-    protected $_name = [];
+    protected $_name = [
+        'fieldPath' => 'FieldPath',
+    ];
 }

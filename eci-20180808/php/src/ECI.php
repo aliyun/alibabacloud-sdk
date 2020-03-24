@@ -52,7 +52,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class ECI
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

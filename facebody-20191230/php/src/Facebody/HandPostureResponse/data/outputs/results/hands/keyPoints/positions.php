@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class positions extends Model
 {
     public $points;
-    protected $_name = [];
+    protected $_name = [
+        'points' => 'Points',
+    ];
 }

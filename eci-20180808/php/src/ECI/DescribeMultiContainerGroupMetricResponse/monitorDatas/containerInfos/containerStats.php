@@ -23,5 +23,14 @@ class containerStats extends Model
     public $networkStats;
 
     public $taskStats;
-    protected $_name = [];
+    protected $_name = [
+        'timestamp'        => 'Timestamp',
+        'fsStats'          => 'FsStats',
+        'acceleratorStats' => 'AcceleratorStats',
+        'cpuStats'         => 'CpuStats',
+        'diskIoStats'      => 'DiskIoStats',
+        'memoryStats'      => 'MemoryStats',
+        'networkStats'     => 'NetworkStats',
+        'taskStats'        => 'TaskStats',
+    ];
 }

@@ -15,5 +15,10 @@ class FaceMakeupRequest extends Model
     public $resourceType;
 
     public $strength;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL'     => 'ImageURL',
+        'makeupType'   => 'MakeupType',
+        'resourceType' => 'ResourceType',
+        'strength'     => 'Strength',
+    ];
 }

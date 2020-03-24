@@ -13,5 +13,9 @@ class CreateImageCacheResponse extends Model
     public $imageCacheId;
 
     public $containerGroupId;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'        => 'RequestId',
+        'imageCacheId'     => 'ImageCacheId',
+        'containerGroupId' => 'ContainerGroupId',
+    ];
 }

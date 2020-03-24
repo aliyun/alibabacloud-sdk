@@ -11,5 +11,8 @@ class ScanImageRequest extends Model
     public $task;
 
     public $scene;
-    protected $_name = [];
+    protected $_name = [
+        'task'  => 'Task',
+        'scene' => 'Scene',
+    ];
 }

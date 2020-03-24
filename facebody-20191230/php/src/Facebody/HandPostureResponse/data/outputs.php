@@ -11,5 +11,8 @@ class outputs extends Model
     public $handCount;
 
     public $results;
-    protected $_name = [];
+    protected $_name = [
+        'handCount' => 'HandCount',
+        'results'   => 'Results',
+    ];
 }

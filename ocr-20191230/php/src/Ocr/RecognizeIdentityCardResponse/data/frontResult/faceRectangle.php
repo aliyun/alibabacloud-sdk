@@ -13,5 +13,9 @@ class faceRectangle extends Model
     public $center;
 
     public $size;
-    protected $_name = [];
+    protected $_name = [
+        'angle'  => 'Angle',
+        'center' => 'Center',
+        'size'   => 'Size',
+    ];
 }

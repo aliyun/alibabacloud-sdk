@@ -15,5 +15,10 @@ class elements extends Model
     public $rubbish;
 
     public $rubbishScore;
-    protected $_name = [];
+    protected $_name = [
+        'category'      => 'Category',
+        'categoryScore' => 'CategoryScore',
+        'rubbish'       => 'Rubbish',
+        'rubbishScore'  => 'RubbishScore',
+    ];
 }

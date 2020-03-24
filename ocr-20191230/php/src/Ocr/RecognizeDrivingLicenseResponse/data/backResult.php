@@ -27,5 +27,16 @@ class backResult extends Model
     public $unladenMass;
 
     public $plateNumber;
-    protected $_name = [];
+    protected $_name = [
+        'approvedPassengerCapacity' => 'ApprovedPassengerCapacity',
+        'approvedLoad'              => 'ApprovedLoad',
+        'fileNumber'                => 'FileNumber',
+        'grossMass'                 => 'GrossMass',
+        'energyType'                => 'EnergyType',
+        'inspectionRecord'          => 'InspectionRecord',
+        'overallDimension'          => 'OverallDimension',
+        'tractionMass'              => 'TractionMass',
+        'unladenMass'               => 'UnladenMass',
+        'plateNumber'               => 'PlateNumber',
+    ];
 }

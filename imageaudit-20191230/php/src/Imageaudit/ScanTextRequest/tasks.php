@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class tasks extends Model
 {
     public $content;
-    protected $_name = [];
+    protected $_name = [
+        'content' => 'Content',
+    ];
 }

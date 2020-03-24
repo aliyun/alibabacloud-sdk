@@ -17,5 +17,11 @@ class interfaces extends Model
     public $rxErrors;
 
     public $name;
-    protected $_name = [];
+    protected $_name = [
+        'txBytes'  => 'TxBytes',
+        'rxBytes'  => 'RxBytes',
+        'txErrors' => 'TxErrors',
+        'rxErrors' => 'RxErrors',
+        'name'     => 'Name',
+    ];
 }

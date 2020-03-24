@@ -15,5 +15,10 @@ class boxes extends Model
     public $x;
 
     public $y;
-    protected $_name = [];
+    protected $_name = [
+        'h' => 'H',
+        'w' => 'W',
+        'x' => 'X',
+        'y' => 'Y',
+    ];
 }

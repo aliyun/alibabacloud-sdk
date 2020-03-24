@@ -23,5 +23,14 @@ class readinessProbe extends Model
     public $failureThreshold;
 
     public $timeoutSeconds;
-    protected $_name = [];
+    protected $_name = [
+        'tcpSocket'           => 'TcpSocket',
+        'exec'                => 'Exec',
+        'httpGet'             => 'HttpGet',
+        'initialDelaySeconds' => 'InitialDelaySeconds',
+        'periodSeconds'       => 'PeriodSeconds',
+        'successThreshold'    => 'SuccessThreshold',
+        'failureThreshold'    => 'FailureThreshold',
+        'timeoutSeconds'      => 'TimeoutSeconds',
+    ];
 }

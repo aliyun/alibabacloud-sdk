@@ -69,5 +69,37 @@ class containerGroups extends Model
     public $dnsConfig;
 
     public $eciSecurityContext;
-    protected $_name = [];
+    protected $_name = [
+        'containerGroupId'   => 'ContainerGroupId',
+        'containerGroupName' => 'ContainerGroupName',
+        'regionId'           => 'RegionId',
+        'zoneId'             => 'ZoneId',
+        'memory'             => 'Memory',
+        'cpu'                => 'Cpu',
+        'VSwitchId'          => 'VSwitchId',
+        'securityGroupId'    => 'SecurityGroupId',
+        'restartPolicy'      => 'RestartPolicy',
+        'intranetIp'         => 'IntranetIp',
+        'status'             => 'Status',
+        'internetIp'         => 'InternetIp',
+        'creationTime'       => 'CreationTime',
+        'succeededTime'      => 'SucceededTime',
+        'eniInstanceId'      => 'EniInstanceId',
+        'instanceType'       => 'InstanceType',
+        'expiredTime'        => 'ExpiredTime',
+        'failedTime'         => 'FailedTime',
+        'ramRoleName'        => 'RamRoleName',
+        'ipv6Address'        => 'Ipv6Address',
+        'vpcId'              => 'VpcId',
+        'discount'           => 'Discount',
+        'resourceGroupId'    => 'ResourceGroupId',
+        'tags'               => 'Tags',
+        'events'             => 'Events',
+        'containers'         => 'Containers',
+        'volumes'            => 'Volumes',
+        'initContainers'     => 'InitContainers',
+        'hostAliases'        => 'HostAliases',
+        'dnsConfig'          => 'DnsConfig',
+        'eciSecurityContext' => 'EciSecurityContext',
+    ];
 }

@@ -13,5 +13,9 @@ class categories extends Model
     public $categoryName;
 
     public $categoryId;
-    protected $_name = [];
+    protected $_name = [
+        'score'        => 'Score',
+        'categoryName' => 'CategoryName',
+        'categoryId'   => 'CategoryId',
+    ];
 }

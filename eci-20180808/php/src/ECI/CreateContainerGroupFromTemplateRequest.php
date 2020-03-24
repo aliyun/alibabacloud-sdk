@@ -21,5 +21,13 @@ class CreateContainerGroupFromTemplateRequest extends Model
     public $template;
 
     public $clientToken;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'template'             => 'Template',
+        'clientToken'          => 'ClientToken',
+    ];
 }

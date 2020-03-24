@@ -11,5 +11,8 @@ class priceInfo extends Model
     public $rules;
 
     public $price;
-    protected $_name = [];
+    protected $_name = [
+        'rules' => 'Rules',
+        'price' => 'Price',
+    ];
 }

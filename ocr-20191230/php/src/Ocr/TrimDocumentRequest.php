@@ -13,5 +13,9 @@ class TrimDocumentRequest extends Model
     public $fileType;
 
     public $outputType;
-    protected $_name = [];
+    protected $_name = [
+        'fileURL'    => 'FileURL',
+        'fileType'   => 'FileType',
+        'outputType' => 'OutputType',
+    ];
 }

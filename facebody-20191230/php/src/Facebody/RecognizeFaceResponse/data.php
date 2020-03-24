@@ -33,5 +33,19 @@ class data extends Model
     public $glasses;
 
     public $denseFeatures;
-    protected $_name = [];
+    protected $_name = [
+        'faceCount'           => 'FaceCount',
+        'landmarkCount'       => 'LandmarkCount',
+        'denseFeatureLength'  => 'DenseFeatureLength',
+        'faceRectangles'      => 'FaceRectangles',
+        'faceProbabilityList' => 'FaceProbabilityList',
+        'poseList'            => 'PoseList',
+        'landmarks'           => 'Landmarks',
+        'pupils'              => 'Pupils',
+        'genderList'          => 'GenderList',
+        'ageList'             => 'AgeList',
+        'expressions'         => 'Expressions',
+        'glasses'             => 'Glasses',
+        'denseFeatures'       => 'DenseFeatures',
+    ];
 }

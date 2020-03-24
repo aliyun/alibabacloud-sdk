@@ -11,5 +11,8 @@ class center extends Model
     public $x;
 
     public $y;
-    protected $_name = [];
+    protected $_name = [
+        'x' => 'X',
+        'y' => 'Y',
+    ];
 }

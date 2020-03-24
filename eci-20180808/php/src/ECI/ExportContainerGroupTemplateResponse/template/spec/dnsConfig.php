@@ -13,5 +13,9 @@ class dnsConfig extends Model
     public $nameServers;
 
     public $searches;
-    protected $_name = [];
+    protected $_name = [
+        'options'     => 'Options',
+        'nameServers' => 'NameServers',
+        'searches'    => 'Searches',
+    ];
 }

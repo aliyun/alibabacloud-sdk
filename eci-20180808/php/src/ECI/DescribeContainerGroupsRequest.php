@@ -37,5 +37,21 @@ class DescribeContainerGroupsRequest extends Model
     public $resourceGroupId;
 
     public $withEvent;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'zoneId'               => 'ZoneId',
+        'VSwitchId'            => 'VSwitchId',
+        'nextToken'            => 'NextToken',
+        'limit'                => 'Limit',
+        'tag'                  => 'Tag',
+        'containerGroupIds'    => 'ContainerGroupIds',
+        'containerGroupName'   => 'ContainerGroupName',
+        'status'               => 'Status',
+        'resourceGroupId'      => 'ResourceGroupId',
+        'withEvent'            => 'WithEvent',
+    ];
 }

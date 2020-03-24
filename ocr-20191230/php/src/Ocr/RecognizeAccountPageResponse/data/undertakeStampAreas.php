@@ -15,5 +15,10 @@ class undertakeStampAreas extends Model
     public $height;
 
     public $width;
-    protected $_name = [];
+    protected $_name = [
+        'left'   => 'Left',
+        'top'    => 'Top',
+        'height' => 'Height',
+        'width'  => 'Width',
+    ];
 }

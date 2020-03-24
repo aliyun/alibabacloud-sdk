@@ -21,5 +21,13 @@ class tableColumns extends Model
     public $width;
 
     public $texts;
-    protected $_name = [];
+    protected $_name = [
+        'startColumn' => 'StartColumn',
+        'startRow'    => 'StartRow',
+        'endColumn'   => 'EndColumn',
+        'endRow'      => 'EndRow',
+        'height'      => 'Height',
+        'width'       => 'Width',
+        'texts'       => 'Texts',
+    ];
 }

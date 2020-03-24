@@ -15,5 +15,10 @@ class RecognizeFurnitureSpuRequest extends Model
     public $YLength;
 
     public $ZLength;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL' => 'ImageURL',
+        'XLength'  => 'XLength',
+        'YLength'  => 'YLength',
+        'ZLength'  => 'ZLength',
+    ];
 }

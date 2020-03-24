@@ -17,5 +17,11 @@ class DescribeRegionsRequest extends Model
     public $ownerAccount;
 
     public $regionId;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+    ];
 }

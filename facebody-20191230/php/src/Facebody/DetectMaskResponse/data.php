@@ -11,5 +11,8 @@ class data extends Model
     public $mask;
 
     public $faceProbability;
-    protected $_name = [];
+    protected $_name = [
+        'mask'            => 'Mask',
+        'faceProbability' => 'FaceProbability',
+    ];
 }

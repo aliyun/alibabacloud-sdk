@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class RestartContainerGroupResponse extends Model
 {
     public $requestId;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+    ];
 }

@@ -11,5 +11,8 @@ class ports extends Model
     public $port;
 
     public $protocol;
-    protected $_name = [];
+    protected $_name = [
+        'port'     => 'Port',
+        'protocol' => 'Protocol',
+    ];
 }

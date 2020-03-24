@@ -11,5 +11,8 @@ class lifecyclePostStartHandlerHttpGetHttpHeader extends Model
     public $name;
 
     public $value;
-    protected $_name = [];
+    protected $_name = [
+        'name'  => 'Name',
+        'value' => 'Value',
+    ];
 }

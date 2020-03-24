@@ -11,5 +11,8 @@ class tags extends Model
     public $confidence;
 
     public $value;
-    protected $_name = [];
+    protected $_name = [
+        'confidence' => 'Confidence',
+        'value'      => 'Value',
+    ];
 }

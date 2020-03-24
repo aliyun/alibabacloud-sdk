@@ -17,5 +17,11 @@ class elements extends Model
     public $maxY;
 
     public $score;
-    protected $_name = [];
+    protected $_name = [
+        'minX'  => 'MinX',
+        'minY'  => 'MinY',
+        'maxX'  => 'MaxX',
+        'maxY'  => 'MaxY',
+        'score' => 'Score',
+    ];
 }

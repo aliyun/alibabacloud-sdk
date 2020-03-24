@@ -15,5 +15,10 @@ class programCodeDataList extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'x'      => 'X',
+        'y'      => 'Y',
+        'width'  => 'Width',
+        'height' => 'Height',
+    ];
 }

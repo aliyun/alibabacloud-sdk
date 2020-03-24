@@ -11,5 +11,8 @@ class SuperResolveVideoRequest extends Model
     public $videoUrl;
 
     public $bitRate;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrl' => 'VideoUrl',
+        'bitRate'  => 'BitRate',
+    ];
 }

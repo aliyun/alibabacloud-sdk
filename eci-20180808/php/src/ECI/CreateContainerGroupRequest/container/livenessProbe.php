@@ -23,5 +23,14 @@ class livenessProbe extends Model
     public $exec;
 
     public $tcpSocket;
-    protected $_name = [];
+    protected $_name = [
+        'httpGet'             => 'HttpGet',
+        'initialDelaySeconds' => 'InitialDelaySeconds',
+        'periodSeconds'       => 'PeriodSeconds',
+        'successThreshold'    => 'SuccessThreshold',
+        'failureThreshold'    => 'FailureThreshold',
+        'timeoutSeconds'      => 'TimeoutSeconds',
+        'exec'                => 'Exec',
+        'tcpSocket'           => 'TcpSocket',
+    ];
 }

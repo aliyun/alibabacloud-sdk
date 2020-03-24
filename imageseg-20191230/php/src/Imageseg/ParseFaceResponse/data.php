@@ -11,5 +11,8 @@ class data extends Model
     public $originImageURL;
 
     public $elements;
-    protected $_name = [];
+    protected $_name = [
+        'originImageURL' => 'OriginImageURL',
+        'elements'       => 'Elements',
+    ];
 }

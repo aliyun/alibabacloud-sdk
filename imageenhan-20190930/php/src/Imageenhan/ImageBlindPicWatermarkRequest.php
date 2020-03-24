@@ -19,5 +19,12 @@ class ImageBlindPicWatermarkRequest extends Model
     public $qualityFactor;
 
     public $originImageURL;
-    protected $_name = [];
+    protected $_name = [
+        'functionType'      => 'FunctionType',
+        'logoURL'           => 'LogoURL',
+        'watermarkImageURL' => 'WatermarkImageURL',
+        'outputFileType'    => 'OutputFileType',
+        'qualityFactor'     => 'QualityFactor',
+        'originImageURL'    => 'OriginImageURL',
+    ];
 }

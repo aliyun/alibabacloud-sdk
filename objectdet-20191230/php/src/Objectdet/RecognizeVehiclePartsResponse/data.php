@@ -11,5 +11,8 @@ class data extends Model
     public $elements;
 
     public $originShapes;
-    protected $_name = [];
+    protected $_name = [
+        'elements'     => 'Elements',
+        'originShapes' => 'OriginShapes',
+    ];
 }

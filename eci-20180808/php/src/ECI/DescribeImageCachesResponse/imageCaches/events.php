@@ -19,5 +19,12 @@ class events extends Model
     public $firstTimestamp;
 
     public $lastTimestamp;
-    protected $_name = [];
+    protected $_name = [
+        'count'          => 'Count',
+        'type'           => 'Type',
+        'name'           => 'Name',
+        'message'        => 'Message',
+        'firstTimestamp' => 'FirstTimestamp',
+        'lastTimestamp'  => 'LastTimestamp',
+    ];
 }

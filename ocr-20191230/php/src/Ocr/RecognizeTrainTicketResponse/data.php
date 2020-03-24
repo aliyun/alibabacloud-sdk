@@ -23,5 +23,14 @@ class data extends Model
     public $seat;
 
     public $price;
-    protected $_name = [];
+    protected $_name = [
+        'date'             => 'Date',
+        'destination'      => 'Destination',
+        'level'            => 'Level',
+        'number'           => 'Number',
+        'name'             => 'Name',
+        'departureStation' => 'DepartureStation',
+        'seat'             => 'Seat',
+        'price'            => 'Price',
+    ];
 }

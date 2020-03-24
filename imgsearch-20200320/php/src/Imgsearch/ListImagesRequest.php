@@ -11,5 +11,8 @@ class ListImagesRequest extends Model
     public $dbName;
 
     public $fromScrollId;
-    protected $_name = [];
+    protected $_name = [
+        'dbName'       => 'DbName',
+        'fromScrollId' => 'FromScrollId',
+    ];
 }

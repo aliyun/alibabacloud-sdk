@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class AddImageResponse extends Model
 {
     public $requestId;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+    ];
 }

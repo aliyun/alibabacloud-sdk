@@ -13,5 +13,9 @@ class environmentVar extends Model
     public $value;
 
     public $fieldRef;
-    protected $_name = [];
+    protected $_name = [
+        'key'      => 'Key',
+        'value'    => 'Value',
+        'fieldRef' => 'FieldRef',
+    ];
 }

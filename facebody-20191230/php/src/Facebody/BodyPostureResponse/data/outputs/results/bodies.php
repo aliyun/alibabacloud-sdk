@@ -13,5 +13,9 @@ class bodies extends Model
     public $label;
 
     public $positions;
-    protected $_name = [];
+    protected $_name = [
+        'confident' => 'Confident',
+        'label'     => 'Label',
+        'positions' => 'Positions',
+    ];
 }

@@ -11,5 +11,8 @@ class items extends Model
     public $text;
 
     public $itemRoi;
-    protected $_name = [];
+    protected $_name = [
+        'text'    => 'Text',
+        'itemRoi' => 'ItemRoi',
+    ];
 }

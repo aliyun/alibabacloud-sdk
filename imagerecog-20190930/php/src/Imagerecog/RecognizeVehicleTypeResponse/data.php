@@ -11,5 +11,8 @@ class data extends Model
     public $threshold;
 
     public $elements;
-    protected $_name = [];
+    protected $_name = [
+        'threshold' => 'Threshold',
+        'elements'  => 'Elements',
+    ];
 }

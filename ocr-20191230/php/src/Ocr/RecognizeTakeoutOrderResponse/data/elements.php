@@ -15,5 +15,10 @@ class elements extends Model
     public $value;
 
     public $boxes;
-    protected $_name = [];
+    protected $_name = [
+        'score' => 'Score',
+        'name'  => 'Name',
+        'value' => 'Value',
+        'boxes' => 'Boxes',
+    ];
 }

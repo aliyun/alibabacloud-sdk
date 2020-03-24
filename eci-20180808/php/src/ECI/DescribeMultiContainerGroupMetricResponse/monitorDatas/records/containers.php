@@ -13,5 +13,9 @@ class containers extends Model
     public $CPU;
 
     public $memory;
-    protected $_name = [];
+    protected $_name = [
+        'name'   => 'Name',
+        'CPU'    => 'CPU',
+        'memory' => 'Memory',
+    ];
 }

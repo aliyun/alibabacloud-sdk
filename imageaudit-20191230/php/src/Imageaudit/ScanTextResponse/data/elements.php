@@ -11,5 +11,8 @@ class elements extends Model
     public $taskId;
 
     public $results;
-    protected $_name = [];
+    protected $_name = [
+        'taskId'  => 'TaskId',
+        'results' => 'Results',
+    ];
 }

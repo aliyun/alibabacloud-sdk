@@ -41,5 +41,23 @@ class initContainers extends Model
     public $command;
 
     public $args;
-    protected $_name = [];
+    protected $_name = [
+        'name'            => 'Name',
+        'image'           => 'Image',
+        'cpu'             => 'Cpu',
+        'memory'          => 'Memory',
+        'restartCount'    => 'RestartCount',
+        'workingDir'      => 'WorkingDir',
+        'imagePullPolicy' => 'ImagePullPolicy',
+        'ready'           => 'Ready',
+        'gpu'             => 'Gpu',
+        'volumeMounts'    => 'VolumeMounts',
+        'ports'           => 'Ports',
+        'environmentVars' => 'EnvironmentVars',
+        'previousState'   => 'PreviousState',
+        'currentState'    => 'CurrentState',
+        'securityContext' => 'SecurityContext',
+        'command'         => 'Command',
+        'args'            => 'Args',
+    ];
 }

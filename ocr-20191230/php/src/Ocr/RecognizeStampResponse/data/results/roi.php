@@ -15,5 +15,10 @@ class roi extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'left'   => 'Left',
+        'top'    => 'Top',
+        'width'  => 'Width',
+        'height' => 'Height',
+    ];
 }

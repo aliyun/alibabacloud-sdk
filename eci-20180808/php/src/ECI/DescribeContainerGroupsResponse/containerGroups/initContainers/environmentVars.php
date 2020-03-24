@@ -13,5 +13,9 @@ class environmentVars extends Model
     public $value;
 
     public $valueFrom;
-    protected $_name = [];
+    protected $_name = [
+        'key'       => 'Key',
+        'value'     => 'Value',
+        'valueFrom' => 'ValueFrom',
+    ];
 }

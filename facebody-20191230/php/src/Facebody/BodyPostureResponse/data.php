@@ -11,5 +11,8 @@ class data extends Model
     public $outputs;
 
     public $metaObject;
-    protected $_name = [];
+    protected $_name = [
+        'outputs'    => 'Outputs',
+        'metaObject' => 'MetaObject',
+    ];
 }

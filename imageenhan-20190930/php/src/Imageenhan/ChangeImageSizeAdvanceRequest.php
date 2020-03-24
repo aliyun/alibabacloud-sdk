@@ -13,5 +13,9 @@ class ChangeImageSizeAdvanceRequest extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'urlObject' => 'UrlObject',
+        'width'     => 'Width',
+        'height'    => 'Height',
+    ];
 }

@@ -11,5 +11,8 @@ class rule extends Model
     public $ruleId;
 
     public $description;
-    protected $_name = [];
+    protected $_name = [
+        'ruleId'      => 'RuleId',
+        'description' => 'Description',
+    ];
 }

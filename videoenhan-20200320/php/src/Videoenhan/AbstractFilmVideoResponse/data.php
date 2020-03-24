@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $videoUrl;
-    protected $_name = [];
+    protected $_name = [
+        'videoUrl' => 'VideoUrl',
+    ];
 }

@@ -13,5 +13,9 @@ class backResult extends Model
     public $endDate;
 
     public $issue;
-    protected $_name = [];
+    protected $_name = [
+        'startDate' => 'StartDate',
+        'endDate'   => 'EndDate',
+        'issue'     => 'Issue',
+    ];
 }

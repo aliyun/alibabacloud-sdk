@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $transparentImage;
-    protected $_name = [];
+    protected $_name = [
+        'transparentImage' => 'TransparentImage',
+    ];
 }

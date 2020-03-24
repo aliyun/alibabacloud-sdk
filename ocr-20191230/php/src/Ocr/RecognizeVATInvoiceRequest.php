@@ -11,5 +11,8 @@ class RecognizeVATInvoiceRequest extends Model
     public $fileURL;
 
     public $fileType;
-    protected $_name = [];
+    protected $_name = [
+        'fileURL'  => 'FileURL',
+        'fileType' => 'FileType',
+    ];
 }

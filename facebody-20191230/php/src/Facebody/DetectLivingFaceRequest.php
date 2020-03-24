@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class DetectLivingFaceRequest extends Model
 {
     public $tasks;
-    protected $_name = [];
+    protected $_name = [
+        'tasks' => 'Tasks',
+    ];
 }

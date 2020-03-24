@@ -13,5 +13,9 @@ class configFileToPath extends Model
     public $path;
 
     public $mode;
-    protected $_name = [];
+    protected $_name = [
+        'content' => 'Content',
+        'path'    => 'Path',
+        'mode'    => 'Mode',
+    ];
 }

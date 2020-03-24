@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class rules extends Model
 {
     public $rule;
-    protected $_name = [];
+    protected $_name = [
+        'rule' => 'Rule',
+    ];
 }

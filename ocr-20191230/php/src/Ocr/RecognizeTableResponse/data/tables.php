@@ -13,5 +13,9 @@ class tables extends Model
     public $tail;
 
     public $tableRows;
-    protected $_name = [];
+    protected $_name = [
+        'head'      => 'Head',
+        'tail'      => 'Tail',
+        'tableRows' => 'TableRows',
+    ];
 }

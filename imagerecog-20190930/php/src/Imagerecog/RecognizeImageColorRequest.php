@@ -11,5 +11,8 @@ class RecognizeImageColorRequest extends Model
     public $url;
 
     public $colorCount;
-    protected $_name = [];
+    protected $_name = [
+        'url'        => 'Url',
+        'colorCount' => 'ColorCount',
+    ];
 }

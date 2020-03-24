@@ -11,5 +11,8 @@ class DeleteFaceRequest extends Model
     public $dbName;
 
     public $faceId;
-    protected $_name = [];
+    protected $_name = [
+        'dbName' => 'DbName',
+        'faceId' => 'FaceId',
+    ];
 }

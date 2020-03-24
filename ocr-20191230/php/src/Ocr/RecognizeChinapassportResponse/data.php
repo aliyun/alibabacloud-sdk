@@ -51,5 +51,28 @@ class data extends Model
     public $success;
 
     public $type;
-    protected $_name = [];
+    protected $_name = [
+        'authority'      => 'Authority',
+        'birthDate'      => 'BirthDate',
+        'birthDay'       => 'BirthDay',
+        'birthPlace'     => 'BirthPlace',
+        'birthPlaceRaw'  => 'BirthPlaceRaw',
+        'country'        => 'Country',
+        'expiryDate'     => 'ExpiryDate',
+        'expiryDay'      => 'ExpiryDay',
+        'issueDate'      => 'IssueDate',
+        'issuePlace'     => 'IssuePlace',
+        'issuePlaceRaw'  => 'IssuePlaceRaw',
+        'lineZero'       => 'LineZero',
+        'lineOne'        => 'LineOne',
+        'name'           => 'Name',
+        'nameChinese'    => 'NameChinese',
+        'nameChineseRaw' => 'NameChineseRaw',
+        'passportNo'     => 'PassportNo',
+        'personId'       => 'PersonId',
+        'sex'            => 'Sex',
+        'sourceCountry'  => 'SourceCountry',
+        'success'        => 'Success',
+        'type'           => 'Type',
+    ];
 }

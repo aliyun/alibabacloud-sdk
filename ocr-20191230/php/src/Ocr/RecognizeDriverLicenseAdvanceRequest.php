@@ -11,5 +11,8 @@ class RecognizeDriverLicenseAdvanceRequest extends Model
     public $imageURLObject;
 
     public $side;
-    protected $_name = [];
+    protected $_name = [
+        'imageURLObject' => 'ImageURLObject',
+        'side'           => 'Side',
+    ];
 }

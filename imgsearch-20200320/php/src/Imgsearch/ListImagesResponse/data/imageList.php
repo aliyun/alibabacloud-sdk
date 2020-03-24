@@ -15,5 +15,10 @@ class imageList extends Model
     public $imageUrl;
 
     public $entityId;
-    protected $_name = [];
+    protected $_name = [
+        'dataId'    => 'DataId',
+        'extraData' => 'ExtraData',
+        'imageUrl'  => 'ImageUrl',
+        'entityId'  => 'EntityId',
+    ];
 }

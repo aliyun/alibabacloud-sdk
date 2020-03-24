@@ -43,7 +43,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Imagerecog
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

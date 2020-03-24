@@ -13,5 +13,9 @@ class data extends Model
     public $height;
 
     public $detectObjectInfoList;
-    protected $_name = [];
+    protected $_name = [
+        'width'                => 'Width',
+        'height'               => 'Height',
+        'detectObjectInfoList' => 'DetectObjectInfoList',
+    ];
 }

@@ -17,5 +17,11 @@ class regions extends Model
     public $detectionScore;
 
     public $bandBoxes;
-    protected $_name = [];
+    protected $_name = [
+        'name'             => 'Name',
+        'recognitionScore' => 'RecognitionScore',
+        'content'          => 'Content',
+        'detectionScore'   => 'DetectionScore',
+        'bandBoxes'        => 'BandBoxes',
+    ];
 }

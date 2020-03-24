@@ -11,5 +11,8 @@ class RefineMaskRequest extends Model
     public $maskImageURL;
 
     public $imageURL;
-    protected $_name = [];
+    protected $_name = [
+        'maskImageURL' => 'MaskImageURL',
+        'imageURL'     => 'ImageURL',
+    ];
 }

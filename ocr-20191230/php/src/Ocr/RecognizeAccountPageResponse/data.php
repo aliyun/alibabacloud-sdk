@@ -35,5 +35,20 @@ class data extends Model
     public $otherStampAreas;
 
     public $titleArea;
-    protected $_name = [];
+    protected $_name = [
+        'angle'               => 'Angle',
+        'name'                => 'Name',
+        'gender'              => 'Gender',
+        'relation'            => 'Relation',
+        'birthPlace'          => 'BirthPlace',
+        'nationality'         => 'Nationality',
+        'nativePlace'         => 'NativePlace',
+        'birthDate'           => 'BirthDate',
+        'IDNumber'            => 'IDNumber',
+        'invalidStampAreas'   => 'InvalidStampAreas',
+        'undertakeStampAreas' => 'UndertakeStampAreas',
+        'registerStampAreas'  => 'RegisterStampAreas',
+        'otherStampAreas'     => 'OtherStampAreas',
+        'titleArea'           => 'TitleArea',
+    ];
 }

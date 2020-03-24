@@ -23,5 +23,14 @@ class currentState extends Model
     public $message;
 
     public $signal;
-    protected $_name = [];
+    protected $_name = [
+        'state'        => 'State',
+        'detailStatus' => 'DetailStatus',
+        'exitCode'     => 'ExitCode',
+        'startTime'    => 'StartTime',
+        'finishTime'   => 'FinishTime',
+        'reason'       => 'Reason',
+        'message'      => 'Message',
+        'signal'       => 'Signal',
+    ];
 }

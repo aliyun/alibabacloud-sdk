@@ -13,5 +13,9 @@ class securityContext extends Model
     public $readOnlyRootFilesystem;
 
     public $runAsUser;
-    protected $_name = [];
+    protected $_name = [
+        'capability'             => 'Capability',
+        'readOnlyRootFilesystem' => 'ReadOnlyRootFilesystem',
+        'runAsUser'              => 'RunAsUser',
+    ];
 }

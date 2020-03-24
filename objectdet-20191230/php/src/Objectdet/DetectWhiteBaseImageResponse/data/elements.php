@@ -9,5 +9,7 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $whiteBase;
-    protected $_name = [];
+    protected $_name = [
+        'whiteBase' => 'WhiteBase',
+    ];
 }

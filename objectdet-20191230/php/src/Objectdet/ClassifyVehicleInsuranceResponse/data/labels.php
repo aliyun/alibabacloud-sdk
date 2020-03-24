@@ -11,5 +11,8 @@ class labels extends Model
     public $score;
 
     public $name;
-    protected $_name = [];
+    protected $_name = [
+        'score' => 'Score',
+        'name'  => 'Name',
+    ];
 }

@@ -17,5 +17,11 @@ class task extends Model
     public $interval;
 
     public $maxFrames;
-    protected $_name = [];
+    protected $_name = [
+        'dataId'               => 'DataId',
+        'imageURL'             => 'ImageURL',
+        'imageTimeMillisecond' => 'ImageTimeMillisecond',
+        'interval'             => 'Interval',
+        'maxFrames'            => 'MaxFrames',
+    ];
 }

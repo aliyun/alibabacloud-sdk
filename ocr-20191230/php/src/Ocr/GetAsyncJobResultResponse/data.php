@@ -17,5 +17,11 @@ class data extends Model
     public $result;
 
     public $status;
-    protected $_name = [];
+    protected $_name = [
+        'errorCode'    => 'ErrorCode',
+        'errorMessage' => 'ErrorMessage',
+        'jobId'        => 'JobId',
+        'result'       => 'Result',
+        'status'       => 'Status',
+    ];
 }

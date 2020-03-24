@@ -19,5 +19,12 @@ class outputs extends Model
     public $startTime;
 
     public $endTime;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL'   => 'ImageURL',
+        'confidence' => 'Confidence',
+        'time'       => 'Time',
+        'faceCount'  => 'FaceCount',
+        'startTime'  => 'StartTime',
+        'endTime'    => 'EndTime',
+    ];
 }

@@ -21,5 +21,13 @@ class DeleteImageCacheRequest extends Model
     public $imageCacheId;
 
     public $clientToken;
-    protected $_name = [];
+    protected $_name = [
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'ownerAccount'         => 'OwnerAccount',
+        'regionId'             => 'RegionId',
+        'imageCacheId'         => 'ImageCacheId',
+        'clientToken'          => 'ClientToken',
+    ];
 }

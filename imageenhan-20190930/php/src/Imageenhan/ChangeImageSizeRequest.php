@@ -13,5 +13,9 @@ class ChangeImageSizeRequest extends Model
     public $height;
 
     public $url;
-    protected $_name = [];
+    protected $_name = [
+        'width'  => 'Width',
+        'height' => 'Height',
+        'url'    => 'Url',
+    ];
 }

@@ -11,5 +11,8 @@ class data extends Model
     public $sensitive;
 
     public $elements;
-    protected $_name = [];
+    protected $_name = [
+        'sensitive' => 'Sensitive',
+        'elements'  => 'Elements',
+    ];
 }

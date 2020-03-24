@@ -11,5 +11,8 @@ class DescribeImageCachesResponse extends Model
     public $requestId;
 
     public $imageCaches;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'   => 'RequestId',
+        'imageCaches' => 'ImageCaches',
+    ];
 }

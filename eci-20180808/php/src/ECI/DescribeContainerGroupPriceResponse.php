@@ -11,5 +11,8 @@ class DescribeContainerGroupPriceResponse extends Model
     public $requestId;
 
     public $priceInfo;
-    protected $_name = [];
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'priceInfo' => 'PriceInfo',
+    ];
 }

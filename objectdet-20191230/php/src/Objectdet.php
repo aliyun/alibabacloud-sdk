@@ -47,7 +47,6 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Objectdet
 {
     protected $_name = [];
-
     private $_endpoint;
 
     private $_regionId;

@@ -25,5 +25,15 @@ class memoryStats extends Model
     public $containerData;
 
     public $hierarchicalData;
-    protected $_name = [];
+    protected $_name = [
+        'usage'            => 'Usage',
+        'maxUsage'         => 'MaxUsage',
+        'cache'            => 'Cache',
+        'rss'              => 'Rss',
+        'swap'             => 'Swap',
+        'workingSet'       => 'WorkingSet',
+        'failCnt'          => 'FailCnt',
+        'containerData'    => 'ContainerData',
+        'hierarchicalData' => 'HierarchicalData',
+    ];
 }

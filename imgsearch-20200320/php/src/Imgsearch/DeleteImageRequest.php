@@ -11,5 +11,8 @@ class DeleteImageRequest extends Model
     public $dbName;
 
     public $dataId;
-    protected $_name = [];
+    protected $_name = [
+        'dbName' => 'DbName',
+        'dataId' => 'DataId',
+    ];
 }

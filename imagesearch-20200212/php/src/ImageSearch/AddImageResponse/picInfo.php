@@ -11,5 +11,8 @@ class picInfo extends Model
     public $categoryId;
 
     public $region;
-    protected $_name = [];
+    protected $_name = [
+        'categoryId' => 'CategoryId',
+        'region'     => 'Region',
+    ];
 }

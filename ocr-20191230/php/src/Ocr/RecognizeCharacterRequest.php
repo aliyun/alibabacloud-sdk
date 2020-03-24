@@ -13,5 +13,9 @@ class RecognizeCharacterRequest extends Model
     public $minHeight;
 
     public $outputProbability;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL'          => 'ImageURL',
+        'minHeight'         => 'MinHeight',
+        'outputProbability' => 'OutputProbability',
+    ];
 }

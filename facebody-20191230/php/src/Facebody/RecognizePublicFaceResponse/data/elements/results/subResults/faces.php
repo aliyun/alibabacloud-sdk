@@ -13,5 +13,9 @@ class faces extends Model
     public $name;
 
     public $rate;
-    protected $_name = [];
+    protected $_name = [
+        'id'   => 'Id',
+        'name' => 'Name',
+        'rate' => 'Rate',
+    ];
 }

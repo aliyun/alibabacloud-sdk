@@ -21,5 +21,13 @@ class data extends Model
     public $landmarks;
 
     public $pupils;
-    protected $_name = [];
+    protected $_name = [
+        'faceCount'           => 'FaceCount',
+        'landmarkCount'       => 'LandmarkCount',
+        'faceRectangles'      => 'FaceRectangles',
+        'faceProbabilityList' => 'FaceProbabilityList',
+        'poseList'            => 'PoseList',
+        'landmarks'           => 'Landmarks',
+        'pupils'              => 'Pupils',
+    ];
 }

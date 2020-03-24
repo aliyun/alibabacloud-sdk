@@ -17,5 +17,11 @@ class elements extends Model
     public $width;
 
     public $height;
-    protected $_name = [];
+    protected $_name = [
+        'imageURL' => 'ImageURL',
+        'x'        => 'X',
+        'y'        => 'Y',
+        'width'    => 'Width',
+        'height'   => 'Height',
+    ];
 }

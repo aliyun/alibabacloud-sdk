@@ -15,5 +15,10 @@ class results extends Model
     public $rate;
 
     public $frames;
-    protected $_name = [];
+    protected $_name = [
+        'label'      => 'Label',
+        'suggestion' => 'Suggestion',
+        'rate'       => 'Rate',
+        'frames'     => 'Frames',
+    ];
 }

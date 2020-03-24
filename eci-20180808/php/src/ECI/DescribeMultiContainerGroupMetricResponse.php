@@ -11,5 +11,8 @@ class DescribeMultiContainerGroupMetricResponse extends Model
     public $requestId;
 
     public $monitorDatas;
-    protected $_name = [];
+    protected $_name = [
+        'requestId'    => 'RequestId',
+        'monitorDatas' => 'MonitorDatas',
+    ];
 }
