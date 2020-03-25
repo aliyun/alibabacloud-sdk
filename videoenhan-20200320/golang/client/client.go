@@ -300,7 +300,7 @@ func (s *SuperResolveVideoAdvanceRequest) SetBitRate(v int) *SuperResolveVideoAd
 }
 
 type EraseVideoLogoRequest struct {
-	VideoUrl *string                       `json:"VideoUrl" xml:"VideoUrl"`
+	VideoUrl *string                       `json:"VideoUrl" xml:"VideoUrl" require:"true"`
 	Boxes    []*EraseVideoLogoRequestBoxes `json:"Boxes" xml:"Boxes" type:"Repeated"`
 }
 
@@ -323,10 +323,10 @@ func (s *EraseVideoLogoRequest) SetBoxes(v []*EraseVideoLogoRequestBoxes) *Erase
 }
 
 type EraseVideoLogoRequestBoxes struct {
-	H *float32 `json:"H" xml:"H" require:"true"`
-	W *float32 `json:"W" xml:"W" require:"true"`
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	H *float32 `json:"H" xml:"H"`
+	W *float32 `json:"W" xml:"W"`
+	X *float32 `json:"X" xml:"X"`
+	Y *float32 `json:"Y" xml:"Y"`
 }
 
 func (s EraseVideoLogoRequestBoxes) String() string {
@@ -421,10 +421,10 @@ func (s *EraseVideoLogoAdvanceRequest) SetBoxes(v []*EraseVideoLogoAdvanceReques
 }
 
 type EraseVideoLogoAdvanceRequestBoxes struct {
-	H *float32 `json:"H" xml:"H" require:"true"`
-	W *float32 `json:"W" xml:"W" require:"true"`
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	H *float32 `json:"H" xml:"H"`
+	W *float32 `json:"W" xml:"W"`
+	X *float32 `json:"X" xml:"X"`
+	Y *float32 `json:"Y" xml:"Y"`
 }
 
 func (s EraseVideoLogoAdvanceRequestBoxes) String() string {
@@ -782,7 +782,7 @@ func (s *AbstractFilmVideoAdvanceRequest) SetLength(v int) *AbstractFilmVideoAdv
 type AdjustVideoColorRequest struct {
 	VideoUrl     *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
 	VideoBitrate *string `json:"VideoBitrate" xml:"VideoBitrate"`
-	VideoCode    *string `json:"VideoCode" xml:"VideoCode"`
+	VideoCodec   *string `json:"VideoCodec" xml:"VideoCodec"`
 	VideoFormat  *string `json:"VideoFormat" xml:"VideoFormat"`
 	Mode         *string `json:"Mode" xml:"Mode" require:"true"`
 }
@@ -805,8 +805,8 @@ func (s *AdjustVideoColorRequest) SetVideoBitrate(v string) *AdjustVideoColorReq
 	return s
 }
 
-func (s *AdjustVideoColorRequest) SetVideoCode(v string) *AdjustVideoColorRequest {
-	s.VideoCode = &v
+func (s *AdjustVideoColorRequest) SetVideoCodec(v string) *AdjustVideoColorRequest {
+	s.VideoCodec = &v
 	return s
 }
 
@@ -863,7 +863,7 @@ func (s *AdjustVideoColorResponseData) SetVideoUrl(v string) *AdjustVideoColorRe
 type AdjustVideoColorAdvanceRequest struct {
 	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
 	VideoBitrate   *string   `json:"VideoBitrate" xml:"VideoBitrate"`
-	VideoCode      *string   `json:"VideoCode" xml:"VideoCode"`
+	VideoCodec     *string   `json:"VideoCodec" xml:"VideoCodec"`
 	VideoFormat    *string   `json:"VideoFormat" xml:"VideoFormat"`
 	Mode           *string   `json:"Mode" xml:"Mode" require:"true"`
 }
@@ -886,8 +886,8 @@ func (s *AdjustVideoColorAdvanceRequest) SetVideoBitrate(v string) *AdjustVideoC
 	return s
 }
 
-func (s *AdjustVideoColorAdvanceRequest) SetVideoCode(v string) *AdjustVideoColorAdvanceRequest {
-	s.VideoCode = &v
+func (s *AdjustVideoColorAdvanceRequest) SetVideoCodec(v string) *AdjustVideoColorAdvanceRequest {
+	s.VideoCodec = &v
 	return s
 }
 
