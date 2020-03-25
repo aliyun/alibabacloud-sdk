@@ -12,7 +12,7 @@ class AdjustVideoColorRequest extends Model
 
     public $videoBitrate;
 
-    public $videoCode;
+    public $videoCodec;
 
     public $videoFormat;
 
@@ -20,7 +20,7 @@ class AdjustVideoColorRequest extends Model
     protected $_name = [
         'videoUrl'     => 'VideoUrl',
         'videoBitrate' => 'VideoBitrate',
-        'videoCode'    => 'VideoCode',
+        'videoCodec'   => 'VideoCodec',
         'videoFormat'  => 'VideoFormat',
         'mode'         => 'Mode',
     ];
