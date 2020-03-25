@@ -17,9 +17,9 @@ namespace AlibabaCloud.Videoenhan.Models
         [Validation(Required=false)]
         public string VideoBitrate { get; set; }
 
-        [NameInMap("VideoCode")]
+        [NameInMap("VideoCodec")]
         [Validation(Required=false)]
-        public string VideoCode { get; set; }
+        public string VideoCodec { get; set; }
 
         [NameInMap("VideoFormat")]
         [Validation(Required=false)]

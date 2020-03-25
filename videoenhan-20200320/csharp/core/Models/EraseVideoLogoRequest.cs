@@ -10,7 +10,7 @@ namespace AlibabaCloud.Videoenhan.Models
 {
     public class EraseVideoLogoRequest : TeaModel {
         [NameInMap("VideoUrl")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string VideoUrl { get; set; }
 
         [NameInMap("Boxes")]
@@ -18,19 +18,19 @@ namespace AlibabaCloud.Videoenhan.Models
         public List<EraseVideoLogoRequestBoxes> Boxes { get; set; }
         public class EraseVideoLogoRequestBoxes : TeaModel {
             [NameInMap("H")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? H { get; set; }
 
             [NameInMap("W")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? W { get; set; }
 
             [NameInMap("X")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? X { get; set; }
 
             [NameInMap("Y")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? Y { get; set; }
 
         }

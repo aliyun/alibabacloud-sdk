@@ -18,19 +18,19 @@ namespace AlibabaCloud.Videoenhan.Models
         public List<EraseVideoLogoAdvanceRequestBoxes> Boxes { get; set; }
         public class EraseVideoLogoAdvanceRequestBoxes : TeaModel {
             [NameInMap("H")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? H { get; set; }
 
             [NameInMap("W")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? W { get; set; }
 
             [NameInMap("X")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? X { get; set; }
 
             [NameInMap("Y")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public float? Y { get; set; }
 
         }
