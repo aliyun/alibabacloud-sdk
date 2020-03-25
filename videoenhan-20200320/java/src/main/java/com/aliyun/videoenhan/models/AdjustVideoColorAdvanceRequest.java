@@ -11,8 +11,8 @@ public class AdjustVideoColorAdvanceRequest extends TeaModel {
     @NameInMap("VideoBitrate")
     public String videoBitrate;
 
-    @NameInMap("VideoCode")
-    public String videoCode;
+    @NameInMap("VideoCodec")
+    public String videoCodec;
 
     @NameInMap("VideoFormat")
     public String videoFormat;

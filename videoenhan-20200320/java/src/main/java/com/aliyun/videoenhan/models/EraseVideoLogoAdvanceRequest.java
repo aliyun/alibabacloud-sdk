@@ -18,19 +18,15 @@ public class EraseVideoLogoAdvanceRequest extends TeaModel {
 
     public static class EraseVideoLogoAdvanceRequestBoxes extends TeaModel {
         @NameInMap("H")
-        @Validation(required = true)
         public Double h;
 
         @NameInMap("W")
-        @Validation(required = true)
         public Double w;
 
         @NameInMap("X")
-        @Validation(required = true)
         public Double x;
 
         @NameInMap("Y")
-        @Validation(required = true)
         public Double y;
 
         public static EraseVideoLogoAdvanceRequestBoxes build(java.util.Map<String, ?> map) throws Exception {
