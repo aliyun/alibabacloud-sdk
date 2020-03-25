@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Objectdet\V20191219\Objectdet\DetectMainBodyResponse\data;
+namespace AlibabaCloud\SDK\Objectdet\V20191230\Objectdet\DetectMainBodyResponse\data;
 
 use AlibabaCloud\Tea\Model;
 

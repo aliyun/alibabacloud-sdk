@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Objectdet\V20191219\Objectdet\DetectVehicleResponse;
+namespace AlibabaCloud\SDK\Objectdet\V20191230\Objectdet\DetectVehicleResponse;
 
 use AlibabaCloud\Tea\Model;
 

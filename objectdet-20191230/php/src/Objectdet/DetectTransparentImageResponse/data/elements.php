@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Objectdet\V20191219\Objectdet\DetectTransparentImageResponse\data;
+namespace AlibabaCloud\SDK\Objectdet\V20191230\Objectdet\DetectTransparentImageResponse\data;
 
 use AlibabaCloud\Tea\Model;
 
