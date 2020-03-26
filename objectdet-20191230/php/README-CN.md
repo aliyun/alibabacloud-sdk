@@ -9,7 +9,7 @@ English | [简体中文](README-CN.md)
 ### Composer
 
 ```bash
-composer require alibabacloud/objectdet-20191219
+composer require alibabacloud/objectdet-20191230
 ```
 
 ## Issues
