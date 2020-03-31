@@ -9,8 +9,14 @@ use AlibabaCloud\Tea\Model;
 class SuperResolveVideoAdvanceRequest extends Model
 {
     public $videoUrlObject;
-
     public $bitRate;
+    protected $_required = [
+        'videoUrlObject' => true,
+    ];
+    protected $_description = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'bitRate'        => 'bitRate',
+    ];
     protected $_name = [
         'videoUrlObject' => 'VideoUrlObject',
         'bitRate'        => 'BitRate',

@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class ScanImageRequest extends Model
 {
     public $task;
-
     public $scene;
+    protected $_required = [
+        'task'  => true,
+        'scene' => true,
+    ];
     protected $_name = [
         'task'  => 'Task',
         'scene' => 'Scene',
+    ];
+    protected $_description = [
+        'task'  => 'tasks',
+        'scene' => 'scenes',
     ];
 }

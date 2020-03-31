@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class flexVolume extends Model
 {
     public $driver;
-
     public $fsType;
-
     public $options;
     protected $_name = [
         'driver'  => 'Driver',
         'fsType'  => 'FsType',
         'options' => 'Options',
+    ];
+    protected $_description = [
+        'driver'  => 'flexVolumeDriver',
+        'fsType'  => 'flexVolumeFsType',
+        'options' => 'flexVolumeOptions',
     ];
 }

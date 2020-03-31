@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class capability extends Model
 {
     public $add;
+    protected $_required = [
+        'add' => true,
+    ];
     protected $_name = [
         'add' => 'Add',
+    ];
+    protected $_description = [
+        'add' => 'securityContextCapabilityAdds',
     ];
 }

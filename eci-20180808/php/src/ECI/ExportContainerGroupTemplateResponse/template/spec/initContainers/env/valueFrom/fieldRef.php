@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class fieldRef extends Model
 {
     public $fieldPath;
+    protected $_required = [
+        'fieldPath' => true,
+    ];
     protected $_name = [
         'fieldPath' => 'FieldPath',
+    ];
+    protected $_description = [
+        'fieldPath' => 'fieldPath',
     ];
 }

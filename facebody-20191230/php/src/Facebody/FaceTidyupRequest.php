@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class FaceTidyupRequest extends Model
 {
     public $imageURL;
-
     public $shapeType;
-
     public $strength;
+    protected $_required = [
+        'imageURL'  => true,
+        'shapeType' => true,
+        'strength'  => true,
+    ];
     protected $_name = [
         'imageURL'  => 'ImageURL',
         'shapeType' => 'ShapeType',
         'strength'  => 'Strength',
+    ];
+    protected $_description = [
+        'imageURL'  => 'imageUrl',
+        'shapeType' => 'shapeType',
+        'strength'  => 'strength',
     ];
 }

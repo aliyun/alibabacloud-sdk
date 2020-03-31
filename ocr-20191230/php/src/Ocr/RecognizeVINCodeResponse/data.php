@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $vinCode;
+    protected $_required = [
+        'vinCode' => true,
+    ];
     protected $_name = [
         'vinCode' => 'VinCode',
+    ];
+    protected $_description = [
+        'vinCode' => 'vinCode',
     ];
 }

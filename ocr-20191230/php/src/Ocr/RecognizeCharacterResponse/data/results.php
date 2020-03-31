@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     public $probability;
-
     public $text;
-
     public $textRectangles;
+    protected $_required = [
+        'probability'    => true,
+        'text'           => true,
+        'textRectangles' => true,
+    ];
     protected $_name = [
         'probability'    => 'Probability',
         'text'           => 'Text',
         'textRectangles' => 'TextRectangles',
+    ];
+    protected $_description = [
+        'probability'    => 'probability',
+        'text'           => 'text',
+        'textRectangles' => 'textRectangles',
     ];
 }

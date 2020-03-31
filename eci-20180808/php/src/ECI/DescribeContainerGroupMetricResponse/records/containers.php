@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class containers extends Model
 {
     public $name;
-
     public $CPU;
-
     public $memory;
+    protected $_required = [
+        'name'   => true,
+        'CPU'    => true,
+        'memory' => true,
+    ];
     protected $_name = [
         'name'   => 'Name',
         'CPU'    => 'CPU',
         'memory' => 'Memory',
+    ];
+    protected $_description = [
+        'name'   => 'containerName',
+        'CPU'    => 'cpuStats',
+        'memory' => 'memoryStats',
     ];
 }

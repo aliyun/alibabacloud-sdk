@@ -12,4 +12,7 @@ class emptyDirVolume extends Model
     protected $_name = [
         'medium' => 'Medium',
     ];
+    protected $_description = [
+        'medium' => 'emptyDirVolumeMedium',
+    ];
 }

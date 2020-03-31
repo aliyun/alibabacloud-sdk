@@ -9,26 +9,29 @@ use AlibabaCloud\Tea\Model;
 class volumes extends Model
 {
     public $type;
-
     public $name;
-
     public $NFSVolumePath;
-
     public $NFSVolumeServer;
-
     public $NFSVolumeReadOnly;
-
     public $diskVolumeDiskId;
-
     public $diskVolumeFsType;
-
     public $flexVolumeDriver;
-
     public $flexVolumeFsType;
-
     public $flexVolumeOptions;
-
     public $configFileVolumeConfigFileToPaths;
+    protected $_required = [
+        'type'                              => true,
+        'name'                              => true,
+        'NFSVolumePath'                     => true,
+        'NFSVolumeServer'                   => true,
+        'NFSVolumeReadOnly'                 => true,
+        'diskVolumeDiskId'                  => true,
+        'diskVolumeFsType'                  => true,
+        'flexVolumeDriver'                  => true,
+        'flexVolumeFsType'                  => true,
+        'flexVolumeOptions'                 => true,
+        'configFileVolumeConfigFileToPaths' => true,
+    ];
     protected $_name = [
         'type'                              => 'Type',
         'name'                              => 'Name',
@@ -41,5 +44,18 @@ class volumes extends Model
         'flexVolumeFsType'                  => 'FlexVolumeFsType',
         'flexVolumeOptions'                 => 'FlexVolumeOptions',
         'configFileVolumeConfigFileToPaths' => 'ConfigFileVolumeConfigFileToPaths',
+    ];
+    protected $_description = [
+        'type'                              => 'type',
+        'name'                              => 'name',
+        'NFSVolumePath'                     => 'nfsVolumePath',
+        'NFSVolumeServer'                   => 'nfsVolumeServer',
+        'NFSVolumeReadOnly'                 => 'nfsVolumeReadOnly',
+        'diskVolumeDiskId'                  => 'diskVolumeDiskId',
+        'diskVolumeFsType'                  => 'diskVolumeFsType',
+        'flexVolumeDriver'                  => 'flexVolumeDriver',
+        'flexVolumeFsType'                  => 'flexVolumeFsType',
+        'flexVolumeOptions'                 => 'flexVolumeOptions',
+        'configFileVolumeConfigFileToPaths' => 'configFileVolumeConfigFileToPaths',
     ];
 }

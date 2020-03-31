@@ -9,16 +9,25 @@ use AlibabaCloud\Tea\Model;
 class title extends Model
 {
     public $top;
-
     public $left;
-
     public $height;
-
     public $width;
+    protected $_required = [
+        'top'    => true,
+        'left'   => true,
+        'height' => true,
+        'width'  => true,
+    ];
     protected $_name = [
         'top'    => 'Top',
         'left'   => 'Left',
         'height' => 'Height',
         'width'  => 'Width',
+    ];
+    protected $_description = [
+        'top'    => 'top',
+        'left'   => 'left',
+        'height' => 'height',
+        'width'  => 'width',
     ];
 }

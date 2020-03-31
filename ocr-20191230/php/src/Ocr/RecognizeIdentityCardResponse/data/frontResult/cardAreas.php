@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class cardAreas extends Model
 {
     public $x;
-
     public $y;
+    protected $_required = [
+        'x' => true,
+        'y' => true,
+    ];
     protected $_name = [
         'x' => 'X',
         'y' => 'Y',
+    ];
+    protected $_description = [
+        'x' => 'x',
+        'y' => 'y',
     ];
 }

@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class hands extends Model
 {
     public $confident;
-
     public $keyPoints;
+    protected $_required = [
+        'confident' => true,
+        'keyPoints' => true,
+    ];
     protected $_name = [
         'confident' => 'Confident',
         'keyPoints' => 'KeyPoints',
+    ];
+    protected $_description = [
+        'confident' => 'confident',
+        'keyPoints' => 'keypoints',
     ];
 }

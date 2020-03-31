@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $scrollId;
-
     public $faceList;
+    protected $_required = [
+        'scrollId' => true,
+        'faceList' => true,
+    ];
     protected $_name = [
         'scrollId' => 'ScrollId',
         'faceList' => 'FaceList',
+    ];
+    protected $_description = [
+        'scrollId' => 'scrollId',
+        'faceList' => 'faceList',
     ];
 }

@@ -9,10 +9,16 @@ use AlibabaCloud\Tea\Model;
 class EraseVideoLogoRequest extends Model
 {
     public $videoUrl;
-
     public $boxes;
+    protected $_required = [
+        'videoUrl' => true,
+    ];
     protected $_name = [
         'videoUrl' => 'VideoUrl',
         'boxes'    => 'Boxes',
+    ];
+    protected $_description = [
+        'videoUrl' => 'videoUrl',
+        'boxes'    => 'boxes',
     ];
 }

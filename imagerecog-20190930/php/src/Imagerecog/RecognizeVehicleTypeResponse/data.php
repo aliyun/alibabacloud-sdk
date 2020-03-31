@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $threshold;
-
     public $elements;
+    protected $_required = [
+        'threshold' => true,
+        'elements'  => true,
+    ];
     protected $_name = [
         'threshold' => 'Threshold',
         'elements'  => 'Elements',
+    ];
+    protected $_description = [
+        'threshold' => 'threshold',
+        'elements'  => 'elements',
     ];
 }

@@ -9,16 +9,25 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     public $label;
-
     public $suggestion;
-
     public $rate;
-
     public $subResults;
+    protected $_required = [
+        'label'      => true,
+        'suggestion' => true,
+        'rate'       => true,
+        'subResults' => true,
+    ];
     protected $_name = [
         'label'      => 'Label',
         'suggestion' => 'Suggestion',
         'rate'       => 'Rate',
         'subResults' => 'SubResults',
+    ];
+    protected $_description = [
+        'label'      => 'label',
+        'suggestion' => 'suggestion',
+        'rate'       => 'rate',
+        'subResults' => 'subResults',
     ];
 }

@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class configFileToPath extends Model
 {
     public $content;
-
     public $path;
-
     public $mode;
     protected $_name = [
         'content' => 'Content',
         'path'    => 'Path',
         'mode'    => 'Mode',
+    ];
+    protected $_description = [
+        'content' => 'content',
+        'path'    => 'path',
+        'mode'    => 'mode',
     ];
 }

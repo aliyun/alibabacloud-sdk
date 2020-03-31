@@ -9,10 +9,13 @@ use AlibabaCloud\Tea\Model;
 class port extends Model
 {
     public $protocol;
-
     public $port;
     protected $_name = [
         'protocol' => 'Protocol',
         'port'     => 'Port',
+    ];
+    protected $_description = [
+        'protocol' => 'protocol',
+        'port'     => 'port',
     ];
 }

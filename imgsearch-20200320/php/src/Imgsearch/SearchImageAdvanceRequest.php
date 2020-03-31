@@ -9,10 +9,18 @@ use AlibabaCloud\Tea\Model;
 class SearchImageAdvanceRequest extends Model
 {
     public $imageUrlObject;
-
     public $dbName;
-
     public $limit;
+    protected $_required = [
+        'imageUrlObject' => true,
+        'dbName'         => true,
+        'limit'          => true,
+    ];
+    protected $_description = [
+        'imageUrlObject' => 'ImageUrlObject',
+        'dbName'         => 'dbName',
+        'limit'          => 'limit',
+    ];
     protected $_name = [
         'imageUrlObject' => 'ImageUrlObject',
         'dbName'         => 'DbName',

@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class AdjustVideoColorResponse extends Model
 {
     public $requestId;
-
     public $data;
+    protected $_required = [
+        'requestId' => true,
+        'data'      => true,
+    ];
     protected $_name = [
         'requestId' => 'RequestId',
         'data'      => 'Data',
+    ];
+    protected $_description = [
+        'requestId' => 'requestId',
+        'data'      => 'data',
     ];
 }

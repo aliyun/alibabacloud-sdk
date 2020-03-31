@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $shotFrameIds;
+    protected $_required = [
+        'shotFrameIds' => true,
+    ];
     protected $_name = [
         'shotFrameIds' => 'ShotFrameIds',
+    ];
+    protected $_description = [
+        'shotFrameIds' => 'shotFrameIds',
     ];
 }

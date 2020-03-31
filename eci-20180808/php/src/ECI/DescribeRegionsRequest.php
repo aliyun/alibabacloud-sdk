@@ -9,13 +9,9 @@ use AlibabaCloud\Tea\Model;
 class DescribeRegionsRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -23,5 +19,12 @@ class DescribeRegionsRequest extends Model
         'resourceOwnerId'      => 'ResourceOwnerId',
         'ownerAccount'         => 'OwnerAccount',
         'regionId'             => 'RegionId',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
     ];
 }

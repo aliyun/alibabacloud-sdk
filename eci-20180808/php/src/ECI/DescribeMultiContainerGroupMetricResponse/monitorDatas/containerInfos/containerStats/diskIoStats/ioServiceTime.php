@@ -9,16 +9,25 @@ use AlibabaCloud\Tea\Model;
 class ioServiceTime extends Model
 {
     public $device;
-
     public $major;
-
     public $minor;
-
     public $stats;
+    protected $_required = [
+        'device' => true,
+        'major'  => true,
+        'minor'  => true,
+        'stats'  => true,
+    ];
     protected $_name = [
         'device' => 'Device',
         'major'  => 'Major',
         'minor'  => 'Minor',
         'stats'  => 'Stats',
+    ];
+    protected $_description = [
+        'device' => 'device',
+        'major'  => 'major',
+        'minor'  => 'minor',
+        'stats'  => 'statsForPop',
     ];
 }

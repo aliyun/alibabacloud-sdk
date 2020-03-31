@@ -9,21 +9,32 @@ use AlibabaCloud\Tea\Model;
 class logoDataList extends Model
 {
     public $type;
-
     public $name;
-
     public $x;
-
     public $y;
-
     public $width;
-
     public $height;
+    protected $_required = [
+        'type'   => true,
+        'name'   => true,
+        'x'      => true,
+        'y'      => true,
+        'width'  => true,
+        'height' => true,
+    ];
     protected $_name = [
         'type'   => 'Type',
         'name'   => 'Name',
         'x'      => 'X',
         'y'      => 'Y',
+        'width'  => 'Width',
+        'height' => 'Height',
+    ];
+    protected $_description = [
+        'type'   => 'type',
+        'name'   => 'name',
+        'x'      => 'x',
+        'y'      => 'y',
         'width'  => 'Width',
         'height' => 'Height',
     ];

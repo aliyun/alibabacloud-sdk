@@ -9,17 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DeleteImageCacheRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $imageCacheId;
-
     public $clientToken;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -29,5 +23,18 @@ class DeleteImageCacheRequest extends Model
         'regionId'             => 'RegionId',
         'imageCacheId'         => 'ImageCacheId',
         'clientToken'          => 'ClientToken',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
+        'imageCacheId'         => 'imageCacheId',
+        'clientToken'          => 'clientToken',
+    ];
+    protected $_required = [
+        'regionId'     => true,
+        'imageCacheId' => true,
     ];
 }

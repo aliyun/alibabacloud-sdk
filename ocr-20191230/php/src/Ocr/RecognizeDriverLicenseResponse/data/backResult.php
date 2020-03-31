@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class backResult extends Model
 {
     public $archiveNumber;
+    protected $_required = [
+        'archiveNumber' => true,
+    ];
     protected $_name = [
         'archiveNumber' => 'ArchiveNumber',
+    ];
+    protected $_description = [
+        'archiveNumber' => 'archiveNumber',
     ];
 }

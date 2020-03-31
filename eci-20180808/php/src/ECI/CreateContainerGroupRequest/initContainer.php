@@ -9,29 +9,17 @@ use AlibabaCloud\Tea\Model;
 class initContainer extends Model
 {
     public $name;
-
     public $image;
-
     public $cpu;
-
     public $memory;
-
     public $workingDir;
-
     public $imagePullPolicy;
-
     public $command;
-
     public $arg;
-
     public $volumeMount;
-
     public $port;
-
     public $environmentVar;
-
     public $securityContext;
-
     public $gpu;
     protected $_name = [
         'name'            => 'Name',
@@ -47,5 +35,28 @@ class initContainer extends Model
         'environmentVar'  => 'EnvironmentVar',
         'securityContext' => 'SecurityContext',
         'gpu'             => 'Gpu',
+    ];
+    protected $_description = [
+        'name'            => 'name',
+        'image'           => 'image',
+        'cpu'             => 'cpu',
+        'memory'          => 'mem',
+        'workingDir'      => 'workingDir',
+        'imagePullPolicy' => 'imagePullPolicy',
+        'command'         => 'command',
+        'arg'             => 'args',
+        'volumeMount'     => 'volumeMounts',
+        'port'            => 'ports',
+        'environmentVar'  => 'env',
+        'securityContext' => 'SecurityContext',
+        'gpu'             => 'gpu',
+    ];
+    protected $_required = [
+        'command'         => true,
+        'arg'             => true,
+        'volumeMount'     => true,
+        'port'            => true,
+        'environmentVar'  => true,
+        'securityContext' => true,
     ];
 }

@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class dnsConfig extends Model
 {
     public $nameServer;
-
     public $search;
-
     public $option;
     protected $_name = [
         'nameServer' => 'NameServer',
         'search'     => 'Search',
         'option'     => 'Option',
+    ];
+    protected $_description = [
+        'nameServer' => 'dnsConfigNameServers',
+        'search'     => 'dnsConfigSearches',
+        'option'     => 'dnsConfigOptions',
     ];
 }

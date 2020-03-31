@@ -9,18 +9,21 @@ use AlibabaCloud\Tea\Model;
 class SearchImageByNameResponse extends Model
 {
     public $requestId;
-
     public $success;
-
     public $code;
-
     public $msg;
-
     public $auctions;
-
     public $head;
-
     public $picInfo;
+    protected $_required = [
+        'requestId' => true,
+        'success'   => true,
+        'code'      => true,
+        'msg'       => true,
+        'auctions'  => true,
+        'head'      => true,
+        'picInfo'   => true,
+    ];
     protected $_name = [
         'requestId' => 'RequestId',
         'success'   => 'Success',
@@ -29,5 +32,14 @@ class SearchImageByNameResponse extends Model
         'auctions'  => 'Auctions',
         'head'      => 'Head',
         'picInfo'   => 'PicInfo',
+    ];
+    protected $_description = [
+        'requestId' => 'requestId',
+        'success'   => 'success',
+        'code'      => 'code',
+        'msg'       => 'msg',
+        'auctions'  => 'auctions',
+        'head'      => 'head',
+        'picInfo'   => 'picInfo',
     ];
 }

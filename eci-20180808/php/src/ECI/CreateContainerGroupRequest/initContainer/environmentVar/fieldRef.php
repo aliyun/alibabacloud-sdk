@@ -12,4 +12,7 @@ class fieldRef extends Model
     protected $_name = [
         'fieldPath' => 'FieldPath',
     ];
+    protected $_description = [
+        'fieldPath' => 'fieldRefFieldPath',
+    ];
 }

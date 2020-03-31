@@ -9,26 +9,29 @@ use AlibabaCloud\Tea\Model;
 class template extends Model
 {
     public $regionId;
-
     public $zoneId;
-
     public $securityGroupId;
-
     public $VSwitchId;
-
     public $resourceGroupId;
-
     public $eipInstanceId;
-
     public $containerGroupName;
-
     public $instanceType;
-
     public $tags;
-
     public $resources;
-
     public $spec;
+    protected $_required = [
+        'regionId'           => true,
+        'zoneId'             => true,
+        'securityGroupId'    => true,
+        'VSwitchId'          => true,
+        'resourceGroupId'    => true,
+        'eipInstanceId'      => true,
+        'containerGroupName' => true,
+        'instanceType'       => true,
+        'tags'               => true,
+        'resources'          => true,
+        'spec'               => true,
+    ];
     protected $_name = [
         'regionId'           => 'RegionId',
         'zoneId'             => 'ZoneId',
@@ -41,5 +44,18 @@ class template extends Model
         'tags'               => 'Tags',
         'resources'          => 'Resources',
         'spec'               => 'Spec',
+    ];
+    protected $_description = [
+        'regionId'           => 'regionId',
+        'zoneId'             => 'zoneId',
+        'securityGroupId'    => 'securityGroupId',
+        'VSwitchId'          => 'vSwitchId',
+        'resourceGroupId'    => 'resourceGroupId',
+        'eipInstanceId'      => 'eipInstanceId',
+        'containerGroupName' => 'containerGroupName',
+        'instanceType'       => 'instanceType',
+        'tags'               => 'tags',
+        'resources'          => 'resources',
+        'spec'               => 'spec',
     ];
 }

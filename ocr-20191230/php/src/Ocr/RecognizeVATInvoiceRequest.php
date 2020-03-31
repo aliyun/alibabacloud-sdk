@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class RecognizeVATInvoiceRequest extends Model
 {
     public $fileURL;
-
     public $fileType;
+    protected $_required = [
+        'fileURL'  => true,
+        'fileType' => true,
+    ];
     protected $_name = [
         'fileURL'  => 'FileURL',
         'fileType' => 'FileType',
+    ];
+    protected $_description = [
+        'fileURL'  => 'fileUrl',
+        'fileType' => 'fileType',
     ];
 }

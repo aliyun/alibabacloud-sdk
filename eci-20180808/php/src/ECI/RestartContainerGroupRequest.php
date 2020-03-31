@@ -9,17 +9,11 @@ use AlibabaCloud\Tea\Model;
 class RestartContainerGroupRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $containerGroupId;
-
     public $clientToken;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -29,5 +23,18 @@ class RestartContainerGroupRequest extends Model
         'regionId'             => 'RegionId',
         'containerGroupId'     => 'ContainerGroupId',
         'clientToken'          => 'ClientToken',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
+        'containerGroupId'     => 'containerGroupId',
+        'clientToken'          => 'clientToken',
+    ];
+    protected $_required = [
+        'regionId'         => true,
+        'containerGroupId' => true,
     ];
 }

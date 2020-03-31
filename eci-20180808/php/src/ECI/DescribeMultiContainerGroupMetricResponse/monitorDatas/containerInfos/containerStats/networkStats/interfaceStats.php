@@ -9,22 +9,25 @@ use AlibabaCloud\Tea\Model;
 class interfaceStats extends Model
 {
     public $name;
-
     public $rxBytes;
-
     public $rxPackets;
-
     public $rxErrors;
-
     public $rxDropped;
-
     public $txBytes;
-
     public $txPackets;
-
     public $txDropped;
-
     public $txErrors;
+    protected $_required = [
+        'name'      => true,
+        'rxBytes'   => true,
+        'rxPackets' => true,
+        'rxErrors'  => true,
+        'rxDropped' => true,
+        'txBytes'   => true,
+        'txPackets' => true,
+        'txDropped' => true,
+        'txErrors'  => true,
+    ];
     protected $_name = [
         'name'      => 'Name',
         'rxBytes'   => 'RxBytes',
@@ -35,5 +38,16 @@ class interfaceStats extends Model
         'txPackets' => 'TxPackets',
         'txDropped' => 'TxDropped',
         'txErrors'  => 'TxErrors',
+    ];
+    protected $_description = [
+        'name'      => 'name',
+        'rxBytes'   => 'rxBytes',
+        'rxPackets' => 'rxPackets',
+        'rxErrors'  => 'rxErrors',
+        'rxDropped' => 'rxDropped',
+        'txBytes'   => 'txBytes',
+        'txPackets' => 'txPackets',
+        'txDropped' => 'txDropped',
+        'txErrors'  => 'txErrors',
     ];
 }

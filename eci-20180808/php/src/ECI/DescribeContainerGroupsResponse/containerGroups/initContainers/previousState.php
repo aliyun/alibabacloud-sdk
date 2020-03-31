@@ -9,20 +9,23 @@ use AlibabaCloud\Tea\Model;
 class previousState extends Model
 {
     public $state;
-
     public $detailStatus;
-
     public $exitCode;
-
     public $startTime;
-
     public $finishTime;
-
     public $reason;
-
     public $message;
-
     public $signal;
+    protected $_required = [
+        'state'        => true,
+        'detailStatus' => true,
+        'exitCode'     => true,
+        'startTime'    => true,
+        'finishTime'   => true,
+        'reason'       => true,
+        'message'      => true,
+        'signal'       => true,
+    ];
     protected $_name = [
         'state'        => 'State',
         'detailStatus' => 'DetailStatus',
@@ -32,5 +35,15 @@ class previousState extends Model
         'reason'       => 'Reason',
         'message'      => 'Message',
         'signal'       => 'Signal',
+    ];
+    protected $_description = [
+        'state'        => 'state',
+        'detailStatus' => 'detailStatus',
+        'exitCode'     => 'exitCode',
+        'startTime'    => 'startTime',
+        'finishTime'   => 'finishTime',
+        'reason'       => 'reason',
+        'message'      => 'message',
+        'signal'       => 'signal',
     ];
 }

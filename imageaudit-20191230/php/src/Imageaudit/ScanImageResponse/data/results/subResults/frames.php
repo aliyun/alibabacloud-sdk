@@ -9,9 +9,16 @@ use AlibabaCloud\Tea\Model;
 class frames extends Model
 {
     public $rate;
-
     public $URL;
+    protected $_required = [
+        'rate' => true,
+        'URL'  => true,
+    ];
     protected $_name = [
+        'rate' => 'Rate',
+        'URL'  => 'URL',
+    ];
+    protected $_description = [
         'rate' => 'Rate',
         'URL'  => 'URL',
     ];

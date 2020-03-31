@@ -9,20 +9,27 @@ use AlibabaCloud\Tea\Model;
 class SearchImageByPicAdvanceRequest extends Model
 {
     public $picContentObject;
-
     public $categoryId;
-
     public $instanceName;
-
     public $crop;
-
     public $region;
-
     public $num;
-
     public $start;
-
     public $filter;
+    protected $_required = [
+        'picContentObject' => true,
+        'instanceName'     => true,
+    ];
+    protected $_description = [
+        'picContentObject' => 'PicContentObject',
+        'categoryId'       => 'categoryId',
+        'instanceName'     => 'instanceName',
+        'crop'             => 'crop',
+        'region'           => 'region',
+        'num'              => 'num',
+        'start'            => 'start',
+        'filter'           => 'filter',
+    ];
     protected $_name = [
         'picContentObject' => 'PicContentObject',
         'categoryId'       => 'CategoryId',

@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class httpGet extends Model
 {
     public $scheme;
-
     public $path;
-
     public $port;
+    protected $_required = [
+        'scheme' => true,
+        'path'   => true,
+        'port'   => true,
+    ];
     protected $_name = [
         'scheme' => 'Scheme',
         'path'   => 'Path',
         'port'   => 'Port',
+    ];
+    protected $_description = [
+        'scheme' => 'scheme',
+        'path'   => 'path',
+        'port'   => 'port',
     ];
 }

@@ -9,13 +9,20 @@ use AlibabaCloud\Tea\Model;
 class DeleteImageRequest extends Model
 {
     public $instanceName;
-
     public $productId;
-
     public $picName;
+    protected $_required = [
+        'instanceName' => true,
+        'productId'    => true,
+    ];
     protected $_name = [
         'instanceName' => 'InstanceName',
         'productId'    => 'ProductId',
         'picName'      => 'PicName',
+    ];
+    protected $_description = [
+        'instanceName' => 'instanceName',
+        'productId'    => 'productId',
+        'picName'      => 'picName',
     ];
 }

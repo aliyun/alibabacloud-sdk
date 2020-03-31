@@ -9,17 +9,11 @@ use AlibabaCloud\Tea\Model;
 class UpdateContainerGroupByTemplateRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $template;
-
     public $clientToken;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -29,5 +23,18 @@ class UpdateContainerGroupByTemplateRequest extends Model
         'regionId'             => 'RegionId',
         'template'             => 'Template',
         'clientToken'          => 'ClientToken',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
+        'template'             => 'jsonUserTemplate',
+        'clientToken'          => 'clientToken',
+    ];
+    protected $_required = [
+        'regionId' => true,
+        'template' => true,
     ];
 }

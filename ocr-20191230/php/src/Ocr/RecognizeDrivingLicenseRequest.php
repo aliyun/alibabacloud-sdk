@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class RecognizeDrivingLicenseRequest extends Model
 {
     public $imageURL;
-
     public $side;
+    protected $_required = [
+        'imageURL' => true,
+        'side'     => true,
+    ];
     protected $_name = [
         'imageURL' => 'ImageURL',
         'side'     => 'Side',
+    ];
+    protected $_description = [
+        'imageURL' => 'imageUrl',
+        'side'     => 'side',
     ];
 }

@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class ExtendImageStyleRequest extends Model
 {
     public $styleUrl;
-
     public $majorUrl;
+    protected $_required = [
+        'styleUrl' => true,
+        'majorUrl' => true,
+    ];
     protected $_name = [
         'styleUrl' => 'StyleUrl',
         'majorUrl' => 'MajorUrl',
+    ];
+    protected $_description = [
+        'styleUrl' => 'styleUrl',
+        'majorUrl' => 'majorUrl',
     ];
 }

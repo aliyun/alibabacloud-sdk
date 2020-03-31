@@ -9,19 +9,25 @@ use AlibabaCloud\Tea\Model;
 class EraseVideoSubtitlesRequest extends Model
 {
     public $videoUrl;
-
     public $BX;
-
     public $BY;
-
     public $BW;
-
     public $BH;
+    protected $_required = [
+        'videoUrl' => true,
+    ];
     protected $_name = [
         'videoUrl' => 'VideoUrl',
         'BX'       => 'BX',
         'BY'       => 'BY',
         'BW'       => 'BW',
         'BH'       => 'BH',
+    ];
+    protected $_description = [
+        'videoUrl' => 'videoUrl',
+        'BX'       => 'bx',
+        'BY'       => 'by',
+        'BW'       => 'bw',
+        'BH'       => 'bh',
     ];
 }

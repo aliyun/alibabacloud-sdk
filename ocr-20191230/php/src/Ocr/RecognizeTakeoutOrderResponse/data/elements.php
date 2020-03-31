@@ -9,16 +9,25 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $score;
-
     public $name;
-
     public $value;
-
     public $boxes;
+    protected $_required = [
+        'score' => true,
+        'name'  => true,
+        'value' => true,
+        'boxes' => true,
+    ];
     protected $_name = [
         'score' => 'Score',
         'name'  => 'Name',
         'value' => 'Value',
         'boxes' => 'Boxes',
+    ];
+    protected $_description = [
+        'score' => 'score',
+        'name'  => 'name',
+        'value' => 'value',
+        'boxes' => 'boxes',
     ];
 }

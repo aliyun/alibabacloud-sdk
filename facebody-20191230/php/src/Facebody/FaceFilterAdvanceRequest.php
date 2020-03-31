@@ -9,10 +9,18 @@ use AlibabaCloud\Tea\Model;
 class FaceFilterAdvanceRequest extends Model
 {
     public $imageURLObject;
-
     public $resourceType;
-
     public $strength;
+    protected $_required = [
+        'imageURLObject' => true,
+        'resourceType'   => true,
+        'strength'       => true,
+    ];
+    protected $_description = [
+        'imageURLObject' => 'ImageURLObject',
+        'resourceType'   => 'resourceType',
+        'strength'       => 'strength',
+    ];
     protected $_name = [
         'imageURLObject' => 'ImageURLObject',
         'resourceType'   => 'ResourceType',

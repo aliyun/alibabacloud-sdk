@@ -9,14 +9,23 @@ use AlibabaCloud\Tea\Model;
 class AddImageAdvanceRequest extends Model
 {
     public $imageUrlObject;
-
     public $dbName;
-
     public $dataId;
-
     public $extraData;
-
     public $entityId;
+    protected $_required = [
+        'imageUrlObject' => true,
+        'dbName'         => true,
+        'dataId'         => true,
+        'entityId'       => true,
+    ];
+    protected $_description = [
+        'imageUrlObject' => 'ImageUrlObject',
+        'dbName'         => 'dbName',
+        'dataId'         => 'dataId',
+        'extraData'      => 'extraData',
+        'entityId'       => 'entityId',
+    ];
     protected $_name = [
         'imageUrlObject' => 'ImageUrlObject',
         'dbName'         => 'DbName',

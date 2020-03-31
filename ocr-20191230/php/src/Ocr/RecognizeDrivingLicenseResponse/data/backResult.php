@@ -9,24 +9,27 @@ use AlibabaCloud\Tea\Model;
 class backResult extends Model
 {
     public $approvedPassengerCapacity;
-
     public $approvedLoad;
-
     public $fileNumber;
-
     public $grossMass;
-
     public $energyType;
-
     public $inspectionRecord;
-
     public $overallDimension;
-
     public $tractionMass;
-
     public $unladenMass;
-
     public $plateNumber;
+    protected $_required = [
+        'approvedPassengerCapacity' => true,
+        'approvedLoad'              => true,
+        'fileNumber'                => true,
+        'grossMass'                 => true,
+        'energyType'                => true,
+        'inspectionRecord'          => true,
+        'overallDimension'          => true,
+        'tractionMass'              => true,
+        'unladenMass'               => true,
+        'plateNumber'               => true,
+    ];
     protected $_name = [
         'approvedPassengerCapacity' => 'ApprovedPassengerCapacity',
         'approvedLoad'              => 'ApprovedLoad',
@@ -38,5 +41,17 @@ class backResult extends Model
         'tractionMass'              => 'TractionMass',
         'unladenMass'               => 'UnladenMass',
         'plateNumber'               => 'PlateNumber',
+    ];
+    protected $_description = [
+        'approvedPassengerCapacity' => 'approvedPassengerCapacity',
+        'approvedLoad'              => 'approvedLoad',
+        'fileNumber'                => 'fileNumber',
+        'grossMass'                 => 'grossMass',
+        'energyType'                => 'energyType',
+        'inspectionRecord'          => 'inspectionRecord',
+        'overallDimension'          => 'overallDimension',
+        'tractionMass'              => 'tractionMass',
+        'unladenMass'               => 'unladenMass',
+        'plateNumber'               => 'plateNumber',
     ];
 }

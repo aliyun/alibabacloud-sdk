@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class configFileVolumeConfigFileToPaths extends Model
 {
     public $content;
-
     public $path;
+    protected $_required = [
+        'content' => true,
+        'path'    => true,
+    ];
     protected $_name = [
         'content' => 'Content',
         'path'    => 'Path',
+    ];
+    protected $_description = [
+        'content' => 'content',
+        'path'    => 'path',
     ];
 }
