@@ -9,20 +9,23 @@ use AlibabaCloud\Tea\Model;
 class AuthorizeFileUploadResponse extends Model
 {
     public $accessKeyId;
-
     public $bucket;
-
     public $encodedPolicy;
-
     public $endpoint;
-
     public $objectKey;
-
     public $requestId;
-
     public $signature;
-
     public $useAccelerate;
+    protected $_required = [
+        'accessKeyId'   => true,
+        'bucket'        => true,
+        'encodedPolicy' => true,
+        'endpoint'      => true,
+        'objectKey'     => true,
+        'requestId'     => true,
+        'signature'     => true,
+        'useAccelerate' => true,
+    ];
     protected $_name = [
         'accessKeyId'   => 'AccessKeyId',
         'bucket'        => 'Bucket',
@@ -32,5 +35,15 @@ class AuthorizeFileUploadResponse extends Model
         'requestId'     => 'RequestId',
         'signature'     => 'Signature',
         'useAccelerate' => 'UseAccelerate',
+    ];
+    protected $_description = [
+        'accessKeyId'   => 'data.accessKeyId',
+        'bucket'        => 'data.bucket',
+        'encodedPolicy' => 'data.encodedPolicy',
+        'endpoint'      => 'data.endpoint',
+        'objectKey'     => 'data.objectKey',
+        'requestId'     => 'requestId',
+        'signature'     => 'data.signature',
+        'useAccelerate' => 'data.useAccelerate',
     ];
 }
