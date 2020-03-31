@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class diskVolume extends Model
 {
     public $diskId;
-
     public $fsType;
-
     public $diskSize;
     protected $_name = [
         'diskId'   => 'DiskId',
         'fsType'   => 'FsType',
         'diskSize' => 'DiskSize',
+    ];
+    protected $_description = [
+        'diskId'   => 'diskVolumeDiskId',
+        'fsType'   => 'diskVolumeFsType',
+        'diskSize' => 'diskVolumeDiskSize',
     ];
 }

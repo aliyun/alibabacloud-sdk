@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class DescribeImageCachesResponse extends Model
 {
     public $requestId;
-
     public $imageCaches;
+    protected $_required = [
+        'requestId'   => true,
+        'imageCaches' => true,
+    ];
     protected $_name = [
         'requestId'   => 'RequestId',
         'imageCaches' => 'ImageCaches',
+    ];
+    protected $_description = [
+        'requestId'   => 'requestId',
+        'imageCaches' => 'data',
     ];
 }

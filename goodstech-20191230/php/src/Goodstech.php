@@ -28,35 +28,20 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Goodstech
 {
-    protected $_name = [];
     private $_endpoint;
-
     private $_regionId;
-
     private $_protocol;
-
     private $_userAgent;
-
     private $_endpointType;
-
     private $_readTimeout;
-
     private $_connectTimeout;
-
     private $_httpProxy;
-
     private $_httpsProxy;
-
     private $_socks5Proxy;
-
     private $_socks5NetWork;
-
     private $_noProxy;
-
     private $_maxIdleConns;
-
     private $_openPlatformEndpoint;
-
     private $_credential;
 
     public function __construct(Config $config)
@@ -221,6 +206,7 @@ class Goodstech
      */
     public function recognizeFurnitureAttributeAdvance(RecognizeFurnitureAttributeAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -237,7 +223,8 @@ class Goodstech
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -266,6 +253,7 @@ class Goodstech
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeFurnitureAttributereq = new RecognizeFurnitureAttributeRequest([]);
         RpcUtils::convert($request, $recognizeFurnitureAttributereq);
         $recognizeFurnitureAttributereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -290,6 +278,7 @@ class Goodstech
      */
     public function recognizeFurnitureSpuAdvance(RecognizeFurnitureSpuAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -306,7 +295,8 @@ class Goodstech
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -335,6 +325,7 @@ class Goodstech
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeFurnitureSpureq = new RecognizeFurnitureSpuRequest([]);
         RpcUtils::convert($request, $recognizeFurnitureSpureq);
         $recognizeFurnitureSpureq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -359,6 +350,7 @@ class Goodstech
      */
     public function classifyCommodityAdvance(ClassifyCommodityAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -375,7 +367,8 @@ class Goodstech
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -404,6 +397,7 @@ class Goodstech
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $classifyCommodityreq = new ClassifyCommodityRequest([]);
         RpcUtils::convert($request, $classifyCommodityreq);
         $classifyCommodityreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';

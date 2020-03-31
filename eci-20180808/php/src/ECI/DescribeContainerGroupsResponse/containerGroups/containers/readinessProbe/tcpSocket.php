@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class tcpSocket extends Model
 {
     public $host;
-
     public $port;
+    protected $_required = [
+        'host' => true,
+        'port' => true,
+    ];
     protected $_name = [
         'host' => 'Host',
         'port' => 'Port',
+    ];
+    protected $_description = [
+        'host' => 'host',
+        'port' => 'port',
     ];
 }

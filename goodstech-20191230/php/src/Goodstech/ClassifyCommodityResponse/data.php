@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     public $categories;
+    protected $_required = [
+        'categories' => true,
+    ];
     protected $_name = [
         'categories' => 'Categories',
+    ];
+    protected $_description = [
+        'categories' => 'categoryList',
     ];
 }

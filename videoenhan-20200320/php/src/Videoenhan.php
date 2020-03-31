@@ -39,35 +39,20 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Videoenhan
 {
-    protected $_name = [];
     private $_endpoint;
-
     private $_regionId;
-
     private $_protocol;
-
     private $_userAgent;
-
     private $_endpointType;
-
     private $_readTimeout;
-
     private $_connectTimeout;
-
     private $_httpProxy;
-
     private $_httpsProxy;
-
     private $_socks5Proxy;
-
     private $_socks5NetWork;
-
     private $_noProxy;
-
     private $_maxIdleConns;
-
     private $_openPlatformEndpoint;
-
     private $_credential;
 
     public function __construct(Config $config)
@@ -242,6 +227,7 @@ class Videoenhan
      */
     public function superResolveVideoAdvance(SuperResolveVideoAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -258,7 +244,8 @@ class Videoenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -287,6 +274,7 @@ class Videoenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $superResolveVideoreq = new SuperResolveVideoRequest([]);
         RpcUtils::convert($request, $superResolveVideoreq);
         $superResolveVideoreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -311,6 +299,7 @@ class Videoenhan
      */
     public function eraseVideoLogoAdvance(EraseVideoLogoAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -327,7 +316,8 @@ class Videoenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -356,6 +346,7 @@ class Videoenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $eraseVideoLogoreq = new EraseVideoLogoRequest([]);
         RpcUtils::convert($request, $eraseVideoLogoreq);
         $eraseVideoLogoreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -380,6 +371,7 @@ class Videoenhan
      */
     public function eraseVideoSubtitlesAdvance(EraseVideoSubtitlesAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -396,7 +388,8 @@ class Videoenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -425,6 +418,7 @@ class Videoenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $eraseVideoSubtitlesreq = new EraseVideoSubtitlesRequest([]);
         RpcUtils::convert($request, $eraseVideoSubtitlesreq);
         $eraseVideoSubtitlesreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -449,6 +443,7 @@ class Videoenhan
      */
     public function abstractEcommerceVideoAdvance(AbstractEcommerceVideoAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -465,7 +460,8 @@ class Videoenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -494,6 +490,7 @@ class Videoenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $abstractEcommerceVideoreq = new AbstractEcommerceVideoRequest([]);
         RpcUtils::convert($request, $abstractEcommerceVideoreq);
         $abstractEcommerceVideoreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -518,6 +515,7 @@ class Videoenhan
      */
     public function abstractFilmVideoAdvance(AbstractFilmVideoAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -534,7 +532,8 @@ class Videoenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -563,6 +562,7 @@ class Videoenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $abstractFilmVideoreq = new AbstractFilmVideoRequest([]);
         RpcUtils::convert($request, $abstractFilmVideoreq);
         $abstractFilmVideoreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -587,6 +587,7 @@ class Videoenhan
      */
     public function adjustVideoColorAdvance(AdjustVideoColorAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -603,7 +604,8 @@ class Videoenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -632,6 +634,7 @@ class Videoenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $adjustVideoColorreq = new AdjustVideoColorRequest([]);
         RpcUtils::convert($request, $adjustVideoColorreq);
         $adjustVideoColorreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';

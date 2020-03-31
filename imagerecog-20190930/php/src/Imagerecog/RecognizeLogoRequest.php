@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class RecognizeLogoRequest extends Model
 {
     public $tasks;
+    protected $_required = [
+        'tasks' => true,
+    ];
     protected $_name = [
         'tasks' => 'Tasks',
+    ];
+    protected $_description = [
+        'tasks' => 'tasks',
     ];
 }

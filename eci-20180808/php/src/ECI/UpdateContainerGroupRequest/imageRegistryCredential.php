@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class imageRegistryCredential extends Model
 {
     public $server;
-
     public $userName;
-
     public $password;
     protected $_name = [
         'server'   => 'Server',
         'userName' => 'UserName',
         'password' => 'Password',
+    ];
+    protected $_description = [
+        'server'   => 'server',
+        'userName' => 'userName',
+        'password' => 'password',
     ];
 }

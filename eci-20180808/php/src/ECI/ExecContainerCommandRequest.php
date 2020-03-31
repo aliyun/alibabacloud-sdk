@@ -9,21 +9,13 @@ use AlibabaCloud\Tea\Model;
 class ExecContainerCommandRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $containerGroupId;
-
     public $containerName;
-
     public $command;
-
     public $TTY;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -35,5 +27,22 @@ class ExecContainerCommandRequest extends Model
         'containerName'        => 'ContainerName',
         'command'              => 'Command',
         'TTY'                  => 'TTY',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
+        'containerGroupId'     => 'containerGroupId',
+        'containerName'        => 'containerName',
+        'command'              => 'command',
+        'TTY'                  => 'tty',
+    ];
+    protected $_required = [
+        'regionId'         => true,
+        'containerGroupId' => true,
+        'containerName'    => true,
+        'command'          => true,
     ];
 }

@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class AbstractFilmVideoRequest extends Model
 {
     public $videoUrl;
-
     public $length;
+    protected $_required = [
+        'videoUrl' => true,
+        'length'   => true,
+    ];
     protected $_name = [
         'videoUrl' => 'VideoUrl',
         'length'   => 'Length',
+    ];
+    protected $_description = [
+        'videoUrl' => 'videoUrl',
+        'length'   => 'length',
     ];
 }

@@ -12,4 +12,7 @@ class colorTemplate extends Model
     protected $_name = [
         'color' => 'Color',
     ];
+    protected $_description = [
+        'color' => 'color',
+    ];
 }

@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class dbList extends Model
 {
     public $name;
+    protected $_required = [
+        'name' => true,
+    ];
     protected $_name = [
         'name' => 'Name',
+    ];
+    protected $_description = [
+        'name' => 'name',
     ];
 }

@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class items extends Model
 {
     public $text;
-
     public $itemRoi;
+    protected $_required = [
+        'text'    => true,
+        'itemRoi' => true,
+    ];
     protected $_name = [
         'text'    => 'Text',
         'itemRoi' => 'ItemRoi',
+    ];
+    protected $_description = [
+        'text'    => 'text',
+        'itemRoi' => 'itemRoi',
     ];
 }

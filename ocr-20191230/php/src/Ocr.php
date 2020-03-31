@@ -83,35 +83,20 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Ocr
 {
-    protected $_name = [];
     private $_endpoint;
-
     private $_regionId;
-
     private $_protocol;
-
     private $_userAgent;
-
     private $_endpointType;
-
     private $_readTimeout;
-
     private $_connectTimeout;
-
     private $_httpProxy;
-
     private $_httpsProxy;
-
     private $_socks5Proxy;
-
     private $_socks5NetWork;
-
     private $_noProxy;
-
     private $_maxIdleConns;
-
     private $_openPlatformEndpoint;
-
     private $_credential;
 
     public function __construct(Config $config)
@@ -286,6 +271,7 @@ class Ocr
      */
     public function trimDocumentAdvance(TrimDocumentAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -302,7 +288,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -331,6 +318,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $trimDocumentreq = new TrimDocumentRequest([]);
         RpcUtils::convert($request, $trimDocumentreq);
         $trimDocumentreq->fileURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -355,6 +343,7 @@ class Ocr
      */
     public function recognizeChinapassportAdvance(RecognizeChinapassportAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -371,7 +360,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -400,6 +390,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeChinapassportreq = new RecognizeChinapassportRequest([]);
         RpcUtils::convert($request, $recognizeChinapassportreq);
         $recognizeChinapassportreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -424,6 +415,7 @@ class Ocr
      */
     public function recognizeVerificationcodeAdvance(RecognizeVerificationcodeAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -440,7 +432,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -469,6 +462,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeVerificationcodereq = new RecognizeVerificationcodeRequest([]);
         RpcUtils::convert($request, $recognizeVerificationcodereq);
         $recognizeVerificationcodereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -493,6 +487,7 @@ class Ocr
      */
     public function recognizePassportMRZAdvance(RecognizePassportMRZAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -509,7 +504,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -538,6 +534,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizePassportMRZreq = new RecognizePassportMRZRequest([]);
         RpcUtils::convert($request, $recognizePassportMRZreq);
         $recognizePassportMRZreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -562,6 +559,7 @@ class Ocr
      */
     public function recognizeTakeoutOrderAdvance(RecognizeTakeoutOrderAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -578,7 +576,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -607,6 +606,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeTakeoutOrderreq = new RecognizeTakeoutOrderRequest([]);
         RpcUtils::convert($request, $recognizeTakeoutOrderreq);
         $recognizeTakeoutOrderreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -641,6 +641,7 @@ class Ocr
      */
     public function recognizeVATInvoiceAdvance(RecognizeVATInvoiceAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -657,7 +658,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -686,6 +688,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeVATInvoicereq = new RecognizeVATInvoiceRequest([]);
         RpcUtils::convert($request, $recognizeVATInvoicereq);
         $recognizeVATInvoicereq->fileURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -710,6 +713,7 @@ class Ocr
      */
     public function recognizeCharacterAdvance(RecognizeCharacterAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -726,7 +730,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -755,6 +760,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeCharacterreq = new RecognizeCharacterRequest([]);
         RpcUtils::convert($request, $recognizeCharacterreq);
         $recognizeCharacterreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -779,6 +785,7 @@ class Ocr
      */
     public function recognizeTaxiInvoiceAdvance(RecognizeTaxiInvoiceAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -795,7 +802,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -824,6 +832,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeTaxiInvoicereq = new RecognizeTaxiInvoiceRequest([]);
         RpcUtils::convert($request, $recognizeTaxiInvoicereq);
         $recognizeTaxiInvoicereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -848,6 +857,7 @@ class Ocr
      */
     public function recognizeIdentityCardAdvance(RecognizeIdentityCardAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -864,7 +874,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -893,6 +904,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeIdentityCardreq = new RecognizeIdentityCardRequest([]);
         RpcUtils::convert($request, $recognizeIdentityCardreq);
         $recognizeIdentityCardreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -917,6 +929,7 @@ class Ocr
      */
     public function recognizeLicensePlateAdvance(RecognizeLicensePlateAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -933,7 +946,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -962,6 +976,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeLicensePlatereq = new RecognizeLicensePlateRequest([]);
         RpcUtils::convert($request, $recognizeLicensePlatereq);
         $recognizeLicensePlatereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -986,6 +1001,7 @@ class Ocr
      */
     public function recognizeTableAdvance(RecognizeTableAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1002,7 +1018,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1031,6 +1048,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeTablereq = new RecognizeTableRequest([]);
         RpcUtils::convert($request, $recognizeTablereq);
         $recognizeTablereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1055,6 +1073,7 @@ class Ocr
      */
     public function recognizeDrivingLicenseAdvance(RecognizeDrivingLicenseAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1071,7 +1090,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1100,6 +1120,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeDrivingLicensereq = new RecognizeDrivingLicenseRequest([]);
         RpcUtils::convert($request, $recognizeDrivingLicensereq);
         $recognizeDrivingLicensereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1124,6 +1145,7 @@ class Ocr
      */
     public function recognizeBankCardAdvance(RecognizeBankCardAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1140,7 +1162,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1169,6 +1192,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeBankCardreq = new RecognizeBankCardRequest([]);
         RpcUtils::convert($request, $recognizeBankCardreq);
         $recognizeBankCardreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1193,6 +1217,7 @@ class Ocr
      */
     public function recognizeTrainTicketAdvance(RecognizeTrainTicketAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1209,7 +1234,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1238,6 +1264,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeTrainTicketreq = new RecognizeTrainTicketRequest([]);
         RpcUtils::convert($request, $recognizeTrainTicketreq);
         $recognizeTrainTicketreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1262,6 +1289,7 @@ class Ocr
      */
     public function recognizeDriverLicenseAdvance(RecognizeDriverLicenseAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1278,7 +1306,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1307,6 +1336,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeDriverLicensereq = new RecognizeDriverLicenseRequest([]);
         RpcUtils::convert($request, $recognizeDriverLicensereq);
         $recognizeDriverLicensereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1331,6 +1361,7 @@ class Ocr
      */
     public function recognizeAccountPageAdvance(RecognizeAccountPageAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1347,7 +1378,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1376,6 +1408,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeAccountPagereq = new RecognizeAccountPageRequest([]);
         RpcUtils::convert($request, $recognizeAccountPagereq);
         $recognizeAccountPagereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1400,6 +1433,7 @@ class Ocr
      */
     public function recognizeStampAdvance(RecognizeStampAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1416,7 +1450,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1445,6 +1480,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeStampreq = new RecognizeStampRequest([]);
         RpcUtils::convert($request, $recognizeStampreq);
         $recognizeStampreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1469,6 +1505,7 @@ class Ocr
      */
     public function recognizeBusinessCardAdvance(RecognizeBusinessCardAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1485,7 +1522,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1514,6 +1552,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeBusinessCardreq = new RecognizeBusinessCardRequest([]);
         RpcUtils::convert($request, $recognizeBusinessCardreq);
         $recognizeBusinessCardreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1538,6 +1577,7 @@ class Ocr
      */
     public function recognizeVINCodeAdvance(RecognizeVINCodeAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1554,7 +1594,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1583,6 +1624,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeVINCodereq = new RecognizeVINCodeRequest([]);
         RpcUtils::convert($request, $recognizeVINCodereq);
         $recognizeVINCodereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -1607,6 +1649,7 @@ class Ocr
      */
     public function recognizeBusinessLicenseAdvance(RecognizeBusinessLicenseAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -1623,7 +1666,8 @@ class Ocr
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1652,6 +1696,7 @@ class Ocr
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $recognizeBusinessLicensereq = new RecognizeBusinessLicenseRequest([]);
         RpcUtils::convert($request, $recognizeBusinessLicensereq);
         $recognizeBusinessLicensereq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';

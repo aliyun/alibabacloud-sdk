@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class backResult extends Model
 {
     public $startDate;
-
     public $endDate;
-
     public $issue;
+    protected $_required = [
+        'startDate' => true,
+        'endDate'   => true,
+        'issue'     => true,
+    ];
     protected $_name = [
         'startDate' => 'StartDate',
         'endDate'   => 'EndDate',
         'issue'     => 'Issue',
+    ];
+    protected $_description = [
+        'startDate' => 'startDate',
+        'endDate'   => 'endDate',
+        'issue'     => 'issue',
     ];
 }

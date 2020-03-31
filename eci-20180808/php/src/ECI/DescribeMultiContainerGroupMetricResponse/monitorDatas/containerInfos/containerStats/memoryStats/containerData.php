@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class containerData extends Model
 {
     public $pgFault;
-
     public $pgmajFault;
+    protected $_required = [
+        'pgFault'    => true,
+        'pgmajFault' => true,
+    ];
     protected $_name = [
         'pgFault'    => 'PgFault',
         'pgmajFault' => 'PgmajFault',
+    ];
+    protected $_description = [
+        'pgFault'    => 'pgFault',
+        'pgmajFault' => 'pgmajFault',
     ];
 }

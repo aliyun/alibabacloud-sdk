@@ -9,10 +9,16 @@ use AlibabaCloud\Tea\Model;
 class IntelligentCompositionRequest extends Model
 {
     public $numBoxes;
-
     public $imageURL;
     protected $_name = [
         'numBoxes' => 'NumBoxes',
         'imageURL' => 'ImageURL',
+    ];
+    protected $_description = [
+        'numBoxes' => 'numBoxes',
+        'imageURL' => 'imageUrl',
+    ];
+    protected $_required = [
+        'imageURL' => true,
     ];
 }

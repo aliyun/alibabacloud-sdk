@@ -9,14 +9,21 @@ use AlibabaCloud\Tea\Model;
 class AdjustVideoColorAdvanceRequest extends Model
 {
     public $videoUrlObject;
-
     public $videoBitrate;
-
     public $videoCodec;
-
     public $videoFormat;
-
     public $mode;
+    protected $_required = [
+        'videoUrlObject' => true,
+        'mode'           => true,
+    ];
+    protected $_description = [
+        'videoUrlObject' => 'VideoUrlObject',
+        'videoBitrate'   => 'videoBitrate',
+        'videoCodec'     => 'videoCodec',
+        'videoFormat'    => 'videoFormat',
+        'mode'           => 'mode',
+    ];
     protected $_name = [
         'videoUrlObject' => 'VideoUrlObject',
         'videoBitrate'   => 'VideoBitrate',

@@ -24,35 +24,20 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Videoseg
 {
-    protected $_name = [];
     private $_endpoint;
-
     private $_regionId;
-
     private $_protocol;
-
     private $_userAgent;
-
     private $_endpointType;
-
     private $_readTimeout;
-
     private $_connectTimeout;
-
     private $_httpProxy;
-
     private $_httpsProxy;
-
     private $_socks5Proxy;
-
     private $_socks5NetWork;
-
     private $_noProxy;
-
     private $_maxIdleConns;
-
     private $_openPlatformEndpoint;
-
     private $_credential;
 
     public function __construct(Config $config)
@@ -217,6 +202,7 @@ class Videoseg
      */
     public function segmentVideoBodyAdvance(SegmentVideoBodyAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -233,7 +219,8 @@ class Videoseg
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -262,6 +249,7 @@ class Videoseg
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $segmentVideoBodyreq = new SegmentVideoBodyRequest([]);
         RpcUtils::convert($request, $segmentVideoBodyreq);
         $segmentVideoBodyreq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';

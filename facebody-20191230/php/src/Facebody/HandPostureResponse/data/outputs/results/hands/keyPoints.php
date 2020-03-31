@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class keyPoints extends Model
 {
     public $label;
-
     public $positions;
+    protected $_required = [
+        'label'     => true,
+        'positions' => true,
+    ];
     protected $_name = [
         'label'     => 'Label',
         'positions' => 'Positions',
+    ];
+    protected $_description = [
+        'label'     => 'label',
+        'positions' => 'positions',
     ];
 }

@@ -9,13 +9,19 @@ use AlibabaCloud\Tea\Model;
 class securityContext extends Model
 {
     public $readOnlyRootFilesystem;
-
     public $runAsUser;
-
     public $capability;
     protected $_name = [
         'readOnlyRootFilesystem' => 'ReadOnlyRootFilesystem',
         'runAsUser'              => 'RunAsUser',
         'capability'             => 'Capability',
+    ];
+    protected $_description = [
+        'readOnlyRootFilesystem' => 'securityContextReadOnlyRootFilesystem',
+        'runAsUser'              => 'securityContextRunAsUser',
+        'capability'             => 'Capability',
+    ];
+    protected $_required = [
+        'capability' => true,
     ];
 }

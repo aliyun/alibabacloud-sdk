@@ -9,20 +9,23 @@ use AlibabaCloud\Tea\Model;
 class readinessProbe extends Model
 {
     public $initialDelaySeconds;
-
     public $periodSeconds;
-
     public $successThreshold;
-
     public $failureThreshold;
-
     public $timeoutSeconds;
-
     public $exec;
-
     public $tcpSocket;
-
     public $httpGet;
+    protected $_required = [
+        'initialDelaySeconds' => true,
+        'periodSeconds'       => true,
+        'successThreshold'    => true,
+        'failureThreshold'    => true,
+        'timeoutSeconds'      => true,
+        'exec'                => true,
+        'tcpSocket'           => true,
+        'httpGet'             => true,
+    ];
     protected $_name = [
         'initialDelaySeconds' => 'InitialDelaySeconds',
         'periodSeconds'       => 'PeriodSeconds',
@@ -32,5 +35,15 @@ class readinessProbe extends Model
         'exec'                => 'Exec',
         'tcpSocket'           => 'TcpSocket',
         'httpGet'             => 'HttpGet',
+    ];
+    protected $_description = [
+        'initialDelaySeconds' => 'initialDelaySeconds',
+        'periodSeconds'       => 'periodSeconds',
+        'successThreshold'    => 'successThreshold',
+        'failureThreshold'    => 'failureThreshold',
+        'timeoutSeconds'      => 'timeoutSeconds',
+        'exec'                => 'exec',
+        'tcpSocket'           => 'tcpSocket',
+        'httpGet'             => 'httpGet',
     ];
 }

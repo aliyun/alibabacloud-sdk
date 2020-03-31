@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class rules extends Model
 {
     public $rule;
+    protected $_required = [
+        'rule' => true,
+    ];
     protected $_name = [
+        'rule' => 'Rule',
+    ];
+    protected $_description = [
         'rule' => 'Rule',
     ];
 }

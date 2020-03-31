@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class ScanTextRequest extends Model
 {
     public $tasks;
-
     public $labels;
+    protected $_required = [
+        'tasks'  => true,
+        'labels' => true,
+    ];
     protected $_name = [
         'tasks'  => 'Tasks',
         'labels' => 'Labels',
+    ];
+    protected $_description = [
+        'tasks'  => 'tasks',
+        'labels' => 'labels',
     ];
 }

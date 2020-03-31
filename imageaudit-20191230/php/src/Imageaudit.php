@@ -21,31 +21,18 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Imageaudit
 {
-    protected $_name = [];
     private $_endpoint;
-
     private $_regionId;
-
     private $_protocol;
-
     private $_userAgent;
-
     private $_readTimeout;
-
     private $_connectTimeout;
-
     private $_httpProxy;
-
     private $_httpsProxy;
-
     private $_noProxy;
-
     private $_socks5Proxy;
-
     private $_socks5NetWork;
-
     private $_maxIdleConns;
-
     private $_credential;
 
     public function __construct(Config $config)

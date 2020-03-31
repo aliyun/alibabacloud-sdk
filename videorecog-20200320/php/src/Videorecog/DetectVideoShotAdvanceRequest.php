@@ -9,6 +9,12 @@ use AlibabaCloud\Tea\Model;
 class DetectVideoShotAdvanceRequest extends Model
 {
     public $videoUrlObject;
+    protected $_required = [
+        'videoUrlObject' => true,
+    ];
+    protected $_description = [
+        'videoUrlObject' => 'VideoUrlObject',
+    ];
     protected $_name = [
         'videoUrlObject' => 'VideoUrlObject',
     ];

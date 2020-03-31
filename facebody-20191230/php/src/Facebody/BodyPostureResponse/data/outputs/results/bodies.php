@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class bodies extends Model
 {
     public $confident;
-
     public $label;
-
     public $positions;
+    protected $_required = [
+        'confident' => true,
+        'label'     => true,
+        'positions' => true,
+    ];
     protected $_name = [
         'confident' => 'Confident',
         'label'     => 'Label',
         'positions' => 'Positions',
+    ];
+    protected $_description = [
+        'confident' => 'confident',
+        'label'     => 'label',
+        'positions' => 'positions',
     ];
 }

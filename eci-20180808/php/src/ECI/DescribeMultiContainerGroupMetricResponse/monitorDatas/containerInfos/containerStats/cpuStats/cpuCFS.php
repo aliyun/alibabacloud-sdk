@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class cpuCFS extends Model
 {
     public $periods;
-
     public $throttledPeriods;
-
     public $throttledTime;
+    protected $_required = [
+        'periods'          => true,
+        'throttledPeriods' => true,
+        'throttledTime'    => true,
+    ];
     protected $_name = [
         'periods'          => 'Periods',
         'throttledPeriods' => 'ThrottledPeriods',
         'throttledTime'    => 'ThrottledTime',
+    ];
+    protected $_description = [
+        'periods'          => 'periods',
+        'throttledPeriods' => 'throttledPeriods',
+        'throttledTime'    => 'throttledTime',
     ];
 }

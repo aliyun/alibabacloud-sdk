@@ -9,13 +9,9 @@ use AlibabaCloud\Tea\Model;
 class task extends Model
 {
     public $dataId;
-
     public $imageURL;
-
     public $imageTimeMillisecond;
-
     public $interval;
-
     public $maxFrames;
     protected $_name = [
         'dataId'               => 'DataId',
@@ -23,5 +19,15 @@ class task extends Model
         'imageTimeMillisecond' => 'ImageTimeMillisecond',
         'interval'             => 'Interval',
         'maxFrames'            => 'MaxFrames',
+    ];
+    protected $_description = [
+        'dataId'               => 'dataId',
+        'imageURL'             => 'imageUrl',
+        'imageTimeMillisecond' => 'imageTime',
+        'interval'             => 'interval',
+        'maxFrames'            => 'maxFrames',
+    ];
+    protected $_required = [
+        'imageURL' => true,
     ];
 }

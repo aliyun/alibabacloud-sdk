@@ -44,35 +44,20 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Imageenhan
 {
-    protected $_name = [];
     private $_endpoint;
-
     private $_regionId;
-
     private $_protocol;
-
     private $_userAgent;
-
     private $_endpointType;
-
     private $_readTimeout;
-
     private $_connectTimeout;
-
     private $_httpProxy;
-
     private $_httpsProxy;
-
     private $_socks5Proxy;
-
     private $_socks5NetWork;
-
     private $_noProxy;
-
     private $_maxIdleConns;
-
     private $_openPlatformEndpoint;
-
     private $_credential;
 
     public function __construct(Config $config)
@@ -237,6 +222,7 @@ class Imageenhan
      */
     public function imageBlindCharacterWatermarkAdvance(ImageBlindCharacterWatermarkAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -253,7 +239,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -282,6 +269,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $imageBlindCharacterWatermarkreq = new ImageBlindCharacterWatermarkRequest([]);
         RpcUtils::convert($request, $imageBlindCharacterWatermarkreq);
         $imageBlindCharacterWatermarkreq->originImageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -306,6 +294,7 @@ class Imageenhan
      */
     public function removeImageSubtitlesAdvance(RemoveImageSubtitlesAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -322,7 +311,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -351,6 +341,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $removeImageSubtitlesreq = new RemoveImageSubtitlesRequest([]);
         RpcUtils::convert($request, $removeImageSubtitlesreq);
         $removeImageSubtitlesreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -375,6 +366,7 @@ class Imageenhan
      */
     public function removeImageWatermarkAdvance(RemoveImageWatermarkAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -391,7 +383,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -420,6 +413,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $removeImageWatermarkreq = new RemoveImageWatermarkRequest([]);
         RpcUtils::convert($request, $removeImageWatermarkreq);
         $removeImageWatermarkreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -444,6 +438,7 @@ class Imageenhan
      */
     public function imageBlindPicWatermarkAdvance(ImageBlindPicWatermarkAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -460,7 +455,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -489,6 +485,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $imageBlindPicWatermarkreq = new ImageBlindPicWatermarkRequest([]);
         RpcUtils::convert($request, $imageBlindPicWatermarkreq);
         $imageBlindPicWatermarkreq->originImageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -513,6 +510,7 @@ class Imageenhan
      */
     public function intelligentCompositionAdvance(IntelligentCompositionAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -529,7 +527,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -558,6 +557,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $intelligentCompositionreq = new IntelligentCompositionRequest([]);
         RpcUtils::convert($request, $intelligentCompositionreq);
         $intelligentCompositionreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -582,6 +582,7 @@ class Imageenhan
      */
     public function changeImageSizeAdvance(ChangeImageSizeAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -598,7 +599,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -627,6 +629,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $changeImageSizereq = new ChangeImageSizeRequest([]);
         RpcUtils::convert($request, $changeImageSizereq);
         $changeImageSizereq->url = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
@@ -661,6 +664,7 @@ class Imageenhan
      */
     public function makeSuperResolutionImageAdvance(MakeSuperResolutionImageAdvanceRequest $request, RuntimeOptions $runtime)
     {
+        // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
         $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
@@ -677,7 +681,8 @@ class Imageenhan
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
-        $ossConfig    = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -706,6 +711,7 @@ class Imageenhan
         $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
         $makeSuperResolutionImagereq = new MakeSuperResolutionImageRequest([]);
         RpcUtils::convert($request, $makeSuperResolutionImagereq);
         $makeSuperResolutionImagereq->url = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';

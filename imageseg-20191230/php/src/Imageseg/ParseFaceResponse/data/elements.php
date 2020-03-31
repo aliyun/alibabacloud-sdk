@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $name;
-
     public $imageURL;
+    protected $_required = [
+        'name'     => true,
+        'imageURL' => true,
+    ];
     protected $_name = [
         'name'     => 'Name',
         'imageURL' => 'ImageURL',
+    ];
+    protected $_description = [
+        'name'     => 'name',
+        'imageURL' => 'imageUrl',
     ];
 }

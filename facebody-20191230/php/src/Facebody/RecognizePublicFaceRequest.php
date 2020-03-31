@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class RecognizePublicFaceRequest extends Model
 {
     public $task;
+    protected $_required = [
+        'task' => true,
+    ];
     protected $_name = [
         'task' => 'Task',
+    ];
+    protected $_description = [
+        'task' => 'tasks',
     ];
 }

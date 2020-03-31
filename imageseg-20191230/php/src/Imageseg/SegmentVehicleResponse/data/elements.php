@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $originImageURL;
-
     public $imageURL;
+    protected $_required = [
+        'originImageURL' => true,
+        'imageURL'       => true,
+    ];
     protected $_name = [
         'originImageURL' => 'OriginImageURL',
         'imageURL'       => 'ImageURL',
+    ];
+    protected $_description = [
+        'originImageURL' => 'originImageUrl',
+        'imageURL'       => 'imageUrl',
     ];
 }

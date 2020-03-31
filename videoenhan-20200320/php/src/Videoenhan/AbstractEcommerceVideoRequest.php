@@ -9,16 +9,23 @@ use AlibabaCloud\Tea\Model;
 class AbstractEcommerceVideoRequest extends Model
 {
     public $videoUrl;
-
     public $duration;
-
     public $width;
-
     public $height;
+    protected $_required = [
+        'videoUrl' => true,
+        'duration' => true,
+    ];
     protected $_name = [
         'videoUrl' => 'VideoUrl',
         'duration' => 'Duration',
         'width'    => 'Width',
         'height'   => 'Height',
+    ];
+    protected $_description = [
+        'videoUrl' => 'videoUrl',
+        'duration' => 'duration',
+        'width'    => 'width',
+        'height'   => 'height',
     ];
 }

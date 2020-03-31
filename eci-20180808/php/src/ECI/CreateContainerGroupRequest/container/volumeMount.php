@@ -9,16 +9,23 @@ use AlibabaCloud\Tea\Model;
 class volumeMount extends Model
 {
     public $mountPath;
-
     public $readOnly;
-
     public $name;
-
     public $subPath;
+    protected $_required = [
+        'mountPath' => true,
+        'readOnly'  => true,
+    ];
     protected $_name = [
         'mountPath' => 'MountPath',
         'readOnly'  => 'ReadOnly',
         'name'      => 'Name',
         'subPath'   => 'SubPath',
+    ];
+    protected $_description = [
+        'mountPath' => 'mountPath',
+        'readOnly'  => 'readOnly',
+        'name'      => 'name',
+        'subPath'   => 'subPath',
     ];
 }

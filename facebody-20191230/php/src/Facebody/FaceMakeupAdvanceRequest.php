@@ -9,12 +9,21 @@ use AlibabaCloud\Tea\Model;
 class FaceMakeupAdvanceRequest extends Model
 {
     public $imageURLObject;
-
     public $makeupType;
-
     public $resourceType;
-
     public $strength;
+    protected $_required = [
+        'imageURLObject' => true,
+        'makeupType'     => true,
+        'resourceType'   => true,
+        'strength'       => true,
+    ];
+    protected $_description = [
+        'imageURLObject' => 'ImageURLObject',
+        'makeupType'     => 'makeupType',
+        'resourceType'   => 'resourceType',
+        'strength'       => 'strength',
+    ];
     protected $_name = [
         'imageURLObject' => 'ImageURLObject',
         'makeupType'     => 'MakeupType',

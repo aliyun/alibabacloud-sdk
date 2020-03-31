@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class size extends Model
 {
     public $h;
-
     public $w;
+    protected $_required = [
+        'h' => true,
+        'w' => true,
+    ];
     protected $_name = [
         'h' => 'H',
         'w' => 'W',
+    ];
+    protected $_description = [
+        'h' => 'h',
+        'w' => 'w',
     ];
 }

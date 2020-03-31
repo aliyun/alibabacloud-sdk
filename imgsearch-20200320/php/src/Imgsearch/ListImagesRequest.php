@@ -9,10 +9,16 @@ use AlibabaCloud\Tea\Model;
 class ListImagesRequest extends Model
 {
     public $dbName;
-
     public $fromScrollId;
+    protected $_required = [
+        'dbName' => true,
+    ];
     protected $_name = [
         'dbName'       => 'DbName',
         'fromScrollId' => 'FromScrollId',
+    ];
+    protected $_description = [
+        'dbName'       => 'dbName',
+        'fromScrollId' => 'fromScrollId',
     ];
 }

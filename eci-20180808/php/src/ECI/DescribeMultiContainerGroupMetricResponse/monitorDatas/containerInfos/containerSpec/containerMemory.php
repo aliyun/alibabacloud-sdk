@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class containerMemory extends Model
 {
     public $limit;
-
     public $reservation;
-
     public $swapLimit;
+    protected $_required = [
+        'limit'       => true,
+        'reservation' => true,
+        'swapLimit'   => true,
+    ];
     protected $_name = [
         'limit'       => 'Limit',
         'reservation' => 'Reservation',
         'swapLimit'   => 'SwapLimit',
+    ];
+    protected $_description = [
+        'limit'       => 'limit',
+        'reservation' => 'reservation',
+        'swapLimit'   => 'swapLimit',
     ];
 }

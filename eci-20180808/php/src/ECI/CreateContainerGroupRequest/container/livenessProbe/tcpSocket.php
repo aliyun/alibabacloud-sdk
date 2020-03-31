@@ -12,4 +12,7 @@ class tcpSocket extends Model
     protected $_name = [
         'port' => 'Port',
     ];
+    protected $_description = [
+        'port' => 'livenessProbeTcpSocketPort',
+    ];
 }

@@ -9,39 +9,22 @@ use AlibabaCloud\Tea\Model;
 class container extends Model
 {
     public $name;
-
     public $image;
-
     public $cpu;
-
     public $memory;
-
     public $workingDir;
-
     public $imagePullPolicy;
-
     public $stdin;
-
     public $stdinOnce;
-
     public $tty;
-
     public $command;
-
     public $arg;
-
     public $environmentVar;
-
     public $port;
-
     public $volumeMount;
-
     public $readinessProbe;
-
     public $livenessProbe;
-
     public $securityContext;
-
     public $gpu;
     protected $_name = [
         'name'            => 'Name',
@@ -62,5 +45,35 @@ class container extends Model
         'livenessProbe'   => 'LivenessProbe',
         'securityContext' => 'SecurityContext',
         'gpu'             => 'Gpu',
+    ];
+    protected $_description = [
+        'name'            => 'name',
+        'image'           => 'image',
+        'cpu'             => 'cpu',
+        'memory'          => 'mem',
+        'workingDir'      => 'workingDir',
+        'imagePullPolicy' => 'imagePullPolicy',
+        'stdin'           => 'stdin',
+        'stdinOnce'       => 'stdinOnce',
+        'tty'             => 'tty',
+        'command'         => 'command',
+        'arg'             => 'args',
+        'environmentVar'  => 'env',
+        'port'            => 'ports',
+        'volumeMount'     => 'volumeMounts',
+        'readinessProbe'  => 'ReadinessProbe',
+        'livenessProbe'   => 'LivenessProbe',
+        'securityContext' => 'SecurityContext',
+        'gpu'             => 'gpu',
+    ];
+    protected $_required = [
+        'command'         => true,
+        'arg'             => true,
+        'environmentVar'  => true,
+        'port'            => true,
+        'volumeMount'     => true,
+        'readinessProbe'  => true,
+        'livenessProbe'   => true,
+        'securityContext' => true,
     ];
 }

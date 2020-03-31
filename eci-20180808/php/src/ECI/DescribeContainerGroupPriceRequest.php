@@ -9,17 +9,11 @@ use AlibabaCloud\Tea\Model;
 class DescribeContainerGroupPriceRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $cpu;
-
     public $memory;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -29,5 +23,19 @@ class DescribeContainerGroupPriceRequest extends Model
         'regionId'             => 'RegionId',
         'cpu'                  => 'Cpu',
         'memory'               => 'Memory',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
+        'cpu'                  => 'cpu',
+        'memory'               => 'memory',
+    ];
+    protected $_required = [
+        'regionId' => true,
+        'cpu'      => true,
+        'memory'   => true,
     ];
 }

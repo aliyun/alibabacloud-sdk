@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class categories extends Model
 {
     public $score;
-
     public $categoryName;
-
     public $categoryId;
+    protected $_required = [
+        'score'        => true,
+        'categoryName' => true,
+        'categoryId'   => true,
+    ];
     protected $_name = [
         'score'        => 'Score',
         'categoryName' => 'CategoryName',
         'categoryId'   => 'CategoryId',
+    ];
+    protected $_description = [
+        'score'        => 'score',
+        'categoryName' => 'categoryName',
+        'categoryId'   => 'categoryId',
     ];
 }

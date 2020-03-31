@@ -9,13 +9,21 @@ use AlibabaCloud\Tea\Model;
 class environmentVars extends Model
 {
     public $key;
-
     public $value;
-
     public $valueFrom;
+    protected $_required = [
+        'key'       => true,
+        'value'     => true,
+        'valueFrom' => true,
+    ];
     protected $_name = [
         'key'       => 'Key',
         'value'     => 'Value',
         'valueFrom' => 'ValueFrom',
+    ];
+    protected $_description = [
+        'key'       => 'key',
+        'value'     => 'value',
+        'valueFrom' => 'valueFrom',
     ];
 }

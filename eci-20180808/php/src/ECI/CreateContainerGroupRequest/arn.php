@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class arn extends Model
 {
     public $roleArn;
-
     public $roleType;
-
     public $assumeRoleFor;
     protected $_name = [
         'roleArn'       => 'RoleArn',
         'roleType'      => 'RoleType',
         'assumeRoleFor' => 'AssumeRoleFor',
+    ];
+    protected $_description = [
+        'roleArn'       => 'roleArn',
+        'roleType'      => 'roleType',
+        'assumeRoleFor' => 'assumeRoleFor',
     ];
 }

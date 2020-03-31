@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class picInfo extends Model
 {
     public $categoryId;
-
     public $region;
+    protected $_required = [
+        'categoryId' => true,
+        'region'     => true,
+    ];
     protected $_name = [
         'categoryId' => 'CategoryId',
         'region'     => 'Region',
+    ];
+    protected $_description = [
+        'categoryId' => 'categoryId',
+        'region'     => 'region',
     ];
 }

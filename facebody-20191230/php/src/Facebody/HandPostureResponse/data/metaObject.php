@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class metaObject extends Model
 {
     public $height;
-
     public $width;
+    protected $_required = [
+        'height' => true,
+        'width'  => true,
+    ];
     protected $_name = [
         'height' => 'Height',
         'width'  => 'Width',
+    ];
+    protected $_description = [
+        'height' => 'height',
+        'width'  => 'width',
     ];
 }

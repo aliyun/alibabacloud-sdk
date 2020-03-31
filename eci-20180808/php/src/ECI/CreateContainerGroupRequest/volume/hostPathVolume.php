@@ -9,10 +9,13 @@ use AlibabaCloud\Tea\Model;
 class hostPathVolume extends Model
 {
     public $type;
-
     public $path;
     protected $_name = [
         'type' => 'Type',
         'path' => 'Path',
+    ];
+    protected $_description = [
+        'type' => 'hostPathVolumeType',
+        'path' => 'hostPathVolumePath',
     ];
 }

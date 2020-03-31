@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $whiteBase;
+    protected $_required = [
+        'whiteBase' => true,
+    ];
     protected $_name = [
         'whiteBase' => 'WhiteBase',
+    ];
+    protected $_description = [
+        'whiteBase' => 'whiteBase',
     ];
 }

@@ -9,13 +9,16 @@ use AlibabaCloud\Tea\Model;
 class NFSVolume extends Model
 {
     public $server;
-
     public $path;
-
     public $readOnly;
     protected $_name = [
         'server'   => 'Server',
         'path'     => 'Path',
         'readOnly' => 'ReadOnly',
+    ];
+    protected $_description = [
+        'server'   => 'nfsVolumeServer',
+        'path'     => 'nfsVolumePath',
+        'readOnly' => 'nfsVolumeReadOnly',
     ];
 }

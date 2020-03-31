@@ -9,20 +9,23 @@ use AlibabaCloud\Tea\Model;
 class livenessProbe extends Model
 {
     public $initialDelaySeconds;
-
     public $periodSeconds;
-
     public $timeoutSeconds;
-
     public $successThreshold;
-
     public $failureThreshold;
-
     public $httpGet;
-
     public $tcpSocket;
-
     public $execs;
+    protected $_required = [
+        'initialDelaySeconds' => true,
+        'periodSeconds'       => true,
+        'timeoutSeconds'      => true,
+        'successThreshold'    => true,
+        'failureThreshold'    => true,
+        'httpGet'             => true,
+        'tcpSocket'           => true,
+        'execs'               => true,
+    ];
     protected $_name = [
         'initialDelaySeconds' => 'InitialDelaySeconds',
         'periodSeconds'       => 'PeriodSeconds',
@@ -32,5 +35,15 @@ class livenessProbe extends Model
         'httpGet'             => 'HttpGet',
         'tcpSocket'           => 'TcpSocket',
         'execs'               => 'Execs',
+    ];
+    protected $_description = [
+        'initialDelaySeconds' => 'initialDelaySeconds',
+        'periodSeconds'       => 'periodSeconds',
+        'timeoutSeconds'      => 'timeoutSeconds',
+        'successThreshold'    => 'successThreshold',
+        'failureThreshold'    => 'failureThreshold',
+        'httpGet'             => 'httpGet',
+        'tcpSocket'           => 'tcpSocket',
+        'execs'               => 'exec',
     ];
 }

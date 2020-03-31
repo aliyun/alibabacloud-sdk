@@ -9,22 +9,25 @@ use AlibabaCloud\Tea\Model;
 class frontResult extends Model
 {
     public $address;
-
     public $name;
-
     public $nationality;
-
     public $IDNumber;
-
     public $gender;
-
     public $birthDate;
-
     public $cardAreas;
-
     public $faceRectVertices;
-
     public $faceRectangle;
+    protected $_required = [
+        'address'          => true,
+        'name'             => true,
+        'nationality'      => true,
+        'IDNumber'         => true,
+        'gender'           => true,
+        'birthDate'        => true,
+        'cardAreas'        => true,
+        'faceRectVertices' => true,
+        'faceRectangle'    => true,
+    ];
     protected $_name = [
         'address'          => 'Address',
         'name'             => 'Name',
@@ -35,5 +38,16 @@ class frontResult extends Model
         'cardAreas'        => 'CardAreas',
         'faceRectVertices' => 'FaceRectVertices',
         'faceRectangle'    => 'FaceRectangle',
+    ];
+    protected $_description = [
+        'address'          => 'address',
+        'name'             => 'name',
+        'nationality'      => 'nationality',
+        'IDNumber'         => 'idNumber',
+        'gender'           => 'gender',
+        'birthDate'        => 'birthDate',
+        'cardAreas'        => 'cardAreas',
+        'faceRectVertices' => 'faceRectVertices',
+        'faceRectangle'    => 'faceRectangle',
     ];
 }

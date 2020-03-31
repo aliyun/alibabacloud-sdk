@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class network extends Model
 {
     public $interfaces;
+    protected $_required = [
+        'interfaces' => true,
+    ];
     protected $_name = [
         'interfaces' => 'Interfaces',
+    ];
+    protected $_description = [
+        'interfaces' => 'interfaces',
     ];
 }

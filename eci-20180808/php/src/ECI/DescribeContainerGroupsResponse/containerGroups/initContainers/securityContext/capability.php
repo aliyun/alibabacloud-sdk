@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class capability extends Model
 {
     public $adds;
+    protected $_required = [
+        'adds' => true,
+    ];
     protected $_name = [
         'adds' => 'Adds',
+    ];
+    protected $_description = [
+        'adds' => 'adds',
     ];
 }

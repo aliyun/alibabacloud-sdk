@@ -9,19 +9,29 @@ use AlibabaCloud\Tea\Model;
 class sfaceDataList extends Model
 {
     public $x;
-
     public $y;
-
     public $width;
-
     public $height;
-
     public $faces;
+    protected $_required = [
+        'x'      => true,
+        'y'      => true,
+        'width'  => true,
+        'height' => true,
+        'faces'  => true,
+    ];
     protected $_name = [
         'x'      => 'X',
         'y'      => 'Y',
         'width'  => 'Width',
         'height' => 'Height',
         'faces'  => 'Faces',
+    ];
+    protected $_description = [
+        'x'      => 'x',
+        'y'      => 'y',
+        'width'  => 'width',
+        'height' => 'heihght',
+        'faces'  => 'faces',
     ];
 }

@@ -9,21 +9,13 @@ use AlibabaCloud\Tea\Model;
 class DescribeImageCachesRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $imageCacheId;
-
     public $imageCacheName;
-
     public $snapshotId;
-
     public $image;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -35,5 +27,19 @@ class DescribeImageCachesRequest extends Model
         'imageCacheName'       => 'ImageCacheName',
         'snapshotId'           => 'SnapshotId',
         'image'                => 'Image',
+    ];
+    protected $_description = [
+        'ownerId'              => 'ownerId',
+        'resourceOwnerAccount' => 'resourceOwnerAccount',
+        'resourceOwnerId'      => 'resourceOwnerId',
+        'ownerAccount'         => 'ownerAccount',
+        'regionId'             => 'regionId',
+        'imageCacheId'         => 'imageCacheId',
+        'imageCacheName'       => 'imageCacheName',
+        'snapshotId'           => 'snapshotId',
+        'image'                => 'image',
+    ];
+    protected $_required = [
+        'regionId' => true,
     ];
 }

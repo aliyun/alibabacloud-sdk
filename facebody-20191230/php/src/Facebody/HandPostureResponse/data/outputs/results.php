@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class results extends Model
 {
     public $box;
-
     public $hands;
+    protected $_required = [
+        'box'   => true,
+        'hands' => true,
+    ];
     protected $_name = [
         'box'   => 'Box',
         'hands' => 'Hands',
+    ];
+    protected $_description = [
+        'box'   => 'box',
+        'hands' => 'hands',
     ];
 }

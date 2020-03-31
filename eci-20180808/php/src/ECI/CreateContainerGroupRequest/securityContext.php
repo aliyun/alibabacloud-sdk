@@ -12,4 +12,7 @@ class securityContext extends Model
     protected $_name = [
         'sysctl' => 'Sysctl',
     ];
+    protected $_description = [
+        'sysctl' => 'PodSecurityContextSysctls',
+    ];
 }

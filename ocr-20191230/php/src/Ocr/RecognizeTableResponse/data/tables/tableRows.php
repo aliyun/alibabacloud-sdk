@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class tableRows extends Model
 {
     public $tableColumns;
+    protected $_required = [
+        'tableColumns' => true,
+    ];
     protected $_name = [
         'tableColumns' => 'TableColumns',
+    ];
+    protected $_description = [
+        'tableColumns' => 'tableColumns',
     ];
 }

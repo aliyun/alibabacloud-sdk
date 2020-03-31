@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class elements extends Model
 {
     public $taskId;
-
     public $results;
+    protected $_required = [
+        'taskId'  => true,
+        'results' => true,
+    ];
     protected $_name = [
         'taskId'  => 'TaskId',
         'results' => 'Results',
+    ];
+    protected $_description = [
+        'taskId'  => 'taskId',
+        'results' => 'results',
     ];
 }

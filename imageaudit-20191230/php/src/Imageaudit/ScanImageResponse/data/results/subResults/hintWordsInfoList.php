@@ -9,7 +9,13 @@ use AlibabaCloud\Tea\Model;
 class hintWordsInfoList extends Model
 {
     public $context;
+    protected $_required = [
+        'context' => true,
+    ];
     protected $_name = [
+        'context' => 'Context',
+    ];
+    protected $_description = [
         'context' => 'Context',
     ];
 }

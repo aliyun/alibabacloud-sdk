@@ -9,35 +9,20 @@ use AlibabaCloud\Tea\Model;
 class UpdateContainerGroupRequest extends Model
 {
     public $ownerId;
-
     public $resourceOwnerAccount;
-
     public $resourceOwnerId;
-
     public $ownerAccount;
-
     public $regionId;
-
     public $containerGroupId;
-
     public $restartPolicy;
-
     public $tag;
-
     public $volume;
-
     public $dnsConfig;
-
     public $container;
-
     public $initContainer;
-
     public $imageRegistryCredential;
-
     public $clientToken;
-
     public $cpu;
-
     public $memory;
     protected $_name = [
         'ownerId'                 => 'OwnerId',
@@ -56,5 +41,28 @@ class UpdateContainerGroupRequest extends Model
         'clientToken'             => 'ClientToken',
         'cpu'                     => 'Cpu',
         'memory'                  => 'Memory',
+    ];
+    protected $_description = [
+        'ownerId'                 => 'ownerId',
+        'resourceOwnerAccount'    => 'resourceOwnerAccount',
+        'resourceOwnerId'         => 'resourceOwnerId',
+        'ownerAccount'            => 'ownerAccount',
+        'regionId'                => 'regionId',
+        'containerGroupId'        => 'bazaarInstanceId',
+        'restartPolicy'           => 'restartPolicy',
+        'tag'                     => 'labels',
+        'volume'                  => 'volumes',
+        'dnsConfig'               => 'DnsConfig',
+        'container'               => 'containers',
+        'initContainer'           => 'initContainers',
+        'imageRegistryCredential' => 'imageRegistryCredentials',
+        'clientToken'             => 'clientToken',
+        'cpu'                     => 'cpu',
+        'memory'                  => 'mem',
+    ];
+    protected $_required = [
+        'regionId'         => true,
+        'containerGroupId' => true,
+        'dnsConfig'        => true,
     ];
 }

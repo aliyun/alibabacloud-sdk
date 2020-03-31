@@ -9,10 +9,17 @@ use AlibabaCloud\Tea\Model;
 class DescribeRegionsResponse extends Model
 {
     public $requestId;
-
     public $regions;
+    protected $_required = [
+        'requestId' => true,
+        'regions'   => true,
+    ];
     protected $_name = [
         'requestId' => 'RequestId',
         'regions'   => 'Regions',
+    ];
+    protected $_description = [
+        'requestId' => 'requestId',
+        'regions'   => 'data',
     ];
 }
