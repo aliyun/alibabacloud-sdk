@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class RefineMaskAdvanceRequest extends Model
 {
+    /**
+     * @description ImageURLObject
+     *
+     * @var Stream
+     */
     public $imageURLObject;
+    /**
+     * @description maskImageUrl
+     *
+     * @var string
+     */
     public $maskImageURL;
-    protected $_required = [
-        'imageURLObject' => true,
-        'maskImageURL'   => true,
-    ];
-    protected $_description = [
-        'imageURLObject' => 'ImageURLObject',
-        'maskImageURL'   => 'maskImageUrl',
-    ];
     protected $_name = [
         'imageURLObject' => 'ImageURLObject',
         'maskImageURL'   => 'MaskImageURL',
     ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageURLObject', $this->imageURLObject, true);
+        Model::validateRequired('maskImageURL', $this->maskImageURL, true);
+    }
+
+    public function toMap()
+    {
+        $res                   = [];
+        $res['ImageURLObject'] = $this->imageURLObject;
+        $res['MaskImageURL']   = $this->maskImageURL;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return RefineMaskAdvanceRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageURLObject'])) {
+            $model->imageURLObject = $map['ImageURLObject'];
+        }
+        if (isset($map['MaskImageURL'])) {
+            $model->maskImageURL = $map['MaskImageURL'];
+        }
+
+        return $model;
+    }
 }

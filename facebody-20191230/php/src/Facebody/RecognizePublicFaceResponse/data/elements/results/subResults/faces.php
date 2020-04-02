@@ -8,22 +8,65 @@ use AlibabaCloud\Tea\Model;
 
 class faces extends Model
 {
+    /**
+     * @description id
+     *
+     * @var string
+     */
     public $id;
+    /**
+     * @description name
+     *
+     * @var string
+     */
     public $name;
+    /**
+     * @description rate
+     *
+     * @var float
+     */
     public $rate;
-    protected $_required = [
-        'id'   => true,
-        'name' => true,
-        'rate' => true,
-    ];
     protected $_name = [
         'id'   => 'Id',
         'name' => 'Name',
         'rate' => 'Rate',
     ];
-    protected $_description = [
-        'id'   => 'id',
-        'name' => 'name',
-        'rate' => 'rate',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('id', $this->id, true);
+        Model::validateRequired('name', $this->name, true);
+        Model::validateRequired('rate', $this->rate, true);
+    }
+
+    public function toMap()
+    {
+        $res         = [];
+        $res['Id']   = $this->id;
+        $res['Name'] = $this->name;
+        $res['Rate'] = $this->rate;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return faces
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Id'])) {
+            $model->id = $map['Id'];
+        }
+        if (isset($map['Name'])) {
+            $model->name = $map['Name'];
+        }
+        if (isset($map['Rate'])) {
+            $model->rate = $map['Rate'];
+        }
+
+        return $model;
+    }
 }

@@ -4,26 +4,71 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\ECI\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats;
 
+use AlibabaCloud\SDK\ECI\V20180808\ECI\cpuStats\cpuCFS;
+use AlibabaCloud\SDK\ECI\V20180808\ECI\cpuStats\cpuUsage;
 use AlibabaCloud\Tea\Model;
 
 class cpuStats extends Model
 {
+    /**
+     * @description loadAverage
+     *
+     * @var int
+     */
     public $loadAverage;
+    /**
+     * @description usage
+     *
+     * @var cpuStats.cpuUsage
+     */
     public $cpuUsage;
+    /**
+     * @description cfs
+     *
+     * @var cpuStats.cpuCFS
+     */
     public $cpuCFS;
-    protected $_required = [
-        'loadAverage' => true,
-        'cpuUsage'    => true,
-        'cpuCFS'      => true,
-    ];
     protected $_name = [
         'loadAverage' => 'LoadAverage',
         'cpuUsage'    => 'CpuUsage',
         'cpuCFS'      => 'CpuCFS',
     ];
-    protected $_description = [
-        'loadAverage' => 'loadAverage',
-        'cpuUsage'    => 'usage',
-        'cpuCFS'      => 'cfs',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('loadAverage', $this->loadAverage, true);
+        Model::validateRequired('cpuUsage', $this->cpuUsage, true);
+        Model::validateRequired('cpuCFS', $this->cpuCFS, true);
+    }
+
+    public function toMap()
+    {
+        $res                = [];
+        $res['LoadAverage'] = $this->loadAverage;
+        $res['CpuUsage']    = null !== $this->cpuUsage ? $this->cpuUsage->toMap() : null;
+        $res['CpuCFS']      = null !== $this->cpuCFS ? $this->cpuCFS->toMap() : null;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return cpuStats
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['LoadAverage'])) {
+            $model->loadAverage = $map['LoadAverage'];
+        }
+        if (isset($map['CpuUsage'])) {
+            $model->cpuUsage = cpuStats\cpuUsage::fromMap($map['CpuUsage']);
+        }
+        if (isset($map['CpuCFS'])) {
+            $model->cpuCFS = cpuStats\cpuCFS::fromMap($map['CpuCFS']);
+        }
+
+        return $model;
+    }
 }

@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class tasks extends Model
 {
+    /**
+     * @description content
+     *
+     * @var string
+     */
     public $content;
-    protected $_required = [
-        'content' => true,
-    ];
     protected $_name = [
         'content' => 'Content',
     ];
-    protected $_description = [
-        'content' => 'content',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('content', $this->content, true);
+    }
+
+    public function toMap()
+    {
+        $res            = [];
+        $res['Content'] = $this->content;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return tasks
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Content'])) {
+            $model->content = $map['Content'];
+        }
+
+        return $model;
+    }
 }

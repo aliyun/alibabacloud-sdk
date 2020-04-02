@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class fieldRef extends Model
 {
+    /**
+     * @description fieldPath
+     *
+     * @var string
+     */
     public $fieldPath;
-    protected $_required = [
-        'fieldPath' => true,
-    ];
     protected $_name = [
         'fieldPath' => 'FieldPath',
     ];
-    protected $_description = [
-        'fieldPath' => 'fieldPath',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('fieldPath', $this->fieldPath, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['FieldPath'] = $this->fieldPath;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return fieldRef
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['FieldPath'])) {
+            $model->fieldPath = $map['FieldPath'];
+        }
+
+        return $model;
+    }
 }

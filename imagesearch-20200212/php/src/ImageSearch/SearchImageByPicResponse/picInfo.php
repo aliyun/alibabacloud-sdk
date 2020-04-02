@@ -8,22 +8,77 @@ use AlibabaCloud\Tea\Model;
 
 class picInfo extends Model
 {
+    /**
+     * @description categoryId
+     *
+     * @var int
+     */
     public $categoryId;
+    /**
+     * @description region
+     *
+     * @var string
+     */
     public $region;
+    /**
+     * @description allCategories
+     *
+     * @var array
+     */
     public $allCategories;
-    protected $_required = [
-        'categoryId'    => true,
-        'region'        => true,
-        'allCategories' => true,
-    ];
     protected $_name = [
         'categoryId'    => 'CategoryId',
         'region'        => 'Region',
         'allCategories' => 'AllCategories',
     ];
-    protected $_description = [
-        'categoryId'    => 'categoryId',
-        'region'        => 'region',
-        'allCategories' => 'allCategories',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('categoryId', $this->categoryId, true);
+        Model::validateRequired('region', $this->region, true);
+        Model::validateRequired('allCategories', $this->allCategories, true);
+    }
+
+    public function toMap()
+    {
+        $res                  = [];
+        $res['CategoryId']    = $this->categoryId;
+        $res['Region']        = $this->region;
+        $res['AllCategories'] = [];
+        if (null !== $this->allCategories && \is_array($this->allCategories)) {
+            $n = 0;
+            foreach ($this->allCategories as $item) {
+                $res['AllCategories'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return picInfo
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['CategoryId'])) {
+            $model->categoryId = $map['CategoryId'];
+        }
+        if (isset($map['Region'])) {
+            $model->region = $map['Region'];
+        }
+        if (isset($map['AllCategories'])) {
+            if (!empty($map['AllCategories'])) {
+                $model->allCategories = [];
+                $n                    = 0;
+                foreach ($map['AllCategories'] as $item) {
+                    $model->allCategories[$n++] = null !== $item ? SearchImageByPicResponse\picInfo\allCategories::fromMap($item) : $item;
+                }
+            }
+        }
+
+        return $model;
+    }
 }

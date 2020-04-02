@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class elements extends Model
 {
+    /**
+     * @description transparentImage
+     *
+     * @var int
+     */
     public $transparentImage;
-    protected $_required = [
-        'transparentImage' => true,
-    ];
     protected $_name = [
         'transparentImage' => 'TransparentImage',
     ];
-    protected $_description = [
-        'transparentImage' => 'transparentImage',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('transparentImage', $this->transparentImage, true);
+    }
+
+    public function toMap()
+    {
+        $res                     = [];
+        $res['TransparentImage'] = $this->transparentImage;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return elements
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['TransparentImage'])) {
+            $model->transparentImage = $map['TransparentImage'];
+        }
+
+        return $model;
+    }
 }

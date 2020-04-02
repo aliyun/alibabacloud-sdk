@@ -8,12 +8,47 @@ use AlibabaCloud\Tea\Model;
 
 class RestartContainerGroupRequest extends Model
 {
+    /**
+     * @description ownerId
+     *
+     * @var int
+     */
     public $ownerId;
+    /**
+     * @description resourceOwnerAccount
+     *
+     * @var string
+     */
     public $resourceOwnerAccount;
+    /**
+     * @description resourceOwnerId
+     *
+     * @var int
+     */
     public $resourceOwnerId;
+    /**
+     * @description ownerAccount
+     *
+     * @var string
+     */
     public $ownerAccount;
+    /**
+     * @description regionId
+     *
+     * @var string
+     */
     public $regionId;
+    /**
+     * @description containerGroupId
+     *
+     * @var string
+     */
     public $containerGroupId;
+    /**
+     * @description clientToken
+     *
+     * @var string
+     */
     public $clientToken;
     protected $_name = [
         'ownerId'              => 'OwnerId',
@@ -24,17 +59,57 @@ class RestartContainerGroupRequest extends Model
         'containerGroupId'     => 'ContainerGroupId',
         'clientToken'          => 'ClientToken',
     ];
-    protected $_description = [
-        'ownerId'              => 'ownerId',
-        'resourceOwnerAccount' => 'resourceOwnerAccount',
-        'resourceOwnerId'      => 'resourceOwnerId',
-        'ownerAccount'         => 'ownerAccount',
-        'regionId'             => 'regionId',
-        'containerGroupId'     => 'containerGroupId',
-        'clientToken'          => 'clientToken',
-    ];
-    protected $_required = [
-        'regionId'         => true,
-        'containerGroupId' => true,
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('regionId', $this->regionId, true);
+        Model::validateRequired('containerGroupId', $this->containerGroupId, true);
+    }
+
+    public function toMap()
+    {
+        $res                         = [];
+        $res['OwnerId']              = $this->ownerId;
+        $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
+        $res['ResourceOwnerId']      = $this->resourceOwnerId;
+        $res['OwnerAccount']         = $this->ownerAccount;
+        $res['RegionId']             = $this->regionId;
+        $res['ContainerGroupId']     = $this->containerGroupId;
+        $res['ClientToken']          = $this->clientToken;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return RestartContainerGroupRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['OwnerId'])) {
+            $model->ownerId = $map['OwnerId'];
+        }
+        if (isset($map['ResourceOwnerAccount'])) {
+            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
+        }
+        if (isset($map['ResourceOwnerId'])) {
+            $model->resourceOwnerId = $map['ResourceOwnerId'];
+        }
+        if (isset($map['OwnerAccount'])) {
+            $model->ownerAccount = $map['OwnerAccount'];
+        }
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['ContainerGroupId'])) {
+            $model->containerGroupId = $map['ContainerGroupId'];
+        }
+        if (isset($map['ClientToken'])) {
+            $model->clientToken = $map['ClientToken'];
+        }
+
+        return $model;
+    }
 }

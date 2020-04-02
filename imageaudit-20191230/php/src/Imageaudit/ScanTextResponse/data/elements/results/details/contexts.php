@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class contexts extends Model
 {
+    /**
+     * @description context
+     *
+     * @var string
+     */
     public $context;
-    protected $_required = [
-        'context' => true,
-    ];
     protected $_name = [
         'context' => 'Context',
     ];
-    protected $_description = [
-        'context' => 'context',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('context', $this->context, true);
+    }
+
+    public function toMap()
+    {
+        $res            = [];
+        $res['Context'] = $this->context;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return contexts
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Context'])) {
+            $model->context = $map['Context'];
+        }
+
+        return $model;
+    }
 }

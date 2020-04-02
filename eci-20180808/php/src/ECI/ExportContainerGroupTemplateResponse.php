@@ -4,22 +4,58 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\ECI;
 
+use AlibabaCloud\SDK\ECI\V20180808\ECI\ExportContainerGroupTemplateResponse\template;
 use AlibabaCloud\Tea\Model;
 
 class ExportContainerGroupTemplateResponse extends Model
 {
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
+    /**
+     * @description data
+     *
+     * @var ExportContainerGroupTemplateResponse.template
+     */
     public $template;
-    protected $_required = [
-        'requestId' => true,
-        'template'  => true,
-    ];
     protected $_name = [
         'requestId' => 'RequestId',
         'template'  => 'Template',
     ];
-    protected $_description = [
-        'requestId' => 'requestId',
-        'template'  => 'data',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('template', $this->template, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['RequestId'] = $this->requestId;
+        $res['Template']  = null !== $this->template ? $this->template->toMap() : null;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return ExportContainerGroupTemplateResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['Template'])) {
+            $model->template = ExportContainerGroupTemplateResponse\template::fromMap($map['Template']);
+        }
+
+        return $model;
+    }
 }

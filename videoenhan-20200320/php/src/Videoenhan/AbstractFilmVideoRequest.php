@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class AbstractFilmVideoRequest extends Model
 {
+    /**
+     * @description videoUrl
+     *
+     * @var string
+     */
     public $videoUrl;
+    /**
+     * @description length
+     *
+     * @var int
+     */
     public $length;
-    protected $_required = [
-        'videoUrl' => true,
-        'length'   => true,
-    ];
     protected $_name = [
         'videoUrl' => 'VideoUrl',
         'length'   => 'Length',
     ];
-    protected $_description = [
-        'videoUrl' => 'videoUrl',
-        'length'   => 'length',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('videoUrl', $this->videoUrl, true);
+        Model::validateRequired('length', $this->length, true);
+    }
+
+    public function toMap()
+    {
+        $res             = [];
+        $res['VideoUrl'] = $this->videoUrl;
+        $res['Length']   = $this->length;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return AbstractFilmVideoRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['VideoUrl'])) {
+            $model->videoUrl = $map['VideoUrl'];
+        }
+        if (isset($map['Length'])) {
+            $model->length = $map['Length'];
+        }
+
+        return $model;
+    }
 }

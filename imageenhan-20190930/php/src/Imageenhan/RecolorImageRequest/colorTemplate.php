@@ -8,11 +8,40 @@ use AlibabaCloud\Tea\Model;
 
 class colorTemplate extends Model
 {
+    /**
+     * @description color
+     *
+     * @var string
+     */
     public $color;
     protected $_name = [
         'color' => 'Color',
     ];
-    protected $_description = [
-        'color' => 'color',
-    ];
+
+    public function validate()
+    {
+    }
+
+    public function toMap()
+    {
+        $res          = [];
+        $res['Color'] = $this->color;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return colorTemplate
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Color'])) {
+            $model->color = $map['Color'];
+        }
+
+        return $model;
+    }
 }

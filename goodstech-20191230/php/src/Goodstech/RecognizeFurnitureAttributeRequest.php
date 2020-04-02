@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class RecognizeFurnitureAttributeRequest extends Model
 {
+    /**
+     * @description imageUrl
+     *
+     * @var string
+     */
     public $imageURL;
-    protected $_required = [
-        'imageURL' => true,
-    ];
     protected $_name = [
         'imageURL' => 'ImageURL',
     ];
-    protected $_description = [
-        'imageURL' => 'imageUrl',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageURL', $this->imageURL, true);
+    }
+
+    public function toMap()
+    {
+        $res             = [];
+        $res['ImageURL'] = $this->imageURL;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return RecognizeFurnitureAttributeRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageURL'])) {
+            $model->imageURL = $map['ImageURL'];
+        }
+
+        return $model;
+    }
 }

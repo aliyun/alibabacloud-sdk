@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description personNumber
+     *
+     * @var int
+     */
     public $personNumber;
-    protected $_required = [
-        'personNumber' => true,
-    ];
     protected $_name = [
         'personNumber' => 'PersonNumber',
     ];
-    protected $_description = [
-        'personNumber' => 'personNumber',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('personNumber', $this->personNumber, true);
+    }
+
+    public function toMap()
+    {
+        $res                 = [];
+        $res['PersonNumber'] = $this->personNumber;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['PersonNumber'])) {
+            $model->personNumber = $map['PersonNumber'];
+        }
+
+        return $model;
+    }
 }

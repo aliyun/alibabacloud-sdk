@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class CreateContainerGroupResponse extends Model
 {
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
+    /**
+     * @description data.containerGroupId
+     *
+     * @var string
+     */
     public $containerGroupId;
-    protected $_required = [
-        'requestId'        => true,
-        'containerGroupId' => true,
-    ];
     protected $_name = [
         'requestId'        => 'RequestId',
         'containerGroupId' => 'ContainerGroupId',
     ];
-    protected $_description = [
-        'requestId'        => 'requestId',
-        'containerGroupId' => 'data.containerGroupId',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('containerGroupId', $this->containerGroupId, true);
+    }
+
+    public function toMap()
+    {
+        $res                     = [];
+        $res['RequestId']        = $this->requestId;
+        $res['ContainerGroupId'] = $this->containerGroupId;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return CreateContainerGroupResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['ContainerGroupId'])) {
+            $model->containerGroupId = $map['ContainerGroupId'];
+        }
+
+        return $model;
+    }
 }

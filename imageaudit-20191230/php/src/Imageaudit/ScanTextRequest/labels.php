@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class labels extends Model
 {
+    /**
+     * @description label
+     *
+     * @var string
+     */
     public $label;
-    protected $_required = [
-        'label' => true,
-    ];
     protected $_name = [
         'label' => 'Label',
     ];
-    protected $_description = [
-        'label' => 'label',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('label', $this->label, true);
+    }
+
+    public function toMap()
+    {
+        $res          = [];
+        $res['Label'] = $this->label;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return labels
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Label'])) {
+            $model->label = $map['Label'];
+        }
+
+        return $model;
+    }
 }

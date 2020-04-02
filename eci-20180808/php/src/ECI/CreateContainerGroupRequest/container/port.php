@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class port extends Model
 {
+    /**
+     * @description protocol
+     *
+     * @var string
+     */
     public $protocol;
+    /**
+     * @description port
+     *
+     * @var int
+     */
     public $port;
-    protected $_required = [
-        'protocol' => true,
-        'port'     => true,
-    ];
     protected $_name = [
         'protocol' => 'Protocol',
         'port'     => 'Port',
     ];
-    protected $_description = [
-        'protocol' => 'protocol',
-        'port'     => 'port',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('protocol', $this->protocol, true);
+        Model::validateRequired('port', $this->port, true);
+    }
+
+    public function toMap()
+    {
+        $res             = [];
+        $res['Protocol'] = $this->protocol;
+        $res['Port']     = $this->port;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return port
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Protocol'])) {
+            $model->protocol = $map['Protocol'];
+        }
+        if (isset($map['Port'])) {
+            $model->port = $map['Port'];
+        }
+
+        return $model;
+    }
 }

@@ -8,22 +8,65 @@ use AlibabaCloud\Tea\Model;
 
 class DescribeContainerLogResponse extends Model
 {
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
+    /**
+     * @description data.containerName
+     *
+     * @var string
+     */
     public $containerName;
+    /**
+     * @description data.log
+     *
+     * @var string
+     */
     public $content;
-    protected $_required = [
-        'requestId'     => true,
-        'containerName' => true,
-        'content'       => true,
-    ];
     protected $_name = [
         'requestId'     => 'RequestId',
         'containerName' => 'ContainerName',
         'content'       => 'Content',
     ];
-    protected $_description = [
-        'requestId'     => 'requestId',
-        'containerName' => 'data.containerName',
-        'content'       => 'data.log',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('containerName', $this->containerName, true);
+        Model::validateRequired('content', $this->content, true);
+    }
+
+    public function toMap()
+    {
+        $res                  = [];
+        $res['RequestId']     = $this->requestId;
+        $res['ContainerName'] = $this->containerName;
+        $res['Content']       = $this->content;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return DescribeContainerLogResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['ContainerName'])) {
+            $model->containerName = $map['ContainerName'];
+        }
+        if (isset($map['Content'])) {
+            $model->content = $map['Content'];
+        }
+
+        return $model;
+    }
 }
