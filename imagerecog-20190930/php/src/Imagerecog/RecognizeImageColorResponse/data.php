@@ -8,14 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description colorTemplateList
+     *
+     * @var array
+     */
     public $colorTemplateList;
-    protected $_required = [
-        'colorTemplateList' => true,
-    ];
     protected $_name = [
         'colorTemplateList' => 'ColorTemplateList',
     ];
-    protected $_description = [
-        'colorTemplateList' => 'colorTemplateList',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('colorTemplateList', $this->colorTemplateList, true);
+    }
+
+    public function toMap()
+    {
+        $res                      = [];
+        $res['ColorTemplateList'] = [];
+        if (null !== $this->colorTemplateList && \is_array($this->colorTemplateList)) {
+            $n = 0;
+            foreach ($this->colorTemplateList as $item) {
+                $res['ColorTemplateList'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ColorTemplateList'])) {
+            if (!empty($map['ColorTemplateList'])) {
+                $model->colorTemplateList = [];
+                $n                        = 0;
+                foreach ($map['ColorTemplateList'] as $item) {
+                    $model->colorTemplateList[$n++] = null !== $item ? RecognizeImageColorResponse\data\colorTemplateList::fromMap($item) : $item;
+                }
+            }
+        }
+
+        return $model;
+    }
 }

@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class tcpSocket extends Model
 {
+    /**
+     * @description port
+     *
+     * @var int
+     */
     public $port;
-    protected $_required = [
-        'port' => true,
-    ];
     protected $_name = [
         'port' => 'Port',
     ];
-    protected $_description = [
-        'port' => 'port',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('port', $this->port, true);
+    }
+
+    public function toMap()
+    {
+        $res         = [];
+        $res['Port'] = $this->port;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return tcpSocket
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Port'])) {
+            $model->port = $map['Port'];
+        }
+
+        return $model;
+    }
 }

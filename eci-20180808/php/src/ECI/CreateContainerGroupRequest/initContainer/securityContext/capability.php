@@ -8,14 +8,47 @@ use AlibabaCloud\Tea\Model;
 
 class capability extends Model
 {
+    /**
+     * @description securityContextCapabilityAdds
+     *
+     * @var array
+     */
     public $add;
-    protected $_required = [
-        'add' => true,
-    ];
     protected $_name = [
         'add' => 'Add',
     ];
-    protected $_description = [
-        'add' => 'securityContextCapabilityAdds',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('add', $this->add, true);
+    }
+
+    public function toMap()
+    {
+        $res        = [];
+        $res['Add'] = [];
+        if (null !== $this->add) {
+            $res['Add'] = $this->add;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return capability
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Add'])) {
+            if (!empty($map['Add'])) {
+                $model->add = [];
+                $model->add = $map['Add'];
+            }
+        }
+
+        return $model;
+    }
 }

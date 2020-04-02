@@ -8,14 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description matchList
+     *
+     * @var array
+     */
     public $matchList;
-    protected $_required = [
-        'matchList' => true,
-    ];
     protected $_name = [
         'matchList' => 'MatchList',
     ];
-    protected $_description = [
-        'matchList' => 'matchList',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('matchList', $this->matchList, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['MatchList'] = [];
+        if (null !== $this->matchList && \is_array($this->matchList)) {
+            $n = 0;
+            foreach ($this->matchList as $item) {
+                $res['MatchList'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['MatchList'])) {
+            if (!empty($map['MatchList'])) {
+                $model->matchList = [];
+                $n                = 0;
+                foreach ($map['MatchList'] as $item) {
+                    $model->matchList[$n++] = null !== $item ? SearchImageResponse\data\matchList::fromMap($item) : $item;
+                }
+            }
+        }
+
+        return $model;
+    }
 }

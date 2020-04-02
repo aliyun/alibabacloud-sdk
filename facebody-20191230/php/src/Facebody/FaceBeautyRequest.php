@@ -8,26 +8,77 @@ use AlibabaCloud\Tea\Model;
 
 class FaceBeautyRequest extends Model
 {
+    /**
+     * @description imageUrl
+     *
+     * @var string
+     */
     public $imageURL;
+    /**
+     * @description sharp
+     *
+     * @var float
+     */
     public $sharp;
+    /**
+     * @description smooth
+     *
+     * @var float
+     */
     public $smooth;
+    /**
+     * @description white
+     *
+     * @var float
+     */
     public $white;
-    protected $_required = [
-        'imageURL' => true,
-        'sharp'    => true,
-        'smooth'   => true,
-        'white'    => true,
-    ];
     protected $_name = [
         'imageURL' => 'ImageURL',
         'sharp'    => 'Sharp',
         'smooth'   => 'Smooth',
         'white'    => 'White',
     ];
-    protected $_description = [
-        'imageURL' => 'imageUrl',
-        'sharp'    => 'sharp',
-        'smooth'   => 'smooth',
-        'white'    => 'white',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageURL', $this->imageURL, true);
+        Model::validateRequired('sharp', $this->sharp, true);
+        Model::validateRequired('smooth', $this->smooth, true);
+        Model::validateRequired('white', $this->white, true);
+    }
+
+    public function toMap()
+    {
+        $res             = [];
+        $res['ImageURL'] = $this->imageURL;
+        $res['Sharp']    = $this->sharp;
+        $res['Smooth']   = $this->smooth;
+        $res['White']    = $this->white;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return FaceBeautyRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageURL'])) {
+            $model->imageURL = $map['ImageURL'];
+        }
+        if (isset($map['Sharp'])) {
+            $model->sharp = $map['Sharp'];
+        }
+        if (isset($map['Smooth'])) {
+            $model->smooth = $map['Smooth'];
+        }
+        if (isset($map['White'])) {
+            $model->white = $map['White'];
+        }
+
+        return $model;
+    }
 }

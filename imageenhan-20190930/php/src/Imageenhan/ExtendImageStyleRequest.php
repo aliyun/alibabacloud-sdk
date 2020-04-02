@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class ExtendImageStyleRequest extends Model
 {
+    /**
+     * @description styleUrl
+     *
+     * @var string
+     */
     public $styleUrl;
+    /**
+     * @description majorUrl
+     *
+     * @var string
+     */
     public $majorUrl;
-    protected $_required = [
-        'styleUrl' => true,
-        'majorUrl' => true,
-    ];
     protected $_name = [
         'styleUrl' => 'StyleUrl',
         'majorUrl' => 'MajorUrl',
     ];
-    protected $_description = [
-        'styleUrl' => 'styleUrl',
-        'majorUrl' => 'majorUrl',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('styleUrl', $this->styleUrl, true);
+        Model::validateRequired('majorUrl', $this->majorUrl, true);
+    }
+
+    public function toMap()
+    {
+        $res             = [];
+        $res['StyleUrl'] = $this->styleUrl;
+        $res['MajorUrl'] = $this->majorUrl;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return ExtendImageStyleRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['StyleUrl'])) {
+            $model->styleUrl = $map['StyleUrl'];
+        }
+        if (isset($map['MajorUrl'])) {
+            $model->majorUrl = $map['MajorUrl'];
+        }
+
+        return $model;
+    }
 }

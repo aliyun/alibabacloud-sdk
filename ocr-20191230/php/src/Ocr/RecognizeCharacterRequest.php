@@ -8,22 +8,65 @@ use AlibabaCloud\Tea\Model;
 
 class RecognizeCharacterRequest extends Model
 {
+    /**
+     * @description imageUrl
+     *
+     * @var string
+     */
     public $imageURL;
+    /**
+     * @description minHeight
+     *
+     * @var int
+     */
     public $minHeight;
+    /**
+     * @description outputProbability
+     *
+     * @var bool
+     */
     public $outputProbability;
-    protected $_required = [
-        'imageURL'          => true,
-        'minHeight'         => true,
-        'outputProbability' => true,
-    ];
     protected $_name = [
         'imageURL'          => 'ImageURL',
         'minHeight'         => 'MinHeight',
         'outputProbability' => 'OutputProbability',
     ];
-    protected $_description = [
-        'imageURL'          => 'imageUrl',
-        'minHeight'         => 'minHeight',
-        'outputProbability' => 'outputProbability',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageURL', $this->imageURL, true);
+        Model::validateRequired('minHeight', $this->minHeight, true);
+        Model::validateRequired('outputProbability', $this->outputProbability, true);
+    }
+
+    public function toMap()
+    {
+        $res                      = [];
+        $res['ImageURL']          = $this->imageURL;
+        $res['MinHeight']         = $this->minHeight;
+        $res['OutputProbability'] = $this->outputProbability;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return RecognizeCharacterRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageURL'])) {
+            $model->imageURL = $map['ImageURL'];
+        }
+        if (isset($map['MinHeight'])) {
+            $model->minHeight = $map['MinHeight'];
+        }
+        if (isset($map['OutputProbability'])) {
+            $model->outputProbability = $map['OutputProbability'];
+        }
+
+        return $model;
+    }
 }

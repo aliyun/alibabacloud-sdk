@@ -8,22 +8,65 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description bankName
+     *
+     * @var string
+     */
     public $bankName;
+    /**
+     * @description cardNumber
+     *
+     * @var string
+     */
     public $cardNumber;
+    /**
+     * @description validDate
+     *
+     * @var string
+     */
     public $validDate;
-    protected $_required = [
-        'bankName'   => true,
-        'cardNumber' => true,
-        'validDate'  => true,
-    ];
     protected $_name = [
         'bankName'   => 'BankName',
         'cardNumber' => 'CardNumber',
         'validDate'  => 'ValidDate',
     ];
-    protected $_description = [
-        'bankName'   => 'bankName',
-        'cardNumber' => 'cardNumber',
-        'validDate'  => 'validDate',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('bankName', $this->bankName, true);
+        Model::validateRequired('cardNumber', $this->cardNumber, true);
+        Model::validateRequired('validDate', $this->validDate, true);
+    }
+
+    public function toMap()
+    {
+        $res               = [];
+        $res['BankName']   = $this->bankName;
+        $res['CardNumber'] = $this->cardNumber;
+        $res['ValidDate']  = $this->validDate;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['BankName'])) {
+            $model->bankName = $map['BankName'];
+        }
+        if (isset($map['CardNumber'])) {
+            $model->cardNumber = $map['CardNumber'];
+        }
+        if (isset($map['ValidDate'])) {
+            $model->validDate = $map['ValidDate'];
+        }
+
+        return $model;
+    }
 }

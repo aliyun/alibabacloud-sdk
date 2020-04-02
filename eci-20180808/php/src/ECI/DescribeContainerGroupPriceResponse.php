@@ -4,22 +4,58 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\ECI;
 
+use AlibabaCloud\SDK\ECI\V20180808\ECI\DescribeContainerGroupPriceResponse\priceInfo;
 use AlibabaCloud\Tea\Model;
 
 class DescribeContainerGroupPriceResponse extends Model
 {
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
+    /**
+     * @description data
+     *
+     * @var DescribeContainerGroupPriceResponse.priceInfo
+     */
     public $priceInfo;
-    protected $_required = [
-        'requestId' => true,
-        'priceInfo' => true,
-    ];
     protected $_name = [
         'requestId' => 'RequestId',
         'priceInfo' => 'PriceInfo',
     ];
-    protected $_description = [
-        'requestId' => 'requestId',
-        'priceInfo' => 'data',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('priceInfo', $this->priceInfo, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['RequestId'] = $this->requestId;
+        $res['PriceInfo'] = null !== $this->priceInfo ? $this->priceInfo->toMap() : null;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return DescribeContainerGroupPriceResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['PriceInfo'])) {
+            $model->priceInfo = DescribeContainerGroupPriceResponse\priceInfo::fromMap($map['PriceInfo']);
+        }
+
+        return $model;
+    }
 }

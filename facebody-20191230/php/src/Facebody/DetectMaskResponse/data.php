@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description mask
+     *
+     * @var int
+     */
     public $mask;
+    /**
+     * @description faceProbability
+     *
+     * @var float
+     */
     public $faceProbability;
-    protected $_required = [
-        'mask'            => true,
-        'faceProbability' => true,
-    ];
     protected $_name = [
         'mask'            => 'Mask',
         'faceProbability' => 'FaceProbability',
     ];
-    protected $_description = [
-        'mask'            => 'mask',
-        'faceProbability' => 'faceProbability',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('mask', $this->mask, true);
+        Model::validateRequired('faceProbability', $this->faceProbability, true);
+    }
+
+    public function toMap()
+    {
+        $res                    = [];
+        $res['Mask']            = $this->mask;
+        $res['FaceProbability'] = $this->faceProbability;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Mask'])) {
+            $model->mask = $map['Mask'];
+        }
+        if (isset($map['FaceProbability'])) {
+            $model->faceProbability = $map['FaceProbability'];
+        }
+
+        return $model;
+    }
 }

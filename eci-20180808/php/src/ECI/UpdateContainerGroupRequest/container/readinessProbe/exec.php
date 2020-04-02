@@ -8,14 +8,47 @@ use AlibabaCloud\Tea\Model;
 
 class exec extends Model
 {
+    /**
+     * @description readinessProbeExec
+     *
+     * @var array
+     */
     public $command;
-    protected $_required = [
-        'command' => true,
-    ];
     protected $_name = [
         'command' => 'Command',
     ];
-    protected $_description = [
-        'command' => 'readinessProbeExec',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('command', $this->command, true);
+    }
+
+    public function toMap()
+    {
+        $res            = [];
+        $res['Command'] = [];
+        if (null !== $this->command) {
+            $res['Command'] = $this->command;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return exec
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Command'])) {
+            if (!empty($map['Command'])) {
+                $model->command = [];
+                $model->command = $map['Command'];
+            }
+        }
+
+        return $model;
+    }
 }

@@ -4,22 +4,59 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVATInvoiceResponse;
 
+use AlibabaCloud\SDK\Ocr\V20191230\Ocr\data\box;
+use AlibabaCloud\SDK\Ocr\V20191230\Ocr\data\content;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description content
+     *
+     * @var data.content
+     */
     public $content;
+    /**
+     * @description box
+     *
+     * @var data.box
+     */
     public $box;
-    protected $_required = [
-        'content' => true,
-        'box'     => true,
-    ];
     protected $_name = [
         'content' => 'Content',
         'box'     => 'Box',
     ];
-    protected $_description = [
-        'content' => 'content',
-        'box'     => 'box',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('content', $this->content, true);
+        Model::validateRequired('box', $this->box, true);
+    }
+
+    public function toMap()
+    {
+        $res            = [];
+        $res['Content'] = null !== $this->content ? $this->content->toMap() : null;
+        $res['Box']     = null !== $this->box ? $this->box->toMap() : null;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Content'])) {
+            $model->content = data\content::fromMap($map['Content']);
+        }
+        if (isset($map['Box'])) {
+            $model->box = data\box::fromMap($map['Box']);
+        }
+
+        return $model;
+    }
 }

@@ -8,18 +8,59 @@ use AlibabaCloud\Tea\Model;
 
 class hostAliases extends Model
 {
+    /**
+     * @description ip
+     *
+     * @var string
+     */
     public $ip;
+    /**
+     * @description hostnames
+     *
+     * @var array
+     */
     public $hostnames;
-    protected $_required = [
-        'ip'        => true,
-        'hostnames' => true,
-    ];
     protected $_name = [
         'ip'        => 'Ip',
         'hostnames' => 'Hostnames',
     ];
-    protected $_description = [
-        'ip'        => 'ip',
-        'hostnames' => 'hostnames',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('ip', $this->ip, true);
+        Model::validateRequired('hostnames', $this->hostnames, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['Ip']        = $this->ip;
+        $res['Hostnames'] = [];
+        if (null !== $this->hostnames) {
+            $res['Hostnames'] = $this->hostnames;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return hostAliases
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Ip'])) {
+            $model->ip = $map['Ip'];
+        }
+        if (isset($map['Hostnames'])) {
+            if (!empty($map['Hostnames'])) {
+                $model->hostnames = [];
+                $model->hostnames = $map['Hostnames'];
+            }
+        }
+
+        return $model;
+    }
 }

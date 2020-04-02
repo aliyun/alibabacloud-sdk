@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class elements extends Model
 {
+    /**
+     * @description originImageUrl
+     *
+     * @var string
+     */
     public $originImageURL;
+    /**
+     * @description imageUrl
+     *
+     * @var string
+     */
     public $imageURL;
-    protected $_required = [
-        'originImageURL' => true,
-        'imageURL'       => true,
-    ];
     protected $_name = [
         'originImageURL' => 'OriginImageURL',
         'imageURL'       => 'ImageURL',
     ];
-    protected $_description = [
-        'originImageURL' => 'originImageUrl',
-        'imageURL'       => 'imageUrl',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('originImageURL', $this->originImageURL, true);
+        Model::validateRequired('imageURL', $this->imageURL, true);
+    }
+
+    public function toMap()
+    {
+        $res                   = [];
+        $res['OriginImageURL'] = $this->originImageURL;
+        $res['ImageURL']       = $this->imageURL;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return elements
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['OriginImageURL'])) {
+            $model->originImageURL = $map['OriginImageURL'];
+        }
+        if (isset($map['ImageURL'])) {
+            $model->imageURL = $map['ImageURL'];
+        }
+
+        return $model;
+    }
 }

@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class tag extends Model
 {
+    /**
+     * @description key
+     *
+     * @var string
+     */
     public $key;
+    /**
+     * @description value
+     *
+     * @var string
+     */
     public $value;
-    protected $_required = [
-        'key'   => true,
-        'value' => true,
-    ];
     protected $_name = [
         'key'   => 'Key',
         'value' => 'Value',
     ];
-    protected $_description = [
-        'key'   => 'key',
-        'value' => 'value',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('key', $this->key, true);
+        Model::validateRequired('value', $this->value, true);
+    }
+
+    public function toMap()
+    {
+        $res          = [];
+        $res['Key']   = $this->key;
+        $res['Value'] = $this->value;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return tag
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Key'])) {
+            $model->key = $map['Key'];
+        }
+        if (isset($map['Value'])) {
+            $model->value = $map['Value'];
+        }
+
+        return $model;
+    }
 }

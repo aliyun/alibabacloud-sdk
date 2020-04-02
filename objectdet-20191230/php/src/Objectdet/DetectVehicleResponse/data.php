@@ -8,22 +8,77 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description width
+     *
+     * @var int
+     */
     public $width;
+    /**
+     * @description height
+     *
+     * @var int
+     */
     public $height;
+    /**
+     * @description detectObjectInfoList
+     *
+     * @var array
+     */
     public $detectObjectInfoList;
-    protected $_required = [
-        'width'                => true,
-        'height'               => true,
-        'detectObjectInfoList' => true,
-    ];
     protected $_name = [
         'width'                => 'Width',
         'height'               => 'Height',
         'detectObjectInfoList' => 'DetectObjectInfoList',
     ];
-    protected $_description = [
-        'width'                => 'width',
-        'height'               => 'height',
-        'detectObjectInfoList' => 'detectObjectInfoList',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('width', $this->width, true);
+        Model::validateRequired('height', $this->height, true);
+        Model::validateRequired('detectObjectInfoList', $this->detectObjectInfoList, true);
+    }
+
+    public function toMap()
+    {
+        $res                         = [];
+        $res['Width']                = $this->width;
+        $res['Height']               = $this->height;
+        $res['DetectObjectInfoList'] = [];
+        if (null !== $this->detectObjectInfoList && \is_array($this->detectObjectInfoList)) {
+            $n = 0;
+            foreach ($this->detectObjectInfoList as $item) {
+                $res['DetectObjectInfoList'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Width'])) {
+            $model->width = $map['Width'];
+        }
+        if (isset($map['Height'])) {
+            $model->height = $map['Height'];
+        }
+        if (isset($map['DetectObjectInfoList'])) {
+            if (!empty($map['DetectObjectInfoList'])) {
+                $model->detectObjectInfoList = [];
+                $n                           = 0;
+                foreach ($map['DetectObjectInfoList'] as $item) {
+                    $model->detectObjectInfoList[$n++] = null !== $item ? DetectVehicleResponse\data\detectObjectInfoList::fromMap($item) : $item;
+                }
+            }
+        }
+
+        return $model;
+    }
 }

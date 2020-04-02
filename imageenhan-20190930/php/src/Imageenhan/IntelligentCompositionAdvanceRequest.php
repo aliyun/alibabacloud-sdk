@@ -8,17 +8,52 @@ use AlibabaCloud\Tea\Model;
 
 class IntelligentCompositionAdvanceRequest extends Model
 {
+    /**
+     * @description ImageURLObject
+     *
+     * @var Stream
+     */
     public $imageURLObject;
+    /**
+     * @description numBoxes
+     *
+     * @var int
+     */
     public $numBoxes;
-    protected $_required = [
-        'imageURLObject' => true,
-    ];
-    protected $_description = [
-        'imageURLObject' => 'ImageURLObject',
-        'numBoxes'       => 'numBoxes',
-    ];
     protected $_name = [
         'imageURLObject' => 'ImageURLObject',
         'numBoxes'       => 'NumBoxes',
     ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageURLObject', $this->imageURLObject, true);
+    }
+
+    public function toMap()
+    {
+        $res                   = [];
+        $res['ImageURLObject'] = $this->imageURLObject;
+        $res['NumBoxes']       = $this->numBoxes;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return IntelligentCompositionAdvanceRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageURLObject'])) {
+            $model->imageURLObject = $map['ImageURLObject'];
+        }
+        if (isset($map['NumBoxes'])) {
+            $model->numBoxes = $map['NumBoxes'];
+        }
+
+        return $model;
+    }
 }

@@ -8,13 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class SearchImageByPicRequest extends Model
 {
+    /**
+     * @description categoryId
+     *
+     * @var int
+     */
     public $categoryId;
+    /**
+     * @description instanceName
+     *
+     * @var string
+     */
     public $instanceName;
+    /**
+     * @description picContent
+     *
+     * @var string
+     */
     public $picContent;
+    /**
+     * @description crop
+     *
+     * @var bool
+     */
     public $crop;
+    /**
+     * @description region
+     *
+     * @var string
+     */
     public $region;
+    /**
+     * @description num
+     *
+     * @var int
+     */
     public $num;
+    /**
+     * @description start
+     *
+     * @var int
+     */
     public $start;
+    /**
+     * @description filter
+     *
+     * @var string
+     */
     public $filter;
     protected $_name = [
         'categoryId'   => 'CategoryId',
@@ -26,18 +66,61 @@ class SearchImageByPicRequest extends Model
         'start'        => 'Start',
         'filter'       => 'Filter',
     ];
-    protected $_description = [
-        'categoryId'   => 'categoryId',
-        'instanceName' => 'instanceName',
-        'picContent'   => 'picContent',
-        'crop'         => 'crop',
-        'region'       => 'region',
-        'num'          => 'num',
-        'start'        => 'start',
-        'filter'       => 'filter',
-    ];
-    protected $_required = [
-        'instanceName' => true,
-        'picContent'   => true,
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('instanceName', $this->instanceName, true);
+        Model::validateRequired('picContent', $this->picContent, true);
+    }
+
+    public function toMap()
+    {
+        $res                 = [];
+        $res['CategoryId']   = $this->categoryId;
+        $res['InstanceName'] = $this->instanceName;
+        $res['PicContent']   = $this->picContent;
+        $res['Crop']         = $this->crop;
+        $res['Region']       = $this->region;
+        $res['Num']          = $this->num;
+        $res['Start']        = $this->start;
+        $res['Filter']       = $this->filter;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return SearchImageByPicRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['CategoryId'])) {
+            $model->categoryId = $map['CategoryId'];
+        }
+        if (isset($map['InstanceName'])) {
+            $model->instanceName = $map['InstanceName'];
+        }
+        if (isset($map['PicContent'])) {
+            $model->picContent = $map['PicContent'];
+        }
+        if (isset($map['Crop'])) {
+            $model->crop = $map['Crop'];
+        }
+        if (isset($map['Region'])) {
+            $model->region = $map['Region'];
+        }
+        if (isset($map['Num'])) {
+            $model->num = $map['Num'];
+        }
+        if (isset($map['Start'])) {
+            $model->start = $map['Start'];
+        }
+        if (isset($map['Filter'])) {
+            $model->filter = $map['Filter'];
+        }
+
+        return $model;
+    }
 }

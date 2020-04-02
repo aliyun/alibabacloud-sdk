@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class AddImageResponse extends Model
 {
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
-    protected $_required = [
-        'requestId' => true,
-    ];
     protected $_name = [
         'requestId' => 'RequestId',
     ];
-    protected $_description = [
-        'requestId' => 'requestId',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['RequestId'] = $this->requestId;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return AddImageResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+
+        return $model;
+    }
 }

@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class configFileVolumeConfigFileToPaths extends Model
 {
+    /**
+     * @description content
+     *
+     * @var string
+     */
     public $content;
+    /**
+     * @description path
+     *
+     * @var string
+     */
     public $path;
-    protected $_required = [
-        'content' => true,
-        'path'    => true,
-    ];
     protected $_name = [
         'content' => 'Content',
         'path'    => 'Path',
     ];
-    protected $_description = [
-        'content' => 'content',
-        'path'    => 'path',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('content', $this->content, true);
+        Model::validateRequired('path', $this->path, true);
+    }
+
+    public function toMap()
+    {
+        $res            = [];
+        $res['Content'] = $this->content;
+        $res['Path']    = $this->path;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return configFileVolumeConfigFileToPaths
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Content'])) {
+            $model->content = $map['Content'];
+        }
+        if (isset($map['Path'])) {
+            $model->path = $map['Path'];
+        }
+
+        return $model;
+    }
 }

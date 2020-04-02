@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class CompareFaceRequest extends Model
 {
+    /**
+     * @description imageUrlA
+     *
+     * @var string
+     */
     public $imageURLA;
+    /**
+     * @description imageUrlB
+     *
+     * @var string
+     */
     public $imageURLB;
-    protected $_required = [
-        'imageURLA' => true,
-        'imageURLB' => true,
-    ];
     protected $_name = [
         'imageURLA' => 'ImageURLA',
         'imageURLB' => 'ImageURLB',
     ];
-    protected $_description = [
-        'imageURLA' => 'imageUrlA',
-        'imageURLB' => 'imageUrlB',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageURLA', $this->imageURLA, true);
+        Model::validateRequired('imageURLB', $this->imageURLB, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['ImageURLA'] = $this->imageURLA;
+        $res['ImageURLB'] = $this->imageURLB;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return CompareFaceRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageURLA'])) {
+            $model->imageURLA = $map['ImageURLA'];
+        }
+        if (isset($map['ImageURLB'])) {
+            $model->imageURLB = $map['ImageURLB'];
+        }
+
+        return $model;
+    }
 }

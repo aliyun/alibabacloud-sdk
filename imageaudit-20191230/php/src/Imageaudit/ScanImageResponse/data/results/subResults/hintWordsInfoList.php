@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class hintWordsInfoList extends Model
 {
+    /**
+     * @description Context
+     *
+     * @var string
+     */
     public $context;
-    protected $_required = [
-        'context' => true,
-    ];
     protected $_name = [
         'context' => 'Context',
     ];
-    protected $_description = [
-        'context' => 'Context',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('context', $this->context, true);
+    }
+
+    public function toMap()
+    {
+        $res            = [];
+        $res['Context'] = $this->context;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return hintWordsInfoList
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Context'])) {
+            $model->context = $map['Context'];
+        }
+
+        return $model;
+    }
 }

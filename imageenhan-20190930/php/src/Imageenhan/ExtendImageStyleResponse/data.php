@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class data extends Model
 {
+    /**
+     * @description url
+     *
+     * @var string
+     */
     public $url;
+    /**
+     * @description majorUrl
+     *
+     * @var string
+     */
     public $majorUrl;
-    protected $_required = [
-        'url'      => true,
-        'majorUrl' => true,
-    ];
     protected $_name = [
         'url'      => 'Url',
         'majorUrl' => 'MajorUrl',
     ];
-    protected $_description = [
-        'url'      => 'url',
-        'majorUrl' => 'majorUrl',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('url', $this->url, true);
+        Model::validateRequired('majorUrl', $this->majorUrl, true);
+    }
+
+    public function toMap()
+    {
+        $res             = [];
+        $res['Url']      = $this->url;
+        $res['MajorUrl'] = $this->majorUrl;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return data
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Url'])) {
+            $model->url = $map['Url'];
+        }
+        if (isset($map['MajorUrl'])) {
+            $model->majorUrl = $map['MajorUrl'];
+        }
+
+        return $model;
+    }
 }

@@ -4,22 +4,41 @@
 
 namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageResponse\picInfo;
 use AlibabaCloud\Tea\Model;
 
 class AddImageResponse extends Model
 {
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
+    /**
+     * @description success
+     *
+     * @var bool
+     */
     public $success;
+    /**
+     * @description msg
+     *
+     * @var string
+     */
     public $message;
+    /**
+     * @description code
+     *
+     * @var int
+     */
     public $code;
+    /**
+     * @description picInfo
+     *
+     * @var AddImageResponse.picInfo
+     */
     public $picInfo;
-    protected $_required = [
-        'requestId' => true,
-        'success'   => true,
-        'message'   => true,
-        'code'      => true,
-        'picInfo'   => true,
-    ];
     protected $_name = [
         'requestId' => 'RequestId',
         'success'   => 'Success',
@@ -27,11 +46,52 @@ class AddImageResponse extends Model
         'code'      => 'Code',
         'picInfo'   => 'PicInfo',
     ];
-    protected $_description = [
-        'requestId' => 'requestId',
-        'success'   => 'success',
-        'message'   => 'msg',
-        'code'      => 'code',
-        'picInfo'   => 'picInfo',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('success', $this->success, true);
+        Model::validateRequired('message', $this->message, true);
+        Model::validateRequired('code', $this->code, true);
+        Model::validateRequired('picInfo', $this->picInfo, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['RequestId'] = $this->requestId;
+        $res['Success']   = $this->success;
+        $res['Message']   = $this->message;
+        $res['Code']      = $this->code;
+        $res['PicInfo']   = null !== $this->picInfo ? $this->picInfo->toMap() : null;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return AddImageResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['Success'])) {
+            $model->success = $map['Success'];
+        }
+        if (isset($map['Message'])) {
+            $model->message = $map['Message'];
+        }
+        if (isset($map['Code'])) {
+            $model->code = $map['Code'];
+        }
+        if (isset($map['PicInfo'])) {
+            $model->picInfo = AddImageResponse\picInfo::fromMap($map['PicInfo']);
+        }
+
+        return $model;
+    }
 }

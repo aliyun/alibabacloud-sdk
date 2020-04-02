@@ -4,28 +4,63 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\ECI\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos;
 
+use AlibabaCloud\SDK\ECI\V20180808\ECI\containerStats\cpuStats;
+use AlibabaCloud\SDK\ECI\V20180808\ECI\containerStats\diskIoStats;
+use AlibabaCloud\SDK\ECI\V20180808\ECI\containerStats\memoryStats;
+use AlibabaCloud\SDK\ECI\V20180808\ECI\containerStats\networkStats;
+use AlibabaCloud\SDK\ECI\V20180808\ECI\containerStats\taskStats;
 use AlibabaCloud\Tea\Model;
 
 class containerStats extends Model
 {
+    /**
+     * @description timestamp
+     *
+     * @var string
+     */
     public $timestamp;
+    /**
+     * @description fsStats
+     *
+     * @var array
+     */
     public $fsStats;
+    /**
+     * @description acceleratorStats
+     *
+     * @var array
+     */
     public $acceleratorStats;
+    /**
+     * @description cpu
+     *
+     * @var containerStats.cpuStats
+     */
     public $cpuStats;
+    /**
+     * @description diskIo
+     *
+     * @var containerStats.diskIoStats
+     */
     public $diskIoStats;
+    /**
+     * @description memory
+     *
+     * @var containerStats.memoryStats
+     */
     public $memoryStats;
+    /**
+     * @description network
+     *
+     * @var containerStats.networkStats
+     */
     public $networkStats;
+    /**
+     * @description taskStats
+     *
+     * @var containerStats.taskStats
+     */
     public $taskStats;
-    protected $_required = [
-        'timestamp'        => true,
-        'fsStats'          => true,
-        'acceleratorStats' => true,
-        'cpuStats'         => true,
-        'diskIoStats'      => true,
-        'memoryStats'      => true,
-        'networkStats'     => true,
-        'taskStats'        => true,
-    ];
     protected $_name = [
         'timestamp'        => 'Timestamp',
         'fsStats'          => 'FsStats',
@@ -36,14 +71,91 @@ class containerStats extends Model
         'networkStats'     => 'NetworkStats',
         'taskStats'        => 'TaskStats',
     ];
-    protected $_description = [
-        'timestamp'        => 'timestamp',
-        'fsStats'          => 'fsStats',
-        'acceleratorStats' => 'acceleratorStats',
-        'cpuStats'         => 'cpu',
-        'diskIoStats'      => 'diskIo',
-        'memoryStats'      => 'memory',
-        'networkStats'     => 'network',
-        'taskStats'        => 'taskStats',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('timestamp', $this->timestamp, true);
+        Model::validateRequired('fsStats', $this->fsStats, true);
+        Model::validateRequired('acceleratorStats', $this->acceleratorStats, true);
+        Model::validateRequired('cpuStats', $this->cpuStats, true);
+        Model::validateRequired('diskIoStats', $this->diskIoStats, true);
+        Model::validateRequired('memoryStats', $this->memoryStats, true);
+        Model::validateRequired('networkStats', $this->networkStats, true);
+        Model::validateRequired('taskStats', $this->taskStats, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['Timestamp'] = $this->timestamp;
+        $res['FsStats']   = [];
+        if (null !== $this->fsStats && \is_array($this->fsStats)) {
+            $n = 0;
+            foreach ($this->fsStats as $item) {
+                $res['FsStats'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+        $res['AcceleratorStats'] = [];
+        if (null !== $this->acceleratorStats && \is_array($this->acceleratorStats)) {
+            $n = 0;
+            foreach ($this->acceleratorStats as $item) {
+                $res['AcceleratorStats'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+        $res['CpuStats']     = null !== $this->cpuStats ? $this->cpuStats->toMap() : null;
+        $res['DiskIoStats']  = null !== $this->diskIoStats ? $this->diskIoStats->toMap() : null;
+        $res['MemoryStats']  = null !== $this->memoryStats ? $this->memoryStats->toMap() : null;
+        $res['NetworkStats'] = null !== $this->networkStats ? $this->networkStats->toMap() : null;
+        $res['TaskStats']    = null !== $this->taskStats ? $this->taskStats->toMap() : null;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return containerStats
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Timestamp'])) {
+            $model->timestamp = $map['Timestamp'];
+        }
+        if (isset($map['FsStats'])) {
+            if (!empty($map['FsStats'])) {
+                $model->fsStats = [];
+                $n              = 0;
+                foreach ($map['FsStats'] as $item) {
+                    $model->fsStats[$n++] = null !== $item ? DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\fsStats::fromMap($item) : $item;
+                }
+            }
+        }
+        if (isset($map['AcceleratorStats'])) {
+            if (!empty($map['AcceleratorStats'])) {
+                $model->acceleratorStats = [];
+                $n                       = 0;
+                foreach ($map['AcceleratorStats'] as $item) {
+                    $model->acceleratorStats[$n++] = null !== $item ? DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\acceleratorStats::fromMap($item) : $item;
+                }
+            }
+        }
+        if (isset($map['CpuStats'])) {
+            $model->cpuStats = containerStats\cpuStats::fromMap($map['CpuStats']);
+        }
+        if (isset($map['DiskIoStats'])) {
+            $model->diskIoStats = containerStats\diskIoStats::fromMap($map['DiskIoStats']);
+        }
+        if (isset($map['MemoryStats'])) {
+            $model->memoryStats = containerStats\memoryStats::fromMap($map['MemoryStats']);
+        }
+        if (isset($map['NetworkStats'])) {
+            $model->networkStats = containerStats\networkStats::fromMap($map['NetworkStats']);
+        }
+        if (isset($map['TaskStats'])) {
+            $model->taskStats = containerStats\taskStats::fromMap($map['TaskStats']);
+        }
+
+        return $model;
+    }
 }

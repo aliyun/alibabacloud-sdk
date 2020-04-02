@@ -8,18 +8,65 @@ use AlibabaCloud\Tea\Model;
 
 class keyPoints extends Model
 {
+    /**
+     * @description label
+     *
+     * @var string
+     */
     public $label;
+    /**
+     * @description positions
+     *
+     * @var array
+     */
     public $positions;
-    protected $_required = [
-        'label'     => true,
-        'positions' => true,
-    ];
     protected $_name = [
         'label'     => 'Label',
         'positions' => 'Positions',
     ];
-    protected $_description = [
-        'label'     => 'label',
-        'positions' => 'positions',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('label', $this->label, true);
+        Model::validateRequired('positions', $this->positions, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['Label']     = $this->label;
+        $res['Positions'] = [];
+        if (null !== $this->positions && \is_array($this->positions)) {
+            $n = 0;
+            foreach ($this->positions as $item) {
+                $res['Positions'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return keyPoints
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Label'])) {
+            $model->label = $map['Label'];
+        }
+        if (isset($map['Positions'])) {
+            if (!empty($map['Positions'])) {
+                $model->positions = [];
+                $n                = 0;
+                foreach ($map['Positions'] as $item) {
+                    $model->positions[$n++] = null !== $item ? HandPostureResponse\data\outputs\results\hands\keyPoints\positions::fromMap($item) : $item;
+                }
+            }
+        }
+
+        return $model;
+    }
 }

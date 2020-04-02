@@ -8,18 +8,65 @@ use AlibabaCloud\Tea\Model;
 
 class box extends Model
 {
+    /**
+     * @description confident
+     *
+     * @var float
+     */
     public $confident;
+    /**
+     * @description positions
+     *
+     * @var array
+     */
     public $positions;
-    protected $_required = [
-        'confident' => true,
-        'positions' => true,
-    ];
     protected $_name = [
         'confident' => 'Confident',
         'positions' => 'Positions',
     ];
-    protected $_description = [
-        'confident' => 'confident',
-        'positions' => 'positions',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('confident', $this->confident, true);
+        Model::validateRequired('positions', $this->positions, true);
+    }
+
+    public function toMap()
+    {
+        $res              = [];
+        $res['Confident'] = $this->confident;
+        $res['Positions'] = [];
+        if (null !== $this->positions && \is_array($this->positions)) {
+            $n = 0;
+            foreach ($this->positions as $item) {
+                $res['Positions'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return box
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Confident'])) {
+            $model->confident = $map['Confident'];
+        }
+        if (isset($map['Positions'])) {
+            if (!empty($map['Positions'])) {
+                $model->positions = [];
+                $n                = 0;
+                foreach ($map['Positions'] as $item) {
+                    $model->positions[$n++] = null !== $item ? HandPostureResponse\data\outputs\results\box\positions::fromMap($item) : $item;
+                }
+            }
+        }
+
+        return $model;
+    }
 }

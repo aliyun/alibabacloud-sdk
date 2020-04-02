@@ -8,24 +8,36 @@ use AlibabaCloud\Tea\Model;
 
 class AddFaceAdvanceRequest extends Model
 {
+    /**
+     * @description ImageUrlObject
+     *
+     * @var Stream
+     */
     public $imageUrlObject;
+    /**
+     * @description dbName
+     *
+     * @var string
+     */
     public $dbName;
+    /**
+     * @description faceId
+     *
+     * @var string
+     */
     public $faceId;
+    /**
+     * @description entityId
+     *
+     * @var string
+     */
     public $entityId;
+    /**
+     * @description extraData
+     *
+     * @var string
+     */
     public $extraData;
-    protected $_required = [
-        'imageUrlObject' => true,
-        'dbName'         => true,
-        'faceId'         => true,
-        'entityId'       => true,
-    ];
-    protected $_description = [
-        'imageUrlObject' => 'ImageUrlObject',
-        'dbName'         => 'dbName',
-        'faceId'         => 'faceId',
-        'entityId'       => 'entityId',
-        'extraData'      => 'extraData',
-    ];
     protected $_name = [
         'imageUrlObject' => 'ImageUrlObject',
         'dbName'         => 'DbName',
@@ -33,4 +45,51 @@ class AddFaceAdvanceRequest extends Model
         'entityId'       => 'EntityId',
         'extraData'      => 'ExtraData',
     ];
+
+    public function validate()
+    {
+        Model::validateRequired('imageUrlObject', $this->imageUrlObject, true);
+        Model::validateRequired('dbName', $this->dbName, true);
+        Model::validateRequired('faceId', $this->faceId, true);
+        Model::validateRequired('entityId', $this->entityId, true);
+    }
+
+    public function toMap()
+    {
+        $res                   = [];
+        $res['ImageUrlObject'] = $this->imageUrlObject;
+        $res['DbName']         = $this->dbName;
+        $res['FaceId']         = $this->faceId;
+        $res['EntityId']       = $this->entityId;
+        $res['ExtraData']      = $this->extraData;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return AddFaceAdvanceRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ImageUrlObject'])) {
+            $model->imageUrlObject = $map['ImageUrlObject'];
+        }
+        if (isset($map['DbName'])) {
+            $model->dbName = $map['DbName'];
+        }
+        if (isset($map['FaceId'])) {
+            $model->faceId = $map['FaceId'];
+        }
+        if (isset($map['EntityId'])) {
+            $model->entityId = $map['EntityId'];
+        }
+        if (isset($map['ExtraData'])) {
+            $model->extraData = $map['ExtraData'];
+        }
+
+        return $model;
+    }
 }

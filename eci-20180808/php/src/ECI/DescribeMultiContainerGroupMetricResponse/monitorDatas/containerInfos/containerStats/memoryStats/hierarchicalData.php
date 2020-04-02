@@ -8,18 +8,53 @@ use AlibabaCloud\Tea\Model;
 
 class hierarchicalData extends Model
 {
+    /**
+     * @description pgFault
+     *
+     * @var int
+     */
     public $pgFault;
+    /**
+     * @description pgmajFault
+     *
+     * @var int
+     */
     public $pgmajFault;
-    protected $_required = [
-        'pgFault'    => true,
-        'pgmajFault' => true,
-    ];
     protected $_name = [
         'pgFault'    => 'PgFault',
         'pgmajFault' => 'PgmajFault',
     ];
-    protected $_description = [
-        'pgFault'    => 'pgFault',
-        'pgmajFault' => 'pgmajFault',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('pgFault', $this->pgFault, true);
+        Model::validateRequired('pgmajFault', $this->pgmajFault, true);
+    }
+
+    public function toMap()
+    {
+        $res               = [];
+        $res['PgFault']    = $this->pgFault;
+        $res['PgmajFault'] = $this->pgmajFault;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return hierarchicalData
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['PgFault'])) {
+            $model->pgFault = $map['PgFault'];
+        }
+        if (isset($map['PgmajFault'])) {
+            $model->pgmajFault = $map['PgmajFault'];
+        }
+
+        return $model;
+    }
 }

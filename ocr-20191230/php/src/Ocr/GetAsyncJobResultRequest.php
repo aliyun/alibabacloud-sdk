@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class GetAsyncJobResultRequest extends Model
 {
+    /**
+     * @description jobId
+     *
+     * @var string
+     */
     public $jobId;
-    protected $_required = [
-        'jobId' => true,
-    ];
     protected $_name = [
         'jobId' => 'JobId',
     ];
-    protected $_description = [
-        'jobId' => 'jobId',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('jobId', $this->jobId, true);
+    }
+
+    public function toMap()
+    {
+        $res          = [];
+        $res['JobId'] = $this->jobId;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return GetAsyncJobResultRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['JobId'])) {
+            $model->jobId = $map['JobId'];
+        }
+
+        return $model;
+    }
 }

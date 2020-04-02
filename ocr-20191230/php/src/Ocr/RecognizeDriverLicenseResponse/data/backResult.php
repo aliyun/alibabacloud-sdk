@@ -8,14 +8,41 @@ use AlibabaCloud\Tea\Model;
 
 class backResult extends Model
 {
+    /**
+     * @description archiveNumber
+     *
+     * @var string
+     */
     public $archiveNumber;
-    protected $_required = [
-        'archiveNumber' => true,
-    ];
     protected $_name = [
         'archiveNumber' => 'ArchiveNumber',
     ];
-    protected $_description = [
-        'archiveNumber' => 'archiveNumber',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('archiveNumber', $this->archiveNumber, true);
+    }
+
+    public function toMap()
+    {
+        $res                  = [];
+        $res['ArchiveNumber'] = $this->archiveNumber;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return backResult
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['ArchiveNumber'])) {
+            $model->archiveNumber = $map['ArchiveNumber'];
+        }
+
+        return $model;
+    }
 }
