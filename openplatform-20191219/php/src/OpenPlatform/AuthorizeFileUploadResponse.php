@@ -8,24 +8,54 @@ use AlibabaCloud\Tea\Model;
 
 class AuthorizeFileUploadResponse extends Model
 {
+    /**
+     * @description data.accessKeyId
+     *
+     * @var string
+     */
     public $accessKeyId;
+    /**
+     * @description data.bucket
+     *
+     * @var string
+     */
     public $bucket;
+    /**
+     * @description data.encodedPolicy
+     *
+     * @var string
+     */
     public $encodedPolicy;
+    /**
+     * @description data.endpoint
+     *
+     * @var string
+     */
     public $endpoint;
+    /**
+     * @description data.objectKey
+     *
+     * @var string
+     */
     public $objectKey;
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
     public $requestId;
+    /**
+     * @description data.signature
+     *
+     * @var string
+     */
     public $signature;
+    /**
+     * @description data.useAccelerate
+     *
+     * @var bool
+     */
     public $useAccelerate;
-    protected $_required = [
-        'accessKeyId'   => true,
-        'bucket'        => true,
-        'encodedPolicy' => true,
-        'endpoint'      => true,
-        'objectKey'     => true,
-        'requestId'     => true,
-        'signature'     => true,
-        'useAccelerate' => true,
-    ];
     protected $_name = [
         'accessKeyId'   => 'AccessKeyId',
         'bucket'        => 'Bucket',
@@ -36,14 +66,67 @@ class AuthorizeFileUploadResponse extends Model
         'signature'     => 'Signature',
         'useAccelerate' => 'UseAccelerate',
     ];
-    protected $_description = [
-        'accessKeyId'   => 'data.accessKeyId',
-        'bucket'        => 'data.bucket',
-        'encodedPolicy' => 'data.encodedPolicy',
-        'endpoint'      => 'data.endpoint',
-        'objectKey'     => 'data.objectKey',
-        'requestId'     => 'requestId',
-        'signature'     => 'data.signature',
-        'useAccelerate' => 'data.useAccelerate',
-    ];
+
+    public function validate()
+    {
+        Model::validateRequired('accessKeyId', $this->accessKeyId, true);
+        Model::validateRequired('bucket', $this->bucket, true);
+        Model::validateRequired('encodedPolicy', $this->encodedPolicy, true);
+        Model::validateRequired('endpoint', $this->endpoint, true);
+        Model::validateRequired('objectKey', $this->objectKey, true);
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('signature', $this->signature, true);
+        Model::validateRequired('useAccelerate', $this->useAccelerate, true);
+    }
+
+    public function toMap()
+    {
+        $res                  = [];
+        $res['AccessKeyId']   = $this->accessKeyId;
+        $res['Bucket']        = $this->bucket;
+        $res['EncodedPolicy'] = $this->encodedPolicy;
+        $res['Endpoint']      = $this->endpoint;
+        $res['ObjectKey']     = $this->objectKey;
+        $res['RequestId']     = $this->requestId;
+        $res['Signature']     = $this->signature;
+        $res['UseAccelerate'] = $this->useAccelerate;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return AuthorizeFileUploadResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['AccessKeyId'])) {
+            $model->accessKeyId = $map['AccessKeyId'];
+        }
+        if (isset($map['Bucket'])) {
+            $model->bucket = $map['Bucket'];
+        }
+        if (isset($map['EncodedPolicy'])) {
+            $model->encodedPolicy = $map['EncodedPolicy'];
+        }
+        if (isset($map['Endpoint'])) {
+            $model->endpoint = $map['Endpoint'];
+        }
+        if (isset($map['ObjectKey'])) {
+            $model->objectKey = $map['ObjectKey'];
+        }
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['Signature'])) {
+            $model->signature = $map['Signature'];
+        }
+        if (isset($map['UseAccelerate'])) {
+            $model->useAccelerate = $map['UseAccelerate'];
+        }
+
+        return $model;
+    }
 }
