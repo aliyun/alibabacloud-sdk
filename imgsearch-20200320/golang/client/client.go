@@ -7,130 +7,12 @@ import (
 	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
 	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	credential "github.com/aliyun/credentials-go/credentials"
+	endpointutil "github.com/aliyun/endpoint-util/golang/service"
 	fileform "github.com/aliyun/tea-fileform/golang/service"
+	rpc "github.com/aliyun/tea-rpc/golang/client"
 	util "github.com/aliyun/tea-util/golang/service"
 	"io"
 )
-
-type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
-	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
-	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol"`
-	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
-}
-
-func (s Config) String() string {
-	return tea.Prettify(s)
-}
-
-func (s Config) GoString() string {
-	return s.String()
-}
-
-func (s *Config) SetAccessKeyId(v string) *Config {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *Config) SetAccessKeySecret(v string) *Config {
-	s.AccessKeySecret = &v
-	return s
-}
-
-func (s *Config) SetType(v string) *Config {
-	s.Type = &v
-	return s
-}
-
-func (s *Config) SetSecurityToken(v string) *Config {
-	s.SecurityToken = &v
-	return s
-}
-
-func (s *Config) SetEndpoint(v string) *Config {
-	s.Endpoint = &v
-	return s
-}
-
-func (s *Config) SetProtocol(v string) *Config {
-	s.Protocol = &v
-	return s
-}
-
-func (s *Config) SetRegionId(v string) *Config {
-	s.RegionId = &v
-	return s
-}
-
-func (s *Config) SetUserAgent(v string) *Config {
-	s.UserAgent = &v
-	return s
-}
-
-func (s *Config) SetReadTimeout(v int) *Config {
-	s.ReadTimeout = &v
-	return s
-}
-
-func (s *Config) SetConnectTimeout(v int) *Config {
-	s.ConnectTimeout = &v
-	return s
-}
-
-func (s *Config) SetHttpProxy(v string) *Config {
-	s.HttpProxy = &v
-	return s
-}
-
-func (s *Config) SetHttpsProxy(v string) *Config {
-	s.HttpsProxy = &v
-	return s
-}
-
-func (s *Config) SetNoProxy(v string) *Config {
-	s.NoProxy = &v
-	return s
-}
-
-func (s *Config) SetSocks5Proxy(v string) *Config {
-	s.Socks5Proxy = &v
-	return s
-}
-
-func (s *Config) SetSocks5NetWork(v string) *Config {
-	s.Socks5NetWork = &v
-	return s
-}
-
-func (s *Config) SetMaxIdleConns(v int) *Config {
-	s.MaxIdleConns = &v
-	return s
-}
-
-func (s *Config) SetEndpointType(v string) *Config {
-	s.EndpointType = &v
-	return s
-}
-
-func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
-	s.OpenPlatformEndpoint = &v
-	return s
-}
 
 type ListImageDbsRequest struct {
 }
@@ -201,8 +83,12 @@ func (s *ListImageDbsResponseDataDbList) SetName(v string) *ListImageDbsResponse
 }
 
 type ListImagesRequest struct {
-	DbName       *string `json:"DbName" xml:"DbName" require:"true"`
-	FromScrollId *string `json:"FromScrollId" xml:"FromScrollId"`
+	DbName         *string `json:"DbName" xml:"DbName" require:"true"`
+	Token          *string `json:"Token" xml:"Token"`
+	Offset         *int    `json:"Offset" xml:"Offset"`
+	Limit          *int    `json:"Limit" xml:"Limit"`
+	Order          *string `json:"Order" xml:"Order"`
+	EntityIdPrefix *string `json:"EntityIdPrefix" xml:"EntityIdPrefix"`
 }
 
 func (s ListImagesRequest) String() string {
@@ -218,8 +104,28 @@ func (s *ListImagesRequest) SetDbName(v string) *ListImagesRequest {
 	return s
 }
 
-func (s *ListImagesRequest) SetFromScrollId(v string) *ListImagesRequest {
-	s.FromScrollId = &v
+func (s *ListImagesRequest) SetToken(v string) *ListImagesRequest {
+	s.Token = &v
+	return s
+}
+
+func (s *ListImagesRequest) SetOffset(v int) *ListImagesRequest {
+	s.Offset = &v
+	return s
+}
+
+func (s *ListImagesRequest) SetLimit(v int) *ListImagesRequest {
+	s.Limit = &v
+	return s
+}
+
+func (s *ListImagesRequest) SetOrder(v string) *ListImagesRequest {
+	s.Order = &v
+	return s
+}
+
+func (s *ListImagesRequest) SetEntityIdPrefix(v string) *ListImagesRequest {
+	s.EntityIdPrefix = &v
 	return s
 }
 
@@ -247,8 +153,9 @@ func (s *ListImagesResponse) SetData(v *ListImagesResponseData) *ListImagesRespo
 }
 
 type ListImagesResponseData struct {
-	ScrollId  *string                            `json:"ScrollId" xml:"ScrollId" require:"true"`
-	ImageList []*ListImagesResponseDataImageList `json:"ImageList" xml:"ImageList" require:"true" type:"Repeated"`
+	Token      *string                            `json:"Token" xml:"Token" require:"true"`
+	TotalCount *int                               `json:"TotalCount" xml:"TotalCount" require:"true"`
+	ImageList  []*ListImagesResponseDataImageList `json:"ImageList" xml:"ImageList" require:"true" type:"Repeated"`
 }
 
 func (s ListImagesResponseData) String() string {
@@ -259,8 +166,13 @@ func (s ListImagesResponseData) GoString() string {
 	return s.String()
 }
 
-func (s *ListImagesResponseData) SetScrollId(v string) *ListImagesResponseData {
-	s.ScrollId = &v
+func (s *ListImagesResponseData) SetToken(v string) *ListImagesResponseData {
+	s.Token = &v
+	return s
+}
+
+func (s *ListImagesResponseData) SetTotalCount(v int) *ListImagesResponseData {
+	s.TotalCount = &v
 	return s
 }
 
@@ -272,8 +184,9 @@ func (s *ListImagesResponseData) SetImageList(v []*ListImagesResponseDataImageLi
 type ListImagesResponseDataImageList struct {
 	DataId    *string `json:"DataId" xml:"DataId" require:"true"`
 	ExtraData *string `json:"ExtraData" xml:"ExtraData" require:"true"`
-	ImageUrl  *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
 	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
+	UpdatedAt *int64  `json:"UpdatedAt" xml:"UpdatedAt" require:"true"`
+	CreatedAt *int64  `json:"CreatedAt" xml:"CreatedAt" require:"true"`
 }
 
 func (s ListImagesResponseDataImageList) String() string {
@@ -294,13 +207,18 @@ func (s *ListImagesResponseDataImageList) SetExtraData(v string) *ListImagesResp
 	return s
 }
 
-func (s *ListImagesResponseDataImageList) SetImageUrl(v string) *ListImagesResponseDataImageList {
-	s.ImageUrl = &v
+func (s *ListImagesResponseDataImageList) SetEntityId(v string) *ListImagesResponseDataImageList {
+	s.EntityId = &v
 	return s
 }
 
-func (s *ListImagesResponseDataImageList) SetEntityId(v string) *ListImagesResponseDataImageList {
-	s.EntityId = &v
+func (s *ListImagesResponseDataImageList) SetUpdatedAt(v int64) *ListImagesResponseDataImageList {
+	s.UpdatedAt = &v
+	return s
+}
+
+func (s *ListImagesResponseDataImageList) SetCreatedAt(v int64) *ListImagesResponseDataImageList {
+	s.CreatedAt = &v
 	return s
 }
 
@@ -376,7 +294,6 @@ func (s *SearchImageResponseData) SetMatchList(v []*SearchImageResponseDataMatch
 type SearchImageResponseDataMatchList struct {
 	DataId    *string `json:"DataId" xml:"DataId" require:"true"`
 	ExtraData *string `json:"ExtraData" xml:"ExtraData" require:"true"`
-	ImageUrl  *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
 	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
 }
 
@@ -395,11 +312,6 @@ func (s *SearchImageResponseDataMatchList) SetDataId(v string) *SearchImageRespo
 
 func (s *SearchImageResponseDataMatchList) SetExtraData(v string) *SearchImageResponseDataMatchList {
 	s.ExtraData = &v
-	return s
-}
-
-func (s *SearchImageResponseDataMatchList) SetImageUrl(v string) *SearchImageResponseDataMatchList {
-	s.ImageUrl = &v
 	return s
 }
 
@@ -439,7 +351,6 @@ func (s *SearchImageAdvanceRequest) SetLimit(v int) *SearchImageAdvanceRequest {
 
 type AddImageRequest struct {
 	DbName    *string `json:"DbName" xml:"DbName" require:"true"`
-	DataId    *string `json:"DataId" xml:"DataId" require:"true"`
 	ImageUrl  *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
 	ExtraData *string `json:"ExtraData" xml:"ExtraData"`
 	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
@@ -455,11 +366,6 @@ func (s AddImageRequest) GoString() string {
 
 func (s *AddImageRequest) SetDbName(v string) *AddImageRequest {
 	s.DbName = &v
-	return s
-}
-
-func (s *AddImageRequest) SetDataId(v string) *AddImageRequest {
-	s.DataId = &v
 	return s
 }
 
@@ -479,7 +385,8 @@ func (s *AddImageRequest) SetEntityId(v string) *AddImageRequest {
 }
 
 type AddImageResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string               `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *AddImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
 }
 
 func (s AddImageResponse) String() string {
@@ -495,10 +402,31 @@ func (s *AddImageResponse) SetRequestId(v string) *AddImageResponse {
 	return s
 }
 
+func (s *AddImageResponse) SetData(v *AddImageResponseData) *AddImageResponse {
+	s.Data = v
+	return s
+}
+
+type AddImageResponseData struct {
+	DataId *string `json:"DataId" xml:"DataId" require:"true"`
+}
+
+func (s AddImageResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AddImageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *AddImageResponseData) SetDataId(v string) *AddImageResponseData {
+	s.DataId = &v
+	return s
+}
+
 type AddImageAdvanceRequest struct {
 	ImageUrlObject io.Reader `json:"ImageUrlObject" xml:"ImageUrlObject" require:"true"`
 	DbName         *string   `json:"DbName" xml:"DbName" require:"true"`
-	DataId         *string   `json:"DataId" xml:"DataId" require:"true"`
 	ExtraData      *string   `json:"ExtraData" xml:"ExtraData"`
 	EntityId       *string   `json:"EntityId" xml:"EntityId" require:"true"`
 }
@@ -518,11 +446,6 @@ func (s *AddImageAdvanceRequest) SetImageUrlObject(v io.Reader) *AddImageAdvance
 
 func (s *AddImageAdvanceRequest) SetDbName(v string) *AddImageAdvanceRequest {
 	s.DbName = &v
-	return s
-}
-
-func (s *AddImageAdvanceRequest) SetDataId(v string) *AddImageAdvanceRequest {
-	s.DataId = &v
 	return s
 }
 
@@ -605,8 +528,8 @@ func (s *CreateImageDbResponse) SetRequestId(v string) *CreateImageDbResponse {
 }
 
 type DeleteImageRequest struct {
-	DbName *string `json:"DbName" xml:"DbName" require:"true"`
-	DataId *string `json:"DataId" xml:"DataId" require:"true"`
+	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
+	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
 }
 
 func (s DeleteImageRequest) String() string {
@@ -622,8 +545,8 @@ func (s *DeleteImageRequest) SetDbName(v string) *DeleteImageRequest {
 	return s
 }
 
-func (s *DeleteImageRequest) SetDataId(v string) *DeleteImageRequest {
-	s.DataId = &v
+func (s *DeleteImageRequest) SetEntityId(v string) *DeleteImageRequest {
+	s.EntityId = &v
 	return s
 }
 
@@ -645,191 +568,40 @@ func (s *DeleteImageResponse) SetRequestId(v string) *DeleteImageResponse {
 }
 
 type Client struct {
-	Endpoint             string
-	RegionId             string
-	Protocol             string
-	UserAgent            string
-	EndpointType         string
-	ReadTimeout          int
-	ConnectTimeout       int
-	HttpProxy            string
-	HttpsProxy           string
-	Socks5Proxy          string
-	Socks5NetWork        string
-	NoProxy              string
-	MaxIdleConns         int
-	OpenPlatformEndpoint string
-	Credential           credential.Credential
+	rpc.Client
 }
 
-func NewClient(config *Config) (*Client, error) {
+func NewClient(config *rpc.Config) (*Client, error) {
 	client := new(Client)
 	err := client.Init(config)
 	return client, err
 }
 
-func (client *Client) Init(config *Config) (_err error) {
-	if util.IsUnset(tea.ToMap(config)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config' can not be unset",
-		})
+func (client *Client) Init(config *rpc.Config) (_err error) {
+	_err = client.Client.Init(config)
+	if _err != nil {
 		return _err
 	}
-
-	if util.Empty(tea.StringValue(config.RegionId)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config.regionId' can not be empty",
-		})
-		return _err
+	client.EndpointRule = "regional"
+	_err = client.CheckConfig(config)
+	if _err != nil {
+		return
 	}
-
-	if util.Empty(tea.StringValue(config.Endpoint)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config.endpoint' can not be empty",
-		})
-		return _err
-	}
-
-	if util.Empty(tea.StringValue(config.Type)) {
-		config.Type = tea.String("access_key")
-	}
-
-	credentialConfig := &credential.Config{
-		AccessKeyId:     config.AccessKeyId,
-		Type:            config.Type,
-		AccessKeySecret: config.AccessKeySecret,
-		SecurityToken:   config.SecurityToken,
-	}
-	client.Credential, _err = credential.NewCredential(credentialConfig)
+	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
-	client.Endpoint = tea.StringValue(config.Endpoint)
-	client.Protocol = tea.StringValue(config.Protocol)
-	client.RegionId = tea.StringValue(config.RegionId)
-	client.UserAgent = tea.StringValue(config.UserAgent)
-	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
-	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
-	client.HttpProxy = tea.StringValue(config.HttpProxy)
-	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
-	client.NoProxy = tea.StringValue(config.NoProxy)
-	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
-	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
-	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
-	client.EndpointType = tea.StringValue(config.EndpointType)
-	client.OpenPlatformEndpoint = tea.StringValue(config.OpenPlatformEndpoint)
 	return nil
 }
 
-func (client *Client) _request(action string, protocol string, method string, authType string, query map[string]interface{}, body map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
-	_err = tea.Validate(runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_runtime := map[string]interface{}{
-		"timeouted":      "retry",
-		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
-		"retry": map[string]interface{}{
-			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
-		},
-		"backoff": map[string]interface{}{
-			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
-		},
-		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
-	}
-
-	_resp := make(map[string]interface{})
-	for _retryTimes := 0; tea.AllowRetry(_runtime["retry"], _retryTimes); _retryTimes++ {
-		if _retryTimes > 0 {
-			_backoffTime := tea.GetBackoffTime(_runtime["backoff"], _retryTimes)
-			if _backoffTime > 0 {
-				tea.Sleep(_backoffTime)
-			}
-		}
-
-		_resp, _err = func() (map[string]interface{}, error) {
-			request_ := tea.NewRequest()
-			request_.Protocol = util.DefaultString(client.Protocol, protocol)
-			request_.Method = method
-			request_.Pathname = "/"
-			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
-				"Action":         action,
-				"Format":         "json",
-				"RegionId":       client.RegionId,
-				"Timestamp":      rpcutil.GetTimestamp(),
-				"Version":        "2020-03-20",
-				"SignatureNonce": util.GetNonce(),
-			}, query))
-			if !util.IsUnset(body) {
-				tmp := util.AnyifyMapValue(rpcutil.Query(body))
-				request_.Body = tea.ToReader(util.ToFormString(tmp))
-			}
-
-			request_.Headers = map[string]string{
-				"host":       rpcutil.GetHost("imgsearch", client.RegionId, client.Endpoint),
-				"user-agent": client.GetUserAgent(),
-			}
-			if !util.EqualString(authType, "Anonymous") {
-				accessKeyId, _err := client.GetAccessKeyId()
-				if _err != nil {
-					return nil, _err
-				}
-
-				accessKeySecret, _err := client.GetAccessKeySecret()
-				if _err != nil {
-					return nil, _err
-				}
-
-				request_.Query["SignatureMethod"] = "HMAC-SHA1"
-				request_.Query["SignatureVersion"] = "1.0"
-				request_.Query["AccessKeyId"] = accessKeyId
-				request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
-			}
-
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return nil, _err
-			}
-			obj, _err := util.ReadAsJSON(response_.Body)
-			if _err != nil {
-				return nil, _err
-			}
-
-			res := util.AssertAsMap(obj)
-			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
-				_err = tea.NewSDKError(map[string]interface{}{
-					"message": res["Message"],
-					"data":    res,
-					"code":    res["Code"],
-				})
-				return nil, _err
-			}
-
-			_result = res
-			return _result, _err
-		}()
-		if !tea.Retryable(_err) {
-			break
-		}
-	}
-
-	return _resp, _err
-}
-
 func (client *Client) ListImageDbs(request *ListImageDbsRequest, runtime *util.RuntimeOptions) (_result *ListImageDbsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &ListImageDbsResponse{}
-	_body, _err := client._request("ListImageDbs", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListImageDbs", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -838,8 +610,12 @@ func (client *Client) ListImageDbs(request *ListImageDbsRequest, runtime *util.R
 }
 
 func (client *Client) ListImages(request *ListImagesRequest, runtime *util.RuntimeOptions) (_result *ListImagesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &ListImagesResponse{}
-	_body, _err := client._request("ListImages", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListImages", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -848,8 +624,12 @@ func (client *Client) ListImages(request *ListImagesRequest, runtime *util.Runti
 }
 
 func (client *Client) SearchImage(request *SearchImageRequest, runtime *util.RuntimeOptions) (_result *SearchImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &SearchImageResponse{}
-	_body, _err := client._request("SearchImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("SearchImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -942,8 +722,12 @@ func (client *Client) SearchImageAdvance(request *SearchImageAdvanceRequest, run
 }
 
 func (client *Client) AddImage(request *AddImageRequest, runtime *util.RuntimeOptions) (_result *AddImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &AddImageResponse{}
-	_body, _err := client._request("AddImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("AddImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1036,8 +820,12 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 }
 
 func (client *Client) DeleteImageDb(request *DeleteImageDbRequest, runtime *util.RuntimeOptions) (_result *DeleteImageDbResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DeleteImageDbResponse{}
-	_body, _err := client._request("DeleteImageDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteImageDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1046,8 +834,12 @@ func (client *Client) DeleteImageDb(request *DeleteImageDbRequest, runtime *util
 }
 
 func (client *Client) CreateImageDb(request *CreateImageDbRequest, runtime *util.RuntimeOptions) (_result *CreateImageDbResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &CreateImageDbResponse{}
-	_body, _err := client._request("CreateImageDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("CreateImageDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1056,8 +848,12 @@ func (client *Client) CreateImageDb(request *CreateImageDbRequest, runtime *util
 }
 
 func (client *Client) DeleteImage(request *DeleteImageRequest, runtime *util.RuntimeOptions) (_result *DeleteImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DeleteImageResponse{}
-	_body, _err := client._request("DeleteImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1073,7 +869,6 @@ func (client *Client) GetUserAgent() (_result string) {
 
 func (client *Client) GetAccessKeyId() (_result string, _err error) {
 	if util.IsUnset(client.Credential) {
-		_result = ""
 		return _result, _err
 	}
 
@@ -1088,7 +883,6 @@ func (client *Client) GetAccessKeyId() (_result string, _err error) {
 
 func (client *Client) GetAccessKeySecret() (_result string, _err error) {
 	if util.IsUnset(client.Credential) {
-		_result = ""
 		return _result, _err
 	}
 
@@ -1098,5 +892,23 @@ func (client *Client) GetAccessKeySecret() (_result string, _err error) {
 	}
 
 	_result = secret
+	return _result, _err
+}
+
+func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
+	if !util.Empty(endpoint) {
+		_result = endpoint
+		return _result, _err
+	}
+
+	if !util.Empty(endpointMap[regionId]) {
+		return _result, _err
+	}
+
+	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
+	if _err != nil {
+		return "", _err
+	}
+	_result = _body
 	return _result, _err
 }

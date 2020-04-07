@@ -1,153 +1,121 @@
 import OSS;
 import OpenPlatform;
 import RPCUtil;
+import RPC;
 import OSSUtil;
 import Util;
-import Credential;
 import FileForm;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @endpointType = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @noProxy = string
-type @maxIdleConns = number
-type @openPlatformEndpoint = string
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string,
-  accessKeySecret?: string,
-  type?: string,
-  securityToken?: string,
-  endpoint: string,
-  protocol?: string,
-  regionId: string,
-  userAgent?: string,
-  readTimeout?: number,
-  connectTimeout?: number,
-  httpProxy?: string,
-  httpsProxy?: string,
-  noProxy?: string,
-  socks5Proxy?: string,
-  socks5NetWork?: string,
-  maxIdleConns?: number,
-  endpointType?: string,
-  openPlatformEndpoint?: string,
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-  @endpointType = config.endpointType;
-  @openPlatformEndpoint = config.openPlatformEndpoint;
+model AddFaceEntityRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  entityId: string(name='EntityId', description='entityId'),
+  labels?: string(name='Labels', description='labels'),
 }
 
-api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
-    SignatureNonce = Util.getNonce(),
-    ...query,
-  });
-  if (!Util.isUnset(body)) {
-    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
-    __request.body = Util.toFormString(tmp);
-  }
-  __request.headers = {
-    host = RPCUtil.getHost('facebody', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  if (!Util.equalString(authType, 'Anonymous')) {
-    var accessKeyId = getAccessKeyId();
-    var accessKeySecret = getAccessKeySecret();
-    __request.query.SignatureMethod = 'HMAC-SHA1';
-    __request.query.SignatureVersion = '1.0';
-    __request.query.AccessKeyId = accessKeyId;
-    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-  }
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var res = Util.assertAsMap(obj);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-  throw {
-      message = res.Message,
-      data = res,
-      code = res.Code,
-    }
-  }
-  return res;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 1)
-  },
-  ignoreSSL = runtime.ignoreSSL
+model AddFaceEntityResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function addFaceEntity(request: AddFaceEntityRequest, runtime: Util.RuntimeOptions): AddFaceEntityResponse {
+  Util.validateModel(request);
+  return doRequest('AddFaceEntity', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model DeleteFaceEntityRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  entityId: string(name='EntityId', description='entityId'),
+}
+
+model DeleteFaceEntityResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function deleteFaceEntity(request: DeleteFaceEntityRequest, runtime: Util.RuntimeOptions): DeleteFaceEntityResponse {
+  Util.validateModel(request);
+  return doRequest('DeleteFaceEntity', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model ListFaceEntitiesRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  offset?: integer(name='Offset', description='offset'),
+  limit?: integer(name='Limit', description='limit'),
+  token?: string(name='Token', description='token'),
+  labels?: string(name='Labels', description='labels'),
+  entityIdPrefix?: string(name='EntityIdPrefix', description='entityIdPrefix'),
+  order?: string(name='Order', description='order'),
+}
+
+model ListFaceEntitiesResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    token: string(name='Token', description='token'),
+    totalCount: integer(name='TotalCount', description='totalCount'),
+    entities: [
+      {
+        dbName: string(name='DbName', description='dbName'),
+        entityId: string(name='EntityId', description='entityId'),
+        faceCount: integer(name='FaceCount', description='faceCount'),
+        labels: string(name='Labels', description='labels'),
+        createdAt: long(name='CreatedAt', description='createdAt'),
+        updatedAt: long(name='UpdatedAt', description='updatedAt'),
+      }
+    ](name='Entities', description='data'),
+  }(name='Data', description='data'),
+}
+
+async function listFaceEntities(request: ListFaceEntitiesRequest, runtime: Util.RuntimeOptions): ListFaceEntitiesResponse {
+  Util.validateModel(request);
+  return doRequest('ListFaceEntities', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model GetFaceEntityRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  entityId: string(name='EntityId', description='entityId'),
+}
+
+model GetFaceEntityResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    dbName: string(name='DbName', description='dbName'),
+    entityId: string(name='EntityId', description='entityId'),
+    labels: string(name='Labels', description='labels'),
+    faces: [
+      {
+        faceId: string(name='FaceId', description='faceId'),
+      }
+    ](name='Faces', description='faces'),
+  }(name='Data', description='data'),
+}
+
+async function getFaceEntity(request: GetFaceEntityRequest, runtime: Util.RuntimeOptions): GetFaceEntityResponse {
+  Util.validateModel(request);
+  return doRequest('GetFaceEntity', 'HTTPS', 'GET', 'AK', null, request, runtime);
+}
+
+model UpdateFaceEntityRequest = {
+  dbName: string(name='DbName', description='dbName'),
+  entityId: string(name='EntityId', description='entityId'),
+  labels?: string(name='Labels', description='labels'),
+}
+
+model UpdateFaceEntityResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+}
+
+async function updateFaceEntity(request: UpdateFaceEntityRequest, runtime: Util.RuntimeOptions): UpdateFaceEntityResponse {
+  Util.validateModel(request);
+  return doRequest('UpdateFaceEntity', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model FaceMakeupRequest = {
@@ -165,7 +133,8 @@ model FaceMakeupResponse = {
 }
 
 async function faceMakeup(request: FaceMakeupRequest, runtime: Util.RuntimeOptions): FaceMakeupResponse {
-  return _request('FaceMakeup', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('FaceMakeup', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model FaceMakeupAdvanceRequest = {
@@ -278,7 +247,8 @@ model HandPostureResponse = {
 }
 
 async function handPosture(request: HandPostureRequest, runtime: Util.RuntimeOptions): HandPostureResponse {
-  return _request('HandPosture', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('HandPosture', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model HandPostureAdvanceRequest = {
@@ -378,7 +348,8 @@ model BodyPostureResponse = {
 }
 
 async function bodyPosture(request: BodyPostureRequest, runtime: Util.RuntimeOptions): BodyPostureResponse {
-  return _request('BodyPosture', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('BodyPosture', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model BodyPostureAdvanceRequest = {
@@ -463,7 +434,8 @@ model DetectPedestrianResponse = {
 }
 
 async function detectPedestrian(request: DetectPedestrianRequest, runtime: Util.RuntimeOptions): DetectPedestrianResponse {
-  return _request('DetectPedestrian', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectPedestrian', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectPedestrianAdvanceRequest = {
@@ -543,7 +515,8 @@ model FaceBeautyResponse = {
 }
 
 async function faceBeauty(request: FaceBeautyRequest, runtime: Util.RuntimeOptions): FaceBeautyResponse {
-  return _request('FaceBeauty', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('FaceBeauty', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model FaceBeautyAdvanceRequest = {
@@ -625,7 +598,8 @@ model FaceFilterResponse = {
 }
 
 async function faceFilter(request: FaceFilterRequest, runtime: Util.RuntimeOptions): FaceFilterResponse {
-  return _request('FaceFilter', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('FaceFilter', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model FaceFilterAdvanceRequest = {
@@ -704,7 +678,8 @@ model EnhanceFaceResponse = {
 }
 
 async function enhanceFace(request: EnhanceFaceRequest, runtime: Util.RuntimeOptions): EnhanceFaceResponse {
-  return _request('EnhanceFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('EnhanceFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model EnhanceFaceAdvanceRequest = {
@@ -783,7 +758,8 @@ model FaceTidyupResponse = {
 }
 
 async function faceTidyup(request: FaceTidyupRequest, runtime: Util.RuntimeOptions): FaceTidyupResponse {
-  return _request('FaceTidyup', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('FaceTidyup', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model FaceTidyupAdvanceRequest = {
@@ -867,7 +843,6 @@ model SearchFaceResponse = {
             score: float(name='Score', description='score'),
             extraData: string(name='ExtraData', description='extraData'),
             entityId: string(name='EntityId', description='entityId'),
-            imageUrl: string(name='ImageUrl', description='imageUrl'),
           }
         ](name='FaceItems', description='faceItems'),
         location: {
@@ -882,7 +857,8 @@ model SearchFaceResponse = {
 }
 
 async function searchFace(request: SearchFaceRequest, runtime: Util.RuntimeOptions): SearchFaceResponse {
-  return _request('SearchFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('SearchFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model SearchFaceAdvanceRequest = {
@@ -964,31 +940,8 @@ model ListFaceDbsResponse = {
 }
 
 async function listFaceDbs(request: ListFaceDbsRequest, runtime: Util.RuntimeOptions): ListFaceDbsResponse {
-  return _request('ListFaceDbs', 'HTTPS', 'GET', 'AK', null, request, runtime);
-}
-
-model ListFacesRequest = {
-  dbName: string(name='DbName', description='dbName'),
-  fromScrollId?: string(name='FromScrollId', description='fromScrollId'),
-}
-
-model ListFacesResponse = {
-  requestId: string(name='RequestId', description='requestId'),
-  data: {
-    scrollId: string(name='ScrollId', description='scrollId'),
-    faceList: [
-      {
-        faceId: string(name='FaceId', description='faceId'),
-        extraData: string(name='ExtraData', description='extraData'),
-        entityId: string(name='EntityId', description='entityId'),
-        imageUrl: string(name='ImageUrl', description='imageUrl'),
-      }
-    ](name='FaceList', description='faceList'),
-  }(name='Data', description='data'),
-}
-
-async function listFaces(request: ListFacesRequest, runtime: Util.RuntimeOptions): ListFacesResponse {
-  return _request('ListFaces', 'HTTPS', 'GET', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('ListFaceDbs', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model CreateFaceDbRequest = {
@@ -1000,7 +953,8 @@ model CreateFaceDbResponse = {
 }
 
 async function createFaceDb(request: CreateFaceDbRequest, runtime: Util.RuntimeOptions): CreateFaceDbResponse {
-  return _request('CreateFaceDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('CreateFaceDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model DeleteFaceRequest = {
@@ -1013,7 +967,8 @@ model DeleteFaceResponse = {
 }
 
 async function deleteFace(request: DeleteFaceRequest, runtime: Util.RuntimeOptions): DeleteFaceResponse {
-  return _request('DeleteFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DeleteFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model DeleteFaceDbRequest = {
@@ -1025,12 +980,12 @@ model DeleteFaceDbResponse = {
 }
 
 async function deleteFaceDb(request: DeleteFaceDbRequest, runtime: Util.RuntimeOptions): DeleteFaceDbResponse {
-  return _request('DeleteFaceDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DeleteFaceDb', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model AddFaceRequest = {
   dbName: string(name='DbName', description='dbName'),
-  faceId: string(name='FaceId', description='faceId'),
   imageUrl: string(name='ImageUrl', description='imageUrl'),
   entityId: string(name='EntityId', description='entityId'),
   extraData?: string(name='ExtraData', description='extraData'),
@@ -1038,16 +993,19 @@ model AddFaceRequest = {
 
 model AddFaceResponse = {
   requestId: string(name='RequestId', description='requestId'),
+  data: {
+    faceId: string(name='FaceId', description='faceId'),
+  }(name='Data', description='data'),
 }
 
 async function addFace(request: AddFaceRequest, runtime: Util.RuntimeOptions): AddFaceResponse {
-  return _request('AddFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('AddFace', 'HTTPS', 'GET', 'AK', null, request, runtime);
 }
 
 model AddFaceAdvanceRequest = {
   imageUrlObject: readable(description='ImageUrlObject', name='ImageUrlObject'),
   dbName: string(name='DbName', description='dbName'),
-  faceId: string(name='FaceId', description='faceId'),
   entityId: string(name='EntityId', description='entityId'),
   extraData?: string(name='ExtraData', description='extraData'),
 }
@@ -1133,7 +1091,8 @@ model RecognizeExpressionResponse = {
 }
 
 async function recognizeExpression(request: RecognizeExpressionRequest, runtime: Util.RuntimeOptions): RecognizeExpressionResponse {
-  return _request('RecognizeExpression', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeExpression', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeExpressionAdvanceRequest = {
@@ -1241,7 +1200,8 @@ model RecognizePublicFaceResponse = {
 }
 
 async function recognizePublicFace(request: RecognizePublicFaceRequest, runtime: Util.RuntimeOptions): RecognizePublicFaceResponse {
-  return _request('RecognizePublicFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizePublicFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectLivingFaceRequest = {
@@ -1278,7 +1238,8 @@ model DetectLivingFaceResponse = {
 }
 
 async function detectLivingFace(request: DetectLivingFaceRequest, runtime: Util.RuntimeOptions): DetectLivingFaceResponse {
-  return _request('DetectLivingFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectLivingFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectBodyCountRequest = {
@@ -1293,7 +1254,8 @@ model DetectBodyCountResponse = {
 }
 
 async function detectBodyCount(request: DetectBodyCountRequest, runtime: Util.RuntimeOptions): DetectBodyCountResponse {
-  return _request('DetectBodyCount', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectBodyCount', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectBodyCountAdvanceRequest = {
@@ -1371,7 +1333,8 @@ model DetectMaskResponse = {
 }
 
 async function detectMask(request: DetectMaskRequest, runtime: Util.RuntimeOptions): DetectMaskResponse {
-  return _request('DetectMask', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectMask', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectMaskAdvanceRequest = {
@@ -1460,7 +1423,8 @@ model RecognizeFaceResponse = {
 }
 
 async function recognizeFace(request: RecognizeFaceRequest, runtime: Util.RuntimeOptions): RecognizeFaceResponse {
-  return _request('RecognizeFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model RecognizeFaceAdvanceRequest = {
@@ -1541,7 +1505,8 @@ model CompareFaceResponse = {
 }
 
 async function compareFace(request: CompareFaceRequest, runtime: Util.RuntimeOptions): CompareFaceResponse {
-  return _request('CompareFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('CompareFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectFaceRequest = {
@@ -1562,7 +1527,8 @@ model DetectFaceResponse = {
 }
 
 async function detectFace(request: DetectFaceRequest, runtime: Util.RuntimeOptions): DetectFaceResponse {
-  return _request('DetectFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectFace', 'HTTPS', 'POST', 'AK', null, request, runtime);
 }
 
 model DetectFaceAdvanceRequest = {
@@ -1648,3 +1614,13 @@ async function getAccessKeySecret(): string{
   return secret;
 }
 
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+
+  if (!Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
