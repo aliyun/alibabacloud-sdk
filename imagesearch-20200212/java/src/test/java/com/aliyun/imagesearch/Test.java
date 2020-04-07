@@ -16,14 +16,14 @@ public class Test {
         request.instanceName = "图搜实例名";
 
         Config config = new Config();
-        config.accessKeyId = System.getenv("AccessKeyID");
-        config.accessKeySecret = System.getenv("AccessKeySecret");
+        config.accessKeyId = System.getenv("RAMAccessKeyID");
+        config.accessKeySecret = System.getenv("RAMAccessKeySecret");
         config.endpoint = "imagesearch.cn-shanghai.aliyuncs.com";
         config.regionId = "cn-shanghai";
 
         com.aliyun.imagesearch.Client client = new com.aliyun.imagesearch.Client(config);
 
-        InputStream fs = new ByteArrayInputStream("hello world!".getBytes("UTF-8"));//new FileInputStream(new File(""));
+        InputStream fs = new ByteArrayInputStream("hello world!".getBytes("UTF-8"));
         request.picContentObject = fs;
 
         config.type= "access_key";
