@@ -861,40 +861,6 @@ func (client *Client) DeleteImage(request *DeleteImageRequest, runtime *util.Run
 	return _result, _err
 }
 
-func (client *Client) GetUserAgent() (_result string) {
-	userAgent := util.GetUserAgent(client.UserAgent)
-	_result = userAgent
-	return _result
-}
-
-func (client *Client) GetAccessKeyId() (_result string, _err error) {
-	if util.IsUnset(client.Credential) {
-		return _result, _err
-	}
-
-	accessKeyId, _err := client.Credential.GetAccessKeyId()
-	if _err != nil {
-		return "", _err
-	}
-
-	_result = accessKeyId
-	return _result, _err
-}
-
-func (client *Client) GetAccessKeySecret() (_result string, _err error) {
-	if util.IsUnset(client.Credential) {
-		return _result, _err
-	}
-
-	secret, _err := client.Credential.GetAccessKeySecret()
-	if _err != nil {
-		return "", _err
-	}
-
-	_result = secret
-	return _result, _err
-}
-
 func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
 	if !util.Empty(endpoint) {
 		_result = endpoint
