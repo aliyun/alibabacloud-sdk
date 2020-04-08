@@ -649,7 +649,7 @@ func (client *Client) SearchImageAdvance(request *SearchImageAdvanceRequest, run
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -747,7 +747,7 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
