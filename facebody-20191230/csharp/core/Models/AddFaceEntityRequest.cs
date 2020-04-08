@@ -8,22 +8,18 @@ using Tea;
 
 namespace AlibabaCloud.Facebody20191230.Models
 {
-    public class AddFaceRequest : TeaModel {
+    public class AddFaceEntityRequest : TeaModel {
         [NameInMap("DbName")]
         [Validation(Required=true)]
         public string DbName { get; set; }
-
-        [NameInMap("ImageUrl")]
-        [Validation(Required=true)]
-        public string ImageUrl { get; set; }
 
         [NameInMap("EntityId")]
         [Validation(Required=true)]
         public string EntityId { get; set; }
 
-        [NameInMap("ExtraData")]
+        [NameInMap("Labels")]
         [Validation(Required=false)]
-        public string ExtraData { get; set; }
+        public string Labels { get; set; }
 
     }
 

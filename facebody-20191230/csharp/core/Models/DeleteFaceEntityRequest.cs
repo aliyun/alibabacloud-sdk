@@ -6,16 +6,16 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Facebody.Models
+namespace AlibabaCloud.Facebody20191230.Models
 {
-    public class ListFacesRequest : TeaModel {
+    public class DeleteFaceEntityRequest : TeaModel {
         [NameInMap("DbName")]
         [Validation(Required=true)]
         public string DbName { get; set; }
 
-        [NameInMap("FromScrollId")]
-        [Validation(Required=false)]
-        public string FromScrollId { get; set; }
+        [NameInMap("EntityId")]
+        [Validation(Required=true)]
+        public string EntityId { get; set; }
 
     }
 

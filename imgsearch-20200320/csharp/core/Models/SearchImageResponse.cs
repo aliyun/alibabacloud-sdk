@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imgsearch.Models
+namespace AlibabaCloud.Imgsearch20200320.Models
 {
     public class SearchImageResponse : TeaModel {
         [NameInMap("RequestId")]
@@ -23,7 +23,6 @@ namespace AlibabaCloud.Imgsearch.Models
             public class SearchImageResponseDataMatchList : TeaModel {
                     public string DataId { get; set; }
                     public string ExtraData { get; set; }
-                    public string ImageUrl { get; set; }
                     public string EntityId { get; set; }
             }
         };

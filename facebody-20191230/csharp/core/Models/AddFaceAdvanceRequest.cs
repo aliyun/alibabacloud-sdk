@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Facebody.Models
+namespace AlibabaCloud.Facebody20191230.Models
 {
     public class AddFaceAdvanceRequest : TeaModel {
         [NameInMap("ImageUrlObject")]
@@ -16,10 +16,6 @@ namespace AlibabaCloud.Facebody.Models
         [NameInMap("DbName")]
         [Validation(Required=true)]
         public string DbName { get; set; }
-
-        [NameInMap("FaceId")]
-        [Validation(Required=true)]
-        public string FaceId { get; set; }
 
         [NameInMap("EntityId")]
         [Validation(Required=true)]

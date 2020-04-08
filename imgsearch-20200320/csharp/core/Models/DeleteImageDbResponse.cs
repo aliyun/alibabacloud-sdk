@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imgsearch.Models
+namespace AlibabaCloud.Imgsearch20200320.Models
 {
     public class DeleteImageDbResponse : TeaModel {
         [NameInMap("RequestId")]
