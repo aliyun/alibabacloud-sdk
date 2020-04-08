@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\Facebody\V20191230\Facebody;
 
 use AlibabaCloud\Tea\Model;
 
-class AddFaceRequest extends Model
+class DeleteFaceEntityRequest extends Model
 {
     /**
      * @description dbName
@@ -15,44 +15,27 @@ class AddFaceRequest extends Model
      */
     public $dbName;
     /**
-     * @description imageUrl
-     *
-     * @var string
-     */
-    public $imageUrl;
-    /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
-    /**
-     * @description extraData
-     *
-     * @var string
-     */
-    public $extraData;
     protected $_name = [
-        'dbName'    => 'DbName',
-        'imageUrl'  => 'ImageUrl',
-        'entityId'  => 'EntityId',
-        'extraData' => 'ExtraData',
+        'dbName'   => 'DbName',
+        'entityId' => 'EntityId',
     ];
 
     public function validate()
     {
         Model::validateRequired('dbName', $this->dbName, true);
-        Model::validateRequired('imageUrl', $this->imageUrl, true);
         Model::validateRequired('entityId', $this->entityId, true);
     }
 
     public function toMap()
     {
-        $res              = [];
-        $res['DbName']    = $this->dbName;
-        $res['ImageUrl']  = $this->imageUrl;
-        $res['EntityId']  = $this->entityId;
-        $res['ExtraData'] = $this->extraData;
+        $res             = [];
+        $res['DbName']   = $this->dbName;
+        $res['EntityId'] = $this->entityId;
 
         return $res;
     }
@@ -60,7 +43,7 @@ class AddFaceRequest extends Model
     /**
      * @param array $map
      *
-     * @return AddFaceRequest
+     * @return DeleteFaceEntityRequest
      */
     public static function fromMap($map = [])
     {
@@ -68,14 +51,8 @@ class AddFaceRequest extends Model
         if (isset($map['DbName'])) {
             $model->dbName = $map['DbName'];
         }
-        if (isset($map['ImageUrl'])) {
-            $model->imageUrl = $map['ImageUrl'];
-        }
         if (isset($map['EntityId'])) {
             $model->entityId = $map['EntityId'];
-        }
-        if (isset($map['ExtraData'])) {
-            $model->extraData = $map['ExtraData'];
         }
 
         return $model;

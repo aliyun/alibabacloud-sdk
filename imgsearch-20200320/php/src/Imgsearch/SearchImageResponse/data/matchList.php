@@ -21,12 +21,6 @@ class matchList extends Model
      */
     public $extraData;
     /**
-     * @description imageUrl
-     *
-     * @var string
-     */
-    public $imageUrl;
-    /**
      * @description entityId
      *
      * @var string
@@ -35,7 +29,6 @@ class matchList extends Model
     protected $_name = [
         'dataId'    => 'DataId',
         'extraData' => 'ExtraData',
-        'imageUrl'  => 'ImageUrl',
         'entityId'  => 'EntityId',
     ];
 
@@ -43,7 +36,6 @@ class matchList extends Model
     {
         Model::validateRequired('dataId', $this->dataId, true);
         Model::validateRequired('extraData', $this->extraData, true);
-        Model::validateRequired('imageUrl', $this->imageUrl, true);
         Model::validateRequired('entityId', $this->entityId, true);
     }
 
@@ -52,7 +44,6 @@ class matchList extends Model
         $res              = [];
         $res['DataId']    = $this->dataId;
         $res['ExtraData'] = $this->extraData;
-        $res['ImageUrl']  = $this->imageUrl;
         $res['EntityId']  = $this->entityId;
 
         return $res;
@@ -71,9 +62,6 @@ class matchList extends Model
         }
         if (isset($map['ExtraData'])) {
             $model->extraData = $map['ExtraData'];
-        }
-        if (isset($map['ImageUrl'])) {
-            $model->imageUrl = $map['ImageUrl'];
         }
         if (isset($map['EntityId'])) {
             $model->entityId = $map['EntityId'];

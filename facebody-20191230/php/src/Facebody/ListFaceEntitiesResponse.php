@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230\Facebody;
 
-use AlibabaCloud\SDK\Facebody\V20191230\Facebody\AddFaceResponse\data;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFaceEntitiesResponse\data;
 use AlibabaCloud\Tea\Model;
 
-class AddFaceResponse extends Model
+class ListFaceEntitiesResponse extends Model
 {
     /**
      * @description requestId
@@ -18,7 +18,7 @@ class AddFaceResponse extends Model
     /**
      * @description data
      *
-     * @var AddFaceResponse.data
+     * @var ListFaceEntitiesResponse.data
      */
     public $data;
     protected $_name = [
@@ -44,7 +44,7 @@ class AddFaceResponse extends Model
     /**
      * @param array $map
      *
-     * @return AddFaceResponse
+     * @return ListFaceEntitiesResponse
      */
     public static function fromMap($map = [])
     {
@@ -53,7 +53,7 @@ class AddFaceResponse extends Model
             $model->requestId = $map['RequestId'];
         }
         if (isset($map['Data'])) {
-            $model->data = AddFaceResponse\data::fromMap($map['Data']);
+            $model->data = ListFaceEntitiesResponse\data::fromMap($map['Data']);
         }
 
         return $model;

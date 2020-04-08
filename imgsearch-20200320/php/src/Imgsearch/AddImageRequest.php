@@ -15,12 +15,6 @@ class AddImageRequest extends Model
      */
     public $dbName;
     /**
-     * @description dataId
-     *
-     * @var string
-     */
-    public $dataId;
-    /**
      * @description imageUrl
      *
      * @var string
@@ -40,7 +34,6 @@ class AddImageRequest extends Model
     public $entityId;
     protected $_name = [
         'dbName'    => 'DbName',
-        'dataId'    => 'DataId',
         'imageUrl'  => 'ImageUrl',
         'extraData' => 'ExtraData',
         'entityId'  => 'EntityId',
@@ -49,7 +42,6 @@ class AddImageRequest extends Model
     public function validate()
     {
         Model::validateRequired('dbName', $this->dbName, true);
-        Model::validateRequired('dataId', $this->dataId, true);
         Model::validateRequired('imageUrl', $this->imageUrl, true);
         Model::validateRequired('entityId', $this->entityId, true);
     }
@@ -58,7 +50,6 @@ class AddImageRequest extends Model
     {
         $res              = [];
         $res['DbName']    = $this->dbName;
-        $res['DataId']    = $this->dataId;
         $res['ImageUrl']  = $this->imageUrl;
         $res['ExtraData'] = $this->extraData;
         $res['EntityId']  = $this->entityId;
@@ -76,9 +67,6 @@ class AddImageRequest extends Model
         $model = new self();
         if (isset($map['DbName'])) {
             $model->dbName = $map['DbName'];
-        }
-        if (isset($map['DataId'])) {
-            $model->dataId = $map['DataId'];
         }
         if (isset($map['ImageUrl'])) {
             $model->imageUrl = $map['ImageUrl'];

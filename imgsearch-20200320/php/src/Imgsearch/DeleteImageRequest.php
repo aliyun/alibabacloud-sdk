@@ -15,27 +15,27 @@ class DeleteImageRequest extends Model
      */
     public $dbName;
     /**
-     * @description dataId
+     * @description entityId
      *
      * @var string
      */
-    public $dataId;
+    public $entityId;
     protected $_name = [
-        'dbName' => 'DbName',
-        'dataId' => 'DataId',
+        'dbName'   => 'DbName',
+        'entityId' => 'EntityId',
     ];
 
     public function validate()
     {
         Model::validateRequired('dbName', $this->dbName, true);
-        Model::validateRequired('dataId', $this->dataId, true);
+        Model::validateRequired('entityId', $this->entityId, true);
     }
 
     public function toMap()
     {
-        $res           = [];
-        $res['DbName'] = $this->dbName;
-        $res['DataId'] = $this->dataId;
+        $res             = [];
+        $res['DbName']   = $this->dbName;
+        $res['EntityId'] = $this->entityId;
 
         return $res;
     }
@@ -51,8 +51,8 @@ class DeleteImageRequest extends Model
         if (isset($map['DbName'])) {
             $model->dbName = $map['DbName'];
         }
-        if (isset($map['DataId'])) {
-            $model->dataId = $map['DataId'];
+        if (isset($map['EntityId'])) {
+            $model->entityId = $map['EntityId'];
         }
 
         return $model;

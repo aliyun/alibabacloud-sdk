@@ -2,11 +2,11 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch;
+namespace AlibabaCloud\SDK\Facebody\V20191230\Facebody;
 
 use AlibabaCloud\Tea\Model;
 
-class ListImagesRequest extends Model
+class ListFaceEntitiesRequest extends Model
 {
     /**
      * @description dbName
@@ -14,12 +14,6 @@ class ListImagesRequest extends Model
      * @var string
      */
     public $dbName;
-    /**
-     * @description token
-     *
-     * @var string
-     */
-    public $token;
     /**
      * @description offset
      *
@@ -33,24 +27,37 @@ class ListImagesRequest extends Model
      */
     public $limit;
     /**
-     * @description order
+     * @description token
      *
      * @var string
      */
-    public $order;
+    public $token;
+    /**
+     * @description labels
+     *
+     * @var string
+     */
+    public $labels;
     /**
      * @description entityIdPrefix
      *
      * @var string
      */
     public $entityIdPrefix;
+    /**
+     * @description order
+     *
+     * @var string
+     */
+    public $order;
     protected $_name = [
         'dbName'         => 'DbName',
-        'token'          => 'Token',
         'offset'         => 'Offset',
         'limit'          => 'Limit',
-        'order'          => 'Order',
+        'token'          => 'Token',
+        'labels'         => 'Labels',
         'entityIdPrefix' => 'EntityIdPrefix',
+        'order'          => 'Order',
     ];
 
     public function validate()
@@ -62,11 +69,12 @@ class ListImagesRequest extends Model
     {
         $res                   = [];
         $res['DbName']         = $this->dbName;
-        $res['Token']          = $this->token;
         $res['Offset']         = $this->offset;
         $res['Limit']          = $this->limit;
-        $res['Order']          = $this->order;
+        $res['Token']          = $this->token;
+        $res['Labels']         = $this->labels;
         $res['EntityIdPrefix'] = $this->entityIdPrefix;
+        $res['Order']          = $this->order;
 
         return $res;
     }
@@ -74,7 +82,7 @@ class ListImagesRequest extends Model
     /**
      * @param array $map
      *
-     * @return ListImagesRequest
+     * @return ListFaceEntitiesRequest
      */
     public static function fromMap($map = [])
     {
@@ -82,20 +90,23 @@ class ListImagesRequest extends Model
         if (isset($map['DbName'])) {
             $model->dbName = $map['DbName'];
         }
-        if (isset($map['Token'])) {
-            $model->token = $map['Token'];
-        }
         if (isset($map['Offset'])) {
             $model->offset = $map['Offset'];
         }
         if (isset($map['Limit'])) {
             $model->limit = $map['Limit'];
         }
-        if (isset($map['Order'])) {
-            $model->order = $map['Order'];
+        if (isset($map['Token'])) {
+            $model->token = $map['Token'];
+        }
+        if (isset($map['Labels'])) {
+            $model->labels = $map['Labels'];
         }
         if (isset($map['EntityIdPrefix'])) {
             $model->entityIdPrefix = $map['EntityIdPrefix'];
+        }
+        if (isset($map['Order'])) {
+            $model->order = $map['Order'];
         }
 
         return $model;

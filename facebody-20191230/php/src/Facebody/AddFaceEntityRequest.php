@@ -6,14 +6,8 @@ namespace AlibabaCloud\SDK\Facebody\V20191230\Facebody;
 
 use AlibabaCloud\Tea\Model;
 
-class AddFaceAdvanceRequest extends Model
+class AddFaceEntityRequest extends Model
 {
-    /**
-     * @description ImageUrlObject
-     *
-     * @var Stream
-     */
-    public $imageUrlObject;
     /**
      * @description dbName
      *
@@ -27,32 +21,29 @@ class AddFaceAdvanceRequest extends Model
      */
     public $entityId;
     /**
-     * @description extraData
+     * @description labels
      *
      * @var string
      */
-    public $extraData;
+    public $labels;
     protected $_name = [
-        'imageUrlObject' => 'ImageUrlObject',
-        'dbName'         => 'DbName',
-        'entityId'       => 'EntityId',
-        'extraData'      => 'ExtraData',
+        'dbName'   => 'DbName',
+        'entityId' => 'EntityId',
+        'labels'   => 'Labels',
     ];
 
     public function validate()
     {
-        Model::validateRequired('imageUrlObject', $this->imageUrlObject, true);
         Model::validateRequired('dbName', $this->dbName, true);
         Model::validateRequired('entityId', $this->entityId, true);
     }
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ImageUrlObject'] = $this->imageUrlObject;
-        $res['DbName']         = $this->dbName;
-        $res['EntityId']       = $this->entityId;
-        $res['ExtraData']      = $this->extraData;
+        $res             = [];
+        $res['DbName']   = $this->dbName;
+        $res['EntityId'] = $this->entityId;
+        $res['Labels']   = $this->labels;
 
         return $res;
     }
@@ -60,22 +51,19 @@ class AddFaceAdvanceRequest extends Model
     /**
      * @param array $map
      *
-     * @return AddFaceAdvanceRequest
+     * @return AddFaceEntityRequest
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['ImageUrlObject'])) {
-            $model->imageUrlObject = $map['ImageUrlObject'];
-        }
         if (isset($map['DbName'])) {
             $model->dbName = $map['DbName'];
         }
         if (isset($map['EntityId'])) {
             $model->entityId = $map['EntityId'];
         }
-        if (isset($map['ExtraData'])) {
-            $model->extraData = $map['ExtraData'];
+        if (isset($map['Labels'])) {
+            $model->labels = $map['Labels'];
         }
 
         return $model;
