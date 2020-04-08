@@ -1,76 +1,1084 @@
 // This file is auto-generated, don't edit it
 import OSS, * as $OSS from '@alicloud/oss-client';
-import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform';
+import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform20191219';
 import RPCUtil from '@alicloud/rpc-util';
+import RPC, * as $RPC from '@alicloud/rpc-client';
 import OSSUtil, * as $OSSUtil from '@alicloud/oss-util';
 import Util, * as $Util from '@alicloud/tea-util';
-import Credential, * as $Credential from '@alicloud/credentials';
 import FileForm, * as $FileForm from '@alicloud/tea-fileform';
+import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
-export class Config extends $tea.Model {
-  accessKeyId?: string;
-  accessKeySecret?: string;
-  type?: string;
-  securityToken?: string;
-  endpoint: string;
-  protocol?: string;
-  regionId: string;
-  userAgent?: string;
-  readTimeout?: number;
-  connectTimeout?: number;
-  httpProxy?: string;
-  httpsProxy?: string;
-  noProxy?: string;
-  socks5Proxy?: string;
-  socks5NetWork?: string;
-  maxIdleConns?: number;
-  endpointType?: string;
-  openPlatformEndpoint?: string;
+export class AddFaceEntityRequest extends $tea.Model {
+  dbName: string;
+  entityId: string;
+  labels?: string;
   static names(): { [key: string]: string } {
     return {
-      accessKeyId: 'accessKeyId',
-      accessKeySecret: 'accessKeySecret',
-      type: 'type',
-      securityToken: 'securityToken',
-      endpoint: 'endpoint',
-      protocol: 'protocol',
-      regionId: 'regionId',
-      userAgent: 'userAgent',
-      readTimeout: 'readTimeout',
-      connectTimeout: 'connectTimeout',
-      httpProxy: 'httpProxy',
-      httpsProxy: 'httpsProxy',
-      noProxy: 'noProxy',
-      socks5Proxy: 'socks5Proxy',
-      socks5NetWork: 'socks5NetWork',
-      maxIdleConns: 'maxIdleConns',
-      endpointType: 'endpointType',
-      openPlatformEndpoint: 'openPlatformEndpoint',
+      dbName: 'DbName',
+      entityId: 'EntityId',
+      labels: 'Labels',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      accessKeyId: 'string',
-      accessKeySecret: 'string',
-      type: 'string',
-      securityToken: 'string',
-      endpoint: 'string',
-      protocol: 'string',
-      regionId: 'string',
-      userAgent: 'string',
-      readTimeout: 'number',
-      connectTimeout: 'number',
-      httpProxy: 'string',
-      httpsProxy: 'string',
-      noProxy: 'string',
-      socks5Proxy: 'string',
-      socks5NetWork: 'string',
-      maxIdleConns: 'number',
-      endpointType: 'string',
-      openPlatformEndpoint: 'string',
+      dbName: 'string',
+      entityId: 'string',
+      labels: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AddFaceEntityResponse extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteFaceEntityRequest extends $tea.Model {
+  dbName: string;
+  entityId: string;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      entityId: 'EntityId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      entityId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteFaceEntityResponse extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceEntitiesRequest extends $tea.Model {
+  dbName: string;
+  offset?: number;
+  limit?: number;
+  token?: string;
+  labels?: string;
+  entityIdPrefix?: string;
+  order?: string;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      offset: 'Offset',
+      limit: 'Limit',
+      token: 'Token',
+      labels: 'Labels',
+      entityIdPrefix: 'EntityIdPrefix',
+      order: 'Order',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      offset: 'number',
+      limit: 'number',
+      token: 'string',
+      labels: 'string',
+      entityIdPrefix: 'string',
+      order: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceEntitiesResponse extends $tea.Model {
+  requestId: string;
+  data: ListFaceEntitiesResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: ListFaceEntitiesResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetFaceEntityRequest extends $tea.Model {
+  dbName: string;
+  entityId: string;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      entityId: 'EntityId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      entityId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetFaceEntityResponse extends $tea.Model {
+  requestId: string;
+  data: GetFaceEntityResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: GetFaceEntityResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class UpdateFaceEntityRequest extends $tea.Model {
+  dbName: string;
+  entityId: string;
+  labels?: string;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      entityId: 'EntityId',
+      labels: 'Labels',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      entityId: 'string',
+      labels: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class UpdateFaceEntityResponse extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceMakeupRequest extends $tea.Model {
+  imageURL: string;
+  makeupType: string;
+  resourceType: string;
+  strength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      makeupType: 'MakeupType',
+      resourceType: 'ResourceType',
+      strength: 'Strength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      makeupType: 'string',
+      resourceType: 'string',
+      strength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceMakeupResponse extends $tea.Model {
+  requestId: string;
+  data: FaceMakeupResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: FaceMakeupResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceMakeupAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  makeupType: string;
+  resourceType: string;
+  strength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      makeupType: 'MakeupType',
+      resourceType: 'ResourceType',
+      strength: 'Strength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      makeupType: 'string',
+      resourceType: 'string',
+      strength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponse extends $tea.Model {
+  requestId: string;
+  data: HandPostureResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: HandPostureResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponse extends $tea.Model {
+  requestId: string;
+  data: BodyPostureResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: BodyPostureResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectPedestrianRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectPedestrianResponse extends $tea.Model {
+  requestId: string;
+  data: DetectPedestrianResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: DetectPedestrianResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectPedestrianAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceBeautyRequest extends $tea.Model {
+  imageURL: string;
+  sharp: number;
+  smooth: number;
+  white: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      sharp: 'Sharp',
+      smooth: 'Smooth',
+      white: 'White',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      sharp: 'number',
+      smooth: 'number',
+      white: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceBeautyResponse extends $tea.Model {
+  requestId: string;
+  data: FaceBeautyResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: FaceBeautyResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceBeautyAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  sharp: number;
+  smooth: number;
+  white: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      sharp: 'Sharp',
+      smooth: 'Smooth',
+      white: 'White',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      sharp: 'number',
+      smooth: 'number',
+      white: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceFilterRequest extends $tea.Model {
+  imageURL: string;
+  resourceType: string;
+  strength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      resourceType: 'ResourceType',
+      strength: 'Strength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      resourceType: 'string',
+      strength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceFilterResponse extends $tea.Model {
+  requestId: string;
+  data: FaceFilterResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: FaceFilterResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceFilterAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  resourceType: string;
+  strength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      resourceType: 'ResourceType',
+      strength: 'Strength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      resourceType: 'string',
+      strength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceFaceRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceFaceResponse extends $tea.Model {
+  requestId: string;
+  data: EnhanceFaceResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: EnhanceFaceResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceFaceAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceTidyupRequest extends $tea.Model {
+  imageURL: string;
+  shapeType: number;
+  strength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      shapeType: 'ShapeType',
+      strength: 'Strength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      shapeType: 'number',
+      strength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceTidyupResponse extends $tea.Model {
+  requestId: string;
+  data: FaceTidyupResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: FaceTidyupResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceTidyupAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  shapeType: number;
+  strength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      shapeType: 'ShapeType',
+      strength: 'Strength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      shapeType: 'number',
+      strength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceRequest extends $tea.Model {
+  dbName: string;
+  imageUrl: string;
+  limit: number;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      imageUrl: 'ImageUrl',
+      limit: 'Limit',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      imageUrl: 'string',
+      limit: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceResponse extends $tea.Model {
+  requestId: string;
+  data: SearchFaceResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: SearchFaceResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceAdvanceRequest extends $tea.Model {
+  imageUrlObject: Readable;
+  dbName: string;
+  limit: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageUrlObject: 'ImageUrlObject',
+      dbName: 'DbName',
+      limit: 'Limit',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageUrlObject: 'Readable',
+      dbName: 'string',
+      limit: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceDbsRequest extends $tea.Model {
+  static names(): { [key: string]: string } {
+    return {
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceDbsResponse extends $tea.Model {
+  requestId: string;
+  data: ListFaceDbsResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: ListFaceDbsResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateFaceDbRequest extends $tea.Model {
+  name: string;
+  static names(): { [key: string]: string } {
+    return {
+      name: 'Name',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateFaceDbResponse extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteFaceRequest extends $tea.Model {
+  dbName: string;
+  faceId: string;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      faceId: 'FaceId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      faceId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteFaceResponse extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteFaceDbRequest extends $tea.Model {
+  name: string;
+  static names(): { [key: string]: string } {
+    return {
+      name: 'Name',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteFaceDbResponse extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AddFaceRequest extends $tea.Model {
+  dbName: string;
+  imageUrl: string;
+  entityId: string;
+  extraData?: string;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      imageUrl: 'ImageUrl',
+      entityId: 'EntityId',
+      extraData: 'ExtraData',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      imageUrl: 'string',
+      entityId: 'string',
+      extraData: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AddFaceResponse extends $tea.Model {
+  requestId: string;
+  data: AddFaceResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: AddFaceResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AddFaceAdvanceRequest extends $tea.Model {
+  imageUrlObject: Readable;
+  dbName: string;
+  entityId: string;
+  extraData?: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageUrlObject: 'ImageUrlObject',
+      dbName: 'DbName',
+      entityId: 'EntityId',
+      extraData: 'ExtraData',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageUrlObject: 'Readable',
+      dbName: 'string',
+      entityId: 'string',
+      extraData: 'string',
     };
   }
 
@@ -505,6 +1513,732 @@ export class DetectFaceAdvanceRequest extends $tea.Model {
   }
 }
 
+export class ListFaceEntitiesResponseDataEntities extends $tea.Model {
+  dbName: string;
+  entityId: string;
+  faceCount: number;
+  labels: string;
+  createdAt: number;
+  updatedAt: number;
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      entityId: 'EntityId',
+      faceCount: 'FaceCount',
+      labels: 'Labels',
+      createdAt: 'CreatedAt',
+      updatedAt: 'UpdatedAt',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      entityId: 'string',
+      faceCount: 'number',
+      labels: 'string',
+      createdAt: 'number',
+      updatedAt: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceEntitiesResponseData extends $tea.Model {
+  token: string;
+  totalCount: number;
+  entities: ListFaceEntitiesResponseDataEntities[];
+  static names(): { [key: string]: string } {
+    return {
+      token: 'Token',
+      totalCount: 'TotalCount',
+      entities: 'Entities',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      token: 'string',
+      totalCount: 'number',
+      entities: { 'type': 'array', 'itemType': ListFaceEntitiesResponseDataEntities },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetFaceEntityResponseDataFaces extends $tea.Model {
+  faceId: string;
+  static names(): { [key: string]: string } {
+    return {
+      faceId: 'FaceId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      faceId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetFaceEntityResponseData extends $tea.Model {
+  dbName: string;
+  entityId: string;
+  labels: string;
+  faces: GetFaceEntityResponseDataFaces[];
+  static names(): { [key: string]: string } {
+    return {
+      dbName: 'DbName',
+      entityId: 'EntityId',
+      labels: 'Labels',
+      faces: 'Faces',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbName: 'string',
+      entityId: 'string',
+      labels: 'string',
+      faces: { 'type': 'array', 'itemType': GetFaceEntityResponseDataFaces },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceMakeupResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputsResultsBoxPositions extends $tea.Model {
+  points: number[];
+  static names(): { [key: string]: string } {
+    return {
+      points: 'Points',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      points: { 'type': 'array', 'itemType': 'float' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputsResultsBox extends $tea.Model {
+  confident: number;
+  positions: HandPostureResponseDataOutputsResultsBoxPositions[];
+  static names(): { [key: string]: string } {
+    return {
+      confident: 'Confident',
+      positions: 'Positions',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      confident: 'number',
+      positions: { 'type': 'array', 'itemType': HandPostureResponseDataOutputsResultsBoxPositions },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputsResultsHandsKeyPointsPositions extends $tea.Model {
+  points: number[];
+  static names(): { [key: string]: string } {
+    return {
+      points: 'Points',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      points: { 'type': 'array', 'itemType': 'float' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputsResultsHandsKeyPoints extends $tea.Model {
+  label: string;
+  positions: HandPostureResponseDataOutputsResultsHandsKeyPointsPositions[];
+  static names(): { [key: string]: string } {
+    return {
+      label: 'Label',
+      positions: 'Positions',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      label: 'string',
+      positions: { 'type': 'array', 'itemType': HandPostureResponseDataOutputsResultsHandsKeyPointsPositions },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputsResultsHands extends $tea.Model {
+  confident: number;
+  keyPoints: HandPostureResponseDataOutputsResultsHandsKeyPoints[];
+  static names(): { [key: string]: string } {
+    return {
+      confident: 'Confident',
+      keyPoints: 'KeyPoints',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      confident: 'number',
+      keyPoints: { 'type': 'array', 'itemType': HandPostureResponseDataOutputsResultsHandsKeyPoints },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputsResults extends $tea.Model {
+  box: HandPostureResponseDataOutputsResultsBox;
+  hands: HandPostureResponseDataOutputsResultsHands;
+  static names(): { [key: string]: string } {
+    return {
+      box: 'Box',
+      hands: 'Hands',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      box: HandPostureResponseDataOutputsResultsBox,
+      hands: HandPostureResponseDataOutputsResultsHands,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataOutputs extends $tea.Model {
+  handCount: number;
+  results: HandPostureResponseDataOutputsResults[];
+  static names(): { [key: string]: string } {
+    return {
+      handCount: 'HandCount',
+      results: 'Results',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      handCount: 'number',
+      results: { 'type': 'array', 'itemType': HandPostureResponseDataOutputsResults },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseDataMetaObject extends $tea.Model {
+  height: number;
+  width: number;
+  static names(): { [key: string]: string } {
+    return {
+      height: 'Height',
+      width: 'Width',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      height: 'number',
+      width: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class HandPostureResponseData extends $tea.Model {
+  outputs: HandPostureResponseDataOutputs[];
+  metaObject: HandPostureResponseDataMetaObject;
+  static names(): { [key: string]: string } {
+    return {
+      outputs: 'Outputs',
+      metaObject: 'MetaObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      outputs: { 'type': 'array', 'itemType': HandPostureResponseDataOutputs },
+      metaObject: HandPostureResponseDataMetaObject,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponseDataOutputsResultsBodiesPositions extends $tea.Model {
+  points: number[];
+  static names(): { [key: string]: string } {
+    return {
+      points: 'Points',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      points: { 'type': 'array', 'itemType': 'float' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponseDataOutputsResultsBodies extends $tea.Model {
+  confident: number;
+  label: string;
+  positions: BodyPostureResponseDataOutputsResultsBodiesPositions[];
+  static names(): { [key: string]: string } {
+    return {
+      confident: 'Confident',
+      label: 'Label',
+      positions: 'Positions',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      confident: 'number',
+      label: 'string',
+      positions: { 'type': 'array', 'itemType': BodyPostureResponseDataOutputsResultsBodiesPositions },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponseDataOutputsResults extends $tea.Model {
+  bodies: BodyPostureResponseDataOutputsResultsBodies[];
+  static names(): { [key: string]: string } {
+    return {
+      bodies: 'Bodies',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      bodies: { 'type': 'array', 'itemType': BodyPostureResponseDataOutputsResultsBodies },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponseDataOutputs extends $tea.Model {
+  humanCount: number;
+  results: BodyPostureResponseDataOutputsResults[];
+  static names(): { [key: string]: string } {
+    return {
+      humanCount: 'HumanCount',
+      results: 'Results',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      humanCount: 'number',
+      results: { 'type': 'array', 'itemType': BodyPostureResponseDataOutputsResults },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponseDataMetaObject extends $tea.Model {
+  height: number;
+  width: number;
+  static names(): { [key: string]: string } {
+    return {
+      height: 'Height',
+      width: 'Width',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      height: 'number',
+      width: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class BodyPostureResponseData extends $tea.Model {
+  outputs: BodyPostureResponseDataOutputs[];
+  metaObject: BodyPostureResponseDataMetaObject;
+  static names(): { [key: string]: string } {
+    return {
+      outputs: 'Outputs',
+      metaObject: 'MetaObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      outputs: { 'type': 'array', 'itemType': BodyPostureResponseDataOutputs },
+      metaObject: BodyPostureResponseDataMetaObject,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectPedestrianResponseDataElements extends $tea.Model {
+  score: number;
+  type: string;
+  boxes: number[];
+  static names(): { [key: string]: string } {
+    return {
+      score: 'Score',
+      type: 'Type',
+      boxes: 'Boxes',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      score: 'number',
+      type: 'string',
+      boxes: { 'type': 'array', 'itemType': 'integer' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectPedestrianResponseData extends $tea.Model {
+  width: number;
+  height: number;
+  elements: DetectPedestrianResponseDataElements[];
+  static names(): { [key: string]: string } {
+    return {
+      width: 'Width',
+      height: 'Height',
+      elements: 'Elements',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      width: 'number',
+      height: 'number',
+      elements: { 'type': 'array', 'itemType': DetectPedestrianResponseDataElements },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceBeautyResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceFilterResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceFaceResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class FaceTidyupResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceResponseDataMatchListFaceItems extends $tea.Model {
+  faceId: string;
+  score: number;
+  extraData: string;
+  entityId: string;
+  static names(): { [key: string]: string } {
+    return {
+      faceId: 'FaceId',
+      score: 'Score',
+      extraData: 'ExtraData',
+      entityId: 'EntityId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      faceId: 'string',
+      score: 'number',
+      extraData: 'string',
+      entityId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceResponseDataMatchListLocation extends $tea.Model {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  static names(): { [key: string]: string } {
+    return {
+      x: 'X',
+      y: 'Y',
+      width: 'Width',
+      height: 'Height',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      x: 'number',
+      y: 'number',
+      width: 'number',
+      height: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceResponseDataMatchList extends $tea.Model {
+  faceItems: SearchFaceResponseDataMatchListFaceItems[];
+  location: SearchFaceResponseDataMatchListLocation;
+  static names(): { [key: string]: string } {
+    return {
+      faceItems: 'FaceItems',
+      location: 'Location',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      faceItems: { 'type': 'array', 'itemType': SearchFaceResponseDataMatchListFaceItems },
+      location: SearchFaceResponseDataMatchListLocation,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SearchFaceResponseData extends $tea.Model {
+  matchList: SearchFaceResponseDataMatchList[];
+  static names(): { [key: string]: string } {
+    return {
+      matchList: 'MatchList',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      matchList: { 'type': 'array', 'itemType': SearchFaceResponseDataMatchList },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceDbsResponseDataDbList extends $tea.Model {
+  name: string;
+  static names(): { [key: string]: string } {
+    return {
+      name: 'Name',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListFaceDbsResponseData extends $tea.Model {
+  dbList: ListFaceDbsResponseDataDbList[];
+  static names(): { [key: string]: string } {
+    return {
+      dbList: 'DbList',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      dbList: { 'type': 'array', 'itemType': ListFaceDbsResponseDataDbList },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AddFaceResponseData extends $tea.Model {
+  faceId: string;
+  static names(): { [key: string]: string } {
+    return {
+      faceId: 'FaceId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      faceId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class RecognizeExpressionResponseDataElementsFaceRectangle extends $tea.Model {
   height: number;
   left: number;
@@ -878,210 +2612,20 @@ export class DetectMaskResponseData extends $tea.Model {
   }
 }
 
-export class RecognizeFaceResponseDataFaceRectangles extends $tea.Model {
-  faceRectangle: number;
-  static names(): { [key: string]: string } {
-    return {
-      faceRectangle: 'FaceRectangle',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      faceRectangle: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataFaceProbabilityList extends $tea.Model {
-  faceProbability: number;
-  static names(): { [key: string]: string } {
-    return {
-      faceProbability: 'FaceProbability',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      faceProbability: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataPoseList extends $tea.Model {
-  pose: number;
-  static names(): { [key: string]: string } {
-    return {
-      pose: 'Pose',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      pose: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataLandmarks extends $tea.Model {
-  landmark: number;
-  static names(): { [key: string]: string } {
-    return {
-      landmark: 'Landmark',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      landmark: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataPupils extends $tea.Model {
-  pupil: number;
-  static names(): { [key: string]: string } {
-    return {
-      pupil: 'Pupil',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      pupil: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataGenderList extends $tea.Model {
-  gender: number;
-  static names(): { [key: string]: string } {
-    return {
-      gender: 'Gender',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      gender: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataAgeList extends $tea.Model {
-  age: number;
-  static names(): { [key: string]: string } {
-    return {
-      age: 'Age',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      age: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataExpressions extends $tea.Model {
-  expression: number;
-  static names(): { [key: string]: string } {
-    return {
-      expression: 'Expression',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      expression: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataGlasses extends $tea.Model {
-  glass: number;
-  static names(): { [key: string]: string } {
-    return {
-      glass: 'Glass',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      glass: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class RecognizeFaceResponseDataDenseFeatures extends $tea.Model {
-  denseFeature: string;
-  static names(): { [key: string]: string } {
-    return {
-      denseFeature: 'DenseFeature',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      denseFeature: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
 export class RecognizeFaceResponseData extends $tea.Model {
   faceCount: number;
   landmarkCount: number;
   denseFeatureLength: number;
-  faceRectangles: RecognizeFaceResponseDataFaceRectangles[];
-  faceProbabilityList: RecognizeFaceResponseDataFaceProbabilityList[];
-  poseList: RecognizeFaceResponseDataPoseList[];
-  landmarks: RecognizeFaceResponseDataLandmarks[];
-  pupils: RecognizeFaceResponseDataPupils[];
-  genderList: RecognizeFaceResponseDataGenderList[];
-  ageList: RecognizeFaceResponseDataAgeList[];
-  expressions: RecognizeFaceResponseDataExpressions[];
-  glasses: RecognizeFaceResponseDataGlasses[];
-  denseFeatures: RecognizeFaceResponseDataDenseFeatures[];
+  faceRectangles: number[];
+  faceProbabilityList: number[];
+  poseList: number[];
+  landmarks: number[];
+  pupils: number[];
+  genderList: number[];
+  ageList: number[];
+  expressions: number[];
+  glasses: number[];
+  denseFeatures: string[];
   static names(): { [key: string]: string } {
     return {
       faceCount: 'FaceCount',
@@ -1105,73 +2649,16 @@ export class RecognizeFaceResponseData extends $tea.Model {
       faceCount: 'number',
       landmarkCount: 'number',
       denseFeatureLength: 'number',
-      faceRectangles: { 'type': 'array', 'itemType': RecognizeFaceResponseDataFaceRectangles },
-      faceProbabilityList: { 'type': 'array', 'itemType': RecognizeFaceResponseDataFaceProbabilityList },
-      poseList: { 'type': 'array', 'itemType': RecognizeFaceResponseDataPoseList },
-      landmarks: { 'type': 'array', 'itemType': RecognizeFaceResponseDataLandmarks },
-      pupils: { 'type': 'array', 'itemType': RecognizeFaceResponseDataPupils },
-      genderList: { 'type': 'array', 'itemType': RecognizeFaceResponseDataGenderList },
-      ageList: { 'type': 'array', 'itemType': RecognizeFaceResponseDataAgeList },
-      expressions: { 'type': 'array', 'itemType': RecognizeFaceResponseDataExpressions },
-      glasses: { 'type': 'array', 'itemType': RecognizeFaceResponseDataGlasses },
-      denseFeatures: { 'type': 'array', 'itemType': RecognizeFaceResponseDataDenseFeatures },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class CompareFaceResponseDataThresholds extends $tea.Model {
-  threshold: number;
-  static names(): { [key: string]: string } {
-    return {
-      threshold: 'Threshold',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      threshold: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class CompareFaceResponseDataRectAList extends $tea.Model {
-  rectA: number;
-  static names(): { [key: string]: string } {
-    return {
-      rectA: 'RectA',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      rectA: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class CompareFaceResponseDataRectBList extends $tea.Model {
-  rectB: number;
-  static names(): { [key: string]: string } {
-    return {
-      rectB: 'RectB',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      rectB: 'number',
+      faceRectangles: { 'type': 'array', 'itemType': 'integer' },
+      faceProbabilityList: { 'type': 'array', 'itemType': 'float' },
+      poseList: { 'type': 'array', 'itemType': 'float' },
+      landmarks: { 'type': 'array', 'itemType': 'float' },
+      pupils: { 'type': 'array', 'itemType': 'float' },
+      genderList: { 'type': 'array', 'itemType': 'integer' },
+      ageList: { 'type': 'array', 'itemType': 'integer' },
+      expressions: { 'type': 'array', 'itemType': 'integer' },
+      glasses: { 'type': 'array', 'itemType': 'integer' },
+      denseFeatures: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -1182,9 +2669,9 @@ export class CompareFaceResponseDataRectBList extends $tea.Model {
 
 export class CompareFaceResponseData extends $tea.Model {
   confidence: number;
-  thresholds: CompareFaceResponseDataThresholds[];
-  rectAList: CompareFaceResponseDataRectAList[];
-  rectBList: CompareFaceResponseDataRectBList[];
+  thresholds: number[];
+  rectAList: number[];
+  rectBList: number[];
   static names(): { [key: string]: string } {
     return {
       confidence: 'Confidence',
@@ -1197,104 +2684,9 @@ export class CompareFaceResponseData extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       confidence: 'number',
-      thresholds: { 'type': 'array', 'itemType': CompareFaceResponseDataThresholds },
-      rectAList: { 'type': 'array', 'itemType': CompareFaceResponseDataRectAList },
-      rectBList: { 'type': 'array', 'itemType': CompareFaceResponseDataRectBList },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DetectFaceResponseDataFaceRectangles extends $tea.Model {
-  faceRectangle: number;
-  static names(): { [key: string]: string } {
-    return {
-      faceRectangle: 'FaceRectangle',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      faceRectangle: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DetectFaceResponseDataFaceProbabilityList extends $tea.Model {
-  faceProbability: number;
-  static names(): { [key: string]: string } {
-    return {
-      faceProbability: 'FaceProbability',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      faceProbability: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DetectFaceResponseDataPoseList extends $tea.Model {
-  pose: number;
-  static names(): { [key: string]: string } {
-    return {
-      pose: 'Pose',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      pose: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DetectFaceResponseDataLandmarks extends $tea.Model {
-  landmark: number;
-  static names(): { [key: string]: string } {
-    return {
-      landmark: 'Landmark',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      landmark: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DetectFaceResponseDataPupils extends $tea.Model {
-  pupil: number;
-  static names(): { [key: string]: string } {
-    return {
-      pupil: 'Pupil',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      pupil: 'number',
+      thresholds: { 'type': 'array', 'itemType': 'float' },
+      rectAList: { 'type': 'array', 'itemType': 'integer' },
+      rectBList: { 'type': 'array', 'itemType': 'integer' },
     };
   }
 
@@ -1306,11 +2698,11 @@ export class DetectFaceResponseDataPupils extends $tea.Model {
 export class DetectFaceResponseData extends $tea.Model {
   faceCount: number;
   landmarkCount: number;
-  faceRectangles: DetectFaceResponseDataFaceRectangles[];
-  faceProbabilityList: DetectFaceResponseDataFaceProbabilityList[];
-  poseList: DetectFaceResponseDataPoseList[];
-  landmarks: DetectFaceResponseDataLandmarks[];
-  pupils: DetectFaceResponseDataPupils[];
+  faceRectangles: number[];
+  faceProbabilityList: number[];
+  poseList: number[];
+  landmarks: number[];
+  pupils: number[];
   static names(): { [key: string]: string } {
     return {
       faceCount: 'FaceCount',
@@ -1327,11 +2719,11 @@ export class DetectFaceResponseData extends $tea.Model {
     return {
       faceCount: 'number',
       landmarkCount: 'number',
-      faceRectangles: { 'type': 'array', 'itemType': DetectFaceResponseDataFaceRectangles },
-      faceProbabilityList: { 'type': 'array', 'itemType': DetectFaceResponseDataFaceProbabilityList },
-      poseList: { 'type': 'array', 'itemType': DetectFaceResponseDataPoseList },
-      landmarks: { 'type': 'array', 'itemType': DetectFaceResponseDataLandmarks },
-      pupils: { 'type': 'array', 'itemType': DetectFaceResponseDataPupils },
+      faceRectangles: { 'type': 'array', 'itemType': 'integer' },
+      faceProbabilityList: { 'type': 'array', 'itemType': 'float' },
+      poseList: { 'type': 'array', 'itemType': 'float' },
+      landmarks: { 'type': 'array', 'itemType': 'float' },
+      pupils: { 'type': 'array', 'itemType': 'float' },
     };
   }
 
@@ -1341,161 +2733,51 @@ export class DetectFaceResponseData extends $tea.Model {
 }
 
 
-export default class Client {
-  _endpoint: string;
-  _regionId: string;
-  _protocol: string;
-  _userAgent: string;
-  _endpointType: string;
-  _readTimeout: number;
-  _connectTimeout: number;
-  _httpProxy: string;
-  _httpsProxy: string;
-  _socks5Proxy: string;
-  _socks5NetWork: string;
-  _noProxy: string;
-  _maxIdleConns: number;
-  _openPlatformEndpoint: string;
-  _credential: Credential;
+export default class Client extends RPC {
 
-  constructor(config: Config) {
-    if (Util.isUnset($tea.toMap(config))) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config' can not be unset",
-      });
-    }
-
-    if (Util.empty(config.regionId)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.regionId' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.endpoint)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.endpoint' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.type)) {
-      config.type = "access_key";
-    }
-
-    let credentialConfig = new $Credential.Config({
-      accessKeyId: config.accessKeyId,
-      type: config.type,
-      accessKeySecret: config.accessKeySecret,
-      securityToken: config.securityToken,
-    });
-    this._credential = new Credential(credentialConfig);
-    this._endpoint = config.endpoint;
-    this._protocol = config.protocol;
-    this._regionId = config.regionId;
-    this._userAgent = config.userAgent;
-    this._readTimeout = config.readTimeout;
-    this._connectTimeout = config.connectTimeout;
-    this._httpProxy = config.httpProxy;
-    this._httpsProxy = config.httpsProxy;
-    this._noProxy = config.noProxy;
-    this._socks5Proxy = config.socks5Proxy;
-    this._socks5NetWork = config.socks5NetWork;
-    this._maxIdleConns = config.maxIdleConns;
-    this._endpointType = config.endpointType;
-    this._openPlatformEndpoint = config.openPlatformEndpoint;
+  constructor(config: $RPC.Config) {
+    super(config);
+    this._endpointRule = "regional";
+    this.checkConfig(config);
+    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
-  async _request(action: string, protocol: string, method: string, request: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
-    let _runtime: { [key: string]: any } = {
-      timeouted: "retry",
-      readTimeout: Util.defaultNumber(runtime.readTimeout, this._readTimeout),
-      connectTimeout: Util.defaultNumber(runtime.connectTimeout, this._connectTimeout),
-      httpProxy: Util.defaultString(runtime.httpProxy, this._httpProxy),
-      httpsProxy: Util.defaultString(runtime.httpsProxy, this._httpsProxy),
-      noProxy: Util.defaultString(runtime.noProxy, this._noProxy),
-      maxIdleConns: Util.defaultNumber(runtime.maxIdleConns, this._maxIdleConns),
-      retry: {
-        retryable: runtime.autoretry,
-        maxAttempts: Util.defaultNumber(runtime.maxAttempts, 3),
-      },
-      backoff: {
-        policy: Util.defaultString(runtime.backoffPolicy, "no"),
-        period: Util.defaultNumber(runtime.backoffPeriod, 1),
-      },
-      ignoreSSL: runtime.ignoreSSL,
-    }
 
-    let _lastRequest = null;
-    let _now = Date.now();
-    let _retryTimes = 0;
-    while ($tea.allowRetry(_runtime['retry'], _retryTimes, _now)) {
-      if (_retryTimes > 0) {
-        let _backoffTime = $tea.getBackoffTime(_runtime['backoff'], _retryTimes);
-        if (_backoffTime > 0) {
-          await $tea.sleep(_backoffTime);
-        }
-      }
-
-      _retryTimes = _retryTimes + 1;
-      try {
-        let request_ = new $tea.Request();
-        request_.protocol = Util.defaultString(this._protocol, protocol);
-        request_.method = method;
-        request_.pathname = "/";
-        let accessKeyId = await this.getAccessKeyId();
-        let accessKeySecret = await this.getAccessKeySecret();
-        request_.query = RPCUtil.query({
-          Action: action,
-          Format: "json",
-          RegionId: this._regionId,
-          Timestamp: RPCUtil.getTimestamp(),
-          Version: "2019-12-30",
-          SignatureMethod: "HMAC-SHA1",
-          SignatureVersion: "1.0",
-          SignatureNonce: Util.getNonce(),
-          AccessKeyId: accessKeyId,
-          ...request,
-        });
-        request_.headers = {
-          host: RPCUtil.getHost("facebody", this._regionId, this._endpoint),
-          'user-agent': this.getUserAgent(),
-        };
-        request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
-        _lastRequest = request_;
-        let response_ = await $tea.doAction(request_, _runtime);
-
-        let obj = await Util.readAsJSON(response_.body);
-        let body = Util.assertAsMap(obj);
-        if (Util.is4xx(response_.statusCode) || Util.is5xx(response_.statusCode)) {
-          throw $tea.newError({
-            message: body["Message"],
-            data: body,
-            code: body["Code"],
-          });
-        }
-
-        return body;
-      } catch (ex) {
-        if ($tea.isRetryable(ex)) {
-          continue;
-        }
-        throw ex;
-      }
-    }
-
-    throw $tea.newUnretryableError(_lastRequest);
+  async addFaceEntity(request: AddFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<AddFaceEntityResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AddFaceEntityResponse>(await this.doRequest("AddFaceEntity", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new AddFaceEntityResponse({}));
   }
 
-  async recognizeExpression(request: RecognizeExpressionRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeExpressionResponse> {
-    return $tea.cast<RecognizeExpressionResponse>(await this._request("RecognizeExpression", "HTTPS", "POST", $tea.toMap(request), runtime), new RecognizeExpressionResponse({}));
+  async deleteFaceEntity(request: DeleteFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<DeleteFaceEntityResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteFaceEntityResponse>(await this.doRequest("DeleteFaceEntity", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new DeleteFaceEntityResponse({}));
   }
 
-  async recognizeExpressionAdvance(request: RecognizeExpressionAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeExpressionResponse> {
+  async listFaceEntities(request: ListFaceEntitiesRequest, runtime: $Util.RuntimeOptions): Promise<ListFaceEntitiesResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ListFaceEntitiesResponse>(await this.doRequest("ListFaceEntities", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new ListFaceEntitiesResponse({}));
+  }
+
+  async getFaceEntity(request: GetFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<GetFaceEntityResponse> {
+    Util.validateModel(request);
+    return $tea.cast<GetFaceEntityResponse>(await this.doRequest("GetFaceEntity", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new GetFaceEntityResponse({}));
+  }
+
+  async updateFaceEntity(request: UpdateFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<UpdateFaceEntityResponse> {
+    Util.validateModel(request);
+    return $tea.cast<UpdateFaceEntityResponse>(await this.doRequest("UpdateFaceEntity", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new UpdateFaceEntityResponse({}));
+  }
+
+  async faceMakeup(request: FaceMakeupRequest, runtime: $Util.RuntimeOptions): Promise<FaceMakeupResponse> {
+    Util.validateModel(request);
+    return $tea.cast<FaceMakeupResponse>(await this.doRequest("FaceMakeup", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new FaceMakeupResponse({}));
+  }
+
+  async faceMakeupAdvance(request: FaceMakeupAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<FaceMakeupResponse> {
+    // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -1509,6 +2791,7 @@ export default class Client {
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
       accessKeySecret: accessKeySecret,
@@ -1538,6 +2821,637 @@ export default class Client {
     let ossRuntime = new $OSSUtil.RuntimeOptions({ });
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let faceMakeupreq = new FaceMakeupRequest({ });
+    RPCUtil.convert(request, faceMakeupreq);
+    faceMakeupreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let faceMakeupResp = await this.faceMakeup(faceMakeupreq, runtime);
+    return faceMakeupResp;
+  }
+
+  async handPosture(request: HandPostureRequest, runtime: $Util.RuntimeOptions): Promise<HandPostureResponse> {
+    Util.validateModel(request);
+    return $tea.cast<HandPostureResponse>(await this.doRequest("HandPosture", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new HandPostureResponse({}));
+  }
+
+  async handPostureAdvance(request: HandPostureAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<HandPostureResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let handPosturereq = new HandPostureRequest({ });
+    RPCUtil.convert(request, handPosturereq);
+    handPosturereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let handPostureResp = await this.handPosture(handPosturereq, runtime);
+    return handPostureResp;
+  }
+
+  async bodyPosture(request: BodyPostureRequest, runtime: $Util.RuntimeOptions): Promise<BodyPostureResponse> {
+    Util.validateModel(request);
+    return $tea.cast<BodyPostureResponse>(await this.doRequest("BodyPosture", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new BodyPostureResponse({}));
+  }
+
+  async bodyPostureAdvance(request: BodyPostureAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<BodyPostureResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let bodyPosturereq = new BodyPostureRequest({ });
+    RPCUtil.convert(request, bodyPosturereq);
+    bodyPosturereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let bodyPostureResp = await this.bodyPosture(bodyPosturereq, runtime);
+    return bodyPostureResp;
+  }
+
+  async detectPedestrian(request: DetectPedestrianRequest, runtime: $Util.RuntimeOptions): Promise<DetectPedestrianResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DetectPedestrianResponse>(await this.doRequest("DetectPedestrian", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new DetectPedestrianResponse({}));
+  }
+
+  async detectPedestrianAdvance(request: DetectPedestrianAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectPedestrianResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let detectPedestrianreq = new DetectPedestrianRequest({ });
+    RPCUtil.convert(request, detectPedestrianreq);
+    detectPedestrianreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let detectPedestrianResp = await this.detectPedestrian(detectPedestrianreq, runtime);
+    return detectPedestrianResp;
+  }
+
+  async faceBeauty(request: FaceBeautyRequest, runtime: $Util.RuntimeOptions): Promise<FaceBeautyResponse> {
+    Util.validateModel(request);
+    return $tea.cast<FaceBeautyResponse>(await this.doRequest("FaceBeauty", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new FaceBeautyResponse({}));
+  }
+
+  async faceBeautyAdvance(request: FaceBeautyAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<FaceBeautyResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let faceBeautyreq = new FaceBeautyRequest({ });
+    RPCUtil.convert(request, faceBeautyreq);
+    faceBeautyreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let faceBeautyResp = await this.faceBeauty(faceBeautyreq, runtime);
+    return faceBeautyResp;
+  }
+
+  async faceFilter(request: FaceFilterRequest, runtime: $Util.RuntimeOptions): Promise<FaceFilterResponse> {
+    Util.validateModel(request);
+    return $tea.cast<FaceFilterResponse>(await this.doRequest("FaceFilter", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new FaceFilterResponse({}));
+  }
+
+  async faceFilterAdvance(request: FaceFilterAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<FaceFilterResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let faceFilterreq = new FaceFilterRequest({ });
+    RPCUtil.convert(request, faceFilterreq);
+    faceFilterreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let faceFilterResp = await this.faceFilter(faceFilterreq, runtime);
+    return faceFilterResp;
+  }
+
+  async enhanceFace(request: EnhanceFaceRequest, runtime: $Util.RuntimeOptions): Promise<EnhanceFaceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<EnhanceFaceResponse>(await this.doRequest("EnhanceFace", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new EnhanceFaceResponse({}));
+  }
+
+  async enhanceFaceAdvance(request: EnhanceFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<EnhanceFaceResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let enhanceFacereq = new EnhanceFaceRequest({ });
+    RPCUtil.convert(request, enhanceFacereq);
+    enhanceFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let enhanceFaceResp = await this.enhanceFace(enhanceFacereq, runtime);
+    return enhanceFaceResp;
+  }
+
+  async faceTidyup(request: FaceTidyupRequest, runtime: $Util.RuntimeOptions): Promise<FaceTidyupResponse> {
+    Util.validateModel(request);
+    return $tea.cast<FaceTidyupResponse>(await this.doRequest("FaceTidyup", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new FaceTidyupResponse({}));
+  }
+
+  async faceTidyupAdvance(request: FaceTidyupAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<FaceTidyupResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let faceTidyupreq = new FaceTidyupRequest({ });
+    RPCUtil.convert(request, faceTidyupreq);
+    faceTidyupreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let faceTidyupResp = await this.faceTidyup(faceTidyupreq, runtime);
+    return faceTidyupResp;
+  }
+
+  async searchFace(request: SearchFaceRequest, runtime: $Util.RuntimeOptions): Promise<SearchFaceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<SearchFaceResponse>(await this.doRequest("SearchFace", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new SearchFaceResponse({}));
+  }
+
+  async searchFaceAdvance(request: SearchFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SearchFaceResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageUrlObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let searchFacereq = new SearchFaceRequest({ });
+    RPCUtil.convert(request, searchFacereq);
+    searchFacereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let searchFaceResp = await this.searchFace(searchFacereq, runtime);
+    return searchFaceResp;
+  }
+
+  async listFaceDbs(request: ListFaceDbsRequest, runtime: $Util.RuntimeOptions): Promise<ListFaceDbsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ListFaceDbsResponse>(await this.doRequest("ListFaceDbs", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new ListFaceDbsResponse({}));
+  }
+
+  async createFaceDb(request: CreateFaceDbRequest, runtime: $Util.RuntimeOptions): Promise<CreateFaceDbResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateFaceDbResponse>(await this.doRequest("CreateFaceDb", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new CreateFaceDbResponse({}));
+  }
+
+  async deleteFace(request: DeleteFaceRequest, runtime: $Util.RuntimeOptions): Promise<DeleteFaceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteFaceResponse>(await this.doRequest("DeleteFace", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new DeleteFaceResponse({}));
+  }
+
+  async deleteFaceDb(request: DeleteFaceDbRequest, runtime: $Util.RuntimeOptions): Promise<DeleteFaceDbResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteFaceDbResponse>(await this.doRequest("DeleteFaceDb", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new DeleteFaceDbResponse({}));
+  }
+
+  async addFace(request: AddFaceRequest, runtime: $Util.RuntimeOptions): Promise<AddFaceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AddFaceResponse>(await this.doRequest("AddFace", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new AddFaceResponse({}));
+  }
+
+  async addFaceAdvance(request: AddFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AddFaceResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageUrlObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let addFacereq = new AddFaceRequest({ });
+    RPCUtil.convert(request, addFacereq);
+    addFacereq.imageUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let addFaceResp = await this.addFace(addFacereq, runtime);
+    return addFaceResp;
+  }
+
+  async recognizeExpression(request: RecognizeExpressionRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeExpressionResponse> {
+    Util.validateModel(request);
+    return $tea.cast<RecognizeExpressionResponse>(await this.doRequest("RecognizeExpression", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeExpressionResponse({}));
+  }
+
+  async recognizeExpressionAdvance(request: RecognizeExpressionAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeExpressionResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
     let recognizeExpressionreq = new RecognizeExpressionRequest({ });
     RPCUtil.convert(request, recognizeExpressionreq);
     recognizeExpressionreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
@@ -1546,21 +3460,25 @@ export default class Client {
   }
 
   async recognizePublicFace(request: RecognizePublicFaceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizePublicFaceResponse> {
-    return $tea.cast<RecognizePublicFaceResponse>(await this._request("RecognizePublicFace", "HTTPS", "POST", $tea.toMap(request), runtime), new RecognizePublicFaceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizePublicFaceResponse>(await this.doRequest("RecognizePublicFace", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizePublicFaceResponse({}));
   }
 
   async detectLivingFace(request: DetectLivingFaceRequest, runtime: $Util.RuntimeOptions): Promise<DetectLivingFaceResponse> {
-    return $tea.cast<DetectLivingFaceResponse>(await this._request("DetectLivingFace", "HTTPS", "POST", $tea.toMap(request), runtime), new DetectLivingFaceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<DetectLivingFaceResponse>(await this.doRequest("DetectLivingFace", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new DetectLivingFaceResponse({}));
   }
 
   async detectBodyCount(request: DetectBodyCountRequest, runtime: $Util.RuntimeOptions): Promise<DetectBodyCountResponse> {
-    return $tea.cast<DetectBodyCountResponse>(await this._request("DetectBodyCount", "HTTPS", "POST", $tea.toMap(request), runtime), new DetectBodyCountResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<DetectBodyCountResponse>(await this.doRequest("DetectBodyCount", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new DetectBodyCountResponse({}));
   }
 
   async detectBodyCountAdvance(request: DetectBodyCountAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectBodyCountResponse> {
+    // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -1574,6 +3492,7 @@ export default class Client {
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
       accessKeySecret: accessKeySecret,
@@ -1603,6 +3522,7 @@ export default class Client {
     let ossRuntime = new $OSSUtil.RuntimeOptions({ });
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
     let detectBodyCountreq = new DetectBodyCountRequest({ });
     RPCUtil.convert(request, detectBodyCountreq);
     detectBodyCountreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
@@ -1611,13 +3531,15 @@ export default class Client {
   }
 
   async detectMask(request: DetectMaskRequest, runtime: $Util.RuntimeOptions): Promise<DetectMaskResponse> {
-    return $tea.cast<DetectMaskResponse>(await this._request("DetectMask", "HTTPS", "POST", $tea.toMap(request), runtime), new DetectMaskResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<DetectMaskResponse>(await this.doRequest("DetectMask", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new DetectMaskResponse({}));
   }
 
   async detectMaskAdvance(request: DetectMaskAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectMaskResponse> {
+    // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -1631,6 +3553,7 @@ export default class Client {
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
       accessKeySecret: accessKeySecret,
@@ -1660,6 +3583,7 @@ export default class Client {
     let ossRuntime = new $OSSUtil.RuntimeOptions({ });
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
     let detectMaskreq = new DetectMaskRequest({ });
     RPCUtil.convert(request, detectMaskreq);
     detectMaskreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
@@ -1668,13 +3592,15 @@ export default class Client {
   }
 
   async recognizeFace(request: RecognizeFaceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeFaceResponse> {
-    return $tea.cast<RecognizeFaceResponse>(await this._request("RecognizeFace", "HTTPS", "POST", $tea.toMap(request), runtime), new RecognizeFaceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeFaceResponse>(await this.doRequest("RecognizeFace", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeFaceResponse({}));
   }
 
   async recognizeFaceAdvance(request: RecognizeFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeFaceResponse> {
+    // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -1688,6 +3614,7 @@ export default class Client {
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
       accessKeySecret: accessKeySecret,
@@ -1717,6 +3644,7 @@ export default class Client {
     let ossRuntime = new $OSSUtil.RuntimeOptions({ });
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
     let recognizeFacereq = new RecognizeFaceRequest({ });
     RPCUtil.convert(request, recognizeFacereq);
     recognizeFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
@@ -1725,17 +3653,20 @@ export default class Client {
   }
 
   async compareFace(request: CompareFaceRequest, runtime: $Util.RuntimeOptions): Promise<CompareFaceResponse> {
-    return $tea.cast<CompareFaceResponse>(await this._request("CompareFace", "HTTPS", "POST", $tea.toMap(request), runtime), new CompareFaceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<CompareFaceResponse>(await this.doRequest("CompareFace", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new CompareFaceResponse({}));
   }
 
   async detectFace(request: DetectFaceRequest, runtime: $Util.RuntimeOptions): Promise<DetectFaceResponse> {
-    return $tea.cast<DetectFaceResponse>(await this._request("DetectFace", "HTTPS", "POST", $tea.toMap(request), runtime), new DetectFaceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<DetectFaceResponse>(await this.doRequest("DetectFace", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new DetectFaceResponse({}));
   }
 
   async detectFaceAdvance(request: DetectFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectFaceResponse> {
+    // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -1749,6 +3680,7 @@ export default class Client {
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
       accessKeySecret: accessKeySecret,
@@ -1778,6 +3710,7 @@ export default class Client {
     let ossRuntime = new $OSSUtil.RuntimeOptions({ });
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
     let detectFacereq = new DetectFaceRequest({ });
     RPCUtil.convert(request, detectFacereq);
     detectFacereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
@@ -1785,27 +3718,16 @@ export default class Client {
     return detectFaceResp;
   }
 
-  getUserAgent(): string {
-    let userAgent = Util.getUserAgent(this._userAgent);
-    return userAgent;
-  }
-
-  async getAccessKeyId(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+  getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
+    if (!Util.empty(endpoint)) {
+      return endpoint;
     }
 
-    let accessKeyId = await this._credential.getAccessKeyId();
-    return accessKeyId;
-  }
-
-  async getAccessKeySecret(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+    if (!Util.empty(endpointMap[regionId])) {
+      return endpointMap[regionId];
     }
 
-    let secret = await this._credential.getAccessKeySecret();
-    return secret;
+    return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
   }
 
 }
