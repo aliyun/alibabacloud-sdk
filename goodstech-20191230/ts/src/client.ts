@@ -79,35 +79,17 @@ export class Config extends $tea.Model {
   }
 }
 
-export class SearchImageByNameRequest extends $tea.Model {
-  categoryId?: number;
-  instanceName: string;
-  productId: string;
-  picName: string;
-  num?: number;
-  start?: number;
-  filter?: string;
+export class RecognizeFurnitureAttributeRequest extends $tea.Model {
+  imageURL: string;
   static names(): { [key: string]: string } {
     return {
-      categoryId: 'CategoryId',
-      instanceName: 'InstanceName',
-      productId: 'ProductId',
-      picName: 'PicName',
-      num: 'Num',
-      start: 'Start',
-      filter: 'Filter',
+      imageURL: 'ImageURL',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      categoryId: 'number',
-      instanceName: 'string',
-      productId: 'string',
-      picName: 'string',
-      num: 'number',
-      start: 'number',
-      filter: 'string',
+      imageURL: 'string',
     };
   }
 
@@ -116,35 +98,20 @@ export class SearchImageByNameRequest extends $tea.Model {
   }
 }
 
-export class SearchImageByNameResponse extends $tea.Model {
+export class RecognizeFurnitureAttributeResponse extends $tea.Model {
   requestId: string;
-  success: boolean;
-  code: number;
-  msg: string;
-  auctions: SearchImageByNameResponseAuctions[];
-  head: SearchImageByNameResponseHead;
-  picInfo: SearchImageByNameResponsePicInfo;
+  data: RecognizeFurnitureAttributeResponseData;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
-      success: 'Success',
-      code: 'Code',
-      msg: 'Msg',
-      auctions: 'Auctions',
-      head: 'Head',
-      picInfo: 'PicInfo',
+      data: 'Data',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
       requestId: 'string',
-      success: 'boolean',
-      code: 'number',
-      msg: 'string',
-      auctions: { 'type': 'array', 'itemType': SearchImageByNameResponseAuctions },
-      head: SearchImageByNameResponseHead,
-      picInfo: SearchImageByNameResponsePicInfo,
+      data: RecognizeFurnitureAttributeResponseData,
     };
   }
 
@@ -153,38 +120,17 @@ export class SearchImageByNameResponse extends $tea.Model {
   }
 }
 
-export class SearchImageByPicRequest extends $tea.Model {
-  categoryId?: number;
-  instanceName: string;
-  picContent: string;
-  crop?: boolean;
-  region?: string;
-  num?: number;
-  start?: number;
-  filter?: string;
+export class RecognizeFurnitureAttributeAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
   static names(): { [key: string]: string } {
     return {
-      categoryId: 'CategoryId',
-      instanceName: 'InstanceName',
-      picContent: 'PicContent',
-      crop: 'Crop',
-      region: 'Region',
-      num: 'Num',
-      start: 'Start',
-      filter: 'Filter',
+      imageURLObject: 'ImageURLObject',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      categoryId: 'number',
-      instanceName: 'string',
-      picContent: 'string',
-      crop: 'boolean',
-      region: 'string',
-      num: 'number',
-      start: 'number',
-      filter: 'string',
+      imageURLObject: 'Readable',
     };
   }
 
@@ -193,35 +139,48 @@ export class SearchImageByPicRequest extends $tea.Model {
   }
 }
 
-export class SearchImageByPicResponse extends $tea.Model {
+export class RecognizeFurnitureSpuRequest extends $tea.Model {
+  imageURL: string;
+  XLength: number;
+  YLength: number;
+  ZLength: number;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      XLength: 'XLength',
+      YLength: 'YLength',
+      ZLength: 'ZLength',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      XLength: 'number',
+      YLength: 'number',
+      ZLength: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeFurnitureSpuResponse extends $tea.Model {
   requestId: string;
-  success: boolean;
-  code: number;
-  msg: string;
-  auctions: SearchImageByPicResponseAuctions[];
-  head: SearchImageByPicResponseHead;
-  picInfo: SearchImageByPicResponsePicInfo;
+  data: RecognizeFurnitureSpuResponseData;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
-      success: 'Success',
-      code: 'Code',
-      msg: 'Msg',
-      auctions: 'Auctions',
-      head: 'Head',
-      picInfo: 'PicInfo',
+      data: 'Data',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
       requestId: 'string',
-      success: 'boolean',
-      code: 'number',
-      msg: 'string',
-      auctions: { 'type': 'array', 'itemType': SearchImageByPicResponseAuctions },
-      head: SearchImageByPicResponseHead,
-      picInfo: SearchImageByPicResponsePicInfo,
+      data: RecognizeFurnitureSpuResponseData,
     };
   }
 
@@ -230,38 +189,26 @@ export class SearchImageByPicResponse extends $tea.Model {
   }
 }
 
-export class SearchImageByPicAdvanceRequest extends $tea.Model {
-  picContentObject: Readable;
-  categoryId?: number;
-  instanceName: string;
-  crop?: boolean;
-  region?: string;
-  num?: number;
-  start?: number;
-  filter?: string;
+export class RecognizeFurnitureSpuAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  XLength: number;
+  YLength: number;
+  ZLength: number;
   static names(): { [key: string]: string } {
     return {
-      picContentObject: 'PicContentObject',
-      categoryId: 'CategoryId',
-      instanceName: 'InstanceName',
-      crop: 'Crop',
-      region: 'Region',
-      num: 'Num',
-      start: 'Start',
-      filter: 'Filter',
+      imageURLObject: 'ImageURLObject',
+      XLength: 'XLength',
+      YLength: 'YLength',
+      ZLength: 'ZLength',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      picContentObject: 'Readable',
-      categoryId: 'number',
-      instanceName: 'string',
-      crop: 'boolean',
-      region: 'string',
-      num: 'number',
-      start: 'number',
-      filter: 'string',
+      imageURLObject: 'Readable',
+      XLength: 'number',
+      YLength: 'number',
+      ZLength: 'number',
     };
   }
 
@@ -270,23 +217,17 @@ export class SearchImageByPicAdvanceRequest extends $tea.Model {
   }
 }
 
-export class DeleteImageRequest extends $tea.Model {
-  instanceName: string;
-  productId: string;
-  picName?: string;
+export class ClassifyCommodityRequest extends $tea.Model {
+  imageURL: string;
   static names(): { [key: string]: string } {
     return {
-      instanceName: 'InstanceName',
-      productId: 'ProductId',
-      picName: 'PicName',
+      imageURL: 'ImageURL',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      instanceName: 'string',
-      productId: 'string',
-      picName: 'string',
+      imageURL: 'string',
     };
   }
 
@@ -295,26 +236,20 @@ export class DeleteImageRequest extends $tea.Model {
   }
 }
 
-export class DeleteImageResponse extends $tea.Model {
+export class ClassifyCommodityResponse extends $tea.Model {
   requestId: string;
-  success: boolean;
-  message: string;
-  code: number;
+  data: ClassifyCommodityResponseData;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
-      success: 'Success',
-      message: 'Message',
-      code: 'Code',
+      data: 'Data',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
       requestId: 'string',
-      success: 'boolean',
-      message: 'string',
-      code: 'number',
+      data: ClassifyCommodityResponseData,
     };
   }
 
@@ -323,44 +258,92 @@ export class DeleteImageResponse extends $tea.Model {
   }
 }
 
-export class AddImageRequest extends $tea.Model {
-  instanceName: string;
-  categoryId?: number;
-  productId: string;
-  picName: string;
-  picContent: string;
-  crop?: boolean;
-  region?: string;
-  customContent?: string;
-  intAttr?: number;
-  strAttr?: string;
+export class ClassifyCommodityAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
   static names(): { [key: string]: string } {
     return {
-      instanceName: 'InstanceName',
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeFurnitureAttributeResponseData extends $tea.Model {
+  predStyleId: string;
+  predStyle: string;
+  predProbability: number;
+  static names(): { [key: string]: string } {
+    return {
+      predStyleId: 'PredStyleId',
+      predStyle: 'PredStyle',
+      predProbability: 'PredProbability',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      predStyleId: 'string',
+      predStyle: 'string',
+      predProbability: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeFurnitureSpuResponseData extends $tea.Model {
+  predCateId: string;
+  predCate: string;
+  predProbability: number;
+  static names(): { [key: string]: string } {
+    return {
+      predCateId: 'PredCateId',
+      predCate: 'PredCate',
+      predProbability: 'PredProbability',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      predCateId: 'string',
+      predCate: 'string',
+      predProbability: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ClassifyCommodityResponseDataCategories extends $tea.Model {
+  score: number;
+  categoryName: string;
+  categoryId: string;
+  static names(): { [key: string]: string } {
+    return {
+      score: 'Score',
+      categoryName: 'CategoryName',
       categoryId: 'CategoryId',
-      productId: 'ProductId',
-      picName: 'PicName',
-      picContent: 'PicContent',
-      crop: 'Crop',
-      region: 'Region',
-      customContent: 'CustomContent',
-      intAttr: 'IntAttr',
-      strAttr: 'StrAttr',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      instanceName: 'string',
-      categoryId: 'number',
-      productId: 'string',
-      picName: 'string',
-      picContent: 'string',
-      crop: 'boolean',
-      region: 'string',
-      customContent: 'string',
-      intAttr: 'number',
-      strAttr: 'string',
+      score: 'number',
+      categoryName: 'string',
+      categoryId: 'string',
     };
   }
 
@@ -369,315 +352,17 @@ export class AddImageRequest extends $tea.Model {
   }
 }
 
-export class AddImageResponse extends $tea.Model {
-  requestId: string;
-  success: boolean;
-  message: string;
-  code: number;
-  picInfo: AddImageResponsePicInfo;
+export class ClassifyCommodityResponseData extends $tea.Model {
+  categories: ClassifyCommodityResponseDataCategories[];
   static names(): { [key: string]: string } {
     return {
-      requestId: 'RequestId',
-      success: 'Success',
-      message: 'Message',
-      code: 'Code',
-      picInfo: 'PicInfo',
+      categories: 'Categories',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      requestId: 'string',
-      success: 'boolean',
-      message: 'string',
-      code: 'number',
-      picInfo: AddImageResponsePicInfo,
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class AddImageAdvanceRequest extends $tea.Model {
-  picContentObject: Readable;
-  instanceName: string;
-  categoryId?: number;
-  productId: string;
-  picName: string;
-  crop?: boolean;
-  region?: string;
-  customContent?: string;
-  intAttr?: number;
-  strAttr?: string;
-  static names(): { [key: string]: string } {
-    return {
-      picContentObject: 'PicContentObject',
-      instanceName: 'InstanceName',
-      categoryId: 'CategoryId',
-      productId: 'ProductId',
-      picName: 'PicName',
-      crop: 'Crop',
-      region: 'Region',
-      customContent: 'CustomContent',
-      intAttr: 'IntAttr',
-      strAttr: 'StrAttr',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      picContentObject: 'Readable',
-      instanceName: 'string',
-      categoryId: 'number',
-      productId: 'string',
-      picName: 'string',
-      crop: 'boolean',
-      region: 'string',
-      customContent: 'string',
-      intAttr: 'number',
-      strAttr: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByNameResponseAuctions extends $tea.Model {
-  categoryId: number;
-  productId: string;
-  picName: string;
-  customContent: string;
-  sortExprValues: string;
-  intAttr: number;
-  strAttr: string;
-  static names(): { [key: string]: string } {
-    return {
-      categoryId: 'CategoryId',
-      productId: 'ProductId',
-      picName: 'PicName',
-      customContent: 'CustomContent',
-      sortExprValues: 'SortExprValues',
-      intAttr: 'IntAttr',
-      strAttr: 'StrAttr',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      categoryId: 'number',
-      productId: 'string',
-      picName: 'string',
-      customContent: 'string',
-      sortExprValues: 'string',
-      intAttr: 'number',
-      strAttr: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByNameResponseHead extends $tea.Model {
-  docsReturn: number;
-  docsFound: number;
-  searchTime: number;
-  static names(): { [key: string]: string } {
-    return {
-      docsReturn: 'DocsReturn',
-      docsFound: 'DocsFound',
-      searchTime: 'SearchTime',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      docsReturn: 'number',
-      docsFound: 'number',
-      searchTime: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByNameResponsePicInfoAllCategories extends $tea.Model {
-  id: number;
-  name: string;
-  static names(): { [key: string]: string } {
-    return {
-      id: 'Id',
-      name: 'Name',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      id: 'number',
-      name: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByNameResponsePicInfo extends $tea.Model {
-  categoryId: number;
-  region: string;
-  allCategories: SearchImageByNameResponsePicInfoAllCategories[];
-  static names(): { [key: string]: string } {
-    return {
-      categoryId: 'CategoryId',
-      region: 'Region',
-      allCategories: 'AllCategories',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      categoryId: 'number',
-      region: 'string',
-      allCategories: { 'type': 'array', 'itemType': SearchImageByNameResponsePicInfoAllCategories },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByPicResponseAuctions extends $tea.Model {
-  categoryId: number;
-  productId: string;
-  picName: string;
-  customContent: string;
-  sortExprValues: string;
-  intAttr: number;
-  strAttr: string;
-  static names(): { [key: string]: string } {
-    return {
-      categoryId: 'CategoryId',
-      productId: 'ProductId',
-      picName: 'PicName',
-      customContent: 'CustomContent',
-      sortExprValues: 'SortExprValues',
-      intAttr: 'IntAttr',
-      strAttr: 'StrAttr',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      categoryId: 'number',
-      productId: 'string',
-      picName: 'string',
-      customContent: 'string',
-      sortExprValues: 'string',
-      intAttr: 'number',
-      strAttr: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByPicResponseHead extends $tea.Model {
-  docsReturn: number;
-  docsFound: number;
-  searchTime: number;
-  static names(): { [key: string]: string } {
-    return {
-      docsReturn: 'DocsReturn',
-      docsFound: 'DocsFound',
-      searchTime: 'SearchTime',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      docsReturn: 'number',
-      docsFound: 'number',
-      searchTime: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByPicResponsePicInfoAllCategories extends $tea.Model {
-  id: number;
-  name: string;
-  static names(): { [key: string]: string } {
-    return {
-      id: 'Id',
-      name: 'Name',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      id: 'number',
-      name: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class SearchImageByPicResponsePicInfo extends $tea.Model {
-  categoryId: number;
-  region: string;
-  allCategories: SearchImageByPicResponsePicInfoAllCategories[];
-  static names(): { [key: string]: string } {
-    return {
-      categoryId: 'CategoryId',
-      region: 'Region',
-      allCategories: 'AllCategories',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      categoryId: 'number',
-      region: 'string',
-      allCategories: { 'type': 'array', 'itemType': SearchImageByPicResponsePicInfoAllCategories },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class AddImageResponsePicInfo extends $tea.Model {
-  categoryId: number;
-  region: string;
-  static names(): { [key: string]: string } {
-    return {
-      categoryId: 'CategoryId',
-      region: 'Region',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      categoryId: 'number',
-      region: 'string',
+      categories: { 'type': 'array', 'itemType': ClassifyCommodityResponseDataCategories },
     };
   }
 
@@ -753,7 +438,7 @@ export default class Client {
     this._openPlatformEndpoint = config.openPlatformEndpoint;
   }
 
-  async _request(action: string, protocol: string, method: string, request: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
+  async _request(action: string, protocol: string, method: string, authType: string, query: {[key: string]: any}, body: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
     let _runtime: { [key: string]: any } = {
       timeouted: "retry",
       readTimeout: Util.defaultNumber(runtime.readTimeout, this._readTimeout),
@@ -790,39 +475,47 @@ export default class Client {
         request_.protocol = Util.defaultString(this._protocol, protocol);
         request_.method = method;
         request_.pathname = "/";
-        let accessKeyId = await this.getAccessKeyId();
-        let accessKeySecret = await this.getAccessKeySecret();
         request_.query = RPCUtil.query({
           Action: action,
           Format: "json",
           RegionId: this._regionId,
           Timestamp: RPCUtil.getTimestamp(),
-          Version: "2020-02-12",
-          SignatureMethod: "HMAC-SHA1",
-          SignatureVersion: "1.0",
+          Version: "2019-12-30",
           SignatureNonce: Util.getNonce(),
-          AccessKeyId: accessKeyId,
-          ...request,
+          ...query,
         });
+        if (!Util.isUnset(body)) {
+          let tmp = Util.anyifyMapValue(RPCUtil.query(body));
+          request_.body = new $tea.BytesReadable(Util.toFormString(tmp));
+        }
+
         request_.headers = {
-          host: RPCUtil.getHost("ImageSearch", this._regionId, this._endpoint),
+          host: RPCUtil.getHost("goodstech", this._regionId, this._endpoint),
           'user-agent': this.getUserAgent(),
         };
-        request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
+        if (!Util.equalString(authType, "Anonymous")) {
+          let accessKeyId = await this.getAccessKeyId();
+          let accessKeySecret = await this.getAccessKeySecret();
+          request_.query["SignatureMethod"] = "HMAC-SHA1";
+          request_.query["SignatureVersion"] = "1.0";
+          request_.query["AccessKeyId"] = accessKeyId;
+          request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
+        }
+
         _lastRequest = request_;
         let response_ = await $tea.doAction(request_, _runtime);
 
         let obj = await Util.readAsJSON(response_.body);
-        let body = Util.assertAsMap(obj);
+        let res = Util.assertAsMap(obj);
         if (Util.is4xx(response_.statusCode) || Util.is5xx(response_.statusCode)) {
           throw $tea.newError({
-            message: body["Message"],
-            data: body,
-            code: body["Code"],
+            message: res["Message"],
+            data: res,
+            code: res["Code"],
           });
         }
 
-        return body;
+        return res;
       } catch (ex) {
         if ($tea.isRetryable(ex)) {
           continue;
@@ -834,15 +527,11 @@ export default class Client {
     throw $tea.newUnretryableError(_lastRequest);
   }
 
-  async searchImageByName(request: SearchImageByNameRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageByNameResponse> {
-    return $tea.cast<SearchImageByNameResponse>(await this._request("SearchImageByName", "HTTPS", "POST", $tea.toMap(request), runtime), new SearchImageByNameResponse({}));
+  async recognizeFurnitureAttribute(request: RecognizeFurnitureAttributeRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeFurnitureAttributeResponse> {
+    return $tea.cast<RecognizeFurnitureAttributeResponse>(await this._request("RecognizeFurnitureAttribute", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeFurnitureAttributeResponse({}));
   }
 
-  async searchImageByPic(request: SearchImageByPicRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageByPicResponse> {
-    return $tea.cast<SearchImageByPicResponse>(await this._request("SearchImageByPic", "HTTPS", "POST", $tea.toMap(request), runtime), new SearchImageByPicResponse({}));
-  }
-
-  async searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageByPicResponse> {
+  async recognizeFurnitureAttributeAdvance(request: RecognizeFurnitureAttributeAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeFurnitureAttributeResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
@@ -856,7 +545,7 @@ export default class Client {
     });
     let authClient = new OpenPlatform(authConfig);
     let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
-      product: "ImageSearch",
+      product: "goodstech",
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
@@ -872,7 +561,7 @@ export default class Client {
     let ossClient = new OSS(ossConfig);
     let fileObj = new $FileForm.FileField({
       filename: authResponse.objectKey,
-      content: request.picContentObject,
+      content: request.imageURLObject,
       contentType: "",
     });
     let ossHeader = new $OSS.PostObjectRequestHeader({
@@ -891,22 +580,18 @@ export default class Client {
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
     // Step 2: request final api
-    let searchImageByPicreq = new SearchImageByPicRequest({ });
-    RPCUtil.convert(request, searchImageByPicreq);
-    searchImageByPicreq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    let searchImageByPicResp = await this.searchImageByPic(searchImageByPicreq, runtime);
-    return searchImageByPicResp;
+    let recognizeFurnitureAttributereq = new RecognizeFurnitureAttributeRequest({ });
+    RPCUtil.convert(request, recognizeFurnitureAttributereq);
+    recognizeFurnitureAttributereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let recognizeFurnitureAttributeResp = await this.recognizeFurnitureAttribute(recognizeFurnitureAttributereq, runtime);
+    return recognizeFurnitureAttributeResp;
   }
 
-  async deleteImage(request: DeleteImageRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageResponse> {
-    return $tea.cast<DeleteImageResponse>(await this._request("DeleteImage", "HTTPS", "POST", $tea.toMap(request), runtime), new DeleteImageResponse({}));
+  async recognizeFurnitureSpu(request: RecognizeFurnitureSpuRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeFurnitureSpuResponse> {
+    return $tea.cast<RecognizeFurnitureSpuResponse>(await this._request("RecognizeFurnitureSpu", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeFurnitureSpuResponse({}));
   }
 
-  async addImage(request: AddImageRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
-    return $tea.cast<AddImageResponse>(await this._request("AddImage", "HTTPS", "POST", $tea.toMap(request), runtime), new AddImageResponse({}));
-  }
-
-  async addImageAdvance(request: AddImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
+  async recognizeFurnitureSpuAdvance(request: RecognizeFurnitureSpuAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeFurnitureSpuResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
@@ -920,7 +605,7 @@ export default class Client {
     });
     let authClient = new OpenPlatform(authConfig);
     let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
-      product: "ImageSearch",
+      product: "goodstech",
       regionId: this._regionId,
     });
     let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
@@ -936,7 +621,7 @@ export default class Client {
     let ossClient = new OSS(ossConfig);
     let fileObj = new $FileForm.FileField({
       filename: authResponse.objectKey,
-      content: request.picContentObject,
+      content: request.imageURLObject,
       contentType: "",
     });
     let ossHeader = new $OSS.PostObjectRequestHeader({
@@ -955,11 +640,71 @@ export default class Client {
     RPCUtil.convert(runtime, ossRuntime);
     await ossClient.postObject(uploadRequest, ossRuntime);
     // Step 2: request final api
-    let addImagereq = new AddImageRequest({ });
-    RPCUtil.convert(request, addImagereq);
-    addImagereq.picContent = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
-    let addImageResp = await this.addImage(addImagereq, runtime);
-    return addImageResp;
+    let recognizeFurnitureSpureq = new RecognizeFurnitureSpuRequest({ });
+    RPCUtil.convert(request, recognizeFurnitureSpureq);
+    recognizeFurnitureSpureq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let recognizeFurnitureSpuResp = await this.recognizeFurnitureSpu(recognizeFurnitureSpureq, runtime);
+    return recognizeFurnitureSpuResp;
+  }
+
+  async classifyCommodity(request: ClassifyCommodityRequest, runtime: $Util.RuntimeOptions): Promise<ClassifyCommodityResponse> {
+    return $tea.cast<ClassifyCommodityResponse>(await this._request("ClassifyCommodity", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new ClassifyCommodityResponse({}));
+  }
+
+  async classifyCommodityAdvance(request: ClassifyCommodityAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<ClassifyCommodityResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $OpenPlatform.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "goodstech",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let classifyCommodityreq = new ClassifyCommodityRequest({ });
+    RPCUtil.convert(request, classifyCommodityreq);
+    classifyCommodityreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let classifyCommodityResp = await this.classifyCommodity(classifyCommodityreq, runtime);
+    return classifyCommodityResp;
   }
 
   getUserAgent(): string {
