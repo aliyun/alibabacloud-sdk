@@ -4,8 +4,10 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230;
 
-use AlibabaCloud\Credentials\Credential;
+use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\AddFaceAdvanceRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\AddFaceEntityRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\AddFaceEntityResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\AddFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\AddFaceResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\BodyPostureAdvanceRequest;
@@ -13,11 +15,12 @@ use AlibabaCloud\SDK\Facebody\V20191230\Facebody\BodyPostureRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\BodyPostureResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\CompareFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\CompareFaceResponse;
-use AlibabaCloud\SDK\Facebody\V20191230\Facebody\Config;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\CreateFaceDbRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\CreateFaceDbResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DeleteFaceDbRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DeleteFaceDbResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DeleteFaceEntityRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DeleteFaceEntityResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DeleteFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DeleteFaceResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\DetectBodyCountAdvanceRequest;
@@ -49,13 +52,15 @@ use AlibabaCloud\SDK\Facebody\V20191230\Facebody\FaceMakeupResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\FaceTidyupAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\FaceTidyupRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\FaceTidyupResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\GetFaceEntityRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\GetFaceEntityResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\HandPostureAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\HandPostureRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\HandPostureResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFaceDbsRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFaceDbsResponse;
-use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFacesRequest;
-use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFacesResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFaceEntitiesRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFaceEntitiesResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\RecognizeExpressionAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\RecognizeExpressionRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\RecognizeExpressionResponse;
@@ -67,178 +72,84 @@ use AlibabaCloud\SDK\Facebody\V20191230\Facebody\RecognizePublicFaceResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\SearchFaceAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\SearchFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Facebody\SearchFaceResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\UpdateFaceEntityRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Facebody\UpdateFaceEntityResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Exception\TeaError;
-use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
 use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
-use AlibabaCloud\Tea\Tea;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Facebody
 {
-    private $_endpoint;
-    private $_regionId;
-    private $_protocol;
-    private $_userAgent;
-    private $_endpointType;
-    private $_readTimeout;
-    private $_connectTimeout;
-    private $_httpProxy;
-    private $_httpsProxy;
-    private $_socks5Proxy;
-    private $_socks5NetWork;
-    private $_noProxy;
-    private $_maxIdleConns;
-    private $_openPlatformEndpoint;
-    private $_credential;
-
-    public function __construct(Config $config)
+    public function __construct($config)
     {
-        if (Utils::isUnset($config)) {
-            throw new TeaError([
-                'name'    => 'ParameterMissing',
-                'message' => "'config' can not be unset",
-            ]);
-        }
-        if (Utils::_empty($config->regionId)) {
-            throw new TeaError([
-                'name'    => 'ParameterMissing',
-                'message' => "'config.regionId' can not be empty",
-            ]);
-        }
-        if (Utils::_empty($config->endpoint)) {
-            throw new TeaError([
-                'name'    => 'ParameterMissing',
-                'message' => "'config.endpoint' can not be empty",
-            ]);
-        }
-        if (Utils::_empty($config->type)) {
-            $config->type = 'access_key';
-        }
-        $credentialConfig = new \AlibabaCloud\Credentials\Credential\Config([
-            'accessKeyId'     => $config->accessKeyId,
-            'type'            => $config->type,
-            'accessKeySecret' => $config->accessKeySecret,
-            'securityToken'   => $config->securityToken,
-        ]);
-        $this->_credential           = new Credential($credentialConfig);
-        $this->_endpoint             = $config->endpoint;
-        $this->_protocol             = $config->protocol;
-        $this->_regionId             = $config->regionId;
-        $this->_userAgent            = $config->userAgent;
-        $this->_readTimeout          = $config->readTimeout;
-        $this->_connectTimeout       = $config->connectTimeout;
-        $this->_httpProxy            = $config->httpProxy;
-        $this->_httpsProxy           = $config->httpsProxy;
-        $this->_noProxy              = $config->noProxy;
-        $this->_socks5Proxy          = $config->socks5Proxy;
-        $this->_socks5NetWork        = $config->socks5NetWork;
-        $this->_maxIdleConns         = $config->maxIdleConns;
-        $this->_endpointType         = $config->endpointType;
-        $this->_openPlatformEndpoint = $config->openPlatformEndpoint;
+        parent::__construct($config);
+        $this->_endpointRule = 'regional';
+        $this->checkConfig($config);
+        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
-     * @param string $action
-     * @param string $protocol
-     * @param string $method
-     * @param string $authType
-     * @param object $query
-     * @param object $body
-     *
      * @throws \Exception
      *
-     * @return array|object
+     * @return AddFaceEntityResponse
      */
-    public function _request($action, $protocol, $method, $authType, $query, $body, RuntimeOptions $runtime)
+    public function addFaceEntity(AddFaceEntityRequest $request, RuntimeOptions $runtime)
     {
-        $runtime->validate();
-        $_runtime = [
-            'timeouted'      => 'retry',
-            'readTimeout'    => Utils::defaultNumber($runtime->readTimeout, $this->_readTimeout),
-            'connectTimeout' => Utils::defaultNumber($runtime->connectTimeout, $this->_connectTimeout),
-            'httpProxy'      => Utils::defaultString($runtime->httpProxy, $this->_httpProxy),
-            'httpsProxy'     => Utils::defaultString($runtime->httpsProxy, $this->_httpsProxy),
-            'noProxy'        => Utils::defaultString($runtime->noProxy, $this->_noProxy),
-            'maxIdleConns'   => Utils::defaultNumber($runtime->maxIdleConns, $this->_maxIdleConns),
-            'retry'          => [
-                'retryable'   => $runtime->autoretry,
-                'maxAttempts' => Utils::defaultNumber($runtime->maxAttempts, 3),
-            ],
-            'backoff' => [
-                'policy' => Utils::defaultString($runtime->backoffPolicy, 'no'),
-                'period' => Utils::defaultNumber($runtime->backoffPeriod, 1),
-            ],
-            'ignoreSSL' => $runtime->ignoreSSL,
-        ];
-        $_lastRequest = null;
-        $_now         = time();
-        $_retryTimes  = 0;
-        while (Tea::allowRetry($_runtime['retry'], $_retryTimes, $_now)) {
-            if ($_retryTimes > 0) {
-                $_backoffTime = Tea::getBackoffTime($_runtime['backoff'], $_retryTimes);
-                if ($_backoffTime > 0) {
-                    Tea::sleep($_backoffTime);
-                }
-            }
-            $_retryTimes = $_retryTimes + 1;
+        Utils::validateModel($request);
 
-            try {
-                $_request           = new Request();
-                $_request->protocol = Utils::defaultString($this->_protocol, $protocol);
-                $_request->method   = $method;
-                $_request->pathname = '/';
-                $_request->query    = RpcUtils::query(Tea::merge([
-                    'Action'         => $action,
-                    'Format'         => 'json',
-                    'RegionId'       => $this->_regionId,
-                    'Timestamp'      => RpcUtils::getTimestamp(),
-                    'Version'        => '2019-12-30',
-                    'SignatureNonce' => Utils::getNonce(),
-                ], $query));
-                if (!Utils::isUnset($body)) {
-                    $tmp            = Utils::anyifyMapValue(RpcUtils::query($body));
-                    $_request->body = Utils::toFormString($tmp);
-                }
-                $_request->headers = [
-                    'host'       => RpcUtils::getHost('facebody', $this->_regionId, $this->_endpoint),
-                    'user-agent' => $this->getUserAgent(),
-                ];
-                if (!Utils::equalString($authType, 'Anonymous')) {
-                    $accessKeyId                         = $this->getAccessKeyId();
-                    $accessKeySecret                     = $this->getAccessKeySecret();
-                    $_request->query['SignatureMethod']  = 'HMAC-SHA1';
-                    $_request->query['SignatureVersion'] = '1.0';
-                    $_request->query['AccessKeyId']      = $accessKeyId;
-                    $_request->query['Signature']        = RpcUtils::getSignature($_request, $accessKeySecret);
-                }
-                $_lastRequest = $_request;
-                $_response    = Tea::send($_request, $_runtime);
-                $obj          = Utils::readAsJSON($_response->body);
-                $res          = Utils::assertAsMap($obj);
-                if (Utils::is4xx($_response->statusCode) || Utils::is5xx($_response->statusCode)) {
-                    throw new TeaError([
-                        'message' => $res['Message'],
-                        'data'    => $res,
-                        'code'    => $res['Code'],
-                    ]);
-                }
+        return Model::toModel($this->doRequest('AddFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new AddFaceEntityResponse());
+    }
 
-                return $res;
-            } catch (\Exception $e) {
-                if (Tea::isRetryable($_runtime['retry'], $_retryTimes)) {
-                    continue;
-                }
+    /**
+     * @throws \Exception
+     *
+     * @return DeleteFaceEntityResponse
+     */
+    public function deleteFaceEntity(DeleteFaceEntityRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
 
-                throw $e;
-            }
-        }
+        return Model::toModel($this->doRequest('DeleteFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceEntityResponse());
+    }
 
-        throw new TeaUnableRetryError($_lastRequest);
+    /**
+     * @throws \Exception
+     *
+     * @return ListFaceEntitiesResponse
+     */
+    public function listFaceEntities(ListFaceEntitiesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('ListFaceEntities', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListFaceEntitiesResponse());
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return GetFaceEntityResponse
+     */
+    public function getFaceEntity(GetFaceEntityRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('GetFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new GetFaceEntityResponse());
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return UpdateFaceEntityResponse
+     */
+    public function updateFaceEntity(UpdateFaceEntityRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('UpdateFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new UpdateFaceEntityResponse());
     }
 
     /**
@@ -248,7 +159,9 @@ class Facebody
      */
     public function faceMakeup(FaceMakeupRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('FaceMakeup', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceMakeupResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('FaceMakeup', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceMakeupResponse());
     }
 
     /**
@@ -261,7 +174,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -320,7 +233,9 @@ class Facebody
      */
     public function handPosture(HandPostureRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('HandPosture', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new HandPostureResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('HandPosture', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new HandPostureResponse());
     }
 
     /**
@@ -333,7 +248,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -392,7 +307,9 @@ class Facebody
      */
     public function bodyPosture(BodyPostureRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('BodyPosture', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new BodyPostureResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('BodyPosture', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new BodyPostureResponse());
     }
 
     /**
@@ -405,7 +322,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -464,7 +381,9 @@ class Facebody
      */
     public function detectPedestrian(DetectPedestrianRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DetectPedestrian', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectPedestrianResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DetectPedestrian', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectPedestrianResponse());
     }
 
     /**
@@ -477,7 +396,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -536,7 +455,9 @@ class Facebody
      */
     public function faceBeauty(FaceBeautyRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('FaceBeauty', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceBeautyResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('FaceBeauty', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceBeautyResponse());
     }
 
     /**
@@ -549,7 +470,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -608,7 +529,9 @@ class Facebody
      */
     public function faceFilter(FaceFilterRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('FaceFilter', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceFilterResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('FaceFilter', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceFilterResponse());
     }
 
     /**
@@ -621,7 +544,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -680,7 +603,9 @@ class Facebody
      */
     public function enhanceFace(EnhanceFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('EnhanceFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new EnhanceFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('EnhanceFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new EnhanceFaceResponse());
     }
 
     /**
@@ -693,7 +618,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -752,7 +677,9 @@ class Facebody
      */
     public function faceTidyup(FaceTidyupRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('FaceTidyup', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceTidyupResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('FaceTidyup', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceTidyupResponse());
     }
 
     /**
@@ -765,7 +692,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -824,7 +751,9 @@ class Facebody
      */
     public function searchFace(SearchFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('SearchFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new SearchFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('SearchFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new SearchFaceResponse());
     }
 
     /**
@@ -837,7 +766,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -896,17 +825,9 @@ class Facebody
      */
     public function listFaceDbs(ListFaceDbsRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('ListFaceDbs', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListFaceDbsResponse());
-    }
+        Utils::validateModel($request);
 
-    /**
-     * @throws \Exception
-     *
-     * @return ListFacesResponse
-     */
-    public function listFaces(ListFacesRequest $request, RuntimeOptions $runtime)
-    {
-        return Model::toModel($this->_request('ListFaces', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListFacesResponse());
+        return Model::toModel($this->doRequest('ListFaceDbs', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListFaceDbsResponse());
     }
 
     /**
@@ -916,7 +837,9 @@ class Facebody
      */
     public function createFaceDb(CreateFaceDbRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('CreateFaceDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new CreateFaceDbResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('CreateFaceDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new CreateFaceDbResponse());
     }
 
     /**
@@ -926,7 +849,9 @@ class Facebody
      */
     public function deleteFace(DeleteFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DeleteFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DeleteFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceResponse());
     }
 
     /**
@@ -936,7 +861,9 @@ class Facebody
      */
     public function deleteFaceDb(DeleteFaceDbRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DeleteFaceDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceDbResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DeleteFaceDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceDbResponse());
     }
 
     /**
@@ -946,7 +873,9 @@ class Facebody
      */
     public function addFace(AddFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('AddFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new AddFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('AddFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new AddFaceResponse());
     }
 
     /**
@@ -959,7 +888,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1018,7 +947,9 @@ class Facebody
      */
     public function recognizeExpression(RecognizeExpressionRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeExpression', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeExpressionResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeExpression', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeExpressionResponse());
     }
 
     /**
@@ -1031,7 +962,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1090,7 +1021,9 @@ class Facebody
      */
     public function recognizePublicFace(RecognizePublicFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizePublicFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizePublicFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizePublicFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizePublicFaceResponse());
     }
 
     /**
@@ -1100,7 +1033,9 @@ class Facebody
      */
     public function detectLivingFace(DetectLivingFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DetectLivingFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectLivingFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DetectLivingFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectLivingFaceResponse());
     }
 
     /**
@@ -1110,7 +1045,9 @@ class Facebody
      */
     public function detectBodyCount(DetectBodyCountRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DetectBodyCount', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectBodyCountResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DetectBodyCount', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectBodyCountResponse());
     }
 
     /**
@@ -1123,7 +1060,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1182,7 +1119,9 @@ class Facebody
      */
     public function detectMask(DetectMaskRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DetectMask', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectMaskResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DetectMask', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectMaskResponse());
     }
 
     /**
@@ -1195,7 +1134,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1254,7 +1193,9 @@ class Facebody
      */
     public function recognizeFace(RecognizeFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeFaceResponse());
     }
 
     /**
@@ -1267,7 +1208,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1326,7 +1267,9 @@ class Facebody
      */
     public function compareFace(CompareFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('CompareFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new CompareFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('CompareFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new CompareFaceResponse());
     }
 
     /**
@@ -1336,7 +1279,9 @@ class Facebody
      */
     public function detectFace(DetectFaceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DetectFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectFaceResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DetectFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectFaceResponse());
     }
 
     /**
@@ -1349,7 +1294,7 @@ class Facebody
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1437,5 +1382,30 @@ class Facebody
         }
 
         return $this->_credential->getAccessKeySecret();
+    }
+
+    /**
+     * @param string $productId
+     * @param string $regionId
+     * @param string $endpointRule
+     * @param string $network
+     * @param string $suffix
+     * @param array  $endpointMap
+     * @param string $endpoint
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
+    {
+        if (!Utils::_empty($endpoint)) {
+            return $endpoint;
+        }
+        if (!Utils::_empty($endpointMap['regionId'])) {
+            return $endpointMap['regionId'];
+        }
+
+        return Endpoint::getEndpointRules($productId, $regionId, $endpointRule, $network, $suffix);
     }
 }

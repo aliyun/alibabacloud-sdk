@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\ListImagesResponse;
+namespace AlibabaCloud\SDK\Facebody\V20191230\Facebody\ListFaceEntitiesResponse;
 
 use AlibabaCloud\Tea\Model;
 
@@ -25,18 +25,18 @@ class data extends Model
      *
      * @var array
      */
-    public $imageList;
+    public $entities;
     protected $_name = [
         'token'      => 'Token',
         'totalCount' => 'TotalCount',
-        'imageList'  => 'ImageList',
+        'entities'   => 'Entities',
     ];
 
     public function validate()
     {
         Model::validateRequired('token', $this->token, true);
         Model::validateRequired('totalCount', $this->totalCount, true);
-        Model::validateRequired('imageList', $this->imageList, true);
+        Model::validateRequired('entities', $this->entities, true);
     }
 
     public function toMap()
@@ -44,11 +44,11 @@ class data extends Model
         $res               = [];
         $res['Token']      = $this->token;
         $res['TotalCount'] = $this->totalCount;
-        $res['ImageList']  = [];
-        if (null !== $this->imageList && \is_array($this->imageList)) {
+        $res['Entities']   = [];
+        if (null !== $this->entities && \is_array($this->entities)) {
             $n = 0;
-            foreach ($this->imageList as $item) {
-                $res['ImageList'][$n++] = null !== $item ? $item->toMap() : $item;
+            foreach ($this->entities as $item) {
+                $res['Entities'][$n++] = null !== $item ? $item->toMap() : $item;
             }
         }
 
@@ -69,12 +69,12 @@ class data extends Model
         if (isset($map['TotalCount'])) {
             $model->totalCount = $map['TotalCount'];
         }
-        if (isset($map['ImageList'])) {
-            if (!empty($map['ImageList'])) {
-                $model->imageList = [];
-                $n                = 0;
-                foreach ($map['ImageList'] as $item) {
-                    $model->imageList[$n++] = null !== $item ? ListImagesResponse\data\imageList::fromMap($item) : $item;
+        if (isset($map['Entities'])) {
+            if (!empty($map['Entities'])) {
+                $model->entities = [];
+                $n               = 0;
+                foreach ($map['Entities'] as $item) {
+                    $model->entities[$n++] = null !== $item ? ListFaceEntitiesResponse\data\entities::fromMap($item) : $item;
                 }
             }
         }

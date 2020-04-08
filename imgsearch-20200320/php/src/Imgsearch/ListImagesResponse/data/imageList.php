@@ -21,30 +21,38 @@ class imageList extends Model
      */
     public $extraData;
     /**
-     * @description imageUrl
-     *
-     * @var string
-     */
-    public $imageUrl;
-    /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
+    /**
+     * @description updatedAt
+     *
+     * @var int
+     */
+    public $updatedAt;
+    /**
+     * @description createdAt
+     *
+     * @var int
+     */
+    public $createdAt;
     protected $_name = [
         'dataId'    => 'DataId',
         'extraData' => 'ExtraData',
-        'imageUrl'  => 'ImageUrl',
         'entityId'  => 'EntityId',
+        'updatedAt' => 'UpdatedAt',
+        'createdAt' => 'CreatedAt',
     ];
 
     public function validate()
     {
         Model::validateRequired('dataId', $this->dataId, true);
         Model::validateRequired('extraData', $this->extraData, true);
-        Model::validateRequired('imageUrl', $this->imageUrl, true);
         Model::validateRequired('entityId', $this->entityId, true);
+        Model::validateRequired('updatedAt', $this->updatedAt, true);
+        Model::validateRequired('createdAt', $this->createdAt, true);
     }
 
     public function toMap()
@@ -52,8 +60,9 @@ class imageList extends Model
         $res              = [];
         $res['DataId']    = $this->dataId;
         $res['ExtraData'] = $this->extraData;
-        $res['ImageUrl']  = $this->imageUrl;
         $res['EntityId']  = $this->entityId;
+        $res['UpdatedAt'] = $this->updatedAt;
+        $res['CreatedAt'] = $this->createdAt;
 
         return $res;
     }
@@ -72,11 +81,14 @@ class imageList extends Model
         if (isset($map['ExtraData'])) {
             $model->extraData = $map['ExtraData'];
         }
-        if (isset($map['ImageUrl'])) {
-            $model->imageUrl = $map['ImageUrl'];
-        }
         if (isset($map['EntityId'])) {
             $model->entityId = $map['EntityId'];
+        }
+        if (isset($map['UpdatedAt'])) {
+            $model->updatedAt = $map['UpdatedAt'];
+        }
+        if (isset($map['CreatedAt'])) {
+            $model->createdAt = $map['CreatedAt'];
         }
 
         return $model;

@@ -32,18 +32,11 @@ class faceItems extends Model
      * @var string
      */
     public $entityId;
-    /**
-     * @description imageUrl
-     *
-     * @var string
-     */
-    public $imageUrl;
     protected $_name = [
         'faceId'    => 'FaceId',
         'score'     => 'Score',
         'extraData' => 'ExtraData',
         'entityId'  => 'EntityId',
-        'imageUrl'  => 'ImageUrl',
     ];
 
     public function validate()
@@ -52,7 +45,6 @@ class faceItems extends Model
         Model::validateRequired('score', $this->score, true);
         Model::validateRequired('extraData', $this->extraData, true);
         Model::validateRequired('entityId', $this->entityId, true);
-        Model::validateRequired('imageUrl', $this->imageUrl, true);
     }
 
     public function toMap()
@@ -62,7 +54,6 @@ class faceItems extends Model
         $res['Score']     = $this->score;
         $res['ExtraData'] = $this->extraData;
         $res['EntityId']  = $this->entityId;
-        $res['ImageUrl']  = $this->imageUrl;
 
         return $res;
     }
@@ -86,9 +77,6 @@ class faceItems extends Model
         }
         if (isset($map['EntityId'])) {
             $model->entityId = $map['EntityId'];
-        }
-        if (isset($map['ImageUrl'])) {
-            $model->imageUrl = $map['ImageUrl'];
         }
 
         return $model;
