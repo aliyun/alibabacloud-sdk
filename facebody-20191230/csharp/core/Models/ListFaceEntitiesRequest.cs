@@ -6,16 +6,12 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imgsearch20200320.Models
+namespace AlibabaCloud.Facebody20191230.Models
 {
-    public class ListImagesRequest : TeaModel {
+    public class ListFaceEntitiesRequest : TeaModel {
         [NameInMap("DbName")]
         [Validation(Required=true)]
         public string DbName { get; set; }
-
-        [NameInMap("Token")]
-        [Validation(Required=false)]
-        public string Token { get; set; }
 
         [NameInMap("Offset")]
         [Validation(Required=false)]
@@ -25,13 +21,21 @@ namespace AlibabaCloud.Imgsearch20200320.Models
         [Validation(Required=false)]
         public int? Limit { get; set; }
 
-        [NameInMap("Order")]
+        [NameInMap("Token")]
         [Validation(Required=false)]
-        public string Order { get; set; }
+        public string Token { get; set; }
+
+        [NameInMap("Labels")]
+        [Validation(Required=false)]
+        public string Labels { get; set; }
 
         [NameInMap("EntityIdPrefix")]
         [Validation(Required=false)]
         public string EntityIdPrefix { get; set; }
+
+        [NameInMap("Order")]
+        [Validation(Required=false)]
+        public string Order { get; set; }
 
     }
 

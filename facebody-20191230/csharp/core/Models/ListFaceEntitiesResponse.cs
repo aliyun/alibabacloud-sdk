@@ -6,32 +6,33 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imgsearch20200320.Models
+namespace AlibabaCloud.Facebody20191230.Models
 {
-    public class ListImagesResponse : TeaModel {
+    public class ListFaceEntitiesResponse : TeaModel {
         [NameInMap("RequestId")]
         [Validation(Required=true)]
         public string RequestId { get; set; }
 
         [NameInMap("Data")]
         [Validation(Required=true)]
-        public ListImagesResponseData Data { get; set; }
-        public class ListImagesResponseData : TeaModel {
+        public ListFaceEntitiesResponseData Data { get; set; }
+        public class ListFaceEntitiesResponseData : TeaModel {
             [NameInMap("Token")]
             [Validation(Required=true)]
             public string Token { get; set; }
             [NameInMap("TotalCount")]
             [Validation(Required=true)]
             public int? TotalCount { get; set; }
-            [NameInMap("ImageList")]
+            [NameInMap("Entities")]
             [Validation(Required=true)]
-            public List<ListImagesResponseDataImageList> ImageList { get; set; }
-            public class ListImagesResponseDataImageList : TeaModel {
-                    public string DataId { get; set; }
-                    public string ExtraData { get; set; }
+            public List<ListFaceEntitiesResponseDataEntities> Entities { get; set; }
+            public class ListFaceEntitiesResponseDataEntities : TeaModel {
+                    public string DbName { get; set; }
                     public string EntityId { get; set; }
-                    public long UpdatedAt { get; set; }
+                    public int? FaceCount { get; set; }
+                    public string Labels { get; set; }
                     public long CreatedAt { get; set; }
+                    public long UpdatedAt { get; set; }
             }
         };
 

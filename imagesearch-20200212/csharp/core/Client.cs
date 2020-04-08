@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 using Tea;
+using Tea.Utils;
 
 using AlibabaCloud.ImageSearch.Models;
 
@@ -14,21 +15,21 @@ namespace AlibabaCloud.ImageSearch
 {
     public class Client 
     {
-        private string _endpoint;
-        private string _regionId;
-        private string _protocol;
-        private string _userAgent;
-        private string _endpointType;
-        private int? _readTimeout;
-        private int? _connectTimeout;
-        private string _httpProxy;
-        private string _httpsProxy;
-        private string _socks5Proxy;
-        private string _socks5NetWork;
-        private string _noProxy;
-        private int? _maxIdleConns;
-        private string _openPlatformEndpoint;
-        private Aliyun.Credentials.Client _credential;
+        protected string _endpoint;
+        protected string _regionId;
+        protected string _protocol;
+        protected string _userAgent;
+        protected string _endpointType;
+        protected int? _readTimeout;
+        protected int? _connectTimeout;
+        protected string _httpProxy;
+        protected string _httpsProxy;
+        protected string _socks5Proxy;
+        protected string _socks5NetWork;
+        protected string _noProxy;
+        protected int? _maxIdleConns;
+        protected string _openPlatformEndpoint;
+        protected Aliyun.Credentials.Client _credential;
 
         public Client(Config config)
         {
@@ -162,9 +163,9 @@ namespace AlibabaCloud.ImageSearch
                     {
                         throw new TeaException(new Dictionary<string, object>
                         {
-                            {"message", body["Message"]},
+                            {"message", body.Get("Message")},
                             {"data", body},
-                            {"code", body["Code"]},
+                            {"code", body.Get("Code")},
                         });
                     }
                     return body;
@@ -261,9 +262,9 @@ namespace AlibabaCloud.ImageSearch
                     {
                         throw new TeaException(new Dictionary<string, object>
                         {
-                            {"message", body["Message"]},
+                            {"message", body.Get("Message")},
                             {"data", body},
-                            {"code", body["Code"]},
+                            {"code", body.Get("Code")},
                         });
                     }
                     return body;
@@ -304,6 +305,7 @@ namespace AlibabaCloud.ImageSearch
 
         public SearchImageByPicResponse SearchImageByPicAdvance(SearchImageByPicAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -322,6 +324,7 @@ namespace AlibabaCloud.ImageSearch
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -352,10 +355,11 @@ namespace AlibabaCloud.ImageSearch
                 BucketName = authResponse.Bucket,
                 Header = ossHeader,
             };
-            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions();
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
-            SearchImageByPicRequest searchImageByPicreq = new SearchImageByPicRequest() { };
+            // Step 2: request final api
+            SearchImageByPicRequest searchImageByPicreq = new SearchImageByPicRequest();
             AlibabaCloud.Commons.Common.Convert(request, searchImageByPicreq);
             searchImageByPicreq.PicContent = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             SearchImageByPicResponse searchImageByPicResp = SearchImageByPic(searchImageByPicreq, runtime);
@@ -364,6 +368,7 @@ namespace AlibabaCloud.ImageSearch
 
         public async Task<SearchImageByPicResponse> SearchImageByPicAdvanceAsync(SearchImageByPicAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -382,6 +387,7 @@ namespace AlibabaCloud.ImageSearch
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -412,10 +418,11 @@ namespace AlibabaCloud.ImageSearch
                 BucketName = authResponse.Bucket,
                 Header = ossHeader,
             };
-            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions();
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
-            SearchImageByPicRequest searchImageByPicreq = new SearchImageByPicRequest() { };
+            // Step 2: request final api
+            SearchImageByPicRequest searchImageByPicreq = new SearchImageByPicRequest();
             AlibabaCloud.Commons.Common.Convert(request, searchImageByPicreq);
             searchImageByPicreq.PicContent = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             SearchImageByPicResponse searchImageByPicResp = await SearchImageByPicAsync(searchImageByPicreq, runtime);
@@ -444,6 +451,7 @@ namespace AlibabaCloud.ImageSearch
 
         public AddImageResponse AddImageAdvance(AddImageAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = this._credential.GetAccessKeyId();
             string accessKeySecret = this._credential.GetAccessKeySecret();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -462,6 +470,7 @@ namespace AlibabaCloud.ImageSearch
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = authClient.AuthorizeFileUpload(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -492,10 +501,11 @@ namespace AlibabaCloud.ImageSearch
                 BucketName = authResponse.Bucket,
                 Header = ossHeader,
             };
-            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions();
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             ossClient.PostObject(uploadRequest, ossRuntime);
-            AddImageRequest addImagereq = new AddImageRequest() { };
+            // Step 2: request final api
+            AddImageRequest addImagereq = new AddImageRequest();
             AlibabaCloud.Commons.Common.Convert(request, addImagereq);
             addImagereq.PicContent = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             AddImageResponse addImageResp = AddImage(addImagereq, runtime);
@@ -504,6 +514,7 @@ namespace AlibabaCloud.ImageSearch
 
         public async Task<AddImageResponse> AddImageAdvanceAsync(AddImageAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
+            // Step 0: init client
             string accessKeyId = await this._credential.GetAccessKeyIdAsync();
             string accessKeySecret = await this._credential.GetAccessKeySecretAsync();
             AlibabaCloud.SDK.OpenPlatform.Models.Config authConfig = new AlibabaCloud.SDK.OpenPlatform.Models.Config
@@ -522,6 +533,7 @@ namespace AlibabaCloud.ImageSearch
                 RegionId = _regionId,
             };
             AlibabaCloud.SDK.OpenPlatform.Models.AuthorizeFileUploadResponse authResponse = await authClient.AuthorizeFileUploadAsync(authRequest, runtime);
+            // Step 1: request OSS api to upload file
             AlibabaCloud.OSS.Models.Config ossConfig = new AlibabaCloud.OSS.Models.Config
             {
                 AccessKeyId = authResponse.AccessKeyId,
@@ -552,10 +564,11 @@ namespace AlibabaCloud.ImageSearch
                 BucketName = authResponse.Bucket,
                 Header = ossHeader,
             };
-            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions() { };
+            AlibabaCloud.OSSUtil.Models.RuntimeOptions ossRuntime = new AlibabaCloud.OSSUtil.Models.RuntimeOptions();
             AlibabaCloud.Commons.Common.Convert(runtime, ossRuntime);
             await ossClient.PostObjectAsync(uploadRequest, ossRuntime);
-            AddImageRequest addImagereq = new AddImageRequest() { };
+            // Step 2: request final api
+            AddImageRequest addImagereq = new AddImageRequest();
             AlibabaCloud.Commons.Common.Convert(request, addImagereq);
             addImagereq.PicContent = "http://" + authResponse.Bucket + "." + authResponse.Endpoint + "/" + authResponse.ObjectKey;
             AddImageResponse addImageResp = await AddImageAsync(addImagereq, runtime);

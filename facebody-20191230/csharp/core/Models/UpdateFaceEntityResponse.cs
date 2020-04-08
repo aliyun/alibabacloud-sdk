@@ -8,10 +8,10 @@ using Tea;
 
 namespace AlibabaCloud.Facebody20191230.Models
 {
-    public class RecognizeFaceRequest : TeaModel {
-        [NameInMap("ImageURL")]
+    public class UpdateFaceEntityResponse : TeaModel {
+        [NameInMap("RequestId")]
         [Validation(Required=true)]
-        public string ImageURL { get; set; }
+        public string RequestId { get; set; }
 
     }
 

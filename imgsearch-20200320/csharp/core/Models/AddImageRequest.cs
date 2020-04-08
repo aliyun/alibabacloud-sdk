@@ -6,16 +6,12 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imgsearch.Models
+namespace AlibabaCloud.Imgsearch20200320.Models
 {
     public class AddImageRequest : TeaModel {
         [NameInMap("DbName")]
         [Validation(Required=true)]
         public string DbName { get; set; }
-
-        [NameInMap("DataId")]
-        [Validation(Required=true)]
-        public string DataId { get; set; }
 
         [NameInMap("ImageUrl")]
         [Validation(Required=true)]

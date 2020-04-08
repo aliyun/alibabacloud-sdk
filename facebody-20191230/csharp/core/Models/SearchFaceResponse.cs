@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Facebody.Models
+namespace AlibabaCloud.Facebody20191230.Models
 {
     public class SearchFaceResponse : TeaModel {
         [NameInMap("RequestId")]
@@ -27,7 +27,6 @@ namespace AlibabaCloud.Facebody.Models
                             public float? Score { get; set; }
                             public string ExtraData { get; set; }
                             public string EntityId { get; set; }
-                            public string ImageUrl { get; set; }
                     }
                     public SearchFaceResponseDataMatchListLocation Location { get; set; }
                     public class SearchFaceResponseDataMatchListLocation : TeaModel {
