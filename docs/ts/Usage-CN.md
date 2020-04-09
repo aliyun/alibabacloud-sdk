@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-# Node.js SDK 使用说明
+# TypeScript/Node.js SDK 使用说明
 
 ## 要求
 

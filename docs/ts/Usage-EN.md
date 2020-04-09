@@ -2,7 +2,7 @@ English | [简体中文](Usage-CN.md)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-# Node.js SDK instructions
+# TypeScript/Node.js SDK instructions
 
 ## Requirements
 
