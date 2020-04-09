@@ -124,7 +124,7 @@ func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest, r
 		return
 	}
 	_result = &AuthorizeFileUploadResponse{}
-	_body, _err := client.DoRequest("AuthorizeFileUpload", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
