@@ -8,6 +8,7 @@
  - [Usage for Java](./docs/java/0-Examples-CN.md)
  - [Usage for PHP](./docs/php/0-Examples-CN.md)
  - [Usage for TypeScript/Node.js](./docs/ts/Usage-CN.md)
+ - [Usage for .Net](./docs/csharp/0-Examples-CN.md)
 
 ## 问题
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new)，不符合指南的问题可能会立即关闭。
