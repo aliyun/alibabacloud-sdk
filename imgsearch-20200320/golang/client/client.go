@@ -601,7 +601,7 @@ func (client *Client) ListImageDbs(request *ListImageDbsRequest, runtime *util.R
 		return
 	}
 	_result = &ListImageDbsResponse{}
-	_body, _err := client.DoRequest("ListImageDbs", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -615,7 +615,7 @@ func (client *Client) ListImages(request *ListImagesRequest, runtime *util.Runti
 		return
 	}
 	_result = &ListImagesResponse{}
-	_body, _err := client.DoRequest("ListImages", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListImages", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -629,7 +629,7 @@ func (client *Client) SearchImage(request *SearchImageRequest, runtime *util.Run
 		return
 	}
 	_result = &SearchImageResponse{}
-	_body, _err := client.DoRequest("SearchImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -727,7 +727,7 @@ func (client *Client) AddImage(request *AddImageRequest, runtime *util.RuntimeOp
 		return
 	}
 	_result = &AddImageResponse{}
-	_body, _err := client.DoRequest("AddImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("AddImage", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -825,7 +825,7 @@ func (client *Client) DeleteImageDb(request *DeleteImageDbRequest, runtime *util
 		return
 	}
 	_result = &DeleteImageDbResponse{}
-	_body, _err := client.DoRequest("DeleteImageDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -839,7 +839,7 @@ func (client *Client) CreateImageDb(request *CreateImageDbRequest, runtime *util
 		return
 	}
 	_result = &CreateImageDbResponse{}
-	_body, _err := client.DoRequest("CreateImageDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -853,7 +853,7 @@ func (client *Client) DeleteImage(request *DeleteImageRequest, runtime *util.Run
 		return
 	}
 	_result = &DeleteImageResponse{}
-	_body, _err := client.DoRequest("DeleteImage", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
