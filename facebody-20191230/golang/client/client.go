@@ -2951,7 +2951,7 @@ func (client *Client) AddFaceEntity(request *AddFaceEntityRequest, runtime *util
 		return
 	}
 	_result = &AddFaceEntityResponse{}
-	_body, _err := client.DoRequest("AddFaceEntity", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("AddFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2965,7 +2965,7 @@ func (client *Client) DeleteFaceEntity(request *DeleteFaceEntityRequest, runtime
 		return
 	}
 	_result = &DeleteFaceEntityResponse{}
-	_body, _err := client.DoRequest("DeleteFaceEntity", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2979,7 +2979,7 @@ func (client *Client) ListFaceEntities(request *ListFaceEntitiesRequest, runtime
 		return
 	}
 	_result = &ListFaceEntitiesResponse{}
-	_body, _err := client.DoRequest("ListFaceEntities", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListFaceEntities", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2993,7 +2993,7 @@ func (client *Client) GetFaceEntity(request *GetFaceEntityRequest, runtime *util
 		return
 	}
 	_result = &GetFaceEntityResponse{}
-	_body, _err := client.DoRequest("GetFaceEntity", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("GetFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3007,7 +3007,7 @@ func (client *Client) UpdateFaceEntity(request *UpdateFaceEntityRequest, runtime
 		return
 	}
 	_result = &UpdateFaceEntityResponse{}
-	_body, _err := client.DoRequest("UpdateFaceEntity", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("UpdateFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3021,7 +3021,7 @@ func (client *Client) FaceMakeup(request *FaceMakeupRequest, runtime *util.Runti
 		return
 	}
 	_result = &FaceMakeupResponse{}
-	_body, _err := client.DoRequest("FaceMakeup", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("FaceMakeup", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3119,7 +3119,7 @@ func (client *Client) HandPosture(request *HandPostureRequest, runtime *util.Run
 		return
 	}
 	_result = &HandPostureResponse{}
-	_body, _err := client.DoRequest("HandPosture", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("HandPosture", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3217,7 +3217,7 @@ func (client *Client) BodyPosture(request *BodyPostureRequest, runtime *util.Run
 		return
 	}
 	_result = &BodyPostureResponse{}
-	_body, _err := client.DoRequest("BodyPosture", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("BodyPosture", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3315,7 +3315,7 @@ func (client *Client) DetectPedestrian(request *DetectPedestrianRequest, runtime
 		return
 	}
 	_result = &DetectPedestrianResponse{}
-	_body, _err := client.DoRequest("DetectPedestrian", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectPedestrian", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3413,7 +3413,7 @@ func (client *Client) FaceBeauty(request *FaceBeautyRequest, runtime *util.Runti
 		return
 	}
 	_result = &FaceBeautyResponse{}
-	_body, _err := client.DoRequest("FaceBeauty", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("FaceBeauty", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3511,7 +3511,7 @@ func (client *Client) FaceFilter(request *FaceFilterRequest, runtime *util.Runti
 		return
 	}
 	_result = &FaceFilterResponse{}
-	_body, _err := client.DoRequest("FaceFilter", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("FaceFilter", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3609,7 +3609,7 @@ func (client *Client) EnhanceFace(request *EnhanceFaceRequest, runtime *util.Run
 		return
 	}
 	_result = &EnhanceFaceResponse{}
-	_body, _err := client.DoRequest("EnhanceFace", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("EnhanceFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3707,7 +3707,7 @@ func (client *Client) FaceTidyup(request *FaceTidyupRequest, runtime *util.Runti
 		return
 	}
 	_result = &FaceTidyupResponse{}
-	_body, _err := client.DoRequest("FaceTidyup", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("FaceTidyup", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3805,7 +3805,7 @@ func (client *Client) SearchFace(request *SearchFaceRequest, runtime *util.Runti
 		return
 	}
 	_result = &SearchFaceResponse{}
-	_body, _err := client.DoRequest("SearchFace", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("SearchFace", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3903,7 +3903,7 @@ func (client *Client) ListFaceDbs(request *ListFaceDbsRequest, runtime *util.Run
 		return
 	}
 	_result = &ListFaceDbsResponse{}
-	_body, _err := client.DoRequest("ListFaceDbs", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListFaceDbs", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3917,7 +3917,7 @@ func (client *Client) CreateFaceDb(request *CreateFaceDbRequest, runtime *util.R
 		return
 	}
 	_result = &CreateFaceDbResponse{}
-	_body, _err := client.DoRequest("CreateFaceDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("CreateFaceDb", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3931,7 +3931,7 @@ func (client *Client) DeleteFace(request *DeleteFaceRequest, runtime *util.Runti
 		return
 	}
 	_result = &DeleteFaceResponse{}
-	_body, _err := client.DoRequest("DeleteFace", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteFace", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3945,7 +3945,7 @@ func (client *Client) DeleteFaceDb(request *DeleteFaceDbRequest, runtime *util.R
 		return
 	}
 	_result = &DeleteFaceDbResponse{}
-	_body, _err := client.DoRequest("DeleteFaceDb", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteFaceDb", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3959,7 +3959,7 @@ func (client *Client) AddFace(request *AddFaceRequest, runtime *util.RuntimeOpti
 		return
 	}
 	_result = &AddFaceResponse{}
-	_body, _err := client.DoRequest("AddFace", "HTTPS", "GET", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("AddFace", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4057,7 +4057,7 @@ func (client *Client) RecognizeExpression(request *RecognizeExpressionRequest, r
 		return
 	}
 	_result = &RecognizeExpressionResponse{}
-	_body, _err := client.DoRequest("RecognizeExpression", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("RecognizeExpression", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4155,7 +4155,7 @@ func (client *Client) RecognizePublicFace(request *RecognizePublicFaceRequest, r
 		return
 	}
 	_result = &RecognizePublicFaceResponse{}
-	_body, _err := client.DoRequest("RecognizePublicFace", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("RecognizePublicFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4169,7 +4169,7 @@ func (client *Client) DetectLivingFace(request *DetectLivingFaceRequest, runtime
 		return
 	}
 	_result = &DetectLivingFaceResponse{}
-	_body, _err := client.DoRequest("DetectLivingFace", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectLivingFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4183,7 +4183,7 @@ func (client *Client) DetectBodyCount(request *DetectBodyCountRequest, runtime *
 		return
 	}
 	_result = &DetectBodyCountResponse{}
-	_body, _err := client.DoRequest("DetectBodyCount", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectBodyCount", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4281,7 +4281,7 @@ func (client *Client) DetectMask(request *DetectMaskRequest, runtime *util.Runti
 		return
 	}
 	_result = &DetectMaskResponse{}
-	_body, _err := client.DoRequest("DetectMask", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectMask", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4379,7 +4379,7 @@ func (client *Client) RecognizeFace(request *RecognizeFaceRequest, runtime *util
 		return
 	}
 	_result = &RecognizeFaceResponse{}
-	_body, _err := client.DoRequest("RecognizeFace", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("RecognizeFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4477,7 +4477,7 @@ func (client *Client) CompareFace(request *CompareFaceRequest, runtime *util.Run
 		return
 	}
 	_result = &CompareFaceResponse{}
-	_body, _err := client.DoRequest("CompareFace", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("CompareFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4491,7 +4491,7 @@ func (client *Client) DetectFace(request *DetectFaceRequest, runtime *util.Runti
 		return
 	}
 	_result = &DetectFaceResponse{}
-	_body, _err := client.DoRequest("DetectFace", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}

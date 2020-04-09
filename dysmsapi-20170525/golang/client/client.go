@@ -1233,7 +1233,7 @@ func (client *Client) QuerySmsTemplate(request *QuerySmsTemplateRequest, runtime
 		return
 	}
 	_result = &QuerySmsTemplateResponse{}
-	_body, _err := client.DoRequest("QuerySmsTemplate", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("QuerySmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1247,7 +1247,7 @@ func (client *Client) QuerySmsSign(request *QuerySmsSignRequest, runtime *util.R
 		return
 	}
 	_result = &QuerySmsSignResponse{}
-	_body, _err := client.DoRequest("QuerySmsSign", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("QuerySmsSign", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1261,7 +1261,7 @@ func (client *Client) ModifySmsTemplate(request *ModifySmsTemplateRequest, runti
 		return
 	}
 	_result = &ModifySmsTemplateResponse{}
-	_body, _err := client.DoRequest("ModifySmsTemplate", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("ModifySmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1275,7 +1275,7 @@ func (client *Client) ModifySmsSign(request *ModifySmsSignRequest, runtime *util
 		return
 	}
 	_result = &ModifySmsSignResponse{}
-	_body, _err := client.DoRequest("ModifySmsSign", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("ModifySmsSign", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1289,7 +1289,7 @@ func (client *Client) DeleteSmsTemplate(request *DeleteSmsTemplateRequest, runti
 		return
 	}
 	_result = &DeleteSmsTemplateResponse{}
-	_body, _err := client.DoRequest("DeleteSmsTemplate", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("DeleteSmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1303,7 +1303,7 @@ func (client *Client) DeleteSmsSign(request *DeleteSmsSignRequest, runtime *util
 		return
 	}
 	_result = &DeleteSmsSignResponse{}
-	_body, _err := client.DoRequest("DeleteSmsSign", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("DeleteSmsSign", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1317,7 +1317,7 @@ func (client *Client) AddSmsTemplate(request *AddSmsTemplateRequest, runtime *ut
 		return
 	}
 	_result = &AddSmsTemplateResponse{}
-	_body, _err := client.DoRequest("AddSmsTemplate", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("AddSmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1331,7 +1331,7 @@ func (client *Client) AddSmsSign(request *AddSmsSignRequest, runtime *util.Runti
 		return
 	}
 	_result = &AddSmsSignResponse{}
-	_body, _err := client.DoRequest("AddSmsSign", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("AddSmsSign", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1345,7 +1345,7 @@ func (client *Client) SendBatchSms(request *SendBatchSmsRequest, runtime *util.R
 		return
 	}
 	_result = &SendBatchSmsResponse{}
-	_body, _err := client.DoRequest("SendBatchSms", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("SendBatchSms", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1359,7 +1359,7 @@ func (client *Client) SendSms(request *SendSmsRequest, runtime *util.RuntimeOpti
 		return
 	}
 	_result = &SendSmsResponse{}
-	_body, _err := client.DoRequest("SendSms", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("SendSms", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1373,7 +1373,7 @@ func (client *Client) QuerySendDetails(request *QuerySendDetailsRequest, runtime
 		return
 	}
 	_result = &QuerySendDetailsResponse{}
-	_body, _err := client.DoRequest("QuerySendDetails", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("QuerySendDetails", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
