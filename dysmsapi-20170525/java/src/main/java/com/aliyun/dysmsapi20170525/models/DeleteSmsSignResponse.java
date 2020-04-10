@@ -1,16 +1,16 @@
 // This file is auto-generated, don't edit it. Thanks.
-package com.aliyun.dysmsapi.models;
+package com.aliyun.dysmsapi20170525.models;
 
 import com.aliyun.tea.*;
 
-public class SendSmsResponse extends TeaModel {
+public class DeleteSmsSignResponse extends TeaModel {
     @NameInMap("RequestId")
     @Validation(required = true)
     public String requestId;
 
-    @NameInMap("BizId")
+    @NameInMap("SignName")
     @Validation(required = true)
-    public String bizId;
+    public String signName;
 
     @NameInMap("Code")
     @Validation(required = true)
@@ -20,8 +20,8 @@ public class SendSmsResponse extends TeaModel {
     @Validation(required = true)
     public String message;
 
-    public static SendSmsResponse build(java.util.Map<String, ?> map) throws Exception {
-        SendSmsResponse self = new SendSmsResponse();
+    public static DeleteSmsSignResponse build(java.util.Map<String, ?> map) throws Exception {
+        DeleteSmsSignResponse self = new DeleteSmsSignResponse();
         return TeaModel.build(map, self);
     }
 

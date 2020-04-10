@@ -1,9 +1,9 @@
 // This file is auto-generated, don't edit it. Thanks.
-package com.aliyun.dysmsapi.models;
+package com.aliyun.dysmsapi20170525.models;
 
 import com.aliyun.tea.*;
 
-public class ModifySmsSignRequest extends TeaModel {
+public class AddSmsSignRequest extends TeaModel {
     @NameInMap("AccessKeyId")
     public String accessKeyId;
 
@@ -26,18 +26,18 @@ public class ModifySmsSignRequest extends TeaModel {
 
     @NameInMap("SignFileList")
     @Validation(required = true)
-    public java.util.List<ModifySmsSignRequestSignFileList> signFileList;
+    public java.util.List<AddSmsSignRequestSignFileList> signFileList;
 
     @NameInMap("Remark")
     @Validation(required = true)
     public String remark;
 
-    public static ModifySmsSignRequest build(java.util.Map<String, ?> map) throws Exception {
-        ModifySmsSignRequest self = new ModifySmsSignRequest();
+    public static AddSmsSignRequest build(java.util.Map<String, ?> map) throws Exception {
+        AddSmsSignRequest self = new AddSmsSignRequest();
         return TeaModel.build(map, self);
     }
 
-    public static class ModifySmsSignRequestSignFileList extends TeaModel {
+    public static class AddSmsSignRequestSignFileList extends TeaModel {
         @NameInMap("FileSuffix")
         @Validation(required = true)
         public String fileSuffix;
@@ -46,8 +46,8 @@ public class ModifySmsSignRequest extends TeaModel {
         @Validation(required = true)
         public String fileContents;
 
-        public static ModifySmsSignRequestSignFileList build(java.util.Map<String, ?> map) throws Exception {
-            ModifySmsSignRequestSignFileList self = new ModifySmsSignRequestSignFileList();
+        public static AddSmsSignRequestSignFileList build(java.util.Map<String, ?> map) throws Exception {
+            AddSmsSignRequestSignFileList self = new AddSmsSignRequestSignFileList();
             return TeaModel.build(map, self);
         }
 

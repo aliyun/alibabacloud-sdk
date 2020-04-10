@@ -1,9 +1,9 @@
 // This file is auto-generated, don't edit it. Thanks.
-package com.aliyun.dysmsapi.models;
+package com.aliyun.dysmsapi20170525.models;
 
 import com.aliyun.tea.*;
 
-public class DeleteSmsTemplateRequest extends TeaModel {
+public class QuerySmsSignRequest extends TeaModel {
     @NameInMap("AccessKeyId")
     public String accessKeyId;
 
@@ -16,12 +16,12 @@ public class DeleteSmsTemplateRequest extends TeaModel {
     @NameInMap("ResourceOwnerId")
     public Long resourceOwnerId;
 
-    @NameInMap("TemplateCode")
+    @NameInMap("SignName")
     @Validation(required = true)
-    public String templateCode;
+    public String signName;
 
-    public static DeleteSmsTemplateRequest build(java.util.Map<String, ?> map) throws Exception {
-        DeleteSmsTemplateRequest self = new DeleteSmsTemplateRequest();
+    public static QuerySmsSignRequest build(java.util.Map<String, ?> map) throws Exception {
+        QuerySmsSignRequest self = new QuerySmsSignRequest();
         return TeaModel.build(map, self);
     }
 

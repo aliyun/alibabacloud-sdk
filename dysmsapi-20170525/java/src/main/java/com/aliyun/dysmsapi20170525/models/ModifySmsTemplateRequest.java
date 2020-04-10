@@ -1,5 +1,5 @@
 // This file is auto-generated, don't edit it. Thanks.
-package com.aliyun.dysmsapi.models;
+package com.aliyun.dysmsapi20170525.models;
 
 import com.aliyun.tea.*;
 
