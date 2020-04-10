@@ -27,13 +27,13 @@ namespace AlibabaCloud.SDK.OpenPlatform20191219
         public AuthorizeFileUploadResponse AuthorizeFileUpload(AuthorizeFileUploadRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AuthorizeFileUploadResponse>(DoRequest("AuthorizeFileUpload", "HTTPS", "GET", "AK", request.ToMap(), null, runtime));
+            return TeaModel.ToObject<AuthorizeFileUploadResponse>(DoRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", request.ToMap(), null, runtime));
         }
 
         public async Task<AuthorizeFileUploadResponse> AuthorizeFileUploadAsync(AuthorizeFileUploadRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AuthorizeFileUploadResponse>(await DoRequestAsync("AuthorizeFileUpload", "HTTPS", "GET", "AK", request.ToMap(), null, runtime));
+            return TeaModel.ToObject<AuthorizeFileUploadResponse>(await DoRequestAsync("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", request.ToMap(), null, runtime));
         }
 
         public string GetEndpoint(string productId, string regionId, string endpointRule, string network, string suffix, Dictionary<string, string> endpointMap, string endpoint)
