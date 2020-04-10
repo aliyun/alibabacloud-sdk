@@ -3970,7 +3970,6 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 		return _err
 	}
 	client.EndpointRule = "central"
-	client.EndpointMap = map[string]string{}
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -5120,7 +5119,7 @@ func (client *Client) GetEndpoint(productId string, regionId string, endpointRul
 		return _result, _err
 	}
 
-	if !util.Empty(endpointMap[regionId]) {
+	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
 		return _result, _err
 	}
 
