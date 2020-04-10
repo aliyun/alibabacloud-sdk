@@ -541,17 +541,17 @@ export default class Client extends RPC {
 
   async listImageDbs(request: ListImageDbsRequest, runtime: $Util.RuntimeOptions): Promise<ListImageDbsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListImageDbsResponse>(await this.doRequest("ListImageDbs", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new ListImageDbsResponse({}));
+    return $tea.cast<ListImageDbsResponse>(await this.doRequest("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new ListImageDbsResponse({}));
   }
 
   async listImages(request: ListImagesRequest, runtime: $Util.RuntimeOptions): Promise<ListImagesResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListImagesResponse>(await this.doRequest("ListImages", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new ListImagesResponse({}));
+    return $tea.cast<ListImagesResponse>(await this.doRequest("ListImages", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new ListImagesResponse({}));
   }
 
   async searchImage(request: SearchImageRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageResponse> {
     Util.validateModel(request);
-    return $tea.cast<SearchImageResponse>(await this.doRequest("SearchImage", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new SearchImageResponse({}));
+    return $tea.cast<SearchImageResponse>(await this.doRequest("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new SearchImageResponse({}));
   }
 
   async searchImageAdvance(request: SearchImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageResponse> {
@@ -612,7 +612,7 @@ export default class Client extends RPC {
 
   async addImage(request: AddImageRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
     Util.validateModel(request);
-    return $tea.cast<AddImageResponse>(await this.doRequest("AddImage", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new AddImageResponse({}));
+    return $tea.cast<AddImageResponse>(await this.doRequest("AddImage", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new AddImageResponse({}));
   }
 
   async addImageAdvance(request: AddImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
@@ -673,17 +673,17 @@ export default class Client extends RPC {
 
   async deleteImageDb(request: DeleteImageDbRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageDbResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteImageDbResponse>(await this.doRequest("DeleteImageDb", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new DeleteImageDbResponse({}));
+    return $tea.cast<DeleteImageDbResponse>(await this.doRequest("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DeleteImageDbResponse({}));
   }
 
   async createImageDb(request: CreateImageDbRequest, runtime: $Util.RuntimeOptions): Promise<CreateImageDbResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateImageDbResponse>(await this.doRequest("CreateImageDb", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new CreateImageDbResponse({}));
+    return $tea.cast<CreateImageDbResponse>(await this.doRequest("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new CreateImageDbResponse({}));
   }
 
   async deleteImage(request: DeleteImageRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteImageResponse>(await this.doRequest("DeleteImage", "HTTPS", "GET", "AK", null, $tea.toMap(request), runtime), new DeleteImageResponse({}));
+    return $tea.cast<DeleteImageResponse>(await this.doRequest("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new DeleteImageResponse({}));
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
