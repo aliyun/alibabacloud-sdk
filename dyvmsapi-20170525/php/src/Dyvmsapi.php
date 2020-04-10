@@ -93,7 +93,6 @@ class Dyvmsapi
     {
         parent::__construct($config);
         $this->_endpointRule = 'central';
-        $this->_endpointMap  = [];
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
@@ -1091,7 +1090,7 @@ class Dyvmsapi
         if (!Utils::emptyWithSuffix($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::emptyWithSuffix($endpointMap['regionId'])) {
+        if (!Utils::isUnset($endpointMap) && !Utils::emptyWithSuffix($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 

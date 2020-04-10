@@ -101,7 +101,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new AddFaceEntityResponse());
+        return Model::toModel($this->doRequest('AddFaceEntity', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new AddFaceEntityResponse());
     }
 
     /**
@@ -113,7 +113,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceEntityResponse());
+        return Model::toModel($this->doRequest('DeleteFaceEntity', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new DeleteFaceEntityResponse());
     }
 
     /**
@@ -125,7 +125,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListFaceEntities', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListFaceEntitiesResponse());
+        return Model::toModel($this->doRequest('ListFaceEntities', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new ListFaceEntitiesResponse());
     }
 
     /**
@@ -137,7 +137,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new GetFaceEntityResponse());
+        return Model::toModel($this->doRequest('GetFaceEntity', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new GetFaceEntityResponse());
     }
 
     /**
@@ -149,7 +149,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UpdateFaceEntity', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new UpdateFaceEntityResponse());
+        return Model::toModel($this->doRequest('UpdateFaceEntity', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new UpdateFaceEntityResponse());
     }
 
     /**
@@ -161,7 +161,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('FaceMakeup', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceMakeupResponse());
+        return Model::toModel($this->doRequest('FaceMakeup', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new FaceMakeupResponse());
     }
 
     /**
@@ -235,7 +235,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('HandPosture', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new HandPostureResponse());
+        return Model::toModel($this->doRequest('HandPosture', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new HandPostureResponse());
     }
 
     /**
@@ -309,7 +309,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('BodyPosture', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new BodyPostureResponse());
+        return Model::toModel($this->doRequest('BodyPosture', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new BodyPostureResponse());
     }
 
     /**
@@ -383,7 +383,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectPedestrian', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectPedestrianResponse());
+        return Model::toModel($this->doRequest('DetectPedestrian', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectPedestrianResponse());
     }
 
     /**
@@ -457,7 +457,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('FaceBeauty', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceBeautyResponse());
+        return Model::toModel($this->doRequest('FaceBeauty', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new FaceBeautyResponse());
     }
 
     /**
@@ -531,7 +531,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('FaceFilter', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceFilterResponse());
+        return Model::toModel($this->doRequest('FaceFilter', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new FaceFilterResponse());
     }
 
     /**
@@ -605,7 +605,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('EnhanceFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new EnhanceFaceResponse());
+        return Model::toModel($this->doRequest('EnhanceFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new EnhanceFaceResponse());
     }
 
     /**
@@ -679,7 +679,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('FaceTidyup', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new FaceTidyupResponse());
+        return Model::toModel($this->doRequest('FaceTidyup', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new FaceTidyupResponse());
     }
 
     /**
@@ -753,7 +753,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SearchFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new SearchFaceResponse());
+        return Model::toModel($this->doRequest('SearchFace', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new SearchFaceResponse());
     }
 
     /**
@@ -827,7 +827,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListFaceDbs', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListFaceDbsResponse());
+        return Model::toModel($this->doRequest('ListFaceDbs', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new ListFaceDbsResponse());
     }
 
     /**
@@ -839,7 +839,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateFaceDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new CreateFaceDbResponse());
+        return Model::toModel($this->doRequest('CreateFaceDb', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new CreateFaceDbResponse());
     }
 
     /**
@@ -851,7 +851,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceResponse());
+        return Model::toModel($this->doRequest('DeleteFace', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new DeleteFaceResponse());
     }
 
     /**
@@ -863,7 +863,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteFaceDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteFaceDbResponse());
+        return Model::toModel($this->doRequest('DeleteFaceDb', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new DeleteFaceDbResponse());
     }
 
     /**
@@ -875,7 +875,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddFace', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new AddFaceResponse());
+        return Model::toModel($this->doRequest('AddFace', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new AddFaceResponse());
     }
 
     /**
@@ -949,7 +949,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeExpression', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeExpressionResponse());
+        return Model::toModel($this->doRequest('RecognizeExpression', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeExpressionResponse());
     }
 
     /**
@@ -1023,7 +1023,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizePublicFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizePublicFaceResponse());
+        return Model::toModel($this->doRequest('RecognizePublicFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizePublicFaceResponse());
     }
 
     /**
@@ -1035,7 +1035,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectLivingFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectLivingFaceResponse());
+        return Model::toModel($this->doRequest('DetectLivingFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectLivingFaceResponse());
     }
 
     /**
@@ -1047,7 +1047,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectBodyCount', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectBodyCountResponse());
+        return Model::toModel($this->doRequest('DetectBodyCount', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectBodyCountResponse());
     }
 
     /**
@@ -1121,7 +1121,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectMask', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectMaskResponse());
+        return Model::toModel($this->doRequest('DetectMask', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectMaskResponse());
     }
 
     /**
@@ -1195,7 +1195,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeFaceResponse());
+        return Model::toModel($this->doRequest('RecognizeFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeFaceResponse());
     }
 
     /**
@@ -1269,7 +1269,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CompareFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new CompareFaceResponse());
+        return Model::toModel($this->doRequest('CompareFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new CompareFaceResponse());
     }
 
     /**
@@ -1281,7 +1281,7 @@ class Facebody
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectFace', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectFaceResponse());
+        return Model::toModel($this->doRequest('DetectFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectFaceResponse());
     }
 
     /**
@@ -1347,44 +1347,6 @@ class Facebody
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getUserAgent()
-    {
-        return Utils::getUserAgent($this->_userAgent);
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getAccessKeyId()
-    {
-        if (Utils::isUnset($this->_credential)) {
-            return '';
-        }
-
-        return $this->_credential->getAccessKeyId();
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getAccessKeySecret()
-    {
-        if (Utils::isUnset($this->_credential)) {
-            return '';
-        }
-
-        return $this->_credential->getAccessKeySecret();
-    }
-
-    /**
      * @param string $productId
      * @param string $regionId
      * @param string $endpointRule
@@ -1399,10 +1361,10 @@ class Facebody
      */
     public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
     {
-        if (!Utils::_empty($endpoint)) {
+        if (!Utils::emptyWithSuffix($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::_empty($endpointMap['regionId'])) {
+        if (!Utils::emptyWithSuffix($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 
