@@ -15,7 +15,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public AuthorizeFileUploadResponse authorizeFileUpload(AuthorizeFileUploadRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AuthorizeFileUpload", "HTTPS", "GET", "AK", TeaModel.buildMap(request), null, runtime), new AuthorizeFileUploadResponse());
+        return TeaModel.toModel(this.doRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", TeaModel.buildMap(request), null, runtime), new AuthorizeFileUploadResponse());
     }
 
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {
