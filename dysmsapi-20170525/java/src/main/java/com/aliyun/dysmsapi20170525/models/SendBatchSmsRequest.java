@@ -1,9 +1,9 @@
 // This file is auto-generated, don't edit it. Thanks.
-package com.aliyun.dysmsapi.models;
+package com.aliyun.dysmsapi20170525.models;
 
 import com.aliyun.tea.*;
 
-public class SendSmsRequest extends TeaModel {
+public class SendBatchSmsRequest extends TeaModel {
     @NameInMap("AccessKeyId")
     public String accessKeyId;
 
@@ -16,29 +16,26 @@ public class SendSmsRequest extends TeaModel {
     @NameInMap("ResourceOwnerId")
     public Long resourceOwnerId;
 
-    @NameInMap("PhoneNumbers")
+    @NameInMap("PhoneNumberJson")
     @Validation(required = true)
-    public String phoneNumbers;
+    public String phoneNumberJson;
 
-    @NameInMap("SignName")
+    @NameInMap("SignNameJson")
     @Validation(required = true)
-    public String signName;
+    public String signNameJson;
 
     @NameInMap("TemplateCode")
     @Validation(required = true)
     public String templateCode;
 
-    @NameInMap("TemplateParam")
-    public String templateParam;
+    @NameInMap("TemplateParamJson")
+    public String templateParamJson;
 
-    @NameInMap("SmsUpExtendCode")
-    public String smsUpExtendCode;
+    @NameInMap("SmsUpExtendCodeJson")
+    public String smsUpExtendCodeJson;
 
-    @NameInMap("OutId")
-    public String outId;
-
-    public static SendSmsRequest build(java.util.Map<String, ?> map) throws Exception {
-        SendSmsRequest self = new SendSmsRequest();
+    public static SendBatchSmsRequest build(java.util.Map<String, ?> map) throws Exception {
+        SendBatchSmsRequest self = new SendBatchSmsRequest();
         return TeaModel.build(map, self);
     }
 
