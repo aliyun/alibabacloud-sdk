@@ -63,19 +63,19 @@ class Videoenhan
                 'message' => "'config' can not be unset",
             ]);
         }
-        if (Utils::_empty($config->regionId)) {
+        if (Utils::emptyWithSuffix($config->regionId)) {
             throw new TeaError([
                 'name'    => 'ParameterMissing',
                 'message' => "'config.regionId' can not be empty",
             ]);
         }
-        if (Utils::_empty($config->endpoint)) {
+        if (Utils::emptyWithSuffix($config->endpoint)) {
             throw new TeaError([
                 'name'    => 'ParameterMissing',
                 'message' => "'config.endpoint' can not be empty",
             ]);
         }
-        if (Utils::_empty($config->type)) {
+        if (Utils::emptyWithSuffix($config->type)) {
             $config->type = 'access_key';
         }
         $credentialConfig = new \AlibabaCloud\Credentials\Credential\Config([

@@ -27,73 +27,73 @@ namespace AlibabaCloud.Facebody20191230
         public AddFaceEntityResponse AddFaceEntity(AddFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AddFaceEntityResponse>(DoRequest("AddFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<AddFaceEntityResponse>(DoRequest("AddFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<AddFaceEntityResponse> AddFaceEntityAsync(AddFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AddFaceEntityResponse>(await DoRequestAsync("AddFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<AddFaceEntityResponse>(await DoRequestAsync("AddFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DeleteFaceEntityResponse DeleteFaceEntity(DeleteFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteFaceEntityResponse>(DoRequest("DeleteFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteFaceEntityResponse>(DoRequest("DeleteFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DeleteFaceEntityResponse> DeleteFaceEntityAsync(DeleteFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteFaceEntityResponse>(await DoRequestAsync("DeleteFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteFaceEntityResponse>(await DoRequestAsync("DeleteFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public ListFaceEntitiesResponse ListFaceEntities(ListFaceEntitiesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListFaceEntitiesResponse>(DoRequest("ListFaceEntities", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListFaceEntitiesResponse>(DoRequest("ListFaceEntities", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<ListFaceEntitiesResponse> ListFaceEntitiesAsync(ListFaceEntitiesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListFaceEntitiesResponse>(await DoRequestAsync("ListFaceEntities", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListFaceEntitiesResponse>(await DoRequestAsync("ListFaceEntities", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public GetFaceEntityResponse GetFaceEntity(GetFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<GetFaceEntityResponse>(DoRequest("GetFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<GetFaceEntityResponse>(DoRequest("GetFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<GetFaceEntityResponse> GetFaceEntityAsync(GetFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<GetFaceEntityResponse>(await DoRequestAsync("GetFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<GetFaceEntityResponse>(await DoRequestAsync("GetFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public UpdateFaceEntityResponse UpdateFaceEntity(UpdateFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<UpdateFaceEntityResponse>(DoRequest("UpdateFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<UpdateFaceEntityResponse>(DoRequest("UpdateFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<UpdateFaceEntityResponse> UpdateFaceEntityAsync(UpdateFaceEntityRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<UpdateFaceEntityResponse>(await DoRequestAsync("UpdateFaceEntity", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<UpdateFaceEntityResponse>(await DoRequestAsync("UpdateFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public FaceMakeupResponse FaceMakeup(FaceMakeupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceMakeupResponse>(DoRequest("FaceMakeup", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceMakeupResponse>(DoRequest("FaceMakeup", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<FaceMakeupResponse> FaceMakeupAsync(FaceMakeupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceMakeupResponse>(await DoRequestAsync("FaceMakeup", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceMakeupResponse>(await DoRequestAsync("FaceMakeup", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public FaceMakeupResponse FaceMakeupAdvance(FaceMakeupAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -225,13 +225,13 @@ namespace AlibabaCloud.Facebody20191230
         public HandPostureResponse HandPosture(HandPostureRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<HandPostureResponse>(DoRequest("HandPosture", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<HandPostureResponse>(DoRequest("HandPosture", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<HandPostureResponse> HandPostureAsync(HandPostureRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<HandPostureResponse>(await DoRequestAsync("HandPosture", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<HandPostureResponse>(await DoRequestAsync("HandPosture", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public HandPostureResponse HandPostureAdvance(HandPostureAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -363,13 +363,13 @@ namespace AlibabaCloud.Facebody20191230
         public BodyPostureResponse BodyPosture(BodyPostureRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<BodyPostureResponse>(DoRequest("BodyPosture", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<BodyPostureResponse>(DoRequest("BodyPosture", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<BodyPostureResponse> BodyPostureAsync(BodyPostureRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<BodyPostureResponse>(await DoRequestAsync("BodyPosture", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<BodyPostureResponse>(await DoRequestAsync("BodyPosture", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public BodyPostureResponse BodyPostureAdvance(BodyPostureAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -501,13 +501,13 @@ namespace AlibabaCloud.Facebody20191230
         public DetectPedestrianResponse DetectPedestrian(DetectPedestrianRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectPedestrianResponse>(DoRequest("DetectPedestrian", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectPedestrianResponse>(DoRequest("DetectPedestrian", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DetectPedestrianResponse> DetectPedestrianAsync(DetectPedestrianRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectPedestrianResponse>(await DoRequestAsync("DetectPedestrian", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectPedestrianResponse>(await DoRequestAsync("DetectPedestrian", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectPedestrianResponse DetectPedestrianAdvance(DetectPedestrianAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -639,13 +639,13 @@ namespace AlibabaCloud.Facebody20191230
         public FaceBeautyResponse FaceBeauty(FaceBeautyRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceBeautyResponse>(DoRequest("FaceBeauty", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceBeautyResponse>(DoRequest("FaceBeauty", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<FaceBeautyResponse> FaceBeautyAsync(FaceBeautyRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceBeautyResponse>(await DoRequestAsync("FaceBeauty", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceBeautyResponse>(await DoRequestAsync("FaceBeauty", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public FaceBeautyResponse FaceBeautyAdvance(FaceBeautyAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -777,13 +777,13 @@ namespace AlibabaCloud.Facebody20191230
         public FaceFilterResponse FaceFilter(FaceFilterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceFilterResponse>(DoRequest("FaceFilter", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceFilterResponse>(DoRequest("FaceFilter", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<FaceFilterResponse> FaceFilterAsync(FaceFilterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceFilterResponse>(await DoRequestAsync("FaceFilter", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceFilterResponse>(await DoRequestAsync("FaceFilter", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public FaceFilterResponse FaceFilterAdvance(FaceFilterAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -915,13 +915,13 @@ namespace AlibabaCloud.Facebody20191230
         public EnhanceFaceResponse EnhanceFace(EnhanceFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<EnhanceFaceResponse>(DoRequest("EnhanceFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<EnhanceFaceResponse>(DoRequest("EnhanceFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<EnhanceFaceResponse> EnhanceFaceAsync(EnhanceFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<EnhanceFaceResponse>(await DoRequestAsync("EnhanceFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<EnhanceFaceResponse>(await DoRequestAsync("EnhanceFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public EnhanceFaceResponse EnhanceFaceAdvance(EnhanceFaceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1053,13 +1053,13 @@ namespace AlibabaCloud.Facebody20191230
         public FaceTidyupResponse FaceTidyup(FaceTidyupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceTidyupResponse>(DoRequest("FaceTidyup", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceTidyupResponse>(DoRequest("FaceTidyup", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<FaceTidyupResponse> FaceTidyupAsync(FaceTidyupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<FaceTidyupResponse>(await DoRequestAsync("FaceTidyup", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<FaceTidyupResponse>(await DoRequestAsync("FaceTidyup", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public FaceTidyupResponse FaceTidyupAdvance(FaceTidyupAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1191,13 +1191,13 @@ namespace AlibabaCloud.Facebody20191230
         public SearchFaceResponse SearchFace(SearchFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<SearchFaceResponse>(DoRequest("SearchFace", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<SearchFaceResponse>(DoRequest("SearchFace", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<SearchFaceResponse> SearchFaceAsync(SearchFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<SearchFaceResponse>(await DoRequestAsync("SearchFace", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<SearchFaceResponse>(await DoRequestAsync("SearchFace", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public SearchFaceResponse SearchFaceAdvance(SearchFaceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1329,61 +1329,61 @@ namespace AlibabaCloud.Facebody20191230
         public ListFaceDbsResponse ListFaceDbs(ListFaceDbsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListFaceDbsResponse>(DoRequest("ListFaceDbs", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListFaceDbsResponse>(DoRequest("ListFaceDbs", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<ListFaceDbsResponse> ListFaceDbsAsync(ListFaceDbsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListFaceDbsResponse>(await DoRequestAsync("ListFaceDbs", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListFaceDbsResponse>(await DoRequestAsync("ListFaceDbs", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public CreateFaceDbResponse CreateFaceDb(CreateFaceDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<CreateFaceDbResponse>(DoRequest("CreateFaceDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<CreateFaceDbResponse>(DoRequest("CreateFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<CreateFaceDbResponse> CreateFaceDbAsync(CreateFaceDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<CreateFaceDbResponse>(await DoRequestAsync("CreateFaceDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<CreateFaceDbResponse>(await DoRequestAsync("CreateFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DeleteFaceResponse DeleteFace(DeleteFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteFaceResponse>(DoRequest("DeleteFace", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteFaceResponse>(DoRequest("DeleteFace", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DeleteFaceResponse> DeleteFaceAsync(DeleteFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteFaceResponse>(await DoRequestAsync("DeleteFace", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteFaceResponse>(await DoRequestAsync("DeleteFace", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DeleteFaceDbResponse DeleteFaceDb(DeleteFaceDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteFaceDbResponse>(DoRequest("DeleteFaceDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteFaceDbResponse>(DoRequest("DeleteFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DeleteFaceDbResponse> DeleteFaceDbAsync(DeleteFaceDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteFaceDbResponse>(await DoRequestAsync("DeleteFaceDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteFaceDbResponse>(await DoRequestAsync("DeleteFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public AddFaceResponse AddFace(AddFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AddFaceResponse>(DoRequest("AddFace", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<AddFaceResponse>(DoRequest("AddFace", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<AddFaceResponse> AddFaceAsync(AddFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AddFaceResponse>(await DoRequestAsync("AddFace", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<AddFaceResponse>(await DoRequestAsync("AddFace", "HTTPS", "GET", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public AddFaceResponse AddFaceAdvance(AddFaceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1515,13 +1515,13 @@ namespace AlibabaCloud.Facebody20191230
         public RecognizeExpressionResponse RecognizeExpression(RecognizeExpressionRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizeExpressionResponse>(DoRequest("RecognizeExpression", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeExpressionResponse>(DoRequest("RecognizeExpression", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeExpressionResponse> RecognizeExpressionAsync(RecognizeExpressionRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizeExpressionResponse>(await DoRequestAsync("RecognizeExpression", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeExpressionResponse>(await DoRequestAsync("RecognizeExpression", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeExpressionResponse RecognizeExpressionAdvance(RecognizeExpressionAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1653,37 +1653,37 @@ namespace AlibabaCloud.Facebody20191230
         public RecognizePublicFaceResponse RecognizePublicFace(RecognizePublicFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizePublicFaceResponse>(DoRequest("RecognizePublicFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizePublicFaceResponse>(DoRequest("RecognizePublicFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizePublicFaceResponse> RecognizePublicFaceAsync(RecognizePublicFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizePublicFaceResponse>(await DoRequestAsync("RecognizePublicFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizePublicFaceResponse>(await DoRequestAsync("RecognizePublicFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectLivingFaceResponse DetectLivingFace(DetectLivingFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectLivingFaceResponse>(DoRequest("DetectLivingFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectLivingFaceResponse>(DoRequest("DetectLivingFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DetectLivingFaceResponse> DetectLivingFaceAsync(DetectLivingFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectLivingFaceResponse>(await DoRequestAsync("DetectLivingFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectLivingFaceResponse>(await DoRequestAsync("DetectLivingFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectBodyCountResponse DetectBodyCount(DetectBodyCountRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectBodyCountResponse>(DoRequest("DetectBodyCount", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectBodyCountResponse>(DoRequest("DetectBodyCount", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DetectBodyCountResponse> DetectBodyCountAsync(DetectBodyCountRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectBodyCountResponse>(await DoRequestAsync("DetectBodyCount", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectBodyCountResponse>(await DoRequestAsync("DetectBodyCount", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectBodyCountResponse DetectBodyCountAdvance(DetectBodyCountAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1815,13 +1815,13 @@ namespace AlibabaCloud.Facebody20191230
         public DetectMaskResponse DetectMask(DetectMaskRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectMaskResponse>(DoRequest("DetectMask", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectMaskResponse>(DoRequest("DetectMask", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DetectMaskResponse> DetectMaskAsync(DetectMaskRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectMaskResponse>(await DoRequestAsync("DetectMask", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectMaskResponse>(await DoRequestAsync("DetectMask", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectMaskResponse DetectMaskAdvance(DetectMaskAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -1953,13 +1953,13 @@ namespace AlibabaCloud.Facebody20191230
         public RecognizeFaceResponse RecognizeFace(RecognizeFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizeFaceResponse>(DoRequest("RecognizeFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeFaceResponse>(DoRequest("RecognizeFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<RecognizeFaceResponse> RecognizeFaceAsync(RecognizeFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<RecognizeFaceResponse>(await DoRequestAsync("RecognizeFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<RecognizeFaceResponse>(await DoRequestAsync("RecognizeFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public RecognizeFaceResponse RecognizeFaceAdvance(RecognizeFaceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -2091,25 +2091,25 @@ namespace AlibabaCloud.Facebody20191230
         public CompareFaceResponse CompareFace(CompareFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<CompareFaceResponse>(DoRequest("CompareFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<CompareFaceResponse>(DoRequest("CompareFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<CompareFaceResponse> CompareFaceAsync(CompareFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<CompareFaceResponse>(await DoRequestAsync("CompareFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<CompareFaceResponse>(await DoRequestAsync("CompareFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectFaceResponse DetectFace(DetectFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectFaceResponse>(DoRequest("DetectFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectFaceResponse>(DoRequest("DetectFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DetectFaceResponse> DetectFaceAsync(DetectFaceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DetectFaceResponse>(await DoRequestAsync("DetectFace", "HTTPS", "POST", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DetectFaceResponse>(await DoRequestAsync("DetectFace", "HTTPS", "POST", "2019-12-30", "AK", null, request.ToMap(), runtime));
         }
 
         public DetectFaceResponse DetectFaceAdvance(DetectFaceAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)

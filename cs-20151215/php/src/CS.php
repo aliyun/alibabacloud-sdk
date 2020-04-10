@@ -506,10 +506,10 @@ class CS
      */
     public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
     {
-        if (!Utils::emptySuffix($endpoint)) {
+        if (!Utils::emptyWithSuffix($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::emptySuffix($endpointMap['regionId'])) {
+        if (!Utils::emptyWithSuffix($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 

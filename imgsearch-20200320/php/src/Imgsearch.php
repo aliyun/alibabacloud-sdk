@@ -48,7 +48,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListImageDbs', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListImageDbsResponse());
+        return Model::toModel($this->doRequest('ListImageDbs', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new ListImageDbsResponse());
     }
 
     /**
@@ -60,7 +60,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListImages', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new ListImagesResponse());
+        return Model::toModel($this->doRequest('ListImages', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new ListImagesResponse());
     }
 
     /**
@@ -72,7 +72,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SearchImage', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new SearchImageResponse());
+        return Model::toModel($this->doRequest('SearchImage', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new SearchImageResponse());
     }
 
     /**
@@ -146,7 +146,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddImage', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new AddImageResponse());
+        return Model::toModel($this->doRequest('AddImage', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new AddImageResponse());
     }
 
     /**
@@ -220,7 +220,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteImageDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteImageDbResponse());
+        return Model::toModel($this->doRequest('DeleteImageDb', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new DeleteImageDbResponse());
     }
 
     /**
@@ -232,7 +232,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateImageDb', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new CreateImageDbResponse());
+        return Model::toModel($this->doRequest('CreateImageDb', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new CreateImageDbResponse());
     }
 
     /**
@@ -244,45 +244,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteImage', 'HTTPS', 'GET', 'AK', null, $request, $runtime), new DeleteImageResponse());
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getUserAgent()
-    {
-        return Utils::getUserAgent($this->_userAgent);
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getAccessKeyId()
-    {
-        if (Utils::isUnset($this->_credential)) {
-            return '';
-        }
-
-        return $this->_credential->getAccessKeyId();
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getAccessKeySecret()
-    {
-        if (Utils::isUnset($this->_credential)) {
-            return '';
-        }
-
-        return $this->_credential->getAccessKeySecret();
+        return Model::toModel($this->doRequest('DeleteImage', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new DeleteImageResponse());
     }
 
     /**
@@ -300,10 +262,10 @@ class Imgsearch
      */
     public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
     {
-        if (!Utils::_empty($endpoint)) {
+        if (!Utils::emptyWithSuffix($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::_empty($endpointMap['regionId'])) {
+        if (!Utils::emptyWithSuffix($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 

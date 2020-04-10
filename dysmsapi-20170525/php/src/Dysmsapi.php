@@ -67,7 +67,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QuerySmsTemplate', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new QuerySmsTemplateResponse());
+        return Model::toModel($this->doRequest('QuerySmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QuerySmsTemplateResponse());
     }
 
     /**
@@ -79,7 +79,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QuerySmsSign', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new QuerySmsSignResponse());
+        return Model::toModel($this->doRequest('QuerySmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QuerySmsSignResponse());
     }
 
     /**
@@ -91,7 +91,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ModifySmsTemplate', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new ModifySmsTemplateResponse());
+        return Model::toModel($this->doRequest('ModifySmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ModifySmsTemplateResponse());
     }
 
     /**
@@ -103,7 +103,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ModifySmsSign', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new ModifySmsSignResponse());
+        return Model::toModel($this->doRequest('ModifySmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ModifySmsSignResponse());
     }
 
     /**
@@ -115,7 +115,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteSmsTemplate', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DeleteSmsTemplateResponse());
+        return Model::toModel($this->doRequest('DeleteSmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DeleteSmsTemplateResponse());
     }
 
     /**
@@ -127,7 +127,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteSmsSign', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DeleteSmsSignResponse());
+        return Model::toModel($this->doRequest('DeleteSmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DeleteSmsSignResponse());
     }
 
     /**
@@ -139,7 +139,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddSmsTemplate', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new AddSmsTemplateResponse());
+        return Model::toModel($this->doRequest('AddSmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new AddSmsTemplateResponse());
     }
 
     /**
@@ -151,7 +151,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddSmsSign', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new AddSmsSignResponse());
+        return Model::toModel($this->doRequest('AddSmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new AddSmsSignResponse());
     }
 
     /**
@@ -163,7 +163,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SendBatchSms', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new SendBatchSmsResponse());
+        return Model::toModel($this->doRequest('SendBatchSms', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SendBatchSmsResponse());
     }
 
     /**
@@ -175,7 +175,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SendSms', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new SendSmsResponse());
+        return Model::toModel($this->doRequest('SendSms', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SendSmsResponse());
     }
 
     /**
@@ -187,7 +187,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QuerySendDetails', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new QuerySendDetailsResponse());
+        return Model::toModel($this->doRequest('QuerySendDetails', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QuerySendDetailsResponse());
     }
 
     /**
@@ -205,10 +205,10 @@ class Dysmsapi
      */
     public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
     {
-        if (!Utils::_empty($endpoint)) {
+        if (!Utils::emptyWithSuffix($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::_empty($endpointMap['regionId'])) {
+        if (!Utils::emptyWithSuffix($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 
