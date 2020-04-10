@@ -27,37 +27,37 @@ namespace AlibabaCloud.Imgsearch20200320
         public ListImageDbsResponse ListImageDbs(ListImageDbsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListImageDbsResponse>(DoRequest("ListImageDbs", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListImageDbsResponse>(DoRequest("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<ListImageDbsResponse> ListImageDbsAsync(ListImageDbsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListImageDbsResponse>(await DoRequestAsync("ListImageDbs", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListImageDbsResponse>(await DoRequestAsync("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public ListImagesResponse ListImages(ListImagesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListImagesResponse>(DoRequest("ListImages", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListImagesResponse>(DoRequest("ListImages", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<ListImagesResponse> ListImagesAsync(ListImagesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<ListImagesResponse>(await DoRequestAsync("ListImages", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<ListImagesResponse>(await DoRequestAsync("ListImages", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public SearchImageResponse SearchImage(SearchImageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<SearchImageResponse>(DoRequest("SearchImage", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<SearchImageResponse>(DoRequest("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<SearchImageResponse> SearchImageAsync(SearchImageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<SearchImageResponse>(await DoRequestAsync("SearchImage", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<SearchImageResponse>(await DoRequestAsync("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public SearchImageResponse SearchImageAdvance(SearchImageAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -189,13 +189,13 @@ namespace AlibabaCloud.Imgsearch20200320
         public AddImageResponse AddImage(AddImageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AddImageResponse>(DoRequest("AddImage", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<AddImageResponse>(DoRequest("AddImage", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<AddImageResponse> AddImageAsync(AddImageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<AddImageResponse>(await DoRequestAsync("AddImage", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<AddImageResponse>(await DoRequestAsync("AddImage", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public AddImageResponse AddImageAdvance(AddImageAdvanceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -327,37 +327,37 @@ namespace AlibabaCloud.Imgsearch20200320
         public DeleteImageDbResponse DeleteImageDb(DeleteImageDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteImageDbResponse>(DoRequest("DeleteImageDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteImageDbResponse>(DoRequest("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DeleteImageDbResponse> DeleteImageDbAsync(DeleteImageDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteImageDbResponse>(await DoRequestAsync("DeleteImageDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteImageDbResponse>(await DoRequestAsync("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public CreateImageDbResponse CreateImageDb(CreateImageDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<CreateImageDbResponse>(DoRequest("CreateImageDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<CreateImageDbResponse>(DoRequest("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<CreateImageDbResponse> CreateImageDbAsync(CreateImageDbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<CreateImageDbResponse>(await DoRequestAsync("CreateImageDb", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<CreateImageDbResponse>(await DoRequestAsync("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public DeleteImageResponse DeleteImage(DeleteImageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteImageResponse>(DoRequest("DeleteImage", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteImageResponse>(DoRequest("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public async Task<DeleteImageResponse> DeleteImageAsync(DeleteImageRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DeleteImageResponse>(await DoRequestAsync("DeleteImage", "HTTPS", "GET", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DeleteImageResponse>(await DoRequestAsync("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", null, request.ToMap(), runtime));
         }
 
         public string GetEndpoint(string productId, string regionId, string endpointRule, string network, string suffix, Dictionary<string, string> endpointMap, string endpoint)
