@@ -80,7 +80,7 @@ export default class Client extends RPC {
 
   async authorizeFileUpload(request: AuthorizeFileUploadRequest, runtime: $Util.RuntimeOptions): Promise<AuthorizeFileUploadResponse> {
     Util.validateModel(request);
-    return $tea.cast<AuthorizeFileUploadResponse>(await this.doRequest("AuthorizeFileUpload", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new AuthorizeFileUploadResponse({}));
+    return $tea.cast<AuthorizeFileUploadResponse>(await this.doRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", $tea.toMap(request), null, runtime), new AuthorizeFileUploadResponse({}));
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
