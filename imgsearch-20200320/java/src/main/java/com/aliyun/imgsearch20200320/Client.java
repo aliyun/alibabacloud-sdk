@@ -15,24 +15,24 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public ListImageDbsResponse listImageDbs(ListImageDbsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListImageDbs", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new ListImageDbsResponse());
+        return TeaModel.toModel(this.doRequest("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new ListImageDbsResponse());
     }
 
     public ListImagesResponse listImages(ListImagesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListImages", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new ListImagesResponse());
+        return TeaModel.toModel(this.doRequest("ListImages", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new ListImagesResponse());
     }
 
     public SearchImageResponse searchImage(SearchImageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SearchImage", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new SearchImageResponse());
+        return TeaModel.toModel(this.doRequest("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new SearchImageResponse());
     }
 
     public SearchImageResponse searchImageAdvance(SearchImageAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         // Step 0: init client
         String accessKeyId = _credential.getAccessKeyId();
         String accessKeySecret = _credential.getAccessKeySecret();
-        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+        com.aliyun.tearpc.models.Config authConfig = com.aliyun.tearpc.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", accessKeyId),
             new TeaPair("accessKeySecret", accessKeySecret),
             new TeaPair("type", "access_key"),
@@ -40,12 +40,12 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("protocol", _protocol),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
-        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+        com.aliyun.openplatform20191219.Client authClient = new com.aliyun.openplatform20191219.Client(authConfig);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform20191219.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
             new TeaPair("product", "imgsearch"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -86,14 +86,14 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public AddImageResponse addImage(AddImageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddImage", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new AddImageResponse());
+        return TeaModel.toModel(this.doRequest("AddImage", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new AddImageResponse());
     }
 
     public AddImageResponse addImageAdvance(AddImageAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         // Step 0: init client
         String accessKeyId = _credential.getAccessKeyId();
         String accessKeySecret = _credential.getAccessKeySecret();
-        com.aliyun.openplatform.models.Config authConfig = com.aliyun.openplatform.models.Config.build(TeaConverter.buildMap(
+        com.aliyun.tearpc.models.Config authConfig = com.aliyun.tearpc.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", accessKeyId),
             new TeaPair("accessKeySecret", accessKeySecret),
             new TeaPair("type", "access_key"),
@@ -101,12 +101,12 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("protocol", _protocol),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform.Client authClient = new com.aliyun.openplatform.Client(authConfig);
-        com.aliyun.openplatform.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
+        com.aliyun.openplatform20191219.Client authClient = new com.aliyun.openplatform20191219.Client(authConfig);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadRequest authRequest = com.aliyun.openplatform20191219.models.AuthorizeFileUploadRequest.build(TeaConverter.buildMap(
             new TeaPair("product", "imgsearch"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -147,40 +147,17 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DeleteImageDbResponse deleteImageDb(DeleteImageDbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteImageDb", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageDbResponse());
+        return TeaModel.toModel(this.doRequest("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageDbResponse());
     }
 
     public CreateImageDbResponse createImageDb(CreateImageDbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateImageDb", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new CreateImageDbResponse());
+        return TeaModel.toModel(this.doRequest("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new CreateImageDbResponse());
     }
 
     public DeleteImageResponse deleteImage(DeleteImageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteImage", "HTTPS", "GET", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageResponse());
-    }
-
-    public String getUserAgent() throws Exception {
-        String userAgent = com.aliyun.teautil.Common.getUserAgent(_userAgent);
-        return userAgent;
-    }
-
-    public String getAccessKeyId() throws Exception {
-        if (com.aliyun.teautil.Common.isUnset(_credential)) {
-            return "";
-        }
-
-        String accessKeyId = _credential.getAccessKeyId();
-        return accessKeyId;
-    }
-
-    public String getAccessKeySecret() throws Exception {
-        if (com.aliyun.teautil.Common.isUnset(_credential)) {
-            return "";
-        }
-
-        String secret = _credential.getAccessKeySecret();
-        return secret;
+        return TeaModel.toModel(this.doRequest("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageResponse());
     }
 
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {
