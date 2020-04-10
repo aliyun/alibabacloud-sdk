@@ -52,7 +52,7 @@ class AttachInstancesResponseBody extends Model
             $model->taskId = $map['task_id'];
         }
         if (isset($map['list'])) {
-            $model->list = AttachInstancesResponseBody\listSuffix::fromMap($map['list']);
+            $model->list = AttachInstancesResponseBody\listWithSuffix::fromMap($map['list']);
         }
 
         return $model;
