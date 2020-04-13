@@ -14,8 +14,15 @@ class SegmentBodyRequest extends Model
      * @var string
      */
     public $imageURL;
+    /**
+     * @description async
+     *
+     * @var bool
+     */
+    public $async;
     protected $_name = [
         'imageURL' => 'ImageURL',
+        'async'    => 'Async',
     ];
 
     public function validate()
@@ -27,6 +34,7 @@ class SegmentBodyRequest extends Model
     {
         $res             = [];
         $res['ImageURL'] = $this->imageURL;
+        $res['Async']    = $this->async;
 
         return $res;
     }
@@ -41,6 +49,9 @@ class SegmentBodyRequest extends Model
         $model = new self();
         if (isset($map['ImageURL'])) {
             $model->imageURL = $map['ImageURL'];
+        }
+        if (isset($map['Async'])) {
+            $model->async = $map['Async'];
         }
 
         return $model;

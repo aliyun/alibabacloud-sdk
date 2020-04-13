@@ -9,7 +9,7 @@ use AlibabaCloud\Tea\Model;
 class data extends Model
 {
     /**
-     * @description shotFrameIds
+     * @description ShotFrameIds
      *
      * @var array
      */
