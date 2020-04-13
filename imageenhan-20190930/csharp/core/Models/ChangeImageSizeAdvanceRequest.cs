@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imageenhan.Models
+namespace AlibabaCloud.SDK.Imageenhan20190930.Models
 {
     public class ChangeImageSizeAdvanceRequest : TeaModel {
         [NameInMap("UrlObject")]

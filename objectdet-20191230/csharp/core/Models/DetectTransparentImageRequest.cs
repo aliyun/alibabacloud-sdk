@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Objectdet.Models
+namespace AlibabaCloud.SDK.Objectdet20191230.Models
 {
     public class DetectTransparentImageRequest : TeaModel {
         [NameInMap("ImageURL")]

@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imageseg.Models
+namespace AlibabaCloud.SDK.Imageseg20191230.Models
 {
     public class SegmentHeadResponse : TeaModel {
         [NameInMap("RequestId")]

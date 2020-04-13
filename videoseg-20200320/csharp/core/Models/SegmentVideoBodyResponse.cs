@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Videoseg.Models
+namespace AlibabaCloud.SDK.Videoseg20200320.Models
 {
     public class SegmentVideoBodyResponse : TeaModel {
         [NameInMap("RequestId")]

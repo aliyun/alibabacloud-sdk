@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.Ocr20191230.Models
+namespace AlibabaCloud.SDK.Imageseg20191230.Models
 {
     public class GetAsyncJobResultResponse : TeaModel {
         [NameInMap("RequestId")]
