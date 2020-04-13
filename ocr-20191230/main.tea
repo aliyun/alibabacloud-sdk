@@ -1,153 +1,20 @@
 import OSS;
 import OpenPlatform;
 import RPCUtil;
+import RPC;
 import OSSUtil;
 import Util;
-import Credential;
 import FileForm;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @endpointType = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @noProxy = string
-type @maxIdleConns = number
-type @openPlatformEndpoint = string
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string,
-  accessKeySecret?: string,
-  type?: string,
-  securityToken?: string,
-  endpoint: string,
-  protocol?: string,
-  regionId: string,
-  userAgent?: string,
-  readTimeout?: number,
-  connectTimeout?: number,
-  httpProxy?: string,
-  httpsProxy?: string,
-  noProxy?: string,
-  socks5Proxy?: string,
-  socks5NetWork?: string,
-  maxIdleConns?: number,
-  endpointType?: string,
-  openPlatformEndpoint?: string,
-}
-
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-  @endpointType = config.endpointType;
-  @openPlatformEndpoint = config.openPlatformEndpoint;
-}
-
-api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
-    SignatureNonce = Util.getNonce(),
-    ...query,
-  });
-  if (!Util.isUnset(body)) {
-    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
-    __request.body = Util.toFormString(tmp);
-  }
-  __request.headers = {
-    host = RPCUtil.getHost('ocr', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  if (!Util.equalString(authType, 'Anonymous')) {
-    var accessKeyId = getAccessKeyId();
-    var accessKeySecret = getAccessKeySecret();
-    __request.query.SignatureMethod = 'HMAC-SHA1';
-    __request.query.SignatureVersion = '1.0';
-    __request.query.AccessKeyId = accessKeyId;
-    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-  }
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var res = Util.assertAsMap(obj);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-  throw {
-      message = res.Message,
-      data = res,
-      code = res.Code,
-    }
-  }
-  return res;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 1)
-  },
-  ignoreSSL = runtime.ignoreSSL
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
 model GetAsyncJobResultRequest = {
@@ -166,7 +33,8 @@ model GetAsyncJobResultResponse = {
 }
 
 async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  return _request('GetAsyncJobResult', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model TrimDocumentRequest = {
@@ -178,12 +46,13 @@ model TrimDocumentRequest = {
 model TrimDocumentResponse = {
   requestId: string(name='RequestId', description='requestId'),
   data: {
-    content: string(name='Content', description='content'),
+    content: string(name='Content', description='Content'),
   }(name='Data', description='data'),
 }
 
 async function trimDocument(request: TrimDocumentRequest, runtime: Util.RuntimeOptions): TrimDocumentResponse {
-  return _request('TrimDocument', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('TrimDocument', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model TrimDocumentAdvanceRequest = {
@@ -196,7 +65,7 @@ async function trimDocumentAdvance(request: TrimDocumentAdvanceRequest, runtime:
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -283,7 +152,8 @@ model RecognizeChinapassportResponse = {
 }
 
 async function recognizeChinapassport(request: RecognizeChinapassportRequest, runtime: Util.RuntimeOptions): RecognizeChinapassportResponse {
-  return _request('RecognizeChinapassport', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeChinapassport', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeChinapassportAdvanceRequest = {
@@ -294,7 +164,7 @@ async function recognizeChinapassportAdvance(request: RecognizeChinapassportAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -360,7 +230,8 @@ model RecognizeVerificationcodeResponse = {
 }
 
 async function recognizeVerificationcode(request: RecognizeVerificationcodeRequest, runtime: Util.RuntimeOptions): RecognizeVerificationcodeResponse {
-  return _request('RecognizeVerificationcode', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeVerificationcode', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeVerificationcodeAdvanceRequest = {
@@ -371,7 +242,7 @@ async function recognizeVerificationcodeAdvance(request: RecognizeVerificationco
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -445,7 +316,8 @@ model RecognizePassportMRZResponse = {
 }
 
 async function recognizePassportMRZ(request: RecognizePassportMRZRequest, runtime: Util.RuntimeOptions): RecognizePassportMRZResponse {
-  return _request('RecognizePassportMRZ', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizePassportMRZ', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizePassportMRZAdvanceRequest = {
@@ -456,7 +328,7 @@ async function recognizePassportMRZAdvance(request: RecognizePassportMRZAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -529,7 +401,8 @@ model RecognizeTakeoutOrderResponse = {
 }
 
 async function recognizeTakeoutOrder(request: RecognizeTakeoutOrderRequest, runtime: Util.RuntimeOptions): RecognizeTakeoutOrderResponse {
-  return _request('RecognizeTakeoutOrder', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeTakeoutOrder', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeTakeoutOrderAdvanceRequest = {
@@ -540,7 +413,7 @@ async function recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanc
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -623,7 +496,8 @@ model RecognizeQrCodeResponse = {
 }
 
 async function recognizeQrCode(request: RecognizeQrCodeRequest, runtime: Util.RuntimeOptions): RecognizeQrCodeResponse {
-  return _request('RecognizeQrCode', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeQrCode', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeVATInvoiceRequest = {
@@ -680,7 +554,8 @@ model RecognizeVATInvoiceResponse = {
 }
 
 async function recognizeVATInvoice(request: RecognizeVATInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeVATInvoiceResponse {
-  return _request('RecognizeVATInvoice', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeVATInvoice', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeVATInvoiceAdvanceRequest = {
@@ -692,7 +567,7 @@ async function recognizeVATInvoiceAdvance(request: RecognizeVATInvoiceAdvanceReq
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -772,7 +647,8 @@ model RecognizeCharacterResponse = {
 }
 
 async function recognizeCharacter(request: RecognizeCharacterRequest, runtime: Util.RuntimeOptions): RecognizeCharacterResponse {
-  return _request('RecognizeCharacter', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeCharacter', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeCharacterAdvanceRequest = {
@@ -785,7 +661,7 @@ async function recognizeCharacterAdvance(request: RecognizeCharacterAdvanceReque
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -877,7 +753,8 @@ model RecognizeTaxiInvoiceResponse = {
 }
 
 async function recognizeTaxiInvoice(request: RecognizeTaxiInvoiceRequest, runtime: Util.RuntimeOptions): RecognizeTaxiInvoiceResponse {
-  return _request('RecognizeTaxiInvoice', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeTaxiInvoice', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeTaxiInvoiceAdvanceRequest = {
@@ -888,7 +765,7 @@ async function recognizeTaxiInvoiceAdvance(request: RecognizeTaxiInvoiceAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -990,7 +867,8 @@ model RecognizeIdentityCardResponse = {
 }
 
 async function recognizeIdentityCard(request: RecognizeIdentityCardRequest, runtime: Util.RuntimeOptions): RecognizeIdentityCardResponse {
-  return _request('RecognizeIdentityCard', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeIdentityCard', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeIdentityCardAdvanceRequest = {
@@ -1002,7 +880,7 @@ async function recognizeIdentityCardAdvance(request: RecognizeIdentityCardAdvanc
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1081,7 +959,8 @@ model RecognizeLicensePlateResponse = {
 }
 
 async function recognizeLicensePlate(request: RecognizeLicensePlateRequest, runtime: Util.RuntimeOptions): RecognizeLicensePlateResponse {
-  return _request('RecognizeLicensePlate', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeLicensePlate', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeLicensePlateAdvanceRequest = {
@@ -1092,7 +971,7 @@ async function recognizeLicensePlateAdvance(request: RecognizeLicensePlateAdvanc
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1184,7 +1063,8 @@ model RecognizeTableResponse = {
 }
 
 async function recognizeTable(request: RecognizeTableRequest, runtime: Util.RuntimeOptions): RecognizeTableResponse {
-  return _request('RecognizeTable', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeTable', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeTableAdvanceRequest = {
@@ -1200,7 +1080,7 @@ async function recognizeTableAdvance(request: RecognizeTableAdvanceRequest, runt
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1290,7 +1170,8 @@ model RecognizeDrivingLicenseResponse = {
 }
 
 async function recognizeDrivingLicense(request: RecognizeDrivingLicenseRequest, runtime: Util.RuntimeOptions): RecognizeDrivingLicenseResponse {
-  return _request('RecognizeDrivingLicense', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeDrivingLicense', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeDrivingLicenseAdvanceRequest = {
@@ -1302,7 +1183,7 @@ async function recognizeDrivingLicenseAdvance(request: RecognizeDrivingLicenseAd
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1370,7 +1251,8 @@ model RecognizeBankCardResponse = {
 }
 
 async function recognizeBankCard(request: RecognizeBankCardRequest, runtime: Util.RuntimeOptions): RecognizeBankCardResponse {
-  return _request('RecognizeBankCard', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeBankCard', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeBankCardAdvanceRequest = {
@@ -1381,7 +1263,7 @@ async function recognizeBankCardAdvance(request: RecognizeBankCardAdvanceRequest
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1454,7 +1336,8 @@ model RecognizeTrainTicketResponse = {
 }
 
 async function recognizeTrainTicket(request: RecognizeTrainTicketRequest, runtime: Util.RuntimeOptions): RecognizeTrainTicketResponse {
-  return _request('RecognizeTrainTicket', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeTrainTicket', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeTrainTicketAdvanceRequest = {
@@ -1465,7 +1348,7 @@ async function recognizeTrainTicketAdvance(request: RecognizeTrainTicketAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1544,7 +1427,8 @@ model RecognizeDriverLicenseResponse = {
 }
 
 async function recognizeDriverLicense(request: RecognizeDriverLicenseRequest, runtime: Util.RuntimeOptions): RecognizeDriverLicenseResponse {
-  return _request('RecognizeDriverLicense', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeDriverLicense', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeDriverLicenseAdvanceRequest = {
@@ -1556,7 +1440,7 @@ async function recognizeDriverLicenseAdvance(request: RecognizeDriverLicenseAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1668,7 +1552,8 @@ model RecognizeAccountPageResponse = {
 }
 
 async function recognizeAccountPage(request: RecognizeAccountPageRequest, runtime: Util.RuntimeOptions): RecognizeAccountPageResponse {
-  return _request('RecognizeAccountPage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeAccountPage', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeAccountPageAdvanceRequest = {
@@ -1679,7 +1564,7 @@ async function recognizeAccountPageAdvance(request: RecognizeAccountPageAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1764,7 +1649,8 @@ model RecognizeStampResponse = {
 }
 
 async function recognizeStamp(request: RecognizeStampRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
-  return _request('RecognizeStamp', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeStamp', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeStampAdvanceRequest = {
@@ -1775,7 +1661,7 @@ async function recognizeStampAdvance(request: RecognizeStampAdvanceRequest, runt
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1848,7 +1734,8 @@ model RecognizeBusinessCardResponse = {
 }
 
 async function recognizeBusinessCard(request: RecognizeBusinessCardRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
-  return _request('RecognizeBusinessCard', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeBusinessCard', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeBusinessCardAdvanceRequest = {
@@ -1859,7 +1746,7 @@ async function recognizeBusinessCardAdvance(request: RecognizeBusinessCardAdvanc
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -1925,7 +1812,8 @@ model RecognizeVINCodeResponse = {
 }
 
 async function recognizeVINCode(request: RecognizeVINCodeRequest, runtime: Util.RuntimeOptions): RecognizeVINCodeResponse {
-  return _request('RecognizeVINCode', 'HTTPS', 'POST', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeVINCode', 'HTTPS', 'POST' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model RecognizeVINCodeAdvanceRequest = {
@@ -1936,7 +1824,7 @@ async function recognizeVINCodeAdvance(request: RecognizeVINCodeAdvanceRequest, 
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -2035,7 +1923,8 @@ model RecognizeBusinessLicenseResponse = {
 }
 
 async function recognizeBusinessLicense(request: RecognizeBusinessLicenseRequest, runtime: Util.RuntimeOptions): RecognizeBusinessLicenseResponse {
-  return _request('RecognizeBusinessLicense', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeBusinessLicense', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeBusinessLicenseAdvanceRequest = {
@@ -2046,7 +1935,7 @@ async function recognizeBusinessLicenseAdvance(request: RecognizeBusinessLicense
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -2100,24 +1989,13 @@ async function recognizeBusinessLicenseAdvance(request: RecognizeBusinessLicense
   return recognizeBusinessLicenseResp;
 }
 
-function getUserAgent(): string {
-  var userAgent = Util.getUserAgent(@userAgent);
-  return userAgent;
-}
-
-async function getAccessKeyId(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
   }
-  var accessKeyId = @credential.getAccessKeyId();
-  return accessKeyId;
-}
 
-async function getAccessKeySecret(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
   }
-  var secret = @credential.getAccessKeySecret();
-  return secret;
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-

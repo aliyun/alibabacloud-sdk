@@ -1,153 +1,20 @@
 import OSS;
 import OpenPlatform;
 import RPCUtil;
+import RPC;
 import OSSUtil;
 import Util;
-import Credential;
 import FileForm;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @endpointType = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @noProxy = string
-type @maxIdleConns = number
-type @openPlatformEndpoint = string
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string,
-  accessKeySecret?: string,
-  type?: string,
-  securityToken?: string,
-  endpoint: string,
-  protocol?: string,
-  regionId: string,
-  userAgent?: string,
-  readTimeout?: number,
-  connectTimeout?: number,
-  httpProxy?: string,
-  httpsProxy?: string,
-  noProxy?: string,
-  socks5Proxy?: string,
-  socks5NetWork?: string,
-  maxIdleConns?: number,
-  endpointType?: string,
-  openPlatformEndpoint?: string,
-}
-
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-  @endpointType = config.endpointType;
-  @openPlatformEndpoint = config.openPlatformEndpoint;
-}
-
-api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-09-30',
-    SignatureNonce = Util.getNonce(),
-    ...query,
-  });
-  if (!Util.isUnset(body)) {
-    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
-    __request.body = Util.toFormString(tmp);
-  }
-  __request.headers = {
-    host = RPCUtil.getHost('imageenhan', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  if (!Util.equalString(authType, 'Anonymous')) {
-    var accessKeyId = getAccessKeyId();
-    var accessKeySecret = getAccessKeySecret();
-    __request.query.SignatureMethod = 'HMAC-SHA1';
-    __request.query.SignatureVersion = '1.0';
-    __request.query.AccessKeyId = accessKeyId;
-    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-  }
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var res = Util.assertAsMap(obj);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-  throw {
-      message = res.Message,
-      data = res,
-      code = res.Code,
-    }
-  }
-  return res;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 1)
-  },
-  ignoreSSL = runtime.ignoreSSL
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
 model ImageBlindCharacterWatermarkRequest = {
@@ -168,7 +35,8 @@ model ImageBlindCharacterWatermarkResponse = {
 }
 
 async function imageBlindCharacterWatermark(request: ImageBlindCharacterWatermarkRequest, runtime: Util.RuntimeOptions): ImageBlindCharacterWatermarkResponse {
-  return _request('ImageBlindCharacterWatermark', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('ImageBlindCharacterWatermark', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model ImageBlindCharacterWatermarkAdvanceRequest = {
@@ -184,7 +52,7 @@ async function imageBlindCharacterWatermarkAdvance(request: ImageBlindCharacterW
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -254,7 +122,8 @@ model RemoveImageSubtitlesResponse = {
 }
 
 async function removeImageSubtitles(request: RemoveImageSubtitlesRequest, runtime: Util.RuntimeOptions): RemoveImageSubtitlesResponse {
-  return _request('RemoveImageSubtitles', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RemoveImageSubtitles', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model RemoveImageSubtitlesAdvanceRequest = {
@@ -269,7 +138,7 @@ async function removeImageSubtitlesAdvance(request: RemoveImageSubtitlesAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -335,7 +204,8 @@ model RemoveImageWatermarkResponse = {
 }
 
 async function removeImageWatermark(request: RemoveImageWatermarkRequest, runtime: Util.RuntimeOptions): RemoveImageWatermarkResponse {
-  return _request('RemoveImageWatermark', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RemoveImageWatermark', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model RemoveImageWatermarkAdvanceRequest = {
@@ -346,7 +216,7 @@ async function removeImageWatermarkAdvance(request: RemoveImageWatermarkAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -418,7 +288,8 @@ model ImageBlindPicWatermarkResponse = {
 }
 
 async function imageBlindPicWatermark(request: ImageBlindPicWatermarkRequest, runtime: Util.RuntimeOptions): ImageBlindPicWatermarkResponse {
-  return _request('ImageBlindPicWatermark', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('ImageBlindPicWatermark', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model ImageBlindPicWatermarkAdvanceRequest = {
@@ -434,7 +305,7 @@ async function imageBlindPicWatermarkAdvance(request: ImageBlindPicWatermarkAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -509,7 +380,8 @@ model IntelligentCompositionResponse = {
 }
 
 async function intelligentComposition(request: IntelligentCompositionRequest, runtime: Util.RuntimeOptions): IntelligentCompositionResponse {
-  return _request('IntelligentComposition', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('IntelligentComposition', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model IntelligentCompositionAdvanceRequest = {
@@ -521,7 +393,7 @@ async function intelligentCompositionAdvance(request: IntelligentCompositionAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -595,7 +467,8 @@ model ChangeImageSizeResponse = {
 }
 
 async function changeImageSize(request: ChangeImageSizeRequest, runtime: Util.RuntimeOptions): ChangeImageSizeResponse {
-  return _request('ChangeImageSize', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('ChangeImageSize', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model ChangeImageSizeAdvanceRequest = {
@@ -608,7 +481,7 @@ async function changeImageSizeAdvance(request: ChangeImageSizeAdvanceRequest, ru
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -676,7 +549,8 @@ model ExtendImageStyleResponse = {
 }
 
 async function extendImageStyle(request: ExtendImageStyleRequest, runtime: Util.RuntimeOptions): ExtendImageStyleResponse {
-  return _request('ExtendImageStyle', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('ExtendImageStyle', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model MakeSuperResolutionImageRequest = {
@@ -691,7 +565,8 @@ model MakeSuperResolutionImageResponse = {
 }
 
 async function makeSuperResolutionImage(request: MakeSuperResolutionImageRequest, runtime: Util.RuntimeOptions): MakeSuperResolutionImageResponse {
-  return _request('MakeSuperResolutionImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('MakeSuperResolutionImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
 model MakeSuperResolutionImageAdvanceRequest = {
@@ -702,7 +577,7 @@ async function makeSuperResolutionImageAdvance(request: MakeSuperResolutionImage
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -776,27 +651,17 @@ model RecolorImageResponse = {
 }
 
 async function recolorImage(request: RecolorImageRequest, runtime: Util.RuntimeOptions): RecolorImageResponse {
-  return _request('RecolorImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecolorImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
 }
 
-function getUserAgent(): string {
-  var userAgent = Util.getUserAgent(@userAgent);
-  return userAgent;
-}
-
-async function getAccessKeyId(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
   }
-  var accessKeyId = @credential.getAccessKeyId();
-  return accessKeyId;
-}
 
-async function getAccessKeySecret(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
   }
-  var secret = @credential.getAccessKeySecret();
-  return secret;
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
