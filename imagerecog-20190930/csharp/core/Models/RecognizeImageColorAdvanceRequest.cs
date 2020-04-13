@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imagerecog.Models
+namespace AlibabaCloud.SDK.Imagerecog20190930.Models
 {
     public class RecognizeImageColorAdvanceRequest : TeaModel {
         [NameInMap("UrlObject")]

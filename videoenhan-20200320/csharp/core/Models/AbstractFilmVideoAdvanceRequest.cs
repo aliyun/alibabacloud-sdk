@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Videoenhan.Models
+namespace AlibabaCloud.SDK.Videoenhan20200320.Models
 {
     public class AbstractFilmVideoAdvanceRequest : TeaModel {
         [NameInMap("VideoUrlObject")]

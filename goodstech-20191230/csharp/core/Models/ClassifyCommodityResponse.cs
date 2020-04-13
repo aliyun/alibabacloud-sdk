@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Goodstech.Models
+namespace AlibabaCloud.SDK.Goodstech20191230.Models
 {
     public class ClassifyCommodityResponse : TeaModel {
         [NameInMap("RequestId")]

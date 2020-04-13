@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Ocr.Models
+namespace AlibabaCloud.SDK.Ocr20191230.Models
 {
     public class RecognizeBusinessCardAdvanceRequest : TeaModel {
         [NameInMap("ImageURLObject")]

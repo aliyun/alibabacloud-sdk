@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Videorecog.Models
+namespace AlibabaCloud.SDK.Videorecog20200320.Models
 {
     public class DetectVideoShotAdvanceRequest : TeaModel {
         [NameInMap("VideoUrlObject")]
