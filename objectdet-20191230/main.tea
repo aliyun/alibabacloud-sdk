@@ -1,153 +1,20 @@
 import OSS;
 import OpenPlatform;
 import RPCUtil;
+import RPC;
 import OSSUtil;
 import Util;
-import Credential;
 import FileForm;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @endpointType = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @noProxy = string
-type @maxIdleConns = number
-type @openPlatformEndpoint = string
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string,
-  accessKeySecret?: string,
-  type?: string,
-  securityToken?: string,
-  endpoint: string,
-  protocol?: string,
-  regionId: string,
-  userAgent?: string,
-  readTimeout?: number,
-  connectTimeout?: number,
-  httpProxy?: string,
-  httpsProxy?: string,
-  noProxy?: string,
-  socks5Proxy?: string,
-  socks5NetWork?: string,
-  maxIdleConns?: number,
-  endpointType?: string,
-  openPlatformEndpoint?: string,
-}
-
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-  @endpointType = config.endpointType;
-  @openPlatformEndpoint = config.openPlatformEndpoint;
-}
-
-api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
-    SignatureNonce = Util.getNonce(),
-    ...query,
-  });
-  if (!Util.isUnset(body)) {
-    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
-    __request.body = Util.toFormString(tmp);
-  }
-  __request.headers = {
-    host = RPCUtil.getHost('objectdet', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  if (!Util.equalString(authType, 'Anonymous')) {
-    var accessKeyId = getAccessKeyId();
-    var accessKeySecret = getAccessKeySecret();
-    __request.query.SignatureMethod = 'HMAC-SHA1';
-    __request.query.SignatureVersion = '1.0';
-    __request.query.AccessKeyId = accessKeyId;
-    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-  }
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var res = Util.assertAsMap(obj);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-  throw {
-      message = res.Message,
-      data = res,
-      code = res.Code,
-    }
-  }
-  return res;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 1)
-  },
-  ignoreSSL = runtime.ignoreSSL
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
 model DetectTransparentImageRequest = {
@@ -166,7 +33,8 @@ model DetectTransparentImageResponse = {
 }
 
 async function detectTransparentImage(request: DetectTransparentImageRequest, runtime: Util.RuntimeOptions): DetectTransparentImageResponse {
-  return _request('DetectTransparentImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectTransparentImage', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model DetectTransparentImageAdvanceRequest = {
@@ -177,7 +45,7 @@ async function detectTransparentImageAdvance(request: DetectTransparentImageAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -251,7 +119,8 @@ model DetectObjectResponse = {
 }
 
 async function detectObject(request: DetectObjectRequest, runtime: Util.RuntimeOptions): DetectObjectResponse {
-  return _request('DetectObject', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectObject', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model DetectObjectAdvanceRequest = {
@@ -262,7 +131,7 @@ async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime:
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -332,7 +201,8 @@ model DetectWhiteBaseImageResponse = {
 }
 
 async function detectWhiteBaseImage(request: DetectWhiteBaseImageRequest, runtime: Util.RuntimeOptions): DetectWhiteBaseImageResponse {
-  return _request('DetectWhiteBaseImage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectWhiteBaseImage', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model DetectWhiteBaseImageAdvanceRequest = {
@@ -343,7 +213,7 @@ async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceR
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -415,7 +285,8 @@ model ClassifyVehicleInsuranceResponse = {
 }
 
 async function classifyVehicleInsurance(request: ClassifyVehicleInsuranceRequest, runtime: Util.RuntimeOptions): ClassifyVehicleInsuranceResponse {
-  return _request('ClassifyVehicleInsurance', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('ClassifyVehicleInsurance', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model ClassifyVehicleInsuranceAdvanceRequest = {
@@ -426,7 +297,7 @@ async function classifyVehicleInsuranceAdvance(request: ClassifyVehicleInsurance
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -499,7 +370,8 @@ model RecognizeVehicleDashboardResponse = {
 }
 
 async function recognizeVehicleDashboard(request: RecognizeVehicleDashboardRequest, runtime: Util.RuntimeOptions): RecognizeVehicleDashboardResponse {
-  return _request('RecognizeVehicleDashboard', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeVehicleDashboard', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeVehicleDashboardAdvanceRequest = {
@@ -510,7 +382,7 @@ async function recognizeVehicleDashboardAdvance(request: RecognizeVehicleDashboa
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -583,7 +455,8 @@ model RecognizeVehicleDamageResponse = {
 }
 
 async function recognizeVehicleDamage(request: RecognizeVehicleDamageRequest, runtime: Util.RuntimeOptions): RecognizeVehicleDamageResponse {
-  return _request('RecognizeVehicleDamage', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeVehicleDamage', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeVehicleDamageAdvanceRequest = {
@@ -594,7 +467,7 @@ async function recognizeVehicleDamageAdvance(request: RecognizeVehicleDamageAdva
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -667,7 +540,8 @@ model RecognizeVehiclePartsResponse = {
 }
 
 async function recognizeVehicleParts(request: RecognizeVehiclePartsRequest, runtime: Util.RuntimeOptions): RecognizeVehiclePartsResponse {
-  return _request('RecognizeVehicleParts', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RecognizeVehicleParts', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RecognizeVehiclePartsAdvanceRequest = {
@@ -678,7 +552,7 @@ async function recognizeVehiclePartsAdvance(request: RecognizeVehiclePartsAdvanc
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -753,7 +627,8 @@ model DetectVehicleResponse = {
 }
 
 async function detectVehicle(request: DetectVehicleRequest, runtime: Util.RuntimeOptions): DetectVehicleResponse {
-  return _request('DetectVehicle', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectVehicle', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model DetectVehicleAdvanceRequest = {
@@ -764,7 +639,7 @@ async function detectVehicleAdvance(request: DetectVehicleAdvanceRequest, runtim
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -835,7 +710,8 @@ model DetectMainBodyResponse = {
 }
 
 async function detectMainBody(request: DetectMainBodyRequest, runtime: Util.RuntimeOptions): DetectMainBodyResponse {
-  return _request('DetectMainBody', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('DetectMainBody', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model DetectMainBodyAdvanceRequest = {
@@ -846,7 +722,7 @@ async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runt
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -900,24 +776,13 @@ async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runt
   return detectMainBodyResp;
 }
 
-function getUserAgent(): string {
-  var userAgent = Util.getUserAgent(@userAgent);
-  return userAgent;
-}
-
-async function getAccessKeyId(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
   }
-  var accessKeyId = @credential.getAccessKeyId();
-  return accessKeyId;
-}
 
-async function getAccessKeySecret(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
   }
-  var secret = @credential.getAccessKeySecret();
-  return secret;
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
