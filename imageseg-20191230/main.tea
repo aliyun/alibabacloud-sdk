@@ -1,153 +1,40 @@
 import OSS;
 import OpenPlatform;
 import RPCUtil;
+import RPC;
 import OSSUtil;
 import Util;
-import Credential;
 import FileForm;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @endpointType = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @noProxy = string
-type @maxIdleConns = number
-type @openPlatformEndpoint = string
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string,
-  accessKeySecret?: string,
-  type?: string,
-  securityToken?: string,
-  endpoint: string,
-  protocol?: string,
-  regionId: string,
-  userAgent?: string,
-  readTimeout?: number,
-  connectTimeout?: number,
-  httpProxy?: string,
-  httpsProxy?: string,
-  noProxy?: string,
-  socks5Proxy?: string,
-  socks5NetWork?: string,
-  maxIdleConns?: number,
-  endpointType?: string,
-  openPlatformEndpoint?: string,
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-  @endpointType = config.endpointType;
-  @openPlatformEndpoint = config.openPlatformEndpoint;
+model GetAsyncJobResultRequest = {
+  jobId: string(name='JobId', description='jobId'),
 }
 
-api _request(action: string, protocol: string, method: string, authType: string, query: object, body: object, runtime: Util.RuntimeOptions): object {
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
-    SignatureNonce = Util.getNonce(),
-    ...query,
-  });
-  if (!Util.isUnset(body)) {
-    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
-    __request.body = Util.toFormString(tmp);
-  }
-  __request.headers = {
-    host = RPCUtil.getHost('imageseg', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  if (!Util.equalString(authType, 'Anonymous')) {
-    var accessKeyId = getAccessKeyId();
-    var accessKeySecret = getAccessKeySecret();
-    __request.query.SignatureMethod = 'HMAC-SHA1';
-    __request.query.SignatureVersion = '1.0';
-    __request.query.AccessKeyId = accessKeyId;
-    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-  }
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var res = Util.assertAsMap(obj);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-  throw {
-      message = res.Message,
-      data = res,
-      code = res.Code,
-    }
-  }
-  return res;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 1)
-  },
-  ignoreSSL = runtime.ignoreSSL
+model GetAsyncJobResultResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    errorCode: string(name='ErrorCode', description='errorCode'),
+    errorMessage: string(name='ErrorMessage', description='errorMessage'),
+    jobId: string(name='JobId', description='jobId'),
+    result: string(name='Result', description='result'),
+    status: string(name='Status', description='status'),
+  }(name='Data', description='data'),
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  return doRequest('GetAsyncJobResult', 'HTTPS', 'GET' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model SegmentFurnitureRequest = {
@@ -166,7 +53,8 @@ model SegmentFurnitureResponse = {
 }
 
 async function segmentFurniture(request: SegmentFurnitureRequest, runtime: Util.RuntimeOptions): SegmentFurnitureResponse {
-  return _request('SegmentFurniture', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentFurniture', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model SegmentFurnitureAdvanceRequest = {
@@ -177,7 +65,7 @@ async function segmentFurnitureAdvance(request: SegmentFurnitureAdvanceRequest, 
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -248,7 +136,8 @@ model RefineMaskResponse = {
 }
 
 async function refineMask(request: RefineMaskRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
-  return _request('RefineMask', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('RefineMask', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model RefineMaskAdvanceRequest = {
@@ -260,7 +149,7 @@ async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Uti
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -332,7 +221,8 @@ model ParseFaceResponse = {
 }
 
 async function parseFace(request: ParseFaceRequest, runtime: Util.RuntimeOptions): ParseFaceResponse {
-  return _request('ParseFace', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('ParseFace', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model ParseFaceAdvanceRequest = {
@@ -343,7 +233,7 @@ async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -414,7 +304,8 @@ model SegmentVehicleResponse = {
 }
 
 async function segmentVehicle(request: SegmentVehicleRequest, runtime: Util.RuntimeOptions): SegmentVehicleResponse {
-  return _request('SegmentVehicle', 'HTTPS', 'POST', 'AK', null, request, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentVehicle', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
 }
 
 model SegmentVehicleAdvanceRequest = {
@@ -425,7 +316,7 @@ async function segmentVehicleAdvance(request: SegmentVehicleAdvanceRequest, runt
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -499,7 +390,8 @@ model SegmentHairResponse = {
 }
 
 async function segmentHair(request: SegmentHairRequest, runtime: Util.RuntimeOptions): SegmentHairResponse {
-  return _request('SegmentHair', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentHair', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model SegmentHairAdvanceRequest = {
@@ -510,7 +402,7 @@ async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: U
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -584,7 +476,8 @@ model SegmentFaceResponse = {
 }
 
 async function segmentFace(request: SegmentFaceRequest, runtime: Util.RuntimeOptions): SegmentFaceResponse {
-  return _request('SegmentFace', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentFace', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model SegmentFaceAdvanceRequest = {
@@ -595,7 +488,7 @@ async function segmentFaceAdvance(request: SegmentFaceAdvanceRequest, runtime: U
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -669,7 +562,8 @@ model SegmentHeadResponse = {
 }
 
 async function segmentHead(request: SegmentHeadRequest, runtime: Util.RuntimeOptions): SegmentHeadResponse {
-  return _request('SegmentHead', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentHead', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model SegmentHeadAdvanceRequest = {
@@ -680,7 +574,7 @@ async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: U
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -746,7 +640,8 @@ model SegmentCommodityResponse = {
 }
 
 async function segmentCommodity(request: SegmentCommodityRequest, runtime: Util.RuntimeOptions): SegmentCommodityResponse {
-  return _request('SegmentCommodity', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentCommodity', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model SegmentCommodityAdvanceRequest = {
@@ -757,7 +652,7 @@ async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, 
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -813,6 +708,7 @@ async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, 
 
 model SegmentBodyRequest = {
   imageURL: string(name='ImageURL', description='imageUrl'),
+  async?: boolean(name='Async', description='async'),
 }
 
 model SegmentBodyResponse = {
@@ -823,18 +719,20 @@ model SegmentBodyResponse = {
 }
 
 async function segmentBody(request: SegmentBodyRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
-  return _request('SegmentBody', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentBody', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model SegmentBodyAdvanceRequest = {
   imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  async?: boolean(name='Async', description='async'),
 }
 
 async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -900,7 +798,8 @@ model SegmentCommonImageResponse = {
 }
 
 async function segmentCommonImage(request: SegmentCommonImageRequest, runtime: Util.RuntimeOptions): SegmentCommonImageResponse {
-  return _request('SegmentCommonImage', 'HTTPS', 'GET', 'AK', request, null, runtime);
+  Util.validateModel(request);
+  return doRequest('SegmentCommonImage', 'HTTPS', 'GET' , '2019-12-30', 'AK', request, null, runtime);
 }
 
 model SegmentCommonImageAdvanceRequest = {
@@ -911,7 +810,7 @@ async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceReque
   // Step 0: init client
   var accessKeyId = @credential.getAccessKeyId();
   var accessKeySecret = @credential.getAccessKeySecret();
-  var authConfig = new OpenPlatform.Config{
+  var authConfig = new RPC.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     type = 'access_key',
@@ -965,24 +864,13 @@ async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceReque
   return segmentCommonImageResp;
 }
 
-function getUserAgent(): string {
-  var userAgent = Util.getUserAgent(@userAgent);
-  return userAgent;
-}
-
-async function getAccessKeyId(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
   }
-  var accessKeyId = @credential.getAccessKeyId();
-  return accessKeyId;
-}
 
-async function getAccessKeySecret(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
   }
-  var secret = @credential.getAccessKeySecret();
-  return secret;
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
