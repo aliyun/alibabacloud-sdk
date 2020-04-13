@@ -110,9 +110,10 @@ class Imageaudit
             ],
             'ignoreSSL' => $runtime->ignoreSSL,
         ];
-        $_lastRequest = null;
-        $_now         = time();
-        $_retryTimes  = 0;
+        $_lastRequest   = null;
+        $_lastException = null;
+        $_now           = time();
+        $_retryTimes    = 0;
         while (Tea::allowRetry($_runtime['retry'], $_retryTimes, $_now)) {
             if ($_retryTimes > 0) {
                 $_backoffTime = Tea::getBackoffTime($_runtime['backoff'], $_retryTimes);
@@ -159,7 +160,9 @@ class Imageaudit
 
                 return $body;
             } catch (\Exception $e) {
-                if (Tea::isRetryable($_runtime['retry'], $_retryTimes)) {
+                if (Tea::isRetryable($e)) {
+                    $_lastException = $e;
+
                     continue;
                 }
 
@@ -167,7 +170,7 @@ class Imageaudit
             }
         }
 
-        throw new TeaUnableRetryError($_lastRequest);
+        throw new TeaUnableRetryError($_lastRequest, $_lastException);
     }
 
     /**
