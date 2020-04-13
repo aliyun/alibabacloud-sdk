@@ -1087,10 +1087,10 @@ class Dyvmsapi
      */
     public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
     {
-        if (!Utils::emptyWithSuffix($endpoint)) {
+        if (!Utils::empty_($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::isUnset($endpointMap) && !Utils::emptyWithSuffix($endpointMap['regionId'])) {
+        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 

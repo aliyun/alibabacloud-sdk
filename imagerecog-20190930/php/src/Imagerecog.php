@@ -4,11 +4,10 @@
 
 namespace AlibabaCloud\SDK\Imagerecog\V20190930;
 
-use AlibabaCloud\Credentials\Credential;
+use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\ClassifyingRubbishAdvanceRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\ClassifyingRubbishRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\ClassifyingRubbishResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\Config;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\DetectImageElementsAdvanceRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\DetectImageElementsRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\DetectImageElementsResponse;
@@ -31,176 +30,20 @@ use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Exception\TeaError;
-use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
 use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
-use AlibabaCloud\Tea\Tea;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class Imagerecog
 {
-    private $_endpoint;
-    private $_regionId;
-    private $_protocol;
-    private $_userAgent;
-    private $_endpointType;
-    private $_readTimeout;
-    private $_connectTimeout;
-    private $_httpProxy;
-    private $_httpsProxy;
-    private $_socks5Proxy;
-    private $_socks5NetWork;
-    private $_noProxy;
-    private $_maxIdleConns;
-    private $_openPlatformEndpoint;
-    private $_credential;
-
-    public function __construct(Config $config)
+    public function __construct($config)
     {
-        if (Utils::isUnset($config)) {
-            throw new TeaError([
-                'name'    => 'ParameterMissing',
-                'message' => "'config' can not be unset",
-            ]);
-        }
-        if (Utils::emptyWithSuffix($config->regionId)) {
-            throw new TeaError([
-                'name'    => 'ParameterMissing',
-                'message' => "'config.regionId' can not be empty",
-            ]);
-        }
-        if (Utils::emptyWithSuffix($config->endpoint)) {
-            throw new TeaError([
-                'name'    => 'ParameterMissing',
-                'message' => "'config.endpoint' can not be empty",
-            ]);
-        }
-        if (Utils::emptyWithSuffix($config->type)) {
-            $config->type = 'access_key';
-        }
-        $credentialConfig = new \AlibabaCloud\Credentials\Credential\Config([
-            'accessKeyId'     => $config->accessKeyId,
-            'type'            => $config->type,
-            'accessKeySecret' => $config->accessKeySecret,
-            'securityToken'   => $config->securityToken,
-        ]);
-        $this->_credential           = new Credential($credentialConfig);
-        $this->_endpoint             = $config->endpoint;
-        $this->_protocol             = $config->protocol;
-        $this->_regionId             = $config->regionId;
-        $this->_userAgent            = $config->userAgent;
-        $this->_readTimeout          = $config->readTimeout;
-        $this->_connectTimeout       = $config->connectTimeout;
-        $this->_httpProxy            = $config->httpProxy;
-        $this->_httpsProxy           = $config->httpsProxy;
-        $this->_noProxy              = $config->noProxy;
-        $this->_socks5Proxy          = $config->socks5Proxy;
-        $this->_socks5NetWork        = $config->socks5NetWork;
-        $this->_maxIdleConns         = $config->maxIdleConns;
-        $this->_endpointType         = $config->endpointType;
-        $this->_openPlatformEndpoint = $config->openPlatformEndpoint;
-    }
-
-    /**
-     * @param string $action
-     * @param string $protocol
-     * @param string $method
-     * @param string $authType
-     * @param object $query
-     * @param object $body
-     *
-     * @throws \Exception
-     *
-     * @return array|object
-     */
-    public function _request($action, $protocol, $method, $authType, $query, $body, RuntimeOptions $runtime)
-    {
-        $runtime->validate();
-        $_runtime = [
-            'timeouted'      => 'retry',
-            'readTimeout'    => Utils::defaultNumber($runtime->readTimeout, $this->_readTimeout),
-            'connectTimeout' => Utils::defaultNumber($runtime->connectTimeout, $this->_connectTimeout),
-            'httpProxy'      => Utils::defaultString($runtime->httpProxy, $this->_httpProxy),
-            'httpsProxy'     => Utils::defaultString($runtime->httpsProxy, $this->_httpsProxy),
-            'noProxy'        => Utils::defaultString($runtime->noProxy, $this->_noProxy),
-            'maxIdleConns'   => Utils::defaultNumber($runtime->maxIdleConns, $this->_maxIdleConns),
-            'retry'          => [
-                'retryable'   => $runtime->autoretry,
-                'maxAttempts' => Utils::defaultNumber($runtime->maxAttempts, 3),
-            ],
-            'backoff' => [
-                'policy' => Utils::defaultString($runtime->backoffPolicy, 'no'),
-                'period' => Utils::defaultNumber($runtime->backoffPeriod, 1),
-            ],
-            'ignoreSSL' => $runtime->ignoreSSL,
-        ];
-        $_lastRequest = null;
-        $_now         = time();
-        $_retryTimes  = 0;
-        while (Tea::allowRetry($_runtime['retry'], $_retryTimes, $_now)) {
-            if ($_retryTimes > 0) {
-                $_backoffTime = Tea::getBackoffTime($_runtime['backoff'], $_retryTimes);
-                if ($_backoffTime > 0) {
-                    Tea::sleep($_backoffTime);
-                }
-            }
-            $_retryTimes = $_retryTimes + 1;
-
-            try {
-                $_request           = new Request();
-                $_request->protocol = Utils::defaultString($this->_protocol, $protocol);
-                $_request->method   = $method;
-                $_request->pathname = '/';
-                $_request->query    = RpcUtils::query(Tea::merge([
-                    'Action'         => $action,
-                    'Format'         => 'json',
-                    'RegionId'       => $this->_regionId,
-                    'Timestamp'      => RpcUtils::getTimestamp(),
-                    'Version'        => '2019-09-30',
-                    'SignatureNonce' => Utils::getNonce(),
-                ], $query));
-                if (!Utils::isUnset($body)) {
-                    $tmp            = Utils::anyifyMapValue(RpcUtils::query($body));
-                    $_request->body = Utils::toFormString($tmp);
-                }
-                $_request->headers = [
-                    'host'       => RpcUtils::getHost('imagerecog', $this->_regionId, $this->_endpoint),
-                    'user-agent' => $this->getUserAgent(),
-                ];
-                if (!Utils::equalString($authType, 'Anonymous')) {
-                    $accessKeyId                         = $this->getAccessKeyId();
-                    $accessKeySecret                     = $this->getAccessKeySecret();
-                    $_request->query['SignatureMethod']  = 'HMAC-SHA1';
-                    $_request->query['SignatureVersion'] = '1.0';
-                    $_request->query['AccessKeyId']      = $accessKeyId;
-                    $_request->query['Signature']        = RpcUtils::getSignature($_request, $accessKeySecret);
-                }
-                $_lastRequest = $_request;
-                $_response    = Tea::send($_request, $_runtime);
-                $obj          = Utils::readAsJSON($_response->body);
-                $res          = Utils::assertAsMap($obj);
-                if (Utils::is4xx($_response->statusCode) || Utils::is5xx($_response->statusCode)) {
-                    throw new TeaError([
-                        'message' => $res['Message'],
-                        'data'    => $res,
-                        'code'    => $res['Code'],
-                    ]);
-                }
-
-                return $res;
-            } catch (\Exception $e) {
-                if (Tea::isRetryable($_runtime['retry'], $_retryTimes)) {
-                    continue;
-                }
-
-                throw $e;
-            }
-        }
-
-        throw new TeaUnableRetryError($_lastRequest);
+        parent::__construct($config);
+        $this->_endpointRule = 'regional';
+        $this->checkConfig($config);
+        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -210,7 +53,9 @@ class Imagerecog
      */
     public function classifyingRubbish(ClassifyingRubbishRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('ClassifyingRubbish', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new ClassifyingRubbishResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('ClassifyingRubbish', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new ClassifyingRubbishResponse());
     }
 
     /**
@@ -223,7 +68,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -282,7 +127,9 @@ class Imagerecog
      */
     public function recognizeVehicleType(RecognizeVehicleTypeRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeVehicleType', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeVehicleTypeResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeVehicleType', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeVehicleTypeResponse());
     }
 
     /**
@@ -295,7 +142,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -354,7 +201,9 @@ class Imagerecog
      */
     public function recognizeLogo(RecognizeLogoRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeLogo', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeLogoResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeLogo', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeLogoResponse());
     }
 
     /**
@@ -364,7 +213,9 @@ class Imagerecog
      */
     public function taggingImage(TaggingImageRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('TaggingImage', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new TaggingImageResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('TaggingImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new TaggingImageResponse());
     }
 
     /**
@@ -377,7 +228,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -436,7 +287,9 @@ class Imagerecog
      */
     public function recognizeScene(RecognizeSceneRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeScene', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeSceneResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeScene', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeSceneResponse());
     }
 
     /**
@@ -449,7 +302,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -508,7 +361,9 @@ class Imagerecog
      */
     public function recognizeImageColor(RecognizeImageColorRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeImageColor', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeImageColorResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeImageColor', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeImageColorResponse());
     }
 
     /**
@@ -521,7 +376,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -580,7 +435,9 @@ class Imagerecog
      */
     public function detectImageElements(DetectImageElementsRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DetectImageElements', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new DetectImageElementsResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('DetectImageElements', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new DetectImageElementsResponse());
     }
 
     /**
@@ -593,7 +450,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -652,7 +509,9 @@ class Imagerecog
      */
     public function recognizeImageStyle(RecognizeImageStyleRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RecognizeImageStyle', 'HTTPS', 'POST', 'AK', null, $request, $runtime), new RecognizeImageStyleResponse());
+        Utils::validateModel($request);
+
+        return Model::toModel($this->doRequest('RecognizeImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeImageStyleResponse());
     }
 
     /**
@@ -665,7 +524,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\Config([
+        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -718,40 +577,27 @@ class Imagerecog
     }
 
     /**
+     * @param string $productId
+     * @param string $regionId
+     * @param string $endpointRule
+     * @param string $network
+     * @param string $suffix
+     * @param array  $endpointMap
+     * @param string $endpoint
+     *
      * @throws \Exception
      *
      * @return string
      */
-    public function getUserAgent()
+    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
     {
-        return Utils::getUserAgent($this->_userAgent);
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getAccessKeyId()
-    {
-        if (Utils::isUnset($this->_credential)) {
-            return '';
+        if (!Utils::empty_($endpoint)) {
+            return $endpoint;
+        }
+        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap['regionId'])) {
+            return $endpointMap['regionId'];
         }
 
-        return $this->_credential->getAccessKeyId();
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function getAccessKeySecret()
-    {
-        if (Utils::isUnset($this->_credential)) {
-            return '';
-        }
-
-        return $this->_credential->getAccessKeySecret();
+        return Endpoint::getEndpointRules($productId, $regionId, $endpointRule, $network, $suffix);
     }
 }
