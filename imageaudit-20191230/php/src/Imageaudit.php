@@ -43,19 +43,19 @@ class Imageaudit
                 'message' => "'config' can not be unset",
             ]);
         }
-        if (Utils::emptyWithSuffix($config->endpoint)) {
+        if (Utils::empty_($config->endpoint)) {
             throw new TeaError([
                 'name'    => 'ParameterMissing',
                 'message' => "'config.endpoint' can not be empty",
             ]);
         }
-        if (Utils::emptyWithSuffix($config->regionId)) {
+        if (Utils::empty_($config->regionId)) {
             throw new TeaError([
                 'name'    => 'ParameterMissing',
                 'message' => "'config.regionId' can not be empty",
             ]);
         }
-        if (Utils::emptyWithSuffix($config->type)) {
+        if (Utils::empty_($config->type)) {
             $config->type = 'access_key';
         }
         $credentialConfig = new \AlibabaCloud\Credentials\Credential\Config([

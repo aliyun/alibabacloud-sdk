@@ -14,8 +14,15 @@ class SegmentBodyAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+    /**
+     * @description async
+     *
+     * @var bool
+     */
+    public $async;
     protected $_name = [
         'imageURLObject' => 'ImageURLObject',
+        'async'          => 'Async',
     ];
 
     public function validate()
@@ -27,6 +34,7 @@ class SegmentBodyAdvanceRequest extends Model
     {
         $res                   = [];
         $res['ImageURLObject'] = $this->imageURLObject;
+        $res['Async']          = $this->async;
 
         return $res;
     }
@@ -41,6 +49,9 @@ class SegmentBodyAdvanceRequest extends Model
         $model = new self();
         if (isset($map['ImageURLObject'])) {
             $model->imageURLObject = $map['ImageURLObject'];
+        }
+        if (isset($map['Async'])) {
+            $model->async = $map['Async'];
         }
 
         return $model;
