@@ -1,83 +1,14 @@
 // This file is auto-generated, don't edit it
 import OSS, * as $OSS from '@alicloud/oss-client';
-import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform';
+import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform20191219';
 import RPCUtil from '@alicloud/rpc-util';
+import RPC, * as $RPC from '@alicloud/rpc-client';
 import OSSUtil, * as $OSSUtil from '@alicloud/oss-util';
 import Util, * as $Util from '@alicloud/tea-util';
-import Credential, * as $Credential from '@alicloud/credentials';
 import FileForm, * as $FileForm from '@alicloud/tea-fileform';
+import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
-
-export class Config extends $tea.Model {
-  accessKeyId?: string;
-  accessKeySecret?: string;
-  type?: string;
-  securityToken?: string;
-  endpoint: string;
-  protocol?: string;
-  regionId: string;
-  userAgent?: string;
-  readTimeout?: number;
-  connectTimeout?: number;
-  httpProxy?: string;
-  httpsProxy?: string;
-  noProxy?: string;
-  socks5Proxy?: string;
-  socks5NetWork?: string;
-  maxIdleConns?: number;
-  endpointType?: string;
-  openPlatformEndpoint?: string;
-  static names(): { [key: string]: string } {
-    return {
-      accessKeyId: 'accessKeyId',
-      accessKeySecret: 'accessKeySecret',
-      type: 'type',
-      securityToken: 'securityToken',
-      endpoint: 'endpoint',
-      protocol: 'protocol',
-      regionId: 'regionId',
-      userAgent: 'userAgent',
-      readTimeout: 'readTimeout',
-      connectTimeout: 'connectTimeout',
-      httpProxy: 'httpProxy',
-      httpsProxy: 'httpsProxy',
-      noProxy: 'noProxy',
-      socks5Proxy: 'socks5Proxy',
-      socks5NetWork: 'socks5NetWork',
-      maxIdleConns: 'maxIdleConns',
-      endpointType: 'endpointType',
-      openPlatformEndpoint: 'openPlatformEndpoint',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      accessKeyId: 'string',
-      accessKeySecret: 'string',
-      type: 'string',
-      securityToken: 'string',
-      endpoint: 'string',
-      protocol: 'string',
-      regionId: 'string',
-      userAgent: 'string',
-      readTimeout: 'number',
-      connectTimeout: 'number',
-      httpProxy: 'string',
-      httpsProxy: 'string',
-      noProxy: 'string',
-      socks5Proxy: 'string',
-      socks5NetWork: 'string',
-      maxIdleConns: 'number',
-      endpointType: 'string',
-      openPlatformEndpoint: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
 
 export class SegmentVideoBodyRequest extends $tea.Model {
   videoUrl: string;
@@ -231,170 +162,26 @@ export class GetAsyncJobResultResponseData extends $tea.Model {
 }
 
 
-export default class Client {
-  _endpoint: string;
-  _regionId: string;
-  _protocol: string;
-  _userAgent: string;
-  _endpointType: string;
-  _readTimeout: number;
-  _connectTimeout: number;
-  _httpProxy: string;
-  _httpsProxy: string;
-  _socks5Proxy: string;
-  _socks5NetWork: string;
-  _noProxy: string;
-  _maxIdleConns: number;
-  _openPlatformEndpoint: string;
-  _credential: Credential;
+export default class Client extends RPC {
 
-  constructor(config: Config) {
-    if (Util.isUnset($tea.toMap(config))) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config' can not be unset",
-      });
-    }
-
-    if (Util.empty(config.regionId)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.regionId' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.endpoint)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.endpoint' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.type)) {
-      config.type = "access_key";
-    }
-
-    let credentialConfig = new $Credential.Config({
-      accessKeyId: config.accessKeyId,
-      type: config.type,
-      accessKeySecret: config.accessKeySecret,
-      securityToken: config.securityToken,
-    });
-    this._credential = new Credential(credentialConfig);
-    this._endpoint = config.endpoint;
-    this._protocol = config.protocol;
-    this._regionId = config.regionId;
-    this._userAgent = config.userAgent;
-    this._readTimeout = config.readTimeout;
-    this._connectTimeout = config.connectTimeout;
-    this._httpProxy = config.httpProxy;
-    this._httpsProxy = config.httpsProxy;
-    this._noProxy = config.noProxy;
-    this._socks5Proxy = config.socks5Proxy;
-    this._socks5NetWork = config.socks5NetWork;
-    this._maxIdleConns = config.maxIdleConns;
-    this._endpointType = config.endpointType;
-    this._openPlatformEndpoint = config.openPlatformEndpoint;
+  constructor(config: $RPC.Config) {
+    super(config);
+    this._endpointRule = "regional";
+    this.checkConfig(config);
+    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
-  async _request(action: string, protocol: string, method: string, authType: string, query: {[key: string]: any}, body: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
-    let _runtime: { [key: string]: any } = {
-      timeouted: "retry",
-      readTimeout: Util.defaultNumber(runtime.readTimeout, this._readTimeout),
-      connectTimeout: Util.defaultNumber(runtime.connectTimeout, this._connectTimeout),
-      httpProxy: Util.defaultString(runtime.httpProxy, this._httpProxy),
-      httpsProxy: Util.defaultString(runtime.httpsProxy, this._httpsProxy),
-      noProxy: Util.defaultString(runtime.noProxy, this._noProxy),
-      maxIdleConns: Util.defaultNumber(runtime.maxIdleConns, this._maxIdleConns),
-      retry: {
-        retryable: runtime.autoretry,
-        maxAttempts: Util.defaultNumber(runtime.maxAttempts, 3),
-      },
-      backoff: {
-        policy: Util.defaultString(runtime.backoffPolicy, "no"),
-        period: Util.defaultNumber(runtime.backoffPeriod, 1),
-      },
-      ignoreSSL: runtime.ignoreSSL,
-    }
-
-    let _lastRequest = null;
-    let _now = Date.now();
-    let _retryTimes = 0;
-    while ($tea.allowRetry(_runtime['retry'], _retryTimes, _now)) {
-      if (_retryTimes > 0) {
-        let _backoffTime = $tea.getBackoffTime(_runtime['backoff'], _retryTimes);
-        if (_backoffTime > 0) {
-          await $tea.sleep(_backoffTime);
-        }
-      }
-
-      _retryTimes = _retryTimes + 1;
-      try {
-        let request_ = new $tea.Request();
-        request_.protocol = Util.defaultString(this._protocol, protocol);
-        request_.method = method;
-        request_.pathname = "/";
-        request_.query = RPCUtil.query({
-          Action: action,
-          Format: "json",
-          RegionId: this._regionId,
-          Timestamp: RPCUtil.getTimestamp(),
-          Version: "2020-03-20",
-          SignatureNonce: Util.getNonce(),
-          ...query,
-        });
-        if (!Util.isUnset(body)) {
-          let tmp = Util.anyifyMapValue(RPCUtil.query(body));
-          request_.body = new $tea.BytesReadable(Util.toFormString(tmp));
-        }
-
-        request_.headers = {
-          host: RPCUtil.getHost("videoseg", this._regionId, this._endpoint),
-          'user-agent': this.getUserAgent(),
-        };
-        if (!Util.equalString(authType, "Anonymous")) {
-          let accessKeyId = await this.getAccessKeyId();
-          let accessKeySecret = await this.getAccessKeySecret();
-          request_.query["SignatureMethod"] = "HMAC-SHA1";
-          request_.query["SignatureVersion"] = "1.0";
-          request_.query["AccessKeyId"] = accessKeyId;
-          request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
-        }
-
-        _lastRequest = request_;
-        let response_ = await $tea.doAction(request_, _runtime);
-
-        let obj = await Util.readAsJSON(response_.body);
-        let res = Util.assertAsMap(obj);
-        if (Util.is4xx(response_.statusCode) || Util.is5xx(response_.statusCode)) {
-          throw $tea.newError({
-            message: res["Message"],
-            data: res,
-            code: res["Code"],
-          });
-        }
-
-        return res;
-      } catch (ex) {
-        if ($tea.isRetryable(ex)) {
-          continue;
-        }
-        throw ex;
-      }
-    }
-
-    throw $tea.newUnretryableError(_lastRequest);
-  }
 
   async segmentVideoBody(request: SegmentVideoBodyRequest, runtime: $Util.RuntimeOptions): Promise<SegmentVideoBodyResponse> {
-    return $tea.cast<SegmentVideoBodyResponse>(await this._request("SegmentVideoBody", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new SegmentVideoBodyResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<SegmentVideoBodyResponse>(await this.doRequest("SegmentVideoBody", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new SegmentVideoBodyResponse({}));
   }
 
   async segmentVideoBodyAdvance(request: SegmentVideoBodyAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SegmentVideoBodyResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -447,30 +234,20 @@ export default class Client {
   }
 
   async getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: $Util.RuntimeOptions): Promise<GetAsyncJobResultResponse> {
-    return $tea.cast<GetAsyncJobResultResponse>(await this._request("GetAsyncJobResult", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new GetAsyncJobResultResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<GetAsyncJobResultResponse>(await this.doRequest("GetAsyncJobResult", "HTTPS", "POST", "2020-03-20", "AK", null, $tea.toMap(request), runtime), new GetAsyncJobResultResponse({}));
   }
 
-  getUserAgent(): string {
-    let userAgent = Util.getUserAgent(this._userAgent);
-    return userAgent;
-  }
-
-  async getAccessKeyId(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+  getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
+    if (!Util.empty(endpoint)) {
+      return endpoint;
     }
 
-    let accessKeyId = await this._credential.getAccessKeyId();
-    return accessKeyId;
-  }
-
-  async getAccessKeySecret(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+      return endpointMap[regionId];
     }
 
-    let secret = await this._credential.getAccessKeySecret();
-    return secret;
+    return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
   }
 
 }
