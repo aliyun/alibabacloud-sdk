@@ -1,83 +1,14 @@
 // This file is auto-generated, don't edit it
 import OSS, * as $OSS from '@alicloud/oss-client';
-import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform';
+import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform20191219';
 import RPCUtil from '@alicloud/rpc-util';
+import RPC, * as $RPC from '@alicloud/rpc-client';
 import OSSUtil, * as $OSSUtil from '@alicloud/oss-util';
 import Util, * as $Util from '@alicloud/tea-util';
-import Credential, * as $Credential from '@alicloud/credentials';
 import FileForm, * as $FileForm from '@alicloud/tea-fileform';
+import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
-
-export class Config extends $tea.Model {
-  accessKeyId?: string;
-  accessKeySecret?: string;
-  type?: string;
-  securityToken?: string;
-  endpoint: string;
-  protocol?: string;
-  regionId: string;
-  userAgent?: string;
-  readTimeout?: number;
-  connectTimeout?: number;
-  httpProxy?: string;
-  httpsProxy?: string;
-  noProxy?: string;
-  socks5Proxy?: string;
-  socks5NetWork?: string;
-  maxIdleConns?: number;
-  endpointType?: string;
-  openPlatformEndpoint?: string;
-  static names(): { [key: string]: string } {
-    return {
-      accessKeyId: 'accessKeyId',
-      accessKeySecret: 'accessKeySecret',
-      type: 'type',
-      securityToken: 'securityToken',
-      endpoint: 'endpoint',
-      protocol: 'protocol',
-      regionId: 'regionId',
-      userAgent: 'userAgent',
-      readTimeout: 'readTimeout',
-      connectTimeout: 'connectTimeout',
-      httpProxy: 'httpProxy',
-      httpsProxy: 'httpsProxy',
-      noProxy: 'noProxy',
-      socks5Proxy: 'socks5Proxy',
-      socks5NetWork: 'socks5NetWork',
-      maxIdleConns: 'maxIdleConns',
-      endpointType: 'endpointType',
-      openPlatformEndpoint: 'openPlatformEndpoint',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      accessKeyId: 'string',
-      accessKeySecret: 'string',
-      type: 'string',
-      securityToken: 'string',
-      endpoint: 'string',
-      protocol: 'string',
-      regionId: 'string',
-      userAgent: 'string',
-      readTimeout: 'number',
-      connectTimeout: 'number',
-      httpProxy: 'string',
-      httpsProxy: 'string',
-      noProxy: 'string',
-      socks5Proxy: 'string',
-      socks5NetWork: 'string',
-      maxIdleConns: 'number',
-      endpointType: 'string',
-      openPlatformEndpoint: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
 
 export class GetAsyncJobResultRequest extends $tea.Model {
   jobId: string;
@@ -3372,174 +3303,31 @@ export class RecognizeBusinessLicenseResponseData extends $tea.Model {
 }
 
 
-export default class Client {
-  _endpoint: string;
-  _regionId: string;
-  _protocol: string;
-  _userAgent: string;
-  _endpointType: string;
-  _readTimeout: number;
-  _connectTimeout: number;
-  _httpProxy: string;
-  _httpsProxy: string;
-  _socks5Proxy: string;
-  _socks5NetWork: string;
-  _noProxy: string;
-  _maxIdleConns: number;
-  _openPlatformEndpoint: string;
-  _credential: Credential;
+export default class Client extends RPC {
 
-  constructor(config: Config) {
-    if (Util.isUnset($tea.toMap(config))) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config' can not be unset",
-      });
-    }
-
-    if (Util.empty(config.regionId)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.regionId' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.endpoint)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.endpoint' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.type)) {
-      config.type = "access_key";
-    }
-
-    let credentialConfig = new $Credential.Config({
-      accessKeyId: config.accessKeyId,
-      type: config.type,
-      accessKeySecret: config.accessKeySecret,
-      securityToken: config.securityToken,
-    });
-    this._credential = new Credential(credentialConfig);
-    this._endpoint = config.endpoint;
-    this._protocol = config.protocol;
-    this._regionId = config.regionId;
-    this._userAgent = config.userAgent;
-    this._readTimeout = config.readTimeout;
-    this._connectTimeout = config.connectTimeout;
-    this._httpProxy = config.httpProxy;
-    this._httpsProxy = config.httpsProxy;
-    this._noProxy = config.noProxy;
-    this._socks5Proxy = config.socks5Proxy;
-    this._socks5NetWork = config.socks5NetWork;
-    this._maxIdleConns = config.maxIdleConns;
-    this._endpointType = config.endpointType;
-    this._openPlatformEndpoint = config.openPlatformEndpoint;
+  constructor(config: $RPC.Config) {
+    super(config);
+    this._endpointRule = "regional";
+    this.checkConfig(config);
+    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
-  async _request(action: string, protocol: string, method: string, authType: string, query: {[key: string]: any}, body: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
-    let _runtime: { [key: string]: any } = {
-      timeouted: "retry",
-      readTimeout: Util.defaultNumber(runtime.readTimeout, this._readTimeout),
-      connectTimeout: Util.defaultNumber(runtime.connectTimeout, this._connectTimeout),
-      httpProxy: Util.defaultString(runtime.httpProxy, this._httpProxy),
-      httpsProxy: Util.defaultString(runtime.httpsProxy, this._httpsProxy),
-      noProxy: Util.defaultString(runtime.noProxy, this._noProxy),
-      maxIdleConns: Util.defaultNumber(runtime.maxIdleConns, this._maxIdleConns),
-      retry: {
-        retryable: runtime.autoretry,
-        maxAttempts: Util.defaultNumber(runtime.maxAttempts, 3),
-      },
-      backoff: {
-        policy: Util.defaultString(runtime.backoffPolicy, "no"),
-        period: Util.defaultNumber(runtime.backoffPeriod, 1),
-      },
-      ignoreSSL: runtime.ignoreSSL,
-    }
-
-    let _lastRequest = null;
-    let _now = Date.now();
-    let _retryTimes = 0;
-    while ($tea.allowRetry(_runtime['retry'], _retryTimes, _now)) {
-      if (_retryTimes > 0) {
-        let _backoffTime = $tea.getBackoffTime(_runtime['backoff'], _retryTimes);
-        if (_backoffTime > 0) {
-          await $tea.sleep(_backoffTime);
-        }
-      }
-
-      _retryTimes = _retryTimes + 1;
-      try {
-        let request_ = new $tea.Request();
-        request_.protocol = Util.defaultString(this._protocol, protocol);
-        request_.method = method;
-        request_.pathname = "/";
-        request_.query = RPCUtil.query({
-          Action: action,
-          Format: "json",
-          RegionId: this._regionId,
-          Timestamp: RPCUtil.getTimestamp(),
-          Version: "2019-12-30",
-          SignatureNonce: Util.getNonce(),
-          ...query,
-        });
-        if (!Util.isUnset(body)) {
-          let tmp = Util.anyifyMapValue(RPCUtil.query(body));
-          request_.body = new $tea.BytesReadable(Util.toFormString(tmp));
-        }
-
-        request_.headers = {
-          host: RPCUtil.getHost("ocr", this._regionId, this._endpoint),
-          'user-agent': this.getUserAgent(),
-        };
-        if (!Util.equalString(authType, "Anonymous")) {
-          let accessKeyId = await this.getAccessKeyId();
-          let accessKeySecret = await this.getAccessKeySecret();
-          request_.query["SignatureMethod"] = "HMAC-SHA1";
-          request_.query["SignatureVersion"] = "1.0";
-          request_.query["AccessKeyId"] = accessKeyId;
-          request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
-        }
-
-        _lastRequest = request_;
-        let response_ = await $tea.doAction(request_, _runtime);
-
-        let obj = await Util.readAsJSON(response_.body);
-        let res = Util.assertAsMap(obj);
-        if (Util.is4xx(response_.statusCode) || Util.is5xx(response_.statusCode)) {
-          throw $tea.newError({
-            message: res["Message"],
-            data: res,
-            code: res["Code"],
-          });
-        }
-
-        return res;
-      } catch (ex) {
-        if ($tea.isRetryable(ex)) {
-          continue;
-        }
-        throw ex;
-      }
-    }
-
-    throw $tea.newUnretryableError(_lastRequest);
-  }
 
   async getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: $Util.RuntimeOptions): Promise<GetAsyncJobResultResponse> {
-    return $tea.cast<GetAsyncJobResultResponse>(await this._request("GetAsyncJobResult", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new GetAsyncJobResultResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<GetAsyncJobResultResponse>(await this.doRequest("GetAsyncJobResult", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new GetAsyncJobResultResponse({}));
   }
 
   async trimDocument(request: TrimDocumentRequest, runtime: $Util.RuntimeOptions): Promise<TrimDocumentResponse> {
-    return $tea.cast<TrimDocumentResponse>(await this._request("TrimDocument", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new TrimDocumentResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<TrimDocumentResponse>(await this.doRequest("TrimDocument", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new TrimDocumentResponse({}));
   }
 
   async trimDocumentAdvance(request: TrimDocumentAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<TrimDocumentResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3592,14 +3380,15 @@ export default class Client {
   }
 
   async recognizeChinapassport(request: RecognizeChinapassportRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeChinapassportResponse> {
-    return $tea.cast<RecognizeChinapassportResponse>(await this._request("RecognizeChinapassport", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeChinapassportResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeChinapassportResponse>(await this.doRequest("RecognizeChinapassport", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeChinapassportResponse({}));
   }
 
   async recognizeChinapassportAdvance(request: RecognizeChinapassportAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeChinapassportResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3652,14 +3441,15 @@ export default class Client {
   }
 
   async recognizeVerificationcode(request: RecognizeVerificationcodeRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVerificationcodeResponse> {
-    return $tea.cast<RecognizeVerificationcodeResponse>(await this._request("RecognizeVerificationcode", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeVerificationcodeResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeVerificationcodeResponse>(await this.doRequest("RecognizeVerificationcode", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeVerificationcodeResponse({}));
   }
 
   async recognizeVerificationcodeAdvance(request: RecognizeVerificationcodeAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVerificationcodeResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3712,14 +3502,15 @@ export default class Client {
   }
 
   async recognizePassportMRZ(request: RecognizePassportMRZRequest, runtime: $Util.RuntimeOptions): Promise<RecognizePassportMRZResponse> {
-    return $tea.cast<RecognizePassportMRZResponse>(await this._request("RecognizePassportMRZ", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizePassportMRZResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizePassportMRZResponse>(await this.doRequest("RecognizePassportMRZ", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizePassportMRZResponse({}));
   }
 
   async recognizePassportMRZAdvance(request: RecognizePassportMRZAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizePassportMRZResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3772,14 +3563,15 @@ export default class Client {
   }
 
   async recognizeTakeoutOrder(request: RecognizeTakeoutOrderRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTakeoutOrderResponse> {
-    return $tea.cast<RecognizeTakeoutOrderResponse>(await this._request("RecognizeTakeoutOrder", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeTakeoutOrderResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeTakeoutOrderResponse>(await this.doRequest("RecognizeTakeoutOrder", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeTakeoutOrderResponse({}));
   }
 
   async recognizeTakeoutOrderAdvance(request: RecognizeTakeoutOrderAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTakeoutOrderResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3832,18 +3624,20 @@ export default class Client {
   }
 
   async recognizeQrCode(request: RecognizeQrCodeRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeQrCodeResponse> {
-    return $tea.cast<RecognizeQrCodeResponse>(await this._request("RecognizeQrCode", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeQrCodeResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeQrCodeResponse>(await this.doRequest("RecognizeQrCode", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeQrCodeResponse({}));
   }
 
   async recognizeVATInvoice(request: RecognizeVATInvoiceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVATInvoiceResponse> {
-    return $tea.cast<RecognizeVATInvoiceResponse>(await this._request("RecognizeVATInvoice", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeVATInvoiceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeVATInvoiceResponse>(await this.doRequest("RecognizeVATInvoice", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeVATInvoiceResponse({}));
   }
 
   async recognizeVATInvoiceAdvance(request: RecognizeVATInvoiceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVATInvoiceResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3896,14 +3690,15 @@ export default class Client {
   }
 
   async recognizeCharacter(request: RecognizeCharacterRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeCharacterResponse> {
-    return $tea.cast<RecognizeCharacterResponse>(await this._request("RecognizeCharacter", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeCharacterResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeCharacterResponse>(await this.doRequest("RecognizeCharacter", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeCharacterResponse({}));
   }
 
   async recognizeCharacterAdvance(request: RecognizeCharacterAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeCharacterResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -3956,14 +3751,15 @@ export default class Client {
   }
 
   async recognizeTaxiInvoice(request: RecognizeTaxiInvoiceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTaxiInvoiceResponse> {
-    return $tea.cast<RecognizeTaxiInvoiceResponse>(await this._request("RecognizeTaxiInvoice", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeTaxiInvoiceResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeTaxiInvoiceResponse>(await this.doRequest("RecognizeTaxiInvoice", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeTaxiInvoiceResponse({}));
   }
 
   async recognizeTaxiInvoiceAdvance(request: RecognizeTaxiInvoiceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTaxiInvoiceResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4016,14 +3812,15 @@ export default class Client {
   }
 
   async recognizeIdentityCard(request: RecognizeIdentityCardRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeIdentityCardResponse> {
-    return $tea.cast<RecognizeIdentityCardResponse>(await this._request("RecognizeIdentityCard", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeIdentityCardResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeIdentityCardResponse>(await this.doRequest("RecognizeIdentityCard", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeIdentityCardResponse({}));
   }
 
   async recognizeIdentityCardAdvance(request: RecognizeIdentityCardAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeIdentityCardResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4076,14 +3873,15 @@ export default class Client {
   }
 
   async recognizeLicensePlate(request: RecognizeLicensePlateRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeLicensePlateResponse> {
-    return $tea.cast<RecognizeLicensePlateResponse>(await this._request("RecognizeLicensePlate", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeLicensePlateResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeLicensePlateResponse>(await this.doRequest("RecognizeLicensePlate", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeLicensePlateResponse({}));
   }
 
   async recognizeLicensePlateAdvance(request: RecognizeLicensePlateAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeLicensePlateResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4136,14 +3934,15 @@ export default class Client {
   }
 
   async recognizeTable(request: RecognizeTableRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTableResponse> {
-    return $tea.cast<RecognizeTableResponse>(await this._request("RecognizeTable", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeTableResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeTableResponse>(await this.doRequest("RecognizeTable", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeTableResponse({}));
   }
 
   async recognizeTableAdvance(request: RecognizeTableAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTableResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4196,14 +3995,15 @@ export default class Client {
   }
 
   async recognizeDrivingLicense(request: RecognizeDrivingLicenseRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeDrivingLicenseResponse> {
-    return $tea.cast<RecognizeDrivingLicenseResponse>(await this._request("RecognizeDrivingLicense", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeDrivingLicenseResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeDrivingLicenseResponse>(await this.doRequest("RecognizeDrivingLicense", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeDrivingLicenseResponse({}));
   }
 
   async recognizeDrivingLicenseAdvance(request: RecognizeDrivingLicenseAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeDrivingLicenseResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4256,14 +4056,15 @@ export default class Client {
   }
 
   async recognizeBankCard(request: RecognizeBankCardRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeBankCardResponse> {
-    return $tea.cast<RecognizeBankCardResponse>(await this._request("RecognizeBankCard", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeBankCardResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeBankCardResponse>(await this.doRequest("RecognizeBankCard", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeBankCardResponse({}));
   }
 
   async recognizeBankCardAdvance(request: RecognizeBankCardAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeBankCardResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4316,14 +4117,15 @@ export default class Client {
   }
 
   async recognizeTrainTicket(request: RecognizeTrainTicketRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTrainTicketResponse> {
-    return $tea.cast<RecognizeTrainTicketResponse>(await this._request("RecognizeTrainTicket", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeTrainTicketResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeTrainTicketResponse>(await this.doRequest("RecognizeTrainTicket", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeTrainTicketResponse({}));
   }
 
   async recognizeTrainTicketAdvance(request: RecognizeTrainTicketAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeTrainTicketResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4376,14 +4178,15 @@ export default class Client {
   }
 
   async recognizeDriverLicense(request: RecognizeDriverLicenseRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeDriverLicenseResponse> {
-    return $tea.cast<RecognizeDriverLicenseResponse>(await this._request("RecognizeDriverLicense", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeDriverLicenseResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeDriverLicenseResponse>(await this.doRequest("RecognizeDriverLicense", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeDriverLicenseResponse({}));
   }
 
   async recognizeDriverLicenseAdvance(request: RecognizeDriverLicenseAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeDriverLicenseResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4436,14 +4239,15 @@ export default class Client {
   }
 
   async recognizeAccountPage(request: RecognizeAccountPageRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeAccountPageResponse> {
-    return $tea.cast<RecognizeAccountPageResponse>(await this._request("RecognizeAccountPage", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeAccountPageResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeAccountPageResponse>(await this.doRequest("RecognizeAccountPage", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeAccountPageResponse({}));
   }
 
   async recognizeAccountPageAdvance(request: RecognizeAccountPageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeAccountPageResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4496,14 +4300,15 @@ export default class Client {
   }
 
   async recognizeStamp(request: RecognizeStampRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeStampResponse> {
-    return $tea.cast<RecognizeStampResponse>(await this._request("RecognizeStamp", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeStampResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeStampResponse>(await this.doRequest("RecognizeStamp", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeStampResponse({}));
   }
 
   async recognizeStampAdvance(request: RecognizeStampAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeStampResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4556,14 +4361,15 @@ export default class Client {
   }
 
   async recognizeBusinessCard(request: RecognizeBusinessCardRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeBusinessCardResponse> {
-    return $tea.cast<RecognizeBusinessCardResponse>(await this._request("RecognizeBusinessCard", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeBusinessCardResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeBusinessCardResponse>(await this.doRequest("RecognizeBusinessCard", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeBusinessCardResponse({}));
   }
 
   async recognizeBusinessCardAdvance(request: RecognizeBusinessCardAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeBusinessCardResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4616,14 +4422,15 @@ export default class Client {
   }
 
   async recognizeVINCode(request: RecognizeVINCodeRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVINCodeResponse> {
-    return $tea.cast<RecognizeVINCodeResponse>(await this._request("RecognizeVINCode", "HTTPS", "POST", "AK", $tea.toMap(request), null, runtime), new RecognizeVINCodeResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeVINCodeResponse>(await this.doRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", $tea.toMap(request), null, runtime), new RecognizeVINCodeResponse({}));
   }
 
   async recognizeVINCodeAdvance(request: RecognizeVINCodeAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeVINCodeResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4676,14 +4483,15 @@ export default class Client {
   }
 
   async recognizeBusinessLicense(request: RecognizeBusinessLicenseRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeBusinessLicenseResponse> {
-    return $tea.cast<RecognizeBusinessLicenseResponse>(await this._request("RecognizeBusinessLicense", "HTTPS", "POST", "AK", null, $tea.toMap(request), runtime), new RecognizeBusinessLicenseResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<RecognizeBusinessLicenseResponse>(await this.doRequest("RecognizeBusinessLicense", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeBusinessLicenseResponse({}));
   }
 
   async recognizeBusinessLicenseAdvance(request: RecognizeBusinessLicenseAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeBusinessLicenseResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -4735,27 +4543,16 @@ export default class Client {
     return recognizeBusinessLicenseResp;
   }
 
-  getUserAgent(): string {
-    let userAgent = Util.getUserAgent(this._userAgent);
-    return userAgent;
-  }
-
-  async getAccessKeyId(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+  getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
+    if (!Util.empty(endpoint)) {
+      return endpoint;
     }
 
-    let accessKeyId = await this._credential.getAccessKeyId();
-    return accessKeyId;
-  }
-
-  async getAccessKeySecret(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+      return endpointMap[regionId];
     }
 
-    let secret = await this._credential.getAccessKeySecret();
-    return secret;
+    return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
   }
 
 }
