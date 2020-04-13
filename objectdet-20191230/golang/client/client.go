@@ -7,130 +7,12 @@ import (
 	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
 	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	credential "github.com/aliyun/credentials-go/credentials"
+	endpointutil "github.com/aliyun/endpoint-util/golang/service"
 	fileform "github.com/aliyun/tea-fileform/golang/service"
+	rpc "github.com/aliyun/tea-rpc/golang/client"
 	util "github.com/aliyun/tea-util/golang/service"
 	"io"
 )
-
-type Config struct {
-	AccessKeyId          *string `json:"accessKeyId" xml:"accessKeyId"`
-	AccessKeySecret      *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type                 *string `json:"type" xml:"type"`
-	SecurityToken        *string `json:"securityToken" xml:"securityToken"`
-	Endpoint             *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol             *string `json:"protocol" xml:"protocol"`
-	RegionId             *string `json:"regionId" xml:"regionId" require:"true"`
-	UserAgent            *string `json:"userAgent" xml:"userAgent"`
-	ReadTimeout          *int    `json:"readTimeout" xml:"readTimeout"`
-	ConnectTimeout       *int    `json:"connectTimeout" xml:"connectTimeout"`
-	HttpProxy            *string `json:"httpProxy" xml:"httpProxy"`
-	HttpsProxy           *string `json:"httpsProxy" xml:"httpsProxy"`
-	NoProxy              *string `json:"noProxy" xml:"noProxy"`
-	Socks5Proxy          *string `json:"socks5Proxy" xml:"socks5Proxy"`
-	Socks5NetWork        *string `json:"socks5NetWork" xml:"socks5NetWork"`
-	MaxIdleConns         *int    `json:"maxIdleConns" xml:"maxIdleConns"`
-	EndpointType         *string `json:"endpointType" xml:"endpointType"`
-	OpenPlatformEndpoint *string `json:"openPlatformEndpoint" xml:"openPlatformEndpoint"`
-}
-
-func (s Config) String() string {
-	return tea.Prettify(s)
-}
-
-func (s Config) GoString() string {
-	return s.String()
-}
-
-func (s *Config) SetAccessKeyId(v string) *Config {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *Config) SetAccessKeySecret(v string) *Config {
-	s.AccessKeySecret = &v
-	return s
-}
-
-func (s *Config) SetType(v string) *Config {
-	s.Type = &v
-	return s
-}
-
-func (s *Config) SetSecurityToken(v string) *Config {
-	s.SecurityToken = &v
-	return s
-}
-
-func (s *Config) SetEndpoint(v string) *Config {
-	s.Endpoint = &v
-	return s
-}
-
-func (s *Config) SetProtocol(v string) *Config {
-	s.Protocol = &v
-	return s
-}
-
-func (s *Config) SetRegionId(v string) *Config {
-	s.RegionId = &v
-	return s
-}
-
-func (s *Config) SetUserAgent(v string) *Config {
-	s.UserAgent = &v
-	return s
-}
-
-func (s *Config) SetReadTimeout(v int) *Config {
-	s.ReadTimeout = &v
-	return s
-}
-
-func (s *Config) SetConnectTimeout(v int) *Config {
-	s.ConnectTimeout = &v
-	return s
-}
-
-func (s *Config) SetHttpProxy(v string) *Config {
-	s.HttpProxy = &v
-	return s
-}
-
-func (s *Config) SetHttpsProxy(v string) *Config {
-	s.HttpsProxy = &v
-	return s
-}
-
-func (s *Config) SetNoProxy(v string) *Config {
-	s.NoProxy = &v
-	return s
-}
-
-func (s *Config) SetSocks5Proxy(v string) *Config {
-	s.Socks5Proxy = &v
-	return s
-}
-
-func (s *Config) SetSocks5NetWork(v string) *Config {
-	s.Socks5NetWork = &v
-	return s
-}
-
-func (s *Config) SetMaxIdleConns(v int) *Config {
-	s.MaxIdleConns = &v
-	return s
-}
-
-func (s *Config) SetEndpointType(v string) *Config {
-	s.EndpointType = &v
-	return s
-}
-
-func (s *Config) SetOpenPlatformEndpoint(v string) *Config {
-	s.OpenPlatformEndpoint = &v
-	return s
-}
 
 type DetectTransparentImageRequest struct {
 	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
@@ -1090,191 +972,40 @@ func (s *DetectMainBodyAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMai
 }
 
 type Client struct {
-	Endpoint             string
-	RegionId             string
-	Protocol             string
-	UserAgent            string
-	EndpointType         string
-	ReadTimeout          int
-	ConnectTimeout       int
-	HttpProxy            string
-	HttpsProxy           string
-	Socks5Proxy          string
-	Socks5NetWork        string
-	NoProxy              string
-	MaxIdleConns         int
-	OpenPlatformEndpoint string
-	Credential           credential.Credential
+	rpc.Client
 }
 
-func NewClient(config *Config) (*Client, error) {
+func NewClient(config *rpc.Config) (*Client, error) {
 	client := new(Client)
 	err := client.Init(config)
 	return client, err
 }
 
-func (client *Client) Init(config *Config) (_err error) {
-	if util.IsUnset(tea.ToMap(config)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config' can not be unset",
-		})
+func (client *Client) Init(config *rpc.Config) (_err error) {
+	_err = client.Client.Init(config)
+	if _err != nil {
 		return _err
 	}
-
-	if util.Empty(tea.StringValue(config.RegionId)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config.regionId' can not be empty",
-		})
-		return _err
+	client.EndpointRule = "regional"
+	_err = client.CheckConfig(config)
+	if _err != nil {
+		return
 	}
-
-	if util.Empty(tea.StringValue(config.Endpoint)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config.endpoint' can not be empty",
-		})
-		return _err
-	}
-
-	if util.Empty(tea.StringValue(config.Type)) {
-		config.Type = tea.String("access_key")
-	}
-
-	credentialConfig := &credential.Config{
-		AccessKeyId:     config.AccessKeyId,
-		Type:            config.Type,
-		AccessKeySecret: config.AccessKeySecret,
-		SecurityToken:   config.SecurityToken,
-	}
-	client.Credential, _err = credential.NewCredential(credentialConfig)
+	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
-	client.Endpoint = tea.StringValue(config.Endpoint)
-	client.Protocol = tea.StringValue(config.Protocol)
-	client.RegionId = tea.StringValue(config.RegionId)
-	client.UserAgent = tea.StringValue(config.UserAgent)
-	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
-	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
-	client.HttpProxy = tea.StringValue(config.HttpProxy)
-	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
-	client.NoProxy = tea.StringValue(config.NoProxy)
-	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
-	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
-	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
-	client.EndpointType = tea.StringValue(config.EndpointType)
-	client.OpenPlatformEndpoint = tea.StringValue(config.OpenPlatformEndpoint)
 	return nil
 }
 
-func (client *Client) _request(action string, protocol string, method string, authType string, query map[string]interface{}, body map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
-	_err = tea.Validate(runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_runtime := map[string]interface{}{
-		"timeouted":      "retry",
-		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
-		"retry": map[string]interface{}{
-			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 3),
-		},
-		"backoff": map[string]interface{}{
-			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 1),
-		},
-		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
-	}
-
-	_resp := make(map[string]interface{})
-	for _retryTimes := 0; tea.AllowRetry(_runtime["retry"], _retryTimes); _retryTimes++ {
-		if _retryTimes > 0 {
-			_backoffTime := tea.GetBackoffTime(_runtime["backoff"], _retryTimes)
-			if _backoffTime > 0 {
-				tea.Sleep(_backoffTime)
-			}
-		}
-
-		_resp, _err = func() (map[string]interface{}, error) {
-			request_ := tea.NewRequest()
-			request_.Protocol = util.DefaultString(client.Protocol, protocol)
-			request_.Method = method
-			request_.Pathname = "/"
-			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
-				"Action":         action,
-				"Format":         "json",
-				"RegionId":       client.RegionId,
-				"Timestamp":      rpcutil.GetTimestamp(),
-				"Version":        "2019-12-30",
-				"SignatureNonce": util.GetNonce(),
-			}, query))
-			if !util.IsUnset(body) {
-				tmp := util.AnyifyMapValue(rpcutil.Query(body))
-				request_.Body = tea.ToReader(util.ToFormString(tmp))
-			}
-
-			request_.Headers = map[string]string{
-				"host":       rpcutil.GetHost("objectdet", client.RegionId, client.Endpoint),
-				"user-agent": client.GetUserAgent(),
-			}
-			if !util.EqualString(authType, "Anonymous") {
-				accessKeyId, _err := client.GetAccessKeyId()
-				if _err != nil {
-					return nil, _err
-				}
-
-				accessKeySecret, _err := client.GetAccessKeySecret()
-				if _err != nil {
-					return nil, _err
-				}
-
-				request_.Query["SignatureMethod"] = "HMAC-SHA1"
-				request_.Query["SignatureVersion"] = "1.0"
-				request_.Query["AccessKeyId"] = accessKeyId
-				request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
-			}
-
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return nil, _err
-			}
-			obj, _err := util.ReadAsJSON(response_.Body)
-			if _err != nil {
-				return nil, _err
-			}
-
-			res := util.AssertAsMap(obj)
-			if util.Is4xx(response_.StatusCode) || util.Is5xx(response_.StatusCode) {
-				_err = tea.NewSDKError(map[string]interface{}{
-					"message": res["Message"],
-					"data":    res,
-					"code":    res["Code"],
-				})
-				return nil, _err
-			}
-
-			_result = res
-			return _result, _err
-		}()
-		if !tea.Retryable(_err) {
-			break
-		}
-	}
-
-	return _resp, _err
-}
-
 func (client *Client) DetectTransparentImage(request *DetectTransparentImageRequest, runtime *util.RuntimeOptions) (_result *DetectTransparentImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DetectTransparentImageResponse{}
-	_body, _err := client._request("DetectTransparentImage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectTransparentImage", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1294,7 +1025,7 @@ func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentIm
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1367,8 +1098,12 @@ func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentIm
 }
 
 func (client *Client) DetectObject(request *DetectObjectRequest, runtime *util.RuntimeOptions) (_result *DetectObjectResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DetectObjectResponse{}
-	_body, _err := client._request("DetectObject", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectObject", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1388,7 +1123,7 @@ func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, r
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1461,8 +1196,12 @@ func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, r
 }
 
 func (client *Client) DetectWhiteBaseImage(request *DetectWhiteBaseImageRequest, runtime *util.RuntimeOptions) (_result *DetectWhiteBaseImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DetectWhiteBaseImageResponse{}
-	_body, _err := client._request("DetectWhiteBaseImage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectWhiteBaseImage", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1482,7 +1221,7 @@ func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageA
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1555,8 +1294,12 @@ func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageA
 }
 
 func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsuranceRequest, runtime *util.RuntimeOptions) (_result *ClassifyVehicleInsuranceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &ClassifyVehicleInsuranceResponse{}
-	_body, _err := client._request("ClassifyVehicleInsurance", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ClassifyVehicleInsurance", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1576,7 +1319,7 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1649,8 +1392,12 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 }
 
 func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboardRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDashboardResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &RecognizeVehicleDashboardResponse{}
-	_body, _err := client._request("RecognizeVehicleDashboard", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("RecognizeVehicleDashboard", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1670,7 +1417,7 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1743,8 +1490,12 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 }
 
 func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehicleDamageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &RecognizeVehicleDamageResponse{}
-	_body, _err := client._request("RecognizeVehicleDamage", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("RecognizeVehicleDamage", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1764,7 +1515,7 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1837,8 +1588,12 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 }
 
 func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsRequest, runtime *util.RuntimeOptions) (_result *RecognizeVehiclePartsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &RecognizeVehiclePartsResponse{}
-	_body, _err := client._request("RecognizeVehicleParts", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("RecognizeVehicleParts", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1858,7 +1613,7 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -1931,8 +1686,12 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 }
 
 func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *util.RuntimeOptions) (_result *DetectVehicleResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DetectVehicleResponse{}
-	_body, _err := client._request("DetectVehicle", "HTTPS", "POST", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DetectVehicle", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1952,7 +1711,7 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -2025,8 +1784,12 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 }
 
 func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *util.RuntimeOptions) (_result *DetectMainBodyResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DetectMainBodyResponse{}
-	_body, _err := client._request("DetectMainBody", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest("DetectMainBody", "HTTPS", "GET", "2019-12-30", "AK", tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2046,7 +1809,7 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 		return nil, _err
 	}
 
-	authConfig := &openplatform.Config{
+	authConfig := &rpc.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Type:            tea.String("access_key"),
@@ -2118,38 +1881,20 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 	return _result, _err
 }
 
-func (client *Client) GetUserAgent() (_result string) {
-	userAgent := util.GetUserAgent(client.UserAgent)
-	_result = userAgent
-	return _result
-}
-
-func (client *Client) GetAccessKeyId() (_result string, _err error) {
-	if util.IsUnset(client.Credential) {
-		_result = ""
+func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
+	if !util.Empty(endpoint) {
+		_result = endpoint
 		return _result, _err
 	}
 
-	accessKeyId, _err := client.Credential.GetAccessKeyId()
-	if _err != nil {
-		return "", _err
-	}
-
-	_result = accessKeyId
-	return _result, _err
-}
-
-func (client *Client) GetAccessKeySecret() (_result string, _err error) {
-	if util.IsUnset(client.Credential) {
-		_result = ""
+	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
 		return _result, _err
 	}
 
-	secret, _err := client.Credential.GetAccessKeySecret()
+	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
 		return "", _err
 	}
-
-	_result = secret
+	_result = _body
 	return _result, _err
 }
