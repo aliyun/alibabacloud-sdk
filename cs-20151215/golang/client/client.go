@@ -692,7 +692,7 @@ func (s *UnInstallClusterAddonsResponse) SetBody(v *UnInstallClusterAddonsRespon
 }
 
 type DescribeAddonsQuery struct {
-	Region *string `json:"region" xml:"region" require:"true"`
+	Region *string `json:"region" xml:"region"`
 }
 
 func (s DescribeAddonsQuery) String() string {
@@ -709,8 +709,8 @@ func (s *DescribeAddonsQuery) SetRegion(v string) *DescribeAddonsQuery {
 }
 
 type DescribeAddonsRequest struct {
-	Query   *DescribeAddonsQuery `json:"query" xml:"query" require:"true"`
 	Headers map[string]string    `json:"headers" xml:"headers"`
+	Query   *DescribeAddonsQuery `json:"query" xml:"query"`
 }
 
 func (s DescribeAddonsRequest) String() string {
@@ -721,13 +721,13 @@ func (s DescribeAddonsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeAddonsRequest) SetQuery(v *DescribeAddonsQuery) *DescribeAddonsRequest {
-	s.Query = v
+func (s *DescribeAddonsRequest) SetHeaders(v map[string]string) *DescribeAddonsRequest {
+	s.Headers = v
 	return s
 }
 
-func (s *DescribeAddonsRequest) SetHeaders(v map[string]string) *DescribeAddonsRequest {
-	s.Headers = v
+func (s *DescribeAddonsRequest) SetQuery(v *DescribeAddonsQuery) *DescribeAddonsRequest {
+	s.Query = v
 	return s
 }
 
@@ -963,7 +963,7 @@ func (s *UpdateK8sClusterUserConfigExpireResponse) SetBody(v *UpdateK8sClusterUs
 }
 
 type DescribeClusterV2UserKubeconfigQuery struct {
-	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress" require:"true"`
+	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress"`
 }
 
 func (s DescribeClusterV2UserKubeconfigQuery) String() string {
@@ -980,8 +980,8 @@ func (s *DescribeClusterV2UserKubeconfigQuery) SetPrivateIpAddress(v bool) *Desc
 }
 
 type DescribeClusterV2UserKubeconfigRequest struct {
-	Query   *DescribeClusterV2UserKubeconfigQuery `json:"query" xml:"query" require:"true"`
 	Headers map[string]string                     `json:"headers" xml:"headers"`
+	Query   *DescribeClusterV2UserKubeconfigQuery `json:"query" xml:"query"`
 }
 
 func (s DescribeClusterV2UserKubeconfigRequest) String() string {
@@ -992,13 +992,13 @@ func (s DescribeClusterV2UserKubeconfigRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterV2UserKubeconfigRequest) SetQuery(v *DescribeClusterV2UserKubeconfigQuery) *DescribeClusterV2UserKubeconfigRequest {
-	s.Query = v
+func (s *DescribeClusterV2UserKubeconfigRequest) SetHeaders(v map[string]string) *DescribeClusterV2UserKubeconfigRequest {
+	s.Headers = v
 	return s
 }
 
-func (s *DescribeClusterV2UserKubeconfigRequest) SetHeaders(v map[string]string) *DescribeClusterV2UserKubeconfigRequest {
-	s.Headers = v
+func (s *DescribeClusterV2UserKubeconfigRequest) SetQuery(v *DescribeClusterV2UserKubeconfigQuery) *DescribeClusterV2UserKubeconfigRequest {
+	s.Query = v
 	return s
 }
 
@@ -1130,19 +1130,19 @@ func (s *ModifyClusterTagsResponse) SetBody(v *ModifyClusterTagsResponseBody) *M
 
 type ScaleOutClusterBody struct {
 	Count                    *int                                  `json:"count" xml:"count" require:"true"`
-	WorkerInstanceChargeType *string                               `json:"worker_instance_charge_type" xml:"worker_instance_charge_type" require:"true"`
-	WorkerPeriod             *int                                  `json:"worker_period" xml:"worker_period" require:"true"`
-	WorkerPeriodUnit         *string                               `json:"worker_period_unit" xml:"worker_period_unit" require:"true"`
-	WorkerAutoRenew          *bool                                 `json:"worker_auto_renew" xml:"worker_auto_renew" require:"true"`
-	WorkerAutoRenewPeriod    *int                                  `json:"worker_auto_renew_period" xml:"worker_auto_renew_period" require:"true"`
-	WorkerSystemDiskCategory *string                               `json:"worker_system_disk_category" xml:"worker_system_disk_category" require:"true"`
-	WorkerSystemDiskSize     *int                                  `json:"worker_system_disk_size" xml:"worker_system_disk_size" require:"true"`
+	WorkerInstanceChargeType *string                               `json:"worker_instance_charge_type" xml:"worker_instance_charge_type"`
+	WorkerPeriod             *int                                  `json:"worker_period" xml:"worker_period"`
+	WorkerPeriodUnit         *string                               `json:"worker_period_unit" xml:"worker_period_unit"`
+	WorkerAutoRenew          *bool                                 `json:"worker_auto_renew" xml:"worker_auto_renew"`
+	WorkerAutoRenewPeriod    *int                                  `json:"worker_auto_renew_period" xml:"worker_auto_renew_period"`
+	WorkerSystemDiskCategory *string                               `json:"worker_system_disk_category" xml:"worker_system_disk_category"`
+	WorkerSystemDiskSize     *int                                  `json:"worker_system_disk_size" xml:"worker_system_disk_size"`
 	WorkerDataDisk           *bool                                 `json:"worker_data_disk" xml:"worker_data_disk" require:"true"`
 	KeyPair                  *string                               `json:"key_pair" xml:"key_pair" require:"true"`
 	LoginPassword            *string                               `json:"login_password" xml:"login_password" require:"true"`
-	CloudMonitorFlags        *bool                                 `json:"cloud_monitor_flags" xml:"cloud_monitor_flags" require:"true"`
-	CpuPolicy                *string                               `json:"cpu_policy" xml:"cpu_policy" require:"true"`
-	DisableRollback          *bool                                 `json:"disable_rollback" xml:"disable_rollback" require:"true"`
+	CloudMonitorFlags        *bool                                 `json:"cloud_monitor_flags" xml:"cloud_monitor_flags"`
+	CpuPolicy                *string                               `json:"cpu_policy" xml:"cpu_policy"`
+	DisableRollback          *bool                                 `json:"disable_rollback" xml:"disable_rollback"`
 	WorkerDataDisks          []*ScaleOutClusterBodyWorkerDataDisks `json:"worker_data_disks" xml:"worker_data_disks" require:"true" type:"Repeated"`
 	Tags                     []*ScaleOutClusterBodyTags            `json:"tags" xml:"tags" require:"true" type:"Repeated"`
 	Taints                   []*ScaleOutClusterBodyTaints          `json:"taints" xml:"taints" require:"true" type:"Repeated"`
@@ -1254,9 +1254,9 @@ func (s *ScaleOutClusterBody) SetWorkerInstanceTypes(v []*string) *ScaleOutClust
 }
 
 type ScaleOutClusterBodyWorkerDataDisks struct {
-	Category  *string `json:"category" xml:"category" require:"true"`
-	Size      *string `json:"size" xml:"size" require:"true"`
-	Encrypted *string `json:"encrypted" xml:"encrypted" require:"true"`
+	Category  *string `json:"category" xml:"category"`
+	Size      *string `json:"size" xml:"size"`
+	Encrypted *string `json:"encrypted" xml:"encrypted"`
 }
 
 func (s ScaleOutClusterBodyWorkerDataDisks) String() string {
@@ -1283,8 +1283,8 @@ func (s *ScaleOutClusterBodyWorkerDataDisks) SetEncrypted(v string) *ScaleOutClu
 }
 
 type ScaleOutClusterBodyTags struct {
-	Key   *string `json:"key" xml:"key" require:"true"`
-	Value *string `json:"value" xml:"value" require:"true"`
+	Key   *string `json:"key" xml:"key"`
+	Value *string `json:"value" xml:"value"`
 }
 
 func (s ScaleOutClusterBodyTags) String() string {
@@ -1306,9 +1306,9 @@ func (s *ScaleOutClusterBodyTags) SetValue(v string) *ScaleOutClusterBodyTags {
 }
 
 type ScaleOutClusterBodyTaints struct {
-	Key    *string `json:"key" xml:"key" require:"true"`
-	Value  *string `json:"value" xml:"value" require:"true"`
-	Effect *string `json:"effect" xml:"effect" require:"true"`
+	Key    *string `json:"key" xml:"key"`
+	Value  *string `json:"value" xml:"value"`
+	Effect *string `json:"effect" xml:"effect"`
 }
 
 func (s ScaleOutClusterBodyTaints) String() string {
@@ -1747,13 +1747,13 @@ func (s *DescribeEdgeClusterAttachScriptsBody) SetOptions(v *DescribeEdgeCluster
 }
 
 type DescribeEdgeClusterAttachScriptsBodyOptions struct {
-	EnableIptables   *bool   `json:"enableIptables" xml:"enableIptables" require:"true"`
-	FlannelIface     *string `json:"flannelIface" xml:"flannelIface" require:"true"`
-	GpuVersion       *string `json:"gpuVersion" xml:"gpuVersion" require:"true"`
-	ManageRuntime    *bool   `json:"manageRuntime" xml:"manageRuntime" require:"true"`
-	NodeName         *string `json:"nodeName" xml:"nodeName" require:"true"`
-	NodeNamePrefix   *string `json:"nodeNamePrefix" xml:"nodeNamePrefix" require:"true"`
-	NodeNameStrategy *bool   `json:"nodeNameStrategy" xml:"nodeNameStrategy" require:"true"`
+	EnableIptables   *bool   `json:"enableIptables" xml:"enableIptables"`
+	FlannelIface     *string `json:"flannelIface" xml:"flannelIface"`
+	GpuVersion       *string `json:"gpuVersion" xml:"gpuVersion"`
+	ManageRuntime    *bool   `json:"manageRuntime" xml:"manageRuntime"`
+	NodeName         *string `json:"nodeName" xml:"nodeName"`
+	NodeNamePrefix   *string `json:"nodeNamePrefix" xml:"nodeNamePrefix"`
+	NodeNameStrategy *bool   `json:"nodeNameStrategy" xml:"nodeNameStrategy"`
 }
 
 func (s DescribeEdgeClusterAttachScriptsBodyOptions) String() string {
@@ -1800,8 +1800,8 @@ func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetNodeNameStrategy(v bool
 }
 
 type DescribeEdgeClusterAttachScriptsRequest struct {
-	Query   *DescribeEdgeClusterAttachScriptsQuery `json:"query" xml:"query" require:"true"`
 	Headers map[string]string                      `json:"headers" xml:"headers"`
+	Query   *DescribeEdgeClusterAttachScriptsQuery `json:"query" xml:"query" require:"true"`
 	Body    *DescribeEdgeClusterAttachScriptsBody  `json:"body" xml:"body" require:"true"`
 }
 
@@ -1813,13 +1813,13 @@ func (s DescribeEdgeClusterAttachScriptsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeEdgeClusterAttachScriptsRequest) SetQuery(v *DescribeEdgeClusterAttachScriptsQuery) *DescribeEdgeClusterAttachScriptsRequest {
-	s.Query = v
+func (s *DescribeEdgeClusterAttachScriptsRequest) SetHeaders(v map[string]string) *DescribeEdgeClusterAttachScriptsRequest {
+	s.Headers = v
 	return s
 }
 
-func (s *DescribeEdgeClusterAttachScriptsRequest) SetHeaders(v map[string]string) *DescribeEdgeClusterAttachScriptsRequest {
-	s.Headers = v
+func (s *DescribeEdgeClusterAttachScriptsRequest) SetQuery(v *DescribeEdgeClusterAttachScriptsQuery) *DescribeEdgeClusterAttachScriptsRequest {
+	s.Query = v
 	return s
 }
 
@@ -1875,7 +1875,7 @@ func (s *DescribeEdgeClusterAttachScriptsResponse) SetBody(v *DescribeEdgeCluste
 }
 
 type DeleteClusterNodesBody struct {
-	ReleaseNode *string   `json:"release_node" xml:"release_node" require:"true"`
+	ReleaseNode *string   `json:"release_node" xml:"release_node"`
 	Nodes       []*string `json:"nodes" xml:"nodes" require:"true" type:"Repeated"`
 }
 
@@ -1961,7 +1961,7 @@ func (s *DeleteClusterNodesResponse) SetBody(v *DeleteClusterNodesResponseBody) 
 }
 
 type DescribeClusterUserKubeconfigQuery struct {
-	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress" require:"true"`
+	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress"`
 }
 
 func (s DescribeClusterUserKubeconfigQuery) String() string {
@@ -1978,8 +1978,8 @@ func (s *DescribeClusterUserKubeconfigQuery) SetPrivateIpAddress(v bool) *Descri
 }
 
 type DescribeClusterUserKubeconfigRequest struct {
-	Query   *DescribeClusterUserKubeconfigQuery `json:"query" xml:"query" require:"true"`
 	Headers map[string]string                   `json:"headers" xml:"headers"`
+	Query   *DescribeClusterUserKubeconfigQuery `json:"query" xml:"query"`
 }
 
 func (s DescribeClusterUserKubeconfigRequest) String() string {
@@ -1990,13 +1990,13 @@ func (s DescribeClusterUserKubeconfigRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterUserKubeconfigRequest) SetQuery(v *DescribeClusterUserKubeconfigQuery) *DescribeClusterUserKubeconfigRequest {
-	s.Query = v
+func (s *DescribeClusterUserKubeconfigRequest) SetHeaders(v map[string]string) *DescribeClusterUserKubeconfigRequest {
+	s.Headers = v
 	return s
 }
 
-func (s *DescribeClusterUserKubeconfigRequest) SetHeaders(v map[string]string) *DescribeClusterUserKubeconfigRequest {
-	s.Headers = v
+func (s *DescribeClusterUserKubeconfigRequest) SetQuery(v *DescribeClusterUserKubeconfigQuery) *DescribeClusterUserKubeconfigRequest {
+	s.Query = v
 	return s
 }
 
@@ -2047,9 +2047,9 @@ func (s *DescribeClusterUserKubeconfigResponse) SetBody(v *DescribeClusterUserKu
 }
 
 type AttachInstancesBody struct {
-	FormatDisk       *bool                      `json:"format_disk" xml:"format_disk" require:"true"`
-	KeepInstanceName *bool                      `json:"keep_instance_name" xml:"keep_instance_name" require:"true"`
-	CpuPolicy        *string                    `json:"cpu_policy" xml:"cpu_policy" require:"true"`
+	FormatDisk       *bool                      `json:"format_disk" xml:"format_disk"`
+	KeepInstanceName *bool                      `json:"keep_instance_name" xml:"keep_instance_name"`
+	CpuPolicy        *string                    `json:"cpu_policy" xml:"cpu_policy"`
 	KeyPair          *string                    `json:"key_pair" xml:"key_pair" require:"true"`
 	Password         *string                    `json:"password" xml:"password" require:"true"`
 	Tags             []*AttachInstancesBodyTags `json:"tags" xml:"tags" require:"true" type:"Repeated"`
@@ -2100,8 +2100,8 @@ func (s *AttachInstancesBody) SetInstances(v []*string) *AttachInstancesBody {
 }
 
 type AttachInstancesBodyTags struct {
-	Key   *string `json:"key" xml:"key" require:"true"`
-	Value *string `json:"value" xml:"value" require:"true"`
+	Key   *string `json:"key" xml:"key"`
+	Value *string `json:"value" xml:"value"`
 }
 
 func (s AttachInstancesBodyTags) String() string {
@@ -2241,44 +2241,44 @@ type CreateClusterBody struct {
 	ClusterType              *string                             `json:"cluster_type" xml:"cluster_type" require:"true"`
 	Name                     *string                             `json:"name" xml:"name" require:"true"`
 	RegionId                 *string                             `json:"region_id" xml:"region_id" require:"true"`
-	KubernetesVersion        *string                             `json:"kubernetes_version" xml:"kubernetes_version" require:"true"`
+	KubernetesVersion        *string                             `json:"kubernetes_version" xml:"kubernetes_version"`
 	SnatEntry                *bool                               `json:"snat_entry" xml:"snat_entry" require:"true"`
-	EndpointPublicAccess     *bool                               `json:"endpoint_public_access" xml:"endpoint_public_access" require:"true"`
-	SshFlags                 *bool                               `json:"ssh_flags" xml:"ssh_flags" require:"true"`
-	CloudMonitorFlags        *bool                               `json:"cloud_monitor_flags" xml:"cloud_monitor_flags" require:"true"`
-	DeletionProtection       *bool                               `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	NodeCidrMask             *string                             `json:"node_cidr_mask" xml:"node_cidr_mask" require:"true"`
-	ProxyMode                *string                             `json:"proxy_mode" xml:"proxy_mode" require:"true"`
-	OsType                   *string                             `json:"os_type" xml:"os_type" require:"true"`
-	Platform                 *string                             `json:"platform" xml:"platform" require:"true"`
-	NodePortRange            *string                             `json:"node_port_range" xml:"node_port_range" require:"true"`
+	EndpointPublicAccess     *bool                               `json:"endpoint_public_access" xml:"endpoint_public_access"`
+	SshFlags                 *bool                               `json:"ssh_flags" xml:"ssh_flags"`
+	CloudMonitorFlags        *bool                               `json:"cloud_monitor_flags" xml:"cloud_monitor_flags"`
+	DeletionProtection       *bool                               `json:"deletion_protection" xml:"deletion_protection"`
+	NodeCidrMask             *string                             `json:"node_cidr_mask" xml:"node_cidr_mask"`
+	ProxyMode                *string                             `json:"proxy_mode" xml:"proxy_mode"`
+	OsType                   *string                             `json:"os_type" xml:"os_type"`
+	Platform                 *string                             `json:"platform" xml:"platform"`
+	NodePortRange            *string                             `json:"node_port_range" xml:"node_port_range"`
 	KeyPair                  *string                             `json:"key_pair" xml:"key_pair" require:"true"`
 	LoginPassword            *string                             `json:"login_password" xml:"login_password" require:"true"`
-	MasterInstanceChargeType *string                             `json:"master_instance_charge_type" xml:"master_instance_charge_type" require:"true"`
-	WorkerInstanceChargeType *string                             `json:"worker_instance_charge_type" xml:"worker_instance_charge_type" require:"true"`
-	MasterPeriod             *int                                `json:"master_period" xml:"master_period" require:"true"`
-	WorkerPeriod             *int                                `json:"worker_period" xml:"worker_period" require:"true"`
-	MasterPeriodUnit         *string                             `json:"master_period_unit" xml:"master_period_unit" require:"true"`
-	WorkerPeriodUnit         *string                             `json:"worker_period_unit" xml:"worker_period_unit" require:"true"`
-	MasterAutoRenew          *bool                               `json:"master_auto_renew" xml:"master_auto_renew" require:"true"`
-	MasterAutoRenewPeriod    *int                                `json:"master_auto_renew_period" xml:"master_auto_renew_period" require:"true"`
-	WorkerAutoRenew          *bool                               `json:"worker_auto_renew" xml:"worker_auto_renew" require:"true"`
-	WorkerAutoRenewPeriod    *int                                `json:"worker_auto_renew_period" xml:"worker_auto_renew_period" require:"true"`
-	CpuPolicy                *string                             `json:"cpu_policy" xml:"cpu_policy" require:"true"`
-	MasterCount              *int                                `json:"master_count" xml:"master_count" require:"true"`
+	MasterInstanceChargeType *string                             `json:"master_instance_charge_type" xml:"master_instance_charge_type"`
+	WorkerInstanceChargeType *string                             `json:"worker_instance_charge_type" xml:"worker_instance_charge_type"`
+	MasterPeriod             *int                                `json:"master_period" xml:"master_period"`
+	WorkerPeriod             *int                                `json:"worker_period" xml:"worker_period"`
+	MasterPeriodUnit         *string                             `json:"master_period_unit" xml:"master_period_unit"`
+	WorkerPeriodUnit         *string                             `json:"worker_period_unit" xml:"worker_period_unit"`
+	MasterAutoRenew          *bool                               `json:"master_auto_renew" xml:"master_auto_renew"`
+	MasterAutoRenewPeriod    *int                                `json:"master_auto_renew_period" xml:"master_auto_renew_period"`
+	WorkerAutoRenew          *bool                               `json:"worker_auto_renew" xml:"worker_auto_renew"`
+	WorkerAutoRenewPeriod    *int                                `json:"worker_auto_renew_period" xml:"worker_auto_renew_period"`
+	CpuPolicy                *string                             `json:"cpu_policy" xml:"cpu_policy"`
+	MasterCount              *int                                `json:"master_count" xml:"master_count"`
 	MasterSystemDiskCategory *string                             `json:"master_system_disk_category" xml:"master_system_disk_category" require:"true"`
 	MasterSystemDiskSize     *int                                `json:"master_system_disk_size" xml:"master_system_disk_size" require:"true"`
-	Runtime                  map[string]interface{}              `json:"runtime" xml:"runtime" require:"true"`
+	Runtime                  map[string]interface{}              `json:"runtime" xml:"runtime"`
 	NumOfNodes               *int                                `json:"num_of_nodes" xml:"num_of_nodes" require:"true"`
 	WorkerSystemDiskCategory *string                             `json:"worker_system_disk_category" xml:"worker_system_disk_category" require:"true"`
 	WorkerSystemDiskSize     *int                                `json:"worker_system_disk_size" xml:"worker_system_disk_size" require:"true"`
-	WorkerDataDisk           *bool                               `json:"worker_data_disk" xml:"worker_data_disk" require:"true"`
-	Vpcid                    *string                             `json:"vpcid" xml:"vpcid" require:"true"`
-	SecurityGroupId          *string                             `json:"security_group_id" xml:"security_group_id" require:"true"`
-	ContainerCidr            *string                             `json:"container_cidr" xml:"container_cidr" require:"true"`
-	ServiceCidr              *string                             `json:"service_cidr" xml:"service_cidr" require:"true"`
-	DisableRollback          *bool                               `json:"disable_rollback" xml:"disable_rollback" require:"true"`
-	TimeoutMins              *int                                `json:"timeout_mins" xml:"timeout_mins" require:"true"`
+	WorkerDataDisk           *bool                               `json:"worker_data_disk" xml:"worker_data_disk"`
+	Vpcid                    *string                             `json:"vpcid" xml:"vpcid"`
+	SecurityGroupId          *string                             `json:"security_group_id" xml:"security_group_id"`
+	ContainerCidr            *string                             `json:"container_cidr" xml:"container_cidr"`
+	ServiceCidr              *string                             `json:"service_cidr" xml:"service_cidr"`
+	DisableRollback          *bool                               `json:"disable_rollback" xml:"disable_rollback"`
+	TimeoutMins              *int                                `json:"timeout_mins" xml:"timeout_mins"`
 	Tags                     []*CreateClusterBodyTags            `json:"tags" xml:"tags" require:"true" type:"Repeated"`
 	Addons                   []*CreateClusterBodyAddons          `json:"addons" xml:"addons" require:"true" type:"Repeated"`
 	Taints                   []*CreateClusterBodyTaints          `json:"taints" xml:"taints" require:"true" type:"Repeated"`
@@ -2543,8 +2543,8 @@ func (s *CreateClusterBody) SetWorkerVswitchIds(v []*string) *CreateClusterBody 
 }
 
 type CreateClusterBodyTags struct {
-	Key   *string `json:"key" xml:"key" require:"true"`
-	Value *string `json:"value" xml:"value" require:"true"`
+	Key   *string `json:"key" xml:"key"`
+	Value *string `json:"value" xml:"value"`
 }
 
 func (s CreateClusterBodyTags) String() string {
@@ -2566,8 +2566,8 @@ func (s *CreateClusterBodyTags) SetValue(v string) *CreateClusterBodyTags {
 }
 
 type CreateClusterBodyAddons struct {
-	Name   *string `json:"name" xml:"name" require:"true"`
-	Config *string `json:"config" xml:"config" require:"true"`
+	Name   *string `json:"name" xml:"name"`
+	Config *string `json:"config" xml:"config"`
 }
 
 func (s CreateClusterBodyAddons) String() string {
@@ -2589,9 +2589,9 @@ func (s *CreateClusterBodyAddons) SetConfig(v string) *CreateClusterBodyAddons {
 }
 
 type CreateClusterBodyTaints struct {
-	Key    *string `json:"key" xml:"key" require:"true"`
-	Value  *string `json:"value" xml:"value" require:"true"`
-	Effect *string `json:"effect" xml:"effect" require:"true"`
+	Key    *string `json:"key" xml:"key"`
+	Value  *string `json:"value" xml:"value"`
+	Effect *string `json:"effect" xml:"effect"`
 }
 
 func (s CreateClusterBodyTaints) String() string {
@@ -2618,9 +2618,9 @@ func (s *CreateClusterBodyTaints) SetEffect(v string) *CreateClusterBodyTaints {
 }
 
 type CreateClusterBodyWorkerDataDisks struct {
-	Category  *string `json:"category" xml:"category" require:"true"`
-	Size      *string `json:"size" xml:"size" require:"true"`
-	Encrypted *string `json:"encrypted" xml:"encrypted" require:"true"`
+	Category  *string `json:"category" xml:"category"`
+	Size      *string `json:"size" xml:"size"`
+	Encrypted *string `json:"encrypted" xml:"encrypted"`
 }
 
 func (s CreateClusterBodyWorkerDataDisks) String() string {
@@ -2779,8 +2779,8 @@ func (s *ScaleClusterResponse) SetBody(v *ScaleClusterResponseBody) *ScaleCluste
 }
 
 type DescribeClustersQuery struct {
-	Name        *string `json:"name" xml:"name" require:"true"`
-	ClusterType *string `json:"clusterType" xml:"clusterType" require:"true"`
+	Name        *string `json:"name" xml:"name"`
+	ClusterType *string `json:"clusterType" xml:"clusterType"`
 }
 
 func (s DescribeClustersQuery) String() string {
@@ -2802,8 +2802,8 @@ func (s *DescribeClustersQuery) SetClusterType(v string) *DescribeClustersQuery 
 }
 
 type DescribeClustersRequest struct {
-	Query   *DescribeClustersQuery `json:"query" xml:"query" require:"true"`
 	Headers map[string]string      `json:"headers" xml:"headers"`
+	Query   *DescribeClustersQuery `json:"query" xml:"query"`
 }
 
 func (s DescribeClustersRequest) String() string {
@@ -2814,13 +2814,13 @@ func (s DescribeClustersRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersRequest) SetQuery(v *DescribeClustersQuery) *DescribeClustersRequest {
-	s.Query = v
+func (s *DescribeClustersRequest) SetHeaders(v map[string]string) *DescribeClustersRequest {
+	s.Headers = v
 	return s
 }
 
-func (s *DescribeClustersRequest) SetHeaders(v map[string]string) *DescribeClustersRequest {
-	s.Headers = v
+func (s *DescribeClustersRequest) SetQuery(v *DescribeClustersQuery) *DescribeClustersRequest {
+	s.Query = v
 	return s
 }
 
@@ -4957,7 +4957,7 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) ResumeComponentUpgrade(clusterid string, componentid string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
+func (client *Client) ResumeComponentUpgradeEx(clusterid string, componentid string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -4971,7 +4971,18 @@ func (client *Client) ResumeComponentUpgrade(clusterid string, componentid strin
 	return _result, _err
 }
 
-func (client *Client) PauseComponentUpgrade(clusterid string, componentid string, request *PauseComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *PauseComponentUpgradeResponse, _err error) {
+func (client *Client) ResumeComponentUpgrade(clusterid string, componentid string, request *ResumeComponentUpgradeRequest) (_result *ResumeComponentUpgradeResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ResumeComponentUpgradeResponse{}
+	_body, _err := client.ResumeComponentUpgradeEx(clusterid, componentid, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) PauseComponentUpgradeEx(clusterid string, componentid string, request *PauseComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *PauseComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -4985,7 +4996,18 @@ func (client *Client) PauseComponentUpgrade(clusterid string, componentid string
 	return _result, _err
 }
 
-func (client *Client) CancelComponentUpgrade(clusterid string, componentid string, request *CancelComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *CancelComponentUpgradeResponse, _err error) {
+func (client *Client) PauseComponentUpgrade(clusterid string, componentid string, request *PauseComponentUpgradeRequest) (_result *PauseComponentUpgradeResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &PauseComponentUpgradeResponse{}
+	_body, _err := client.PauseComponentUpgradeEx(clusterid, componentid, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CancelComponentUpgradeEx(clusterid string, componentid string, request *CancelComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *CancelComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -4999,7 +5021,18 @@ func (client *Client) CancelComponentUpgrade(clusterid string, componentid strin
 	return _result, _err
 }
 
-func (client *Client) CancelWorkflow(workflowName string, request *CancelWorkflowRequest, runtime *util.RuntimeOptions) (_result *CancelWorkflowResponse, _err error) {
+func (client *Client) CancelComponentUpgrade(clusterid string, componentid string, request *CancelComponentUpgradeRequest) (_result *CancelComponentUpgradeResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CancelComponentUpgradeResponse{}
+	_body, _err := client.CancelComponentUpgradeEx(clusterid, componentid, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CancelWorkflowEx(workflowName string, request *CancelWorkflowRequest, runtime *util.RuntimeOptions) (_result *CancelWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5013,7 +5046,18 @@ func (client *Client) CancelWorkflow(workflowName string, request *CancelWorkflo
 	return _result, _err
 }
 
-func (client *Client) DescirbeWorkflow(workflowName string, request *DescirbeWorkflowRequest, runtime *util.RuntimeOptions) (_result *DescirbeWorkflowResponse, _err error) {
+func (client *Client) CancelWorkflow(workflowName string, request *CancelWorkflowRequest) (_result *CancelWorkflowResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CancelWorkflowResponse{}
+	_body, _err := client.CancelWorkflowEx(workflowName, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescirbeWorkflowEx(workflowName string, request *DescirbeWorkflowRequest, runtime *util.RuntimeOptions) (_result *DescirbeWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5027,7 +5071,18 @@ func (client *Client) DescirbeWorkflow(workflowName string, request *DescirbeWor
 	return _result, _err
 }
 
-func (client *Client) RemoveWorkflow(workflowName string, request *RemoveWorkflowRequest, runtime *util.RuntimeOptions) (_result *RemoveWorkflowResponse, _err error) {
+func (client *Client) DescirbeWorkflow(workflowName string, request *DescirbeWorkflowRequest) (_result *DescirbeWorkflowResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescirbeWorkflowResponse{}
+	_body, _err := client.DescirbeWorkflowEx(workflowName, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) RemoveWorkflowEx(workflowName string, request *RemoveWorkflowRequest, runtime *util.RuntimeOptions) (_result *RemoveWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5041,7 +5096,18 @@ func (client *Client) RemoveWorkflow(workflowName string, request *RemoveWorkflo
 	return _result, _err
 }
 
-func (client *Client) DescribeWorkflows(request *DescribeWorkflowsRequest, runtime *util.RuntimeOptions) (_result *DescribeWorkflowsResponse, _err error) {
+func (client *Client) RemoveWorkflow(workflowName string, request *RemoveWorkflowRequest) (_result *RemoveWorkflowResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &RemoveWorkflowResponse{}
+	_body, _err := client.RemoveWorkflowEx(workflowName, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeWorkflowsEx(request *DescribeWorkflowsRequest, runtime *util.RuntimeOptions) (_result *DescribeWorkflowsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5055,7 +5121,18 @@ func (client *Client) DescribeWorkflows(request *DescribeWorkflowsRequest, runti
 	return _result, _err
 }
 
-func (client *Client) StartWorkflow(request *StartWorkflowRequest, runtime *util.RuntimeOptions) (_result *StartWorkflowResponse, _err error) {
+func (client *Client) DescribeWorkflows(request *DescribeWorkflowsRequest) (_result *DescribeWorkflowsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeWorkflowsResponse{}
+	_body, _err := client.DescribeWorkflowsEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) StartWorkflowEx(request *StartWorkflowRequest, runtime *util.RuntimeOptions) (_result *StartWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5069,7 +5146,18 @@ func (client *Client) StartWorkflow(request *StartWorkflowRequest, runtime *util
 	return _result, _err
 }
 
-func (client *Client) CreateServiceMesh(request *CreateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *CreateServiceMeshResponse, _err error) {
+func (client *Client) StartWorkflow(request *StartWorkflowRequest) (_result *StartWorkflowResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &StartWorkflowResponse{}
+	_body, _err := client.StartWorkflowEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateServiceMeshEx(request *CreateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *CreateServiceMeshResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5083,7 +5171,18 @@ func (client *Client) CreateServiceMesh(request *CreateServiceMeshRequest, runti
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshAddCluster(serviceMeshId string, request *ServiceMeshAddClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshAddClusterResponse, _err error) {
+func (client *Client) CreateServiceMesh(request *CreateServiceMeshRequest) (_result *CreateServiceMeshResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateServiceMeshResponse{}
+	_body, _err := client.CreateServiceMeshEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ServiceMeshAddClusterEx(serviceMeshId string, request *ServiceMeshAddClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshAddClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5097,7 +5196,18 @@ func (client *Client) ServiceMeshAddCluster(serviceMeshId string, request *Servi
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshRemoveCluster(serviceMeshId string, request *ServiceMeshRemoveClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshRemoveClusterResponse, _err error) {
+func (client *Client) ServiceMeshAddCluster(serviceMeshId string, request *ServiceMeshAddClusterRequest) (_result *ServiceMeshAddClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ServiceMeshAddClusterResponse{}
+	_body, _err := client.ServiceMeshAddClusterEx(serviceMeshId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ServiceMeshRemoveClusterEx(serviceMeshId string, request *ServiceMeshRemoveClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshRemoveClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5111,7 +5221,18 @@ func (client *Client) ServiceMeshRemoveCluster(serviceMeshId string, request *Se
 	return _result, _err
 }
 
-func (client *Client) UpdateServiceMesh(serviceMeshId string, request *UpdateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *UpdateServiceMeshResponse, _err error) {
+func (client *Client) ServiceMeshRemoveCluster(serviceMeshId string, request *ServiceMeshRemoveClusterRequest) (_result *ServiceMeshRemoveClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ServiceMeshRemoveClusterResponse{}
+	_body, _err := client.ServiceMeshRemoveClusterEx(serviceMeshId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UpdateServiceMeshEx(serviceMeshId string, request *UpdateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *UpdateServiceMeshResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5125,7 +5246,18 @@ func (client *Client) UpdateServiceMesh(serviceMeshId string, request *UpdateSer
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshApiServer(serviceMeshId string, request *ServiceMeshApiServerRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshApiServerResponse, _err error) {
+func (client *Client) UpdateServiceMesh(serviceMeshId string, request *UpdateServiceMeshRequest) (_result *UpdateServiceMeshResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UpdateServiceMeshResponse{}
+	_body, _err := client.UpdateServiceMeshEx(serviceMeshId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ServiceMeshApiServerEx(serviceMeshId string, request *ServiceMeshApiServerRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshApiServerResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5139,7 +5271,18 @@ func (client *Client) ServiceMeshApiServer(serviceMeshId string, request *Servic
 	return _result, _err
 }
 
-func (client *Client) UnInstallClusterAddons(clusterId string, request *UnInstallClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *UnInstallClusterAddonsResponse, _err error) {
+func (client *Client) ServiceMeshApiServer(serviceMeshId string, request *ServiceMeshApiServerRequest) (_result *ServiceMeshApiServerResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ServiceMeshApiServerResponse{}
+	_body, _err := client.ServiceMeshApiServerEx(serviceMeshId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UnInstallClusterAddonsEx(clusterId string, request *UnInstallClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *UnInstallClusterAddonsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5153,7 +5296,18 @@ func (client *Client) UnInstallClusterAddons(clusterId string, request *UnInstal
 	return _result, _err
 }
 
-func (client *Client) DescribeAddons(request *DescribeAddonsRequest, runtime *util.RuntimeOptions) (_result *DescribeAddonsResponse, _err error) {
+func (client *Client) UnInstallClusterAddons(clusterId string, request *UnInstallClusterAddonsRequest) (_result *UnInstallClusterAddonsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UnInstallClusterAddonsResponse{}
+	_body, _err := client.UnInstallClusterAddonsEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeAddonsEx(request *DescribeAddonsRequest, runtime *util.RuntimeOptions) (_result *DescribeAddonsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5167,7 +5321,18 @@ func (client *Client) DescribeAddons(request *DescribeAddonsRequest, runtime *ut
 	return _result, _err
 }
 
-func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId string, request *UpdateK8sClusterUserConfigExpireRequest, runtime *util.RuntimeOptions) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
+func (client *Client) DescribeAddons(request *DescribeAddonsRequest) (_result *DescribeAddonsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeAddonsResponse{}
+	_body, _err := client.DescribeAddonsEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UpdateK8sClusterUserConfigExpireEx(clusterId string, request *UpdateK8sClusterUserConfigExpireRequest, runtime *util.RuntimeOptions) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5181,7 +5346,18 @@ func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId string, request
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterV2UserKubeconfig(clusterId string, request *DescribeClusterV2UserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
+func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId string, request *UpdateK8sClusterUserConfigExpireRequest) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UpdateK8sClusterUserConfigExpireResponse{}
+	_body, _err := client.UpdateK8sClusterUserConfigExpireEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterV2UserKubeconfigEx(clusterId string, request *DescribeClusterV2UserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5195,7 +5371,18 @@ func (client *Client) DescribeClusterV2UserKubeconfig(clusterId string, request 
 	return _result, _err
 }
 
-func (client *Client) ModifyClusterTags(clusterId string, request *ModifyClusterTagsRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterTagsResponse, _err error) {
+func (client *Client) DescribeClusterV2UserKubeconfig(clusterId string, request *DescribeClusterV2UserKubeconfigRequest) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterV2UserKubeconfigResponse{}
+	_body, _err := client.DescribeClusterV2UserKubeconfigEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ModifyClusterTagsEx(clusterId string, request *ModifyClusterTagsRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterTagsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5209,7 +5396,18 @@ func (client *Client) ModifyClusterTags(clusterId string, request *ModifyCluster
 	return _result, _err
 }
 
-func (client *Client) ScaleOutCluster(clusterId string, request *ScaleOutClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleOutClusterResponse, _err error) {
+func (client *Client) ModifyClusterTags(clusterId string, request *ModifyClusterTagsRequest) (_result *ModifyClusterTagsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ModifyClusterTagsResponse{}
+	_body, _err := client.ModifyClusterTagsEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ScaleOutClusterEx(clusterId string, request *ScaleOutClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleOutClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5223,7 +5421,18 @@ func (client *Client) ScaleOutCluster(clusterId string, request *ScaleOutCluster
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterAddonsVersion(clusterId string, request *DescribeClusterAddonsVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonsVersionResponse, _err error) {
+func (client *Client) ScaleOutCluster(clusterId string, request *ScaleOutClusterRequest) (_result *ScaleOutClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ScaleOutClusterResponse{}
+	_body, _err := client.ScaleOutClusterEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterAddonsVersionEx(clusterId string, request *DescribeClusterAddonsVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonsVersionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5237,7 +5446,18 @@ func (client *Client) DescribeClusterAddonsVersion(clusterId string, request *De
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId string, componentId string, request *DescribeClusterAddonUpgradeStatusRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
+func (client *Client) DescribeClusterAddonsVersion(clusterId string, request *DescribeClusterAddonsVersionRequest) (_result *DescribeClusterAddonsVersionResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterAddonsVersionResponse{}
+	_body, _err := client.DescribeClusterAddonsVersionEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterAddonUpgradeStatusEx(clusterId string, componentId string, request *DescribeClusterAddonUpgradeStatusRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5251,7 +5471,18 @@ func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId string, compon
 	return _result, _err
 }
 
-func (client *Client) DescribeEdgeClusterAttachScripts(clusterId string, request *DescribeEdgeClusterAttachScriptsRequest, runtime *util.RuntimeOptions) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
+func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId string, componentId string, request *DescribeClusterAddonUpgradeStatusRequest) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterAddonUpgradeStatusResponse{}
+	_body, _err := client.DescribeClusterAddonUpgradeStatusEx(clusterId, componentId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeEdgeClusterAttachScriptsEx(clusterId string, request *DescribeEdgeClusterAttachScriptsRequest, runtime *util.RuntimeOptions) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5265,7 +5496,18 @@ func (client *Client) DescribeEdgeClusterAttachScripts(clusterId string, request
 	return _result, _err
 }
 
-func (client *Client) DeleteClusterNodes(clusterId string, request *DeleteClusterNodesRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterNodesResponse, _err error) {
+func (client *Client) DescribeEdgeClusterAttachScripts(clusterId string, request *DescribeEdgeClusterAttachScriptsRequest) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeEdgeClusterAttachScriptsResponse{}
+	_body, _err := client.DescribeEdgeClusterAttachScriptsEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteClusterNodesEx(clusterId string, request *DeleteClusterNodesRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterNodesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5279,7 +5521,18 @@ func (client *Client) DeleteClusterNodes(clusterId string, request *DeleteCluste
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterUserKubeconfig(clusterId string, request *DescribeClusterUserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
+func (client *Client) DeleteClusterNodes(clusterId string, request *DeleteClusterNodesRequest) (_result *DeleteClusterNodesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteClusterNodesResponse{}
+	_body, _err := client.DeleteClusterNodesEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterUserKubeconfigEx(clusterId string, request *DescribeClusterUserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5293,7 +5546,18 @@ func (client *Client) DescribeClusterUserKubeconfig(clusterId string, request *D
 	return _result, _err
 }
 
-func (client *Client) AttachInstances(clusterId string, request *AttachInstancesRequest, runtime *util.RuntimeOptions) (_result *AttachInstancesResponse, _err error) {
+func (client *Client) DescribeClusterUserKubeconfig(clusterId string, request *DescribeClusterUserKubeconfigRequest) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterUserKubeconfigResponse{}
+	_body, _err := client.DescribeClusterUserKubeconfigEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) AttachInstancesEx(clusterId string, request *AttachInstancesRequest, runtime *util.RuntimeOptions) (_result *AttachInstancesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5307,7 +5571,18 @@ func (client *Client) AttachInstances(clusterId string, request *AttachInstances
 	return _result, _err
 }
 
-func (client *Client) CreateCluster(request *CreateClusterRequest, runtime *util.RuntimeOptions) (_result *CreateClusterResponse, _err error) {
+func (client *Client) AttachInstances(clusterId string, request *AttachInstancesRequest) (_result *AttachInstancesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &AttachInstancesResponse{}
+	_body, _err := client.AttachInstancesEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateClusterEx(request *CreateClusterRequest, runtime *util.RuntimeOptions) (_result *CreateClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5321,7 +5596,18 @@ func (client *Client) CreateCluster(request *CreateClusterRequest, runtime *util
 	return _result, _err
 }
 
-func (client *Client) ScaleCluster(clusterId string, request *ScaleClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleClusterResponse, _err error) {
+func (client *Client) CreateCluster(request *CreateClusterRequest) (_result *CreateClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateClusterResponse{}
+	_body, _err := client.CreateClusterEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ScaleClusterEx(clusterId string, request *ScaleClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5335,7 +5621,18 @@ func (client *Client) ScaleCluster(clusterId string, request *ScaleClusterReques
 	return _result, _err
 }
 
-func (client *Client) DescribeClusters(request *DescribeClustersRequest, runtime *util.RuntimeOptions) (_result *DescribeClustersResponse, _err error) {
+func (client *Client) ScaleCluster(clusterId string, request *ScaleClusterRequest) (_result *ScaleClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ScaleClusterResponse{}
+	_body, _err := client.ScaleClusterEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClustersEx(request *DescribeClustersRequest, runtime *util.RuntimeOptions) (_result *DescribeClustersResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5349,7 +5646,18 @@ func (client *Client) DescribeClusters(request *DescribeClustersRequest, runtime
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterDetail(clusterId string, request *DescribeClusterDetailRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterDetailResponse, _err error) {
+func (client *Client) DescribeClusters(request *DescribeClustersRequest) (_result *DescribeClustersResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClustersResponse{}
+	_body, _err := client.DescribeClustersEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterDetailEx(clusterId string, request *DescribeClusterDetailRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterDetailResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5363,7 +5671,18 @@ func (client *Client) DescribeClusterDetail(clusterId string, request *DescribeC
 	return _result, _err
 }
 
-func (client *Client) DeleteCluster(clusterId string, request *DeleteClusterRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterResponse, _err error) {
+func (client *Client) DescribeClusterDetail(clusterId string, request *DescribeClusterDetailRequest) (_result *DescribeClusterDetailResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterDetailResponse{}
+	_body, _err := client.DescribeClusterDetailEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteClusterEx(clusterId string, request *DeleteClusterRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
@@ -5377,13 +5696,24 @@ func (client *Client) DeleteCluster(clusterId string, request *DeleteClusterRequ
 	return _result, _err
 }
 
+func (client *Client) DeleteCluster(clusterId string, request *DeleteClusterRequest) (_result *DeleteClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteClusterResponse{}
+	_body, _err := client.DeleteClusterEx(clusterId, request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
 func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
 	if !util.Empty(endpoint) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.Empty(endpointMap[regionId]) {
+	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
 		return _result, _err
 	}
 
