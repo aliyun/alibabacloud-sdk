@@ -67,10 +67,6 @@ class UploadRobotTaskCalledFileRequest extends Model
         'ttsParamHead'         => 'TtsParamHead',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                         = [];

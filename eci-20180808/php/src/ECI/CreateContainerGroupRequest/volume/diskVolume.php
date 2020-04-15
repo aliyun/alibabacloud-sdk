@@ -32,10 +32,6 @@ class diskVolume extends Model
         'diskSize' => 'DiskSize',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res             = [];

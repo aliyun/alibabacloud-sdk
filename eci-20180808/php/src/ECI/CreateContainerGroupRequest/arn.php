@@ -32,10 +32,6 @@ class arn extends Model
         'assumeRoleFor' => 'AssumeRoleFor',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                  = [];

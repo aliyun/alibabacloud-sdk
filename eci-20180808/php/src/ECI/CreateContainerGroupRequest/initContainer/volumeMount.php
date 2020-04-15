@@ -39,10 +39,6 @@ class volumeMount extends Model
         'subPath'   => 'SubPath',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res              = [];

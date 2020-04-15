@@ -32,10 +32,6 @@ class dnsConfig extends Model
         'option'     => 'Option',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res               = [];

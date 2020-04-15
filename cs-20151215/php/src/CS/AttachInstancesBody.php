@@ -62,9 +62,6 @@ class AttachInstancesBody extends Model
 
     public function validate()
     {
-        Model::validateRequired('formatDisk', $this->formatDisk, true);
-        Model::validateRequired('keepInstanceName', $this->keepInstanceName, true);
-        Model::validateRequired('cpuPolicy', $this->cpuPolicy, true);
         Model::validateRequired('keyPair', $this->keyPair, true);
         Model::validateRequired('password', $this->password, true);
         Model::validateRequired('tags', $this->tags, true);

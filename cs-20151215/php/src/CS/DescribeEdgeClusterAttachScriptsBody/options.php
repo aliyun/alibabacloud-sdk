@@ -60,17 +60,6 @@ class options extends Model
         'nodeNameStrategy' => 'nodeNameStrategy',
     ];
 
-    public function validate()
-    {
-        Model::validateRequired('enableIptables', $this->enableIptables, true);
-        Model::validateRequired('flannelIface', $this->flannelIface, true);
-        Model::validateRequired('gpuVersion', $this->gpuVersion, true);
-        Model::validateRequired('manageRuntime', $this->manageRuntime, true);
-        Model::validateRequired('nodeName', $this->nodeName, true);
-        Model::validateRequired('nodeNamePrefix', $this->nodeNamePrefix, true);
-        Model::validateRequired('nodeNameStrategy', $this->nodeNameStrategy, true);
-    }
-
     public function toMap()
     {
         $res                     = [];

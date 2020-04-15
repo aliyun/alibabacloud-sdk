@@ -39,10 +39,6 @@ class boxes extends Model
         'y' => 'Y',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res      = [];

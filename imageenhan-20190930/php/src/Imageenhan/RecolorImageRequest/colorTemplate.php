@@ -18,10 +18,6 @@ class colorTemplate extends Model
         'color' => 'Color',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res          = [];

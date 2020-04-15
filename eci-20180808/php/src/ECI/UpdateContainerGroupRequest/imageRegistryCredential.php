@@ -32,10 +32,6 @@ class imageRegistryCredential extends Model
         'password' => 'Password',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res             = [];

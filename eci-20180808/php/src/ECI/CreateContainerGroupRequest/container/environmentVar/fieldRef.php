@@ -18,10 +18,6 @@ class fieldRef extends Model
         'fieldPath' => 'FieldPath',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res              = [];

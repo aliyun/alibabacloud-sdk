@@ -147,19 +147,9 @@ class ScaleOutClusterBody extends Model
     public function validate()
     {
         Model::validateRequired('count', $this->count, true);
-        Model::validateRequired('workerInstanceChargeType', $this->workerInstanceChargeType, true);
-        Model::validateRequired('workerPeriod', $this->workerPeriod, true);
-        Model::validateRequired('workerPeriodUnit', $this->workerPeriodUnit, true);
-        Model::validateRequired('workerAutoRenew', $this->workerAutoRenew, true);
-        Model::validateRequired('workerAutoRenewPeriod', $this->workerAutoRenewPeriod, true);
-        Model::validateRequired('workerSystemDiskCategory', $this->workerSystemDiskCategory, true);
-        Model::validateRequired('workerSystemDiskSize', $this->workerSystemDiskSize, true);
         Model::validateRequired('workerDataDisk', $this->workerDataDisk, true);
         Model::validateRequired('keyPair', $this->keyPair, true);
         Model::validateRequired('loginPassword', $this->loginPassword, true);
-        Model::validateRequired('cloudMonitorFlags', $this->cloudMonitorFlags, true);
-        Model::validateRequired('cpuPolicy', $this->cpuPolicy, true);
-        Model::validateRequired('disableRollback', $this->disableRollback, true);
         Model::validateRequired('workerDataDisks', $this->workerDataDisks, true);
         Model::validateRequired('tags', $this->tags, true);
         Model::validateRequired('taints', $this->taints, true);

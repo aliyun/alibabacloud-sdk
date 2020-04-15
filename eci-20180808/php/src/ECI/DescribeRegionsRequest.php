@@ -46,10 +46,6 @@ class DescribeRegionsRequest extends Model
         'regionId'             => 'RegionId',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                         = [];

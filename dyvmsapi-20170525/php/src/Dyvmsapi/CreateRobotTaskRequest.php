@@ -109,10 +109,6 @@ class CreateRobotTaskRequest extends Model
         'isSelfLine'           => 'IsSelfLine',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                         = [];

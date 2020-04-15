@@ -18,11 +18,6 @@ class DescribeClusterUserKubeconfigQuery extends Model
         'privateIpAddress' => 'PrivateIpAddress',
     ];
 
-    public function validate()
-    {
-        Model::validateRequired('privateIpAddress', $this->privateIpAddress, true);
-    }
-
     public function toMap()
     {
         $res                     = [];

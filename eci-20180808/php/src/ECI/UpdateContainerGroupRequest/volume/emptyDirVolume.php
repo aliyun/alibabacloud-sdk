@@ -18,10 +18,6 @@ class emptyDirVolume extends Model
         'medium' => 'Medium',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res           = [];
