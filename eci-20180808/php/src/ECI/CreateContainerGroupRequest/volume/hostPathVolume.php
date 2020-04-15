@@ -25,10 +25,6 @@ class hostPathVolume extends Model
         'path' => 'Path',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res         = [];

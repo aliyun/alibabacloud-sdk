@@ -25,10 +25,6 @@ class lifecyclePreStopHandlerHttpGetHttpHeader extends Model
         'value' => 'Value',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res          = [];

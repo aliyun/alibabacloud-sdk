@@ -60,10 +60,6 @@ class QueryRobotTaskCallDetailRequest extends Model
         'queryDate'            => 'QueryDate',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                         = [];

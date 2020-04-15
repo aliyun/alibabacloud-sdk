@@ -32,10 +32,6 @@ class httpGet extends Model
         'scheme' => 'Scheme',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res           = [];

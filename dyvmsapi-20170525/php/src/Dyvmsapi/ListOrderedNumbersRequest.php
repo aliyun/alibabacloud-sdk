@@ -46,10 +46,6 @@ class ListOrderedNumbersRequest extends Model
         'prodCode'             => 'ProdCode',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                         = [];

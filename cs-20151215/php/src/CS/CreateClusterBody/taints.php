@@ -32,13 +32,6 @@ class taints extends Model
         'effect' => 'effect',
     ];
 
-    public function validate()
-    {
-        Model::validateRequired('key', $this->key, true);
-        Model::validateRequired('value', $this->value, true);
-        Model::validateRequired('effect', $this->effect, true);
-    }
-
     public function toMap()
     {
         $res           = [];

@@ -18,10 +18,6 @@ class DescribeWorkflowsRequest extends Model
         'headers' => 'headers',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res            = [];

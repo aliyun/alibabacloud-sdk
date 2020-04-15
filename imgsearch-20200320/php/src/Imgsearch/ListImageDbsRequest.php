@@ -8,10 +8,6 @@ use AlibabaCloud\Tea\Model;
 
 class ListImageDbsRequest extends Model
 {
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         return [];

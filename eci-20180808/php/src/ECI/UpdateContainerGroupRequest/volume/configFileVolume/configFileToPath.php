@@ -25,10 +25,6 @@ class configFileToPath extends Model
         'path'    => 'Path',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res            = [];

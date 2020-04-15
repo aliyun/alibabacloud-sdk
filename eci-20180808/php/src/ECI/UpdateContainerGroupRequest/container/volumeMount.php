@@ -39,10 +39,6 @@ class volumeMount extends Model
         'readOnly'  => 'ReadOnly',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res              = [];

@@ -25,12 +25,6 @@ class tags extends Model
         'value' => 'value',
     ];
 
-    public function validate()
-    {
-        Model::validateRequired('key', $this->key, true);
-        Model::validateRequired('value', $this->value, true);
-    }
-
     public function toMap()
     {
         $res          = [];

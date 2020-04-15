@@ -25,12 +25,6 @@ class addons extends Model
         'config' => 'config',
     ];
 
-    public function validate()
-    {
-        Model::validateRequired('name', $this->name, true);
-        Model::validateRequired('config', $this->config, true);
-    }
-
     public function toMap()
     {
         $res           = [];

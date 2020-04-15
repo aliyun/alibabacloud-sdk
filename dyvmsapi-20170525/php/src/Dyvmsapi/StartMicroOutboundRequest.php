@@ -95,10 +95,6 @@ class StartMicroOutboundRequest extends Model
         'appName'              => 'AppName',
     ];
 
-    public function validate()
-    {
-    }
-
     public function toMap()
     {
         $res                         = [];
