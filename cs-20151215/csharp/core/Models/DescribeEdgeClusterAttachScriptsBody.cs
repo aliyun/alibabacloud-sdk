@@ -14,25 +14,25 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public DescribeEdgeClusterAttachScriptsBodyOptions Options { get; set; }
         public class DescribeEdgeClusterAttachScriptsBodyOptions : TeaModel {
             [NameInMap("enableIptables")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public bool? EnableIptables { get; set; }
             [NameInMap("flannelIface")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string FlannelIface { get; set; }
             [NameInMap("gpuVersion")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string GpuVersion { get; set; }
             [NameInMap("manageRuntime")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public bool? ManageRuntime { get; set; }
             [NameInMap("nodeName")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string NodeName { get; set; }
             [NameInMap("nodeNamePrefix")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string NodeNamePrefix { get; set; }
             [NameInMap("nodeNameStrategy")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public bool? NodeNameStrategy { get; set; }
         };
 

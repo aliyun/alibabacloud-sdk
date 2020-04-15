@@ -10,11 +10,11 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class DescribeClustersQuery : TeaModel {
         [NameInMap("name")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string Name { get; set; }
 
         [NameInMap("clusterType")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ClusterType { get; set; }
 
     }
