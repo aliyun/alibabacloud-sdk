@@ -2825,7 +2825,46 @@ func (s *DescribeClustersRequest) SetQuery(v *DescribeClustersQuery) *DescribeCl
 }
 
 type DescribeClustersResponseBody struct {
-	Clusters []*DescribeClustersResponseBodyClusters `json:"clusters" xml:"clusters" require:"true" type:"Repeated"`
+	Name                   *string                                        `json:"name" xml:"name" require:"true"`
+	ClusterId              *string                                        `json:"cluster_id" xml:"cluster_id" require:"true"`
+	Size                   *int                                           `json:"size" xml:"size" require:"true"`
+	RegionId               *string                                        `json:"region_id" xml:"region_id" require:"true"`
+	State                  *string                                        `json:"state" xml:"state" require:"true"`
+	ClusterType            *string                                        `json:"cluster_type" xml:"cluster_type" require:"true"`
+	Created                *string                                        `json:"created" xml:"created" require:"true"`
+	Updated                *string                                        `json:"updated" xml:"updated" require:"true"`
+	InitVersion            *string                                        `json:"init_version" xml:"init_version" require:"true"`
+	CurrentVersion         *string                                        `json:"current_version" xml:"current_version" require:"true"`
+	MetaData               *string                                        `json:"meta_data" xml:"meta_data" require:"true"`
+	ResourceGroupId        *string                                        `json:"resource_group_id" xml:"resource_group_id" require:"true"`
+	InstanceType           *string                                        `json:"instance_type" xml:"instance_type" require:"true"`
+	VpcId                  *string                                        `json:"vpc_id" xml:"vpc_id" require:"true"`
+	VswitchId              *string                                        `json:"vswitch_id" xml:"vswitch_id" require:"true"`
+	VswitchCidr            *string                                        `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
+	DataDiskSize           *int                                           `json:"data_disk_size" xml:"data_disk_size" require:"true"`
+	DataDiskCategory       *string                                        `json:"data_disk_category" xml:"data_disk_category" require:"true"`
+	SecurityGroupId        *string                                        `json:"security_group_id" xml:"security_group_id" require:"true"`
+	ZoneId                 *string                                        `json:"zone_id" xml:"zone_id" require:"true"`
+	NetworkMode            *string                                        `json:"network_mode" xml:"network_mode" require:"true"`
+	SubnetCidr             *string                                        `json:"subnet_cidr" xml:"subnet_cidr" require:"true"`
+	MasterUrl              *string                                        `json:"master_url" xml:"master_url" require:"true"`
+	ExternalLoadbalancerId *string                                        `json:"external_loadbalancer_id" xml:"external_loadbalancer_id" require:"true"`
+	Port                   *int                                           `json:"port" xml:"port" require:"true"`
+	NodeStatus             *string                                        `json:"node_status" xml:"node_status" require:"true"`
+	ClusterHealthy         *string                                        `json:"cluster_healthy" xml:"cluster_healthy" require:"true"`
+	DockerVersion          *string                                        `json:"docker_version" xml:"docker_version" require:"true"`
+	SwarmMode              *bool                                          `json:"swarm_mode" xml:"swarm_mode" require:"true"`
+	GwBridge               *string                                        `json:"gw_bridge" xml:"gw_bridge" require:"true"`
+	PrivateZone            *bool                                          `json:"private_zone" xml:"private_zone" require:"true"`
+	Profile                *string                                        `json:"profile" xml:"profile" require:"true"`
+	DeletionProtection     *bool                                          `json:"deletion_protection" xml:"deletion_protection" require:"true"`
+	Capabilities           *string                                        `json:"capabilities" xml:"capabilities" require:"true"`
+	EnabledMigration       *bool                                          `json:"enabled_migration" xml:"enabled_migration" require:"true"`
+	NeedUpdateAgent        *bool                                          `json:"need_update_agent" xml:"need_update_agent" require:"true"`
+	Tags                   []*DescribeClustersResponseBodyTags            `json:"tags" xml:"tags" require:"true" type:"Repeated"`
+	Outputs                []*DescribeClustersResponseBodyOutputs         `json:"outputs" xml:"outputs" require:"true" type:"Repeated"`
+	UpgradeComponents      *DescribeClustersResponseBodyUpgradeComponents `json:"upgrade_components" xml:"upgrade_components" require:"true" type:"Struct"`
+	Parameters             *DescribeClustersResponseBodyParameters        `json:"parameters" xml:"parameters" require:"true" type:"Struct"`
 }
 
 func (s DescribeClustersResponseBody) String() string {
@@ -2836,332 +2875,276 @@ func (s DescribeClustersResponseBody) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponseBody) SetClusters(v []*DescribeClustersResponseBodyClusters) *DescribeClustersResponseBody {
-	s.Clusters = v
-	return s
-}
-
-type DescribeClustersResponseBodyClusters struct {
-	Name                   *string                                                `json:"name" xml:"name" require:"true"`
-	ClusterId              *string                                                `json:"cluster_id" xml:"cluster_id" require:"true"`
-	Size                   *int                                                   `json:"size" xml:"size" require:"true"`
-	RegionId               *string                                                `json:"region_id" xml:"region_id" require:"true"`
-	State                  *string                                                `json:"state" xml:"state" require:"true"`
-	ClusterType            *string                                                `json:"cluster_type" xml:"cluster_type" require:"true"`
-	Created                *string                                                `json:"created" xml:"created" require:"true"`
-	Updated                *string                                                `json:"updated" xml:"updated" require:"true"`
-	InitVersion            *string                                                `json:"init_version" xml:"init_version" require:"true"`
-	CurrentVersion         *string                                                `json:"current_version" xml:"current_version" require:"true"`
-	MetaData               *string                                                `json:"meta_data" xml:"meta_data" require:"true"`
-	ResourceGroupId        *string                                                `json:"resource_group_id" xml:"resource_group_id" require:"true"`
-	InstanceType           *string                                                `json:"instance_type" xml:"instance_type" require:"true"`
-	VpcId                  *string                                                `json:"vpc_id" xml:"vpc_id" require:"true"`
-	VswitchId              *string                                                `json:"vswitch_id" xml:"vswitch_id" require:"true"`
-	VswitchCidr            *string                                                `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
-	DataDiskSize           *int                                                   `json:"data_disk_size" xml:"data_disk_size" require:"true"`
-	DataDiskCategory       *string                                                `json:"data_disk_category" xml:"data_disk_category" require:"true"`
-	SecurityGroupId        *string                                                `json:"security_group_id" xml:"security_group_id" require:"true"`
-	ZoneId                 *string                                                `json:"zone_id" xml:"zone_id" require:"true"`
-	NetworkMode            *string                                                `json:"network_mode" xml:"network_mode" require:"true"`
-	SubnetCidr             *string                                                `json:"subnet_cidr" xml:"subnet_cidr" require:"true"`
-	MasterUrl              *string                                                `json:"master_url" xml:"master_url" require:"true"`
-	ExternalLoadbalancerId *string                                                `json:"external_loadbalancer_id" xml:"external_loadbalancer_id" require:"true"`
-	Port                   *int                                                   `json:"port" xml:"port" require:"true"`
-	NodeStatus             *string                                                `json:"node_status" xml:"node_status" require:"true"`
-	ClusterHealthy         *string                                                `json:"cluster_healthy" xml:"cluster_healthy" require:"true"`
-	DockerVersion          *string                                                `json:"docker_version" xml:"docker_version" require:"true"`
-	SwarmMode              *bool                                                  `json:"swarm_mode" xml:"swarm_mode" require:"true"`
-	GwBridge               *string                                                `json:"gw_bridge" xml:"gw_bridge" require:"true"`
-	PrivateZone            *bool                                                  `json:"private_zone" xml:"private_zone" require:"true"`
-	Profile                *string                                                `json:"profile" xml:"profile" require:"true"`
-	DeletionProtection     *bool                                                  `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	Capabilities           *string                                                `json:"capabilities" xml:"capabilities" require:"true"`
-	EnabledMigration       *bool                                                  `json:"enabled_migration" xml:"enabled_migration" require:"true"`
-	NeedUpdateAgent        *bool                                                  `json:"need_update_agent" xml:"need_update_agent" require:"true"`
-	Tags                   []*DescribeClustersResponseBodyClustersTags            `json:"tags" xml:"tags" require:"true" type:"Repeated"`
-	Outputs                []*DescribeClustersResponseBodyClustersOutputs         `json:"outputs" xml:"outputs" require:"true" type:"Repeated"`
-	UpgradeComponents      *DescribeClustersResponseBodyClustersUpgradeComponents `json:"upgrade_components" xml:"upgrade_components" require:"true" type:"Struct"`
-	Parameters             *DescribeClustersResponseBodyClustersParameters        `json:"parameters" xml:"parameters" require:"true" type:"Struct"`
-}
-
-func (s DescribeClustersResponseBodyClusters) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClustersResponseBodyClusters) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClustersResponseBodyClusters) SetName(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetName(v string) *DescribeClustersResponseBody {
 	s.Name = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetClusterId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetClusterId(v string) *DescribeClustersResponseBody {
 	s.ClusterId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetSize(v int) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetSize(v int) *DescribeClustersResponseBody {
 	s.Size = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetRegionId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetRegionId(v string) *DescribeClustersResponseBody {
 	s.RegionId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetState(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetState(v string) *DescribeClustersResponseBody {
 	s.State = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetClusterType(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetClusterType(v string) *DescribeClustersResponseBody {
 	s.ClusterType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetCreated(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetCreated(v string) *DescribeClustersResponseBody {
 	s.Created = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetUpdated(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetUpdated(v string) *DescribeClustersResponseBody {
 	s.Updated = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetInitVersion(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetInitVersion(v string) *DescribeClustersResponseBody {
 	s.InitVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetCurrentVersion(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetCurrentVersion(v string) *DescribeClustersResponseBody {
 	s.CurrentVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetMetaData(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetMetaData(v string) *DescribeClustersResponseBody {
 	s.MetaData = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetResourceGroupId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetResourceGroupId(v string) *DescribeClustersResponseBody {
 	s.ResourceGroupId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetInstanceType(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetInstanceType(v string) *DescribeClustersResponseBody {
 	s.InstanceType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetVpcId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetVpcId(v string) *DescribeClustersResponseBody {
 	s.VpcId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetVswitchId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetVswitchId(v string) *DescribeClustersResponseBody {
 	s.VswitchId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetVswitchCidr(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetVswitchCidr(v string) *DescribeClustersResponseBody {
 	s.VswitchCidr = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetDataDiskSize(v int) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetDataDiskSize(v int) *DescribeClustersResponseBody {
 	s.DataDiskSize = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetDataDiskCategory(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetDataDiskCategory(v string) *DescribeClustersResponseBody {
 	s.DataDiskCategory = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetSecurityGroupId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetSecurityGroupId(v string) *DescribeClustersResponseBody {
 	s.SecurityGroupId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetZoneId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetZoneId(v string) *DescribeClustersResponseBody {
 	s.ZoneId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetNetworkMode(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetNetworkMode(v string) *DescribeClustersResponseBody {
 	s.NetworkMode = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetSubnetCidr(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetSubnetCidr(v string) *DescribeClustersResponseBody {
 	s.SubnetCidr = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetMasterUrl(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetMasterUrl(v string) *DescribeClustersResponseBody {
 	s.MasterUrl = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetExternalLoadbalancerId(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetExternalLoadbalancerId(v string) *DescribeClustersResponseBody {
 	s.ExternalLoadbalancerId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetPort(v int) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetPort(v int) *DescribeClustersResponseBody {
 	s.Port = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetNodeStatus(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetNodeStatus(v string) *DescribeClustersResponseBody {
 	s.NodeStatus = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetClusterHealthy(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetClusterHealthy(v string) *DescribeClustersResponseBody {
 	s.ClusterHealthy = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetDockerVersion(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetDockerVersion(v string) *DescribeClustersResponseBody {
 	s.DockerVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetSwarmMode(v bool) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetSwarmMode(v bool) *DescribeClustersResponseBody {
 	s.SwarmMode = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetGwBridge(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetGwBridge(v string) *DescribeClustersResponseBody {
 	s.GwBridge = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetPrivateZone(v bool) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetPrivateZone(v bool) *DescribeClustersResponseBody {
 	s.PrivateZone = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetProfile(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetProfile(v string) *DescribeClustersResponseBody {
 	s.Profile = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetDeletionProtection(v bool) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetDeletionProtection(v bool) *DescribeClustersResponseBody {
 	s.DeletionProtection = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetCapabilities(v string) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetCapabilities(v string) *DescribeClustersResponseBody {
 	s.Capabilities = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetEnabledMigration(v bool) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetEnabledMigration(v bool) *DescribeClustersResponseBody {
 	s.EnabledMigration = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetNeedUpdateAgent(v bool) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetNeedUpdateAgent(v bool) *DescribeClustersResponseBody {
 	s.NeedUpdateAgent = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetTags(v []*DescribeClustersResponseBodyClustersTags) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetTags(v []*DescribeClustersResponseBodyTags) *DescribeClustersResponseBody {
 	s.Tags = v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetOutputs(v []*DescribeClustersResponseBodyClustersOutputs) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetOutputs(v []*DescribeClustersResponseBodyOutputs) *DescribeClustersResponseBody {
 	s.Outputs = v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetUpgradeComponents(v *DescribeClustersResponseBodyClustersUpgradeComponents) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetUpgradeComponents(v *DescribeClustersResponseBodyUpgradeComponents) *DescribeClustersResponseBody {
 	s.UpgradeComponents = v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClusters) SetParameters(v *DescribeClustersResponseBodyClustersParameters) *DescribeClustersResponseBodyClusters {
+func (s *DescribeClustersResponseBody) SetParameters(v *DescribeClustersResponseBodyParameters) *DescribeClustersResponseBody {
 	s.Parameters = v
 	return s
 }
 
-type DescribeClustersResponseBodyClustersTags struct {
+type DescribeClustersResponseBodyTags struct {
 	Key   *string `json:"key" xml:"key" require:"true"`
 	Value *string `json:"value" xml:"value" require:"true"`
 }
 
-func (s DescribeClustersResponseBodyClustersTags) String() string {
+func (s DescribeClustersResponseBodyTags) String() string {
 	return tea.Prettify(s)
 }
 
-func (s DescribeClustersResponseBodyClustersTags) GoString() string {
+func (s DescribeClustersResponseBodyTags) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponseBodyClustersTags) SetKey(v string) *DescribeClustersResponseBodyClustersTags {
+func (s *DescribeClustersResponseBodyTags) SetKey(v string) *DescribeClustersResponseBodyTags {
 	s.Key = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersTags) SetValue(v string) *DescribeClustersResponseBodyClustersTags {
+func (s *DescribeClustersResponseBodyTags) SetValue(v string) *DescribeClustersResponseBodyTags {
 	s.Value = &v
 	return s
 }
 
-type DescribeClustersResponseBodyClustersOutputs struct {
+type DescribeClustersResponseBodyOutputs struct {
 	Description *string `json:"Description" xml:"Description" require:"true"`
 	OutputKey   *string `json:"OutputKey" xml:"OutputKey" require:"true"`
 	OutputValue *string `json:"OutputValue" xml:"OutputValue" require:"true"`
 }
 
-func (s DescribeClustersResponseBodyClustersOutputs) String() string {
+func (s DescribeClustersResponseBodyOutputs) String() string {
 	return tea.Prettify(s)
 }
 
-func (s DescribeClustersResponseBodyClustersOutputs) GoString() string {
+func (s DescribeClustersResponseBodyOutputs) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponseBodyClustersOutputs) SetDescription(v string) *DescribeClustersResponseBodyClustersOutputs {
+func (s *DescribeClustersResponseBodyOutputs) SetDescription(v string) *DescribeClustersResponseBodyOutputs {
 	s.Description = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersOutputs) SetOutputKey(v string) *DescribeClustersResponseBodyClustersOutputs {
+func (s *DescribeClustersResponseBodyOutputs) SetOutputKey(v string) *DescribeClustersResponseBodyOutputs {
 	s.OutputKey = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersOutputs) SetOutputValue(v string) *DescribeClustersResponseBodyClustersOutputs {
+func (s *DescribeClustersResponseBodyOutputs) SetOutputValue(v string) *DescribeClustersResponseBodyOutputs {
 	s.OutputValue = &v
 	return s
 }
 
-type DescribeClustersResponseBodyClustersUpgradeComponents struct {
-	Kubernetes *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes `json:"Kubernetes" xml:"Kubernetes" require:"true" type:"Struct"`
+type DescribeClustersResponseBodyUpgradeComponents struct {
+	Kubernetes *DescribeClustersResponseBodyUpgradeComponentsKubernetes `json:"Kubernetes" xml:"Kubernetes" require:"true" type:"Struct"`
 }
 
-func (s DescribeClustersResponseBodyClustersUpgradeComponents) String() string {
+func (s DescribeClustersResponseBodyUpgradeComponents) String() string {
 	return tea.Prettify(s)
 }
 
-func (s DescribeClustersResponseBodyClustersUpgradeComponents) GoString() string {
+func (s DescribeClustersResponseBodyUpgradeComponents) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponents) SetKubernetes(v *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) *DescribeClustersResponseBodyClustersUpgradeComponents {
+func (s *DescribeClustersResponseBodyUpgradeComponents) SetKubernetes(v *DescribeClustersResponseBodyUpgradeComponentsKubernetes) *DescribeClustersResponseBodyUpgradeComponents {
 	s.Kubernetes = v
 	return s
 }
 
-type DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes struct {
+type DescribeClustersResponseBodyUpgradeComponentsKubernetes struct {
 	ComponentName  *string `json:"component_name" xml:"component_name" require:"true"`
 	Version        *string `json:"version" xml:"version" require:"true"`
 	NextVersion    *string `json:"next_version" xml:"next_version" require:"true"`
@@ -3177,80 +3160,80 @@ type DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes struct {
 	Template       *string `json:"template" xml:"template" require:"true"`
 }
 
-func (s DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) String() string {
+func (s DescribeClustersResponseBodyUpgradeComponentsKubernetes) String() string {
 	return tea.Prettify(s)
 }
 
-func (s DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) GoString() string {
+func (s DescribeClustersResponseBodyUpgradeComponentsKubernetes) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetComponentName(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetComponentName(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.ComponentName = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetVersion(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetVersion(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Version = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetNextVersion(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetNextVersion(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.NextVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetChanged(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetChanged(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Changed = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetCanUpgrade(v bool) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetCanUpgrade(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.CanUpgrade = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetForce(v bool) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetForce(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Force = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetPolicy(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetPolicy(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Policy = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetExtraVars(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetExtraVars(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.ExtraVars = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetReadyToUpgrade(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetReadyToUpgrade(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.ReadyToUpgrade = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetMessage(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetMessage(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Message = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetExist(v bool) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetExist(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Exist = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetRequired(v bool) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetRequired(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Required = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes) SetTemplate(v string) *DescribeClustersResponseBodyClustersUpgradeComponentsKubernetes {
+func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetTemplate(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
 	s.Template = &v
 	return s
 }
 
-type DescribeClustersResponseBodyClustersParameters struct {
+type DescribeClustersResponseBodyParameters struct {
 	AdjustmentType           *string `json:"AdjustmentType" xml:"AdjustmentType" require:"true"`
 	AuditFlags               *string `json:"AuditFlags" xml:"AuditFlags" require:"true"`
 	BetaVersion              *string `json:"BetaVersion" xml:"BetaVersion" require:"true"`
@@ -3347,487 +3330,487 @@ type DescribeClustersResponseBodyClustersParameters struct {
 	ZoneId                   *string `json:"ZoneId" xml:"ZoneId" require:"true"`
 }
 
-func (s DescribeClustersResponseBodyClustersParameters) String() string {
+func (s DescribeClustersResponseBodyParameters) String() string {
 	return tea.Prettify(s)
 }
 
-func (s DescribeClustersResponseBodyClustersParameters) GoString() string {
+func (s DescribeClustersResponseBodyParameters) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetAdjustmentType(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetAdjustmentType(v string) *DescribeClustersResponseBodyParameters {
 	s.AdjustmentType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetAuditFlags(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetAuditFlags(v string) *DescribeClustersResponseBodyParameters {
 	s.AuditFlags = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetBetaVersion(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetBetaVersion(v string) *DescribeClustersResponseBodyParameters {
 	s.BetaVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetCA(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetCA(v string) *DescribeClustersResponseBodyParameters {
 	s.CA = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetClientCA(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetClientCA(v string) *DescribeClustersResponseBodyParameters {
 	s.ClientCA = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetCloudMonitorFlags(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetCloudMonitorFlags(v string) *DescribeClustersResponseBodyParameters {
 	s.CloudMonitorFlags = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetCloudMonitorVersion(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetCloudMonitorVersion(v string) *DescribeClustersResponseBodyParameters {
 	s.CloudMonitorVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetContainerCIDR(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetContainerCIDR(v string) *DescribeClustersResponseBodyParameters {
 	s.ContainerCIDR = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetDisableAddons(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetDisableAddons(v string) *DescribeClustersResponseBodyParameters {
 	s.DisableAddons = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetDockerVersion(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetDockerVersion(v string) *DescribeClustersResponseBodyParameters {
 	s.DockerVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetESSDeletionProtection(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetESSDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
 	s.ESSDeletionProtection = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetEip(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetEip(v string) *DescribeClustersResponseBodyParameters {
 	s.Eip = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetEipAddress(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetEipAddress(v string) *DescribeClustersResponseBodyParameters {
 	s.EipAddress = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetElasticSearchHost(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetElasticSearchHost(v string) *DescribeClustersResponseBodyParameters {
 	s.ElasticSearchHost = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetElasticSearchPass(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetElasticSearchPass(v string) *DescribeClustersResponseBodyParameters {
 	s.ElasticSearchPass = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetElasticSearchPort(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetElasticSearchPort(v string) *DescribeClustersResponseBodyParameters {
 	s.ElasticSearchPort = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetElasticSearchUser(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetElasticSearchUser(v string) *DescribeClustersResponseBodyParameters {
 	s.ElasticSearchUser = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetEtcdVersion(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetEtcdVersion(v string) *DescribeClustersResponseBodyParameters {
 	s.EtcdVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetExecuteVersion(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetExecuteVersion(v string) *DescribeClustersResponseBodyParameters {
 	s.ExecuteVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetGPUFlags(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetGPUFlags(v string) *DescribeClustersResponseBodyParameters {
 	s.GPUFlags = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetHealthCheckType(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetHealthCheckType(v string) *DescribeClustersResponseBodyParameters {
 	s.HealthCheckType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetImageId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetImageId(v string) *DescribeClustersResponseBodyParameters {
 	s.ImageId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetK8SMasterPolicyDocument(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetK8SMasterPolicyDocument(v string) *DescribeClustersResponseBodyParameters {
 	s.K8SMasterPolicyDocument = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetK8sWorkerPolicyDocument(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetK8sWorkerPolicyDocument(v string) *DescribeClustersResponseBodyParameters {
 	s.K8sWorkerPolicyDocument = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetKey(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetKey(v string) *DescribeClustersResponseBodyParameters {
 	s.Key = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetKeyPair(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetKeyPair(v string) *DescribeClustersResponseBodyParameters {
 	s.KeyPair = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetKubernetesVersion(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetKubernetesVersion(v string) *DescribeClustersResponseBodyParameters {
 	s.KubernetesVersion = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetLoggingType(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetLoggingType(v string) *DescribeClustersResponseBodyParameters {
 	s.LoggingType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterAmounts(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterAmounts(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterAmounts = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterAutoRenew(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterAutoRenew(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterAutoRenew = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterAutoRenewPeriod(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterAutoRenewPeriod(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterAutoRenewPeriod = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterCount(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterCount(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterCount = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterDataDisk(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterDataDisk(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterDataDisk = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterDataDisks(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterDataDisks(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterDataDisks = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterDeletionProtection(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterDeletionProtection = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterDeploymentSetId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterDeploymentSetId(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterDeploymentSetId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterHpcClusterId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterHpcClusterId(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterHpcClusterId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterImageId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterImageId(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterImageId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterInstanceChargeType(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterInstanceChargeType(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterInstanceChargeType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterInstanceTypes(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterInstanceTypes(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterInstanceTypes = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterKeyPair(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterKeyPair(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterKeyPair = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterLoginPassword(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterLoginPassword(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterLoginPassword = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterPeriod(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterPeriod(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterPeriod = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterPeriodUnit(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterPeriodUnit(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterPeriodUnit = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterSlbSShHealthCheck(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterSlbSShHealthCheck(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterSlbSShHealthCheck = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterSnapshotPolicyId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterSnapshotPolicyId(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterSnapshotPolicyId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterSystemDiskCategory(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterSystemDiskCategory(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterSystemDiskCategory = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterSystemDiskSize(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterSystemDiskSize(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterSystemDiskSize = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetMasterVSwitchIds(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetMasterVSwitchIds(v string) *DescribeClustersResponseBodyParameters {
 	s.MasterVSwitchIds = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetNatGateway(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetNatGateway(v string) *DescribeClustersResponseBodyParameters {
 	s.NatGateway = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetNatGatewayId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetNatGatewayId(v string) *DescribeClustersResponseBodyParameters {
 	s.NatGatewayId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetNetwork(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetNetwork(v string) *DescribeClustersResponseBodyParameters {
 	s.Network = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetNodeCIDRMask(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetNodeCIDRMask(v string) *DescribeClustersResponseBodyParameters {
 	s.NodeCIDRMask = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetNodeNameMode(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetNodeNameMode(v string) *DescribeClustersResponseBodyParameters {
 	s.NodeNameMode = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetNumOfNodes(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetNumOfNodes(v string) *DescribeClustersResponseBodyParameters {
 	s.NumOfNodes = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetPassword(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetPassword(v string) *DescribeClustersResponseBodyParameters {
 	s.Password = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetPodVswitchIds(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetPodVswitchIds(v string) *DescribeClustersResponseBodyParameters {
 	s.PodVswitchIds = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetProtectedInstances(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetProtectedInstances(v string) *DescribeClustersResponseBodyParameters {
 	s.ProtectedInstances = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetProxyMode(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetProxyMode(v string) *DescribeClustersResponseBodyParameters {
 	s.ProxyMode = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetPublicSLB(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetPublicSLB(v string) *DescribeClustersResponseBodyParameters {
 	s.PublicSLB = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetRemoveInstanceIds(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetRemoveInstanceIds(v string) *DescribeClustersResponseBodyParameters {
 	s.RemoveInstanceIds = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetResourceGroupId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetResourceGroupId(v string) *DescribeClustersResponseBodyParameters {
 	s.ResourceGroupId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSLBDeletionProtection(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSLBDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
 	s.SLBDeletionProtection = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSLSProjectName(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSLSProjectName(v string) *DescribeClustersResponseBodyParameters {
 	s.SLSProjectName = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSNatEntry(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSNatEntry(v string) *DescribeClustersResponseBodyParameters {
 	s.SNatEntry = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSSHFlags(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSSHFlags(v string) *DescribeClustersResponseBodyParameters {
 	s.SSHFlags = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSecurityGroupId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSecurityGroupId(v string) *DescribeClustersResponseBodyParameters {
 	s.SecurityGroupId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetServiceCIDR(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetServiceCIDR(v string) *DescribeClustersResponseBodyParameters {
 	s.ServiceCIDR = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSetUpArgs(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSetUpArgs(v string) *DescribeClustersResponseBodyParameters {
 	s.SetUpArgs = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetSnatTableId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetSnatTableId(v string) *DescribeClustersResponseBodyParameters {
 	s.SnatTableId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetTags(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetTags(v string) *DescribeClustersResponseBodyParameters {
 	s.Tags = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetUserCA(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetUserCA(v string) *DescribeClustersResponseBodyParameters {
 	s.UserCA = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetUserData(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetUserData(v string) *DescribeClustersResponseBodyParameters {
 	s.UserData = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetVpcId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetVpcId(v string) *DescribeClustersResponseBodyParameters {
 	s.VpcId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWillReplace(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWillReplace(v string) *DescribeClustersResponseBodyParameters {
 	s.WillReplace = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerAutoRenew(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerAutoRenew(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerAutoRenew = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerAutoRenewPeriod(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerAutoRenewPeriod(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerAutoRenewPeriod = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerDataDisk(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerDataDisk(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerDataDisk = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerDataDisks(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerDataDisks(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerDataDisks = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerDeletionProtection(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerDeletionProtection = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerDeploymentSetId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerDeploymentSetId(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerDeploymentSetId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerHpcClusterId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerHpcClusterId(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerHpcClusterId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerImageId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerImageId(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerImageId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerInstanceChargeType(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerInstanceChargeType(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerInstanceChargeType = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerInstanceTypes(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerInstanceTypes(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerInstanceTypes = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerKeyPair(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerKeyPair(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerKeyPair = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerLoginPassword(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerLoginPassword(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerLoginPassword = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerPeriod(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerPeriod(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerPeriod = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerPeriodUnit(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerPeriodUnit(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerPeriodUnit = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerSnapshotPolicyId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerSnapshotPolicyId(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerSnapshotPolicyId = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerSystemDiskCategory(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerSystemDiskCategory(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerSystemDiskCategory = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerSystemDiskSize(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerSystemDiskSize(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerSystemDiskSize = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetWorkerVSwitchIds(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetWorkerVSwitchIds(v string) *DescribeClustersResponseBodyParameters {
 	s.WorkerVSwitchIds = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBodyClustersParameters) SetZoneId(v string) *DescribeClustersResponseBodyClustersParameters {
+func (s *DescribeClustersResponseBodyParameters) SetZoneId(v string) *DescribeClustersResponseBodyParameters {
 	s.ZoneId = &v
 	return s
 }
 
 type DescribeClustersResponse struct {
-	Headers map[string]string             `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClustersResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]string               `json:"headers" xml:"headers" require:"true"`
+	Body    []*DescribeClustersResponseBody `json:"body" xml:"body" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClustersResponse) String() string {
@@ -3843,7 +3826,7 @@ func (s *DescribeClustersResponse) SetHeaders(v map[string]string) *DescribeClus
 	return s
 }
 
-func (s *DescribeClustersResponse) SetBody(v *DescribeClustersResponseBody) *DescribeClustersResponse {
+func (s *DescribeClustersResponse) SetBody(v []*DescribeClustersResponseBody) *DescribeClustersResponse {
 	s.Body = v
 	return s
 }
