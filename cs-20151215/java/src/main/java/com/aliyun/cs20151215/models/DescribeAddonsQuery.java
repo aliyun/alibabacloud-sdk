@@ -5,7 +5,6 @@ import com.aliyun.tea.*;
 
 public class DescribeAddonsQuery extends TeaModel {
     @NameInMap("region")
-    @Validation(required = true)
     public String region;
 
     public static DescribeAddonsQuery build(java.util.Map<String, ?> map) throws Exception {

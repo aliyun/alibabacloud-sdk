@@ -5,7 +5,6 @@ import com.aliyun.tea.*;
 
 public class DescribeClusterUserKubeconfigQuery extends TeaModel {
     @NameInMap("PrivateIpAddress")
-    @Validation(required = true)
     public Boolean privateIpAddress;
 
     public static DescribeClusterUserKubeconfigQuery build(java.util.Map<String, ?> map) throws Exception {

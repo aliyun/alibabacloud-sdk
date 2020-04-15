@@ -5,11 +5,9 @@ import com.aliyun.tea.*;
 
 public class DescribeClustersQuery extends TeaModel {
     @NameInMap("name")
-    @Validation(required = true)
     public String name;
 
     @NameInMap("clusterType")
-    @Validation(required = true)
     public String clusterType;
 
     public static DescribeClustersQuery build(java.util.Map<String, ?> map) throws Exception {

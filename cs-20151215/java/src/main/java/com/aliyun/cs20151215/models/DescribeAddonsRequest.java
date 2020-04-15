@@ -4,12 +4,11 @@ package com.aliyun.cs20151215.models;
 import com.aliyun.tea.*;
 
 public class DescribeAddonsRequest extends TeaModel {
-    @NameInMap("query")
-    @Validation(required = true)
-    public DescribeAddonsQuery query;
-
     @NameInMap("headers")
     public java.util.Map<String, String> headers;
+
+    @NameInMap("query")
+    public DescribeAddonsQuery query;
 
     public static DescribeAddonsRequest build(java.util.Map<String, ?> map) throws Exception {
         DescribeAddonsRequest self = new DescribeAddonsRequest();
