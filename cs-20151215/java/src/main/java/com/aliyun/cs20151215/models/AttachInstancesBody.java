@@ -5,15 +5,12 @@ import com.aliyun.tea.*;
 
 public class AttachInstancesBody extends TeaModel {
     @NameInMap("format_disk")
-    @Validation(required = true)
     public Boolean formatDisk;
 
     @NameInMap("keep_instance_name")
-    @Validation(required = true)
     public Boolean keepInstanceName;
 
     @NameInMap("cpu_policy")
-    @Validation(required = true)
     public String cpuPolicy;
 
     @NameInMap("key_pair")
@@ -39,11 +36,9 @@ public class AttachInstancesBody extends TeaModel {
 
     public static class AttachInstancesBodyTags extends TeaModel {
         @NameInMap("key")
-        @Validation(required = true)
         public String key;
 
         @NameInMap("value")
-        @Validation(required = true)
         public String value;
 
         public static AttachInstancesBodyTags build(java.util.Map<String, ?> map) throws Exception {

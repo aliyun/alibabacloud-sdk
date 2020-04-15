@@ -4,12 +4,12 @@ package com.aliyun.cs20151215.models;
 import com.aliyun.tea.*;
 
 public class DescribeEdgeClusterAttachScriptsRequest extends TeaModel {
+    @NameInMap("headers")
+    public java.util.Map<String, String> headers;
+
     @NameInMap("query")
     @Validation(required = true)
     public DescribeEdgeClusterAttachScriptsQuery query;
-
-    @NameInMap("headers")
-    public java.util.Map<String, String> headers;
 
     @NameInMap("body")
     @Validation(required = true)

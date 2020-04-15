@@ -4,12 +4,11 @@ package com.aliyun.cs20151215.models;
 import com.aliyun.tea.*;
 
 public class DescribeClustersRequest extends TeaModel {
-    @NameInMap("query")
-    @Validation(required = true)
-    public DescribeClustersQuery query;
-
     @NameInMap("headers")
     public java.util.Map<String, String> headers;
+
+    @NameInMap("query")
+    public DescribeClustersQuery query;
 
     public static DescribeClustersRequest build(java.util.Map<String, ?> map) throws Exception {
         DescribeClustersRequest self = new DescribeClustersRequest();

@@ -5,7 +5,6 @@ import com.aliyun.tea.*;
 
 public class DeleteClusterNodesBody extends TeaModel {
     @NameInMap("release_node")
-    @Validation(required = true)
     public String releaseNode;
 
     @NameInMap("nodes")
