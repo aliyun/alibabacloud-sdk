@@ -46,6 +46,10 @@ class AddRtcAccountRequest extends Model
         'deviceId'             => 'DeviceId',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

@@ -74,6 +74,10 @@ class DescribeRecordDataRequest extends Model
         'secLevel'             => 'SecLevel',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

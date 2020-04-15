@@ -25,6 +25,10 @@ class DescribeClustersQuery extends Model
         'clusterType' => 'clusterType',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                = [];

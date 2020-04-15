@@ -74,6 +74,10 @@ class QueryRobotTaskListRequest extends Model
         'pageNo'               => 'PageNo',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

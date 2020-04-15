@@ -53,6 +53,10 @@ class ExportContainerGroupTemplateRequest extends Model
         'containerGroupId'     => 'ContainerGroupId',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

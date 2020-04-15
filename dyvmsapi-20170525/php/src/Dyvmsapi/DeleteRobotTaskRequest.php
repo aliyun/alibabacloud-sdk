@@ -46,6 +46,10 @@ class DeleteRobotTaskRequest extends Model
         'taskId'               => 'TaskId',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

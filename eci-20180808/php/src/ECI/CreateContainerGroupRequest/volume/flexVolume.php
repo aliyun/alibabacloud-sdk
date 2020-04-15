@@ -32,6 +32,10 @@ class flexVolume extends Model
         'options' => 'Options',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res            = [];

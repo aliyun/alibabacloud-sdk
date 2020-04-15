@@ -25,6 +25,10 @@ class DescribeClusterUserKubeconfigRequest extends Model
         'query'   => 'query',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res            = [];

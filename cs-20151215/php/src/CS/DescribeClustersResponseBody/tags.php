@@ -2,7 +2,7 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\CS\V20151215\CS\ScaleOutClusterBody;
+namespace AlibabaCloud\SDK\CS\V20151215\CS\DescribeClustersResponseBody;
 
 use AlibabaCloud\Tea\Model;
 
@@ -27,6 +27,8 @@ class tags extends Model
 
     public function validate()
     {
+        Model::validateRequired('key', $this->key, true);
+        Model::validateRequired('value', $this->value, true);
     }
 
     public function toMap()

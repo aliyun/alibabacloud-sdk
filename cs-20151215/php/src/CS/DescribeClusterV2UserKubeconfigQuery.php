@@ -18,6 +18,10 @@ class DescribeClusterV2UserKubeconfigQuery extends Model
         'privateIpAddress' => 'PrivateIpAddress',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                     = [];

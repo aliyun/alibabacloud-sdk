@@ -109,6 +109,10 @@ class ListRobotTaskCallsRequest extends Model
         'called'               => 'Called',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

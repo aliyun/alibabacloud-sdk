@@ -25,6 +25,10 @@ class tags extends Model
         'value' => 'value',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res          = [];

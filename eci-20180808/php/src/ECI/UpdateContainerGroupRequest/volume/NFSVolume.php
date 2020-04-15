@@ -32,6 +32,10 @@ class NFSVolume extends Model
         'readOnly' => 'ReadOnly',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res             = [];

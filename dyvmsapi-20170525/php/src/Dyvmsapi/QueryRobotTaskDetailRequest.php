@@ -46,6 +46,10 @@ class QueryRobotTaskDetailRequest extends Model
         'id'                   => 'Id',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

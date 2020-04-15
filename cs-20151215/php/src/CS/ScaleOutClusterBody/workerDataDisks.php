@@ -32,6 +32,10 @@ class workerDataDisks extends Model
         'encrypted' => 'encrypted',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res              = [];

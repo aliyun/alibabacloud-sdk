@@ -53,6 +53,10 @@ class QueryVoipNumberBindInfosRequest extends Model
         'voipId'               => 'VoipId',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];
