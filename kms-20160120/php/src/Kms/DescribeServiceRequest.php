@@ -8,6 +8,10 @@ use AlibabaCloud\Tea\Model;
 
 class DescribeServiceRequest extends Model
 {
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         return [];

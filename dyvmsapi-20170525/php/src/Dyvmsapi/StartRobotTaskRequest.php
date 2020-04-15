@@ -53,6 +53,10 @@ class StartRobotTaskRequest extends Model
         'scheduleTime'         => 'ScheduleTime',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

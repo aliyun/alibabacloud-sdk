@@ -60,6 +60,10 @@ class GetRandomPasswordRequest extends Model
         'requireEachIncludedType' => 'RequireEachIncludedType',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                            = [];

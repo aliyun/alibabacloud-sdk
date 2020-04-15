@@ -32,6 +32,10 @@ class taints extends Model
         'effect' => 'effect',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res           = [];

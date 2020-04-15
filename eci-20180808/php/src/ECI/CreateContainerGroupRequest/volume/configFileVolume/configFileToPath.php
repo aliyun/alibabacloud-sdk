@@ -32,6 +32,10 @@ class configFileToPath extends Model
         'mode'    => 'Mode',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res            = [];

@@ -18,6 +18,10 @@ class securityContext extends Model
         'sysctl' => 'Sysctl',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res           = [];

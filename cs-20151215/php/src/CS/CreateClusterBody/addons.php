@@ -25,6 +25,10 @@ class addons extends Model
         'config' => 'config',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res           = [];

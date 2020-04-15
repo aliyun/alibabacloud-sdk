@@ -18,6 +18,10 @@ class DescribeAddonsQuery extends Model
         'region' => 'region',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res           = [];

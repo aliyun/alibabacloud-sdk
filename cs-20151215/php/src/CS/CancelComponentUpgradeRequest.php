@@ -18,6 +18,10 @@ class CancelComponentUpgradeRequest extends Model
         'headers' => 'headers',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res            = [];

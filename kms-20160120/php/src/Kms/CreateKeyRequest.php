@@ -60,6 +60,10 @@ class CreateKeyRequest extends Model
         'keySpec'                 => 'KeySpec',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                            = [];

@@ -46,6 +46,10 @@ class QueryRobotInfoListRequest extends Model
         'auditStatus'          => 'AuditStatus',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

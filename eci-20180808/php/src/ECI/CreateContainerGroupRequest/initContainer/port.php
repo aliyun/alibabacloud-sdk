@@ -25,6 +25,10 @@ class port extends Model
         'port'     => 'Port',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res             = [];

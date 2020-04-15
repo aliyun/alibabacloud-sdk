@@ -39,6 +39,10 @@ class QueryRobotv2AllListRequest extends Model
         'resourceOwnerId'      => 'ResourceOwnerId',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

@@ -32,6 +32,10 @@ class ListSecretsRequest extends Model
         'pageSize'   => 'PageSize',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res               = [];

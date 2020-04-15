@@ -8,6 +8,10 @@ use AlibabaCloud\Tea\Model;
 
 class ListFaceDbsRequest extends Model
 {
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         return [];

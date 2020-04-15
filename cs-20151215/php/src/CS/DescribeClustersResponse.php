@@ -17,7 +17,7 @@ class DescribeClustersResponse extends Model
     /**
      * @description body
      *
-     * @var DescribeClustersResponseBody
+     * @var array
      */
     public $body;
     protected $_name = [
@@ -35,7 +35,13 @@ class DescribeClustersResponse extends Model
     {
         $res            = [];
         $res['headers'] = $this->headers;
-        $res['body']    = null !== $this->body ? $this->body->toMap() : null;
+        $res['body']    = [];
+        if (null !== $this->body && \is_array($this->body)) {
+            $n = 0;
+            foreach ($this->body as $item) {
+                $res['body'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
 
         return $res;
     }
@@ -52,7 +58,13 @@ class DescribeClustersResponse extends Model
             $model->headers = $map['headers'];
         }
         if (isset($map['body'])) {
-            $model->body = DescribeClustersResponseBody::fromMap($map['body']);
+            if (!empty($map['body'])) {
+                $model->body = [];
+                $n           = 0;
+                foreach ($map['body'] as $item) {
+                    $model->body[$n++] = null !== $item ? DescribeClustersResponseBody::fromMap($item) : $item;
+                }
+            }
         }
 
         return $model;

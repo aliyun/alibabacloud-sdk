@@ -46,6 +46,10 @@ class CancelRobotTaskRequest extends Model
         'taskId'               => 'TaskId',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                         = [];

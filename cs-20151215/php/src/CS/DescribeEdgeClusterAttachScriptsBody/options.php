@@ -60,6 +60,10 @@ class options extends Model
         'nodeNameStrategy' => 'nodeNameStrategy',
     ];
 
+    public function validate()
+    {
+    }
+
     public function toMap()
     {
         $res                     = [];
