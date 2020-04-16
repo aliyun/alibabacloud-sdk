@@ -34,9 +34,6 @@ class workerDataDisks extends Model
 
     public function validate()
     {
-        Model::validateRequired('category', $this->category, true);
-        Model::validateRequired('size', $this->size, true);
-        Model::validateRequired('encrypted', $this->encrypted, true);
     }
 
     public function toMap()

@@ -27,7 +27,6 @@ class DeleteClusterNodesBody extends Model
 
     public function validate()
     {
-        Model::validateRequired('releaseNode', $this->releaseNode, true);
         Model::validateRequired('nodes', $this->nodes, true);
     }
 

@@ -9,32 +9,31 @@ use AlibabaCloud\Tea\Model;
 class DescribeAddonsRequest extends Model
 {
     /**
-     * @description query
-     *
-     * @var DescribeAddonsQuery
-     */
-    public $query;
-    /**
      * @description headers
      *
      * @var array
      */
     public $headers;
+    /**
+     * @description query
+     *
+     * @var DescribeAddonsQuery
+     */
+    public $query;
     protected $_name = [
-        'query'   => 'query',
         'headers' => 'headers',
+        'query'   => 'query',
     ];
 
     public function validate()
     {
-        Model::validateRequired('query', $this->query, true);
     }
 
     public function toMap()
     {
         $res            = [];
-        $res['query']   = null !== $this->query ? $this->query->toMap() : null;
         $res['headers'] = $this->headers;
+        $res['query']   = null !== $this->query ? $this->query->toMap() : null;
 
         return $res;
     }
@@ -47,11 +46,11 @@ class DescribeAddonsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['query'])) {
-            $model->query = DescribeAddonsQuery::fromMap($map['query']);
-        }
         if (isset($map['headers'])) {
             $model->headers = $map['headers'];
+        }
+        if (isset($map['query'])) {
+            $model->query = DescribeAddonsQuery::fromMap($map['query']);
         }
 
         return $model;

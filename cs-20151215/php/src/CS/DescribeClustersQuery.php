@@ -27,8 +27,6 @@ class DescribeClustersQuery extends Model
 
     public function validate()
     {
-        Model::validateRequired('name', $this->name, true);
-        Model::validateRequired('clusterType', $this->clusterType, true);
     }
 
     public function toMap()

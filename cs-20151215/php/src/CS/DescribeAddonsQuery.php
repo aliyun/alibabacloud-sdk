@@ -20,7 +20,6 @@ class DescribeAddonsQuery extends Model
 
     public function validate()
     {
-        Model::validateRequired('region', $this->region, true);
     }
 
     public function toMap()

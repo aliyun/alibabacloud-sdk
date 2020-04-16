@@ -9,17 +9,17 @@ use AlibabaCloud\Tea\Model;
 class DescribeEdgeClusterAttachScriptsRequest extends Model
 {
     /**
-     * @description query
-     *
-     * @var DescribeEdgeClusterAttachScriptsQuery
-     */
-    public $query;
-    /**
      * @description headers
      *
      * @var array
      */
     public $headers;
+    /**
+     * @description query
+     *
+     * @var DescribeEdgeClusterAttachScriptsQuery
+     */
+    public $query;
     /**
      * @description body
      *
@@ -27,8 +27,8 @@ class DescribeEdgeClusterAttachScriptsRequest extends Model
      */
     public $body;
     protected $_name = [
-        'query'   => 'query',
         'headers' => 'headers',
+        'query'   => 'query',
         'body'    => 'body',
     ];
 
@@ -41,8 +41,8 @@ class DescribeEdgeClusterAttachScriptsRequest extends Model
     public function toMap()
     {
         $res            = [];
-        $res['query']   = null !== $this->query ? $this->query->toMap() : null;
         $res['headers'] = $this->headers;
+        $res['query']   = null !== $this->query ? $this->query->toMap() : null;
         $res['body']    = null !== $this->body ? $this->body->toMap() : null;
 
         return $res;
@@ -56,11 +56,11 @@ class DescribeEdgeClusterAttachScriptsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['query'])) {
-            $model->query = DescribeEdgeClusterAttachScriptsQuery::fromMap($map['query']);
-        }
         if (isset($map['headers'])) {
             $model->headers = $map['headers'];
+        }
+        if (isset($map['query'])) {
+            $model->query = DescribeEdgeClusterAttachScriptsQuery::fromMap($map['query']);
         }
         if (isset($map['body'])) {
             $model->body = DescribeEdgeClusterAttachScriptsBody::fromMap($map['body']);
