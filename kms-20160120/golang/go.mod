@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Dysmsapi-20170525
+module github.com/alibabacloud-go/Kms-20160120
 
 require (
 	github.com/alibabacloud-go/endpoint-util v0.0.1

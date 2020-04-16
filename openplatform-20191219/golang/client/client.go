@@ -2,10 +2,10 @@
 package client
 
 import (
+	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
+	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
-	endpointutil "github.com/aliyun/endpoint-util/golang/service"
-	rpc "github.com/aliyun/tea-rpc/golang/client"
-	util "github.com/aliyun/tea-util/golang/service"
 )
 
 type AuthorizeFileUploadRequest struct {
