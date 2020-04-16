@@ -2951,7 +2951,7 @@ func (client *Client) AddFaceEntity(request *AddFaceEntityRequest, runtime *util
 		return
 	}
 	_result = &AddFaceEntityResponse{}
-	_body, _err := client.DoRequest("AddFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("AddFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2965,7 +2965,7 @@ func (client *Client) DeleteFaceEntity(request *DeleteFaceEntityRequest, runtime
 		return
 	}
 	_result = &DeleteFaceEntityResponse{}
-	_body, _err := client.DoRequest("DeleteFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2979,7 +2979,7 @@ func (client *Client) ListFaceEntities(request *ListFaceEntitiesRequest, runtime
 		return
 	}
 	_result = &ListFaceEntitiesResponse{}
-	_body, _err := client.DoRequest("ListFaceEntities", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListFaceEntities", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -2993,7 +2993,7 @@ func (client *Client) GetFaceEntity(request *GetFaceEntityRequest, runtime *util
 		return
 	}
 	_result = &GetFaceEntityResponse{}
-	_body, _err := client.DoRequest("GetFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("GetFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3007,7 +3007,7 @@ func (client *Client) UpdateFaceEntity(request *UpdateFaceEntityRequest, runtime
 		return
 	}
 	_result = &UpdateFaceEntityResponse{}
-	_body, _err := client.DoRequest("UpdateFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("UpdateFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3805,7 +3805,7 @@ func (client *Client) SearchFace(request *SearchFaceRequest, runtime *util.Runti
 		return
 	}
 	_result = &SearchFaceResponse{}
-	_body, _err := client.DoRequest("SearchFace", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("SearchFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3903,7 +3903,7 @@ func (client *Client) ListFaceDbs(request *ListFaceDbsRequest, runtime *util.Run
 		return
 	}
 	_result = &ListFaceDbsResponse{}
-	_body, _err := client.DoRequest("ListFaceDbs", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("ListFaceDbs", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3917,7 +3917,7 @@ func (client *Client) CreateFaceDb(request *CreateFaceDbRequest, runtime *util.R
 		return
 	}
 	_result = &CreateFaceDbResponse{}
-	_body, _err := client.DoRequest("CreateFaceDb", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("CreateFaceDb", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3931,7 +3931,7 @@ func (client *Client) DeleteFace(request *DeleteFaceRequest, runtime *util.Runti
 		return
 	}
 	_result = &DeleteFaceResponse{}
-	_body, _err := client.DoRequest("DeleteFace", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3945,7 +3945,7 @@ func (client *Client) DeleteFaceDb(request *DeleteFaceDbRequest, runtime *util.R
 		return
 	}
 	_result = &DeleteFaceDbResponse{}
-	_body, _err := client.DoRequest("DeleteFaceDb", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("DeleteFaceDb", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3959,7 +3959,7 @@ func (client *Client) AddFace(request *AddFaceRequest, runtime *util.RuntimeOpti
 		return
 	}
 	_result = &AddFaceResponse{}
-	_body, _err := client.DoRequest("AddFace", "HTTPS", "GET", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest("AddFace", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4589,7 +4589,7 @@ func (client *Client) GetEndpoint(productId string, regionId string, endpointRul
 		return _result, _err
 	}
 
-	if !util.Empty(endpointMap[regionId]) {
+	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
 		return _result, _err
 	}
 
