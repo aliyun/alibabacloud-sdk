@@ -7,13 +7,6 @@ English | [简体中文](Usage-CN.md)
 ## Requirements
 - It's necessary for you to make sure your system have installed a Go environment which is new than 1.12.x.
 
-## Installation
-If you use `go mod` to manage your dependence, you can use the following command:
-
-```sh
-$ go mod tidy
-```
-
 ## Quick Examples
 Before you begin, you need to sign up for an Alibaba Cloud account and retrieve your [Credentials](https://usercenter.console.aliyun.com/#/manage/ak).
 
@@ -23,8 +16,8 @@ import (
 	"fmt"
 	"strings"
 
-	facebody "github.com/aliyun/alibabacloud-sdk/facebody-20191230/golang/client"
-	util "github.com/aliyun/tea-util/golang/service"
+	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
+	util "github.com/alibabacloud-go/tea-util/service"
 )
 
 func main() {

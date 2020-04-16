@@ -4,6 +4,13 @@ English | [简体中文](README-CN.md)
 
 # Alibaba Cloud SDK for Imagerecog
 
+## Installation
+If you use `go mod` to manage your dependence, you can use the following command:
+
+```sh
+$ go get github.com/alibabacloud-go/Imagerecog-20190930
+```
+
 ## Issues
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new), Issues not conforming to the guidelines may be closed immediately.
 
