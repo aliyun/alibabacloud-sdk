@@ -2,15 +2,15 @@
 package client
 
 import (
+	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
+	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	fileform "github.com/alibabacloud-go/tea-fileform/service"
+	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
+	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
+	rpcutil "github.com/alibabacloud-go/tea-rpc-utils/service"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
+	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
-	oss "github.com/aliyun/alibabacloud-oss-sdk/golang/client"
-	ossutil "github.com/aliyun/alibabacloud-oss-sdk/util/golang/service"
-	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
-	openplatform "github.com/aliyun/alibabacloud-sdk/openplatform-20191219/golang/client"
-	endpointutil "github.com/aliyun/endpoint-util/golang/service"
-	fileform "github.com/aliyun/tea-fileform/golang/service"
-	rpc "github.com/aliyun/tea-rpc/golang/client"
-	util "github.com/aliyun/tea-util/golang/service"
 	"io"
 )
 
