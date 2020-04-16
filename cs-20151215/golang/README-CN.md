@@ -8,10 +8,9 @@
 - 您需要确保本地安装的 go 环境版本大于 1.12.0.
 
 ## 安装
-
 你可以使用 `go mod` 来管理你的依赖，
-```go
-  go mod tidy
+```sh
+  go get github.com/alibabacloud-go/CS-20151215
 ```
 
 ## 问题

@@ -3,6 +3,12 @@
 
 # Alibaba Cloud SDK for OpenPlatform
 
+## 安装
+你可以使用 `go mod` 来管理你的依赖，
+```sh
+  go get github.com/alibabacloud-go/OpenPlatform-20191219
+```
+
 ## 问题
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new)，不符合指南的问题可能会立即关闭。
 
