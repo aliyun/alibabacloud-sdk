@@ -15,17 +15,17 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public ListImageDbsResponse listImageDbs(ListImageDbsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListImageDbs", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new ListImageDbsResponse());
+        return TeaModel.toModel(this.doRequest("ListImageDbs", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new ListImageDbsResponse());
     }
 
     public ListImagesResponse listImages(ListImagesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListImages", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new ListImagesResponse());
+        return TeaModel.toModel(this.doRequest("ListImages", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new ListImagesResponse());
     }
 
     public SearchImageResponse searchImage(SearchImageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SearchImage", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new SearchImageResponse());
+        return TeaModel.toModel(this.doRequest("SearchImage", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new SearchImageResponse());
     }
 
     public SearchImageResponse searchImageAdvance(SearchImageAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
@@ -86,7 +86,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public AddImageResponse addImage(AddImageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddImage", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new AddImageResponse());
+        return TeaModel.toModel(this.doRequest("AddImage", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new AddImageResponse());
     }
 
     public AddImageResponse addImageAdvance(AddImageAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
@@ -147,17 +147,17 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DeleteImageDbResponse deleteImageDb(DeleteImageDbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageDbResponse());
+        return TeaModel.toModel(this.doRequest("DeleteImageDb", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageDbResponse());
     }
 
     public CreateImageDbResponse createImageDb(CreateImageDbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateImageDb", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new CreateImageDbResponse());
+        return TeaModel.toModel(this.doRequest("CreateImageDb", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new CreateImageDbResponse());
     }
 
     public DeleteImageResponse deleteImage(DeleteImageRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteImage", "HTTPS", "GET", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageResponse());
+        return TeaModel.toModel(this.doRequest("DeleteImage", "HTTPS", "POST", "2020-03-20", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageResponse());
     }
 
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {
@@ -165,7 +165,7 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
             return endpointMap.get("regionId");
         }
 

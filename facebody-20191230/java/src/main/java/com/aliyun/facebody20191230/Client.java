@@ -15,27 +15,27 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public AddFaceEntityResponse addFaceEntity(AddFaceEntityRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new AddFaceEntityResponse());
+        return TeaModel.toModel(this.doRequest("AddFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new AddFaceEntityResponse());
     }
 
     public DeleteFaceEntityResponse deleteFaceEntity(DeleteFaceEntityRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DeleteFaceEntityResponse());
+        return TeaModel.toModel(this.doRequest("DeleteFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DeleteFaceEntityResponse());
     }
 
     public ListFaceEntitiesResponse listFaceEntities(ListFaceEntitiesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListFaceEntities", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new ListFaceEntitiesResponse());
+        return TeaModel.toModel(this.doRequest("ListFaceEntities", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new ListFaceEntitiesResponse());
     }
 
     public GetFaceEntityResponse getFaceEntity(GetFaceEntityRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("GetFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new GetFaceEntityResponse());
+        return TeaModel.toModel(this.doRequest("GetFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new GetFaceEntityResponse());
     }
 
     public UpdateFaceEntityResponse updateFaceEntity(UpdateFaceEntityRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("UpdateFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new UpdateFaceEntityResponse());
+        return TeaModel.toModel(this.doRequest("UpdateFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new UpdateFaceEntityResponse());
     }
 
     public FaceMakeupResponse faceMakeup(FaceMakeupRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
@@ -528,7 +528,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public SearchFaceResponse searchFace(SearchFaceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SearchFace", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new SearchFaceResponse());
+        return TeaModel.toModel(this.doRequest("SearchFace", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new SearchFaceResponse());
     }
 
     public SearchFaceResponse searchFaceAdvance(SearchFaceAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
@@ -589,27 +589,27 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public ListFaceDbsResponse listFaceDbs(ListFaceDbsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListFaceDbs", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new ListFaceDbsResponse());
+        return TeaModel.toModel(this.doRequest("ListFaceDbs", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new ListFaceDbsResponse());
     }
 
     public CreateFaceDbResponse createFaceDb(CreateFaceDbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new CreateFaceDbResponse());
+        return TeaModel.toModel(this.doRequest("CreateFaceDb", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new CreateFaceDbResponse());
     }
 
     public DeleteFaceResponse deleteFace(DeleteFaceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteFace", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DeleteFaceResponse());
+        return TeaModel.toModel(this.doRequest("DeleteFace", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DeleteFaceResponse());
     }
 
     public DeleteFaceDbResponse deleteFaceDb(DeleteFaceDbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DeleteFaceDbResponse());
+        return TeaModel.toModel(this.doRequest("DeleteFaceDb", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new DeleteFaceDbResponse());
     }
 
     public AddFaceResponse addFace(AddFaceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddFace", "HTTPS", "GET", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new AddFaceResponse());
+        return TeaModel.toModel(this.doRequest("AddFace", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new AddFaceResponse());
     }
 
     public AddFaceResponse addFaceAdvance(AddFaceAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
@@ -993,7 +993,7 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
             return endpointMap.get("regionId");
         }
 
