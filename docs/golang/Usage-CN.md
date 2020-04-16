@@ -7,12 +7,6 @@
 ## 要求
 - 您需要确保本地安装的 go 环境版本大于 1.12.0.
 
-## 安装
-你可以使用 `go mod` 来管理你的依赖，
-```go
-  go mod tidy
-```
-
 ## 快速使用
 在您开始之前，您需要注册阿里云帐户并获取您的[凭证](https://usercenter.console.aliyun.com/#/manage/ak)。
 SDK 使用 [credentials-go](https://github.com/aliyun/credentials-go/blob/master/README-CN.md) 来管理凭证。
@@ -23,8 +17,8 @@ import (
 	"fmt"
 	"strings"
 
-	facebody "github.com/aliyun/alibabacloud-sdk/facebody-20191230/golang/client"
-	util "github.com/aliyun/tea-util/golang/service"
+	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
+	util "github.com/alibabacloud-go/tea-util/service"
 )
 
 func main() {
