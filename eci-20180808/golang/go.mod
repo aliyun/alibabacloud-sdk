@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Eci-20180808
+module github.com/alibabacloud-go/ECI-20180808
 
 require (
 	github.com/alibabacloud-go/tea v0.0.12

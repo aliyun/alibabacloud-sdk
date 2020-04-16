@@ -2,10 +2,10 @@
 package client
 
 import (
+	rpcutil "github.com/alibabacloud-go/tea-rpc-utils/service"
+	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
-	rpcutil "github.com/aliyun/alibabacloud-rpc-util-sdk/golang/service"
 	credential "github.com/aliyun/credentials-go/credentials"
-	util "github.com/aliyun/tea-util/golang/service"
 )
 
 type Config struct {
@@ -747,11 +747,11 @@ type Client struct {
 
 func NewClient(config *Config) (*Client, error) {
 	client := new(Client)
-	err := client.init(config)
+	err := client.Init(config)
 	return client, err
 }
 
-func (client *Client) init(config *Config) (_err error) {
+func (client *Client) Init(config *Config) (_err error) {
 	if util.IsUnset(tea.ToMap(config)) {
 		_err = tea.NewSDKError(map[string]interface{}{
 			"name":    "ParameterMissing",
@@ -928,7 +928,6 @@ func (client *Client) GetUserAgent() (_result string) {
 
 func (client *Client) GetAccessKeyId() (_result string, _err error) {
 	if util.IsUnset(client.Credential) {
-		_result = ""
 		return _result, _err
 	}
 
@@ -943,7 +942,6 @@ func (client *Client) GetAccessKeyId() (_result string, _err error) {
 
 func (client *Client) GetAccessKeySecret() (_result string, _err error) {
 	if util.IsUnset(client.Credential) {
-		_result = ""
 		return _result, _err
 	}
 
