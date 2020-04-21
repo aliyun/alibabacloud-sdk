@@ -1,7 +1,11 @@
 // This file is auto-generated, don't edit it. Thanks.
 package com.aliyun.ocr;
 
-import com.aliyun.ocr.models.Config;
+import com.aliyun.ocr20191230.Client;
+import com.aliyun.ocr20191230.models.TrimDocumentRequest;
+import com.aliyun.ocr20191230.models.TrimDocumentResponse;
+import com.aliyun.tearpc.models.Config;
+import com.aliyun.teautil.models.RuntimeOptions;
 
 public class ClientTest {
 
@@ -10,19 +14,19 @@ public class ClientTest {
     }
     public static void clientTest() throws Exception {
         Config config = new Config();
-        config.accessKeyId = System.getenv("AccessKeyID");
-        config.accessKeySecret = System.getenv("AccessKeySecret");
-        config.endpoint = "ocr.aliyuncs.com";
+        config.accessKeyId = "test";
+        config.accessKeySecret = "test";
         config.type = "access_key";
-        config.regionId = "cn-beijing";
+        config.regionId = "cn-shanghai";
+        config.endpoint = "ocr.aliyuncs.com";
         Client client = new Client(config);
-//        MockProcessFileAdvanceRequest request = new MockProcessFileAdvanceRequest();
-//        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("ocr test".getBytes("UTF-8"));
-//        request.fileOssUrlObject = byteArrayInputStream;
-//        request.fileSize = String.valueOf(byteArrayInputStream.available());
-//        RuntimeObject runtimeObject =  new RuntimeObject();
-//        MockProcessFileResponse response = client.mockProcessFileAdvance(request, runtimeObject);
-//        Assert.assertNotNull(response.requestId);
+        RuntimeOptions runtimeObject = new RuntimeOptions();
+        runtimeObject.ignoreSSL = true;
+        TrimDocumentRequest request = new TrimDocumentRequest();
+        request.fileURL = "test";
+        request.outputType = "html";
+        request.fileType = "pdf";
+        TrimDocumentResponse response = client.trimDocument(request, runtimeObject);
     }
 
 }
