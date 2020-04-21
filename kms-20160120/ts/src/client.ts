@@ -263,7 +263,7 @@ export class GetSecretValueResponse extends $tea.Model {
   createTime: string;
   secretData: string;
   secretDataType: string;
-  versionStages: GetSecretValueResponseVersionStages[];
+  versionStages: GetSecretValueResponseVersionStages;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
@@ -284,7 +284,7 @@ export class GetSecretValueResponse extends $tea.Model {
       createTime: 'string',
       secretData: 'string',
       secretDataType: 'string',
-      versionStages: { 'type': 'array', 'itemType': GetSecretValueResponseVersionStages },
+      versionStages: GetSecretValueResponseVersionStages,
     };
   }
 
@@ -493,7 +493,7 @@ export class PutSecretValueResponse extends $tea.Model {
   requestId: string;
   secretName: string;
   versionId: string;
-  versionStages: PutSecretValueResponseVersionStages[];
+  versionStages: PutSecretValueResponseVersionStages;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
@@ -508,7 +508,7 @@ export class PutSecretValueResponse extends $tea.Model {
       requestId: 'string',
       secretName: 'string',
       versionId: 'string',
-      versionStages: { 'type': 'array', 'itemType': PutSecretValueResponseVersionStages },
+      versionStages: PutSecretValueResponseVersionStages,
     };
   }
 
@@ -2316,7 +2316,7 @@ export class ListSecretsResponseSecretList extends $tea.Model {
 }
 
 export class ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages extends $tea.Model {
-  versionStage: string;
+  versionStage: string[];
   static names(): { [key: string]: string } {
     return {
       versionStage: 'VersionStage',
@@ -2325,7 +2325,7 @@ export class ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages extend
 
   static types(): { [key: string]: any } {
     return {
-      versionStage: 'string',
+      versionStage: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -2337,7 +2337,7 @@ export class ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages extend
 export class ListSecretVersionIdsResponseVersionIdsVersionId extends $tea.Model {
   createTime: string;
   versionId: string;
-  versionStages: ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages[];
+  versionStages: ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages;
   static names(): { [key: string]: string } {
     return {
       createTime: 'CreateTime',
@@ -2350,7 +2350,7 @@ export class ListSecretVersionIdsResponseVersionIdsVersionId extends $tea.Model 
     return {
       createTime: 'string',
       versionId: 'string',
-      versionStages: { 'type': 'array', 'itemType': ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages },
+      versionStages: ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages,
     };
   }
 
@@ -2420,7 +2420,7 @@ export class DescribeSecretResponseTags extends $tea.Model {
 }
 
 export class GetSecretValueResponseVersionStages extends $tea.Model {
-  versionStage: string;
+  versionStage: string[];
   static names(): { [key: string]: string } {
     return {
       versionStage: 'VersionStage',
@@ -2429,7 +2429,7 @@ export class GetSecretValueResponseVersionStages extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      versionStage: 'string',
+      versionStage: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -2439,7 +2439,7 @@ export class GetSecretValueResponseVersionStages extends $tea.Model {
 }
 
 export class PutSecretValueResponseVersionStages extends $tea.Model {
-  versionStage: string;
+  versionStage: string[];
   static names(): { [key: string]: string } {
     return {
       versionStage: 'VersionStage',
@@ -2448,7 +2448,7 @@ export class PutSecretValueResponseVersionStages extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      versionStage: 'string',
+      versionStage: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -2590,7 +2590,7 @@ export class DescribeServiceResponseProtectionLevels extends $tea.Model {
 }
 
 export class DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels extends $tea.Model {
-  supportedProtectionLevel: string;
+  supportedProtectionLevel: string[];
   static names(): { [key: string]: string } {
     return {
       supportedProtectionLevel: 'SupportedProtectionLevel',
@@ -2599,7 +2599,7 @@ export class DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels ext
 
   static types(): { [key: string]: any } {
     return {
-      supportedProtectionLevel: 'string',
+      supportedProtectionLevel: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -2609,7 +2609,7 @@ export class DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels ext
 }
 
 export class DescribeServiceResponseKeySpecsKeySpecUsages extends $tea.Model {
-  usage: string;
+  usage: string[];
   static names(): { [key: string]: string } {
     return {
       usage: 'Usage',
@@ -2618,7 +2618,7 @@ export class DescribeServiceResponseKeySpecsKeySpecUsages extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      usage: 'string',
+      usage: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -2629,8 +2629,8 @@ export class DescribeServiceResponseKeySpecsKeySpecUsages extends $tea.Model {
 
 export class DescribeServiceResponseKeySpecsKeySpec extends $tea.Model {
   name: string;
-  supportedProtectionLevels: DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels[];
-  usages: DescribeServiceResponseKeySpecsKeySpecUsages[];
+  supportedProtectionLevels: DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels;
+  usages: DescribeServiceResponseKeySpecsKeySpecUsages;
   static names(): { [key: string]: string } {
     return {
       name: 'Name',
@@ -2642,8 +2642,8 @@ export class DescribeServiceResponseKeySpecsKeySpec extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       name: 'string',
-      supportedProtectionLevels: { 'type': 'array', 'itemType': DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels },
-      usages: { 'type': 'array', 'itemType': DescribeServiceResponseKeySpecsKeySpecUsages },
+      supportedProtectionLevels: DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels,
+      usages: DescribeServiceResponseKeySpecsKeySpecUsages,
     };
   }
 
@@ -3029,7 +3029,7 @@ export default class Client extends RPC {
 
   async listSecretsEx(request: ListSecretsRequest, runtime: $Util.RuntimeOptions): Promise<ListSecretsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListSecretsResponse>(await this.doRequest("ListSecrets", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListSecretsResponse({}));
+    return $tea.cast<ListSecretsResponse>(await this.doRequest("ListSecrets", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListSecretsResponse({}));
   }
 
   async listSecrets(request: ListSecretsRequest): Promise<ListSecretsResponse> {
@@ -3039,7 +3039,7 @@ export default class Client extends RPC {
 
   async listSecretVersionIdsEx(request: ListSecretVersionIdsRequest, runtime: $Util.RuntimeOptions): Promise<ListSecretVersionIdsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListSecretVersionIdsResponse>(await this.doRequest("ListSecretVersionIds", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListSecretVersionIdsResponse({}));
+    return $tea.cast<ListSecretVersionIdsResponse>(await this.doRequest("ListSecretVersionIds", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListSecretVersionIdsResponse({}));
   }
 
   async listSecretVersionIds(request: ListSecretVersionIdsRequest): Promise<ListSecretVersionIdsResponse> {
@@ -3049,7 +3049,7 @@ export default class Client extends RPC {
 
   async describeSecretEx(request: DescribeSecretRequest, runtime: $Util.RuntimeOptions): Promise<DescribeSecretResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeSecretResponse>(await this.doRequest("DescribeSecret", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DescribeSecretResponse({}));
+    return $tea.cast<DescribeSecretResponse>(await this.doRequest("DescribeSecret", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DescribeSecretResponse({}));
   }
 
   async describeSecret(request: DescribeSecretRequest): Promise<DescribeSecretResponse> {
@@ -3059,7 +3059,7 @@ export default class Client extends RPC {
 
   async updateSecretEx(request: UpdateSecretRequest, runtime: $Util.RuntimeOptions): Promise<UpdateSecretResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateSecretResponse>(await this.doRequest("UpdateSecret", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateSecretResponse({}));
+    return $tea.cast<UpdateSecretResponse>(await this.doRequest("UpdateSecret", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateSecretResponse({}));
   }
 
   async updateSecret(request: UpdateSecretRequest): Promise<UpdateSecretResponse> {
@@ -3069,7 +3069,7 @@ export default class Client extends RPC {
 
   async getSecretValueEx(request: GetSecretValueRequest, runtime: $Util.RuntimeOptions): Promise<GetSecretValueResponse> {
     Util.validateModel(request);
-    return $tea.cast<GetSecretValueResponse>(await this.doRequest("GetSecretValue", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetSecretValueResponse({}));
+    return $tea.cast<GetSecretValueResponse>(await this.doRequest("GetSecretValue", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetSecretValueResponse({}));
   }
 
   async getSecretValue(request: GetSecretValueRequest): Promise<GetSecretValueResponse> {
@@ -3079,7 +3079,7 @@ export default class Client extends RPC {
 
   async getRandomPasswordEx(request: GetRandomPasswordRequest, runtime: $Util.RuntimeOptions): Promise<GetRandomPasswordResponse> {
     Util.validateModel(request);
-    return $tea.cast<GetRandomPasswordResponse>(await this.doRequest("GetRandomPassword", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetRandomPasswordResponse({}));
+    return $tea.cast<GetRandomPasswordResponse>(await this.doRequest("GetRandomPassword", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetRandomPasswordResponse({}));
   }
 
   async getRandomPassword(request: GetRandomPasswordRequest): Promise<GetRandomPasswordResponse> {
@@ -3089,7 +3089,7 @@ export default class Client extends RPC {
 
   async restoreSecretEx(request: RestoreSecretRequest, runtime: $Util.RuntimeOptions): Promise<RestoreSecretResponse> {
     Util.validateModel(request);
-    return $tea.cast<RestoreSecretResponse>(await this.doRequest("RestoreSecret", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new RestoreSecretResponse({}));
+    return $tea.cast<RestoreSecretResponse>(await this.doRequest("RestoreSecret", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new RestoreSecretResponse({}));
   }
 
   async restoreSecret(request: RestoreSecretRequest): Promise<RestoreSecretResponse> {
@@ -3099,7 +3099,7 @@ export default class Client extends RPC {
 
   async createSecretEx(request: CreateSecretRequest, runtime: $Util.RuntimeOptions): Promise<CreateSecretResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateSecretResponse>(await this.doRequest("CreateSecret", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateSecretResponse({}));
+    return $tea.cast<CreateSecretResponse>(await this.doRequest("CreateSecret", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateSecretResponse({}));
   }
 
   async createSecret(request: CreateSecretRequest): Promise<CreateSecretResponse> {
@@ -3109,7 +3109,7 @@ export default class Client extends RPC {
 
   async putSecretValueEx(request: PutSecretValueRequest, runtime: $Util.RuntimeOptions): Promise<PutSecretValueResponse> {
     Util.validateModel(request);
-    return $tea.cast<PutSecretValueResponse>(await this.doRequest("PutSecretValue", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new PutSecretValueResponse({}));
+    return $tea.cast<PutSecretValueResponse>(await this.doRequest("PutSecretValue", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new PutSecretValueResponse({}));
   }
 
   async putSecretValue(request: PutSecretValueRequest): Promise<PutSecretValueResponse> {
@@ -3119,7 +3119,7 @@ export default class Client extends RPC {
 
   async deleteSecretEx(request: DeleteSecretRequest, runtime: $Util.RuntimeOptions): Promise<DeleteSecretResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteSecretResponse>(await this.doRequest("DeleteSecret", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DeleteSecretResponse({}));
+    return $tea.cast<DeleteSecretResponse>(await this.doRequest("DeleteSecret", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DeleteSecretResponse({}));
   }
 
   async deleteSecret(request: DeleteSecretRequest): Promise<DeleteSecretResponse> {
@@ -3129,7 +3129,7 @@ export default class Client extends RPC {
 
   async updateSecretVersionStageEx(request: UpdateSecretVersionStageRequest, runtime: $Util.RuntimeOptions): Promise<UpdateSecretVersionStageResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateSecretVersionStageResponse>(await this.doRequest("UpdateSecretVersionStage", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateSecretVersionStageResponse({}));
+    return $tea.cast<UpdateSecretVersionStageResponse>(await this.doRequest("UpdateSecretVersionStage", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateSecretVersionStageResponse({}));
   }
 
   async updateSecretVersionStage(request: UpdateSecretVersionStageRequest): Promise<UpdateSecretVersionStageResponse> {
@@ -3139,7 +3139,7 @@ export default class Client extends RPC {
 
   async asymmetricDecryptEx(request: AsymmetricDecryptRequest, runtime: $Util.RuntimeOptions): Promise<AsymmetricDecryptResponse> {
     Util.validateModel(request);
-    return $tea.cast<AsymmetricDecryptResponse>(await this.doRequest("AsymmetricDecrypt", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricDecryptResponse({}));
+    return $tea.cast<AsymmetricDecryptResponse>(await this.doRequest("AsymmetricDecrypt", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricDecryptResponse({}));
   }
 
   async asymmetricDecrypt(request: AsymmetricDecryptRequest): Promise<AsymmetricDecryptResponse> {
@@ -3149,7 +3149,7 @@ export default class Client extends RPC {
 
   async asymmetricVerifyEx(request: AsymmetricVerifyRequest, runtime: $Util.RuntimeOptions): Promise<AsymmetricVerifyResponse> {
     Util.validateModel(request);
-    return $tea.cast<AsymmetricVerifyResponse>(await this.doRequest("AsymmetricVerify", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricVerifyResponse({}));
+    return $tea.cast<AsymmetricVerifyResponse>(await this.doRequest("AsymmetricVerify", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricVerifyResponse({}));
   }
 
   async asymmetricVerify(request: AsymmetricVerifyRequest): Promise<AsymmetricVerifyResponse> {
@@ -3159,7 +3159,7 @@ export default class Client extends RPC {
 
   async asymmetricSignEx(request: AsymmetricSignRequest, runtime: $Util.RuntimeOptions): Promise<AsymmetricSignResponse> {
     Util.validateModel(request);
-    return $tea.cast<AsymmetricSignResponse>(await this.doRequest("AsymmetricSign", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricSignResponse({}));
+    return $tea.cast<AsymmetricSignResponse>(await this.doRequest("AsymmetricSign", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricSignResponse({}));
   }
 
   async asymmetricSign(request: AsymmetricSignRequest): Promise<AsymmetricSignResponse> {
@@ -3169,7 +3169,7 @@ export default class Client extends RPC {
 
   async asymmetricEncryptEx(request: AsymmetricEncryptRequest, runtime: $Util.RuntimeOptions): Promise<AsymmetricEncryptResponse> {
     Util.validateModel(request);
-    return $tea.cast<AsymmetricEncryptResponse>(await this.doRequest("AsymmetricEncrypt", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricEncryptResponse({}));
+    return $tea.cast<AsymmetricEncryptResponse>(await this.doRequest("AsymmetricEncrypt", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new AsymmetricEncryptResponse({}));
   }
 
   async asymmetricEncrypt(request: AsymmetricEncryptRequest): Promise<AsymmetricEncryptResponse> {
@@ -3179,7 +3179,7 @@ export default class Client extends RPC {
 
   async getPublicKeyEx(request: GetPublicKeyRequest, runtime: $Util.RuntimeOptions): Promise<GetPublicKeyResponse> {
     Util.validateModel(request);
-    return $tea.cast<GetPublicKeyResponse>(await this.doRequest("GetPublicKey", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetPublicKeyResponse({}));
+    return $tea.cast<GetPublicKeyResponse>(await this.doRequest("GetPublicKey", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetPublicKeyResponse({}));
   }
 
   async getPublicKey(request: GetPublicKeyRequest): Promise<GetPublicKeyResponse> {
@@ -3189,7 +3189,7 @@ export default class Client extends RPC {
 
   async generateDataKeyWithoutPlaintextEx(request: GenerateDataKeyWithoutPlaintextRequest, runtime: $Util.RuntimeOptions): Promise<GenerateDataKeyWithoutPlaintextResponse> {
     Util.validateModel(request);
-    return $tea.cast<GenerateDataKeyWithoutPlaintextResponse>(await this.doRequest("GenerateDataKeyWithoutPlaintext", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GenerateDataKeyWithoutPlaintextResponse({}));
+    return $tea.cast<GenerateDataKeyWithoutPlaintextResponse>(await this.doRequest("GenerateDataKeyWithoutPlaintext", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GenerateDataKeyWithoutPlaintextResponse({}));
   }
 
   async generateDataKeyWithoutPlaintext(request: GenerateDataKeyWithoutPlaintextRequest): Promise<GenerateDataKeyWithoutPlaintextResponse> {
@@ -3199,7 +3199,7 @@ export default class Client extends RPC {
 
   async updateKeyDescriptionEx(request: UpdateKeyDescriptionRequest, runtime: $Util.RuntimeOptions): Promise<UpdateKeyDescriptionResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateKeyDescriptionResponse>(await this.doRequest("UpdateKeyDescription", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateKeyDescriptionResponse({}));
+    return $tea.cast<UpdateKeyDescriptionResponse>(await this.doRequest("UpdateKeyDescription", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateKeyDescriptionResponse({}));
   }
 
   async updateKeyDescription(request: UpdateKeyDescriptionRequest): Promise<UpdateKeyDescriptionResponse> {
@@ -3209,7 +3209,7 @@ export default class Client extends RPC {
 
   async describeKeyVersionEx(request: DescribeKeyVersionRequest, runtime: $Util.RuntimeOptions): Promise<DescribeKeyVersionResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeKeyVersionResponse>(await this.doRequest("DescribeKeyVersion", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DescribeKeyVersionResponse({}));
+    return $tea.cast<DescribeKeyVersionResponse>(await this.doRequest("DescribeKeyVersion", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DescribeKeyVersionResponse({}));
   }
 
   async describeKeyVersion(request: DescribeKeyVersionRequest): Promise<DescribeKeyVersionResponse> {
@@ -3219,7 +3219,7 @@ export default class Client extends RPC {
 
   async updateRotationPolicyEx(request: UpdateRotationPolicyRequest, runtime: $Util.RuntimeOptions): Promise<UpdateRotationPolicyResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateRotationPolicyResponse>(await this.doRequest("UpdateRotationPolicy", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateRotationPolicyResponse({}));
+    return $tea.cast<UpdateRotationPolicyResponse>(await this.doRequest("UpdateRotationPolicy", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateRotationPolicyResponse({}));
   }
 
   async updateRotationPolicy(request: UpdateRotationPolicyRequest): Promise<UpdateRotationPolicyResponse> {
@@ -3229,7 +3229,7 @@ export default class Client extends RPC {
 
   async listKeyVersionsEx(request: ListKeyVersionsRequest, runtime: $Util.RuntimeOptions): Promise<ListKeyVersionsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListKeyVersionsResponse>(await this.doRequest("ListKeyVersions", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListKeyVersionsResponse({}));
+    return $tea.cast<ListKeyVersionsResponse>(await this.doRequest("ListKeyVersions", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListKeyVersionsResponse({}));
   }
 
   async listKeyVersions(request: ListKeyVersionsRequest): Promise<ListKeyVersionsResponse> {
@@ -3239,7 +3239,7 @@ export default class Client extends RPC {
 
   async createKeyVersionEx(request: CreateKeyVersionRequest, runtime: $Util.RuntimeOptions): Promise<CreateKeyVersionResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateKeyVersionResponse>(await this.doRequest("CreateKeyVersion", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateKeyVersionResponse({}));
+    return $tea.cast<CreateKeyVersionResponse>(await this.doRequest("CreateKeyVersion", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateKeyVersionResponse({}));
   }
 
   async createKeyVersion(request: CreateKeyVersionRequest): Promise<CreateKeyVersionResponse> {
@@ -3249,7 +3249,7 @@ export default class Client extends RPC {
 
   async describeServiceEx(request: DescribeServiceRequest, runtime: $Util.RuntimeOptions): Promise<DescribeServiceResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeServiceResponse>(await this.doRequest("DescribeService", "HTTPS", "GET", "2016-01-20", "AK", null, $tea.toMap(request), runtime), new DescribeServiceResponse({}));
+    return $tea.cast<DescribeServiceResponse>(await this.doRequest("DescribeService", "HTTPS", "POST", "2016-01-20", "AK", null, $tea.toMap(request), runtime), new DescribeServiceResponse({}));
   }
 
   async describeService(request: DescribeServiceRequest): Promise<DescribeServiceResponse> {
@@ -3259,7 +3259,7 @@ export default class Client extends RPC {
 
   async updateAliasEx(request: UpdateAliasRequest, runtime: $Util.RuntimeOptions): Promise<UpdateAliasResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateAliasResponse>(await this.doRequest("UpdateAlias", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateAliasResponse({}));
+    return $tea.cast<UpdateAliasResponse>(await this.doRequest("UpdateAlias", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UpdateAliasResponse({}));
   }
 
   async updateAlias(request: UpdateAliasRequest): Promise<UpdateAliasResponse> {
@@ -3269,7 +3269,7 @@ export default class Client extends RPC {
 
   async untagResourceEx(request: UntagResourceRequest, runtime: $Util.RuntimeOptions): Promise<UntagResourceResponse> {
     Util.validateModel(request);
-    return $tea.cast<UntagResourceResponse>(await this.doRequest("UntagResource", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UntagResourceResponse({}));
+    return $tea.cast<UntagResourceResponse>(await this.doRequest("UntagResource", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new UntagResourceResponse({}));
   }
 
   async untagResource(request: UntagResourceRequest): Promise<UntagResourceResponse> {
@@ -3279,7 +3279,7 @@ export default class Client extends RPC {
 
   async tagResourceEx(request: TagResourceRequest, runtime: $Util.RuntimeOptions): Promise<TagResourceResponse> {
     Util.validateModel(request);
-    return $tea.cast<TagResourceResponse>(await this.doRequest("TagResource", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new TagResourceResponse({}));
+    return $tea.cast<TagResourceResponse>(await this.doRequest("TagResource", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new TagResourceResponse({}));
   }
 
   async tagResource(request: TagResourceRequest): Promise<TagResourceResponse> {
@@ -3289,7 +3289,7 @@ export default class Client extends RPC {
 
   async scheduleKeyDeletionEx(request: ScheduleKeyDeletionRequest, runtime: $Util.RuntimeOptions): Promise<ScheduleKeyDeletionResponse> {
     Util.validateModel(request);
-    return $tea.cast<ScheduleKeyDeletionResponse>(await this.doRequest("ScheduleKeyDeletion", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ScheduleKeyDeletionResponse({}));
+    return $tea.cast<ScheduleKeyDeletionResponse>(await this.doRequest("ScheduleKeyDeletion", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ScheduleKeyDeletionResponse({}));
   }
 
   async scheduleKeyDeletion(request: ScheduleKeyDeletionRequest): Promise<ScheduleKeyDeletionResponse> {
@@ -3299,7 +3299,7 @@ export default class Client extends RPC {
 
   async listResourceTagsEx(request: ListResourceTagsRequest, runtime: $Util.RuntimeOptions): Promise<ListResourceTagsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListResourceTagsResponse>(await this.doRequest("ListResourceTags", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListResourceTagsResponse({}));
+    return $tea.cast<ListResourceTagsResponse>(await this.doRequest("ListResourceTags", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListResourceTagsResponse({}));
   }
 
   async listResourceTags(request: ListResourceTagsRequest): Promise<ListResourceTagsResponse> {
@@ -3309,7 +3309,7 @@ export default class Client extends RPC {
 
   async listKeysEx(request: ListKeysRequest, runtime: $Util.RuntimeOptions): Promise<ListKeysResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListKeysResponse>(await this.doRequest("ListKeys", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListKeysResponse({}));
+    return $tea.cast<ListKeysResponse>(await this.doRequest("ListKeys", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListKeysResponse({}));
   }
 
   async listKeys(request: ListKeysRequest): Promise<ListKeysResponse> {
@@ -3319,7 +3319,7 @@ export default class Client extends RPC {
 
   async listAliasesByKeyIdEx(request: ListAliasesByKeyIdRequest, runtime: $Util.RuntimeOptions): Promise<ListAliasesByKeyIdResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListAliasesByKeyIdResponse>(await this.doRequest("ListAliasesByKeyId", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListAliasesByKeyIdResponse({}));
+    return $tea.cast<ListAliasesByKeyIdResponse>(await this.doRequest("ListAliasesByKeyId", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListAliasesByKeyIdResponse({}));
   }
 
   async listAliasesByKeyId(request: ListAliasesByKeyIdRequest): Promise<ListAliasesByKeyIdResponse> {
@@ -3329,7 +3329,7 @@ export default class Client extends RPC {
 
   async listAliasesEx(request: ListAliasesRequest, runtime: $Util.RuntimeOptions): Promise<ListAliasesResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListAliasesResponse>(await this.doRequest("ListAliases", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListAliasesResponse({}));
+    return $tea.cast<ListAliasesResponse>(await this.doRequest("ListAliases", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ListAliasesResponse({}));
   }
 
   async listAliases(request: ListAliasesRequest): Promise<ListAliasesResponse> {
@@ -3339,7 +3339,7 @@ export default class Client extends RPC {
 
   async importKeyMaterialEx(request: ImportKeyMaterialRequest, runtime: $Util.RuntimeOptions): Promise<ImportKeyMaterialResponse> {
     Util.validateModel(request);
-    return $tea.cast<ImportKeyMaterialResponse>(await this.doRequest("ImportKeyMaterial", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ImportKeyMaterialResponse({}));
+    return $tea.cast<ImportKeyMaterialResponse>(await this.doRequest("ImportKeyMaterial", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new ImportKeyMaterialResponse({}));
   }
 
   async importKeyMaterial(request: ImportKeyMaterialRequest): Promise<ImportKeyMaterialResponse> {
@@ -3349,7 +3349,7 @@ export default class Client extends RPC {
 
   async getParametersForImportEx(request: GetParametersForImportRequest, runtime: $Util.RuntimeOptions): Promise<GetParametersForImportResponse> {
     Util.validateModel(request);
-    return $tea.cast<GetParametersForImportResponse>(await this.doRequest("GetParametersForImport", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetParametersForImportResponse({}));
+    return $tea.cast<GetParametersForImportResponse>(await this.doRequest("GetParametersForImport", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GetParametersForImportResponse({}));
   }
 
   async getParametersForImport(request: GetParametersForImportRequest): Promise<GetParametersForImportResponse> {
@@ -3359,7 +3359,7 @@ export default class Client extends RPC {
 
   async generateDataKeyEx(request: GenerateDataKeyRequest, runtime: $Util.RuntimeOptions): Promise<GenerateDataKeyResponse> {
     Util.validateModel(request);
-    return $tea.cast<GenerateDataKeyResponse>(await this.doRequest("GenerateDataKey", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GenerateDataKeyResponse({}));
+    return $tea.cast<GenerateDataKeyResponse>(await this.doRequest("GenerateDataKey", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new GenerateDataKeyResponse({}));
   }
 
   async generateDataKey(request: GenerateDataKeyRequest): Promise<GenerateDataKeyResponse> {
@@ -3369,7 +3369,7 @@ export default class Client extends RPC {
 
   async encryptEx(request: EncryptRequest, runtime: $Util.RuntimeOptions): Promise<EncryptResponse> {
     Util.validateModel(request);
-    return $tea.cast<EncryptResponse>(await this.doRequest("Encrypt", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new EncryptResponse({}));
+    return $tea.cast<EncryptResponse>(await this.doRequest("Encrypt", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new EncryptResponse({}));
   }
 
   async encrypt(request: EncryptRequest): Promise<EncryptResponse> {
@@ -3379,7 +3379,7 @@ export default class Client extends RPC {
 
   async enableKeyEx(request: EnableKeyRequest, runtime: $Util.RuntimeOptions): Promise<EnableKeyResponse> {
     Util.validateModel(request);
-    return $tea.cast<EnableKeyResponse>(await this.doRequest("EnableKey", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new EnableKeyResponse({}));
+    return $tea.cast<EnableKeyResponse>(await this.doRequest("EnableKey", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new EnableKeyResponse({}));
   }
 
   async enableKey(request: EnableKeyRequest): Promise<EnableKeyResponse> {
@@ -3389,7 +3389,7 @@ export default class Client extends RPC {
 
   async disableKeyEx(request: DisableKeyRequest, runtime: $Util.RuntimeOptions): Promise<DisableKeyResponse> {
     Util.validateModel(request);
-    return $tea.cast<DisableKeyResponse>(await this.doRequest("DisableKey", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DisableKeyResponse({}));
+    return $tea.cast<DisableKeyResponse>(await this.doRequest("DisableKey", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DisableKeyResponse({}));
   }
 
   async disableKey(request: DisableKeyRequest): Promise<DisableKeyResponse> {
@@ -3399,7 +3399,7 @@ export default class Client extends RPC {
 
   async describeRegionsEx(request: DescribeRegionsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRegionsResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeRegionsResponse>(await this.doRequest("DescribeRegions", "HTTPS", "GET", "2016-01-20", "AK", null, $tea.toMap(request), runtime), new DescribeRegionsResponse({}));
+    return $tea.cast<DescribeRegionsResponse>(await this.doRequest("DescribeRegions", "HTTPS", "POST", "2016-01-20", "AK", null, $tea.toMap(request), runtime), new DescribeRegionsResponse({}));
   }
 
   async describeRegions(request: DescribeRegionsRequest): Promise<DescribeRegionsResponse> {
@@ -3409,7 +3409,7 @@ export default class Client extends RPC {
 
   async describeKeyEx(request: DescribeKeyRequest, runtime: $Util.RuntimeOptions): Promise<DescribeKeyResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeKeyResponse>(await this.doRequest("DescribeKey", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DescribeKeyResponse({}));
+    return $tea.cast<DescribeKeyResponse>(await this.doRequest("DescribeKey", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DescribeKeyResponse({}));
   }
 
   async describeKey(request: DescribeKeyRequest): Promise<DescribeKeyResponse> {
@@ -3419,7 +3419,7 @@ export default class Client extends RPC {
 
   async deleteKeyMaterialEx(request: DeleteKeyMaterialRequest, runtime: $Util.RuntimeOptions): Promise<DeleteKeyMaterialResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteKeyMaterialResponse>(await this.doRequest("DeleteKeyMaterial", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DeleteKeyMaterialResponse({}));
+    return $tea.cast<DeleteKeyMaterialResponse>(await this.doRequest("DeleteKeyMaterial", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DeleteKeyMaterialResponse({}));
   }
 
   async deleteKeyMaterial(request: DeleteKeyMaterialRequest): Promise<DeleteKeyMaterialResponse> {
@@ -3429,7 +3429,7 @@ export default class Client extends RPC {
 
   async deleteAliasEx(request: DeleteAliasRequest, runtime: $Util.RuntimeOptions): Promise<DeleteAliasResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteAliasResponse>(await this.doRequest("DeleteAlias", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DeleteAliasResponse({}));
+    return $tea.cast<DeleteAliasResponse>(await this.doRequest("DeleteAlias", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DeleteAliasResponse({}));
   }
 
   async deleteAlias(request: DeleteAliasRequest): Promise<DeleteAliasResponse> {
@@ -3439,7 +3439,7 @@ export default class Client extends RPC {
 
   async decryptEx(request: DecryptRequest, runtime: $Util.RuntimeOptions): Promise<DecryptResponse> {
     Util.validateModel(request);
-    return $tea.cast<DecryptResponse>(await this.doRequest("Decrypt", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DecryptResponse({}));
+    return $tea.cast<DecryptResponse>(await this.doRequest("Decrypt", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new DecryptResponse({}));
   }
 
   async decrypt(request: DecryptRequest): Promise<DecryptResponse> {
@@ -3449,7 +3449,7 @@ export default class Client extends RPC {
 
   async createKeyEx(request: CreateKeyRequest, runtime: $Util.RuntimeOptions): Promise<CreateKeyResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateKeyResponse>(await this.doRequest("CreateKey", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateKeyResponse({}));
+    return $tea.cast<CreateKeyResponse>(await this.doRequest("CreateKey", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateKeyResponse({}));
   }
 
   async createKey(request: CreateKeyRequest): Promise<CreateKeyResponse> {
@@ -3459,7 +3459,7 @@ export default class Client extends RPC {
 
   async createAliasEx(request: CreateAliasRequest, runtime: $Util.RuntimeOptions): Promise<CreateAliasResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateAliasResponse>(await this.doRequest("CreateAlias", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateAliasResponse({}));
+    return $tea.cast<CreateAliasResponse>(await this.doRequest("CreateAlias", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CreateAliasResponse({}));
   }
 
   async createAlias(request: CreateAliasRequest): Promise<CreateAliasResponse> {
@@ -3469,7 +3469,7 @@ export default class Client extends RPC {
 
   async cancelKeyDeletionEx(request: CancelKeyDeletionRequest, runtime: $Util.RuntimeOptions): Promise<CancelKeyDeletionResponse> {
     Util.validateModel(request);
-    return $tea.cast<CancelKeyDeletionResponse>(await this.doRequest("CancelKeyDeletion", "HTTPS", "GET", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CancelKeyDeletionResponse({}));
+    return $tea.cast<CancelKeyDeletionResponse>(await this.doRequest("CancelKeyDeletion", "HTTPS", "POST", "2016-01-20", "AK", $tea.toMap(request), null, runtime), new CancelKeyDeletionResponse({}));
   }
 
   async cancelKeyDeletion(request: CancelKeyDeletionRequest): Promise<CancelKeyDeletionResponse> {
