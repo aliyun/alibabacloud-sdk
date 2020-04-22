@@ -14,12 +14,14 @@ class data extends Model
      * @var string
      */
     public $predStyleId;
+
     /**
      * @description predStyle
      *
      * @var string
      */
     public $predStyle;
+
     /**
      * @description predProbability
      *

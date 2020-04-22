@@ -14,24 +14,28 @@ class RemoveImageSubtitlesAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description bx
      *
      * @var float
      */
     public $BX;
+
     /**
      * @description by
      *
      * @var float
      */
     public $BY;
+
     /**
      * @description bw
      *
      * @var float
      */
     public $BW;
+
     /**
      * @description bh
      *

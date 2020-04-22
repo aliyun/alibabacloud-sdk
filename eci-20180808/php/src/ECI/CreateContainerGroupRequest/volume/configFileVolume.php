@@ -14,6 +14,7 @@ class configFileVolume extends Model
      * @var array
      */
     public $configFileToPath;
+
     /**
      * @description configFileVolumeDefaultModel
      *

@@ -14,12 +14,14 @@ class GetSecretValueRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description VersionStage
      *
      * @var string
      */
     public $versionStage;
+
     /**
      * @description VersionId
      *

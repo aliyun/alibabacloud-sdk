@@ -14,6 +14,7 @@ class SegmentBodyRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description async
      *

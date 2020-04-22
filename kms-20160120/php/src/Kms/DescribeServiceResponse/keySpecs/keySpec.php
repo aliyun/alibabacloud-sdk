@@ -4,6 +4,8 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeServiceResponse\keySpecs;
 
+use AlibabaCloud\SDK\Kms\V20160120\Kms\keySpec\supportedProtectionLevels;
+use AlibabaCloud\SDK\Kms\V20160120\Kms\keySpec\usages;
 use AlibabaCloud\Tea\Model;
 
 class keySpec extends Model
@@ -14,16 +16,18 @@ class keySpec extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description SupportedProtectionLevels
      *
-     * @var array
+     * @var keySpec.supportedProtectionLevels
      */
     public $supportedProtectionLevels;
+
     /**
      * @description Usages
      *
-     * @var array
+     * @var keySpec.usages
      */
     public $usages;
     protected $_name = [
@@ -43,20 +47,8 @@ class keySpec extends Model
     {
         $res                              = [];
         $res['Name']                      = $this->name;
-        $res['SupportedProtectionLevels'] = [];
-        if (null !== $this->supportedProtectionLevels && \is_array($this->supportedProtectionLevels)) {
-            $n = 0;
-            foreach ($this->supportedProtectionLevels as $item) {
-                $res['SupportedProtectionLevels'][$n++] = null !== $item ? $item->toMap() : $item;
-            }
-        }
-        $res['Usages'] = [];
-        if (null !== $this->usages && \is_array($this->usages)) {
-            $n = 0;
-            foreach ($this->usages as $item) {
-                $res['Usages'][$n++] = null !== $item ? $item->toMap() : $item;
-            }
-        }
+        $res['SupportedProtectionLevels'] = null !== $this->supportedProtectionLevels ? $this->supportedProtectionLevels->toMap() : null;
+        $res['Usages']                    = null !== $this->usages ? $this->usages->toMap() : null;
 
         return $res;
     }
@@ -73,22 +65,10 @@ class keySpec extends Model
             $model->name = $map['Name'];
         }
         if (isset($map['SupportedProtectionLevels'])) {
-            if (!empty($map['SupportedProtectionLevels'])) {
-                $model->supportedProtectionLevels = [];
-                $n                                = 0;
-                foreach ($map['SupportedProtectionLevels'] as $item) {
-                    $model->supportedProtectionLevels[$n++] = null !== $item ? DescribeServiceResponse\keySpecs\keySpec\supportedProtectionLevels::fromMap($item) : $item;
-                }
-            }
+            $model->supportedProtectionLevels = keySpec\supportedProtectionLevels::fromMap($map['SupportedProtectionLevels']);
         }
         if (isset($map['Usages'])) {
-            if (!empty($map['Usages'])) {
-                $model->usages = [];
-                $n             = 0;
-                foreach ($map['Usages'] as $item) {
-                    $model->usages[$n++] = null !== $item ? DescribeServiceResponse\keySpecs\keySpec\usages::fromMap($item) : $item;
-                }
-            }
+            $model->usages = keySpec\usages::fromMap($map['Usages']);
         }
 
         return $model;

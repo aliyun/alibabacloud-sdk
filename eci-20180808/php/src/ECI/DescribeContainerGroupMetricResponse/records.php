@@ -17,24 +17,28 @@ class records extends Model
      * @var string
      */
     public $timestamp;
+
     /**
      * @description containerStatss
      *
      * @var array
      */
     public $containers;
+
     /**
      * @description cpuStats
      *
      * @var records.CPU
      */
     public $CPU;
+
     /**
      * @description memoryStats
      *
      * @var records.memory
      */
     public $memory;
+
     /**
      * @description networkStats
      *

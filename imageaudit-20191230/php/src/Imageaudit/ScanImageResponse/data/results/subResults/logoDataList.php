@@ -14,30 +14,35 @@ class logoDataList extends Model
      * @var string
      */
     public $type;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description x
      *
      * @var float
      */
     public $x;
+
     /**
      * @description y
      *
      * @var float
      */
     public $y;
+
     /**
      * @description Width
      *
      * @var float
      */
     public $width;
+
     /**
      * @description Height
      *

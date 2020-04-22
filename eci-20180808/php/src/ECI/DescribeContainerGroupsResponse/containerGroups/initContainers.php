@@ -17,96 +17,112 @@ class initContainers extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description image
      *
      * @var string
      */
     public $image;
+
     /**
      * @description bigCpuForPop
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description bigMemForPop
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description restartCount
      *
      * @var int
      */
     public $restartCount;
+
     /**
      * @description workingDir
      *
      * @var string
      */
     public $workingDir;
+
     /**
      * @description imagePullPolicy
      *
      * @var string
      */
     public $imagePullPolicy;
+
     /**
      * @description ready
      *
      * @var bool
      */
     public $ready;
+
     /**
      * @description gpu
      *
      * @var int
      */
     public $gpu;
+
     /**
      * @description volumeMounts
      *
      * @var array
      */
     public $volumeMounts;
+
     /**
      * @description ports
      *
      * @var array
      */
     public $ports;
+
     /**
      * @description env
      *
      * @var array
      */
     public $environmentVars;
+
     /**
      * @description previousState
      *
      * @var initContainers.previousState
      */
     public $previousState;
+
     /**
      * @description currentState
      *
      * @var initContainers.currentState
      */
     public $currentState;
+
     /**
      * @description securityContext
      *
      * @var initContainers.securityContext
      */
     public $securityContext;
+
     /**
      * @description command
      *
      * @var array
      */
     public $command;
+
     /**
      * @description args
      *

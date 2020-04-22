@@ -30,7 +30,6 @@ use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -55,7 +54,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ClassifyingRubbish', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new ClassifyingRubbishResponse());
+        return ClassifyingRubbishResponse::fromMap($this->doRequest('ClassifyingRubbish', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -129,7 +128,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVehicleType', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeVehicleTypeResponse());
+        return RecognizeVehicleTypeResponse::fromMap($this->doRequest('RecognizeVehicleType', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -203,7 +202,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeLogo', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeLogoResponse());
+        return RecognizeLogoResponse::fromMap($this->doRequest('RecognizeLogo', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -215,7 +214,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('TaggingImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new TaggingImageResponse());
+        return TaggingImageResponse::fromMap($this->doRequest('TaggingImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -289,7 +288,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeScene', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeSceneResponse());
+        return RecognizeSceneResponse::fromMap($this->doRequest('RecognizeScene', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -363,7 +362,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeImageColor', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeImageColorResponse());
+        return RecognizeImageColorResponse::fromMap($this->doRequest('RecognizeImageColor', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -437,7 +436,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectImageElements', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new DetectImageElementsResponse());
+        return DetectImageElementsResponse::fromMap($this->doRequest('DetectImageElements', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -511,7 +510,7 @@ class Imagerecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecognizeImageStyleResponse());
+        return RecognizeImageStyleResponse::fromMap($this->doRequest('RecognizeImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**

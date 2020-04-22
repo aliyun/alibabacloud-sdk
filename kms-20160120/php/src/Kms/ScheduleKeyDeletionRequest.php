@@ -14,6 +14,7 @@ class ScheduleKeyDeletionRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description pendingWindowInDays
      *

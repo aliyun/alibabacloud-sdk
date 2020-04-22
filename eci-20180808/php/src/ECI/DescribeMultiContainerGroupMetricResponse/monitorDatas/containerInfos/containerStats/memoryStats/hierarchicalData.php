@@ -14,6 +14,7 @@ class hierarchicalData extends Model
      * @var int
      */
     public $pgFault;
+
     /**
      * @description pgmajFault
      *

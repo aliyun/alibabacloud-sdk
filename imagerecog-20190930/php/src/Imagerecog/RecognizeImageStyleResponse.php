@@ -15,6 +15,7 @@ class RecognizeImageStyleResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

@@ -14,42 +14,49 @@ class diskIoStats extends Model
      * @var array
      */
     public $ioServiceBytes;
+
     /**
      * @description ioServiced
      *
      * @var array
      */
     public $ioServiced;
+
     /**
      * @description ioQueued
      *
      * @var array
      */
     public $ioQueued;
+
     /**
      * @description sectors
      *
      * @var array
      */
     public $sectors;
+
     /**
      * @description ioServiceTime
      *
      * @var array
      */
     public $ioServiceTime;
+
     /**
      * @description ioWaitTime
      *
      * @var array
      */
     public $ioWaitTime;
+
     /**
      * @description ioMerged
      *
      * @var array
      */
     public $ioMerged;
+
     /**
      * @description ioTime
      *

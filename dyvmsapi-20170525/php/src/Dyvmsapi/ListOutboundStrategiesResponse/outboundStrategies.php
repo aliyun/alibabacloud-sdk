@@ -14,126 +14,147 @@ class outboundStrategies extends Model
      * @var int
      */
     public $id;
+
     /**
      * @description gmtCreateStr
      *
      * @var string
      */
     public $gmtCreateStr;
+
     /**
      * @description gmtModifiedStr
      *
      * @var string
      */
     public $gmtModifiedStr;
+
     /**
      * @description creatorId
      *
      * @var int
      */
     public $creatorId;
+
     /**
      * @description creatorName
      *
      * @var string
      */
     public $creatorName;
+
     /**
      * @description modifierId
      *
      * @var int
      */
     public $modifierId;
+
     /**
      * @description modifierName
      *
      * @var string
      */
     public $modifierName;
+
     /**
      * @description buId
      *
      * @var int
      */
     public $buId;
+
     /**
      * @description departmentId
      *
      * @var int
      */
     public $departmentId;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description numType
      *
      * @var int
      */
     public $numType;
+
     /**
      * @description outboundNum
      *
      * @var string
      */
     public $outboundNum;
+
     /**
      * @description robotType
      *
      * @var int
      */
     public $robotType;
+
     /**
      * @description robotId
      *
      * @var string
      */
     public $robotId;
+
     /**
      * @description robotName
      *
      * @var string
      */
     public $robotName;
+
     /**
      * @description resourceAllocation
      *
      * @var int
      */
     public $resourceAllocation;
+
     /**
      * @description sceneName
      *
      * @var string
      */
     public $sceneName;
+
     /**
      * @description ruleCode
      *
      * @var int
      */
     public $ruleCode;
+
     /**
      * @description status
      *
      * @var int
      */
     public $status;
+
     /**
      * @description extAttr
      *
      * @var string
      */
     public $extAttr;
+
     /**
      * @description process
      *
      * @var int
      */
     public $process;
+
     /**
      * @description successRate
      *

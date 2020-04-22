@@ -14,12 +14,14 @@ class GetParametersForImportRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description wrappingAlgorithm
      *
      * @var string
      */
     public $wrappingAlgorithm;
+
     /**
      * @description wrappingKeySpec
      *

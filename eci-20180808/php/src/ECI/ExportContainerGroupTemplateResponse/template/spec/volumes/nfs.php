@@ -14,12 +14,14 @@ class nfs extends Model
      * @var string
      */
     public $server;
+
     /**
      * @description path
      *
      * @var string
      */
     public $path;
+
     /**
      * @description readOnly
      *

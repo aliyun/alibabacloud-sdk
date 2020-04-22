@@ -14,36 +14,42 @@ class data extends Model
      * @var int
      */
     public $faceCount;
+
     /**
      * @description landmarkCount
      *
      * @var int
      */
     public $landmarkCount;
+
     /**
      * @description faceRectangles
      *
      * @var array
      */
     public $faceRectangles;
+
     /**
      * @description faceProbability
      *
      * @var array
      */
     public $faceProbabilityList;
+
     /**
      * @description pose
      *
      * @var array
      */
     public $poseList;
+
     /**
      * @description landmarks
      *
      * @var array
      */
     public $landmarks;
+
     /**
      * @description pupils
      *

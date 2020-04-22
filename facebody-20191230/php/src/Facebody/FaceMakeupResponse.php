@@ -15,6 +15,7 @@ class FaceMakeupResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

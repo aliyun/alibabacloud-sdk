@@ -14,6 +14,7 @@ class AbstractFilmVideoAdvanceRequest extends Model
      * @var Stream
      */
     public $videoUrlObject;
+
     /**
      * @description length
      *

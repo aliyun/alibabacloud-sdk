@@ -14,6 +14,7 @@ class RefineMaskAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description maskImageUrl
      *

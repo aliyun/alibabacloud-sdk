@@ -15,6 +15,7 @@ class RemoveImageSubtitlesResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

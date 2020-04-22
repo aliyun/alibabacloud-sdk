@@ -14,6 +14,7 @@ class key extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description KeyArn
      *

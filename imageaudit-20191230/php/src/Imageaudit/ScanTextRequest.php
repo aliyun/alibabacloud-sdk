@@ -14,6 +14,7 @@ class ScanTextRequest extends Model
      * @var array
      */
     public $tasks;
+
     /**
      * @description labels
      *

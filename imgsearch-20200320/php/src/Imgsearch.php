@@ -23,7 +23,6 @@ use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\SearchImageRequest;
 use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\SearchImageResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -48,7 +47,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListImageDbs', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new ListImageDbsResponse());
+        return ListImageDbsResponse::fromMap($this->doRequest('ListImageDbs', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -60,7 +59,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListImages', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new ListImagesResponse());
+        return ListImagesResponse::fromMap($this->doRequest('ListImages', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -72,7 +71,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SearchImage', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new SearchImageResponse());
+        return SearchImageResponse::fromMap($this->doRequest('SearchImage', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -146,7 +145,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddImage', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new AddImageResponse());
+        return AddImageResponse::fromMap($this->doRequest('AddImage', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -220,7 +219,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteImageDb', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new DeleteImageDbResponse());
+        return DeleteImageDbResponse::fromMap($this->doRequest('DeleteImageDb', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -232,7 +231,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateImageDb', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new CreateImageDbResponse());
+        return CreateImageDbResponse::fromMap($this->doRequest('CreateImageDb', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -244,7 +243,7 @@ class Imgsearch
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteImage', 'HTTPS', 'GET', '2020-03-20', 'AK', null, $request, $runtime), new DeleteImageResponse());
+        return DeleteImageResponse::fromMap($this->doRequest('DeleteImage', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -265,7 +264,7 @@ class Imgsearch
         if (!Utils::empty_($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::empty_($endpointMap['regionId'])) {
+        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap['regionId'])) {
             return $endpointMap['regionId'];
         }
 

@@ -14,6 +14,7 @@ class IntelligentCompositionRequest extends Model
      * @var int
      */
     public $numBoxes;
+
     /**
      * @description imageUrl
      *

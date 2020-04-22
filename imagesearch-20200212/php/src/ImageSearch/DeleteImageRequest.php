@@ -14,12 +14,14 @@ class DeleteImageRequest extends Model
      * @var string
      */
     public $instanceName;
+
     /**
      * @description productId
      *
      * @var string
      */
     public $productId;
+
     /**
      * @description picName
      *

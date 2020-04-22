@@ -14,6 +14,7 @@ class UpdateSecretRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description Description
      *

@@ -15,6 +15,7 @@ class SegmentCommodityResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

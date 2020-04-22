@@ -14,6 +14,7 @@ class data extends Model
      * @var int
      */
     public $mask;
+
     /**
      * @description faceProbability
      *

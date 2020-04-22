@@ -4,6 +4,7 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Kms;
 
+use AlibabaCloud\SDK\Kms\V20160120\Kms\PutSecretValueResponse\versionStages;
 use AlibabaCloud\Tea\Model;
 
 class PutSecretValueResponse extends Model
@@ -14,22 +15,25 @@ class PutSecretValueResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description SecretName
      *
      * @var string
      */
     public $secretName;
+
     /**
      * @description VersionId
      *
      * @var string
      */
     public $versionId;
+
     /**
      * @description VersionStages
      *
-     * @var array
+     * @var PutSecretValueResponse.versionStages
      */
     public $versionStages;
     protected $_name = [
@@ -53,13 +57,7 @@ class PutSecretValueResponse extends Model
         $res['RequestId']     = $this->requestId;
         $res['SecretName']    = $this->secretName;
         $res['VersionId']     = $this->versionId;
-        $res['VersionStages'] = [];
-        if (null !== $this->versionStages && \is_array($this->versionStages)) {
-            $n = 0;
-            foreach ($this->versionStages as $item) {
-                $res['VersionStages'][$n++] = null !== $item ? $item->toMap() : $item;
-            }
-        }
+        $res['VersionStages'] = null !== $this->versionStages ? $this->versionStages->toMap() : null;
 
         return $res;
     }
@@ -82,13 +80,7 @@ class PutSecretValueResponse extends Model
             $model->versionId = $map['VersionId'];
         }
         if (isset($map['VersionStages'])) {
-            if (!empty($map['VersionStages'])) {
-                $model->versionStages = [];
-                $n                    = 0;
-                foreach ($map['VersionStages'] as $item) {
-                    $model->versionStages[$n++] = null !== $item ? PutSecretValueResponse\versionStages::fromMap($item) : $item;
-                }
-            }
+            $model->versionStages = PutSecretValueResponse\versionStages::fromMap($map['VersionStages']);
         }
 
         return $model;

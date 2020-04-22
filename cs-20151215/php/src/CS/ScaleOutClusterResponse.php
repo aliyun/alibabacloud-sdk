@@ -14,6 +14,7 @@ class ScaleOutClusterResponse extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

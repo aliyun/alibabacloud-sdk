@@ -14,6 +14,7 @@ class containerData extends Model
      * @var int
      */
     public $pgFault;
+
     /**
      * @description pgmajFault
      *

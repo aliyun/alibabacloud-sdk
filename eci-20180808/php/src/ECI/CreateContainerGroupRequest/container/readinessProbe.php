@@ -17,42 +17,49 @@ class readinessProbe extends Model
      * @var readinessProbe.httpGet
      */
     public $httpGet;
+
     /**
      * @description readinessProbeInitialDelaySeconds
      *
      * @var int
      */
     public $initialDelaySeconds;
+
     /**
      * @description readinessProbePeriodSeconds
      *
      * @var int
      */
     public $periodSeconds;
+
     /**
      * @description readinessProbeSuccessThreshold
      *
      * @var int
      */
     public $successThreshold;
+
     /**
      * @description readinessProbeFailureThreshold
      *
      * @var int
      */
     public $failureThreshold;
+
     /**
      * @description readinessProbeTimeoutSeconds
      *
      * @var int
      */
     public $timeoutSeconds;
+
     /**
      * @description Exec
      *
      * @var readinessProbe.exec
      */
     public $exec;
+
     /**
      * @description TcpSocket
      *

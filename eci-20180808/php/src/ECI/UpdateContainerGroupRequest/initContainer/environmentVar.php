@@ -14,6 +14,7 @@ class environmentVar extends Model
      * @var string
      */
     public $key;
+
     /**
      * @description value
      *

@@ -18,78 +18,91 @@ class networkStats extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description rxBytes
      *
      * @var int
      */
     public $rxBytes;
+
     /**
      * @description rxPackets
      *
      * @var int
      */
     public $rxPackets;
+
     /**
      * @description rxErrors
      *
      * @var int
      */
     public $rxErrors;
+
     /**
      * @description rxDropped
      *
      * @var int
      */
     public $rxDropped;
+
     /**
      * @description txBytes
      *
      * @var int
      */
     public $txBytes;
+
     /**
      * @description txPackets
      *
      * @var int
      */
     public $txPackets;
+
     /**
      * @description txDropped
      *
      * @var int
      */
     public $txDropped;
+
     /**
      * @description txErrors
      *
      * @var int
      */
     public $txErrors;
+
     /**
      * @description interfaceStats
      *
      * @var array
      */
     public $interfaceStats;
+
     /**
      * @description tcp
      *
      * @var networkStats.tcp
      */
     public $tcp;
+
     /**
      * @description tcp6
      *
      * @var networkStats.tcp6
      */
     public $tcp6;
+
     /**
      * @description udp
      *
      * @var networkStats.udp
      */
     public $udp;
+
     /**
      * @description udp6
      *

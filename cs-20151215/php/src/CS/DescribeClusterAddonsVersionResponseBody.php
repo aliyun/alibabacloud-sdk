@@ -14,66 +14,77 @@ class DescribeClusterAddonsVersionResponseBody extends Model
      * @var string
      */
     public $template;
+
     /**
      * @description ready_to_upgrade
      *
      * @var string
      */
     public $readyToUpgrade;
+
     /**
      * @description next_version
      *
      * @var string
      */
     public $nextVersion;
+
     /**
      * @description can_upgrade
      *
      * @var bool
      */
     public $canUpgrade;
+
     /**
      * @description component_name
      *
      * @var string
      */
     public $componentName;
+
     /**
      * @description version
      *
      * @var string
      */
     public $version;
+
     /**
      * @description changed
      *
      * @var string
      */
     public $changed;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description policy
      *
      * @var string
      */
     public $policy;
+
     /**
      * @description force
      *
      * @var bool
      */
     public $force;
+
     /**
      * @description required
      *
      * @var bool
      */
     public $required;
+
     /**
      * @description exist
      *

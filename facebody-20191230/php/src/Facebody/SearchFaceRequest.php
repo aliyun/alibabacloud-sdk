@@ -14,12 +14,14 @@ class SearchFaceRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageUrl;
+
     /**
      * @description limit
      *

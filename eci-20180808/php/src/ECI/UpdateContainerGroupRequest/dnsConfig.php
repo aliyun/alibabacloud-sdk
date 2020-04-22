@@ -14,12 +14,14 @@ class dnsConfig extends Model
      * @var array
      */
     public $nameServer;
+
     /**
      * @description dnsConfigSearches
      *
      * @var array
      */
     public $search;
+
     /**
      * @description dnsConfigOptions
      *

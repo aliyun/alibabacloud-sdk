@@ -14,6 +14,7 @@ class SuperResolveVideoRequest extends Model
      * @var string
      */
     public $videoUrl;
+
     /**
      * @description bitRate
      *

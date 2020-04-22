@@ -14,18 +14,21 @@ class DeleteImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description success
      *
      * @var bool
      */
     public $success;
+
     /**
      * @description msg
      *
      * @var string
      */
     public $message;
+
     /**
      * @description code
      *

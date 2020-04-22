@@ -14,12 +14,14 @@ class SearchImageAdvanceRequest extends Model
      * @var Stream
      */
     public $imageUrlObject;
+
     /**
      * @description dbName
      *
      * @var string
      */
     public $dbName;
+
     /**
      * @description limit
      *

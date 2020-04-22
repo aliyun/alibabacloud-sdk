@@ -14,6 +14,7 @@ class UpdateSecretVersionStageResponse extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description RequestId
      *

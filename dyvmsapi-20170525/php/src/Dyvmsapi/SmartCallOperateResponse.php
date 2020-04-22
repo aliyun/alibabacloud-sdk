@@ -14,18 +14,21 @@ class SmartCallOperateResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description module
      *
      * @var bool
      */
     public $status;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *

@@ -14,6 +14,7 @@ class CompareFaceRequest extends Model
      * @var string
      */
     public $imageURLA;
+
     /**
      * @description imageUrlB
      *

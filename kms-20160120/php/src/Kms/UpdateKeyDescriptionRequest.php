@@ -14,6 +14,7 @@ class UpdateKeyDescriptionRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description desc
      *

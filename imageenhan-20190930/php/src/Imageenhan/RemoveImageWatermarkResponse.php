@@ -15,6 +15,7 @@ class RemoveImageWatermarkResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

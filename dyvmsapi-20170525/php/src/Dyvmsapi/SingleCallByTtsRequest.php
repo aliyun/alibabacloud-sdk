@@ -14,66 +14,77 @@ class SingleCallByTtsRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description calledShowNumber
      *
      * @var string
      */
     public $calledShowNumber;
+
     /**
      * @description calledNumber
      *
      * @var string
      */
     public $calledNumber;
+
     /**
      * @description ttsCode
      *
      * @var string
      */
     public $ttsCode;
+
     /**
      * @description ttsParam
      *
      * @var string
      */
     public $ttsParam;
+
     /**
      * @description playTimes
      *
      * @var int
      */
     public $playTimes;
+
     /**
      * @description volume
      *
      * @var int
      */
     public $volume;
+
     /**
      * @description speed
      *
      * @var int
      */
     public $speed;
+
     /**
      * @description outId
      *

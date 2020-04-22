@@ -15,6 +15,7 @@ class DescribeContainerGroupPriceResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

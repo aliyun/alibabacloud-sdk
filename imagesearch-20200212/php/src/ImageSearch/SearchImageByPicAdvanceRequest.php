@@ -14,42 +14,49 @@ class SearchImageByPicAdvanceRequest extends Model
      * @var Stream
      */
     public $picContentObject;
+
     /**
      * @description categoryId
      *
      * @var int
      */
     public $categoryId;
+
     /**
      * @description instanceName
      *
      * @var string
      */
     public $instanceName;
+
     /**
      * @description crop
      *
      * @var bool
      */
     public $crop;
+
     /**
      * @description region
      *
      * @var string
      */
     public $region;
+
     /**
      * @description num
      *
      * @var int
      */
     public $num;
+
     /**
      * @description start
      *
      * @var int
      */
     public $start;
+
     /**
      * @description filter
      *

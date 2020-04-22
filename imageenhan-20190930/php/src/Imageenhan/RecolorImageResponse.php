@@ -15,6 +15,7 @@ class RecolorImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

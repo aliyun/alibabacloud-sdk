@@ -15,6 +15,7 @@ class ListResourceTagsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.tags
      *

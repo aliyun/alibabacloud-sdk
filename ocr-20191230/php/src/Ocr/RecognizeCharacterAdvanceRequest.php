@@ -14,12 +14,14 @@ class RecognizeCharacterAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description minHeight
      *
      * @var int
      */
     public $minHeight;
+
     /**
      * @description outputProbability
      *

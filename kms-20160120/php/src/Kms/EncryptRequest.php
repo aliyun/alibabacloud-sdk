@@ -14,12 +14,14 @@ class EncryptRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description plaintext
      *
      * @var string
      */
     public $plaintext;
+
     /**
      * @description encryptionContext
      *

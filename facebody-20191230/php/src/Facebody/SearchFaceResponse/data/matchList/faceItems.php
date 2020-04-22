@@ -14,18 +14,21 @@ class faceItems extends Model
      * @var string
      */
     public $faceId;
+
     /**
      * @description score
      *
      * @var float
      */
     public $score;
+
     /**
      * @description extraData
      *
      * @var string
      */
     public $extraData;
+
     /**
      * @description entityId
      *

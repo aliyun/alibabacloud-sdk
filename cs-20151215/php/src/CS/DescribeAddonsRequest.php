@@ -14,6 +14,7 @@ class DescribeAddonsRequest extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description query
      *

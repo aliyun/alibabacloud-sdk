@@ -14,12 +14,14 @@ class TrimDocumentRequest extends Model
      * @var string
      */
     public $fileURL;
+
     /**
      * @description fileType
      *
      * @var string
      */
     public $fileType;
+
     /**
      * @description outputType
      *

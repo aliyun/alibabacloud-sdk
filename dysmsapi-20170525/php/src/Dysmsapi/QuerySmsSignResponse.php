@@ -14,36 +14,42 @@ class QuerySmsSignResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description module.signStatus
      *
      * @var int
      */
     public $signStatus;
+
     /**
      * @description module.reason
      *
      * @var string
      */
     public $reason;
+
     /**
      * @description module.signName
      *
      * @var string
      */
     public $signName;
+
     /**
      * @description module.createDate
      *

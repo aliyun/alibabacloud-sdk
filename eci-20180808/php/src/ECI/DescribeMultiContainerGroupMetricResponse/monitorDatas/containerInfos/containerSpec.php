@@ -16,66 +16,77 @@ class containerSpec extends Model
      * @var string
      */
     public $creationTime;
+
     /**
      * @description hasCpu
      *
      * @var bool
      */
     public $hasCpu;
+
     /**
      * @description hasMemory
      *
      * @var bool
      */
     public $hasMemory;
+
     /**
      * @description hasNetwork
      *
      * @var bool
      */
     public $hasNetwork;
+
     /**
      * @description hasFilesystem
      *
      * @var bool
      */
     public $hasFilesystem;
+
     /**
      * @description hasDiskIo
      *
      * @var bool
      */
     public $hasDiskIo;
+
     /**
      * @description hasCustomMetrics
      *
      * @var bool
      */
     public $hasCustomMetrics;
+
     /**
      * @description image
      *
      * @var string
      */
     public $image;
+
     /**
      * @description labelsForPop
      *
      * @var string
      */
     public $labels;
+
     /**
      * @description envsForPop
      *
      * @var string
      */
     public $envs;
+
     /**
      * @description cpu
      *
      * @var containerSpec.containerCpu
      */
     public $containerCpu;
+
     /**
      * @description memory
      *

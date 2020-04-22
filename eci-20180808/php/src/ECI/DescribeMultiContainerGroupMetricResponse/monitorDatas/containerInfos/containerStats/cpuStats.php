@@ -16,12 +16,14 @@ class cpuStats extends Model
      * @var int
      */
     public $loadAverage;
+
     /**
      * @description usage
      *
      * @var cpuStats.cpuUsage
      */
     public $cpuUsage;
+
     /**
      * @description cfs
      *

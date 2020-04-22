@@ -14,12 +14,14 @@ class ChangeImageSizeRequest extends Model
      * @var int
      */
     public $width;
+
     /**
      * @description height
      *
      * @var int
      */
     public $height;
+
     /**
      * @description url
      *

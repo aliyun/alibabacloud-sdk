@@ -14,18 +14,21 @@ class AddFaceRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageUrl;
+
     /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
+
     /**
      * @description extraData
      *

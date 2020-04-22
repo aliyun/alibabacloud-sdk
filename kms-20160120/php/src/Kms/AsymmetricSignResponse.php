@@ -14,18 +14,21 @@ class AsymmetricSignResponse extends Model
      * @var string
      */
     public $value;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyVersionId
      *

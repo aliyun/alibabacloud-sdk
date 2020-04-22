@@ -14,54 +14,63 @@ class subResults extends Model
      * @var string
      */
     public $label;
+
     /**
      * @description suggestion
      *
      * @var string
      */
     public $suggestion;
+
     /**
      * @description rate
      *
      * @var float
      */
     public $rate;
+
     /**
      * @description scene
      *
      * @var string
      */
     public $scene;
+
     /**
      * @description frames
      *
      * @var array
      */
     public $frames;
+
     /**
      * @description hintWordsInfo
      *
      * @var array
      */
     public $hintWordsInfoList;
+
     /**
      * @description programCodeData
      *
      * @var array
      */
     public $programCodeDataList;
+
     /**
      * @description logoData
      *
      * @var array
      */
     public $logoDataList;
+
     /**
      * @description sfaceData
      *
      * @var array
      */
     public $sfaceDataList;
+
     /**
      * @description ocrData
      *

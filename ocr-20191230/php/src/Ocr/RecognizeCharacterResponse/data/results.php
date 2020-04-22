@@ -15,12 +15,14 @@ class results extends Model
      * @var float
      */
     public $probability;
+
     /**
      * @description text
      *
      * @var string
      */
     public $text;
+
     /**
      * @description textRectangles
      *

@@ -15,6 +15,7 @@ class DetectWhiteBaseImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

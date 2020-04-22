@@ -14,6 +14,7 @@ class box extends Model
      * @var float
      */
     public $confident;
+
     /**
      * @description positions
      *

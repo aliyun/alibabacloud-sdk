@@ -14,12 +14,14 @@ class CreateImageCacheResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.imageCacheId
      *
      * @var string
      */
     public $imageCacheId;
+
     /**
      * @description data.containerGroupId
      *

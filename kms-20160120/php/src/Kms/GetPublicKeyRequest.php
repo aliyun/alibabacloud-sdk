@@ -14,6 +14,7 @@ class GetPublicKeyRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description KeyVersionId
      *

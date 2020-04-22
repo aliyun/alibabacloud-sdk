@@ -14,6 +14,7 @@ class RecognizeDriverLicenseAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description side
      *

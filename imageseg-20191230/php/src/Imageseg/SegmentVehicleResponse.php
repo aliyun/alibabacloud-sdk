@@ -15,6 +15,7 @@ class SegmentVehicleResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

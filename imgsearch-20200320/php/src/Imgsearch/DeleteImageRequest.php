@@ -14,6 +14,7 @@ class DeleteImageRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description entityId
      *

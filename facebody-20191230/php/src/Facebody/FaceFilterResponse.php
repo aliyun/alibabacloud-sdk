@@ -15,6 +15,7 @@ class FaceFilterResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

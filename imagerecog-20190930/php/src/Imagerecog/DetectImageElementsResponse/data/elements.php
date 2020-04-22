@@ -14,30 +14,35 @@ class elements extends Model
      * @var string
      */
     public $type;
+
     /**
      * @description x
      *
      * @var int
      */
     public $x;
+
     /**
      * @description y
      *
      * @var int
      */
     public $y;
+
     /**
      * @description width
      *
      * @var int
      */
     public $width;
+
     /**
      * @description height
      *
      * @var int
      */
     public $height;
+
     /**
      * @description score
      *

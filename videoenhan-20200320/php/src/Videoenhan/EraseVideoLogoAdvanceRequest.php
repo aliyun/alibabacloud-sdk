@@ -14,6 +14,7 @@ class EraseVideoLogoAdvanceRequest extends Model
      * @var Stream
      */
     public $videoUrlObject;
+
     /**
      * @description boxes
      *

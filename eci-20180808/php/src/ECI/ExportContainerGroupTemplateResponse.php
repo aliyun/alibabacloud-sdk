@@ -15,6 +15,7 @@ class ExportContainerGroupTemplateResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

@@ -15,36 +15,42 @@ class containerInfos extends Model
      * @var string
      */
     public $id;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description namespace
      *
      * @var string
      */
     public $namespace;
+
     /**
      * @description labelsForPop
      *
      * @var string
      */
     public $labels;
+
     /**
      * @description stats
      *
      * @var array
      */
     public $containerStats;
+
     /**
      * @description spec
      *
      * @var containerInfos.containerSpec
      */
     public $containerSpec;
+
     /**
      * @description aliases
      *

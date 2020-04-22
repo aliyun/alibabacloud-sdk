@@ -15,6 +15,7 @@ class RecognizeFurnitureAttributeResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

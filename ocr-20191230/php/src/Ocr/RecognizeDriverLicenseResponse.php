@@ -15,6 +15,7 @@ class RecognizeDriverLicenseResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

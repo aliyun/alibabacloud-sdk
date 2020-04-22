@@ -14,18 +14,21 @@ class tasks extends Model
      * @var string
      */
     public $finishedAt;
+
     /**
      * @description master_url
      *
      * @var string
      */
     public $masterUrl;
+
     /**
      * @description created_at
      *
      * @var string
      */
     public $createdAt;
+
     /**
      * @description status
      *

@@ -14,12 +14,14 @@ class monitorDatas extends Model
      * @var string
      */
     public $containerGroupId;
+
     /**
      * @description podStats
      *
      * @var array
      */
     public $records;
+
     /**
      * @description containerInfos
      *

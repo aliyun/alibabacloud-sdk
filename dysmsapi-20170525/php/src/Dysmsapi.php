@@ -27,7 +27,6 @@ use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendBatchSmsRequest;
 use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendBatchSmsResponse;
 use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendSmsRequest;
 use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendSmsResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
@@ -67,7 +66,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QuerySmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QuerySmsTemplateResponse());
+        return QuerySmsTemplateResponse::fromMap($this->doRequest('QuerySmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -79,7 +78,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QuerySmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QuerySmsSignResponse());
+        return QuerySmsSignResponse::fromMap($this->doRequest('QuerySmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -91,7 +90,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ModifySmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ModifySmsTemplateResponse());
+        return ModifySmsTemplateResponse::fromMap($this->doRequest('ModifySmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -103,7 +102,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ModifySmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ModifySmsSignResponse());
+        return ModifySmsSignResponse::fromMap($this->doRequest('ModifySmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -115,7 +114,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteSmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DeleteSmsTemplateResponse());
+        return DeleteSmsTemplateResponse::fromMap($this->doRequest('DeleteSmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -127,7 +126,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteSmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DeleteSmsSignResponse());
+        return DeleteSmsSignResponse::fromMap($this->doRequest('DeleteSmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -139,7 +138,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddSmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new AddSmsTemplateResponse());
+        return AddSmsTemplateResponse::fromMap($this->doRequest('AddSmsTemplate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -151,7 +150,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddSmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new AddSmsSignResponse());
+        return AddSmsSignResponse::fromMap($this->doRequest('AddSmsSign', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -163,7 +162,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SendBatchSms', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SendBatchSmsResponse());
+        return SendBatchSmsResponse::fromMap($this->doRequest('SendBatchSms', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -175,7 +174,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SendSms', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SendSmsResponse());
+        return SendSmsResponse::fromMap($this->doRequest('SendSms', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -187,7 +186,7 @@ class Dysmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QuerySendDetails', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QuerySendDetailsResponse());
+        return QuerySendDetailsResponse::fromMap($this->doRequest('QuerySendDetails', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**

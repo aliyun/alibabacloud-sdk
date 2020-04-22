@@ -14,6 +14,7 @@ class DescribeRegionsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

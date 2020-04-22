@@ -14,12 +14,14 @@ class head extends Model
      * @var int
      */
     public $docsReturn;
+
     /**
      * @description docsFound
      *
      * @var int
      */
     public $docsFound;
+
     /**
      * @description searchTime
      *

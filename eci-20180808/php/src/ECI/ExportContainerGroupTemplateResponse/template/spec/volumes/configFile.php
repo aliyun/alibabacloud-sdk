@@ -14,6 +14,7 @@ class configFile extends Model
      * @var int
      */
     public $defaultMode;
+
     /**
      * @description items
      *

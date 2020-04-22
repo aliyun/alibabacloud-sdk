@@ -15,6 +15,7 @@ class DetectPedestrianResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

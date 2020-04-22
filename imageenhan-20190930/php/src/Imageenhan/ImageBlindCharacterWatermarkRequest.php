@@ -14,30 +14,35 @@ class ImageBlindCharacterWatermarkRequest extends Model
      * @var string
      */
     public $functionType;
+
     /**
      * @description text
      *
      * @var string
      */
     public $text;
+
     /**
      * @description watermarkImageUrl
      *
      * @var string
      */
     public $watermarkImageURL;
+
     /**
      * @description outputFileType
      *
      * @var string
      */
     public $outputFileType;
+
     /**
      * @description qualityFactor
      *
      * @var int
      */
     public $qualityFactor;
+
     /**
      * @description originImageUrl
      *

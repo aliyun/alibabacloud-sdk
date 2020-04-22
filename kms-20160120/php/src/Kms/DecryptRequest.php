@@ -14,6 +14,7 @@ class DecryptRequest extends Model
      * @var string
      */
     public $ciphertextBlob;
+
     /**
      * @description encryptionContext
      *

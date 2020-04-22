@@ -14,12 +14,14 @@ class TrimDocumentAdvanceRequest extends Model
      * @var Stream
      */
     public $fileURLObject;
+
     /**
      * @description fileType
      *
      * @var string
      */
     public $fileType;
+
     /**
      * @description outputType
      *

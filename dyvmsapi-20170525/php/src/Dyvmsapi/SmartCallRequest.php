@@ -14,144 +14,168 @@ class SmartCallRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description calledShowNumber
      *
      * @var string
      */
     public $calledShowNumber;
+
     /**
      * @description calledNumber
      *
      * @var string
      */
     public $calledNumber;
+
     /**
      * @description voiceCode
      *
      * @var string
      */
     public $voiceCode;
+
     /**
      * @description recordFlag
      *
      * @var bool
      */
     public $recordFlag;
+
     /**
      * @description volume
      *
      * @var int
      */
     public $volume;
+
     /**
      * @description speed
      *
      * @var int
      */
     public $speed;
+
     /**
      * @description asrModelId
      *
      * @var string
      */
     public $asrModelId;
+
     /**
      * @description pauseTime
      *
      * @var int
      */
     public $pauseTime;
+
     /**
      * @description muteTime
      *
      * @var int
      */
     public $muteTime;
+
     /**
      * @description actionCodeBreak
      *
      * @var bool
      */
     public $actionCodeBreak;
+
     /**
      * @description outId
      *
      * @var string
      */
     public $outId;
+
     /**
      * @description dynamicId
      *
      * @var string
      */
     public $dynamicId;
+
     /**
      * @description earlyMediaAsr
      *
      * @var bool
      */
     public $earlyMediaAsr;
+
     /**
      * @description voiceCodeParam
      *
      * @var string
      */
     public $voiceCodeParam;
+
     /**
      * @description sessionTimeout
      *
      * @var int
      */
     public $sessionTimeout;
+
     /**
      * @description actionCodeTimeBreak
      *
      * @var int
      */
     public $actionCodeTimeBreak;
+
     /**
      * @description ttsStyle
      *
      * @var string
      */
     public $ttsStyle;
+
     /**
      * @description ttsVolume
      *
      * @var int
      */
     public $ttsVolume;
+
     /**
      * @description ttsSpeed
      *
      * @var int
      */
     public $ttsSpeed;
+
     /**
      * @description ttsConf
      *
      * @var bool
      */
     public $ttsConf;
+
     /**
      * @description asrBaseId
      *

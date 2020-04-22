@@ -14,48 +14,56 @@ class ModifySmsTemplateRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description templateType
      *
      * @var int
      */
     public $templateType;
+
     /**
      * @description templateName
      *
      * @var string
      */
     public $templateName;
+
     /**
      * @description templateCode
      *
      * @var string
      */
     public $templateCode;
+
     /**
      * @description templateContent
      *
      * @var string
      */
     public $templateContent;
+
     /**
      * @description remark
      *

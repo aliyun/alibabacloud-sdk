@@ -14,54 +14,63 @@ class SendSmsRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description phoneNumbers
      *
      * @var string
      */
     public $phoneNumbers;
+
     /**
      * @description signName
      *
      * @var string
      */
     public $signName;
+
     /**
      * @description templateCode
      *
      * @var string
      */
     public $templateCode;
+
     /**
      * @description templateParam
      *
      * @var string
      */
     public $templateParam;
+
     /**
      * @description smsUpExtendCode
      *
      * @var string
      */
     public $smsUpExtendCode;
+
     /**
      * @description outId
      *

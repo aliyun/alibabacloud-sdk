@@ -14,90 +14,105 @@ class CreateImageCacheRequest extends Model
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description ownerAccount
      *
      * @var string
      */
     public $ownerAccount;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description zoneId
      *
      * @var string
      */
     public $zoneId;
+
     /**
      * @description linkedSecurityGroupId
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description linkedVSwitchId
      *
      * @var string
      */
     public $VSwitchId;
+
     /**
      * @description containerGroupName
      *
      * @var string
      */
     public $imageCacheName;
+
     /**
      * @description imageRegistryCredentials
      *
      * @var array
      */
     public $imageRegistryCredential;
+
     /**
      * @description eipInstanceId
      *
      * @var string
      */
     public $eipInstanceId;
+
     /**
      * @description resourceGroupId
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description clientToken
      *
      * @var string
      */
     public $clientToken;
+
     /**
      * @description images
      *
      * @var array
      */
     public $image;
+
     /**
      * @description imageCacheSize
      *
      * @var int
      */
     public $imageCacheSize;
+
     /**
      * @description retentionDays
      *

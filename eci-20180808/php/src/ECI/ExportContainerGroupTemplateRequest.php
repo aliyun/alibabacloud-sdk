@@ -14,30 +14,35 @@ class ExportContainerGroupTemplateRequest extends Model
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description ownerAccount
      *
      * @var string
      */
     public $ownerAccount;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description containerGroupId
      *

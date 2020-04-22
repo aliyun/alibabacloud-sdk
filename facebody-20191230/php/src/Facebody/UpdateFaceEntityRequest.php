@@ -14,12 +14,14 @@ class UpdateFaceEntityRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
+
     /**
      * @description labels
      *

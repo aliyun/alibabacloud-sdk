@@ -15,6 +15,7 @@ class RecognizeVehiclePartsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

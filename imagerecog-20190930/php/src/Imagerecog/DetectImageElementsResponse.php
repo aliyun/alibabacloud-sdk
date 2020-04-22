@@ -15,6 +15,7 @@ class DetectImageElementsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

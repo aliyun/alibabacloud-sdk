@@ -14,36 +14,42 @@ class auctions extends Model
      * @var int
      */
     public $categoryId;
+
     /**
      * @description productId
      *
      * @var string
      */
     public $productId;
+
     /**
      * @description picName
      *
      * @var string
      */
     public $picName;
+
     /**
      * @description customContent
      *
      * @var string
      */
     public $customContent;
+
     /**
      * @description sortExprValues
      *
      * @var string
      */
     public $sortExprValues;
+
     /**
      * @description intAttr
      *
      * @var int
      */
     public $intAttr;
+
     /**
      * @description strAttr
      *

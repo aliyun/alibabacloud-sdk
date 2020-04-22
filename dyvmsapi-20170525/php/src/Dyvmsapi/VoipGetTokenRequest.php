@@ -14,36 +14,42 @@ class VoipGetTokenRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description voipId
      *
      * @var string
      */
     public $voipId;
+
     /**
      * @description deviceId
      *
      * @var string
      */
     public $deviceId;
+
     /**
      * @description isCustomAccount
      *

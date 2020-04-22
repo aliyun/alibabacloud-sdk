@@ -14,6 +14,7 @@ class data extends Model
      * @var string
      */
     public $watermarkImageURL;
+
     /**
      * @description textImageUrl
      *

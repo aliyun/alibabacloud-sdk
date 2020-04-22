@@ -14,12 +14,14 @@ class FaceTidyupAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description shapeType
      *
      * @var int
      */
     public $shapeType;
+
     /**
      * @description strength
      *

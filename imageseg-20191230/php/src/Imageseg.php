@@ -39,7 +39,6 @@ use AlibabaCloud\SDK\Imageseg\V20191230\Imageseg\SegmentVehicleRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Imageseg\SegmentVehicleResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -64,7 +63,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetAsyncJobResult', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime), new GetAsyncJobResultResponse());
+        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -76,7 +75,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentFurniture', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new SegmentFurnitureResponse());
+        return SegmentFurnitureResponse::fromMap($this->doRequest('SegmentFurniture', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -150,7 +149,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RefineMask', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RefineMaskResponse());
+        return RefineMaskResponse::fromMap($this->doRequest('RefineMask', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -224,7 +223,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ParseFace', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new ParseFaceResponse());
+        return ParseFaceResponse::fromMap($this->doRequest('ParseFace', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -298,7 +297,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentVehicle', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new SegmentVehicleResponse());
+        return SegmentVehicleResponse::fromMap($this->doRequest('SegmentVehicle', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -372,7 +371,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentHair', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new SegmentHairResponse());
+        return SegmentHairResponse::fromMap($this->doRequest('SegmentHair', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -446,7 +445,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentFace', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new SegmentFaceResponse());
+        return SegmentFaceResponse::fromMap($this->doRequest('SegmentFace', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -520,7 +519,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentHead', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new SegmentHeadResponse());
+        return SegmentHeadResponse::fromMap($this->doRequest('SegmentHead', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -594,7 +593,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentCommodity', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new SegmentCommodityResponse());
+        return SegmentCommodityResponse::fromMap($this->doRequest('SegmentCommodity', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -668,7 +667,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentBody', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new SegmentBodyResponse());
+        return SegmentBodyResponse::fromMap($this->doRequest('SegmentBody', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -742,7 +741,7 @@ class Imageseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentCommonImage', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new SegmentCommonImageResponse());
+        return SegmentCommonImageResponse::fromMap($this->doRequest('SegmentCommonImage', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**

@@ -14,12 +14,14 @@ class TagResourceRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description tags
      *
      * @var string
      */
     public $tags;
+
     /**
      * @description SecretName
      *

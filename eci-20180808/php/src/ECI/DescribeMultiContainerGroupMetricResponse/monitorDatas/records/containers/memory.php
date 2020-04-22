@@ -14,24 +14,28 @@ class memory extends Model
      * @var int
      */
     public $availableBytes;
+
     /**
      * @description usageBytes
      *
      * @var int
      */
     public $usageBytes;
+
     /**
      * @description cache
      *
      * @var int
      */
     public $cache;
+
     /**
      * @description workingSet
      *
      * @var int
      */
     public $workingSet;
+
     /**
      * @description rss
      *

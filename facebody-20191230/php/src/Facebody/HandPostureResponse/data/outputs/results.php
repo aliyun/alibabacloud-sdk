@@ -16,6 +16,7 @@ class results extends Model
      * @var results.box
      */
     public $box;
+
     /**
      * @description hands
      *

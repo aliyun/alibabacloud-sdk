@@ -15,6 +15,7 @@ class GetAsyncJobResultResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

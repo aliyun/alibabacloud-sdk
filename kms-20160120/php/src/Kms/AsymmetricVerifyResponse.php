@@ -14,18 +14,21 @@ class AsymmetricVerifyResponse extends Model
      * @var bool
      */
     public $value;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyVersionId
      *

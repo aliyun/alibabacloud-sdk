@@ -14,72 +14,84 @@ class kubernetes extends Model
      * @var string
      */
     public $componentName;
+
     /**
      * @description version
      *
      * @var string
      */
     public $version;
+
     /**
      * @description next_version
      *
      * @var string
      */
     public $nextVersion;
+
     /**
      * @description changed
      *
      * @var string
      */
     public $changed;
+
     /**
      * @description can_upgrade
      *
      * @var bool
      */
     public $canUpgrade;
+
     /**
      * @description force
      *
      * @var bool
      */
     public $force;
+
     /**
      * @description policy
      *
      * @var string
      */
     public $policy;
+
     /**
      * @description ExtraVars
      *
      * @var string
      */
     public $extraVars;
+
     /**
      * @description ready_to_upgrade
      *
      * @var string
      */
     public $readyToUpgrade;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description exist
      *
      * @var bool
      */
     public $exist;
+
     /**
      * @description required
      *
      * @var bool
      */
     public $required;
+
     /**
      * @description template
      *

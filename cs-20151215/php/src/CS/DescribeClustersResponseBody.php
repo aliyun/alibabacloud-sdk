@@ -16,234 +16,273 @@ class DescribeClustersResponseBody extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description cluster_id
      *
      * @var string
      */
     public $clusterId;
+
     /**
      * @description size
      *
      * @var int
      */
     public $size;
+
     /**
      * @description region_id
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description state
      *
      * @var string
      */
     public $state;
+
     /**
      * @description cluster_type
      *
      * @var string
      */
     public $clusterType;
+
     /**
      * @description created
      *
      * @var string
      */
     public $created;
+
     /**
      * @description updated
      *
      * @var string
      */
     public $updated;
+
     /**
      * @description init_version
      *
      * @var string
      */
     public $initVersion;
+
     /**
      * @description current_version
      *
      * @var string
      */
     public $currentVersion;
+
     /**
      * @description meta_data
      *
      * @var string
      */
     public $metaData;
+
     /**
      * @description resource_group_id
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description instance_type
      *
      * @var string
      */
     public $instanceType;
+
     /**
      * @description vpc_id
      *
      * @var string
      */
     public $vpcId;
+
     /**
      * @description vswitch_id
      *
      * @var string
      */
     public $vswitchId;
+
     /**
      * @description vswitch_cidr
      *
      * @var string
      */
     public $vswitchCidr;
+
     /**
      * @description data_disk_size
      *
      * @var int
      */
     public $dataDiskSize;
+
     /**
      * @description data_disk_category
      *
      * @var string
      */
     public $dataDiskCategory;
+
     /**
      * @description security_group_id
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description zone_id
      *
      * @var string
      */
     public $zoneId;
+
     /**
      * @description network_mode
      *
      * @var string
      */
     public $networkMode;
+
     /**
      * @description subnet_cidr
      *
      * @var string
      */
     public $subnetCidr;
+
     /**
      * @description master_url
      *
      * @var string
      */
     public $masterUrl;
+
     /**
      * @description external_loadbalancer_id
      *
      * @var string
      */
     public $externalLoadbalancerId;
+
     /**
      * @description port
      *
      * @var int
      */
     public $port;
+
     /**
      * @description node_status
      *
      * @var string
      */
     public $nodeStatus;
+
     /**
      * @description cluster_healthy
      *
      * @var string
      */
     public $clusterHealthy;
+
     /**
      * @description docker_version
      *
      * @var string
      */
     public $dockerVersion;
+
     /**
      * @description swarm_mode
      *
      * @var bool
      */
     public $swarmMode;
+
     /**
      * @description gw_bridge
      *
      * @var string
      */
     public $gwBridge;
+
     /**
      * @description private_zone
      *
      * @var bool
      */
     public $privateZone;
+
     /**
      * @description profile
      *
      * @var string
      */
     public $profile;
+
     /**
      * @description deletion_protection
      *
      * @var bool
      */
     public $deletionProtection;
+
     /**
      * @description capabilities
      *
      * @var string
      */
     public $capabilities;
+
     /**
      * @description enabled_migration
      *
      * @var bool
      */
     public $enabledMigration;
+
     /**
      * @description need_update_agent
      *
      * @var bool
      */
     public $needUpdateAgent;
+
     /**
      * @description tags
      *
      * @var array
      */
     public $tags;
+
     /**
      * @description outputs
      *
      * @var array
      */
     public $outputs;
+
     /**
      * @description upgrade_components
      *
      * @var DescribeClustersResponseBody.upgradeComponents
      */
     public $upgradeComponents;
+
     /**
      * @description parameters
      *

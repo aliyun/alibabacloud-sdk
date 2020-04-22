@@ -14,18 +14,21 @@ class QueryCallDetailByTaskIdResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description module
      *
      * @var string
      */
     public $data;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *

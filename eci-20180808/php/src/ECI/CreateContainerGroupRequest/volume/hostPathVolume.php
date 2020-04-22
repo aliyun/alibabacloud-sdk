@@ -14,6 +14,7 @@ class hostPathVolume extends Model
      * @var string
      */
     public $type;
+
     /**
      * @description hostPathVolumePath
      *

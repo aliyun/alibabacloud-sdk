@@ -7,7 +7,6 @@ namespace AlibabaCloud\SDK\OpenPlatform\V20191219;
 use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
@@ -30,7 +29,7 @@ class OpenPlatform
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AuthorizeFileUpload', 'HTTPS', 'GET', '2019-12-19', 'AK', $request, null, $runtime), new AuthorizeFileUploadResponse());
+        return AuthorizeFileUploadResponse::fromMap($this->doRequest('AuthorizeFileUpload', 'HTTPS', 'GET', '2019-12-19', 'AK', $request, null, $runtime));
     }
 
     /**

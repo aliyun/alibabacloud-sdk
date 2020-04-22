@@ -15,6 +15,7 @@ class DetectMainBodyResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

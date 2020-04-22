@@ -14,18 +14,21 @@ class BatchRobotSmartCallResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description module
      *
      * @var string
      */
     public $taskId;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *

@@ -14,6 +14,7 @@ class center extends Model
      * @var float
      */
     public $x;
+
     /**
      * @description y
      *

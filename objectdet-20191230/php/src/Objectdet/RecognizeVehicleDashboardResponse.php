@@ -15,6 +15,7 @@ class RecognizeVehicleDashboardResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

@@ -14,30 +14,35 @@ class logosData extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description x
      *
      * @var float
      */
     public $x;
+
     /**
      * @description y
      *
      * @var float
      */
     public $y;
+
     /**
      * @description h
      *
      * @var float
      */
     public $h;
+
     /**
      * @description w
      *

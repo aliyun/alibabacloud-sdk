@@ -15,6 +15,7 @@ class RecognizeQrCodeResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

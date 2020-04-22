@@ -14,6 +14,7 @@ class CreateAliasRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description aliasName
      *

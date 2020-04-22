@@ -16,6 +16,7 @@ class data extends Model
      * @var data.content
      */
     public $content;
+
     /**
      * @description box
      *

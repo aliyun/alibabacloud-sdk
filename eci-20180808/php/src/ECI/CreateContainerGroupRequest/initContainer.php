@@ -15,72 +15,84 @@ class initContainer extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description image
      *
      * @var string
      */
     public $image;
+
     /**
      * @description cpu
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description mem
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description workingDir
      *
      * @var string
      */
     public $workingDir;
+
     /**
      * @description imagePullPolicy
      *
      * @var string
      */
     public $imagePullPolicy;
+
     /**
      * @description command
      *
      * @var array
      */
     public $command;
+
     /**
      * @description args
      *
      * @var array
      */
     public $arg;
+
     /**
      * @description volumeMounts
      *
      * @var array
      */
     public $volumeMount;
+
     /**
      * @description ports
      *
      * @var array
      */
     public $port;
+
     /**
      * @description env
      *
      * @var array
      */
     public $environmentVar;
+
     /**
      * @description SecurityContext
      *
      * @var initContainer.securityContext
      */
     public $securityContext;
+
     /**
      * @description gpu
      *

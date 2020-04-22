@@ -14,12 +14,14 @@ class configFileToPath extends Model
      * @var string
      */
     public $content;
+
     /**
      * @description path
      *
      * @var string
      */
     public $path;
+
     /**
      * @description mode
      *

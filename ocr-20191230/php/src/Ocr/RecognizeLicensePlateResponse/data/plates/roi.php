@@ -14,18 +14,21 @@ class roi extends Model
      * @var int
      */
     public $h;
+
     /**
      * @description w
      *
      * @var int
      */
     public $w;
+
     /**
      * @description x
      *
      * @var int
      */
     public $x;
+
     /**
      * @description y
      *

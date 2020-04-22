@@ -14,12 +14,14 @@ class UntagResourceRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description tagKeys
      *
      * @var string
      */
     public $tagKeys;
+
     /**
      * @description SecretName
      *

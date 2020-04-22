@@ -15,12 +15,14 @@ class elements extends Model
      * @var string
      */
     public $expression;
+
     /**
      * @description faceProbability
      *
      * @var float
      */
     public $faceProbability;
+
     /**
      * @description faceRectangle
      *

@@ -15,6 +15,7 @@ class ClassifyingRubbishResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

@@ -14,42 +14,49 @@ class data extends Model
      * @var string
      */
     public $date;
+
     /**
      * @description destination
      *
      * @var string
      */
     public $destination;
+
     /**
      * @description level
      *
      * @var string
      */
     public $level;
+
     /**
      * @description number
      *
      * @var string
      */
     public $number;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description departureStation
      *
      * @var string
      */
     public $departureStation;
+
     /**
      * @description seat
      *
      * @var string
      */
     public $seat;
+
     /**
      * @description price
      *

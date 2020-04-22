@@ -4,6 +4,7 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Kms;
 
+use AlibabaCloud\SDK\Kms\V20160120\Kms\GetSecretValueResponse\versionStages;
 use AlibabaCloud\Tea\Model;
 
 class GetSecretValueResponse extends Model
@@ -14,40 +15,46 @@ class GetSecretValueResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description SecretName
      *
      * @var string
      */
     public $secretName;
+
     /**
      * @description VersionId
      *
      * @var string
      */
     public $versionId;
+
     /**
      * @description CreateTime
      *
      * @var string
      */
     public $createTime;
+
     /**
      * @description SecretData
      *
      * @var string
      */
     public $secretData;
+
     /**
      * @description SecretDataType
      *
      * @var string
      */
     public $secretDataType;
+
     /**
      * @description VersionStages
      *
-     * @var array
+     * @var GetSecretValueResponse.versionStages
      */
     public $versionStages;
     protected $_name = [
@@ -80,13 +87,7 @@ class GetSecretValueResponse extends Model
         $res['CreateTime']     = $this->createTime;
         $res['SecretData']     = $this->secretData;
         $res['SecretDataType'] = $this->secretDataType;
-        $res['VersionStages']  = [];
-        if (null !== $this->versionStages && \is_array($this->versionStages)) {
-            $n = 0;
-            foreach ($this->versionStages as $item) {
-                $res['VersionStages'][$n++] = null !== $item ? $item->toMap() : $item;
-            }
-        }
+        $res['VersionStages']  = null !== $this->versionStages ? $this->versionStages->toMap() : null;
 
         return $res;
     }
@@ -118,13 +119,7 @@ class GetSecretValueResponse extends Model
             $model->secretDataType = $map['SecretDataType'];
         }
         if (isset($map['VersionStages'])) {
-            if (!empty($map['VersionStages'])) {
-                $model->versionStages = [];
-                $n                    = 0;
-                foreach ($map['VersionStages'] as $item) {
-                    $model->versionStages[$n++] = null !== $item ? GetSecretValueResponse\versionStages::fromMap($item) : $item;
-                }
-            }
+            $model->versionStages = GetSecretValueResponse\versionStages::fromMap($map['VersionStages']);
         }
 
         return $model;

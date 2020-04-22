@@ -15,6 +15,7 @@ class DescribeKeyVersionResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description KeyVersion
      *

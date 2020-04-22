@@ -14,54 +14,63 @@ class QuerySmsTemplateResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description module.templateStatus
      *
      * @var int
      */
     public $templateStatus;
+
     /**
      * @description module.reason
      *
      * @var string
      */
     public $reason;
+
     /**
      * @description module.templateCode
      *
      * @var string
      */
     public $templateCode;
+
     /**
      * @description module.templateType
      *
      * @var int
      */
     public $templateType;
+
     /**
      * @description module.templateName
      *
      * @var string
      */
     public $templateName;
+
     /**
      * @description module.templateContent
      *
      * @var string
      */
     public $templateContent;
+
     /**
      * @description module.createDate
      *

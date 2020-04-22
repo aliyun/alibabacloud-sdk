@@ -14,12 +14,14 @@ class flexVolume extends Model
      * @var string
      */
     public $driver;
+
     /**
      * @description flexVolumeFsType
      *
      * @var string
      */
     public $fsType;
+
     /**
      * @description flexVolumeOptions
      *

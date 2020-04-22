@@ -14,24 +14,28 @@ class task extends Model
      * @var string
      */
     public $dataId;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageURL;
+
     /**
      * @description imageTime
      *
      * @var int
      */
     public $imageTimeMillisecond;
+
     /**
      * @description interval
      *
      * @var int
      */
     public $interval;
+
     /**
      * @description maxFrames
      *

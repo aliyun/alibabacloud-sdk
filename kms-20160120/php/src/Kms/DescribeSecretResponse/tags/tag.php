@@ -14,6 +14,7 @@ class tag extends Model
      * @var string
      */
     public $tagKey;
+
     /**
      * @description TagValue
      *

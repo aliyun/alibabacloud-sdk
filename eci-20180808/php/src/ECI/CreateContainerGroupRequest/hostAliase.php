@@ -14,6 +14,7 @@ class hostAliase extends Model
      * @var string
      */
     public $ip;
+
     /**
      * @description hostnames
      *

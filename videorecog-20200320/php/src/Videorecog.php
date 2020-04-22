@@ -15,7 +15,6 @@ use AlibabaCloud\SDK\Videorecog\V20200320\Videorecog\GenerateVideoCoverRequest;
 use AlibabaCloud\SDK\Videorecog\V20200320\Videorecog\GenerateVideoCoverResponse;
 use AlibabaCloud\SDK\Videorecog\V20200320\Videorecog\GetAsyncJobResultRequest;
 use AlibabaCloud\SDK\Videorecog\V20200320\Videorecog\GetAsyncJobResultResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -40,7 +39,7 @@ class Videorecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectVideoShot', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new DetectVideoShotResponse());
+        return DetectVideoShotResponse::fromMap($this->doRequest('DetectVideoShot', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -114,7 +113,7 @@ class Videorecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GenerateVideoCover', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new GenerateVideoCoverResponse());
+        return GenerateVideoCoverResponse::fromMap($this->doRequest('GenerateVideoCover', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -188,7 +187,7 @@ class Videorecog
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new GetAsyncJobResultResponse());
+        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**

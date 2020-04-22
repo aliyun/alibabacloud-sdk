@@ -14,18 +14,21 @@ class programCodeDataList extends Model
      * @var float
      */
     public $x;
+
     /**
      * @description y
      *
      * @var float
      */
     public $y;
+
     /**
      * @description width
      *
      * @var float
      */
     public $width;
+
     /**
      * @description height
      *

@@ -14,6 +14,7 @@ class RecognizeIdentityCardAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description side
      *

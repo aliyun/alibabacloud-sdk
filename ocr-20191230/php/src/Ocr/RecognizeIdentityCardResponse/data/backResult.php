@@ -14,12 +14,14 @@ class backResult extends Model
      * @var string
      */
     public $startDate;
+
     /**
      * @description endDate
      *
      * @var string
      */
     public $endDate;
+
     /**
      * @description issue
      *

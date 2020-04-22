@@ -16,48 +16,56 @@ class memoryStats extends Model
      * @var int
      */
     public $usage;
+
     /**
      * @description maxUsage
      *
      * @var int
      */
     public $maxUsage;
+
     /**
      * @description cache
      *
      * @var int
      */
     public $cache;
+
     /**
      * @description rss
      *
      * @var int
      */
     public $rss;
+
     /**
      * @description swap
      *
      * @var int
      */
     public $swap;
+
     /**
      * @description workingSet
      *
      * @var int
      */
     public $workingSet;
+
     /**
      * @description failCnt
      *
      * @var int
      */
     public $failCnt;
+
     /**
      * @description containerData
      *
      * @var memoryStats.containerData
      */
     public $containerData;
+
     /**
      * @description hierarchicalData
      *

@@ -14,54 +14,63 @@ class imageCaches extends Model
      * @var string
      */
     public $containerGroupId;
+
     /**
      * @description imageCacheId
      *
      * @var string
      */
     public $imageCacheId;
+
     /**
      * @description imageCacheName
      *
      * @var string
      */
     public $imageCacheName;
+
     /**
      * @description snapshotId
      *
      * @var string
      */
     public $snapshotId;
+
     /**
      * @description progress
      *
      * @var string
      */
     public $progress;
+
     /**
      * @description status
      *
      * @var string
      */
     public $status;
+
     /**
      * @description expireDate
      *
      * @var string
      */
     public $expireDateTime;
+
     /**
      * @description creationTime
      *
      * @var string
      */
     public $creationTime;
+
     /**
      * @description events
      *
      * @var array
      */
     public $events;
+
     /**
      * @description images
      *

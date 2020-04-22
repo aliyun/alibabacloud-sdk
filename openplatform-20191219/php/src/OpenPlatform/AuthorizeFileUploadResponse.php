@@ -14,42 +14,49 @@ class AuthorizeFileUploadResponse extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description data.bucket
      *
      * @var string
      */
     public $bucket;
+
     /**
      * @description data.encodedPolicy
      *
      * @var string
      */
     public $encodedPolicy;
+
     /**
      * @description data.endpoint
      *
      * @var string
      */
     public $endpoint;
+
     /**
      * @description data.objectKey
      *
      * @var string
      */
     public $objectKey;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.signature
      *
      * @var string
      */
     public $signature;
+
     /**
      * @description data.useAccelerate
      *

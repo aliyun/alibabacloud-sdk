@@ -16,36 +16,42 @@ class SearchImageByPicResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description success
      *
      * @var bool
      */
     public $success;
+
     /**
      * @description code
      *
      * @var int
      */
     public $code;
+
     /**
      * @description msg
      *
      * @var string
      */
     public $msg;
+
     /**
      * @description auctions
      *
      * @var array
      */
     public $auctions;
+
     /**
      * @description head
      *
      * @var SearchImageByPicResponse.head
      */
     public $head;
+
     /**
      * @description picInfo
      *

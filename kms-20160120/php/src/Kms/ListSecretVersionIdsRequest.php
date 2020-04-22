@@ -14,18 +14,21 @@ class ListSecretVersionIdsRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description IncludeDeprecated
      *
      * @var string
      */
     public $includeDeprecated;
+
     /**
      * @description PageNumber
      *
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description PageSize
      *

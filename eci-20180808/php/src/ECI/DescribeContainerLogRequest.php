@@ -14,60 +14,70 @@ class DescribeContainerLogRequest extends Model
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description ownerAccount
      *
      * @var string
      */
     public $ownerAccount;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description containerGroupId
      *
      * @var string
      */
     public $containerGroupId;
+
     /**
      * @description containerName
      *
      * @var string
      */
     public $containerName;
+
     /**
      * @description startTime
      *
      * @var string
      */
     public $startTime;
+
     /**
      * @description tail
      *
      * @var int
      */
     public $tail;
+
     /**
      * @description previous
      *
      * @var bool
      */
     public $lastTime;
+
     /**
      * @description sinceSeconds
      *

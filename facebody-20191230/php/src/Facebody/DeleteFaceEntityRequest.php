@@ -14,6 +14,7 @@ class DeleteFaceEntityRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description entityId
      *

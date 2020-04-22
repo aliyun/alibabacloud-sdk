@@ -14,36 +14,42 @@ class CreateSecretRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description VersionId
      *
      * @var string
      */
     public $versionId;
+
     /**
      * @description EncryptionKeyId
      *
      * @var string
      */
     public $encryptionKeyId;
+
     /**
      * @description SecretData
      *
      * @var string
      */
     public $secretData;
+
     /**
      * @description SecretDataType
      *
      * @var string
      */
     public $secretDataType;
+
     /**
      * @description Description
      *
      * @var string
      */
     public $description;
+
     /**
      * @description Tags
      *

@@ -14,24 +14,28 @@ class AsymmetricVerifyRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description KeyVersionId
      *
      * @var string
      */
     public $keyVersionId;
+
     /**
      * @description Algorithm
      *
      * @var string
      */
     public $algorithm;
+
     /**
      * @description Digest
      *
      * @var string
      */
     public $digest;
+
     /**
      * @description Value
      *

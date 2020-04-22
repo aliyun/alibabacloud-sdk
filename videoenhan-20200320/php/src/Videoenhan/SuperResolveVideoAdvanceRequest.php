@@ -14,6 +14,7 @@ class SuperResolveVideoAdvanceRequest extends Model
      * @var Stream
      */
     public $videoUrlObject;
+
     /**
      * @description bitRate
      *

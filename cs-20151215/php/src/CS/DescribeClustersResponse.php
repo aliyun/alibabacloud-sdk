@@ -14,6 +14,7 @@ class DescribeClustersResponse extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

@@ -16,12 +16,14 @@ class results extends Model
      * @var array
      */
     public $generalText;
+
     /**
      * @description roi
      *
      * @var results.roi
      */
     public $roi;
+
     /**
      * @description text
      *

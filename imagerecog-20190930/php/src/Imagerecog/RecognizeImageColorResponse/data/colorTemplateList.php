@@ -14,12 +14,14 @@ class colorTemplateList extends Model
      * @var string
      */
     public $color;
+
     /**
      * @description label
      *
      * @var string
      */
     public $label;
+
     /**
      * @description percentage
      *

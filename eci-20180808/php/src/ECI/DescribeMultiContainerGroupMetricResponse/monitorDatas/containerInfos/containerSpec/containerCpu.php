@@ -14,24 +14,28 @@ class containerCpu extends Model
      * @var int
      */
     public $limit;
+
     /**
      * @description maxLimit
      *
      * @var int
      */
     public $maxLimit;
+
     /**
      * @description mask
      *
      * @var string
      */
     public $mask;
+
     /**
      * @description quota
      *
      * @var int
      */
     public $quota;
+
     /**
      * @description period
      *

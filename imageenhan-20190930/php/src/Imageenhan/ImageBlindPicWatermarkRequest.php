@@ -14,30 +14,35 @@ class ImageBlindPicWatermarkRequest extends Model
      * @var string
      */
     public $functionType;
+
     /**
      * @description logoUrl
      *
      * @var string
      */
     public $logoURL;
+
     /**
      * @description watermarkImageUrl
      *
      * @var string
      */
     public $watermarkImageURL;
+
     /**
      * @description outputFileType
      *
      * @var string
      */
     public $outputFileType;
+
     /**
      * @description qualityFactor
      *
      * @var int
      */
     public $qualityFactor;
+
     /**
      * @description originImageUrl
      *

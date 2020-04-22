@@ -14,24 +14,28 @@ class PutSecretValueRequest extends Model
      * @var string
      */
     public $versionId;
+
     /**
      * @description SecretName
      *
      * @var string
      */
     public $secretName;
+
     /**
      * @description SecretData
      *
      * @var string
      */
     public $secretData;
+
     /**
      * @description SecretDataType
      *
      * @var string
      */
     public $secretDataType;
+
     /**
      * @description VersionStages
      *

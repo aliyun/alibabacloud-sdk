@@ -14,18 +14,21 @@ class ioTime extends Model
      * @var string
      */
     public $device;
+
     /**
      * @description major
      *
      * @var int
      */
     public $major;
+
     /**
      * @description minor
      *
      * @var int
      */
     public $minor;
+
     /**
      * @description statsForPop
      *

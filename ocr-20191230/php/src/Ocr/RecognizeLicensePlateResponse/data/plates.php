@@ -15,24 +15,28 @@ class plates extends Model
      * @var float
      */
     public $confidence;
+
     /**
      * @description plateNumber
      *
      * @var string
      */
     public $plateNumber;
+
     /**
      * @description plateType
      *
      * @var string
      */
     public $plateType;
+
     /**
      * @description plateTypeConfidence
      *
      * @var float
      */
     public $plateTypeConfidence;
+
     /**
      * @description roi
      *

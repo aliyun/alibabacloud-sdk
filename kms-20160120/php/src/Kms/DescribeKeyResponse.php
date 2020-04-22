@@ -15,6 +15,7 @@ class DescribeKeyResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyMetadataResponse
      *

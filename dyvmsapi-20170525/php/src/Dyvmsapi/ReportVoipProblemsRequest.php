@@ -14,42 +14,49 @@ class ReportVoipProblemsRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description channelId
      *
      * @var string
      */
     public $channelId;
+
     /**
      * @description voipId
      *
      * @var string
      */
     public $voipId;
+
     /**
      * @description title
      *
      * @var string
      */
     public $title;
+
     /**
      * @description desc
      *

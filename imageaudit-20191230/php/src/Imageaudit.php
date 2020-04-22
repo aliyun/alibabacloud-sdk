@@ -12,7 +12,6 @@ use AlibabaCloud\SDK\Imageaudit\V20191230\Imageaudit\ScanTextRequest;
 use AlibabaCloud\SDK\Imageaudit\V20191230\Imageaudit\ScanTextResponse;
 use AlibabaCloud\Tea\Exception\TeaError;
 use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Tea;
@@ -22,17 +21,29 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class Imageaudit
 {
     private $_endpoint;
+
     private $_regionId;
+
     private $_protocol;
+
     private $_userAgent;
+
     private $_readTimeout;
+
     private $_connectTimeout;
+
     private $_httpProxy;
+
     private $_httpsProxy;
+
     private $_noProxy;
+
     private $_socks5Proxy;
+
     private $_socks5NetWork;
+
     private $_maxIdleConns;
+
     private $_credential;
 
     public function __construct(Config $config)
@@ -180,7 +191,7 @@ class Imageaudit
      */
     public function scanText(ScanTextRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('ScanText', 'HTTPS', 'POST', $request, $runtime), new ScanTextResponse());
+        return ScanTextResponse::fromMap($this->_request('ScanText', 'HTTPS', 'POST', $request, $runtime));
     }
 
     /**
@@ -190,7 +201,7 @@ class Imageaudit
      */
     public function scanImage(ScanImageRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('ScanImage', 'HTTPS', 'POST', $request, $runtime), new ScanImageResponse());
+        return ScanImageResponse::fromMap($this->_request('ScanImage', 'HTTPS', 'POST', $request, $runtime));
     }
 
     /**

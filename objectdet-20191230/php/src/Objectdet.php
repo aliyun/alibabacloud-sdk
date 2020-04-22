@@ -34,7 +34,6 @@ use AlibabaCloud\SDK\Objectdet\V20191230\Objectdet\RecognizeVehiclePartsRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Objectdet\RecognizeVehiclePartsResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -59,7 +58,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectTransparentImage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectTransparentImageResponse());
+        return DetectTransparentImageResponse::fromMap($this->doRequest('DetectTransparentImage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -133,7 +132,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectObject', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectObjectResponse());
+        return DetectObjectResponse::fromMap($this->doRequest('DetectObject', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -207,7 +206,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectWhiteBaseImage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectWhiteBaseImageResponse());
+        return DetectWhiteBaseImageResponse::fromMap($this->doRequest('DetectWhiteBaseImage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -281,7 +280,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ClassifyVehicleInsurance', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new ClassifyVehicleInsuranceResponse());
+        return ClassifyVehicleInsuranceResponse::fromMap($this->doRequest('ClassifyVehicleInsurance', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -355,7 +354,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVehicleDashboard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeVehicleDashboardResponse());
+        return RecognizeVehicleDashboardResponse::fromMap($this->doRequest('RecognizeVehicleDashboard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -429,7 +428,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVehicleDamage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeVehicleDamageResponse());
+        return RecognizeVehicleDamageResponse::fromMap($this->doRequest('RecognizeVehicleDamage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -503,7 +502,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVehicleParts', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeVehiclePartsResponse());
+        return RecognizeVehiclePartsResponse::fromMap($this->doRequest('RecognizeVehicleParts', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -577,7 +576,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectVehicle', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new DetectVehicleResponse());
+        return DetectVehicleResponse::fromMap($this->doRequest('DetectVehicle', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -651,7 +650,7 @@ class Objectdet
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DetectMainBody', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new DetectMainBodyResponse());
+        return DetectMainBodyResponse::fromMap($this->doRequest('DetectMainBody', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**

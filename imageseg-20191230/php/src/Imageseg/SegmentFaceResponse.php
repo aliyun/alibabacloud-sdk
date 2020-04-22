@@ -15,6 +15,7 @@ class SegmentFaceResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

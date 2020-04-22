@@ -14,12 +14,14 @@ class categories extends Model
      * @var float
      */
     public $score;
+
     /**
      * @description categoryName
      *
      * @var string
      */
     public $categoryName;
+
     /**
      * @description categoryId
      *

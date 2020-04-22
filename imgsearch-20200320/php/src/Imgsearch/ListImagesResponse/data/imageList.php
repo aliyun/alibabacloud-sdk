@@ -14,24 +14,28 @@ class imageList extends Model
      * @var string
      */
     public $dataId;
+
     /**
      * @description extraData
      *
      * @var string
      */
     public $extraData;
+
     /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
+
     /**
      * @description updatedAt
      *
      * @var int
      */
     public $updatedAt;
+
     /**
      * @description createdAt
      *

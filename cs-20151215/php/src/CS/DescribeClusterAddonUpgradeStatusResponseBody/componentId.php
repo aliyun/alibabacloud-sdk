@@ -16,24 +16,28 @@ class componentId extends Model
      * @var string
      */
     public $template;
+
     /**
      * @description can_upgrade
      *
      * @var bool
      */
     public $canUpgrade;
+
     /**
      * @description changed
      *
      * @var string
      */
     public $changed;
+
     /**
      * @description addon_info
      *
      * @var componentId.addonInfo
      */
     public $addonInfo;
+
     /**
      * @description tasks
      *

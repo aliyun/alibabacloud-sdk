@@ -14,78 +14,91 @@ class CreateRobotTaskRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description taskName
      *
      * @var string
      */
     public $taskName;
+
     /**
      * @description dialogId
      *
      * @var int
      */
     public $dialogId;
+
     /**
      * @description corpName
      *
      * @var string
      */
     public $corpName;
+
     /**
      * @description caller
      *
      * @var string
      */
     public $caller;
+
     /**
      * @description numberStatusIdent
      *
      * @var bool
      */
     public $numberStatusIdent;
+
     /**
      * @description retryType
      *
      * @var int
      */
     public $retryType;
+
     /**
      * @description recallStateCodes
      *
      * @var string
      */
     public $recallStateCodes;
+
     /**
      * @description recallTimes
      *
      * @var int
      */
     public $recallTimes;
+
     /**
      * @description recallInterval
      *
      * @var int
      */
     public $recallInterval;
+
     /**
      * @description isSelfLine
      *

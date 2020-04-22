@@ -14,36 +14,42 @@ class options extends Model
      * @var bool
      */
     public $enableIptables;
+
     /**
      * @description flannelIface
      *
      * @var string
      */
     public $flannelIface;
+
     /**
      * @description gpuVersion
      *
      * @var string
      */
     public $gpuVersion;
+
     /**
      * @description manageRuntime
      *
      * @var bool
      */
     public $manageRuntime;
+
     /**
      * @description nodeName
      *
      * @var string
      */
     public $nodeName;
+
     /**
      * @description nodeNamePrefix
      *
      * @var string
      */
     public $nodeNamePrefix;
+
     /**
      * @description nodeNameStrategy
      *

@@ -15,6 +15,7 @@ class data extends Model
      * @var string
      */
     public $url;
+
     /**
      * @description retainLocation
      *

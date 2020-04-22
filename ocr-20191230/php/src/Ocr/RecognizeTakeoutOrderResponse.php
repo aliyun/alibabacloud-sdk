@@ -15,6 +15,7 @@ class RecognizeTakeoutOrderResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

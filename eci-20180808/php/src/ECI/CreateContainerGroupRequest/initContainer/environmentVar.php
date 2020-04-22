@@ -15,12 +15,14 @@ class environmentVar extends Model
      * @var string
      */
     public $key;
+
     /**
      * @description value
      *
      * @var string
      */
     public $value;
+
     /**
      * @description FieldRef
      *

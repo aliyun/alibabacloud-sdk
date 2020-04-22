@@ -15,6 +15,7 @@ class EraseVideoLogoResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

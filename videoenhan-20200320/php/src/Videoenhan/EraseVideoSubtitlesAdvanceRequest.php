@@ -14,24 +14,28 @@ class EraseVideoSubtitlesAdvanceRequest extends Model
      * @var Stream
      */
     public $videoUrlObject;
+
     /**
      * @description bx
      *
      * @var float
      */
     public $BX;
+
     /**
      * @description by
      *
      * @var float
      */
     public $BY;
+
     /**
      * @description bw
      *
      * @var float
      */
     public $BW;
+
     /**
      * @description bh
      *

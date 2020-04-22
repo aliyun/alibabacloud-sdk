@@ -14,558 +14,651 @@ class parameters extends Model
      * @var string
      */
     public $adjustmentType;
+
     /**
      * @description AuditFlags
      *
      * @var string
      */
     public $auditFlags;
+
     /**
      * @description BetaVersion
      *
      * @var string
      */
     public $betaVersion;
+
     /**
      * @description CA
      *
      * @var string
      */
     public $CA;
+
     /**
      * @description ClientCA
      *
      * @var string
      */
     public $clientCA;
+
     /**
      * @description CloudMonitorFlags
      *
      * @var string
      */
     public $cloudMonitorFlags;
+
     /**
      * @description CloudMonitorVersion
      *
      * @var string
      */
     public $cloudMonitorVersion;
+
     /**
      * @description ContainerCIDR
      *
      * @var string
      */
     public $containerCIDR;
+
     /**
      * @description DisableAddons
      *
      * @var string
      */
     public $disableAddons;
+
     /**
      * @description DockerVersion
      *
      * @var string
      */
     public $dockerVersion;
+
     /**
      * @description ESSDeletionProtection
      *
      * @var string
      */
     public $ESSDeletionProtection;
+
     /**
      * @description Eip
      *
      * @var string
      */
     public $eip;
+
     /**
      * @description EipAddress
      *
      * @var string
      */
     public $eipAddress;
+
     /**
      * @description ElasticSearchHost
      *
      * @var string
      */
     public $elasticSearchHost;
+
     /**
      * @description ElasticSearchPass
      *
      * @var string
      */
     public $elasticSearchPass;
+
     /**
      * @description ElasticSearchPort
      *
      * @var string
      */
     public $elasticSearchPort;
+
     /**
      * @description ElasticSearchUser
      *
      * @var string
      */
     public $elasticSearchUser;
+
     /**
      * @description EtcdVersion
      *
      * @var string
      */
     public $etcdVersion;
+
     /**
      * @description ExecuteVersion
      *
      * @var string
      */
     public $executeVersion;
+
     /**
      * @description GPUFlags
      *
      * @var string
      */
     public $GPUFlags;
+
     /**
      * @description HealthCheckType
      *
      * @var string
      */
     public $healthCheckType;
+
     /**
      * @description ImageId
      *
      * @var string
      */
     public $imageId;
+
     /**
      * @description K8SMasterPolicyDocument
      *
      * @var string
      */
     public $k8SMasterPolicyDocument;
+
     /**
      * @description K8sWorkerPolicyDocument
      *
      * @var string
      */
     public $k8sWorkerPolicyDocument;
+
     /**
      * @description Key
      *
      * @var string
      */
     public $key;
+
     /**
      * @description KeyPair
      *
      * @var string
      */
     public $keyPair;
+
     /**
      * @description KubernetesVersion
      *
      * @var string
      */
     public $kubernetesVersion;
+
     /**
      * @description LoggingType
      *
      * @var string
      */
     public $loggingType;
+
     /**
      * @description MasterAmounts
      *
      * @var string
      */
     public $masterAmounts;
+
     /**
      * @description MasterAutoRenew
      *
      * @var string
      */
     public $masterAutoRenew;
+
     /**
      * @description MasterAutoRenewPeriod
      *
      * @var string
      */
     public $masterAutoRenewPeriod;
+
     /**
      * @description MasterCount
      *
      * @var string
      */
     public $masterCount;
+
     /**
      * @description MasterDataDisk
      *
      * @var string
      */
     public $masterDataDisk;
+
     /**
      * @description MasterDataDisks
      *
      * @var string
      */
     public $masterDataDisks;
+
     /**
      * @description MasterDeletionProtection
      *
      * @var string
      */
     public $masterDeletionProtection;
+
     /**
      * @description MasterDeploymentSetId
      *
      * @var string
      */
     public $masterDeploymentSetId;
+
     /**
      * @description MasterHpcClusterId
      *
      * @var string
      */
     public $masterHpcClusterId;
+
     /**
      * @description MasterImageId
      *
      * @var string
      */
     public $masterImageId;
+
     /**
      * @description MasterInstanceChargeType
      *
      * @var string
      */
     public $masterInstanceChargeType;
+
     /**
      * @description MasterInstanceTypes
      *
      * @var string
      */
     public $masterInstanceTypes;
+
     /**
      * @description MasterKeyPair
      *
      * @var string
      */
     public $masterKeyPair;
+
     /**
      * @description MasterLoginPassword
      *
      * @var string
      */
     public $masterLoginPassword;
+
     /**
      * @description MasterPeriod
      *
      * @var string
      */
     public $masterPeriod;
+
     /**
      * @description MasterPeriodUnit
      *
      * @var string
      */
     public $masterPeriodUnit;
+
     /**
      * @description MasterSlbSShHealthCheck
      *
      * @var string
      */
     public $masterSlbSShHealthCheck;
+
     /**
      * @description MasterSnapshotPolicyId
      *
      * @var string
      */
     public $masterSnapshotPolicyId;
+
     /**
      * @description MasterSystemDiskCategory
      *
      * @var string
      */
     public $masterSystemDiskCategory;
+
     /**
      * @description MasterSystemDiskSize
      *
      * @var string
      */
     public $masterSystemDiskSize;
+
     /**
      * @description MasterVSwitchIds
      *
      * @var string
      */
     public $masterVSwitchIds;
+
     /**
      * @description NatGateway
      *
      * @var string
      */
     public $natGateway;
+
     /**
      * @description NatGatewayId
      *
      * @var string
      */
     public $natGatewayId;
+
     /**
      * @description Network
      *
      * @var string
      */
     public $network;
+
     /**
      * @description NodeCIDRMask
      *
      * @var string
      */
     public $nodeCIDRMask;
+
     /**
      * @description NodeNameMode
      *
      * @var string
      */
     public $nodeNameMode;
+
     /**
      * @description NumOfNodes
      *
      * @var string
      */
     public $numOfNodes;
+
     /**
      * @description Password
      *
      * @var string
      */
     public $password;
+
     /**
      * @description PodVswitchIds
      *
      * @var string
      */
     public $podVswitchIds;
+
     /**
      * @description ProtectedInstances
      *
      * @var string
      */
     public $protectedInstances;
+
     /**
      * @description ProxyMode
      *
      * @var string
      */
     public $proxyMode;
+
     /**
      * @description PublicSLB
      *
      * @var string
      */
     public $publicSLB;
+
     /**
      * @description RemoveInstanceIds
      *
      * @var string
      */
     public $removeInstanceIds;
+
     /**
      * @description ResourceGroupId
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description SLBDeletionProtection
      *
      * @var string
      */
     public $SLBDeletionProtection;
+
     /**
      * @description SLSProjectName
      *
      * @var string
      */
     public $SLSProjectName;
+
     /**
      * @description SNatEntry
      *
      * @var string
      */
     public $SNatEntry;
+
     /**
      * @description SSHFlags
      *
      * @var string
      */
     public $SSHFlags;
+
     /**
      * @description SecurityGroupId
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description ServiceCIDR
      *
      * @var string
      */
     public $serviceCIDR;
+
     /**
      * @description SetUpArgs
      *
      * @var string
      */
     public $setUpArgs;
+
     /**
      * @description SnatTableId
      *
      * @var string
      */
     public $snatTableId;
+
     /**
      * @description Tags
      *
      * @var string
      */
     public $tags;
+
     /**
      * @description UserCA
      *
      * @var string
      */
     public $userCA;
+
     /**
      * @description UserData
      *
      * @var string
      */
     public $userData;
+
     /**
      * @description VpcId
      *
      * @var string
      */
     public $vpcId;
+
     /**
      * @description WillReplace
      *
      * @var string
      */
     public $willReplace;
+
     /**
      * @description WorkerAutoRenew
      *
      * @var string
      */
     public $workerAutoRenew;
+
     /**
      * @description WorkerAutoRenewPeriod
      *
      * @var string
      */
     public $workerAutoRenewPeriod;
+
     /**
      * @description WorkerDataDisk
      *
      * @var string
      */
     public $workerDataDisk;
+
     /**
      * @description WorkerDataDisks
      *
      * @var string
      */
     public $workerDataDisks;
+
     /**
      * @description WorkerDeletionProtection
      *
      * @var string
      */
     public $workerDeletionProtection;
+
     /**
      * @description WorkerDeploymentSetId
      *
      * @var string
      */
     public $workerDeploymentSetId;
+
     /**
      * @description WorkerHpcClusterId
      *
      * @var string
      */
     public $workerHpcClusterId;
+
     /**
      * @description WorkerImageId
      *
      * @var string
      */
     public $workerImageId;
+
     /**
      * @description WorkerInstanceChargeType
      *
      * @var string
      */
     public $workerInstanceChargeType;
+
     /**
      * @description WorkerInstanceTypes
      *
      * @var string
      */
     public $workerInstanceTypes;
+
     /**
      * @description WorkerKeyPair
      *
      * @var string
      */
     public $workerKeyPair;
+
     /**
      * @description WorkerLoginPassword
      *
      * @var string
      */
     public $workerLoginPassword;
+
     /**
      * @description WorkerPeriod
      *
      * @var string
      */
     public $workerPeriod;
+
     /**
      * @description WorkerPeriodUnit
      *
      * @var string
      */
     public $workerPeriodUnit;
+
     /**
      * @description WorkerSnapshotPolicyId
      *
      * @var string
      */
     public $workerSnapshotPolicyId;
+
     /**
      * @description WorkerSystemDiskCategory
      *
      * @var string
      */
     public $workerSystemDiskCategory;
+
     /**
      * @description WorkerSystemDiskSize
      *
      * @var string
      */
     public $workerSystemDiskSize;
+
     /**
      * @description WorkerVSwitchIds
      *
      * @var string
      */
     public $workerVSwitchIds;
+
     /**
      * @description ZoneId
      *

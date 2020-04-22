@@ -14,36 +14,42 @@ class CreateKeyRequest extends Model
      * @var string
      */
     public $description;
+
     /**
      * @description keyUsage
      *
      * @var string
      */
     public $keyUsage;
+
     /**
      * @description origin
      *
      * @var string
      */
     public $origin;
+
     /**
      * @description protectionLevel
      *
      * @var string
      */
     public $protectionLevel;
+
     /**
      * @description enableAutomaticRotation
      *
      * @var bool
      */
     public $enableAutomaticRotation;
+
     /**
      * @description rotationInterval
      *
      * @var string
      */
     public $rotationInterval;
+
     /**
      * @description keySpec
      *

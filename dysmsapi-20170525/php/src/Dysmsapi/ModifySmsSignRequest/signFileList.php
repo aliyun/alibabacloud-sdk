@@ -14,6 +14,7 @@ class signFileList extends Model
      * @var string
      */
     public $fileSuffix;
+
     /**
      * @description fileContents
      *

@@ -14,6 +14,7 @@ class RecognizeImageColorRequest extends Model
      * @var string
      */
     public $url;
+
     /**
      * @description colorCount
      *

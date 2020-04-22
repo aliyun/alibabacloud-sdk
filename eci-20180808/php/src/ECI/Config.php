@@ -14,90 +14,105 @@ class Config extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description accessKeySecret
      *
      * @var string
      */
     public $accessKeySecret;
+
     /**
      * @description credential type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description securityToken
      *
      * @var string
      */
     public $securityToken;
+
     /**
      * @description endpoint
      *
      * @var string
      */
     public $endpoint;
+
     /**
      * @description protocol
      *
      * @var string
      */
     public $protocol;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description read timeout
      *
      * @var int
      */
     public $readTimeout;
+
     /**
      * @description connect timeout
      *
      * @var int
      */
     public $connectTimeout;
+
     /**
      * @description http proxy
      *
      * @var string
      */
     public $httpProxy;
+
     /**
      * @description https proxy
      *
      * @var string
      */
     public $httpsProxy;
+
     /**
      * @description socks5 proxy
      *
      * @var string
      */
     public $socks5Proxy;
+
     /**
      * @description socks5 NetWork
      *
      * @var string
      */
     public $socks5NetWork;
+
     /**
      * @description no proxy
      *
      * @var string
      */
     public $noProxy;
+
     /**
      * @description userAgent
      *
      * @var string
      */
     public $userAgent;
+
     /**
      * @description maxIdleConns
      *

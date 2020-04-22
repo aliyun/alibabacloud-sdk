@@ -14,18 +14,21 @@ class DescribeContainerGroupsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.nextToken
      *
      * @var string
      */
     public $nextToken;
+
     /**
      * @description data.totalCount
      *
      * @var int
      */
     public $totalCount;
+
     /**
      * @description data.data
      *

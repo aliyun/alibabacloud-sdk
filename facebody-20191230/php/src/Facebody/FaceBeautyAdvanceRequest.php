@@ -14,18 +14,21 @@ class FaceBeautyAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description sharp
      *
      * @var float
      */
     public $sharp;
+
     /**
      * @description smooth
      *
      * @var float
      */
     public $smooth;
+
     /**
      * @description white
      *

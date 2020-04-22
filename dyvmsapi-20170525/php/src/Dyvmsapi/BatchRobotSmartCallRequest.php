@@ -14,84 +14,98 @@ class BatchRobotSmartCallRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description calledShowNumber
      *
      * @var string
      */
     public $calledShowNumber;
+
     /**
      * @description corpName
      *
      * @var string
      */
     public $corpName;
+
     /**
      * @description calledNumber
      *
      * @var string
      */
     public $calledNumber;
+
     /**
      * @description dialogId
      *
      * @var string
      */
     public $dialogId;
+
     /**
      * @description earlyMediaAsr
      *
      * @var bool
      */
     public $earlyMediaAsr;
+
     /**
      * @description taskName
      *
      * @var string
      */
     public $taskName;
+
     /**
      * @description scheduleTime
      *
      * @var int
      */
     public $scheduleTime;
+
     /**
      * @description scheduleCall
      *
      * @var bool
      */
     public $scheduleCall;
+
     /**
      * @description ttsParam
      *
      * @var string
      */
     public $ttsParam;
+
     /**
      * @description ttsParamHead
      *
      * @var string
      */
     public $ttsParamHead;
+
     /**
      * @description isSelfLine
      *

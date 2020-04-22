@@ -14,6 +14,7 @@ class GetRandomPasswordResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description RandomPassword
      *

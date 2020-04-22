@@ -14,18 +14,21 @@ class faceRectangle extends Model
      * @var int
      */
     public $height;
+
     /**
      * @description left
      *
      * @var int
      */
     public $left;
+
     /**
      * @description top
      *
      * @var int
      */
     public $top;
+
     /**
      * @description width
      *

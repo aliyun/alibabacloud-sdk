@@ -14,18 +14,21 @@ class cpuUsage extends Model
      * @var int
      */
     public $total;
+
     /**
      * @description user
      *
      * @var int
      */
     public $user;
+
     /**
      * @description system
      *
      * @var int
      */
     public $system;
+
     /**
      * @description perCpuUsages
      *

@@ -14,18 +14,21 @@ class RecognizeFurnitureSpuAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description xLength
      *
      * @var float
      */
     public $XLength;
+
     /**
      * @description yLength
      *
      * @var float
      */
     public $YLength;
+
     /**
      * @description zLength
      *

@@ -14,48 +14,56 @@ class QuerySendDetailsRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description phoneNumber
      *
      * @var string
      */
     public $phoneNumber;
+
     /**
      * @description bizId
      *
      * @var string
      */
     public $bizId;
+
     /**
      * @description sendDate
      *
      * @var string
      */
     public $sendDate;
+
     /**
      * @description pageSize
      *
      * @var int
      */
     public $pageSize;
+
     /**
      * @description currentPage
      *

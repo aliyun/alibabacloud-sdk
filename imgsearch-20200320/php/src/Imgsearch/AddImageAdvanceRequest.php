@@ -14,18 +14,21 @@ class AddImageAdvanceRequest extends Model
      * @var Stream
      */
     public $imageUrlObject;
+
     /**
      * @description dbName
      *
      * @var string
      */
     public $dbName;
+
     /**
      * @description extraData
      *
      * @var string
      */
     public $extraData;
+
     /**
      * @description entityId
      *

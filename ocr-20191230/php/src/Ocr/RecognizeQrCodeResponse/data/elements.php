@@ -14,12 +14,14 @@ class elements extends Model
      * @var string
      */
     public $taskId;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageURL;
+
     /**
      * @description results
      *

@@ -14,18 +14,21 @@ class elements extends Model
      * @var float
      */
     public $score;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description scores
      *
      * @var array
      */
     public $scores;
+
     /**
      * @description boxes
      *

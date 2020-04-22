@@ -14,6 +14,7 @@ class ResumeComponentUpgradeResponse extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

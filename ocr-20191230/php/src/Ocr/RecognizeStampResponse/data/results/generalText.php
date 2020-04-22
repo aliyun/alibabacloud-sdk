@@ -14,6 +14,7 @@ class generalText extends Model
      * @var string
      */
     public $content;
+
     /**
      * @description confidence
      *

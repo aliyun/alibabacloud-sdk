@@ -14,24 +14,28 @@ class taskStats extends Model
      * @var int
      */
     public $nrSleeping;
+
     /**
      * @description nrRunning
      *
      * @var int
      */
     public $nrRunning;
+
     /**
      * @description nrStopped
      *
      * @var int
      */
     public $nrStopped;
+
     /**
      * @description nrUninterruptible
      *
      * @var int
      */
     public $nrUninterruptible;
+
     /**
      * @description nrIoWait
      *

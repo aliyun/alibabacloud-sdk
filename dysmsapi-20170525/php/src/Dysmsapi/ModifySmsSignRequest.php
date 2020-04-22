@@ -14,42 +14,49 @@ class ModifySmsSignRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description signName
      *
      * @var string
      */
     public $signName;
+
     /**
      * @description signSource
      *
      * @var int
      */
     public $signSource;
+
     /**
      * @description signFileList
      *
      * @var array
      */
     public $signFileList;
+
     /**
      * @description remark
      *

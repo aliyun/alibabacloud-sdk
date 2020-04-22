@@ -19,42 +19,49 @@ class containerStats extends Model
      * @var string
      */
     public $timestamp;
+
     /**
      * @description fsStats
      *
      * @var array
      */
     public $fsStats;
+
     /**
      * @description acceleratorStats
      *
      * @var array
      */
     public $acceleratorStats;
+
     /**
      * @description cpu
      *
      * @var containerStats.cpuStats
      */
     public $cpuStats;
+
     /**
      * @description diskIo
      *
      * @var containerStats.diskIoStats
      */
     public $diskIoStats;
+
     /**
      * @description memory
      *
      * @var containerStats.memoryStats
      */
     public $memoryStats;
+
     /**
      * @description network
      *
      * @var containerStats.networkStats
      */
     public $networkStats;
+
     /**
      * @description taskStats
      *

@@ -14,18 +14,21 @@ class FaceBeautyRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description sharp
      *
      * @var float
      */
     public $sharp;
+
     /**
      * @description smooth
      *
      * @var float
      */
     public $smooth;
+
     /**
      * @description white
      *

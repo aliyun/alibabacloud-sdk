@@ -11,7 +11,7 @@ class supportedProtectionLevels extends Model
     /**
      * @description SupportedProtectionLevel
      *
-     * @var string
+     * @var array
      */
     public $supportedProtectionLevel;
     protected $_name = [
@@ -26,7 +26,10 @@ class supportedProtectionLevels extends Model
     public function toMap()
     {
         $res                             = [];
-        $res['SupportedProtectionLevel'] = $this->supportedProtectionLevel;
+        $res['SupportedProtectionLevel'] = [];
+        if (null !== $this->supportedProtectionLevel) {
+            $res['SupportedProtectionLevel'] = $this->supportedProtectionLevel;
+        }
 
         return $res;
     }
@@ -40,7 +43,10 @@ class supportedProtectionLevels extends Model
     {
         $model = new self();
         if (isset($map['SupportedProtectionLevel'])) {
-            $model->supportedProtectionLevel = $map['SupportedProtectionLevel'];
+            if (!empty($map['SupportedProtectionLevel'])) {
+                $model->supportedProtectionLevel = [];
+                $model->supportedProtectionLevel = $map['SupportedProtectionLevel'];
+            }
         }
 
         return $model;

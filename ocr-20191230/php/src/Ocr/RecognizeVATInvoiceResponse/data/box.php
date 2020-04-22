@@ -14,108 +14,126 @@ class box extends Model
      * @var array
      */
     public $invoiceCodes;
+
     /**
      * @description invoiceNoes
      *
      * @var array
      */
     public $invoiceNoes;
+
     /**
      * @description invoiceDates
      *
      * @var array
      */
     public $invoiceDates;
+
     /**
      * @description invoiceFakeCodes
      *
      * @var array
      */
     public $invoiceFakeCodes;
+
     /**
      * @description payerNames
      *
      * @var array
      */
     public $payerNames;
+
     /**
      * @description payerRegisterNoes
      *
      * @var array
      */
     public $payerRegisterNoes;
+
     /**
      * @description payerAddresses
      *
      * @var array
      */
     public $payerAddresses;
+
     /**
      * @description payerBankNames
      *
      * @var array
      */
     public $payerBankNames;
+
     /**
      * @description withoutTaxAmounts
      *
      * @var array
      */
     public $withoutTaxAmounts;
+
     /**
      * @description taxAmounts
      *
      * @var array
      */
     public $taxAmounts;
+
     /**
      * @description sumAmounts
      *
      * @var array
      */
     public $sumAmounts;
+
     /**
      * @description invoiceAmounts
      *
      * @var array
      */
     public $invoiceAmounts;
+
     /**
      * @description payeeNames
      *
      * @var array
      */
     public $payeeNames;
+
     /**
      * @description payeeRegisterNoes
      *
      * @var array
      */
     public $payeeRegisterNoes;
+
     /**
      * @description payeeAddresses
      *
      * @var array
      */
     public $payeeAddresses;
+
     /**
      * @description payeeBankNames
      *
      * @var array
      */
     public $payeeBankNames;
+
     /**
      * @description payees
      *
      * @var array
      */
     public $payees;
+
     /**
      * @description checkers
      *
      * @var array
      */
     public $checkers;
+
     /**
      * @description clerks
      *

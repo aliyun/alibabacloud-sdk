@@ -14,18 +14,21 @@ class volumeMounts extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description subPath
      *
      * @var string
      */
     public $subPath;
+
     /**
      * @description mountPath
      *
      * @var string
      */
     public $mountPath;
+
     /**
      * @description readOnly
      *

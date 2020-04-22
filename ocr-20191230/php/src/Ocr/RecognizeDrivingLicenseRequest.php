@@ -14,6 +14,7 @@ class RecognizeDrivingLicenseRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description side
      *

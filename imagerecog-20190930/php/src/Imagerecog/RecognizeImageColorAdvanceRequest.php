@@ -14,6 +14,7 @@ class RecognizeImageColorAdvanceRequest extends Model
      * @var Stream
      */
     public $urlObject;
+
     /**
      * @description colorCount
      *

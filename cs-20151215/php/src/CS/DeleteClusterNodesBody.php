@@ -14,6 +14,7 @@ class DeleteClusterNodesBody extends Model
      * @var string
      */
     public $releaseNode;
+
     /**
      * @description nodes
      *

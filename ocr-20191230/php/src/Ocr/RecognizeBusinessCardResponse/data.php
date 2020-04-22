@@ -14,42 +14,49 @@ class data extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description company
      *
      * @var array
      */
     public $companies;
+
     /**
      * @description department
      *
      * @var array
      */
     public $departments;
+
     /**
      * @description title
      *
      * @var array
      */
     public $titles;
+
     /**
      * @description cellNumber
      *
      * @var array
      */
     public $cellPhoneNumbers;
+
     /**
      * @description officePhoneNumber
      *
      * @var array
      */
     public $officePhoneNumbers;
+
     /**
      * @description address
      *
      * @var array
      */
     public $addresses;
+
     /**
      * @description email
      *

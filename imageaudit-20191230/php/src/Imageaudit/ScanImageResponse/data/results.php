@@ -14,18 +14,21 @@ class results extends Model
      * @var string
      */
     public $dataId;
+
     /**
      * @description taskId
      *
      * @var string
      */
     public $taskId;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageURL;
+
     /**
      * @description subResults
      *

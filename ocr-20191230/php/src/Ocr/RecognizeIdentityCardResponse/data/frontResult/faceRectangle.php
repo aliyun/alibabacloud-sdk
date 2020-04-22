@@ -16,12 +16,14 @@ class faceRectangle extends Model
      * @var float
      */
     public $angle;
+
     /**
      * @description center
      *
      * @var faceRectangle.center
      */
     public $center;
+
     /**
      * @description size
      *

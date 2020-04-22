@@ -14,96 +14,112 @@ class keyMetadata extends Model
      * @var string
      */
     public $creationDate;
+
     /**
      * @description desc
      *
      * @var string
      */
     public $description;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description state
      *
      * @var string
      */
     public $keyState;
+
     /**
      * @description usage
      *
      * @var string
      */
     public $keyUsage;
+
     /**
      * @description deleteDate
      *
      * @var string
      */
     public $deleteDate;
+
     /**
      * @description creator
      *
      * @var string
      */
     public $creator;
+
     /**
      * @description Arn
      *
      * @var string
      */
     public $arn;
+
     /**
      * @description origin
      *
      * @var string
      */
     public $origin;
+
     /**
      * @description materialExpireTime
      *
      * @var string
      */
     public $materialExpireTime;
+
     /**
      * @description protectionLevel
      *
      * @var string
      */
     public $protectionLevel;
+
     /**
      * @description primaryKeyVersion
      *
      * @var string
      */
     public $primaryKeyVersion;
+
     /**
      * @description lastRotationDate
      *
      * @var string
      */
     public $lastRotationDate;
+
     /**
      * @description automaticRotation
      *
      * @var string
      */
     public $automaticRotation;
+
     /**
      * @description rotationInterval
      *
      * @var string
      */
     public $rotationInterval;
+
     /**
      * @description nextRotationDate
      *
      * @var string
      */
     public $nextRotationDate;
+
     /**
      * @description keySpec
      *

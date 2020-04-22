@@ -14,12 +14,14 @@ class items extends Model
      * @var int
      */
     public $mode;
+
     /**
      * @description path
      *
      * @var string
      */
     public $path;
+
     /**
      * @description content
      *

@@ -14,6 +14,7 @@ class AttachInstancesRequest extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

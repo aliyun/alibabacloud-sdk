@@ -14,12 +14,14 @@ class ChangeImageSizeAdvanceRequest extends Model
      * @var Stream
      */
     public $urlObject;
+
     /**
      * @description width
      *
      * @var int
      */
     public $width;
+
     /**
      * @description height
      *

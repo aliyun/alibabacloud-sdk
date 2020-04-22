@@ -14,18 +14,21 @@ class location extends Model
      * @var int
      */
     public $x;
+
     /**
      * @description y
      *
      * @var int
      */
     public $y;
+
     /**
      * @description width
      *
      * @var int
      */
     public $width;
+
     /**
      * @description height
      *

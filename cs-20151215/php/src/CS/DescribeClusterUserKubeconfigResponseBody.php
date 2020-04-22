@@ -14,6 +14,7 @@ class DescribeClusterUserKubeconfigResponseBody extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description config
      *

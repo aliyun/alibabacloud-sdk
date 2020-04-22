@@ -14,6 +14,7 @@ class resources extends Model
      * @var float
      */
     public $cpu;
+
     /**
      * @description bigMemForPop
      *
