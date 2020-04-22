@@ -798,7 +798,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = "regional"
+	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -817,7 +817,7 @@ func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runti
 		return
 	}
 	_result = &GetAsyncJobResultResponse{}
-	_body, _err := client.DoRequest("GetAsyncJobResult", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("GetAsyncJobResult"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -831,7 +831,7 @@ func (client *Client) SuperResolveVideo(request *SuperResolveVideoRequest, runti
 		return
 	}
 	_result = &SuperResolveVideoResponse{}
-	_body, _err := client.DoRequest("SuperResolveVideo", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("SuperResolveVideo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -852,12 +852,12 @@ func (client *Client) SuperResolveVideoAdvance(request *SuperResolveVideoAdvance
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -866,7 +866,7 @@ func (client *Client) SuperResolveVideoAdvance(request *SuperResolveVideoAdvance
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("videoenhan"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -876,11 +876,11 @@ func (client *Client) SuperResolveVideoAdvance(request *SuperResolveVideoAdvance
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -929,7 +929,7 @@ func (client *Client) EraseVideoLogo(request *EraseVideoLogoRequest, runtime *ut
 		return
 	}
 	_result = &EraseVideoLogoResponse{}
-	_body, _err := client.DoRequest("EraseVideoLogo", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("EraseVideoLogo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -950,12 +950,12 @@ func (client *Client) EraseVideoLogoAdvance(request *EraseVideoLogoAdvanceReques
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -964,7 +964,7 @@ func (client *Client) EraseVideoLogoAdvance(request *EraseVideoLogoAdvanceReques
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("videoenhan"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -974,11 +974,11 @@ func (client *Client) EraseVideoLogoAdvance(request *EraseVideoLogoAdvanceReques
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1027,7 +1027,7 @@ func (client *Client) EraseVideoSubtitles(request *EraseVideoSubtitlesRequest, r
 		return
 	}
 	_result = &EraseVideoSubtitlesResponse{}
-	_body, _err := client.DoRequest("EraseVideoSubtitles", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("EraseVideoSubtitles"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1048,12 +1048,12 @@ func (client *Client) EraseVideoSubtitlesAdvance(request *EraseVideoSubtitlesAdv
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1062,7 +1062,7 @@ func (client *Client) EraseVideoSubtitlesAdvance(request *EraseVideoSubtitlesAdv
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("videoenhan"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1072,11 +1072,11 @@ func (client *Client) EraseVideoSubtitlesAdvance(request *EraseVideoSubtitlesAdv
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1125,7 +1125,7 @@ func (client *Client) AbstractEcommerceVideo(request *AbstractEcommerceVideoRequ
 		return
 	}
 	_result = &AbstractEcommerceVideoResponse{}
-	_body, _err := client.DoRequest("AbstractEcommerceVideo", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("AbstractEcommerceVideo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1146,12 +1146,12 @@ func (client *Client) AbstractEcommerceVideoAdvance(request *AbstractEcommerceVi
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1160,7 +1160,7 @@ func (client *Client) AbstractEcommerceVideoAdvance(request *AbstractEcommerceVi
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("videoenhan"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1170,11 +1170,11 @@ func (client *Client) AbstractEcommerceVideoAdvance(request *AbstractEcommerceVi
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1223,7 +1223,7 @@ func (client *Client) AbstractFilmVideo(request *AbstractFilmVideoRequest, runti
 		return
 	}
 	_result = &AbstractFilmVideoResponse{}
-	_body, _err := client.DoRequest("AbstractFilmVideo", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("AbstractFilmVideo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1244,12 +1244,12 @@ func (client *Client) AbstractFilmVideoAdvance(request *AbstractFilmVideoAdvance
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1258,7 +1258,7 @@ func (client *Client) AbstractFilmVideoAdvance(request *AbstractFilmVideoAdvance
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("videoenhan"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1268,11 +1268,11 @@ func (client *Client) AbstractFilmVideoAdvance(request *AbstractFilmVideoAdvance
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1321,7 +1321,7 @@ func (client *Client) AdjustVideoColor(request *AdjustVideoColorRequest, runtime
 		return
 	}
 	_result = &AdjustVideoColorResponse{}
-	_body, _err := client.DoRequest("AdjustVideoColor", "HTTPS", "POST", "2020-03-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("AdjustVideoColor"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1342,12 +1342,12 @@ func (client *Client) AdjustVideoColorAdvance(request *AdjustVideoColorAdvanceRe
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1356,7 +1356,7 @@ func (client *Client) AdjustVideoColorAdvance(request *AdjustVideoColorAdvanceRe
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("videoenhan"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1366,11 +1366,11 @@ func (client *Client) AdjustVideoColorAdvance(request *AdjustVideoColorAdvanceRe
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1413,19 +1413,20 @@ func (client *Client) AdjustVideoColorAdvance(request *AdjustVideoColorAdvanceRe
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err

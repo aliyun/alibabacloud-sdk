@@ -986,7 +986,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = "regional"
+	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -1005,7 +1005,7 @@ func (client *Client) DetectTransparentImage(request *DetectTransparentImageRequ
 		return
 	}
 	_result = &DetectTransparentImageResponse{}
-	_body, _err := client.DoRequest("DetectTransparentImage", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DetectTransparentImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1026,12 +1026,12 @@ func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentIm
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1040,7 +1040,7 @@ func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentIm
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1050,11 +1050,11 @@ func (client *Client) DetectTransparentImageAdvance(request *DetectTransparentIm
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1103,7 +1103,7 @@ func (client *Client) DetectObject(request *DetectObjectRequest, runtime *util.R
 		return
 	}
 	_result = &DetectObjectResponse{}
-	_body, _err := client.DoRequest("DetectObject", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DetectObject"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1124,12 +1124,12 @@ func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, r
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1138,7 +1138,7 @@ func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, r
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1148,11 +1148,11 @@ func (client *Client) DetectObjectAdvance(request *DetectObjectAdvanceRequest, r
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1201,7 +1201,7 @@ func (client *Client) DetectWhiteBaseImage(request *DetectWhiteBaseImageRequest,
 		return
 	}
 	_result = &DetectWhiteBaseImageResponse{}
-	_body, _err := client.DoRequest("DetectWhiteBaseImage", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DetectWhiteBaseImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1222,12 +1222,12 @@ func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageA
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1236,7 +1236,7 @@ func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageA
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1246,11 +1246,11 @@ func (client *Client) DetectWhiteBaseImageAdvance(request *DetectWhiteBaseImageA
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1299,7 +1299,7 @@ func (client *Client) ClassifyVehicleInsurance(request *ClassifyVehicleInsurance
 		return
 	}
 	_result = &ClassifyVehicleInsuranceResponse{}
-	_body, _err := client.DoRequest("ClassifyVehicleInsurance", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("ClassifyVehicleInsurance"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1320,12 +1320,12 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1334,7 +1334,7 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1344,11 +1344,11 @@ func (client *Client) ClassifyVehicleInsuranceAdvance(request *ClassifyVehicleIn
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1397,7 +1397,7 @@ func (client *Client) RecognizeVehicleDashboard(request *RecognizeVehicleDashboa
 		return
 	}
 	_result = &RecognizeVehicleDashboardResponse{}
-	_body, _err := client.DoRequest("RecognizeVehicleDashboard", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("RecognizeVehicleDashboard"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1418,12 +1418,12 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1432,7 +1432,7 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1442,11 +1442,11 @@ func (client *Client) RecognizeVehicleDashboardAdvance(request *RecognizeVehicle
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1495,7 +1495,7 @@ func (client *Client) RecognizeVehicleDamage(request *RecognizeVehicleDamageRequ
 		return
 	}
 	_result = &RecognizeVehicleDamageResponse{}
-	_body, _err := client.DoRequest("RecognizeVehicleDamage", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("RecognizeVehicleDamage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1516,12 +1516,12 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1530,7 +1530,7 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1540,11 +1540,11 @@ func (client *Client) RecognizeVehicleDamageAdvance(request *RecognizeVehicleDam
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1593,7 +1593,7 @@ func (client *Client) RecognizeVehicleParts(request *RecognizeVehiclePartsReques
 		return
 	}
 	_result = &RecognizeVehiclePartsResponse{}
-	_body, _err := client.DoRequest("RecognizeVehicleParts", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("RecognizeVehicleParts"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1614,12 +1614,12 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1628,7 +1628,7 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1638,11 +1638,11 @@ func (client *Client) RecognizeVehiclePartsAdvance(request *RecognizeVehiclePart
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1691,7 +1691,7 @@ func (client *Client) DetectVehicle(request *DetectVehicleRequest, runtime *util
 		return
 	}
 	_result = &DetectVehicleResponse{}
-	_body, _err := client.DoRequest("DetectVehicle", "HTTPS", "POST", "2019-12-30", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DetectVehicle"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1712,12 +1712,12 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1726,7 +1726,7 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1736,11 +1736,11 @@ func (client *Client) DetectVehicleAdvance(request *DetectVehicleAdvanceRequest,
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1789,7 +1789,7 @@ func (client *Client) DetectMainBody(request *DetectMainBodyRequest, runtime *ut
 		return
 	}
 	_result = &DetectMainBodyResponse{}
-	_body, _err := client.DoRequest("DetectMainBody", "HTTPS", "GET", "2019-12-30", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DetectMainBody"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1810,12 +1810,12 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1824,7 +1824,7 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("objectdet"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1834,11 +1834,11 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1881,19 +1881,20 @@ func (client *Client) DetectMainBodyAdvance(request *DetectMainBodyAdvanceReques
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err

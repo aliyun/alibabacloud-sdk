@@ -844,7 +844,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = ""
+	client.EndpointRule = tea.String("")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -863,7 +863,7 @@ func (client *Client) SearchImageByName(request *SearchImageByNameRequest, runti
 		return
 	}
 	_result = &SearchImageByNameResponse{}
-	_body, _err := client.DoRequest("SearchImageByName", "HTTPS", "POST", "2020-02-12", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("SearchImageByName"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-02-12"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -877,7 +877,7 @@ func (client *Client) SearchImageByPic(request *SearchImageByPicRequest, runtime
 		return
 	}
 	_result = &SearchImageByPicResponse{}
-	_body, _err := client.DoRequest("SearchImageByPic", "HTTPS", "POST", "2020-02-12", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("SearchImageByPic"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-02-12"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -898,12 +898,12 @@ func (client *Client) SearchImageByPicAdvance(request *SearchImageByPicAdvanceRe
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -912,7 +912,7 @@ func (client *Client) SearchImageByPicAdvance(request *SearchImageByPicAdvanceRe
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("ImageSearch"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -922,11 +922,11 @@ func (client *Client) SearchImageByPicAdvance(request *SearchImageByPicAdvanceRe
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -975,7 +975,7 @@ func (client *Client) DeleteImage(request *DeleteImageRequest, runtime *util.Run
 		return
 	}
 	_result = &DeleteImageResponse{}
-	_body, _err := client.DoRequest("DeleteImage", "HTTPS", "POST", "2020-02-12", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-02-12"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -989,7 +989,7 @@ func (client *Client) AddImage(request *AddImageRequest, runtime *util.RuntimeOp
 		return
 	}
 	_result = &AddImageResponse{}
-	_body, _err := client.DoRequest("AddImage", "HTTPS", "POST", "2020-02-12", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("AddImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-02-12"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -1010,12 +1010,12 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 	}
 
 	authConfig := &rpc.Config{
-		AccessKeyId:     tea.String(accessKeyId),
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
 		Endpoint:        tea.String("openplatform.aliyuncs.com"),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
@@ -1024,7 +1024,7 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
 		Product:  tea.String("ImageSearch"),
-		RegionId: tea.String(client.RegionId),
+		RegionId: client.RegionId,
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
@@ -1034,11 +1034,11 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 	// Step 1: request OSS api to upload file
 	ossConfig := &oss.Config{
 		AccessKeyId:     authResponse.AccessKeyId,
-		AccessKeySecret: tea.String(accessKeySecret),
+		AccessKeySecret: accessKeySecret,
 		Type:            tea.String("access_key"),
-		Endpoint:        tea.String(rpcutil.GetEndpoint(tea.StringValue(authResponse.Endpoint), tea.BoolValue(authResponse.UseAccelerate), client.EndpointType)),
-		Protocol:        tea.String(client.Protocol),
-		RegionId:        tea.String(client.RegionId),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
@@ -1081,19 +1081,20 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err
