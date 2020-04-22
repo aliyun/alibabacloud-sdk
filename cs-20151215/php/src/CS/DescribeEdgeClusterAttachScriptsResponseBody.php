@@ -14,6 +14,7 @@ class DescribeEdgeClusterAttachScriptsResponseBody extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description config
      *

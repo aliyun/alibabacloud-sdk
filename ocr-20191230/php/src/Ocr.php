@@ -71,7 +71,6 @@ use AlibabaCloud\SDK\Ocr\V20191230\Ocr\TrimDocumentRequest;
 use AlibabaCloud\SDK\Ocr\V20191230\Ocr\TrimDocumentResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -96,7 +95,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new GetAsyncJobResultResponse());
+        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -108,7 +107,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('TrimDocument', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new TrimDocumentResponse());
+        return TrimDocumentResponse::fromMap($this->doRequest('TrimDocument', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -182,7 +181,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeChinapassport', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeChinapassportResponse());
+        return RecognizeChinapassportResponse::fromMap($this->doRequest('RecognizeChinapassport', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -256,7 +255,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVerificationcode', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeVerificationcodeResponse());
+        return RecognizeVerificationcodeResponse::fromMap($this->doRequest('RecognizeVerificationcode', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -330,7 +329,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizePassportMRZ', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizePassportMRZResponse());
+        return RecognizePassportMRZResponse::fromMap($this->doRequest('RecognizePassportMRZ', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -404,7 +403,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeTakeoutOrder', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeTakeoutOrderResponse());
+        return RecognizeTakeoutOrderResponse::fromMap($this->doRequest('RecognizeTakeoutOrder', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -478,7 +477,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeQrCode', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeQrCodeResponse());
+        return RecognizeQrCodeResponse::fromMap($this->doRequest('RecognizeQrCode', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -490,7 +489,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVATInvoice', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeVATInvoiceResponse());
+        return RecognizeVATInvoiceResponse::fromMap($this->doRequest('RecognizeVATInvoice', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -564,7 +563,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeCharacter', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeCharacterResponse());
+        return RecognizeCharacterResponse::fromMap($this->doRequest('RecognizeCharacter', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -638,7 +637,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeTaxiInvoice', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeTaxiInvoiceResponse());
+        return RecognizeTaxiInvoiceResponse::fromMap($this->doRequest('RecognizeTaxiInvoice', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -712,7 +711,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeIdentityCard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeIdentityCardResponse());
+        return RecognizeIdentityCardResponse::fromMap($this->doRequest('RecognizeIdentityCard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -786,7 +785,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeLicensePlate', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeLicensePlateResponse());
+        return RecognizeLicensePlateResponse::fromMap($this->doRequest('RecognizeLicensePlate', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -860,7 +859,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeTable', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeTableResponse());
+        return RecognizeTableResponse::fromMap($this->doRequest('RecognizeTable', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -934,7 +933,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeDrivingLicense', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeDrivingLicenseResponse());
+        return RecognizeDrivingLicenseResponse::fromMap($this->doRequest('RecognizeDrivingLicense', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1008,7 +1007,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeBankCard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeBankCardResponse());
+        return RecognizeBankCardResponse::fromMap($this->doRequest('RecognizeBankCard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1082,7 +1081,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeTrainTicket', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeTrainTicketResponse());
+        return RecognizeTrainTicketResponse::fromMap($this->doRequest('RecognizeTrainTicket', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1156,7 +1155,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeDriverLicense', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeDriverLicenseResponse());
+        return RecognizeDriverLicenseResponse::fromMap($this->doRequest('RecognizeDriverLicense', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1230,7 +1229,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeAccountPage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeAccountPageResponse());
+        return RecognizeAccountPageResponse::fromMap($this->doRequest('RecognizeAccountPage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1304,7 +1303,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeStamp', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeStampResponse());
+        return RecognizeStampResponse::fromMap($this->doRequest('RecognizeStamp', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1378,7 +1377,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeBusinessCard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeBusinessCardResponse());
+        return RecognizeBusinessCardResponse::fromMap($this->doRequest('RecognizeBusinessCard', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1452,7 +1451,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeVINCode', 'HTTPS', 'POST', '2019-12-30', 'AK', $request, null, $runtime), new RecognizeVINCodeResponse());
+        return RecognizeVINCodeResponse::fromMap($this->doRequest('RecognizeVINCode', 'HTTPS', 'POST', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1526,7 +1525,7 @@ class Ocr
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeBusinessLicense', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeBusinessLicenseResponse());
+        return RecognizeBusinessLicenseResponse::fromMap($this->doRequest('RecognizeBusinessLicense', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**

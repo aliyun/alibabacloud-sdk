@@ -14,24 +14,28 @@ class addonInfo extends Model
      * @var string
      */
     public $componentName;
+
     /**
      * @description ready_to_upgrade
      *
      * @var string
      */
     public $readyToUpgrade;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description version
      *
      * @var string
      */
     public $version;
+
     /**
      * @description yaml
      *

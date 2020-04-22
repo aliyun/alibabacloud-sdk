@@ -14,6 +14,7 @@ class ModifyClusterTagsBody extends Model
      * @var string
      */
     public $key;
+
     /**
      * @description value
      *

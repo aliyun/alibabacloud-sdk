@@ -15,12 +15,14 @@ class invoices extends Model
      * @var int
      */
     public $rotateType;
+
     /**
      * @description items
      *
      * @var array
      */
     public $items;
+
     /**
      * @description invoiceRoi
      *

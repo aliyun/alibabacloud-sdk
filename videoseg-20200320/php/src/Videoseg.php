@@ -12,7 +12,6 @@ use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\GetAsyncJobResultResponse;
 use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\SegmentVideoBodyAdvanceRequest;
 use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\SegmentVideoBodyRequest;
 use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\SegmentVideoBodyResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -37,7 +36,7 @@ class Videoseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SegmentVideoBody', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new SegmentVideoBodyResponse());
+        return SegmentVideoBodyResponse::fromMap($this->doRequest('SegmentVideoBody', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -111,7 +110,7 @@ class Videoseg
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new GetAsyncJobResultResponse());
+        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**

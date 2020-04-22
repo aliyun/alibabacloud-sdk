@@ -14,6 +14,7 @@ class ModifyClusterTagsRequest extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

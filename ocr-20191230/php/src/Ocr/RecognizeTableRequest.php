@@ -14,30 +14,35 @@ class RecognizeTableRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description outputFormat
      *
      * @var string
      */
     public $outputFormat;
+
     /**
      * @description useFinanceModel
      *
      * @var bool
      */
     public $useFinanceModel;
+
     /**
      * @description assureDirection
      *
      * @var bool
      */
     public $assureDirection;
+
     /**
      * @description hasLine
      *
      * @var bool
      */
     public $hasLine;
+
     /**
      * @description skipDetection
      *

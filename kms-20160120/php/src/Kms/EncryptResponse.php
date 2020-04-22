@@ -14,18 +14,21 @@ class EncryptResponse extends Model
      * @var string
      */
     public $ciphertextBlob;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyVersionId
      *

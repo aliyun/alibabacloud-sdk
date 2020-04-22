@@ -14,18 +14,21 @@ class DeleteSmsSignResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description module
      *
      * @var string
      */
     public $signName;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *

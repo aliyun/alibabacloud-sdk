@@ -15,6 +15,7 @@ class RecognizePassportMRZResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

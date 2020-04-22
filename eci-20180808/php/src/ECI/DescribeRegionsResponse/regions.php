@@ -14,12 +14,14 @@ class regions extends Model
      * @var string
      */
     public $regionId;
+
     /**
      * @description endpoint
      *
      * @var string
      */
     public $regionEndpoint;
+
     /**
      * @description zones
      *

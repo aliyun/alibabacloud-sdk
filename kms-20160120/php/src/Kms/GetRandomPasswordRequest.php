@@ -14,36 +14,42 @@ class GetRandomPasswordRequest extends Model
      * @var string
      */
     public $passwordLength;
+
     /**
      * @description ExcludeCharacters
      *
      * @var string
      */
     public $excludeCharacters;
+
     /**
      * @description ExcludeLowercase
      *
      * @var string
      */
     public $excludeLowercase;
+
     /**
      * @description ExcludeUppercase
      *
      * @var string
      */
     public $excludeUppercase;
+
     /**
      * @description ExcludeNumbers
      *
      * @var string
      */
     public $excludeNumbers;
+
     /**
      * @description ExcludePunctuation
      *
      * @var string
      */
     public $excludePunctuation;
+
     /**
      * @description RequireEachIncludedType
      *

@@ -15,6 +15,7 @@ class DetectBodyCountResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

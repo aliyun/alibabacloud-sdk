@@ -15,6 +15,7 @@ class DetectObjectResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

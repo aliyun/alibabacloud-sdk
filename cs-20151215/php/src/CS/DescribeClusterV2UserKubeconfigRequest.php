@@ -14,6 +14,7 @@ class DescribeClusterV2UserKubeconfigRequest extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description query
      *

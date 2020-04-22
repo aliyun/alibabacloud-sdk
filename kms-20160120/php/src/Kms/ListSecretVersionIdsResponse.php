@@ -15,30 +15,35 @@ class ListSecretVersionIdsResponse extends Model
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description PageSize
      *
      * @var int
      */
     public $pageSize;
+
     /**
      * @description RequestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description SecretName
      *
      * @var string
      */
     public $secretName;
+
     /**
      * @description TotalCount
      *
      * @var int
      */
     public $totalCount;
+
     /**
      * @description VersionIds
      *

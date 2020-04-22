@@ -14,12 +14,14 @@ class alias extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description AliasName
      *
      * @var string
      */
     public $aliasName;
+
     /**
      * @description AliasArn
      *

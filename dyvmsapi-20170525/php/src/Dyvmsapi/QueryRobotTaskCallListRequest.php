@@ -14,78 +14,91 @@ class QueryRobotTaskCallListRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description pageNo
      *
      * @var int
      */
     public $pageNo;
+
     /**
      * @description pageSize
      *
      * @var int
      */
     public $pageSize;
+
     /**
      * @description taskId
      *
      * @var string
      */
     public $taskId;
+
     /**
      * @description durationFrom
      *
      * @var string
      */
     public $durationFrom;
+
     /**
      * @description durationTo
      *
      * @var string
      */
     public $durationTo;
+
     /**
      * @description dialogCountFrom
      *
      * @var string
      */
     public $dialogCountFrom;
+
     /**
      * @description dialogCountTo
      *
      * @var string
      */
     public $dialogCountTo;
+
     /**
      * @description hangupDirection
      *
      * @var string
      */
     public $hangupDirection;
+
     /**
      * @description callResult
      *
      * @var string
      */
     public $callResult;
+
     /**
      * @description called
      *

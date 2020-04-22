@@ -14,72 +14,84 @@ class ClickToDialRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description callerShowNumber
      *
      * @var string
      */
     public $callerShowNumber;
+
     /**
      * @description callerNumber
      *
      * @var string
      */
     public $callerNumber;
+
     /**
      * @description calledShowNumber
      *
      * @var string
      */
     public $calledShowNumber;
+
     /**
      * @description calledNumber
      *
      * @var string
      */
     public $calledNumber;
+
     /**
      * @description recordFlag
      *
      * @var bool
      */
     public $recordFlag;
+
     /**
      * @description asrFlag
      *
      * @var bool
      */
     public $asrFlag;
+
     /**
      * @description sessionTimeout
      *
      * @var int
      */
     public $sessionTimeout;
+
     /**
      * @description asrModelId
      *
      * @var string
      */
     public $asrModelId;
+
     /**
      * @description outId
      *

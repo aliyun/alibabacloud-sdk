@@ -32,7 +32,6 @@ use AlibabaCloud\SDK\Imageenhan\V20190930\Imageenhan\RemoveImageWatermarkRequest
 use AlibabaCloud\SDK\Imageenhan\V20190930\Imageenhan\RemoveImageWatermarkResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -57,7 +56,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ImageBlindCharacterWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new ImageBlindCharacterWatermarkResponse());
+        return ImageBlindCharacterWatermarkResponse::fromMap($this->doRequest('ImageBlindCharacterWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -131,7 +130,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RemoveImageSubtitles', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RemoveImageSubtitlesResponse());
+        return RemoveImageSubtitlesResponse::fromMap($this->doRequest('RemoveImageSubtitles', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -205,7 +204,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RemoveImageWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RemoveImageWatermarkResponse());
+        return RemoveImageWatermarkResponse::fromMap($this->doRequest('RemoveImageWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -279,7 +278,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ImageBlindPicWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new ImageBlindPicWatermarkResponse());
+        return ImageBlindPicWatermarkResponse::fromMap($this->doRequest('ImageBlindPicWatermark', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -353,7 +352,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('IntelligentComposition', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new IntelligentCompositionResponse());
+        return IntelligentCompositionResponse::fromMap($this->doRequest('IntelligentComposition', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -427,7 +426,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ChangeImageSize', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new ChangeImageSizeResponse());
+        return ChangeImageSizeResponse::fromMap($this->doRequest('ChangeImageSize', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -501,7 +500,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ExtendImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new ExtendImageStyleResponse());
+        return ExtendImageStyleResponse::fromMap($this->doRequest('ExtendImageStyle', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -513,7 +512,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('MakeSuperResolutionImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new MakeSuperResolutionImageResponse());
+        return MakeSuperResolutionImageResponse::fromMap($this->doRequest('MakeSuperResolutionImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -587,7 +586,7 @@ class Imageenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecolorImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime), new RecolorImageResponse());
+        return RecolorImageResponse::fromMap($this->doRequest('RecolorImage', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
     }
 
     /**

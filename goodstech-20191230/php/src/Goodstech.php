@@ -16,7 +16,6 @@ use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureSpuRequest;
 use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureSpuResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -41,7 +40,7 @@ class Goodstech
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeFurnitureAttribute', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeFurnitureAttributeResponse());
+        return RecognizeFurnitureAttributeResponse::fromMap($this->doRequest('RecognizeFurnitureAttribute', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -115,7 +114,7 @@ class Goodstech
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RecognizeFurnitureSpu', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime), new RecognizeFurnitureSpuResponse());
+        return RecognizeFurnitureSpuResponse::fromMap($this->doRequest('RecognizeFurnitureSpu', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -189,7 +188,7 @@ class Goodstech
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ClassifyCommodity', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime), new ClassifyCommodityResponse());
+        return ClassifyCommodityResponse::fromMap($this->doRequest('ClassifyCommodity', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
     }
 
     /**

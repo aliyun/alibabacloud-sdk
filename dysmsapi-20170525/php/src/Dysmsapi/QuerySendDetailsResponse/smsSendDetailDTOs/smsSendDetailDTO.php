@@ -14,42 +14,49 @@ class smsSendDetailDTO extends Model
      * @var string
      */
     public $phoneNum;
+
     /**
      * @description sendStatus
      *
      * @var int
      */
     public $sendStatus;
+
     /**
      * @description errCode
      *
      * @var string
      */
     public $errCode;
+
     /**
      * @description templateCode
      *
      * @var string
      */
     public $templateCode;
+
     /**
      * @description content
      *
      * @var string
      */
     public $content;
+
     /**
      * @description sendDate
      *
      * @var string
      */
     public $sendDate;
+
     /**
      * @description receiveDate
      *
      * @var string
      */
     public $receiveDate;
+
     /**
      * @description outId
      *

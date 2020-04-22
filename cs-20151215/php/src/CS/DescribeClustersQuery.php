@@ -14,6 +14,7 @@ class DescribeClustersQuery extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description clusterType
      *

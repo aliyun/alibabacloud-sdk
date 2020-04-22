@@ -14,24 +14,28 @@ class addonName extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description config
      *
      * @var string
      */
     public $config;
+
     /**
      * @description required
      *
      * @var string
      */
     public $required;
+
     /**
      * @description disabled
      *
      * @var bool
      */
     public $disabled;
+
     /**
      * @description version
      *

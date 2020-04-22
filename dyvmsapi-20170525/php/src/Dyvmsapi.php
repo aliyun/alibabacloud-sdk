@@ -83,7 +83,6 @@ use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipAddAccountRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipAddAccountResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipGetTokenRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipGetTokenResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
@@ -106,7 +105,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListRobotTaskCalls', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ListRobotTaskCallsResponse());
+        return ListRobotTaskCallsResponse::fromMap($this->doRequest('ListRobotTaskCalls', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -131,7 +130,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DoRtcNumberAuth', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DoRtcNumberAuthResponse());
+        return DoRtcNumberAuthResponse::fromMap($this->doRequest('DoRtcNumberAuth', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -156,7 +155,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UndoRtcNumberAuth', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new UndoRtcNumberAuthResponse());
+        return UndoRtcNumberAuthResponse::fromMap($this->doRequest('UndoRtcNumberAuth', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -181,7 +180,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRtcNumberAuthStatus', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRtcNumberAuthStatusResponse());
+        return QueryRtcNumberAuthStatusResponse::fromMap($this->doRequest('QueryRtcNumberAuthStatus', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -206,7 +205,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListOrderedNumbers', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ListOrderedNumbersResponse());
+        return ListOrderedNumbersResponse::fromMap($this->doRequest('ListOrderedNumbers', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -231,7 +230,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('StartMicroOutbound', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new StartMicroOutboundResponse());
+        return StartMicroOutboundResponse::fromMap($this->doRequest('StartMicroOutbound', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -256,7 +255,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListOutboundStrategies', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ListOutboundStrategiesResponse());
+        return ListOutboundStrategiesResponse::fromMap($this->doRequest('ListOutboundStrategies', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -281,7 +280,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DescribeRecordData', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DescribeRecordDataResponse());
+        return DescribeRecordDataResponse::fromMap($this->doRequest('DescribeRecordData', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -306,7 +305,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryVoipNumberBindInfos', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryVoipNumberBindInfosResponse());
+        return QueryVoipNumberBindInfosResponse::fromMap($this->doRequest('QueryVoipNumberBindInfos', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -331,7 +330,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ReportVoipProblems', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ReportVoipProblemsResponse());
+        return ReportVoipProblemsResponse::fromMap($this->doRequest('ReportVoipProblems', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -356,7 +355,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UnbindNumberAndVoipId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new UnbindNumberAndVoipIdResponse());
+        return UnbindNumberAndVoipIdResponse::fromMap($this->doRequest('UnbindNumberAndVoipId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -381,7 +380,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('BindNumberAndVoipId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new BindNumberAndVoipIdResponse());
+        return BindNumberAndVoipIdResponse::fromMap($this->doRequest('BindNumberAndVoipId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -406,7 +405,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CancelRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new CancelRobotTaskResponse());
+        return CancelRobotTaskResponse::fromMap($this->doRequest('CancelRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -431,7 +430,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UploadRobotTaskCalledFile', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new UploadRobotTaskCalledFileResponse());
+        return UploadRobotTaskCalledFileResponse::fromMap($this->doRequest('UploadRobotTaskCalledFile', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -456,7 +455,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new DeleteRobotTaskResponse());
+        return DeleteRobotTaskResponse::fromMap($this->doRequest('DeleteRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -481,7 +480,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('StopRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new StopRobotTaskResponse());
+        return StopRobotTaskResponse::fromMap($this->doRequest('StopRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -506,7 +505,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRobotTaskCallDetail', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRobotTaskCallDetailResponse());
+        return QueryRobotTaskCallDetailResponse::fromMap($this->doRequest('QueryRobotTaskCallDetail', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -531,7 +530,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRobotv2AllList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRobotv2AllListResponse());
+        return QueryRobotv2AllListResponse::fromMap($this->doRequest('QueryRobotv2AllList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -556,7 +555,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRobotTaskDetail', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRobotTaskDetailResponse());
+        return QueryRobotTaskDetailResponse::fromMap($this->doRequest('QueryRobotTaskDetail', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -581,7 +580,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRobotTaskCallList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRobotTaskCallListResponse());
+        return QueryRobotTaskCallListResponse::fromMap($this->doRequest('QueryRobotTaskCallList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -606,7 +605,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('StartRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new StartRobotTaskResponse());
+        return StartRobotTaskResponse::fromMap($this->doRequest('StartRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -631,7 +630,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRobotTaskList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRobotTaskListResponse());
+        return QueryRobotTaskListResponse::fromMap($this->doRequest('QueryRobotTaskList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -656,7 +655,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new CreateRobotTaskResponse());
+        return CreateRobotTaskResponse::fromMap($this->doRequest('CreateRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -681,7 +680,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CancelOrderRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new CancelOrderRobotTaskResponse());
+        return CancelOrderRobotTaskResponse::fromMap($this->doRequest('CancelOrderRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -706,7 +705,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SmartCallOperate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SmartCallOperateResponse());
+        return SmartCallOperateResponse::fromMap($this->doRequest('SmartCallOperate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -731,7 +730,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryRobotInfoList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryRobotInfoListResponse());
+        return QueryRobotInfoListResponse::fromMap($this->doRequest('QueryRobotInfoList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -756,7 +755,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('BatchRobotSmartCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new BatchRobotSmartCallResponse());
+        return BatchRobotSmartCallResponse::fromMap($this->doRequest('BatchRobotSmartCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -781,7 +780,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryCallDetailByTaskId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryCallDetailByTaskIdResponse());
+        return QueryCallDetailByTaskIdResponse::fromMap($this->doRequest('QueryCallDetailByTaskId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -806,7 +805,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetRtcToken', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new GetRtcTokenResponse());
+        return GetRtcTokenResponse::fromMap($this->doRequest('GetRtcToken', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -831,7 +830,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AddRtcAccount', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new AddRtcAccountResponse());
+        return AddRtcAccountResponse::fromMap($this->doRequest('AddRtcAccount', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -856,7 +855,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('VoipAddAccount', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new VoipAddAccountResponse());
+        return VoipAddAccountResponse::fromMap($this->doRequest('VoipAddAccount', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -881,7 +880,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('VoipGetToken', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new VoipGetTokenResponse());
+        return VoipGetTokenResponse::fromMap($this->doRequest('VoipGetToken', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -906,7 +905,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SmartCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SmartCallResponse());
+        return SmartCallResponse::fromMap($this->doRequest('SmartCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -931,7 +930,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('QueryCallDetailByCallId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new QueryCallDetailByCallIdResponse());
+        return QueryCallDetailByCallIdResponse::fromMap($this->doRequest('QueryCallDetailByCallId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -956,7 +955,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CancelCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new CancelCallResponse());
+        return CancelCallResponse::fromMap($this->doRequest('CancelCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -981,7 +980,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ClickToDial', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new ClickToDialResponse());
+        return ClickToDialResponse::fromMap($this->doRequest('ClickToDial', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1006,7 +1005,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('IvrCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new IvrCallResponse());
+        return IvrCallResponse::fromMap($this->doRequest('IvrCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1031,7 +1030,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SingleCallByVoice', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SingleCallByVoiceResponse());
+        return SingleCallByVoiceResponse::fromMap($this->doRequest('SingleCallByVoice', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1056,7 +1055,7 @@ class Dyvmsapi
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SingleCallByTts', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime), new SingleCallByTtsResponse());
+        return SingleCallByTtsResponse::fromMap($this->doRequest('SingleCallByTts', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
     }
 
     /**

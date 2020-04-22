@@ -14,6 +14,7 @@ class RecognizeVATInvoiceRequest extends Model
      * @var string
      */
     public $fileURL;
+
     /**
      * @description fileType
      *

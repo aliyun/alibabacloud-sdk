@@ -14,30 +14,35 @@ class acceleratorStats extends Model
      * @var string
      */
     public $id;
+
     /**
      * @description make
      *
      * @var string
      */
     public $make;
+
     /**
      * @description model
      *
      * @var string
      */
     public $model;
+
     /**
      * @description memoryTotal
      *
      * @var int
      */
     public $memoryTotal;
+
     /**
      * @description memoryUsed
      *
      * @var int
      */
     public $memoryUsed;
+
     /**
      * @description dutyCycle
      *

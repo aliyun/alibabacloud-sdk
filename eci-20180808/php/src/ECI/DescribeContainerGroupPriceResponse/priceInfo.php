@@ -16,6 +16,7 @@ class priceInfo extends Model
      * @var priceInfo.rules
      */
     public $rules;
+
     /**
      * @description price
      *

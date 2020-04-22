@@ -15,6 +15,7 @@ class items extends Model
      * @var string
      */
     public $text;
+
     /**
      * @description itemRoi
      *

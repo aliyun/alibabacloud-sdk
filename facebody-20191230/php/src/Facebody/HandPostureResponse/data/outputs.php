@@ -14,6 +14,7 @@ class outputs extends Model
      * @var int
      */
     public $handCount;
+
     /**
      * @description results
      *

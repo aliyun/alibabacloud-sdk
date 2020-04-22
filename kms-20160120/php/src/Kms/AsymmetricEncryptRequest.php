@@ -14,18 +14,21 @@ class AsymmetricEncryptRequest extends Model
      * @var string
      */
     public $plaintext;
+
     /**
      * @description KeyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description KeyVersionId
      *
      * @var string
      */
     public $keyVersionId;
+
     /**
      * @description Algorithm
      *

@@ -14,12 +14,14 @@ class CreateClusterResponseBody extends Model
      * @var string
      */
     public $clusterId;
+
     /**
      * @description request_id
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description task_id
      *

@@ -14,18 +14,21 @@ class stamp extends Model
      * @var int
      */
     public $top;
+
     /**
      * @description left
      *
      * @var int
      */
     public $left;
+
     /**
      * @description height
      *
      * @var int
      */
     public $height;
+
     /**
      * @description width
      *

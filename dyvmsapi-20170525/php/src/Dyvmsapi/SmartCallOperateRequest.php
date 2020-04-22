@@ -14,36 +14,42 @@ class SmartCallOperateRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description callId
      *
      * @var string
      */
     public $callId;
+
     /**
      * @description command
      *
      * @var string
      */
     public $command;
+
     /**
      * @description param
      *

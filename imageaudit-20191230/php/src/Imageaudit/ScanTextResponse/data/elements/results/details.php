@@ -14,6 +14,7 @@ class details extends Model
      * @var string
      */
     public $label;
+
     /**
      * @description contexts
      *

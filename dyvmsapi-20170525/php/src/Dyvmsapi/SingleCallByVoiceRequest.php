@@ -14,60 +14,70 @@ class SingleCallByVoiceRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description calledShowNumber
      *
      * @var string
      */
     public $calledShowNumber;
+
     /**
      * @description calledNumber
      *
      * @var string
      */
     public $calledNumber;
+
     /**
      * @description voiceCode
      *
      * @var string
      */
     public $voiceCode;
+
     /**
      * @description playTimes
      *
      * @var int
      */
     public $playTimes;
+
     /**
      * @description volume
      *
      * @var int
      */
     public $volume;
+
     /**
      * @description speed
      *
      * @var int
      */
     public $speed;
+
     /**
      * @description outId
      *

@@ -16,12 +16,14 @@ class DescribeServiceResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description ProtectionLevels
      *
      * @var DescribeServiceResponse.protectionLevels
      */
     public $protectionLevels;
+
     /**
      * @description KeySpecs
      *

@@ -14,18 +14,21 @@ class elements extends Model
      * @var string
      */
     public $category;
+
     /**
      * @description categoryScore
      *
      * @var float
      */
     public $categoryScore;
+
     /**
      * @description rubbish
      *
      * @var string
      */
     public $rubbish;
+
     /**
      * @description rubbishScore
      *

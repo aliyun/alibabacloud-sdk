@@ -14,12 +14,14 @@ class RecognizeCharacterRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description minHeight
      *
      * @var int
      */
     public $minHeight;
+
     /**
      * @description outputProbability
      *

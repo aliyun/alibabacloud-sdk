@@ -15,6 +15,7 @@ class FaceBeautyResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

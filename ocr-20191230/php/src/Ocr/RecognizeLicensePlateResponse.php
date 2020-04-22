@@ -15,6 +15,7 @@ class RecognizeLicensePlateResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

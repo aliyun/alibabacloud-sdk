@@ -14,12 +14,14 @@ class imageRegistryCredential extends Model
      * @var string
      */
     public $server;
+
     /**
      * @description userName
      *
      * @var string
      */
     public $userName;
+
     /**
      * @description password
      *

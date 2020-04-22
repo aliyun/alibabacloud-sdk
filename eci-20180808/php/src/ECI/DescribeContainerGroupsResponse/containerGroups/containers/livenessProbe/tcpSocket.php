@@ -14,6 +14,7 @@ class tcpSocket extends Model
      * @var string
      */
     public $host;
+
     /**
      * @description port
      *

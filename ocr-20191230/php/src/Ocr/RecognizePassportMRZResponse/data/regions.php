@@ -14,24 +14,28 @@ class regions extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description recognitionScore
      *
      * @var float
      */
     public $recognitionScore;
+
     /**
      * @description content
      *
      * @var string
      */
     public $content;
+
     /**
      * @description detectionScore
      *
      * @var float
      */
     public $detectionScore;
+
     /**
      * @description bandBoxes
      *

@@ -16,12 +16,14 @@ class itemRoi extends Model
      * @var float
      */
     public $angle;
+
     /**
      * @description center
      *
      * @var itemRoi.center
      */
     public $center;
+
     /**
      * @description size
      *

@@ -15,6 +15,7 @@ class RecognizeSceneResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

@@ -14,6 +14,7 @@ class size extends Model
      * @var float
      */
     public $h;
+
     /**
      * @description w
      *

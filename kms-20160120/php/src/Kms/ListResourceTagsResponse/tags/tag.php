@@ -14,12 +14,14 @@ class tag extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description TagKey
      *
      * @var string
      */
     public $tagKey;
+
     /**
      * @description TagValue
      *

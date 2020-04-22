@@ -14,6 +14,7 @@ class RefineMaskRequest extends Model
      * @var string
      */
     public $maskImageURL;
+
     /**
      * @description imageUrl
      *

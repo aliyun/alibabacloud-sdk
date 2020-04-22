@@ -14,24 +14,28 @@ class elements extends Model
      * @var int
      */
     public $minX;
+
     /**
      * @description minY
      *
      * @var int
      */
     public $minY;
+
     /**
      * @description maxX
      *
      * @var int
      */
     public $maxX;
+
     /**
      * @description maxY
      *
      * @var int
      */
     public $maxY;
+
     /**
      * @description score
      *

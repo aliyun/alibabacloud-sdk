@@ -15,6 +15,7 @@ class RecognizeStampResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

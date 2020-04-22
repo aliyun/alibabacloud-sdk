@@ -16,6 +16,7 @@ class data extends Model
      * @var data.faceResult
      */
     public $faceResult;
+
     /**
      * @description backResult
      *

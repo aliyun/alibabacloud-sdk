@@ -14,12 +14,14 @@ class data extends Model
      * @var string
      */
     public $token;
+
     /**
      * @description totalCount
      *
      * @var int
      */
     public $totalCount;
+
     /**
      * @description data
      *

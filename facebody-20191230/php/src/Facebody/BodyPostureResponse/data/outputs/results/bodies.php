@@ -14,12 +14,14 @@ class bodies extends Model
      * @var float
      */
     public $confident;
+
     /**
      * @description label
      *
      * @var string
      */
     public $label;
+
     /**
      * @description positions
      *

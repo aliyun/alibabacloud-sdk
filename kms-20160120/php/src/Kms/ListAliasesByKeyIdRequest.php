@@ -14,12 +14,14 @@ class ListAliasesByKeyIdRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description pageNumber
      *
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description pageSize
      *

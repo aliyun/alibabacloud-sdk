@@ -14,6 +14,7 @@ class SegmentBodyAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description async
      *

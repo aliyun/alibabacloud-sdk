@@ -15,6 +15,7 @@ class SegmentFurnitureResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

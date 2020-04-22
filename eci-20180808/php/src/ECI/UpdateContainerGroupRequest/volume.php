@@ -17,24 +17,28 @@ class volume extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description NFSVolume
      *
      * @var volume.NFSVolume
      */
     public $NFSVolume;
+
     /**
      * @description ConfigFileVolume
      *
      * @var volume.configFileVolume
      */
     public $configFileVolume;
+
     /**
      * @description EmptyDirVolume
      *

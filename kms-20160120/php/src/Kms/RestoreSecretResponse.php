@@ -14,6 +14,7 @@ class RestoreSecretResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description SecretName
      *

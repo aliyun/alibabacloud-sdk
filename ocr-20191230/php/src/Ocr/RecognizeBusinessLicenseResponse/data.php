@@ -18,78 +18,91 @@ class data extends Model
      * @var string
      */
     public $angle;
+
     /**
      * @description registerNumber
      *
      * @var string
      */
     public $registerNumber;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description legalPerson
      *
      * @var string
      */
     public $legalPerson;
+
     /**
      * @description establishDate
      *
      * @var string
      */
     public $establishDate;
+
     /**
      * @description validPeriod
      *
      * @var string
      */
     public $validPeriod;
+
     /**
      * @description address
      *
      * @var string
      */
     public $address;
+
     /**
      * @description capital
      *
      * @var string
      */
     public $capital;
+
     /**
      * @description business
      *
      * @var string
      */
     public $business;
+
     /**
      * @description emblem
      *
      * @var data.emblem
      */
     public $emblem;
+
     /**
      * @description title
      *
      * @var data.title
      */
     public $title;
+
     /**
      * @description stamp
      *
      * @var data.stamp
      */
     public $stamp;
+
     /**
      * @description qrCode
      *

@@ -14,18 +14,21 @@ class udp extends Model
      * @var int
      */
     public $listen;
+
     /**
      * @description dropped
      *
      * @var int
      */
     public $dropped;
+
     /**
      * @description rxQueued
      *
      * @var int
      */
     public $rxQueued;
+
     /**
      * @description txQueued
      *

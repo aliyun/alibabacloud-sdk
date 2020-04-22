@@ -15,24 +15,28 @@ class ListSecretsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description PageNumber
      *
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description PageSize
      *
      * @var int
      */
     public $pageSize;
+
     /**
      * @description TotalCount
      *
      * @var int
      */
     public $totalCount;
+
     /**
      * @description SecretList
      *

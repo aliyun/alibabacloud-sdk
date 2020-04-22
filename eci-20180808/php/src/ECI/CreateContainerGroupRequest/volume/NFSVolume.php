@@ -14,12 +14,14 @@ class NFSVolume extends Model
      * @var string
      */
     public $server;
+
     /**
      * @description nfsVolumePath
      *
      * @var string
      */
     public $path;
+
     /**
      * @description nfsVolumeReadOnly
      *

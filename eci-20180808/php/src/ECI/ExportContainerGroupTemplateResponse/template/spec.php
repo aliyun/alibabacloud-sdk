@@ -16,36 +16,42 @@ class spec extends Model
      * @var string
      */
     public $restartPolicy;
+
     /**
      * @description dnsPolicy
      *
      * @var string
      */
     public $dnsPolicy;
+
     /**
      * @description volumes
      *
      * @var array
      */
     public $volumes;
+
     /**
      * @description initContainers
      *
      * @var array
      */
     public $initContainers;
+
     /**
      * @description containers
      *
      * @var array
      */
     public $containers;
+
     /**
      * @description dnsConfig
      *
      * @var spec.dnsConfig
      */
     public $dnsConfig;
+
     /**
      * @description podSecurityContext
      *

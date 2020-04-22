@@ -17,102 +17,119 @@ class container extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description image
      *
      * @var string
      */
     public $image;
+
     /**
      * @description cpu
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description mem
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description workingDir
      *
      * @var string
      */
     public $workingDir;
+
     /**
      * @description imagePullPolicy
      *
      * @var string
      */
     public $imagePullPolicy;
+
     /**
      * @description stdin
      *
      * @var bool
      */
     public $stdin;
+
     /**
      * @description stdinOnce
      *
      * @var bool
      */
     public $stdinOnce;
+
     /**
      * @description tty
      *
      * @var bool
      */
     public $tty;
+
     /**
      * @description command
      *
      * @var array
      */
     public $command;
+
     /**
      * @description args
      *
      * @var array
      */
     public $arg;
+
     /**
      * @description env
      *
      * @var array
      */
     public $environmentVar;
+
     /**
      * @description ports
      *
      * @var array
      */
     public $port;
+
     /**
      * @description volumeMounts
      *
      * @var array
      */
     public $volumeMount;
+
     /**
      * @description ReadinessProbe
      *
      * @var container.readinessProbe
      */
     public $readinessProbe;
+
     /**
      * @description LivenessProbe
      *
      * @var container.livenessProbe
      */
     public $livenessProbe;
+
     /**
      * @description SecurityContext
      *
      * @var container.securityContext
      */
     public $securityContext;
+
     /**
      * @description gpu
      *

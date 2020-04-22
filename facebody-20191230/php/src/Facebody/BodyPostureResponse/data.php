@@ -15,6 +15,7 @@ class data extends Model
      * @var array
      */
     public $outputs;
+
     /**
      * @description meta
      *

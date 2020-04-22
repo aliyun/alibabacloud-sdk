@@ -14,12 +14,14 @@ class diskVolume extends Model
      * @var string
      */
     public $diskId;
+
     /**
      * @description diskVolumeFsType
      *
      * @var string
      */
     public $fsType;
+
     /**
      * @description diskVolumeDiskSize
      *

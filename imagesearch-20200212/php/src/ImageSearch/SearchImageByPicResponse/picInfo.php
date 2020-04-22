@@ -14,12 +14,14 @@ class picInfo extends Model
      * @var int
      */
     public $categoryId;
+
     /**
      * @description region
      *
      * @var string
      */
     public $region;
+
     /**
      * @description allCategories
      *

@@ -14,12 +14,14 @@ class taints extends Model
      * @var string
      */
     public $key;
+
     /**
      * @description value
      *
      * @var string
      */
     public $value;
+
     /**
      * @description effect
      *

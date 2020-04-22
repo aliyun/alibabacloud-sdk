@@ -14,6 +14,7 @@ class RecognizeVATInvoiceAdvanceRequest extends Model
      * @var Stream
      */
     public $fileURLObject;
+
     /**
      * @description fileType
      *

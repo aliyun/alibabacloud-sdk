@@ -14,6 +14,7 @@ class picInfo extends Model
      * @var int
      */
     public $categoryId;
+
     /**
      * @description region
      *

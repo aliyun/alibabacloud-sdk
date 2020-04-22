@@ -15,6 +15,7 @@ class TrimDocumentResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

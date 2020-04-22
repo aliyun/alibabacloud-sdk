@@ -14,12 +14,14 @@ class DescribeContainerLogResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.containerName
      *
      * @var string
      */
     public $containerName;
+
     /**
      * @description data.log
      *

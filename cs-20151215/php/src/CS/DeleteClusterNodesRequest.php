@@ -14,6 +14,7 @@ class DeleteClusterNodesRequest extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

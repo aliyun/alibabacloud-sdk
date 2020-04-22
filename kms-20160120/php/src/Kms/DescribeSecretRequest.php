@@ -14,6 +14,7 @@ class DescribeSecretRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description FetchTags
      *

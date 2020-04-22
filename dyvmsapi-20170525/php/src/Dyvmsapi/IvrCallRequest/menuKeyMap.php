@@ -14,12 +14,14 @@ class menuKeyMap extends Model
      * @var string
      */
     public $key;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description ttsParams
      *

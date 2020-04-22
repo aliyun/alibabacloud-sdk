@@ -11,7 +11,7 @@ class versionStages extends Model
     /**
      * @description VersionStage
      *
-     * @var string
+     * @var array
      */
     public $versionStage;
     protected $_name = [
@@ -26,7 +26,10 @@ class versionStages extends Model
     public function toMap()
     {
         $res                 = [];
-        $res['VersionStage'] = $this->versionStage;
+        $res['VersionStage'] = [];
+        if (null !== $this->versionStage) {
+            $res['VersionStage'] = $this->versionStage;
+        }
 
         return $res;
     }
@@ -40,7 +43,10 @@ class versionStages extends Model
     {
         $model = new self();
         if (isset($map['VersionStage'])) {
-            $model->versionStage = $map['VersionStage'];
+            if (!empty($map['VersionStage'])) {
+                $model->versionStage = [];
+                $model->versionStage = $map['VersionStage'];
+            }
         }
 
         return $model;

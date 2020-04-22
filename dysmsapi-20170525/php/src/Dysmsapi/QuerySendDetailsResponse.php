@@ -15,24 +15,28 @@ class QuerySendDetailsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description totalCount
      *
      * @var string
      */
     public $totalCount;
+
     /**
      * @description module
      *

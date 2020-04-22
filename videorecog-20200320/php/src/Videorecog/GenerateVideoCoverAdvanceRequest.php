@@ -14,6 +14,7 @@ class GenerateVideoCoverAdvanceRequest extends Model
      * @var Stream
      */
     public $videoUrlObject;
+
     /**
      * @description isGif
      *

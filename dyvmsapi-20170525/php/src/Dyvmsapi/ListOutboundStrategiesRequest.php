@@ -14,36 +14,42 @@ class ListOutboundStrategiesRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description prodCode
      *
      * @var string
      */
     public $prodCode;
+
     /**
      * @description buId
      *
      * @var int
      */
     public $buId;
+
     /**
      * @description keyword
      *

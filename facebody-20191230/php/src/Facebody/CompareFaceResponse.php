@@ -15,6 +15,7 @@ class CompareFaceResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

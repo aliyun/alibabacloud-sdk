@@ -15,48 +15,56 @@ class DescribeSecretResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description Arn
      *
      * @var string
      */
     public $arn;
+
     /**
      * @description SecretName
      *
      * @var string
      */
     public $secretName;
+
     /**
      * @description EncryptionKeyId
      *
      * @var string
      */
     public $encryptionKeyId;
+
     /**
      * @description Description
      *
      * @var string
      */
     public $description;
+
     /**
      * @description CreateTime
      *
      * @var string
      */
     public $createTime;
+
     /**
      * @description UpdateTime
      *
      * @var string
      */
     public $updateTime;
+
     /**
      * @description PlannedDeleteTime
      *
      * @var string
      */
     public $plannedDeleteTime;
+
     /**
      * @description Tags
      *

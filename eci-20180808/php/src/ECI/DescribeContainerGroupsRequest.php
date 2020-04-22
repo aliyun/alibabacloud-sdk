@@ -14,84 +14,98 @@ class DescribeContainerGroupsRequest extends Model
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description ownerAccount
      *
      * @var string
      */
     public $ownerAccount;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description zoneId
      *
      * @var string
      */
     public $zoneId;
+
     /**
      * @description vSwitchId
      *
      * @var string
      */
     public $VSwitchId;
+
     /**
      * @description nextToken
      *
      * @var string
      */
     public $nextToken;
+
     /**
      * @description limit
      *
      * @var int
      */
     public $limit;
+
     /**
      * @description labels
      *
      * @var array
      */
     public $tag;
+
     /**
      * @description containerGroupIdParam
      *
      * @var string
      */
     public $containerGroupIds;
+
     /**
      * @description containerGroupName
      *
      * @var string
      */
     public $containerGroupName;
+
     /**
      * @description status
      *
      * @var string
      */
     public $status;
+
     /**
      * @description resourceGroupId
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description withEvent
      *

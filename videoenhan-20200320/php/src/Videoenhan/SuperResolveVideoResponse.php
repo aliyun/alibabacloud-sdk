@@ -15,6 +15,7 @@ class SuperResolveVideoResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

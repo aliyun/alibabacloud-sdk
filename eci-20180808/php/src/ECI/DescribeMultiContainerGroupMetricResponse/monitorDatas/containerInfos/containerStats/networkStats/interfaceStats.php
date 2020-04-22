@@ -14,48 +14,56 @@ class interfaceStats extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description rxBytes
      *
      * @var int
      */
     public $rxBytes;
+
     /**
      * @description rxPackets
      *
      * @var int
      */
     public $rxPackets;
+
     /**
      * @description rxErrors
      *
      * @var int
      */
     public $rxErrors;
+
     /**
      * @description rxDropped
      *
      * @var int
      */
     public $rxDropped;
+
     /**
      * @description txBytes
      *
      * @var int
      */
     public $txBytes;
+
     /**
      * @description txPackets
      *
      * @var int
      */
     public $txPackets;
+
     /**
      * @description txDropped
      *
      * @var int
      */
     public $txDropped;
+
     /**
      * @description txErrors
      *

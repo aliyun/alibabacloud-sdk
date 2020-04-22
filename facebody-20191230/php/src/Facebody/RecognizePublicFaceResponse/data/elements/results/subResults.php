@@ -14,24 +14,28 @@ class subResults extends Model
      * @var float
      */
     public $h;
+
     /**
      * @description w
      *
      * @var float
      */
     public $w;
+
     /**
      * @description x
      *
      * @var float
      */
     public $x;
+
     /**
      * @description h
      *
      * @var float
      */
     public $y;
+
     /**
      * @description faces
      *

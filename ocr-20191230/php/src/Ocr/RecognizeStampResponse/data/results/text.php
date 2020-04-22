@@ -14,6 +14,7 @@ class text extends Model
      * @var string
      */
     public $content;
+
     /**
      * @description confidence
      *

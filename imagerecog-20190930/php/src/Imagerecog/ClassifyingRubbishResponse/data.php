@@ -14,6 +14,7 @@ class data extends Model
      * @var bool
      */
     public $sensitive;
+
     /**
      * @description elements
      *

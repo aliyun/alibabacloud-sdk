@@ -14,6 +14,7 @@ class ports extends Model
      * @var int
      */
     public $port;
+
     /**
      * @description protocol
      *

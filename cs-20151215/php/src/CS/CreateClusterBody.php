@@ -14,288 +14,336 @@ class CreateClusterBody extends Model
      * @var string
      */
     public $clusterType;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description region_id
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description kubernetes_version
      *
      * @var string
      */
     public $kubernetesVersion;
+
     /**
      * @description snat_entry
      *
      * @var bool
      */
     public $snatEntry;
+
     /**
      * @description endpoint_public_access
      *
      * @var bool
      */
     public $endpointPublicAccess;
+
     /**
      * @description ssh_flags
      *
      * @var bool
      */
     public $sshFlags;
+
     /**
      * @description cloud_monitor_flags
      *
      * @var bool
      */
     public $cloudMonitorFlags;
+
     /**
      * @description deletion_protection
      *
      * @var bool
      */
     public $deletionProtection;
+
     /**
      * @description node_cidr_mask
      *
      * @var string
      */
     public $nodeCidrMask;
+
     /**
      * @description proxy_mode
      *
      * @var string
      */
     public $proxyMode;
+
     /**
      * @description os_type
      *
      * @var string
      */
     public $osType;
+
     /**
      * @description platform
      *
      * @var string
      */
     public $platform;
+
     /**
      * @description node_port_range
      *
      * @var string
      */
     public $nodePortRange;
+
     /**
      * @description key_pair
      *
      * @var string
      */
     public $keyPair;
+
     /**
      * @description login_password
      *
      * @var string
      */
     public $loginPassword;
+
     /**
      * @description master_instance_charge_type
      *
      * @var string
      */
     public $masterInstanceChargeType;
+
     /**
      * @description worker_instance_charge_type
      *
      * @var string
      */
     public $workerInstanceChargeType;
+
     /**
      * @description master_period
      *
      * @var int
      */
     public $masterPeriod;
+
     /**
      * @description worker_period
      *
      * @var int
      */
     public $workerPeriod;
+
     /**
      * @description master_period_unit
      *
      * @var string
      */
     public $masterPeriodUnit;
+
     /**
      * @description worker_period_unit
      *
      * @var string
      */
     public $workerPeriodUnit;
+
     /**
      * @description master_auto_renew
      *
      * @var bool
      */
     public $masterAutoRenew;
+
     /**
      * @description master_auto_renew_period
      *
      * @var int
      */
     public $masterAutoRenewPeriod;
+
     /**
      * @description worker_auto_renew
      *
      * @var bool
      */
     public $workerAutoRenew;
+
     /**
      * @description worker_auto_renew_period
      *
      * @var int
      */
     public $workerAutoRenewPeriod;
+
     /**
      * @description cpu_policy
      *
      * @var string
      */
     public $cpuPolicy;
+
     /**
      * @description master_count
      *
      * @var int
      */
     public $masterCount;
+
     /**
      * @description master_system_disk_category
      *
      * @var string
      */
     public $masterSystemDiskCategory;
+
     /**
      * @description master_system_disk_size
      *
      * @var int
      */
     public $masterSystemDiskSize;
+
     /**
      * @description runtime
      *
      * @var array
      */
     public $runtime;
+
     /**
      * @description num_of_nodes
      *
      * @var int
      */
     public $numOfNodes;
+
     /**
      * @description worker_system_disk_category
      *
      * @var string
      */
     public $workerSystemDiskCategory;
+
     /**
      * @description worker_system_disk_size
      *
      * @var int
      */
     public $workerSystemDiskSize;
+
     /**
      * @description worker_data_disk
      *
      * @var bool
      */
     public $workerDataDisk;
+
     /**
      * @description vpcid
      *
      * @var string
      */
     public $vpcid;
+
     /**
      * @description security_group_id
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description container_cidr
      *
      * @var string
      */
     public $containerCidr;
+
     /**
      * @description service_cidr
      *
      * @var string
      */
     public $serviceCidr;
+
     /**
      * @description disable_rollback
      *
      * @var bool
      */
     public $disableRollback;
+
     /**
      * @description timeout_mins
      *
      * @var int
      */
     public $timeoutMins;
+
     /**
      * @description tags
      *
      * @var array
      */
     public $tags;
+
     /**
      * @description addons
      *
      * @var array
      */
     public $addons;
+
     /**
      * @description taints
      *
      * @var array
      */
     public $taints;
+
     /**
      * @description worker_data_disks
      *
      * @var array
      */
     public $workerDataDisks;
+
     /**
      * @description master_vswitch_ids
      *
      * @var array
      */
     public $masterVswitchIds;
+
     /**
      * @description master_instance_types
      *
      * @var array
      */
     public $masterInstanceTypes;
+
     /**
      * @description worker_instance_types
      *
      * @var array
      */
     public $workerInstanceTypes;
+
     /**
      * @description worker_vswitch_ids
      *

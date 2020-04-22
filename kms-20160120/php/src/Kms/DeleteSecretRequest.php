@@ -14,12 +14,14 @@ class DeleteSecretRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description ForceDeleteWithoutRecovery
      *
      * @var string
      */
     public $forceDeleteWithoutRecovery;
+
     /**
      * @description RecoveryWindowInDays
      *

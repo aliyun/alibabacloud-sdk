@@ -14,12 +14,14 @@ class arn extends Model
      * @var string
      */
     public $roleArn;
+
     /**
      * @description roleType
      *
      * @var string
      */
     public $roleType;
+
     /**
      * @description assumeRoleFor
      *

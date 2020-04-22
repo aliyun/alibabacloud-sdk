@@ -14,12 +14,14 @@ class ListKeyVersionsRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description PageNumber
      *
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description PageSize
      *

@@ -14,18 +14,21 @@ class RecognizeFurnitureSpuRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description xLength
      *
      * @var float
      */
     public $XLength;
+
     /**
      * @description yLength
      *
      * @var float
      */
     public $YLength;
+
     /**
      * @description zLength
      *

@@ -14,36 +14,42 @@ class QueryCallDetailByTaskIdRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description taskId
      *
      * @var string
      */
     public $taskId;
+
     /**
      * @description queryDate
      *
      * @var int
      */
     public $queryDate;
+
     /**
      * @description callee
      *

@@ -14,6 +14,7 @@ class addons extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description config
      *

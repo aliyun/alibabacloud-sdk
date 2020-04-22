@@ -14,48 +14,56 @@ class DescribeRecordDataRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description prodCode
      *
      * @var string
      */
     public $prodCode;
+
     /**
      * @description accountType
      *
      * @var string
      */
     public $accountType;
+
     /**
      * @description accountId
      *
      * @var string
      */
     public $accountId;
+
     /**
      * @description acid
      *
      * @var string
      */
     public $acid;
+
     /**
      * @description secLevel
      *

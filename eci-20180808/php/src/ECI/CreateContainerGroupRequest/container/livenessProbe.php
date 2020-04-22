@@ -17,42 +17,49 @@ class livenessProbe extends Model
      * @var livenessProbe.httpGet
      */
     public $httpGet;
+
     /**
      * @description livenessProbeInitialDelaySeconds
      *
      * @var int
      */
     public $initialDelaySeconds;
+
     /**
      * @description livenessProbePeriodSeconds
      *
      * @var int
      */
     public $periodSeconds;
+
     /**
      * @description livenessProbeSuccessThreshold
      *
      * @var int
      */
     public $successThreshold;
+
     /**
      * @description livenessProbeFailureThreshold
      *
      * @var int
      */
     public $failureThreshold;
+
     /**
      * @description livenessProbeTimeoutSeconds
      *
      * @var int
      */
     public $timeoutSeconds;
+
     /**
      * @description Exec
      *
      * @var livenessProbe.exec
      */
     public $exec;
+
     /**
      * @description TcpSocket
      *

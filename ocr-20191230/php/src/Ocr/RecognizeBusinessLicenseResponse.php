@@ -15,6 +15,7 @@ class RecognizeBusinessLicenseResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

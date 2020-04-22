@@ -15,24 +15,28 @@ class ListAliasesResponse extends Model
      * @var int
      */
     public $totalCount;
+
     /**
      * @description pageNumber
      *
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description pageSize
      *
      * @var int
      */
     public $pageSize;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.Aliases
      *

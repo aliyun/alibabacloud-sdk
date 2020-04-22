@@ -14,78 +14,91 @@ class IvrCallRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description calledShowNumber
      *
      * @var string
      */
     public $calledShowNumber;
+
     /**
      * @description calledNumber
      *
      * @var string
      */
     public $calledNumber;
+
     /**
      * @description startCode
      *
      * @var string
      */
     public $startCode;
+
     /**
      * @description startTtsParams
      *
      * @var string
      */
     public $startTtsParams;
+
     /**
      * @description menuKeyMapList
      *
      * @var array
      */
     public $menuKeyMap;
+
     /**
      * @description playTimes
      *
      * @var int
      */
     public $playTimes;
+
     /**
      * @description byeCode
      *
      * @var string
      */
     public $byeCode;
+
     /**
      * @description byeTtsParams
      *
      * @var string
      */
     public $byeTtsParams;
+
     /**
      * @description timeout
      *
      * @var int
      */
     public $timeout;
+
     /**
      * @description outId
      *

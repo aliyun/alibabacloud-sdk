@@ -27,7 +27,6 @@ use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\GetAsyncJobResultResponse;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\SuperResolveVideoAdvanceRequest;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\SuperResolveVideoRequest;
 use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\SuperResolveVideoResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
@@ -52,7 +51,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new GetAsyncJobResultResponse());
+        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -64,7 +63,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('SuperResolveVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new SuperResolveVideoResponse());
+        return SuperResolveVideoResponse::fromMap($this->doRequest('SuperResolveVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -138,7 +137,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('EraseVideoLogo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new EraseVideoLogoResponse());
+        return EraseVideoLogoResponse::fromMap($this->doRequest('EraseVideoLogo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -212,7 +211,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('EraseVideoSubtitles', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new EraseVideoSubtitlesResponse());
+        return EraseVideoSubtitlesResponse::fromMap($this->doRequest('EraseVideoSubtitles', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -286,7 +285,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AbstractEcommerceVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new AbstractEcommerceVideoResponse());
+        return AbstractEcommerceVideoResponse::fromMap($this->doRequest('AbstractEcommerceVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -360,7 +359,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AbstractFilmVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new AbstractFilmVideoResponse());
+        return AbstractFilmVideoResponse::fromMap($this->doRequest('AbstractFilmVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -434,7 +433,7 @@ class Videoenhan
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AdjustVideoColor', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime), new AdjustVideoColorResponse());
+        return AdjustVideoColorResponse::fromMap($this->doRequest('AdjustVideoColor', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**

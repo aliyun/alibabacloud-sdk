@@ -14,6 +14,7 @@ class UpdateSecretResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description SecretName
      *

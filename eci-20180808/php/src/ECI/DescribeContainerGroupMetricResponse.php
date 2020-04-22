@@ -14,12 +14,14 @@ class DescribeContainerGroupMetricResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.containerGroupId
      *
      * @var string
      */
     public $containerGroupId;
+
     /**
      * @description data.podStats
      *

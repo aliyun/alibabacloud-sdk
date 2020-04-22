@@ -14,6 +14,7 @@ class faceRectVertices extends Model
      * @var float
      */
     public $x;
+
     /**
      * @description y
      *

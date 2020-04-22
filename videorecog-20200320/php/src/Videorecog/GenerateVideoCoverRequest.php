@@ -14,6 +14,7 @@ class GenerateVideoCoverRequest extends Model
      * @var string
      */
     public $videoUrl;
+
     /**
      * @description isGif
      *

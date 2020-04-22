@@ -14,18 +14,21 @@ class AbstractEcommerceVideoAdvanceRequest extends Model
      * @var Stream
      */
     public $videoUrlObject;
+
     /**
      * @description duration
      *
      * @var float
      */
     public $duration;
+
     /**
      * @description width
      *
      * @var int
      */
     public $width;
+
     /**
      * @description height
      *

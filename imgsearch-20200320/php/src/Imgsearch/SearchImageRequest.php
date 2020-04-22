@@ -14,12 +14,14 @@ class SearchImageRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageUrl;
+
     /**
      * @description limit
      *

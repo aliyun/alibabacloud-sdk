@@ -15,78 +15,91 @@ class data extends Model
      * @var float
      */
     public $angle;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description gender
      *
      * @var string
      */
     public $gender;
+
     /**
      * @description relation
      *
      * @var string
      */
     public $relation;
+
     /**
      * @description birthPlace
      *
      * @var string
      */
     public $birthPlace;
+
     /**
      * @description nationality
      *
      * @var string
      */
     public $nationality;
+
     /**
      * @description nativePlace
      *
      * @var string
      */
     public $nativePlace;
+
     /**
      * @description birthDate
      *
      * @var string
      */
     public $birthDate;
+
     /**
      * @description idNumber
      *
      * @var string
      */
     public $IDNumber;
+
     /**
      * @description invalidStampAreas
      *
      * @var array
      */
     public $invalidStampAreas;
+
     /**
      * @description undertakeStampAreas
      *
      * @var array
      */
     public $undertakeStampAreas;
+
     /**
      * @description registerStampAreas
      *
      * @var array
      */
     public $registerStampAreas;
+
     /**
      * @description otherStampAreas
      *
      * @var array
      */
     public $otherStampAreas;
+
     /**
      * @description titleArea
      *

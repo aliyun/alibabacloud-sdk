@@ -14,24 +14,28 @@ class RemoveImageSubtitlesRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description bx
      *
      * @var float
      */
     public $BX;
+
     /**
      * @description by
      *
      * @var float
      */
     public $BY;
+
     /**
      * @description bw
      *
      * @var float
      */
     public $BW;
+
     /**
      * @description bh
      *

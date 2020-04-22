@@ -14,18 +14,21 @@ class AsymmetricDecryptRequest extends Model
      * @var string
      */
     public $ciphertextBlob;
+
     /**
      * @description KeyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description KeyVersionId
      *
      * @var string
      */
     public $keyVersionId;
+
     /**
      * @description Algorithm
      *

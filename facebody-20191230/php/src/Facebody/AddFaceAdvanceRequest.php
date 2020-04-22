@@ -14,18 +14,21 @@ class AddFaceAdvanceRequest extends Model
      * @var Stream
      */
     public $imageUrlObject;
+
     /**
      * @description dbName
      *
      * @var string
      */
     public $dbName;
+
     /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
+
     /**
      * @description extraData
      *

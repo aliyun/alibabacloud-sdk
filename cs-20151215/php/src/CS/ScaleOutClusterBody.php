@@ -14,108 +14,126 @@ class ScaleOutClusterBody extends Model
      * @var int
      */
     public $count;
+
     /**
      * @description worker_instance_charge_type
      *
      * @var string
      */
     public $workerInstanceChargeType;
+
     /**
      * @description worker_period
      *
      * @var int
      */
     public $workerPeriod;
+
     /**
      * @description worker_period_unit
      *
      * @var string
      */
     public $workerPeriodUnit;
+
     /**
      * @description worker_auto_renew
      *
      * @var bool
      */
     public $workerAutoRenew;
+
     /**
      * @description worker_auto_renew_period
      *
      * @var int
      */
     public $workerAutoRenewPeriod;
+
     /**
      * @description worker_system_disk_category
      *
      * @var string
      */
     public $workerSystemDiskCategory;
+
     /**
      * @description worker_system_disk_size
      *
      * @var int
      */
     public $workerSystemDiskSize;
+
     /**
      * @description worker_data_disk
      *
      * @var bool
      */
     public $workerDataDisk;
+
     /**
      * @description key_pair
      *
      * @var string
      */
     public $keyPair;
+
     /**
      * @description login_password
      *
      * @var string
      */
     public $loginPassword;
+
     /**
      * @description cloud_monitor_flags
      *
      * @var bool
      */
     public $cloudMonitorFlags;
+
     /**
      * @description cpu_policy
      *
      * @var string
      */
     public $cpuPolicy;
+
     /**
      * @description disable_rollback
      *
      * @var bool
      */
     public $disableRollback;
+
     /**
      * @description worker_data_disks
      *
      * @var array
      */
     public $workerDataDisks;
+
     /**
      * @description tags
      *
      * @var array
      */
     public $tags;
+
     /**
      * @description taints
      *
      * @var array
      */
     public $taints;
+
     /**
      * @description vswitch_ids
      *
      * @var array
      */
     public $vswitchIds;
+
     /**
      * @description worker_instance_types
      *

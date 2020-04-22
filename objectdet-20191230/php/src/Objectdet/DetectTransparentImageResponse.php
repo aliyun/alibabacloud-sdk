@@ -15,6 +15,7 @@ class DetectTransparentImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

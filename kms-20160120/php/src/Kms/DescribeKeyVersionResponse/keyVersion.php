@@ -14,12 +14,14 @@ class keyVersion extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description KeyVersionId
      *
      * @var string
      */
     public $keyVersionId;
+
     /**
      * @description CreationDate
      *

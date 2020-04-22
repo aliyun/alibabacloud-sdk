@@ -14,6 +14,7 @@ class GetFaceEntityRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description entityId
      *

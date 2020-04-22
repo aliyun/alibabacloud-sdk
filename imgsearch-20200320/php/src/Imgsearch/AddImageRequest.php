@@ -14,18 +14,21 @@ class AddImageRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description imageUrl
      *
      * @var string
      */
     public $imageUrl;
+
     /**
      * @description extraData
      *
      * @var string
      */
     public $extraData;
+
     /**
      * @description entityId
      *

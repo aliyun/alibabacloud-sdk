@@ -14,24 +14,28 @@ class interfaces extends Model
      * @var int
      */
     public $txBytes;
+
     /**
      * @description rxBytes
      *
      * @var int
      */
     public $rxBytes;
+
     /**
      * @description txErrors
      *
      * @var int
      */
     public $txErrors;
+
     /**
      * @description rxErrors
      *
      * @var int
      */
     public $rxErrors;
+
     /**
      * @description name
      *

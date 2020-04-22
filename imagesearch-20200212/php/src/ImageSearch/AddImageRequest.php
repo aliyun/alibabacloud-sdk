@@ -14,54 +14,63 @@ class AddImageRequest extends Model
      * @var string
      */
     public $instanceName;
+
     /**
      * @description categoryId
      *
      * @var int
      */
     public $categoryId;
+
     /**
      * @description productId
      *
      * @var string
      */
     public $productId;
+
     /**
      * @description picName
      *
      * @var string
      */
     public $picName;
+
     /**
      * @description picContent
      *
      * @var string
      */
     public $picContent;
+
     /**
      * @description crop
      *
      * @var bool
      */
     public $crop;
+
     /**
      * @description region
      *
      * @var string
      */
     public $region;
+
     /**
      * @description customContent
      *
      * @var string
      */
     public $customContent;
+
     /**
      * @description intAttr
      *
      * @var int
      */
     public $intAttr;
+
     /**
      * @description strAttr
      *

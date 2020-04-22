@@ -95,7 +95,6 @@ use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretRequest;
 use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretResponse;
 use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretVersionStageRequest;
 use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretVersionStageResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
@@ -118,7 +117,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListSecrets', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListSecretsResponse());
+        return ListSecretsResponse::fromMap($this->doRequest('ListSecrets', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -142,7 +141,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListSecretVersionIds', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListSecretVersionIdsResponse());
+        return ListSecretVersionIdsResponse::fromMap($this->doRequest('ListSecretVersionIds', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -166,7 +165,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DescribeSecret', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DescribeSecretResponse());
+        return DescribeSecretResponse::fromMap($this->doRequest('DescribeSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -190,7 +189,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UpdateSecret', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new UpdateSecretResponse());
+        return UpdateSecretResponse::fromMap($this->doRequest('UpdateSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -214,7 +213,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetSecretValue', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new GetSecretValueResponse());
+        return GetSecretValueResponse::fromMap($this->doRequest('GetSecretValue', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -238,7 +237,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetRandomPassword', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new GetRandomPasswordResponse());
+        return GetRandomPasswordResponse::fromMap($this->doRequest('GetRandomPassword', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -262,7 +261,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('RestoreSecret', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new RestoreSecretResponse());
+        return RestoreSecretResponse::fromMap($this->doRequest('RestoreSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -286,7 +285,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateSecret', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new CreateSecretResponse());
+        return CreateSecretResponse::fromMap($this->doRequest('CreateSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -310,7 +309,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('PutSecretValue', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new PutSecretValueResponse());
+        return PutSecretValueResponse::fromMap($this->doRequest('PutSecretValue', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -334,7 +333,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteSecret', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DeleteSecretResponse());
+        return DeleteSecretResponse::fromMap($this->doRequest('DeleteSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -358,7 +357,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UpdateSecretVersionStage', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new UpdateSecretVersionStageResponse());
+        return UpdateSecretVersionStageResponse::fromMap($this->doRequest('UpdateSecretVersionStage', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -382,7 +381,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AsymmetricDecrypt', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new AsymmetricDecryptResponse());
+        return AsymmetricDecryptResponse::fromMap($this->doRequest('AsymmetricDecrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -406,7 +405,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AsymmetricVerify', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new AsymmetricVerifyResponse());
+        return AsymmetricVerifyResponse::fromMap($this->doRequest('AsymmetricVerify', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -430,7 +429,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AsymmetricSign', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new AsymmetricSignResponse());
+        return AsymmetricSignResponse::fromMap($this->doRequest('AsymmetricSign', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -454,7 +453,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('AsymmetricEncrypt', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new AsymmetricEncryptResponse());
+        return AsymmetricEncryptResponse::fromMap($this->doRequest('AsymmetricEncrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -478,7 +477,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetPublicKey', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new GetPublicKeyResponse());
+        return GetPublicKeyResponse::fromMap($this->doRequest('GetPublicKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -502,7 +501,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GenerateDataKeyWithoutPlaintext', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new GenerateDataKeyWithoutPlaintextResponse());
+        return GenerateDataKeyWithoutPlaintextResponse::fromMap($this->doRequest('GenerateDataKeyWithoutPlaintext', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -526,7 +525,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UpdateKeyDescription', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new UpdateKeyDescriptionResponse());
+        return UpdateKeyDescriptionResponse::fromMap($this->doRequest('UpdateKeyDescription', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -550,7 +549,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DescribeKeyVersion', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DescribeKeyVersionResponse());
+        return DescribeKeyVersionResponse::fromMap($this->doRequest('DescribeKeyVersion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -574,7 +573,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UpdateRotationPolicy', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new UpdateRotationPolicyResponse());
+        return UpdateRotationPolicyResponse::fromMap($this->doRequest('UpdateRotationPolicy', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -598,7 +597,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListKeyVersions', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListKeyVersionsResponse());
+        return ListKeyVersionsResponse::fromMap($this->doRequest('ListKeyVersions', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -622,7 +621,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateKeyVersion', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new CreateKeyVersionResponse());
+        return CreateKeyVersionResponse::fromMap($this->doRequest('CreateKeyVersion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -646,7 +645,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DescribeService', 'HTTPS', 'GET', '2016-01-20', 'AK', null, $request, $runtime), new DescribeServiceResponse());
+        return DescribeServiceResponse::fromMap($this->doRequest('DescribeService', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -670,7 +669,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UpdateAlias', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new UpdateAliasResponse());
+        return UpdateAliasResponse::fromMap($this->doRequest('UpdateAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -694,7 +693,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('UntagResource', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new UntagResourceResponse());
+        return UntagResourceResponse::fromMap($this->doRequest('UntagResource', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -718,7 +717,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('TagResource', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new TagResourceResponse());
+        return TagResourceResponse::fromMap($this->doRequest('TagResource', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -742,7 +741,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ScheduleKeyDeletion', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ScheduleKeyDeletionResponse());
+        return ScheduleKeyDeletionResponse::fromMap($this->doRequest('ScheduleKeyDeletion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -766,7 +765,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListResourceTags', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListResourceTagsResponse());
+        return ListResourceTagsResponse::fromMap($this->doRequest('ListResourceTags', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -790,7 +789,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListKeys', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListKeysResponse());
+        return ListKeysResponse::fromMap($this->doRequest('ListKeys', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -814,7 +813,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListAliasesByKeyId', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListAliasesByKeyIdResponse());
+        return ListAliasesByKeyIdResponse::fromMap($this->doRequest('ListAliasesByKeyId', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -838,7 +837,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ListAliases', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ListAliasesResponse());
+        return ListAliasesResponse::fromMap($this->doRequest('ListAliases', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -862,7 +861,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('ImportKeyMaterial', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new ImportKeyMaterialResponse());
+        return ImportKeyMaterialResponse::fromMap($this->doRequest('ImportKeyMaterial', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -886,7 +885,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GetParametersForImport', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new GetParametersForImportResponse());
+        return GetParametersForImportResponse::fromMap($this->doRequest('GetParametersForImport', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -910,7 +909,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('GenerateDataKey', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new GenerateDataKeyResponse());
+        return GenerateDataKeyResponse::fromMap($this->doRequest('GenerateDataKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -934,7 +933,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('Encrypt', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new EncryptResponse());
+        return EncryptResponse::fromMap($this->doRequest('Encrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -958,7 +957,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('EnableKey', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new EnableKeyResponse());
+        return EnableKeyResponse::fromMap($this->doRequest('EnableKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -982,7 +981,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DisableKey', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DisableKeyResponse());
+        return DisableKeyResponse::fromMap($this->doRequest('DisableKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1006,7 +1005,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DescribeRegions', 'HTTPS', 'GET', '2016-01-20', 'AK', null, $request, $runtime), new DescribeRegionsResponse());
+        return DescribeRegionsResponse::fromMap($this->doRequest('DescribeRegions', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1030,7 +1029,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DescribeKey', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DescribeKeyResponse());
+        return DescribeKeyResponse::fromMap($this->doRequest('DescribeKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1054,7 +1053,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteKeyMaterial', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DeleteKeyMaterialResponse());
+        return DeleteKeyMaterialResponse::fromMap($this->doRequest('DeleteKeyMaterial', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1078,7 +1077,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('DeleteAlias', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DeleteAliasResponse());
+        return DeleteAliasResponse::fromMap($this->doRequest('DeleteAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1102,7 +1101,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('Decrypt', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new DecryptResponse());
+        return DecryptResponse::fromMap($this->doRequest('Decrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1126,7 +1125,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateKey', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new CreateKeyResponse());
+        return CreateKeyResponse::fromMap($this->doRequest('CreateKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1150,7 +1149,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CreateAlias', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new CreateAliasResponse());
+        return CreateAliasResponse::fromMap($this->doRequest('CreateAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -1174,7 +1173,7 @@ class Kms
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('CancelKeyDeletion', 'HTTPS', 'GET', '2016-01-20', 'AK', $request, null, $runtime), new CancelKeyDeletionResponse());
+        return CancelKeyDeletionResponse::fromMap($this->doRequest('CancelKeyDeletion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
     }
 
     /**

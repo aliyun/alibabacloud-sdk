@@ -15,6 +15,7 @@ class BodyPostureResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

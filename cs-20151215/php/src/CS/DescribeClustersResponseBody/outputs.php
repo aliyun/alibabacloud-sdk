@@ -14,12 +14,14 @@ class outputs extends Model
      * @var string
      */
     public $description;
+
     /**
      * @description OutputKey
      *
      * @var string
      */
     public $outputKey;
+
     /**
      * @description OutputValue
      *

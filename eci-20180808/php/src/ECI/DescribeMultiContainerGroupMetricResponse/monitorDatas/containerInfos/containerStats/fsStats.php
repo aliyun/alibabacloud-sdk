@@ -14,114 +14,133 @@ class fsStats extends Model
      * @var string
      */
     public $device;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description limit
      *
      * @var int
      */
     public $limit;
+
     /**
      * @description usage
      *
      * @var int
      */
     public $usage;
+
     /**
      * @description baseUsage
      *
      * @var int
      */
     public $baseUsage;
+
     /**
      * @description available
      *
      * @var int
      */
     public $available;
+
     /**
      * @description hasInodes
      *
      * @var bool
      */
     public $hasInodes;
+
     /**
      * @description inodes
      *
      * @var int
      */
     public $inodes;
+
     /**
      * @description inodesFree
      *
      * @var int
      */
     public $inodesFree;
+
     /**
      * @description readsCompleted
      *
      * @var int
      */
     public $readsCompleted;
+
     /**
      * @description readsMerged
      *
      * @var int
      */
     public $readsMerged;
+
     /**
      * @description sectorsRead
      *
      * @var int
      */
     public $sectorsRead;
+
     /**
      * @description readTime
      *
      * @var int
      */
     public $readTime;
+
     /**
      * @description writesCompleted
      *
      * @var int
      */
     public $writesCompleted;
+
     /**
      * @description writesMerged
      *
      * @var int
      */
     public $writesMerged;
+
     /**
      * @description sectorsWritten
      *
      * @var int
      */
     public $sectorsWritten;
+
     /**
      * @description writeTime
      *
      * @var int
      */
     public $writeTime;
+
     /**
      * @description ioInProgress
      *
      * @var int
      */
     public $ioInProgress;
+
     /**
      * @description ioTime
      *
      * @var int
      */
     public $ioTime;
+
     /**
      * @description weightedIoTime
      *

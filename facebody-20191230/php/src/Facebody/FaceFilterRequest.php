@@ -14,12 +14,14 @@ class FaceFilterRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description resourceType
      *
      * @var string
      */
     public $resourceType;
+
     /**
      * @description strength
      *

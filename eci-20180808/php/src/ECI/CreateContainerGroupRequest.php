@@ -16,216 +16,252 @@ class CreateContainerGroupRequest extends Model
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description ownerAccount
      *
      * @var string
      */
     public $ownerAccount;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description zoneId
      *
      * @var string
      */
     public $zoneId;
+
     /**
      * @description linkedSecurityGroupId
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description linkedVSwitchId
      *
      * @var string
      */
     public $VSwitchId;
+
     /**
      * @description containerGroupName
      *
      * @var string
      */
     public $containerGroupName;
+
     /**
      * @description restartPolicy
      *
      * @var string
      */
     public $restartPolicy;
+
     /**
      * @description labels
      *
      * @var array
      */
     public $tag;
+
     /**
      * @description imageRegistryCredentials
      *
      * @var array
      */
     public $imageRegistryCredential;
+
     /**
      * @description containers
      *
      * @var array
      */
     public $container;
+
     /**
      * @description volumes
      *
      * @var array
      */
     public $volume;
+
     /**
      * @description eipInstanceId
      *
      * @var string
      */
     public $eipInstanceId;
+
     /**
      * @description initContainers
      *
      * @var array
      */
     public $initContainer;
+
     /**
      * @description DnsConfig
      *
      * @var CreateContainerGroupRequest.dnsConfig
      */
     public $dnsConfig;
+
     /**
      * @description cpu
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description mem
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description resourceGroupId
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description dnsPolicy
      *
      * @var string
      */
     public $dnsPolicy;
+
     /**
      * @description clientToken
      *
      * @var string
      */
     public $clientToken;
+
     /**
      * @description hostAliases
      *
      * @var array
      */
     public $hostAliase;
+
     /**
      * @description arns
      *
      * @var array
      */
     public $arn;
+
     /**
      * @description instanceType
      *
      * @var string
      */
     public $instanceType;
+
     /**
      * @description SecurityContext
      *
      * @var CreateContainerGroupRequest.securityContext
      */
     public $securityContext;
+
     /**
      * @description slsEnable
      *
      * @var bool
      */
     public $slsEnable;
+
     /**
      * @description imageSnapshotId
      *
      * @var string
      */
     public $imageSnapshotId;
+
     /**
      * @description ramRoleName
      *
      * @var string
      */
     public $ramRoleName;
+
     /**
      * @description ntpServers
      *
      * @var array
      */
     public $ntpServer;
+
     /**
      * @description terminationGracePeriodSeconds
      *
      * @var int
      */
     public $terminationGracePeriodSeconds;
+
     /**
      * @description autoMatchImageCache
      *
      * @var bool
      */
     public $autoMatchImageCache;
+
     /**
      * @description ipv6AddressCount
      *
      * @var int
      */
     public $ipv6AddressCount;
+
     /**
      * @description activeDeadlineSeconds
      *
      * @var int
      */
     public $activeDeadlineSeconds;
+
     /**
      * @description spotStrategy
      *
      * @var string
      */
     public $spotStrategy;
+
     /**
      * @description spotPriceLimit
      *
      * @var float
      */
     public $spotPriceLimit;
+
     /**
      * @description multiVswitchStrategy
      *

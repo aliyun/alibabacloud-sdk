@@ -14,12 +14,14 @@ class ListSecretsRequest extends Model
      * @var string
      */
     public $fetchTags;
+
     /**
      * @description PageNumber
      *
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description PageSize
      *

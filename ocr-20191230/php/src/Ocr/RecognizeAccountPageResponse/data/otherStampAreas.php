@@ -14,18 +14,21 @@ class otherStampAreas extends Model
      * @var int
      */
     public $left;
+
     /**
      * @description top
      *
      * @var int
      */
     public $top;
+
     /**
      * @description height
      *
      * @var int
      */
     public $height;
+
     /**
      * @description width
      *

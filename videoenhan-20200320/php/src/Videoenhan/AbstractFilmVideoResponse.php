@@ -15,6 +15,7 @@ class AbstractFilmVideoResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

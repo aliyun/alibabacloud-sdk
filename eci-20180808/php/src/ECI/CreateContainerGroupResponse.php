@@ -14,6 +14,7 @@ class CreateContainerGroupResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data.containerGroupId
      *

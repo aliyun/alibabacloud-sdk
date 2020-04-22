@@ -17,198 +17,231 @@ class container extends Model
      * @var string
      */
     public $image;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description cpu
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description mem
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description workingDir
      *
      * @var string
      */
     public $workingDir;
+
     /**
      * @description imagePullPolicy
      *
      * @var string
      */
     public $imagePullPolicy;
+
     /**
      * @description command
      *
      * @var array
      */
     public $command;
+
     /**
      * @description args
      *
      * @var array
      */
     public $arg;
+
     /**
      * @description volumeMounts
      *
      * @var array
      */
     public $volumeMount;
+
     /**
      * @description ports
      *
      * @var array
      */
     public $port;
+
     /**
      * @description env
      *
      * @var array
      */
     public $environmentVar;
+
     /**
      * @description ReadinessProbe
      *
      * @var container.readinessProbe
      */
     public $readinessProbe;
+
     /**
      * @description LivenessProbe
      *
      * @var container.livenessProbe
      */
     public $livenessProbe;
+
     /**
      * @description SecurityContext
      *
      * @var container.securityContext
      */
     public $securityContext;
+
     /**
      * @description stdin
      *
      * @var bool
      */
     public $stdin;
+
     /**
      * @description stdinOnce
      *
      * @var bool
      */
     public $stdinOnce;
+
     /**
      * @description tty
      *
      * @var bool
      */
     public $tty;
+
     /**
      * @description gpu
      *
      * @var int
      */
     public $gpu;
+
     /**
      * @description lifecyclePostStartHandlerHttpGetHost
      *
      * @var string
      */
     public $lifecyclePostStartHandlerHttpGetHost;
+
     /**
      * @description lifecyclePostStartHandlerHttpGetPort
      *
      * @var int
      */
     public $lifecyclePostStartHandlerHttpGetPort;
+
     /**
      * @description lifecyclePostStartHandlerHttpGetPath
      *
      * @var string
      */
     public $lifecyclePostStartHandlerHttpGetPath;
+
     /**
      * @description lifecyclePostStartHandlerHttpGetScheme
      *
      * @var string
      */
     public $lifecyclePostStartHandlerHttpGetScheme;
+
     /**
      * @description lifecyclePostStartHandlerHttpGetHttpHeaders
      *
      * @var array
      */
     public $lifecyclePostStartHandlerHttpGetHttpHeader;
+
     /**
      * @description lifecyclePostStartHandlerExec
      *
      * @var array
      */
     public $lifecyclePostStartHandlerExec;
+
     /**
      * @description lifecyclePostStartHandlerTcpSocketHost
      *
      * @var string
      */
     public $lifecyclePostStartHandlerTcpSocketHost;
+
     /**
      * @description lifecyclePostStartHandlerTcpSocketPort
      *
      * @var int
      */
     public $lifecyclePostStartHandlerTcpSocketPort;
+
     /**
      * @description lifecyclePreStopHandlerHttpGetHost
      *
      * @var string
      */
     public $lifecyclePreStopHandlerHttpGetHost;
+
     /**
      * @description lifecyclePreStopHandlerHttpGetPort
      *
      * @var int
      */
     public $lifecyclePreStopHandlerHttpGetPort;
+
     /**
      * @description lifecyclePreStopHandlerHttpGetPath
      *
      * @var string
      */
     public $lifecyclePreStopHandlerHttpGetPath;
+
     /**
      * @description lifecyclePreStopHandlerHttpGetScheme
      *
      * @var string
      */
     public $lifecyclePreStopHandlerHttpGetScheme;
+
     /**
      * @description lifecyclePreStopHandlerHttpGetHttpHeaders
      *
      * @var array
      */
     public $lifecyclePreStopHandlerHttpGetHttpHeader;
+
     /**
      * @description lifecyclePreStopHandlerExec
      *
      * @var array
      */
     public $lifecyclePreStopHandlerExec;
+
     /**
      * @description lifecyclePreStopHandlerTcpSocketHost
      *
      * @var string
      */
     public $lifecyclePreStopHandlerTcpSocketHost;
+
     /**
      * @description lifecyclePreStopHandlerTcpSocketPort
      *

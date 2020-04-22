@@ -15,24 +15,28 @@ class price extends Model
      * @var float
      */
     public $originalPrice;
+
     /**
      * @description discountPrice
      *
      * @var float
      */
     public $discountPrice;
+
     /**
      * @description tradePrice
      *
      * @var float
      */
     public $tradePrice;
+
     /**
      * @description currency
      *
      * @var string
      */
     public $currency;
+
     /**
      * @description detailInfos
      *

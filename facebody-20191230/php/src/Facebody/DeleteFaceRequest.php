@@ -14,6 +14,7 @@ class DeleteFaceRequest extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description faceId
      *

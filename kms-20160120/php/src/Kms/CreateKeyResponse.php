@@ -15,6 +15,7 @@ class CreateKeyResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyMetadataResponse
      *

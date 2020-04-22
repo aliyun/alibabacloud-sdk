@@ -14,12 +14,14 @@ class faces extends Model
      * @var string
      */
     public $id;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description rate
      *

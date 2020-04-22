@@ -14,12 +14,14 @@ class ports extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description protocol
      *
      * @var string
      */
     public $protocol;
+
     /**
      * @description port
      *

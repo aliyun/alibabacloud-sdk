@@ -15,6 +15,7 @@ class SearchImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

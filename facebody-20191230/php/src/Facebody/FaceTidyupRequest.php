@@ -14,12 +14,14 @@ class FaceTidyupRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description shapeType
      *
      * @var int
      */
     public $shapeType;
+
     /**
      * @description strength
      *

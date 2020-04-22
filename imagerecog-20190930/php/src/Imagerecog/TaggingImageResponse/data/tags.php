@@ -14,6 +14,7 @@ class tags extends Model
      * @var float
      */
     public $confidence;
+
     /**
      * @description value
      *

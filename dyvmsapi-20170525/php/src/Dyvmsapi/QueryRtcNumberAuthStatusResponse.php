@@ -14,18 +14,21 @@ class QueryRtcNumberAuthStatusResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description module
      *
      * @var string
      */
     public $module;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *

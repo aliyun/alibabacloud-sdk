@@ -14,6 +14,7 @@ class IntelligentCompositionAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description numBoxes
      *

@@ -14,18 +14,21 @@ class GenerateDataKeyRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description keySpec
      *
      * @var string
      */
     public $keySpec;
+
     /**
      * @description bytesNumber
      *
      * @var int
      */
     public $numberOfBytes;
+
     /**
      * @description encryptionContext
      *

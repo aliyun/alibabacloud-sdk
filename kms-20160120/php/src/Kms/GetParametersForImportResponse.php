@@ -14,24 +14,28 @@ class GetParametersForImportResponse extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description importToken
      *
      * @var string
      */
     public $importToken;
+
     /**
      * @description publicKey
      *
      * @var string
      */
     public $publicKey;
+
     /**
      * @description tokenExpireTime
      *

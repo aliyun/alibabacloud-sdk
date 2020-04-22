@@ -14,36 +14,42 @@ class ListRobotTaskCallsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description module
      *
      * @var string
      */
     public $data;
+
     /**
      * @description pageSize
      *
      * @var string
      */
     public $pageSize;
+
     /**
      * @description currentPage
      *
      * @var string
      */
     public $pageNo;
+
     /**
      * @description totalCount
      *
      * @var string
      */
     public $totalCount;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *

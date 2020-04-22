@@ -14,42 +14,49 @@ class previousState extends Model
      * @var string
      */
     public $state;
+
     /**
      * @description detailStatus
      *
      * @var string
      */
     public $detailStatus;
+
     /**
      * @description exitCode
      *
      * @var int
      */
     public $exitCode;
+
     /**
      * @description startTime
      *
      * @var string
      */
     public $startTime;
+
     /**
      * @description finishTime
      *
      * @var string
      */
     public $finishTime;
+
     /**
      * @description reason
      *
      * @var string
      */
     public $reason;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description signal
      *

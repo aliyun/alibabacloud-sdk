@@ -14,48 +14,56 @@ class SendBatchSmsRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description phoneNumberJson
      *
      * @var string
      */
     public $phoneNumberJson;
+
     /**
      * @description signNameJson
      *
      * @var string
      */
     public $signNameJson;
+
     /**
      * @description templateCode
      *
      * @var string
      */
     public $templateCode;
+
     /**
      * @description templateParamJsonNew
      *
      * @var string
      */
     public $templateParamJson;
+
     /**
      * @description smsUpExtendCodeJson
      *

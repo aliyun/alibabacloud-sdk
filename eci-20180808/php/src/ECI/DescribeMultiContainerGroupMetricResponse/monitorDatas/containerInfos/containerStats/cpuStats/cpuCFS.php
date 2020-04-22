@@ -14,12 +14,14 @@ class cpuCFS extends Model
      * @var int
      */
     public $periods;
+
     /**
      * @description throttledPeriods
      *
      * @var int
      */
     public $throttledPeriods;
+
     /**
      * @description throttledTime
      *

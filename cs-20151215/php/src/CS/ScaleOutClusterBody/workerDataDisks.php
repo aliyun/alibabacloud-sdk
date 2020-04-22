@@ -14,12 +14,14 @@ class workerDataDisks extends Model
      * @var string
      */
     public $category;
+
     /**
      * @description size
      *
      * @var string
      */
     public $size;
+
     /**
      * @description encrypted
      *

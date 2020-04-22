@@ -14,24 +14,28 @@ class GenerateDataKeyResponse extends Model
      * @var string
      */
     public $ciphertextBlob;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description plaintext
      *
      * @var string
      */
     public $plaintext;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyVersionId
      *

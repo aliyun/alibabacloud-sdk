@@ -14,12 +14,14 @@ class httpGet extends Model
      * @var string
      */
     public $path;
+
     /**
      * @description port
      *
      * @var int
      */
     public $port;
+
     /**
      * @description scheme
      *

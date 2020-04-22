@@ -14,36 +14,42 @@ class events extends Model
      * @var int
      */
     public $count;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description firstTimestamp
      *
      * @var string
      */
     public $firstTimestamp;
+
     /**
      * @description lastTimestamp
      *
      * @var string
      */
     public $lastTimestamp;
+
     /**
      * @description reason
      *

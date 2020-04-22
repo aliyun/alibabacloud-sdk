@@ -14,18 +14,21 @@ class CreateSecretResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description Arn
      *
      * @var string
      */
     public $arn;
+
     /**
      * @description VersionId
      *
      * @var string
      */
     public $versionId;
+
     /**
      * @description SecretName
      *

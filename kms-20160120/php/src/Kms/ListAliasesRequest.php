@@ -14,6 +14,7 @@ class ListAliasesRequest extends Model
      * @var int
      */
     public $pageNumber;
+
     /**
      * @description pageSize
      *

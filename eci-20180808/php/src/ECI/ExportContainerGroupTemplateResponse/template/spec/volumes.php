@@ -17,18 +17,21 @@ class volumes extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description configFile
      *
      * @var volumes.configFile
      */
     public $configFile;
+
     /**
      * @description emptyDir
      *
      * @var volumes.emptyDir
      */
     public $emptyDir;
+
     /**
      * @description nfs
      *

@@ -15,6 +15,7 @@ class RecognizeDrivingLicenseResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

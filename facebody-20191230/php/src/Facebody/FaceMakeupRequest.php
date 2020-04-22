@@ -14,18 +14,21 @@ class FaceMakeupRequest extends Model
      * @var string
      */
     public $imageURL;
+
     /**
      * @description makeupType
      *
      * @var string
      */
     public $makeupType;
+
     /**
      * @description resourceType
      *
      * @var string
      */
     public $resourceType;
+
     /**
      * @description strength
      *

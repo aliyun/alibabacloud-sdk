@@ -14,18 +14,21 @@ class UpdateSecretVersionStageRequest extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description VersionStage
      *
      * @var string
      */
     public $versionStage;
+
     /**
      * @description RemoveFromVersion
      *
      * @var string
      */
     public $removeFromVersion;
+
     /**
      * @description MoveToVersion
      *

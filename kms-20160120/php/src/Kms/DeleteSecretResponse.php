@@ -14,12 +14,14 @@ class DeleteSecretResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description SecretName
      *
      * @var string
      */
     public $secretName;
+
     /**
      * @description PlannedDeleteTime
      *

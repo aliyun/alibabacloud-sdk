@@ -14,18 +14,21 @@ class CPU extends Model
      * @var int
      */
     public $limit;
+
     /**
      * @description load
      *
      * @var int
      */
     public $load;
+
     /**
      * @description usageCoreNanoSeconds
      *
      * @var int
      */
     public $usageCoreNanoSeconds;
+
     /**
      * @description usageNanoCores
      *

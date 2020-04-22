@@ -15,6 +15,7 @@ class AbstractEcommerceVideoResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

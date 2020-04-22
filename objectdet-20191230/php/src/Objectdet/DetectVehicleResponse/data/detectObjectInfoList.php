@@ -14,18 +14,21 @@ class detectObjectInfoList extends Model
      * @var float
      */
     public $score;
+
     /**
      * @description type
      *
      * @var string
      */
     public $type;
+
     /**
      * @description id
      *
      * @var int
      */
     public $id;
+
     /**
      * @description boxes
      *

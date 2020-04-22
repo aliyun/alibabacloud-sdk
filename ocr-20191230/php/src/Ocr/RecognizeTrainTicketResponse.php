@@ -15,6 +15,7 @@ class RecognizeTrainTicketResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

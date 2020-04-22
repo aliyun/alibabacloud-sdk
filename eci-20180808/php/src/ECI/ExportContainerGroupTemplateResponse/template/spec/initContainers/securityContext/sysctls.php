@@ -14,6 +14,7 @@ class sysctls extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description value
      *

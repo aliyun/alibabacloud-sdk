@@ -14,6 +14,7 @@ class AttachInstancesResponseBody extends Model
      * @var string
      */
     public $taskId;
+
     /**
      * @description list
      *

@@ -14,60 +14,70 @@ class tcp extends Model
      * @var int
      */
     public $established;
+
     /**
      * @description synSent
      *
      * @var int
      */
     public $synSent;
+
     /**
      * @description synRecv
      *
      * @var int
      */
     public $synRecv;
+
     /**
      * @description finWait1
      *
      * @var int
      */
     public $finWait1;
+
     /**
      * @description finWait2
      *
      * @var int
      */
     public $finWait2;
+
     /**
      * @description timeWait
      *
      * @var int
      */
     public $timeWait;
+
     /**
      * @description close
      *
      * @var int
      */
     public $close;
+
     /**
      * @description closeWait
      *
      * @var int
      */
     public $closeWait;
+
     /**
      * @description lastAck
      *
      * @var int
      */
     public $lastAck;
+
     /**
      * @description listen
      *
      * @var int
      */
     public $listen;
+
     /**
      * @description closing
      *

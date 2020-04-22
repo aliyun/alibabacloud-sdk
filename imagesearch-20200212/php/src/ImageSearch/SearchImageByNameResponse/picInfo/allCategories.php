@@ -14,6 +14,7 @@ class allCategories extends Model
      * @var int
      */
     public $id;
+
     /**
      * @description name
      *

@@ -15,24 +15,28 @@ class secret extends Model
      * @var string
      */
     public $secretName;
+
     /**
      * @description CreateTime
      *
      * @var string
      */
     public $createTime;
+
     /**
      * @description UpdateTime
      *
      * @var string
      */
     public $updateTime;
+
     /**
      * @description PlannedDeleteTime
      *
      * @var string
      */
     public $plannedDeleteTime;
+
     /**
      * @description Tags
      *

@@ -15,12 +15,14 @@ class env extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description value
      *
      * @var string
      */
     public $value;
+
     /**
      * @description valueFrom
      *

@@ -14,18 +14,21 @@ class ImportKeyMaterialRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description encryptedKeyMaterial
      *
      * @var string
      */
     public $encryptedKeyMaterial;
+
     /**
      * @description importToken
      *
      * @var string
      */
     public $importToken;
+
     /**
      * @description keyMaterialExpireUnix
      *

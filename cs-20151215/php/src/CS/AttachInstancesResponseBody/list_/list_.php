@@ -14,12 +14,14 @@ class list_ extends Model
      * @var string
      */
     public $code;
+
     /**
      * @description instanceId
      *
      * @var string
      */
     public $instanceId;
+
     /**
      * @description message
      *

@@ -42,7 +42,6 @@ use AlibabaCloud\SDK\ECI\V20180808\ECI\UpdateContainerGroupRequest;
 use AlibabaCloud\SDK\ECI\V20180808\ECI\UpdateContainerGroupResponse;
 use AlibabaCloud\Tea\Exception\TeaError;
 use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Request;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Tea;
@@ -52,17 +51,29 @@ use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 class ECI
 {
     private $_endpoint;
+
     private $_regionId;
+
     private $_protocol;
+
     private $_userAgent;
+
     private $_readTimeout;
+
     private $_connectTimeout;
+
     private $_httpProxy;
+
     private $_httpsProxy;
+
     private $_noProxy;
+
     private $_socks5Proxy;
+
     private $_socks5NetWork;
+
     private $_maxIdleConns;
+
     private $_credential;
 
     public function __construct(Config $config)
@@ -218,7 +229,7 @@ class ECI
      */
     public function describeRegions(DescribeRegionsRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeRegions', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeRegionsResponse());
+        return DescribeRegionsResponse::fromMap($this->_request('DescribeRegions', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -228,7 +239,7 @@ class ECI
      */
     public function describeImageCaches(DescribeImageCachesRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeImageCaches', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeImageCachesResponse());
+        return DescribeImageCachesResponse::fromMap($this->_request('DescribeImageCaches', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -238,7 +249,7 @@ class ECI
      */
     public function deleteImageCache(DeleteImageCacheRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DeleteImageCache', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DeleteImageCacheResponse());
+        return DeleteImageCacheResponse::fromMap($this->_request('DeleteImageCache', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -248,7 +259,7 @@ class ECI
      */
     public function createImageCache(CreateImageCacheRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('CreateImageCache', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new CreateImageCacheResponse());
+        return CreateImageCacheResponse::fromMap($this->_request('CreateImageCache', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -258,7 +269,7 @@ class ECI
      */
     public function describeMultiContainerGroupMetric(DescribeMultiContainerGroupMetricRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeMultiContainerGroupMetric', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeMultiContainerGroupMetricResponse());
+        return DescribeMultiContainerGroupMetricResponse::fromMap($this->_request('DescribeMultiContainerGroupMetric', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -268,7 +279,7 @@ class ECI
      */
     public function describeContainerGroupMetric(DescribeContainerGroupMetricRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeContainerGroupMetric', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeContainerGroupMetricResponse());
+        return DescribeContainerGroupMetricResponse::fromMap($this->_request('DescribeContainerGroupMetric', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -278,7 +289,7 @@ class ECI
      */
     public function updateContainerGroupByTemplate(UpdateContainerGroupByTemplateRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', 'AK', $request, null, $runtime), new UpdateContainerGroupByTemplateResponse());
+        return UpdateContainerGroupByTemplateResponse::fromMap($this->_request('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -288,7 +299,7 @@ class ECI
      */
     public function createContainerGroupFromTemplate(CreateContainerGroupFromTemplateRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', 'AK', $request, null, $runtime), new CreateContainerGroupFromTemplateResponse());
+        return CreateContainerGroupFromTemplateResponse::fromMap($this->_request('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -298,7 +309,7 @@ class ECI
      */
     public function exportContainerGroupTemplate(ExportContainerGroupTemplateRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('ExportContainerGroupTemplate', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new ExportContainerGroupTemplateResponse());
+        return ExportContainerGroupTemplateResponse::fromMap($this->_request('ExportContainerGroupTemplate', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -308,7 +319,7 @@ class ECI
      */
     public function restartContainerGroup(RestartContainerGroupRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('RestartContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new RestartContainerGroupResponse());
+        return RestartContainerGroupResponse::fromMap($this->_request('RestartContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -318,7 +329,7 @@ class ECI
      */
     public function updateContainerGroup(UpdateContainerGroupRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('UpdateContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new UpdateContainerGroupResponse());
+        return UpdateContainerGroupResponse::fromMap($this->_request('UpdateContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -328,7 +339,7 @@ class ECI
      */
     public function describeContainerGroupPrice(DescribeContainerGroupPriceRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeContainerGroupPrice', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeContainerGroupPriceResponse());
+        return DescribeContainerGroupPriceResponse::fromMap($this->_request('DescribeContainerGroupPrice', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -338,7 +349,7 @@ class ECI
      */
     public function execContainerCommand(ExecContainerCommandRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('ExecContainerCommand', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new ExecContainerCommandResponse());
+        return ExecContainerCommandResponse::fromMap($this->_request('ExecContainerCommand', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -348,7 +359,7 @@ class ECI
      */
     public function describeContainerLog(DescribeContainerLogRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeContainerLog', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeContainerLogResponse());
+        return DescribeContainerLogResponse::fromMap($this->_request('DescribeContainerLog', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -358,7 +369,7 @@ class ECI
      */
     public function createContainerGroup(CreateContainerGroupRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('CreateContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new CreateContainerGroupResponse());
+        return CreateContainerGroupResponse::fromMap($this->_request('CreateContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -368,7 +379,7 @@ class ECI
      */
     public function describeContainerGroups(DescribeContainerGroupsRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DescribeContainerGroups', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DescribeContainerGroupsResponse());
+        return DescribeContainerGroupsResponse::fromMap($this->_request('DescribeContainerGroups', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -378,7 +389,7 @@ class ECI
      */
     public function deleteContainerGroup(DeleteContainerGroupRequest $request, RuntimeOptions $runtime)
     {
-        return Model::toModel($this->_request('DeleteContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime), new DeleteContainerGroupResponse());
+        return DeleteContainerGroupResponse::fromMap($this->_request('DeleteContainerGroup', 'HTTPS', 'GET', 'AK', $request, null, $runtime));
     }
 
     /**

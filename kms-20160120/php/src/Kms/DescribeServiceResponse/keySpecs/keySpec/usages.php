@@ -11,7 +11,7 @@ class usages extends Model
     /**
      * @description Usage
      *
-     * @var string
+     * @var array
      */
     public $usage;
     protected $_name = [
@@ -26,7 +26,10 @@ class usages extends Model
     public function toMap()
     {
         $res          = [];
-        $res['Usage'] = $this->usage;
+        $res['Usage'] = [];
+        if (null !== $this->usage) {
+            $res['Usage'] = $this->usage;
+        }
 
         return $res;
     }
@@ -40,7 +43,10 @@ class usages extends Model
     {
         $model = new self();
         if (isset($map['Usage'])) {
-            $model->usage = $map['Usage'];
+            if (!empty($map['Usage'])) {
+                $model->usage = [];
+                $model->usage = $map['Usage'];
+            }
         }
 
         return $model;

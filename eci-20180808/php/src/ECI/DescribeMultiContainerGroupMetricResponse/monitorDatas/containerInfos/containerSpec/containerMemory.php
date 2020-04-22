@@ -14,12 +14,14 @@ class containerMemory extends Model
      * @var int
      */
     public $limit;
+
     /**
      * @description reservation
      *
      * @var int
      */
     public $reservation;
+
     /**
      * @description swapLimit
      *

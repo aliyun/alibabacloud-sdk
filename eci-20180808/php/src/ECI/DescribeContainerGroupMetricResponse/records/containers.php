@@ -16,12 +16,14 @@ class containers extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description cpuStats
      *
      * @var containers.CPU
      */
     public $CPU;
+
     /**
      * @description memoryStats
      *

@@ -14,6 +14,7 @@ class labels extends Model
      * @var float
      */
     public $score;
+
     /**
      * @description name
      *

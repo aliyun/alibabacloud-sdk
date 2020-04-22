@@ -14,6 +14,7 @@ class UpdateK8sClusterUserConfigExpireResponse extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description body
      *

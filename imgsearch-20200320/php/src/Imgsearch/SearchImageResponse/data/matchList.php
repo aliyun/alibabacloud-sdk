@@ -14,12 +14,14 @@ class matchList extends Model
      * @var string
      */
     public $dataId;
+
     /**
      * @description extraData
      *
      * @var string
      */
     public $extraData;
+
     /**
      * @description entityId
      *

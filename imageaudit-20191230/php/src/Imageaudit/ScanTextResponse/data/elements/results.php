@@ -14,18 +14,21 @@ class results extends Model
      * @var string
      */
     public $label;
+
     /**
      * @description suggestion
      *
      * @var string
      */
     public $suggestion;
+
     /**
      * @description rate
      *
      * @var float
      */
     public $rate;
+
     /**
      * @description details
      *

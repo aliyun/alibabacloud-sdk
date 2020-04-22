@@ -14,18 +14,21 @@ class data extends Model
      * @var string
      */
     public $dbName;
+
     /**
      * @description entityId
      *
      * @var string
      */
     public $entityId;
+
     /**
      * @description labels
      *
      * @var string
      */
     public $labels;
+
     /**
      * @description faces
      *

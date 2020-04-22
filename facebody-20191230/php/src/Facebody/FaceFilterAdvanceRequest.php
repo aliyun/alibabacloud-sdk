@@ -14,12 +14,14 @@ class FaceFilterAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description resourceType
      *
      * @var string
      */
     public $resourceType;
+
     /**
      * @description strength
      *

@@ -14,60 +14,70 @@ class volumes extends Model
      * @var string
      */
     public $type;
+
     /**
      * @description name
      *
      * @var string
      */
     public $name;
+
     /**
      * @description nfsVolumePath
      *
      * @var string
      */
     public $NFSVolumePath;
+
     /**
      * @description nfsVolumeServer
      *
      * @var string
      */
     public $NFSVolumeServer;
+
     /**
      * @description nfsVolumeReadOnly
      *
      * @var bool
      */
     public $NFSVolumeReadOnly;
+
     /**
      * @description diskVolumeDiskId
      *
      * @var string
      */
     public $diskVolumeDiskId;
+
     /**
      * @description diskVolumeFsType
      *
      * @var string
      */
     public $diskVolumeFsType;
+
     /**
      * @description flexVolumeDriver
      *
      * @var string
      */
     public $flexVolumeDriver;
+
     /**
      * @description flexVolumeFsType
      *
      * @var string
      */
     public $flexVolumeFsType;
+
     /**
      * @description flexVolumeOptions
      *
      * @var string
      */
     public $flexVolumeOptions;
+
     /**
      * @description configFileVolumeConfigFileToPaths
      *

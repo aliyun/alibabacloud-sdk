@@ -16,180 +16,210 @@ class containerGroups extends Model
      * @var string
      */
     public $containerGroupId;
+
     /**
      * @description containerGroupName
      *
      * @var string
      */
     public $containerGroupName;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description zoneId
      *
      * @var string
      */
     public $zoneId;
+
     /**
      * @description mem
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description cpu
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description vSwitchId
      *
      * @var string
      */
     public $VSwitchId;
+
     /**
      * @description securityGroupId
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description restartPolicy
      *
      * @var string
      */
     public $restartPolicy;
+
     /**
      * @description intranetIp
      *
      * @var string
      */
     public $intranetIp;
+
     /**
      * @description status
      *
      * @var string
      */
     public $status;
+
     /**
      * @description internetIp
      *
      * @var string
      */
     public $internetIp;
+
     /**
      * @description gmtCreate
      *
      * @var string
      */
     public $creationTime;
+
     /**
      * @description gmtSucceeded
      *
      * @var string
      */
     public $succeededTime;
+
     /**
      * @description eniInstanceId
      *
      * @var string
      */
     public $eniInstanceId;
+
     /**
      * @description instanceType
      *
      * @var string
      */
     public $instanceType;
+
     /**
      * @description gmtExpired
      *
      * @var string
      */
     public $expiredTime;
+
     /**
      * @description gmtFailed
      *
      * @var string
      */
     public $failedTime;
+
     /**
      * @description ramRoleName
      *
      * @var string
      */
     public $ramRoleName;
+
     /**
      * @description ipv6Address
      *
      * @var string
      */
     public $ipv6Address;
+
     /**
      * @description vpcInstanceId
      *
      * @var string
      */
     public $vpcId;
+
     /**
      * @description discount
      *
      * @var int
      */
     public $discount;
+
     /**
      * @description resourceGroupId
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description labels
      *
      * @var array
      */
     public $tags;
+
     /**
      * @description events
      *
      * @var array
      */
     public $events;
+
     /**
      * @description containers
      *
      * @var array
      */
     public $containers;
+
     /**
      * @description volumes
      *
      * @var array
      */
     public $volumes;
+
     /**
      * @description initContainers
      *
      * @var array
      */
     public $initContainers;
+
     /**
      * @description hostAliases
      *
      * @var array
      */
     public $hostAliases;
+
     /**
      * @description dnsConfig
      *
      * @var containerGroups.dnsConfig
      */
     public $dnsConfig;
+
     /**
      * @description podSecurityContext
      *

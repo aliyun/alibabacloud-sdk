@@ -14,18 +14,21 @@ class GetPublicKeyResponse extends Model
      * @var string
      */
     public $publicKey;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyVersionId
      *

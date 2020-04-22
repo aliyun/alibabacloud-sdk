@@ -15,6 +15,7 @@ class DescribeAddonsResponseBody extends Model
      * @var array
      */
     public $componentGroups;
+
     /**
      * @description StandardComponents
      *

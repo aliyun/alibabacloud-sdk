@@ -15,12 +15,14 @@ class securityContext extends Model
      * @var securityContext.capability
      */
     public $capability;
+
     /**
      * @description securityContextReadOnlyRootFilesystem
      *
      * @var bool
      */
     public $readOnlyRootFilesystem;
+
     /**
      * @description securityContextRunAsUser
      *

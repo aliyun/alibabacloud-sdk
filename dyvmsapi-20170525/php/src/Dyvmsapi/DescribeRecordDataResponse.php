@@ -14,30 +14,35 @@ class DescribeRecordDataResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description message
      *
      * @var string
      */
     public $message;
+
     /**
      * @description data.ossLink
      *
      * @var string
      */
     public $ossLink;
+
     /**
      * @description data.acid
      *
      * @var string
      */
     public $acid;
+
     /**
      * @description data.agentId
      *

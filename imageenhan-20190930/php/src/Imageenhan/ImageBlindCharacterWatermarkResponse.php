@@ -15,6 +15,7 @@ class ImageBlindCharacterWatermarkResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

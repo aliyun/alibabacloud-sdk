@@ -14,36 +14,42 @@ class tableColumns extends Model
      * @var int
      */
     public $startColumn;
+
     /**
      * @description startRow
      *
      * @var int
      */
     public $startRow;
+
     /**
      * @description endColumn
      *
      * @var int
      */
     public $endColumn;
+
     /**
      * @description endRow
      *
      * @var int
      */
     public $endRow;
+
     /**
      * @description height
      *
      * @var int
      */
     public $height;
+
     /**
      * @description width
      *
      * @var int
      */
     public $width;
+
     /**
      * @description texts
      *

@@ -15,6 +15,7 @@ class ScanTextResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

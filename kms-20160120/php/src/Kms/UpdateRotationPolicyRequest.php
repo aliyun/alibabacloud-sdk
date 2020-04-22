@@ -14,12 +14,14 @@ class UpdateRotationPolicyRequest extends Model
      * @var string
      */
     public $keyId;
+
     /**
      * @description EnableAutomaticRotation
      *
      * @var bool
      */
     public $enableAutomaticRotation;
+
     /**
      * @description RotationInterval
      *

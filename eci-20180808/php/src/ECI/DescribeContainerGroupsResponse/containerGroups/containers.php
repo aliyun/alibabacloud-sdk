@@ -19,126 +19,147 @@ class containers extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description image
      *
      * @var string
      */
     public $image;
+
     /**
      * @description bigMemForPop
      *
      * @var float
      */
     public $memory;
+
     /**
      * @description bigCpuForPop
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description restartCount
      *
      * @var int
      */
     public $restartCount;
+
     /**
      * @description workingDir
      *
      * @var string
      */
     public $workingDir;
+
     /**
      * @description imagePullPolicy
      *
      * @var string
      */
     public $imagePullPolicy;
+
     /**
      * @description ready
      *
      * @var bool
      */
     public $ready;
+
     /**
      * @description gpu
      *
      * @var int
      */
     public $gpu;
+
     /**
      * @description stdin
      *
      * @var bool
      */
     public $stdin;
+
     /**
      * @description stdinOnce
      *
      * @var bool
      */
     public $stdinOnce;
+
     /**
      * @description tty
      *
      * @var bool
      */
     public $tty;
+
     /**
      * @description volumeMounts
      *
      * @var array
      */
     public $volumeMounts;
+
     /**
      * @description ports
      *
      * @var array
      */
     public $ports;
+
     /**
      * @description env
      *
      * @var array
      */
     public $environmentVars;
+
     /**
      * @description previousState
      *
      * @var containers.previousState
      */
     public $previousState;
+
     /**
      * @description currentState
      *
      * @var containers.currentState
      */
     public $currentState;
+
     /**
      * @description innerReadinessProbe
      *
      * @var containers.readinessProbe
      */
     public $readinessProbe;
+
     /**
      * @description innerLivenessProbe
      *
      * @var containers.livenessProbe
      */
     public $livenessProbe;
+
     /**
      * @description securityContext
      *
      * @var containers.securityContext
      */
     public $securityContext;
+
     /**
      * @description command
      *
      * @var array
      */
     public $commands;
+
     /**
      * @description args
      *

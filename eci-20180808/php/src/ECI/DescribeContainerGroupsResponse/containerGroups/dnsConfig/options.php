@@ -14,6 +14,7 @@ class options extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description value
      *

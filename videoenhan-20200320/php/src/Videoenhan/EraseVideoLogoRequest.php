@@ -14,6 +14,7 @@ class EraseVideoLogoRequest extends Model
      * @var string
      */
     public $videoUrl;
+
     /**
      * @description boxes
      *

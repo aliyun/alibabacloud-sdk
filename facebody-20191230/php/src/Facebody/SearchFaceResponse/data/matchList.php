@@ -15,6 +15,7 @@ class matchList extends Model
      * @var array
      */
     public $faceItems;
+
     /**
      * @description location
      *

@@ -14,6 +14,7 @@ class metaObject extends Model
      * @var int
      */
     public $height;
+
     /**
      * @description width
      *

@@ -15,90 +15,105 @@ class UpdateContainerGroupRequest extends Model
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description ownerAccount
      *
      * @var string
      */
     public $ownerAccount;
+
     /**
      * @description regionId
      *
      * @var string
      */
     public $regionId;
+
     /**
      * @description bazaarInstanceId
      *
      * @var string
      */
     public $containerGroupId;
+
     /**
      * @description restartPolicy
      *
      * @var string
      */
     public $restartPolicy;
+
     /**
      * @description labels
      *
      * @var array
      */
     public $tag;
+
     /**
      * @description volumes
      *
      * @var array
      */
     public $volume;
+
     /**
      * @description DnsConfig
      *
      * @var UpdateContainerGroupRequest.dnsConfig
      */
     public $dnsConfig;
+
     /**
      * @description containers
      *
      * @var array
      */
     public $container;
+
     /**
      * @description initContainers
      *
      * @var array
      */
     public $initContainer;
+
     /**
      * @description imageRegistryCredentials
      *
      * @var array
      */
     public $imageRegistryCredential;
+
     /**
      * @description clientToken
      *
      * @var string
      */
     public $clientToken;
+
     /**
      * @description cpu
      *
      * @var float
      */
     public $cpu;
+
     /**
      * @description mem
      *

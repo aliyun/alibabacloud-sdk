@@ -14,6 +14,7 @@ class frames extends Model
      * @var float
      */
     public $rate;
+
     /**
      * @description URL
      *

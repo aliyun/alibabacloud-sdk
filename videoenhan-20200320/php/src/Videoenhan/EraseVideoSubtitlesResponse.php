@@ -15,6 +15,7 @@ class EraseVideoSubtitlesResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

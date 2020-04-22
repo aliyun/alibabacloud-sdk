@@ -14,18 +14,21 @@ class DecryptResponse extends Model
      * @var string
      */
     public $plaintext;
+
     /**
      * @description keyId
      *
      * @var string
      */
     public $keyId;
+
     /**
      * @description requestId
      *
      * @var string
      */
     public $requestId;
+
     /**
      * @description keyVersionId
      *

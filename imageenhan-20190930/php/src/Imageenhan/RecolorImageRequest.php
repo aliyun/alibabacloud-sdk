@@ -14,24 +14,28 @@ class RecolorImageRequest extends Model
      * @var string
      */
     public $url;
+
     /**
      * @description mode
      *
      * @var string
      */
     public $mode;
+
     /**
      * @description refUrl
      *
      * @var string
      */
     public $refUrl;
+
     /**
      * @description colorCount
      *
      * @var int
      */
     public $colorCount;
+
     /**
      * @description colorTemplate
      *

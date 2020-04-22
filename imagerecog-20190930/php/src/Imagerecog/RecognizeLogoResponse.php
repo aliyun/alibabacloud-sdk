@@ -15,6 +15,7 @@ class RecognizeLogoResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

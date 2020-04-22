@@ -15,6 +15,7 @@ class RecognizeTaxiInvoiceResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

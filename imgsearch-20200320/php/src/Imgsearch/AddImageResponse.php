@@ -15,6 +15,7 @@ class AddImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

@@ -14,36 +14,42 @@ class AttachInstancesBody extends Model
      * @var bool
      */
     public $formatDisk;
+
     /**
      * @description keep_instance_name
      *
      * @var bool
      */
     public $keepInstanceName;
+
     /**
      * @description cpu_policy
      *
      * @var string
      */
     public $cpuPolicy;
+
     /**
      * @description key_pair
      *
      * @var string
      */
     public $keyPair;
+
     /**
      * @description password
      *
      * @var string
      */
     public $password;
+
     /**
      * @description tags
      *
      * @var array
      */
     public $tags;
+
     /**
      * @description instances
      *

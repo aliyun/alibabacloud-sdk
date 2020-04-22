@@ -14,18 +14,21 @@ class boxes extends Model
      * @var float
      */
     public $h;
+
     /**
      * @description w
      *
      * @var float
      */
     public $w;
+
     /**
      * @description x
      *
      * @var float
      */
     public $x;
+
     /**
      * @description y
      *

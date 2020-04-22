@@ -14,6 +14,7 @@ class ScanImageRequest extends Model
      * @var array
      */
     public $task;
+
     /**
      * @description scenes
      *

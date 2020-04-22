@@ -14,12 +14,14 @@ class DescribeEdgeClusterAttachScriptsRequest extends Model
      * @var array
      */
     public $headers;
+
     /**
      * @description query
      *
      * @var DescribeEdgeClusterAttachScriptsQuery
      */
     public $query;
+
     /**
      * @description body
      *

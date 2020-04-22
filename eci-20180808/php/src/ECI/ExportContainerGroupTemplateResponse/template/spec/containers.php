@@ -18,90 +18,105 @@ class containers extends Model
      * @var string
      */
     public $name;
+
     /**
      * @description image
      *
      * @var string
      */
     public $image;
+
     /**
      * @description imagePullPolicy
      *
      * @var string
      */
     public $imagePullPolicy;
+
     /**
      * @description stdin
      *
      * @var bool
      */
     public $stdin;
+
     /**
      * @description stdinOnce
      *
      * @var bool
      */
     public $stdinOnce;
+
     /**
      * @description tty
      *
      * @var bool
      */
     public $tty;
+
     /**
      * @description workingDir
      *
      * @var string
      */
     public $workingDir;
+
     /**
      * @description env
      *
      * @var array
      */
     public $env;
+
     /**
      * @description ports
      *
      * @var array
      */
     public $ports;
+
     /**
      * @description volumeMounts
      *
      * @var array
      */
     public $volumeMounts;
+
     /**
      * @description securityContext
      *
      * @var containers.securityContext
      */
     public $securityContext;
+
     /**
      * @description resources
      *
      * @var containers.resources
      */
     public $resources;
+
     /**
      * @description readinessProbe
      *
      * @var containers.readinessProbe
      */
     public $readinessProbe;
+
     /**
      * @description livenessProbe
      *
      * @var containers.livenessProbe
      */
     public $livenessProbe;
+
     /**
      * @description command
      *
      * @var array
      */
     public $command;
+
     /**
      * @description args
      *

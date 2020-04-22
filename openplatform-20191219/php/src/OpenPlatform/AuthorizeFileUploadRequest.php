@@ -14,6 +14,7 @@ class AuthorizeFileUploadRequest extends Model
      * @var string
      */
     public $product;
+
     /**
      * @description regionId
      *

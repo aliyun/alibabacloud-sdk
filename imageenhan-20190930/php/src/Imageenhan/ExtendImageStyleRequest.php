@@ -14,6 +14,7 @@ class ExtendImageStyleRequest extends Model
      * @var string
      */
     public $styleUrl;
+
     /**
      * @description majorUrl
      *

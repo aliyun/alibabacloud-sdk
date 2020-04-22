@@ -15,6 +15,7 @@ class SegmentBodyResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

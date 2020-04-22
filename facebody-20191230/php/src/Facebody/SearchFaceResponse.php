@@ -15,6 +15,7 @@ class SearchFaceResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

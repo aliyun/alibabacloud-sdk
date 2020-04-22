@@ -14,12 +14,14 @@ class componentGroups extends Model
      * @var string
      */
     public $groupName;
+
     /**
      * @description items
      *
      * @var array
      */
     public $items;
+
     /**
      * @description default
      *

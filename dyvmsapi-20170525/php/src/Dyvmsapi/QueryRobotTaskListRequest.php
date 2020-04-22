@@ -14,48 +14,56 @@ class QueryRobotTaskListRequest extends Model
      * @var string
      */
     public $accessKeyId;
+
     /**
      * @description ownerId
      *
      * @var int
      */
     public $ownerId;
+
     /**
      * @description resourceOwnerAccount
      *
      * @var string
      */
     public $resourceOwnerAccount;
+
     /**
      * @description resourceOwnerId
      *
      * @var int
      */
     public $resourceOwnerId;
+
     /**
      * @description taskName
      *
      * @var string
      */
     public $taskName;
+
     /**
      * @description status
      *
      * @var string
      */
     public $status;
+
     /**
      * @description time
      *
      * @var string
      */
     public $time;
+
     /**
      * @description pageSize
      *
      * @var int
      */
     public $pageSize;
+
     /**
      * @description pageNo
      *

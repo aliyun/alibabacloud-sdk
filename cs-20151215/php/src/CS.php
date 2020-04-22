@@ -65,7 +65,6 @@ use AlibabaCloud\SDK\CS\V20151215\CS\UpdateK8sClusterUserConfigExpireRequest;
 use AlibabaCloud\SDK\CS\V20151215\CS\UpdateK8sClusterUserConfigExpireResponse;
 use AlibabaCloud\SDK\CS\V20151215\CS\UpdateServiceMeshRequest;
 use AlibabaCloud\SDK\CS\V20151215\CS\UpdateServiceMeshResponse;
-use AlibabaCloud\Tea\Model;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
@@ -91,7 +90,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterid . '/components/' . $componentid . '/resume', null, $request->headers, null, $runtime), new ResumeComponentUpgradeResponse());
+        return ResumeComponentUpgradeResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterid . '/components/' . $componentid . '/resume', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -121,7 +120,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterid . '/components/' . $componentid . '/pause', null, $request->headers, null, $runtime), new PauseComponentUpgradeResponse());
+        return PauseComponentUpgradeResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterid . '/components/' . $componentid . '/pause', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -151,7 +150,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterid . '/components/' . $componentid . '/cancel', null, $request->headers, null, $runtime), new CancelComponentUpgradeResponse());
+        return CancelComponentUpgradeResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterid . '/components/' . $componentid . '/cancel', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -180,7 +179,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/gs/workflow/' . $workflowName . '', null, $request->headers, null, $runtime), new CancelWorkflowResponse());
+        return CancelWorkflowResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/gs/workflow/' . $workflowName . '', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -208,7 +207,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/gs/workflow/' . $workflowName . '', null, $request->headers, null, $runtime), new DescirbeWorkflowResponse());
+        return DescirbeWorkflowResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/gs/workflow/' . $workflowName . '', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -236,7 +235,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'DELETE', 'AK', '/gs/workflow/' . $workflowName . '', null, $request->headers, null, $runtime), new RemoveWorkflowResponse());
+        return RemoveWorkflowResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'DELETE', 'AK', '/gs/workflow/' . $workflowName . '', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -262,7 +261,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/gs/workflows', null, $request->headers, null, $runtime), new DescribeWorkflowsResponse());
+        return DescribeWorkflowsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/gs/workflows', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -286,7 +285,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/gs/workflow', null, $request->headers, null, $runtime), new StartWorkflowResponse());
+        return StartWorkflowResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/gs/workflow', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -310,7 +309,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/servicemesh', null, $request->headers, null, $runtime), new CreateServiceMeshResponse());
+        return CreateServiceMeshResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/servicemesh', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -336,7 +335,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/servicemesh/' . $serviceMeshId . '/add/clusters', null, $request->headers, null, $runtime), new ServiceMeshAddClusterResponse());
+        return ServiceMeshAddClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/servicemesh/' . $serviceMeshId . '/add/clusters', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -364,7 +363,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/servicemesh/' . $serviceMeshId . '/remove/clusters', null, $request->headers, null, $runtime), new ServiceMeshRemoveClusterResponse());
+        return ServiceMeshRemoveClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/servicemesh/' . $serviceMeshId . '/remove/clusters', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -392,7 +391,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/servicemesh/' . $serviceMeshId . '', null, $request->headers, null, $runtime), new UpdateServiceMeshResponse());
+        return UpdateServiceMeshResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/servicemesh/' . $serviceMeshId . '', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -420,7 +419,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/servicemesh/' . $serviceMeshId . '/api_proxy', null, $request->headers, null, $runtime), new ServiceMeshApiServerResponse());
+        return ServiceMeshApiServerResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/servicemesh/' . $serviceMeshId . '/api_proxy', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -448,7 +447,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/uninstall', null, $request->headers, $request->body, $runtime), new UnInstallClusterAddonsResponse());
+        return UnInstallClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/uninstall', null, $request->headers, $request->body, $runtime));
     }
 
     /**
@@ -474,7 +473,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/components/metadata', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime), new DescribeAddonsResponse());
+        return DescribeAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/components/metadata', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
     }
 
     /**
@@ -500,7 +499,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/k8s/' . $clusterId . '/user_config/expire', null, $request->headers, null, $runtime), new UpdateK8sClusterUserConfigExpireResponse());
+        return UpdateK8sClusterUserConfigExpireResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/k8s/' . $clusterId . '/user_config/expire', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -528,7 +527,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/api/v2/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime), new DescribeClusterV2UserKubeconfigResponse());
+        return DescribeClusterV2UserKubeconfigResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/api/v2/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
     }
 
     /**
@@ -556,7 +555,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/tags', null, $request->headers, $request->body, $runtime), new ModifyClusterTagsResponse());
+        return ModifyClusterTagsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/tags', null, $request->headers, $request->body, $runtime));
     }
 
     /**
@@ -584,7 +583,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body, $runtime), new ScaleOutClusterResponse());
+        return ScaleOutClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body, $runtime));
     }
 
     /**
@@ -612,7 +611,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/components/version', null, $request->headers, null, $runtime), new DescribeClusterAddonsVersionResponse());
+        return DescribeClusterAddonsVersionResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/components/version', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -641,7 +640,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/components/' . $componentId . '/upgradestatus', null, $request->headers, null, $runtime), new DescribeClusterAddonUpgradeStatusResponse());
+        return DescribeClusterAddonUpgradeStatusResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/components/' . $componentId . '/upgradestatus', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -670,7 +669,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/attachscript', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime), new DescribeEdgeClusterAttachScriptsResponse());
+        return DescribeEdgeClusterAttachScriptsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/attachscript', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
     }
 
     /**
@@ -698,7 +697,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/nodes', null, $request->headers, $request->body, $runtime), new DeleteClusterNodesResponse());
+        return DeleteClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/nodes', null, $request->headers, $request->body, $runtime));
     }
 
     /**
@@ -726,7 +725,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime), new DescribeClusterUserKubeconfigResponse());
+        return DescribeClusterUserKubeconfigResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
     }
 
     /**
@@ -754,7 +753,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/attach', null, $request->headers, $request->body, $runtime), new AttachInstancesResponse());
+        return AttachInstancesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/attach', null, $request->headers, $request->body, $runtime));
     }
 
     /**
@@ -780,7 +779,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters', null, $request->headers, $request->body, $runtime), new CreateClusterResponse());
+        return CreateClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters', null, $request->headers, $request->body, $runtime));
     }
 
     /**
@@ -806,7 +805,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/clusters/' . $clusterId . '', null, $request->headers, null, $runtime), new ScaleClusterResponse());
+        return ScaleClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/clusters/' . $clusterId . '', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -832,7 +831,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime), new DescribeClustersResponse());
+        return DescribeClustersResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
     }
 
     /**
@@ -858,7 +857,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '', null, $request->headers, null, $runtime), new DescribeClusterDetailResponse());
+        return DescribeClusterDetailResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -886,7 +885,7 @@ class CS
     {
         Utils::validateModel($request);
 
-        return Model::toModel($this->doRequest('2015-12-15', 'HTTPS', 'DELETE', 'AK', '/clusters/' . $clusterId . '', null, $request->headers, null, $runtime), new DeleteClusterResponse());
+        return DeleteClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'DELETE', 'AK', '/clusters/' . $clusterId . '', null, $request->headers, null, $runtime));
     }
 
     /**

@@ -14,18 +14,21 @@ class FaceMakeupAdvanceRequest extends Model
      * @var Stream
      */
     public $imageURLObject;
+
     /**
      * @description makeupType
      *
      * @var string
      */
     public $makeupType;
+
     /**
      * @description resourceType
      *
      * @var string
      */
     public $resourceType;
+
     /**
      * @description strength
      *

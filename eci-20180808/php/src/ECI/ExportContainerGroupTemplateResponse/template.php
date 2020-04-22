@@ -16,60 +16,70 @@ class template extends Model
      * @var string
      */
     public $regionId;
+
     /**
      * @description zoneId
      *
      * @var string
      */
     public $zoneId;
+
     /**
      * @description securityGroupId
      *
      * @var string
      */
     public $securityGroupId;
+
     /**
      * @description vSwitchId
      *
      * @var string
      */
     public $VSwitchId;
+
     /**
      * @description resourceGroupId
      *
      * @var string
      */
     public $resourceGroupId;
+
     /**
      * @description eipInstanceId
      *
      * @var string
      */
     public $eipInstanceId;
+
     /**
      * @description containerGroupName
      *
      * @var string
      */
     public $containerGroupName;
+
     /**
      * @description instanceType
      *
      * @var string
      */
     public $instanceType;
+
     /**
      * @description tags
      *
      * @var array
      */
     public $tags;
+
     /**
      * @description resources
      *
      * @var template.resources
      */
     public $resources;
+
     /**
      * @description spec
      *

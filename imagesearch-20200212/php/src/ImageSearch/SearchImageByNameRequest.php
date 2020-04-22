@@ -14,36 +14,42 @@ class SearchImageByNameRequest extends Model
      * @var int
      */
     public $categoryId;
+
     /**
      * @description instanceName
      *
      * @var string
      */
     public $instanceName;
+
     /**
      * @description productId
      *
      * @var string
      */
     public $productId;
+
     /**
      * @description picName
      *
      * @var string
      */
     public $picName;
+
     /**
      * @description num
      *
      * @var int
      */
     public $num;
+
     /**
      * @description start
      *
      * @var int
      */
     public $start;
+
     /**
      * @description filter
      *

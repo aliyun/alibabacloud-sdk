@@ -15,6 +15,7 @@ class MakeSuperResolutionImageResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *

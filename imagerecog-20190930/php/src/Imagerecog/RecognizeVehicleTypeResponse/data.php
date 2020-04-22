@@ -14,6 +14,7 @@ class data extends Model
      * @var float
      */
     public $threshold;
+
     /**
      * @description elements
      *

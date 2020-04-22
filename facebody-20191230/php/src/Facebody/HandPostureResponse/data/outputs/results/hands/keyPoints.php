@@ -14,6 +14,7 @@ class keyPoints extends Model
      * @var string
      */
     public $label;
+
     /**
      * @description positions
      *

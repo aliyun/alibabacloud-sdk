@@ -14,12 +14,14 @@ class tables extends Model
      * @var string
      */
     public $head;
+
     /**
      * @description tail
      *
      * @var string
      */
     public $tail;
+
     /**
      * @description tableRows
      *

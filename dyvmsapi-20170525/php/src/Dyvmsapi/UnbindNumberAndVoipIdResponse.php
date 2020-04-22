@@ -14,18 +14,21 @@ class UnbindNumberAndVoipIdResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description code
      *
      * @var string
      */
     public $code;
+
     /**
      * @description module
      *
      * @var string
      */
     public $module;
+
     /**
      * @description message
      *

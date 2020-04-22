@@ -15,6 +15,7 @@ class ListFaceDbsResponse extends Model
      * @var string
      */
     public $requestId;
+
     /**
      * @description data
      *
