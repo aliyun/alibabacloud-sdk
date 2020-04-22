@@ -1,136 +1,15 @@
-import RPCUtil;
 import Util;
-import Credential;
+import RPC;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @noProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @maxIdleConns = number
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string(description='accessKeyId', name='accessKeyId'),
-  accessKeySecret?: string(description='accessKeySecret', name='accessKeySecret'),
-  type?: string(description='credential type', name='type'),
-  securityToken?: string(description='securityToken', name='securityToken'),
-  endpoint: string(description='endpoint', name='endpoint'),
-  protocol?: string(description='protocol', name='protocol'),
-  regionId: string(description='regionId', name='regionId'),
-  readTimeout?: number(description='read timeout', name='read timeout'),
-  connectTimeout?: number(description='connect timeout', name='connect timeout'),
-  httpProxy?: string(description='http proxy', name='http proxy'),
-  httpsProxy?: string(description='https proxy', name='https proxy'),
-  socks5Proxy?: string(description='socks5 proxy', name='socks5 proxy'),
-  socks5NetWork?: string(description='socks5 NetWork', name='socks5 NetWork'),
-  noProxy?: string(description='no proxy', name='no proxy'),
-  userAgent?: string(description='userAgent', name='userAgent'),
-  maxIdleConns?: number(description='maxIdleConns', name='maxIdleConns'),
-}
-
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-}
-
-api _request(action: string, protocol: string, method: string, request: object, runtime: Util.RuntimeOptions): object {
-  var accessKeyId = getAccessKeyId();
-  var accessKeySecret = getAccessKeySecret();
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2019-12-30',
-    SignatureMethod = 'HMAC-SHA1',
-    SignatureVersion = '1.0',
-    SignatureNonce = Util.getNonce(),
-    AccessKeyId = accessKeyId,
-    ...request,
-  });
-  __request.headers = {
-    host = RPCUtil.getHost('imageaudit', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var body = Util.assertAsMap(obj);
-  if (RPCUtil.hasError(body)) {
-    throw {
-      message = body.Message,
-      data = body,
-      code = body.Code,
-    }
-  }
-  return body;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 2)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 0)
-  },
-  ignoreSSL = runtime.ignoreSSL
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
 model ScanTextRequest = {
@@ -174,8 +53,14 @@ model ScanTextResponse = {
   }(name='Data', description='data'),
 }
 
-async function scanText(request: ScanTextRequest, runtime: Util.RuntimeOptions): ScanTextResponse {
-  return _request('ScanText', 'HTTPS', 'POST', request, runtime);
+async function scanTextEx(request: ScanTextRequest, runtime: Util.RuntimeOptions): ScanTextResponse {
+  Util.validateModel(request);
+  return doRequest('ScanText', 'HTTPS', 'POST', '2019-12-30', 'AK', null, request, runtime);
+}
+
+async function scanText(request: ScanTextRequest): ScanTextResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return scanTextEx(request, runtime);
 }
 
 model ScanImageRequest = {
@@ -249,11 +134,7 @@ model ScanImageResponse = {
                 ](name='Faces', description='faces'),
               }
             ](name='SfaceDataList', description='sfaceData'),
-            OCRDataList: [
-              {
-                OCRData: string (name='OCRData', description='OCRData'),
-                }
-              ](name='OCRDataList', description='ocrData'),
+            OCRDataList: [ string ](name='OCRDataList', description='ocrData'),
           }
         ](name='SubResults', description='subResults'),
       }
@@ -261,28 +142,23 @@ model ScanImageResponse = {
   }(name='Data', description='data'),
 }
 
-async function scanImage(request: ScanImageRequest, runtime: Util.RuntimeOptions): ScanImageResponse {
-  return _request('ScanImage', 'HTTPS', 'POST', request, runtime);
+async function scanImageEx(request: ScanImageRequest, runtime: Util.RuntimeOptions): ScanImageResponse {
+  Util.validateModel(request);
+  return doRequest('ScanImage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, request, runtime);
 }
 
-function getUserAgent(): string {
-  var userAgent =  Util.getUserAgent(@userAgent);
-  return userAgent;
+async function scanImage(request: ScanImageRequest): ScanImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return scanImageEx(request, runtime);
 }
 
-async function getAccessKeyId(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
   }
-  var accessKeyId = @credential.getAccessKeyId();
-  return accessKeyId;
-}
 
-async function getAccessKeySecret(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
   }
-  var secret = @credential.getAccessKeySecret();
-  return secret;
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-

@@ -4927,7 +4927,7 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = ""
+	client.EndpointRule = tea.String("")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -4940,13 +4940,13 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) ResumeComponentUpgradeEx(clusterid string, componentid string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
+func (client *Client) ResumeComponentUpgradeEx(clusterid *string, componentid *string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ResumeComponentUpgradeResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterid)+"/components/"+tea.ToString(componentid)+"/resume", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterid))+"/components/"+tea.ToString(tea.StringValue(componentid))+"/resume"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4954,7 +4954,7 @@ func (client *Client) ResumeComponentUpgradeEx(clusterid string, componentid str
 	return _result, _err
 }
 
-func (client *Client) ResumeComponentUpgrade(clusterid string, componentid string, request *ResumeComponentUpgradeRequest) (_result *ResumeComponentUpgradeResponse, _err error) {
+func (client *Client) ResumeComponentUpgrade(clusterid *string, componentid *string, request *ResumeComponentUpgradeRequest) (_result *ResumeComponentUpgradeResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ResumeComponentUpgradeResponse{}
 	_body, _err := client.ResumeComponentUpgradeEx(clusterid, componentid, request, runtime)
@@ -4965,13 +4965,13 @@ func (client *Client) ResumeComponentUpgrade(clusterid string, componentid strin
 	return _result, _err
 }
 
-func (client *Client) PauseComponentUpgradeEx(clusterid string, componentid string, request *PauseComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *PauseComponentUpgradeResponse, _err error) {
+func (client *Client) PauseComponentUpgradeEx(clusterid *string, componentid *string, request *PauseComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *PauseComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &PauseComponentUpgradeResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterid)+"/components/"+tea.ToString(componentid)+"/pause", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterid))+"/components/"+tea.ToString(tea.StringValue(componentid))+"/pause"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4979,7 +4979,7 @@ func (client *Client) PauseComponentUpgradeEx(clusterid string, componentid stri
 	return _result, _err
 }
 
-func (client *Client) PauseComponentUpgrade(clusterid string, componentid string, request *PauseComponentUpgradeRequest) (_result *PauseComponentUpgradeResponse, _err error) {
+func (client *Client) PauseComponentUpgrade(clusterid *string, componentid *string, request *PauseComponentUpgradeRequest) (_result *PauseComponentUpgradeResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &PauseComponentUpgradeResponse{}
 	_body, _err := client.PauseComponentUpgradeEx(clusterid, componentid, request, runtime)
@@ -4990,13 +4990,13 @@ func (client *Client) PauseComponentUpgrade(clusterid string, componentid string
 	return _result, _err
 }
 
-func (client *Client) CancelComponentUpgradeEx(clusterid string, componentid string, request *CancelComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *CancelComponentUpgradeResponse, _err error) {
+func (client *Client) CancelComponentUpgradeEx(clusterid *string, componentid *string, request *CancelComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *CancelComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &CancelComponentUpgradeResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterid)+"/components/"+tea.ToString(componentid)+"/cancel", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterid))+"/components/"+tea.ToString(tea.StringValue(componentid))+"/cancel"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5004,7 +5004,7 @@ func (client *Client) CancelComponentUpgradeEx(clusterid string, componentid str
 	return _result, _err
 }
 
-func (client *Client) CancelComponentUpgrade(clusterid string, componentid string, request *CancelComponentUpgradeRequest) (_result *CancelComponentUpgradeResponse, _err error) {
+func (client *Client) CancelComponentUpgrade(clusterid *string, componentid *string, request *CancelComponentUpgradeRequest) (_result *CancelComponentUpgradeResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CancelComponentUpgradeResponse{}
 	_body, _err := client.CancelComponentUpgradeEx(clusterid, componentid, request, runtime)
@@ -5015,13 +5015,13 @@ func (client *Client) CancelComponentUpgrade(clusterid string, componentid strin
 	return _result, _err
 }
 
-func (client *Client) CancelWorkflowEx(workflowName string, request *CancelWorkflowRequest, runtime *util.RuntimeOptions) (_result *CancelWorkflowResponse, _err error) {
+func (client *Client) CancelWorkflowEx(workflowName *string, request *CancelWorkflowRequest, runtime *util.RuntimeOptions) (_result *CancelWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &CancelWorkflowResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "PUT", "AK", "/gs/workflow/"+tea.ToString(workflowName), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/gs/workflow/"+tea.ToString(tea.StringValue(workflowName))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5029,7 +5029,7 @@ func (client *Client) CancelWorkflowEx(workflowName string, request *CancelWorkf
 	return _result, _err
 }
 
-func (client *Client) CancelWorkflow(workflowName string, request *CancelWorkflowRequest) (_result *CancelWorkflowResponse, _err error) {
+func (client *Client) CancelWorkflow(workflowName *string, request *CancelWorkflowRequest) (_result *CancelWorkflowResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CancelWorkflowResponse{}
 	_body, _err := client.CancelWorkflowEx(workflowName, request, runtime)
@@ -5040,13 +5040,13 @@ func (client *Client) CancelWorkflow(workflowName string, request *CancelWorkflo
 	return _result, _err
 }
 
-func (client *Client) DescirbeWorkflowEx(workflowName string, request *DescirbeWorkflowRequest, runtime *util.RuntimeOptions) (_result *DescirbeWorkflowResponse, _err error) {
+func (client *Client) DescirbeWorkflowEx(workflowName *string, request *DescirbeWorkflowRequest, runtime *util.RuntimeOptions) (_result *DescirbeWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescirbeWorkflowResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/gs/workflow/"+tea.ToString(workflowName), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/gs/workflow/"+tea.ToString(tea.StringValue(workflowName))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5054,7 +5054,7 @@ func (client *Client) DescirbeWorkflowEx(workflowName string, request *DescirbeW
 	return _result, _err
 }
 
-func (client *Client) DescirbeWorkflow(workflowName string, request *DescirbeWorkflowRequest) (_result *DescirbeWorkflowResponse, _err error) {
+func (client *Client) DescirbeWorkflow(workflowName *string, request *DescirbeWorkflowRequest) (_result *DescirbeWorkflowResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescirbeWorkflowResponse{}
 	_body, _err := client.DescirbeWorkflowEx(workflowName, request, runtime)
@@ -5065,13 +5065,13 @@ func (client *Client) DescirbeWorkflow(workflowName string, request *DescirbeWor
 	return _result, _err
 }
 
-func (client *Client) RemoveWorkflowEx(workflowName string, request *RemoveWorkflowRequest, runtime *util.RuntimeOptions) (_result *RemoveWorkflowResponse, _err error) {
+func (client *Client) RemoveWorkflowEx(workflowName *string, request *RemoveWorkflowRequest, runtime *util.RuntimeOptions) (_result *RemoveWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &RemoveWorkflowResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "DELETE", "AK", "/gs/workflow/"+tea.ToString(workflowName), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/gs/workflow/"+tea.ToString(tea.StringValue(workflowName))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5079,7 +5079,7 @@ func (client *Client) RemoveWorkflowEx(workflowName string, request *RemoveWorkf
 	return _result, _err
 }
 
-func (client *Client) RemoveWorkflow(workflowName string, request *RemoveWorkflowRequest) (_result *RemoveWorkflowResponse, _err error) {
+func (client *Client) RemoveWorkflow(workflowName *string, request *RemoveWorkflowRequest) (_result *RemoveWorkflowResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &RemoveWorkflowResponse{}
 	_body, _err := client.RemoveWorkflowEx(workflowName, request, runtime)
@@ -5096,7 +5096,7 @@ func (client *Client) DescribeWorkflowsEx(request *DescribeWorkflowsRequest, run
 		return
 	}
 	_result = &DescribeWorkflowsResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/gs/workflows", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/gs/workflows"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5121,7 +5121,7 @@ func (client *Client) StartWorkflowEx(request *StartWorkflowRequest, runtime *ut
 		return
 	}
 	_result = &StartWorkflowResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/gs/workflow", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/gs/workflow"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5146,7 +5146,7 @@ func (client *Client) CreateServiceMeshEx(request *CreateServiceMeshRequest, run
 		return
 	}
 	_result = &CreateServiceMeshResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/servicemesh", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/servicemesh"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5165,13 +5165,13 @@ func (client *Client) CreateServiceMesh(request *CreateServiceMeshRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshAddClusterEx(serviceMeshId string, request *ServiceMeshAddClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshAddClusterResponse, _err error) {
+func (client *Client) ServiceMeshAddClusterEx(serviceMeshId *string, request *ServiceMeshAddClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshAddClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ServiceMeshAddClusterResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "PUT", "AK", "/servicemesh/"+tea.ToString(serviceMeshId)+"/add/clusters", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))+"/add/clusters"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5179,7 +5179,7 @@ func (client *Client) ServiceMeshAddClusterEx(serviceMeshId string, request *Ser
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshAddCluster(serviceMeshId string, request *ServiceMeshAddClusterRequest) (_result *ServiceMeshAddClusterResponse, _err error) {
+func (client *Client) ServiceMeshAddCluster(serviceMeshId *string, request *ServiceMeshAddClusterRequest) (_result *ServiceMeshAddClusterResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ServiceMeshAddClusterResponse{}
 	_body, _err := client.ServiceMeshAddClusterEx(serviceMeshId, request, runtime)
@@ -5190,13 +5190,13 @@ func (client *Client) ServiceMeshAddCluster(serviceMeshId string, request *Servi
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshRemoveClusterEx(serviceMeshId string, request *ServiceMeshRemoveClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshRemoveClusterResponse, _err error) {
+func (client *Client) ServiceMeshRemoveClusterEx(serviceMeshId *string, request *ServiceMeshRemoveClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshRemoveClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ServiceMeshRemoveClusterResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "PUT", "AK", "/servicemesh/"+tea.ToString(serviceMeshId)+"/remove/clusters", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))+"/remove/clusters"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5204,7 +5204,7 @@ func (client *Client) ServiceMeshRemoveClusterEx(serviceMeshId string, request *
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshRemoveCluster(serviceMeshId string, request *ServiceMeshRemoveClusterRequest) (_result *ServiceMeshRemoveClusterResponse, _err error) {
+func (client *Client) ServiceMeshRemoveCluster(serviceMeshId *string, request *ServiceMeshRemoveClusterRequest) (_result *ServiceMeshRemoveClusterResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ServiceMeshRemoveClusterResponse{}
 	_body, _err := client.ServiceMeshRemoveClusterEx(serviceMeshId, request, runtime)
@@ -5215,13 +5215,13 @@ func (client *Client) ServiceMeshRemoveCluster(serviceMeshId string, request *Se
 	return _result, _err
 }
 
-func (client *Client) UpdateServiceMeshEx(serviceMeshId string, request *UpdateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *UpdateServiceMeshResponse, _err error) {
+func (client *Client) UpdateServiceMeshEx(serviceMeshId *string, request *UpdateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *UpdateServiceMeshResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &UpdateServiceMeshResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "PUT", "AK", "/servicemesh/"+tea.ToString(serviceMeshId), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5229,7 +5229,7 @@ func (client *Client) UpdateServiceMeshEx(serviceMeshId string, request *UpdateS
 	return _result, _err
 }
 
-func (client *Client) UpdateServiceMesh(serviceMeshId string, request *UpdateServiceMeshRequest) (_result *UpdateServiceMeshResponse, _err error) {
+func (client *Client) UpdateServiceMesh(serviceMeshId *string, request *UpdateServiceMeshRequest) (_result *UpdateServiceMeshResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateServiceMeshResponse{}
 	_body, _err := client.UpdateServiceMeshEx(serviceMeshId, request, runtime)
@@ -5240,13 +5240,13 @@ func (client *Client) UpdateServiceMesh(serviceMeshId string, request *UpdateSer
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshApiServerEx(serviceMeshId string, request *ServiceMeshApiServerRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshApiServerResponse, _err error) {
+func (client *Client) ServiceMeshApiServerEx(serviceMeshId *string, request *ServiceMeshApiServerRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshApiServerResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ServiceMeshApiServerResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/servicemesh/"+tea.ToString(serviceMeshId)+"/api_proxy", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))+"/api_proxy"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5254,7 +5254,7 @@ func (client *Client) ServiceMeshApiServerEx(serviceMeshId string, request *Serv
 	return _result, _err
 }
 
-func (client *Client) ServiceMeshApiServer(serviceMeshId string, request *ServiceMeshApiServerRequest) (_result *ServiceMeshApiServerResponse, _err error) {
+func (client *Client) ServiceMeshApiServer(serviceMeshId *string, request *ServiceMeshApiServerRequest) (_result *ServiceMeshApiServerResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ServiceMeshApiServerResponse{}
 	_body, _err := client.ServiceMeshApiServerEx(serviceMeshId, request, runtime)
@@ -5265,13 +5265,13 @@ func (client *Client) ServiceMeshApiServer(serviceMeshId string, request *Servic
 	return _result, _err
 }
 
-func (client *Client) UnInstallClusterAddonsEx(clusterId string, request *UnInstallClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *UnInstallClusterAddonsResponse, _err error) {
+func (client *Client) UnInstallClusterAddonsEx(clusterId *string, request *UnInstallClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *UnInstallClusterAddonsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &UnInstallClusterAddonsResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterId)+"/components/uninstall", nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/components/uninstall"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5279,7 +5279,7 @@ func (client *Client) UnInstallClusterAddonsEx(clusterId string, request *UnInst
 	return _result, _err
 }
 
-func (client *Client) UnInstallClusterAddons(clusterId string, request *UnInstallClusterAddonsRequest) (_result *UnInstallClusterAddonsResponse, _err error) {
+func (client *Client) UnInstallClusterAddons(clusterId *string, request *UnInstallClusterAddonsRequest) (_result *UnInstallClusterAddonsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UnInstallClusterAddonsResponse{}
 	_body, _err := client.UnInstallClusterAddonsEx(clusterId, request, runtime)
@@ -5296,7 +5296,7 @@ func (client *Client) DescribeAddonsEx(request *DescribeAddonsRequest, runtime *
 		return
 	}
 	_result = &DescribeAddonsResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/components/metadata", util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/components/metadata"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5315,13 +5315,13 @@ func (client *Client) DescribeAddons(request *DescribeAddonsRequest) (_result *D
 	return _result, _err
 }
 
-func (client *Client) UpdateK8sClusterUserConfigExpireEx(clusterId string, request *UpdateK8sClusterUserConfigExpireRequest, runtime *util.RuntimeOptions) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
+func (client *Client) UpdateK8sClusterUserConfigExpireEx(clusterId *string, request *UpdateK8sClusterUserConfigExpireRequest, runtime *util.RuntimeOptions) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &UpdateK8sClusterUserConfigExpireResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/k8s/"+tea.ToString(clusterId)+"/user_config/expire", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/k8s/"+tea.ToString(tea.StringValue(clusterId))+"/user_config/expire"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5329,7 +5329,7 @@ func (client *Client) UpdateK8sClusterUserConfigExpireEx(clusterId string, reque
 	return _result, _err
 }
 
-func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId string, request *UpdateK8sClusterUserConfigExpireRequest) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
+func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId *string, request *UpdateK8sClusterUserConfigExpireRequest) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateK8sClusterUserConfigExpireResponse{}
 	_body, _err := client.UpdateK8sClusterUserConfigExpireEx(clusterId, request, runtime)
@@ -5340,13 +5340,13 @@ func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId string, request
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterV2UserKubeconfigEx(clusterId string, request *DescribeClusterV2UserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
+func (client *Client) DescribeClusterV2UserKubeconfigEx(clusterId *string, request *DescribeClusterV2UserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescribeClusterV2UserKubeconfigResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/api/v2/k8s/"+tea.ToString(clusterId)+"/user_config", util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/api/v2/k8s/"+tea.ToString(tea.StringValue(clusterId))+"/user_config"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5354,7 +5354,7 @@ func (client *Client) DescribeClusterV2UserKubeconfigEx(clusterId string, reques
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterV2UserKubeconfig(clusterId string, request *DescribeClusterV2UserKubeconfigRequest) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
+func (client *Client) DescribeClusterV2UserKubeconfig(clusterId *string, request *DescribeClusterV2UserKubeconfigRequest) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterV2UserKubeconfigResponse{}
 	_body, _err := client.DescribeClusterV2UserKubeconfigEx(clusterId, request, runtime)
@@ -5365,13 +5365,13 @@ func (client *Client) DescribeClusterV2UserKubeconfig(clusterId string, request 
 	return _result, _err
 }
 
-func (client *Client) ModifyClusterTagsEx(clusterId string, request *ModifyClusterTagsRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterTagsResponse, _err error) {
+func (client *Client) ModifyClusterTagsEx(clusterId *string, request *ModifyClusterTagsRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterTagsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ModifyClusterTagsResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterId)+"/tags", nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/tags"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5379,7 +5379,7 @@ func (client *Client) ModifyClusterTagsEx(clusterId string, request *ModifyClust
 	return _result, _err
 }
 
-func (client *Client) ModifyClusterTags(clusterId string, request *ModifyClusterTagsRequest) (_result *ModifyClusterTagsResponse, _err error) {
+func (client *Client) ModifyClusterTags(clusterId *string, request *ModifyClusterTagsRequest) (_result *ModifyClusterTagsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ModifyClusterTagsResponse{}
 	_body, _err := client.ModifyClusterTagsEx(clusterId, request, runtime)
@@ -5390,13 +5390,13 @@ func (client *Client) ModifyClusterTags(clusterId string, request *ModifyCluster
 	return _result, _err
 }
 
-func (client *Client) ScaleOutClusterEx(clusterId string, request *ScaleOutClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleOutClusterResponse, _err error) {
+func (client *Client) ScaleOutClusterEx(clusterId *string, request *ScaleOutClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleOutClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ScaleOutClusterResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/"+tea.ToString(clusterId), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5404,7 +5404,7 @@ func (client *Client) ScaleOutClusterEx(clusterId string, request *ScaleOutClust
 	return _result, _err
 }
 
-func (client *Client) ScaleOutCluster(clusterId string, request *ScaleOutClusterRequest) (_result *ScaleOutClusterResponse, _err error) {
+func (client *Client) ScaleOutCluster(clusterId *string, request *ScaleOutClusterRequest) (_result *ScaleOutClusterResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ScaleOutClusterResponse{}
 	_body, _err := client.ScaleOutClusterEx(clusterId, request, runtime)
@@ -5415,13 +5415,13 @@ func (client *Client) ScaleOutCluster(clusterId string, request *ScaleOutCluster
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterAddonsVersionEx(clusterId string, request *DescribeClusterAddonsVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonsVersionResponse, _err error) {
+func (client *Client) DescribeClusterAddonsVersionEx(clusterId *string, request *DescribeClusterAddonsVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonsVersionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescribeClusterAddonsVersionResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/"+tea.ToString(clusterId)+"/components/version", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/components/version"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5429,7 +5429,7 @@ func (client *Client) DescribeClusterAddonsVersionEx(clusterId string, request *
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterAddonsVersion(clusterId string, request *DescribeClusterAddonsVersionRequest) (_result *DescribeClusterAddonsVersionResponse, _err error) {
+func (client *Client) DescribeClusterAddonsVersion(clusterId *string, request *DescribeClusterAddonsVersionRequest) (_result *DescribeClusterAddonsVersionResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterAddonsVersionResponse{}
 	_body, _err := client.DescribeClusterAddonsVersionEx(clusterId, request, runtime)
@@ -5440,13 +5440,13 @@ func (client *Client) DescribeClusterAddonsVersion(clusterId string, request *De
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterAddonUpgradeStatusEx(clusterId string, componentId string, request *DescribeClusterAddonUpgradeStatusRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
+func (client *Client) DescribeClusterAddonUpgradeStatusEx(clusterId *string, componentId *string, request *DescribeClusterAddonUpgradeStatusRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescribeClusterAddonUpgradeStatusResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/"+tea.ToString(clusterId)+"/components/"+tea.ToString(componentId)+"/upgradestatus", nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/components/"+tea.ToString(tea.StringValue(componentId))+"/upgradestatus"), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5454,7 +5454,7 @@ func (client *Client) DescribeClusterAddonUpgradeStatusEx(clusterId string, comp
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId string, componentId string, request *DescribeClusterAddonUpgradeStatusRequest) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
+func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId *string, componentId *string, request *DescribeClusterAddonUpgradeStatusRequest) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterAddonUpgradeStatusResponse{}
 	_body, _err := client.DescribeClusterAddonUpgradeStatusEx(clusterId, componentId, request, runtime)
@@ -5465,13 +5465,13 @@ func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId string, compon
 	return _result, _err
 }
 
-func (client *Client) DescribeEdgeClusterAttachScriptsEx(clusterId string, request *DescribeEdgeClusterAttachScriptsRequest, runtime *util.RuntimeOptions) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
+func (client *Client) DescribeEdgeClusterAttachScriptsEx(clusterId *string, request *DescribeEdgeClusterAttachScriptsRequest, runtime *util.RuntimeOptions) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescribeEdgeClusterAttachScriptsResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/"+tea.ToString(clusterId)+"/attachscript", util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/attachscript"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5479,7 +5479,7 @@ func (client *Client) DescribeEdgeClusterAttachScriptsEx(clusterId string, reque
 	return _result, _err
 }
 
-func (client *Client) DescribeEdgeClusterAttachScripts(clusterId string, request *DescribeEdgeClusterAttachScriptsRequest) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
+func (client *Client) DescribeEdgeClusterAttachScripts(clusterId *string, request *DescribeEdgeClusterAttachScriptsRequest) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeEdgeClusterAttachScriptsResponse{}
 	_body, _err := client.DescribeEdgeClusterAttachScriptsEx(clusterId, request, runtime)
@@ -5490,13 +5490,13 @@ func (client *Client) DescribeEdgeClusterAttachScripts(clusterId string, request
 	return _result, _err
 }
 
-func (client *Client) DeleteClusterNodesEx(clusterId string, request *DeleteClusterNodesRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterNodesResponse, _err error) {
+func (client *Client) DeleteClusterNodesEx(clusterId *string, request *DeleteClusterNodesRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterNodesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DeleteClusterNodesResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterId)+"/nodes", nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/nodes"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5504,7 +5504,7 @@ func (client *Client) DeleteClusterNodesEx(clusterId string, request *DeleteClus
 	return _result, _err
 }
 
-func (client *Client) DeleteClusterNodes(clusterId string, request *DeleteClusterNodesRequest) (_result *DeleteClusterNodesResponse, _err error) {
+func (client *Client) DeleteClusterNodes(clusterId *string, request *DeleteClusterNodesRequest) (_result *DeleteClusterNodesResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteClusterNodesResponse{}
 	_body, _err := client.DeleteClusterNodesEx(clusterId, request, runtime)
@@ -5515,13 +5515,13 @@ func (client *Client) DeleteClusterNodes(clusterId string, request *DeleteCluste
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterUserKubeconfigEx(clusterId string, request *DescribeClusterUserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
+func (client *Client) DescribeClusterUserKubeconfigEx(clusterId *string, request *DescribeClusterUserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescribeClusterUserKubeconfigResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/k8s/"+tea.ToString(clusterId)+"/user_config", util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/k8s/"+tea.ToString(tea.StringValue(clusterId))+"/user_config"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5529,7 +5529,7 @@ func (client *Client) DescribeClusterUserKubeconfigEx(clusterId string, request 
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterUserKubeconfig(clusterId string, request *DescribeClusterUserKubeconfigRequest) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
+func (client *Client) DescribeClusterUserKubeconfig(clusterId *string, request *DescribeClusterUserKubeconfigRequest) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterUserKubeconfigResponse{}
 	_body, _err := client.DescribeClusterUserKubeconfigEx(clusterId, request, runtime)
@@ -5540,13 +5540,13 @@ func (client *Client) DescribeClusterUserKubeconfig(clusterId string, request *D
 	return _result, _err
 }
 
-func (client *Client) AttachInstancesEx(clusterId string, request *AttachInstancesRequest, runtime *util.RuntimeOptions) (_result *AttachInstancesResponse, _err error) {
+func (client *Client) AttachInstancesEx(clusterId *string, request *AttachInstancesRequest, runtime *util.RuntimeOptions) (_result *AttachInstancesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &AttachInstancesResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/"+tea.ToString(clusterId)+"/attach", nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/attach"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5554,7 +5554,7 @@ func (client *Client) AttachInstancesEx(clusterId string, request *AttachInstanc
 	return _result, _err
 }
 
-func (client *Client) AttachInstances(clusterId string, request *AttachInstancesRequest) (_result *AttachInstancesResponse, _err error) {
+func (client *Client) AttachInstances(clusterId *string, request *AttachInstancesRequest) (_result *AttachInstancesResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &AttachInstancesResponse{}
 	_body, _err := client.AttachInstancesEx(clusterId, request, runtime)
@@ -5571,7 +5571,7 @@ func (client *Client) CreateClusterEx(request *CreateClusterRequest, runtime *ut
 		return
 	}
 	_result = &CreateClusterResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters", nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5590,13 +5590,13 @@ func (client *Client) CreateCluster(request *CreateClusterRequest) (_result *Cre
 	return _result, _err
 }
 
-func (client *Client) ScaleClusterEx(clusterId string, request *ScaleClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleClusterResponse, _err error) {
+func (client *Client) ScaleClusterEx(clusterId *string, request *ScaleClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &ScaleClusterResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "PUT", "AK", "/clusters/"+tea.ToString(clusterId), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5604,7 +5604,7 @@ func (client *Client) ScaleClusterEx(clusterId string, request *ScaleClusterRequ
 	return _result, _err
 }
 
-func (client *Client) ScaleCluster(clusterId string, request *ScaleClusterRequest) (_result *ScaleClusterResponse, _err error) {
+func (client *Client) ScaleCluster(clusterId *string, request *ScaleClusterRequest) (_result *ScaleClusterResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ScaleClusterResponse{}
 	_body, _err := client.ScaleClusterEx(clusterId, request, runtime)
@@ -5621,7 +5621,7 @@ func (client *Client) DescribeClustersEx(request *DescribeClustersRequest, runti
 		return
 	}
 	_result = &DescribeClustersResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters", util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5640,13 +5640,13 @@ func (client *Client) DescribeClusters(request *DescribeClustersRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterDetailEx(clusterId string, request *DescribeClusterDetailRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterDetailResponse, _err error) {
+func (client *Client) DescribeClusterDetailEx(clusterId *string, request *DescribeClusterDetailRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterDetailResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DescribeClusterDetailResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/"+tea.ToString(clusterId), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5654,7 +5654,7 @@ func (client *Client) DescribeClusterDetailEx(clusterId string, request *Describ
 	return _result, _err
 }
 
-func (client *Client) DescribeClusterDetail(clusterId string, request *DescribeClusterDetailRequest) (_result *DescribeClusterDetailResponse, _err error) {
+func (client *Client) DescribeClusterDetail(clusterId *string, request *DescribeClusterDetailRequest) (_result *DescribeClusterDetailResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterDetailResponse{}
 	_body, _err := client.DescribeClusterDetailEx(clusterId, request, runtime)
@@ -5665,13 +5665,13 @@ func (client *Client) DescribeClusterDetail(clusterId string, request *DescribeC
 	return _result, _err
 }
 
-func (client *Client) DeleteClusterEx(clusterId string, request *DeleteClusterRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterResponse, _err error) {
+func (client *Client) DeleteClusterEx(clusterId *string, request *DeleteClusterRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return
 	}
 	_result = &DeleteClusterResponse{}
-	_body, _err := client.DoRequest("2015-12-15", "HTTPS", "DELETE", "AK", "/clusters/"+tea.ToString(clusterId), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5679,7 +5679,7 @@ func (client *Client) DeleteClusterEx(clusterId string, request *DeleteClusterRe
 	return _result, _err
 }
 
-func (client *Client) DeleteCluster(clusterId string, request *DeleteClusterRequest) (_result *DeleteClusterResponse, _err error) {
+func (client *Client) DeleteCluster(clusterId *string, request *DeleteClusterRequest) (_result *DeleteClusterResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteClusterResponse{}
 	_body, _err := client.DeleteClusterEx(clusterId, request, runtime)
@@ -5690,19 +5690,20 @@ func (client *Client) DeleteCluster(clusterId string, request *DeleteClusterRequ
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err
