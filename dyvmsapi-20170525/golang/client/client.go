@@ -3969,7 +3969,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = "central"
+	client.EndpointRule = tea.String("central")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -3988,7 +3988,7 @@ func (client *Client) ListRobotTaskCallsEx(request *ListRobotTaskCallsRequest, r
 		return
 	}
 	_result = &ListRobotTaskCallsResponse{}
-	_body, _err := client.DoRequest("ListRobotTaskCalls", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListRobotTaskCalls"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4017,7 +4017,7 @@ func (client *Client) DoRtcNumberAuthEx(request *DoRtcNumberAuthRequest, runtime
 		return
 	}
 	_result = &DoRtcNumberAuthResponse{}
-	_body, _err := client.DoRequest("DoRtcNumberAuth", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DoRtcNumberAuth"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4046,7 +4046,7 @@ func (client *Client) UndoRtcNumberAuthEx(request *UndoRtcNumberAuthRequest, run
 		return
 	}
 	_result = &UndoRtcNumberAuthResponse{}
-	_body, _err := client.DoRequest("UndoRtcNumberAuth", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UndoRtcNumberAuth"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4075,7 +4075,7 @@ func (client *Client) QueryRtcNumberAuthStatusEx(request *QueryRtcNumberAuthStat
 		return
 	}
 	_result = &QueryRtcNumberAuthStatusResponse{}
-	_body, _err := client.DoRequest("QueryRtcNumberAuthStatus", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRtcNumberAuthStatus"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4104,7 +4104,7 @@ func (client *Client) ListOrderedNumbersEx(request *ListOrderedNumbersRequest, r
 		return
 	}
 	_result = &ListOrderedNumbersResponse{}
-	_body, _err := client.DoRequest("ListOrderedNumbers", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListOrderedNumbers"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4133,7 +4133,7 @@ func (client *Client) StartMicroOutboundEx(request *StartMicroOutboundRequest, r
 		return
 	}
 	_result = &StartMicroOutboundResponse{}
-	_body, _err := client.DoRequest("StartMicroOutbound", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("StartMicroOutbound"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4162,7 +4162,7 @@ func (client *Client) ListOutboundStrategiesEx(request *ListOutboundStrategiesRe
 		return
 	}
 	_result = &ListOutboundStrategiesResponse{}
-	_body, _err := client.DoRequest("ListOutboundStrategies", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListOutboundStrategies"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4191,7 +4191,7 @@ func (client *Client) DescribeRecordDataEx(request *DescribeRecordDataRequest, r
 		return
 	}
 	_result = &DescribeRecordDataResponse{}
-	_body, _err := client.DoRequest("DescribeRecordData", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeRecordData"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4220,7 +4220,7 @@ func (client *Client) QueryVoipNumberBindInfosEx(request *QueryVoipNumberBindInf
 		return
 	}
 	_result = &QueryVoipNumberBindInfosResponse{}
-	_body, _err := client.DoRequest("QueryVoipNumberBindInfos", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryVoipNumberBindInfos"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4249,7 +4249,7 @@ func (client *Client) ReportVoipProblemsEx(request *ReportVoipProblemsRequest, r
 		return
 	}
 	_result = &ReportVoipProblemsResponse{}
-	_body, _err := client.DoRequest("ReportVoipProblems", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ReportVoipProblems"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4278,7 +4278,7 @@ func (client *Client) UnbindNumberAndVoipIdEx(request *UnbindNumberAndVoipIdRequ
 		return
 	}
 	_result = &UnbindNumberAndVoipIdResponse{}
-	_body, _err := client.DoRequest("UnbindNumberAndVoipId", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UnbindNumberAndVoipId"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4307,7 +4307,7 @@ func (client *Client) BindNumberAndVoipIdEx(request *BindNumberAndVoipIdRequest,
 		return
 	}
 	_result = &BindNumberAndVoipIdResponse{}
-	_body, _err := client.DoRequest("BindNumberAndVoipId", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("BindNumberAndVoipId"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4336,7 +4336,7 @@ func (client *Client) CancelRobotTaskEx(request *CancelRobotTaskRequest, runtime
 		return
 	}
 	_result = &CancelRobotTaskResponse{}
-	_body, _err := client.DoRequest("CancelRobotTask", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CancelRobotTask"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4365,7 +4365,7 @@ func (client *Client) UploadRobotTaskCalledFileEx(request *UploadRobotTaskCalled
 		return
 	}
 	_result = &UploadRobotTaskCalledFileResponse{}
-	_body, _err := client.DoRequest("UploadRobotTaskCalledFile", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UploadRobotTaskCalledFile"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4394,7 +4394,7 @@ func (client *Client) DeleteRobotTaskEx(request *DeleteRobotTaskRequest, runtime
 		return
 	}
 	_result = &DeleteRobotTaskResponse{}
-	_body, _err := client.DoRequest("DeleteRobotTask", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteRobotTask"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4423,7 +4423,7 @@ func (client *Client) StopRobotTaskEx(request *StopRobotTaskRequest, runtime *ut
 		return
 	}
 	_result = &StopRobotTaskResponse{}
-	_body, _err := client.DoRequest("StopRobotTask", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("StopRobotTask"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4452,7 +4452,7 @@ func (client *Client) QueryRobotTaskCallDetailEx(request *QueryRobotTaskCallDeta
 		return
 	}
 	_result = &QueryRobotTaskCallDetailResponse{}
-	_body, _err := client.DoRequest("QueryRobotTaskCallDetail", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRobotTaskCallDetail"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4481,7 +4481,7 @@ func (client *Client) QueryRobotv2AllListEx(request *QueryRobotv2AllListRequest,
 		return
 	}
 	_result = &QueryRobotv2AllListResponse{}
-	_body, _err := client.DoRequest("QueryRobotv2AllList", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRobotv2AllList"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4510,7 +4510,7 @@ func (client *Client) QueryRobotTaskDetailEx(request *QueryRobotTaskDetailReques
 		return
 	}
 	_result = &QueryRobotTaskDetailResponse{}
-	_body, _err := client.DoRequest("QueryRobotTaskDetail", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRobotTaskDetail"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4539,7 +4539,7 @@ func (client *Client) QueryRobotTaskCallListEx(request *QueryRobotTaskCallListRe
 		return
 	}
 	_result = &QueryRobotTaskCallListResponse{}
-	_body, _err := client.DoRequest("QueryRobotTaskCallList", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRobotTaskCallList"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4568,7 +4568,7 @@ func (client *Client) StartRobotTaskEx(request *StartRobotTaskRequest, runtime *
 		return
 	}
 	_result = &StartRobotTaskResponse{}
-	_body, _err := client.DoRequest("StartRobotTask", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("StartRobotTask"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4597,7 +4597,7 @@ func (client *Client) QueryRobotTaskListEx(request *QueryRobotTaskListRequest, r
 		return
 	}
 	_result = &QueryRobotTaskListResponse{}
-	_body, _err := client.DoRequest("QueryRobotTaskList", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRobotTaskList"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4626,7 +4626,7 @@ func (client *Client) CreateRobotTaskEx(request *CreateRobotTaskRequest, runtime
 		return
 	}
 	_result = &CreateRobotTaskResponse{}
-	_body, _err := client.DoRequest("CreateRobotTask", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateRobotTask"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4655,7 +4655,7 @@ func (client *Client) CancelOrderRobotTaskEx(request *CancelOrderRobotTaskReques
 		return
 	}
 	_result = &CancelOrderRobotTaskResponse{}
-	_body, _err := client.DoRequest("CancelOrderRobotTask", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CancelOrderRobotTask"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4684,7 +4684,7 @@ func (client *Client) SmartCallOperateEx(request *SmartCallOperateRequest, runti
 		return
 	}
 	_result = &SmartCallOperateResponse{}
-	_body, _err := client.DoRequest("SmartCallOperate", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("SmartCallOperate"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4713,7 +4713,7 @@ func (client *Client) QueryRobotInfoListEx(request *QueryRobotInfoListRequest, r
 		return
 	}
 	_result = &QueryRobotInfoListResponse{}
-	_body, _err := client.DoRequest("QueryRobotInfoList", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryRobotInfoList"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4742,7 +4742,7 @@ func (client *Client) BatchRobotSmartCallEx(request *BatchRobotSmartCallRequest,
 		return
 	}
 	_result = &BatchRobotSmartCallResponse{}
-	_body, _err := client.DoRequest("BatchRobotSmartCall", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("BatchRobotSmartCall"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4771,7 +4771,7 @@ func (client *Client) QueryCallDetailByTaskIdEx(request *QueryCallDetailByTaskId
 		return
 	}
 	_result = &QueryCallDetailByTaskIdResponse{}
-	_body, _err := client.DoRequest("QueryCallDetailByTaskId", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryCallDetailByTaskId"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4800,7 +4800,7 @@ func (client *Client) GetRtcTokenEx(request *GetRtcTokenRequest, runtime *util.R
 		return
 	}
 	_result = &GetRtcTokenResponse{}
-	_body, _err := client.DoRequest("GetRtcToken", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetRtcToken"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4829,7 +4829,7 @@ func (client *Client) AddRtcAccountEx(request *AddRtcAccountRequest, runtime *ut
 		return
 	}
 	_result = &AddRtcAccountResponse{}
-	_body, _err := client.DoRequest("AddRtcAccount", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AddRtcAccount"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4858,7 +4858,7 @@ func (client *Client) VoipAddAccountEx(request *VoipAddAccountRequest, runtime *
 		return
 	}
 	_result = &VoipAddAccountResponse{}
-	_body, _err := client.DoRequest("VoipAddAccount", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("VoipAddAccount"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4887,7 +4887,7 @@ func (client *Client) VoipGetTokenEx(request *VoipGetTokenRequest, runtime *util
 		return
 	}
 	_result = &VoipGetTokenResponse{}
-	_body, _err := client.DoRequest("VoipGetToken", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("VoipGetToken"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4916,7 +4916,7 @@ func (client *Client) SmartCallEx(request *SmartCallRequest, runtime *util.Runti
 		return
 	}
 	_result = &SmartCallResponse{}
-	_body, _err := client.DoRequest("SmartCall", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("SmartCall"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4945,7 +4945,7 @@ func (client *Client) QueryCallDetailByCallIdEx(request *QueryCallDetailByCallId
 		return
 	}
 	_result = &QueryCallDetailByCallIdResponse{}
-	_body, _err := client.DoRequest("QueryCallDetailByCallId", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("QueryCallDetailByCallId"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4974,7 +4974,7 @@ func (client *Client) CancelCallEx(request *CancelCallRequest, runtime *util.Run
 		return
 	}
 	_result = &CancelCallResponse{}
-	_body, _err := client.DoRequest("CancelCall", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CancelCall"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5003,7 +5003,7 @@ func (client *Client) ClickToDialEx(request *ClickToDialRequest, runtime *util.R
 		return
 	}
 	_result = &ClickToDialResponse{}
-	_body, _err := client.DoRequest("ClickToDial", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ClickToDial"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5032,7 +5032,7 @@ func (client *Client) IvrCallEx(request *IvrCallRequest, runtime *util.RuntimeOp
 		return
 	}
 	_result = &IvrCallResponse{}
-	_body, _err := client.DoRequest("IvrCall", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("IvrCall"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5061,7 +5061,7 @@ func (client *Client) SingleCallByVoiceEx(request *SingleCallByVoiceRequest, run
 		return
 	}
 	_result = &SingleCallByVoiceResponse{}
-	_body, _err := client.DoRequest("SingleCallByVoice", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("SingleCallByVoice"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5090,7 +5090,7 @@ func (client *Client) SingleCallByTtsEx(request *SingleCallByTtsRequest, runtime
 		return
 	}
 	_result = &SingleCallByTtsResponse{}
-	_body, _err := client.DoRequest("SingleCallByTts", "HTTPS", "GET", "2017-05-25", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("SingleCallByTts"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -5113,19 +5113,20 @@ func (client *Client) SingleCallByTts(request *SingleCallByTtsRequest) (_result 
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err

@@ -276,9 +276,9 @@ func (s *ListSecretVersionIdsResponseVersionIds) SetVersionId(v []*ListSecretVer
 }
 
 type ListSecretVersionIdsResponseVersionIdsVersionId struct {
-	CreateTime    *string                                                         `json:"CreateTime" xml:"CreateTime" require:"true"`
-	VersionId     *string                                                         `json:"VersionId" xml:"VersionId" require:"true"`
-	VersionStages []*ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Repeated"`
+	CreateTime    *string                                                       `json:"CreateTime" xml:"CreateTime" require:"true"`
+	VersionId     *string                                                       `json:"VersionId" xml:"VersionId" require:"true"`
+	VersionStages *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Struct"`
 }
 
 func (s ListSecretVersionIdsResponseVersionIdsVersionId) String() string {
@@ -299,13 +299,13 @@ func (s *ListSecretVersionIdsResponseVersionIdsVersionId) SetVersionId(v string)
 	return s
 }
 
-func (s *ListSecretVersionIdsResponseVersionIdsVersionId) SetVersionStages(v []*ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) *ListSecretVersionIdsResponseVersionIdsVersionId {
+func (s *ListSecretVersionIdsResponseVersionIdsVersionId) SetVersionStages(v *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) *ListSecretVersionIdsResponseVersionIdsVersionId {
 	s.VersionStages = v
 	return s
 }
 
 type ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages struct {
-	VersionStage *string `json:"VersionStage" xml:"VersionStage" require:"true"`
+	VersionStage []*string `json:"VersionStage" xml:"VersionStage" require:"true" type:"Repeated"`
 }
 
 func (s ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) String() string {
@@ -316,8 +316,8 @@ func (s ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) GoString()
 	return s.String()
 }
 
-func (s *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) SetVersionStage(v string) *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages {
-	s.VersionStage = &v
+func (s *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) SetVersionStage(v []*string) *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages {
+	s.VersionStage = v
 	return s
 }
 
@@ -525,13 +525,13 @@ func (s *GetSecretValueRequest) SetVersionId(v string) *GetSecretValueRequest {
 }
 
 type GetSecretValueResponse struct {
-	RequestId      *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName     *string                                `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionId      *string                                `json:"VersionId" xml:"VersionId" require:"true"`
-	CreateTime     *string                                `json:"CreateTime" xml:"CreateTime" require:"true"`
-	SecretData     *string                                `json:"SecretData" xml:"SecretData" require:"true"`
-	SecretDataType *string                                `json:"SecretDataType" xml:"SecretDataType" require:"true"`
-	VersionStages  []*GetSecretValueResponseVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Repeated"`
+	RequestId      *string                              `json:"RequestId" xml:"RequestId" require:"true"`
+	SecretName     *string                              `json:"SecretName" xml:"SecretName" require:"true"`
+	VersionId      *string                              `json:"VersionId" xml:"VersionId" require:"true"`
+	CreateTime     *string                              `json:"CreateTime" xml:"CreateTime" require:"true"`
+	SecretData     *string                              `json:"SecretData" xml:"SecretData" require:"true"`
+	SecretDataType *string                              `json:"SecretDataType" xml:"SecretDataType" require:"true"`
+	VersionStages  *GetSecretValueResponseVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Struct"`
 }
 
 func (s GetSecretValueResponse) String() string {
@@ -572,13 +572,13 @@ func (s *GetSecretValueResponse) SetSecretDataType(v string) *GetSecretValueResp
 	return s
 }
 
-func (s *GetSecretValueResponse) SetVersionStages(v []*GetSecretValueResponseVersionStages) *GetSecretValueResponse {
+func (s *GetSecretValueResponse) SetVersionStages(v *GetSecretValueResponseVersionStages) *GetSecretValueResponse {
 	s.VersionStages = v
 	return s
 }
 
 type GetSecretValueResponseVersionStages struct {
-	VersionStage *string `json:"VersionStage" xml:"VersionStage" require:"true"`
+	VersionStage []*string `json:"VersionStage" xml:"VersionStage" require:"true" type:"Repeated"`
 }
 
 func (s GetSecretValueResponseVersionStages) String() string {
@@ -589,8 +589,8 @@ func (s GetSecretValueResponseVersionStages) GoString() string {
 	return s.String()
 }
 
-func (s *GetSecretValueResponseVersionStages) SetVersionStage(v string) *GetSecretValueResponseVersionStages {
-	s.VersionStage = &v
+func (s *GetSecretValueResponseVersionStages) SetVersionStage(v []*string) *GetSecretValueResponseVersionStages {
+	s.VersionStage = v
 	return s
 }
 
@@ -840,10 +840,10 @@ func (s *PutSecretValueRequest) SetVersionStages(v string) *PutSecretValueReques
 }
 
 type PutSecretValueResponse struct {
-	RequestId     *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName    *string                                `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionId     *string                                `json:"VersionId" xml:"VersionId" require:"true"`
-	VersionStages []*PutSecretValueResponseVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Repeated"`
+	RequestId     *string                              `json:"RequestId" xml:"RequestId" require:"true"`
+	SecretName    *string                              `json:"SecretName" xml:"SecretName" require:"true"`
+	VersionId     *string                              `json:"VersionId" xml:"VersionId" require:"true"`
+	VersionStages *PutSecretValueResponseVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Struct"`
 }
 
 func (s PutSecretValueResponse) String() string {
@@ -869,13 +869,13 @@ func (s *PutSecretValueResponse) SetVersionId(v string) *PutSecretValueResponse 
 	return s
 }
 
-func (s *PutSecretValueResponse) SetVersionStages(v []*PutSecretValueResponseVersionStages) *PutSecretValueResponse {
+func (s *PutSecretValueResponse) SetVersionStages(v *PutSecretValueResponseVersionStages) *PutSecretValueResponse {
 	s.VersionStages = v
 	return s
 }
 
 type PutSecretValueResponseVersionStages struct {
-	VersionStage *string `json:"VersionStage" xml:"VersionStage" require:"true"`
+	VersionStage []*string `json:"VersionStage" xml:"VersionStage" require:"true" type:"Repeated"`
 }
 
 func (s PutSecretValueResponseVersionStages) String() string {
@@ -886,8 +886,8 @@ func (s PutSecretValueResponseVersionStages) GoString() string {
 	return s.String()
 }
 
-func (s *PutSecretValueResponseVersionStages) SetVersionStage(v string) *PutSecretValueResponseVersionStages {
-	s.VersionStage = &v
+func (s *PutSecretValueResponseVersionStages) SetVersionStage(v []*string) *PutSecretValueResponseVersionStages {
+	s.VersionStage = v
 	return s
 }
 
@@ -1859,9 +1859,9 @@ func (s *DescribeServiceResponseKeySpecs) SetKeySpec(v []*DescribeServiceRespons
 }
 
 type DescribeServiceResponseKeySpecsKeySpec struct {
-	Name                      *string                                                            `json:"Name" xml:"Name" require:"true"`
-	SupportedProtectionLevels []*DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels `json:"SupportedProtectionLevels" xml:"SupportedProtectionLevels" require:"true" type:"Repeated"`
-	Usages                    []*DescribeServiceResponseKeySpecsKeySpecUsages                    `json:"Usages" xml:"Usages" require:"true" type:"Repeated"`
+	Name                      *string                                                          `json:"Name" xml:"Name" require:"true"`
+	SupportedProtectionLevels *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels `json:"SupportedProtectionLevels" xml:"SupportedProtectionLevels" require:"true" type:"Struct"`
+	Usages                    *DescribeServiceResponseKeySpecsKeySpecUsages                    `json:"Usages" xml:"Usages" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceResponseKeySpecsKeySpec) String() string {
@@ -1877,18 +1877,18 @@ func (s *DescribeServiceResponseKeySpecsKeySpec) SetName(v string) *DescribeServ
 	return s
 }
 
-func (s *DescribeServiceResponseKeySpecsKeySpec) SetSupportedProtectionLevels(v []*DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) *DescribeServiceResponseKeySpecsKeySpec {
+func (s *DescribeServiceResponseKeySpecsKeySpec) SetSupportedProtectionLevels(v *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) *DescribeServiceResponseKeySpecsKeySpec {
 	s.SupportedProtectionLevels = v
 	return s
 }
 
-func (s *DescribeServiceResponseKeySpecsKeySpec) SetUsages(v []*DescribeServiceResponseKeySpecsKeySpecUsages) *DescribeServiceResponseKeySpecsKeySpec {
+func (s *DescribeServiceResponseKeySpecsKeySpec) SetUsages(v *DescribeServiceResponseKeySpecsKeySpecUsages) *DescribeServiceResponseKeySpecsKeySpec {
 	s.Usages = v
 	return s
 }
 
 type DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels struct {
-	SupportedProtectionLevel *string `json:"SupportedProtectionLevel" xml:"SupportedProtectionLevel" require:"true"`
+	SupportedProtectionLevel []*string `json:"SupportedProtectionLevel" xml:"SupportedProtectionLevel" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) String() string {
@@ -1899,13 +1899,13 @@ func (s DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) GoStrin
 	return s.String()
 }
 
-func (s *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) SetSupportedProtectionLevel(v string) *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels {
-	s.SupportedProtectionLevel = &v
+func (s *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) SetSupportedProtectionLevel(v []*string) *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels {
+	s.SupportedProtectionLevel = v
 	return s
 }
 
 type DescribeServiceResponseKeySpecsKeySpecUsages struct {
-	Usage *string `json:"Usage" xml:"Usage" require:"true"`
+	Usage []*string `json:"Usage" xml:"Usage" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceResponseKeySpecsKeySpecUsages) String() string {
@@ -1916,8 +1916,8 @@ func (s DescribeServiceResponseKeySpecsKeySpecUsages) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeServiceResponseKeySpecsKeySpecUsages) SetUsage(v string) *DescribeServiceResponseKeySpecsKeySpecUsages {
-	s.Usage = &v
+func (s *DescribeServiceResponseKeySpecsKeySpecUsages) SetUsage(v []*string) *DescribeServiceResponseKeySpecsKeySpecUsages {
+	s.Usage = v
 	return s
 }
 
@@ -3464,7 +3464,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = "regional"
+	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -3483,7 +3483,7 @@ func (client *Client) ListSecretsEx(request *ListSecretsRequest, runtime *util.R
 		return
 	}
 	_result = &ListSecretsResponse{}
-	_body, _err := client.DoRequest("ListSecrets", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListSecrets"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3508,7 +3508,7 @@ func (client *Client) ListSecretVersionIdsEx(request *ListSecretVersionIdsReques
 		return
 	}
 	_result = &ListSecretVersionIdsResponse{}
-	_body, _err := client.DoRequest("ListSecretVersionIds", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListSecretVersionIds"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3533,7 +3533,7 @@ func (client *Client) DescribeSecretEx(request *DescribeSecretRequest, runtime *
 		return
 	}
 	_result = &DescribeSecretResponse{}
-	_body, _err := client.DoRequest("DescribeSecret", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3558,7 +3558,7 @@ func (client *Client) UpdateSecretEx(request *UpdateSecretRequest, runtime *util
 		return
 	}
 	_result = &UpdateSecretResponse{}
-	_body, _err := client.DoRequest("UpdateSecret", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3583,7 +3583,7 @@ func (client *Client) GetSecretValueEx(request *GetSecretValueRequest, runtime *
 		return
 	}
 	_result = &GetSecretValueResponse{}
-	_body, _err := client.DoRequest("GetSecretValue", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetSecretValue"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3608,7 +3608,7 @@ func (client *Client) GetRandomPasswordEx(request *GetRandomPasswordRequest, run
 		return
 	}
 	_result = &GetRandomPasswordResponse{}
-	_body, _err := client.DoRequest("GetRandomPassword", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetRandomPassword"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3633,7 +3633,7 @@ func (client *Client) RestoreSecretEx(request *RestoreSecretRequest, runtime *ut
 		return
 	}
 	_result = &RestoreSecretResponse{}
-	_body, _err := client.DoRequest("RestoreSecret", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("RestoreSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3658,7 +3658,7 @@ func (client *Client) CreateSecretEx(request *CreateSecretRequest, runtime *util
 		return
 	}
 	_result = &CreateSecretResponse{}
-	_body, _err := client.DoRequest("CreateSecret", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3683,7 +3683,7 @@ func (client *Client) PutSecretValueEx(request *PutSecretValueRequest, runtime *
 		return
 	}
 	_result = &PutSecretValueResponse{}
-	_body, _err := client.DoRequest("PutSecretValue", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("PutSecretValue"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3708,7 +3708,7 @@ func (client *Client) DeleteSecretEx(request *DeleteSecretRequest, runtime *util
 		return
 	}
 	_result = &DeleteSecretResponse{}
-	_body, _err := client.DoRequest("DeleteSecret", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3733,7 +3733,7 @@ func (client *Client) UpdateSecretVersionStageEx(request *UpdateSecretVersionSta
 		return
 	}
 	_result = &UpdateSecretVersionStageResponse{}
-	_body, _err := client.DoRequest("UpdateSecretVersionStage", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateSecretVersionStage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3758,7 +3758,7 @@ func (client *Client) AsymmetricDecryptEx(request *AsymmetricDecryptRequest, run
 		return
 	}
 	_result = &AsymmetricDecryptResponse{}
-	_body, _err := client.DoRequest("AsymmetricDecrypt", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricDecrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3783,7 +3783,7 @@ func (client *Client) AsymmetricVerifyEx(request *AsymmetricVerifyRequest, runti
 		return
 	}
 	_result = &AsymmetricVerifyResponse{}
-	_body, _err := client.DoRequest("AsymmetricVerify", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricVerify"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3808,7 +3808,7 @@ func (client *Client) AsymmetricSignEx(request *AsymmetricSignRequest, runtime *
 		return
 	}
 	_result = &AsymmetricSignResponse{}
-	_body, _err := client.DoRequest("AsymmetricSign", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricSign"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3833,7 +3833,7 @@ func (client *Client) AsymmetricEncryptEx(request *AsymmetricEncryptRequest, run
 		return
 	}
 	_result = &AsymmetricEncryptResponse{}
-	_body, _err := client.DoRequest("AsymmetricEncrypt", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricEncrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3858,7 +3858,7 @@ func (client *Client) GetPublicKeyEx(request *GetPublicKeyRequest, runtime *util
 		return
 	}
 	_result = &GetPublicKeyResponse{}
-	_body, _err := client.DoRequest("GetPublicKey", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetPublicKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3883,7 +3883,7 @@ func (client *Client) GenerateDataKeyWithoutPlaintextEx(request *GenerateDataKey
 		return
 	}
 	_result = &GenerateDataKeyWithoutPlaintextResponse{}
-	_body, _err := client.DoRequest("GenerateDataKeyWithoutPlaintext", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GenerateDataKeyWithoutPlaintext"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3908,7 +3908,7 @@ func (client *Client) UpdateKeyDescriptionEx(request *UpdateKeyDescriptionReques
 		return
 	}
 	_result = &UpdateKeyDescriptionResponse{}
-	_body, _err := client.DoRequest("UpdateKeyDescription", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateKeyDescription"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3933,7 +3933,7 @@ func (client *Client) DescribeKeyVersionEx(request *DescribeKeyVersionRequest, r
 		return
 	}
 	_result = &DescribeKeyVersionResponse{}
-	_body, _err := client.DoRequest("DescribeKeyVersion", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeKeyVersion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3958,7 +3958,7 @@ func (client *Client) UpdateRotationPolicyEx(request *UpdateRotationPolicyReques
 		return
 	}
 	_result = &UpdateRotationPolicyResponse{}
-	_body, _err := client.DoRequest("UpdateRotationPolicy", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateRotationPolicy"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -3983,7 +3983,7 @@ func (client *Client) ListKeyVersionsEx(request *ListKeyVersionsRequest, runtime
 		return
 	}
 	_result = &ListKeyVersionsResponse{}
-	_body, _err := client.DoRequest("ListKeyVersions", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListKeyVersions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4008,7 +4008,7 @@ func (client *Client) CreateKeyVersionEx(request *CreateKeyVersionRequest, runti
 		return
 	}
 	_result = &CreateKeyVersionResponse{}
-	_body, _err := client.DoRequest("CreateKeyVersion", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateKeyVersion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4033,7 +4033,7 @@ func (client *Client) DescribeServiceEx(request *DescribeServiceRequest, runtime
 		return
 	}
 	_result = &DescribeServiceResponse{}
-	_body, _err := client.DoRequest("DescribeService", "HTTPS", "GET", "2016-01-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeService"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4058,7 +4058,7 @@ func (client *Client) UpdateAliasEx(request *UpdateAliasRequest, runtime *util.R
 		return
 	}
 	_result = &UpdateAliasResponse{}
-	_body, _err := client.DoRequest("UpdateAlias", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4083,7 +4083,7 @@ func (client *Client) UntagResourceEx(request *UntagResourceRequest, runtime *ut
 		return
 	}
 	_result = &UntagResourceResponse{}
-	_body, _err := client.DoRequest("UntagResource", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UntagResource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4108,7 +4108,7 @@ func (client *Client) TagResourceEx(request *TagResourceRequest, runtime *util.R
 		return
 	}
 	_result = &TagResourceResponse{}
-	_body, _err := client.DoRequest("TagResource", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("TagResource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4133,7 +4133,7 @@ func (client *Client) ScheduleKeyDeletionEx(request *ScheduleKeyDeletionRequest,
 		return
 	}
 	_result = &ScheduleKeyDeletionResponse{}
-	_body, _err := client.DoRequest("ScheduleKeyDeletion", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ScheduleKeyDeletion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4158,7 +4158,7 @@ func (client *Client) ListResourceTagsEx(request *ListResourceTagsRequest, runti
 		return
 	}
 	_result = &ListResourceTagsResponse{}
-	_body, _err := client.DoRequest("ListResourceTags", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListResourceTags"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4183,7 +4183,7 @@ func (client *Client) ListKeysEx(request *ListKeysRequest, runtime *util.Runtime
 		return
 	}
 	_result = &ListKeysResponse{}
-	_body, _err := client.DoRequest("ListKeys", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListKeys"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4208,7 +4208,7 @@ func (client *Client) ListAliasesByKeyIdEx(request *ListAliasesByKeyIdRequest, r
 		return
 	}
 	_result = &ListAliasesByKeyIdResponse{}
-	_body, _err := client.DoRequest("ListAliasesByKeyId", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListAliasesByKeyId"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4233,7 +4233,7 @@ func (client *Client) ListAliasesEx(request *ListAliasesRequest, runtime *util.R
 		return
 	}
 	_result = &ListAliasesResponse{}
-	_body, _err := client.DoRequest("ListAliases", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListAliases"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4258,7 +4258,7 @@ func (client *Client) ImportKeyMaterialEx(request *ImportKeyMaterialRequest, run
 		return
 	}
 	_result = &ImportKeyMaterialResponse{}
-	_body, _err := client.DoRequest("ImportKeyMaterial", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ImportKeyMaterial"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4283,7 +4283,7 @@ func (client *Client) GetParametersForImportEx(request *GetParametersForImportRe
 		return
 	}
 	_result = &GetParametersForImportResponse{}
-	_body, _err := client.DoRequest("GetParametersForImport", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetParametersForImport"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4308,7 +4308,7 @@ func (client *Client) GenerateDataKeyEx(request *GenerateDataKeyRequest, runtime
 		return
 	}
 	_result = &GenerateDataKeyResponse{}
-	_body, _err := client.DoRequest("GenerateDataKey", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GenerateDataKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4333,7 +4333,7 @@ func (client *Client) EncryptEx(request *EncryptRequest, runtime *util.RuntimeOp
 		return
 	}
 	_result = &EncryptResponse{}
-	_body, _err := client.DoRequest("Encrypt", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("Encrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4358,7 +4358,7 @@ func (client *Client) EnableKeyEx(request *EnableKeyRequest, runtime *util.Runti
 		return
 	}
 	_result = &EnableKeyResponse{}
-	_body, _err := client.DoRequest("EnableKey", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("EnableKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4383,7 +4383,7 @@ func (client *Client) DisableKeyEx(request *DisableKeyRequest, runtime *util.Run
 		return
 	}
 	_result = &DisableKeyResponse{}
-	_body, _err := client.DoRequest("DisableKey", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DisableKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4408,7 +4408,7 @@ func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime
 		return
 	}
 	_result = &DescribeRegionsResponse{}
-	_body, _err := client.DoRequest("DescribeRegions", "HTTPS", "GET", "2016-01-20", "AK", nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeRegions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4433,7 +4433,7 @@ func (client *Client) DescribeKeyEx(request *DescribeKeyRequest, runtime *util.R
 		return
 	}
 	_result = &DescribeKeyResponse{}
-	_body, _err := client.DoRequest("DescribeKey", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4458,7 +4458,7 @@ func (client *Client) DeleteKeyMaterialEx(request *DeleteKeyMaterialRequest, run
 		return
 	}
 	_result = &DeleteKeyMaterialResponse{}
-	_body, _err := client.DoRequest("DeleteKeyMaterial", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteKeyMaterial"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4483,7 +4483,7 @@ func (client *Client) DeleteAliasEx(request *DeleteAliasRequest, runtime *util.R
 		return
 	}
 	_result = &DeleteAliasResponse{}
-	_body, _err := client.DoRequest("DeleteAlias", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4508,7 +4508,7 @@ func (client *Client) DecryptEx(request *DecryptRequest, runtime *util.RuntimeOp
 		return
 	}
 	_result = &DecryptResponse{}
-	_body, _err := client.DoRequest("Decrypt", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("Decrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4533,7 +4533,7 @@ func (client *Client) CreateKeyEx(request *CreateKeyRequest, runtime *util.Runti
 		return
 	}
 	_result = &CreateKeyResponse{}
-	_body, _err := client.DoRequest("CreateKey", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4558,7 +4558,7 @@ func (client *Client) CreateAliasEx(request *CreateAliasRequest, runtime *util.R
 		return
 	}
 	_result = &CreateAliasResponse{}
-	_body, _err := client.DoRequest("CreateAlias", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4583,7 +4583,7 @@ func (client *Client) CancelKeyDeletionEx(request *CancelKeyDeletionRequest, run
 		return
 	}
 	_result = &CancelKeyDeletionResponse{}
-	_body, _err := client.DoRequest("CancelKeyDeletion", "HTTPS", "GET", "2016-01-20", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CancelKeyDeletion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -4602,19 +4602,20 @@ func (client *Client) CancelKeyDeletion(request *CancelKeyDeletionRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.IsUnset(endpointMap) && !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err

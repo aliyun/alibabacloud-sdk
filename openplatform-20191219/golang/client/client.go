@@ -105,7 +105,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointRule = ""
+	client.EndpointRule = tea.String("")
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return
@@ -124,7 +124,7 @@ func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest, r
 		return
 	}
 	_result = &AuthorizeFileUploadResponse{}
-	_body, _err := client.DoRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AuthorizeFileUpload"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-19"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -132,19 +132,20 @@ func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest, r
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId string, regionId string, endpointRule string, network string, suffix string, endpointMap map[string]string, endpoint string) (_result string, _err error) {
-	if !util.Empty(endpoint) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !util.Empty(endpointMap[regionId]) {
+	if !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return "", _err
+		return tea.String(""), _err
 	}
 	_result = _body
 	return _result, _err

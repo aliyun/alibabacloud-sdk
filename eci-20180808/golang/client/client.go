@@ -2,118 +2,11 @@
 package client
 
 import (
-	rpcutil "github.com/alibabacloud-go/tea-rpc-utils/service"
+	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
-	credential "github.com/aliyun/credentials-go/credentials"
 )
-
-type Config struct {
-	AccessKeyId     *string `json:"accessKeyId" xml:"accessKeyId"`
-	AccessKeySecret *string `json:"accessKeySecret" xml:"accessKeySecret"`
-	Type            *string `json:"type" xml:"type"`
-	SecurityToken   *string `json:"securityToken" xml:"securityToken"`
-	Endpoint        *string `json:"endpoint" xml:"endpoint" require:"true"`
-	Protocol        *string `json:"protocol" xml:"protocol"`
-	RegionId        *string `json:"regionId" xml:"regionId" require:"true"`
-	ReadTimeout     *int    `json:"read timeout" xml:"read timeout"`
-	ConnectTimeout  *int    `json:"connect timeout" xml:"connect timeout"`
-	HttpProxy       *string `json:"http proxy" xml:"http proxy"`
-	HttpsProxy      *string `json:"https proxy" xml:"https proxy"`
-	Socks5Proxy     *string `json:"socks5 proxy" xml:"socks5 proxy"`
-	Socks5NetWork   *string `json:"socks5 NetWork" xml:"socks5 NetWork"`
-	NoProxy         *string `json:"no proxy" xml:"no proxy"`
-	UserAgent       *string `json:"userAgent" xml:"userAgent"`
-	MaxIdleConns    *int    `json:"maxIdleConns" xml:"maxIdleConns"`
-}
-
-func (s Config) String() string {
-	return tea.Prettify(s)
-}
-
-func (s Config) GoString() string {
-	return s.String()
-}
-
-func (s *Config) SetAccessKeyId(v string) *Config {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *Config) SetAccessKeySecret(v string) *Config {
-	s.AccessKeySecret = &v
-	return s
-}
-
-func (s *Config) SetType(v string) *Config {
-	s.Type = &v
-	return s
-}
-
-func (s *Config) SetSecurityToken(v string) *Config {
-	s.SecurityToken = &v
-	return s
-}
-
-func (s *Config) SetEndpoint(v string) *Config {
-	s.Endpoint = &v
-	return s
-}
-
-func (s *Config) SetProtocol(v string) *Config {
-	s.Protocol = &v
-	return s
-}
-
-func (s *Config) SetRegionId(v string) *Config {
-	s.RegionId = &v
-	return s
-}
-
-func (s *Config) SetReadTimeout(v int) *Config {
-	s.ReadTimeout = &v
-	return s
-}
-
-func (s *Config) SetConnectTimeout(v int) *Config {
-	s.ConnectTimeout = &v
-	return s
-}
-
-func (s *Config) SetHttpProxy(v string) *Config {
-	s.HttpProxy = &v
-	return s
-}
-
-func (s *Config) SetHttpsProxy(v string) *Config {
-	s.HttpsProxy = &v
-	return s
-}
-
-func (s *Config) SetSocks5Proxy(v string) *Config {
-	s.Socks5Proxy = &v
-	return s
-}
-
-func (s *Config) SetSocks5NetWork(v string) *Config {
-	s.Socks5NetWork = &v
-	return s
-}
-
-func (s *Config) SetNoProxy(v string) *Config {
-	s.NoProxy = &v
-	return s
-}
-
-func (s *Config) SetUserAgent(v string) *Config {
-	s.UserAgent = &v
-	return s
-}
-
-func (s *Config) SetMaxIdleConns(v int) *Config {
-	s.MaxIdleConns = &v
-	return s
-}
 
 type DescribeRegionsRequest struct {
 	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
@@ -5927,6 +5820,8 @@ type CreateContainerGroupRequest struct {
 	SpotStrategy                  *string                                               `json:"SpotStrategy" xml:"SpotStrategy"`
 	SpotPriceLimit                *float32                                              `json:"SpotPriceLimit" xml:"SpotPriceLimit"`
 	VSwitchStrategy               *string                                               `json:"VSwitchStrategy" xml:"VSwitchStrategy"`
+	TenantVSwitchId               *string                                               `json:"TenantVSwitchId" xml:"TenantVSwitchId"`
+	TenantSecurityGroupId         *string                                               `json:"TenantSecurityGroupId" xml:"TenantSecurityGroupId"`
 }
 
 func (s CreateContainerGroupRequest) String() string {
@@ -6119,6 +6014,16 @@ func (s *CreateContainerGroupRequest) SetSpotPriceLimit(v float32) *CreateContai
 
 func (s *CreateContainerGroupRequest) SetVSwitchStrategy(v string) *CreateContainerGroupRequest {
 	s.VSwitchStrategy = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequest) SetTenantVSwitchId(v string) *CreateContainerGroupRequest {
+	s.TenantVSwitchId = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequest) SetTenantSecurityGroupId(v string) *CreateContainerGroupRequest {
+	s.TenantSecurityGroupId = &v
 	return s
 }
 
@@ -6919,7 +6824,7 @@ func (s *CreateContainerGroupRequestVolumeNFSVolume) SetReadOnly(v bool) *Create
 
 type CreateContainerGroupRequestVolumeConfigFileVolume struct {
 	ConfigFileToPath []*CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath `json:"ConfigFileToPath" xml:"ConfigFileToPath" require:"true" type:"Repeated"`
-	DefaultModel     *int                                                                 `json:"DefaultModel" xml:"DefaultModel"`
+	DefaultMode      *int                                                                 `json:"DefaultMode" xml:"DefaultMode"`
 }
 
 func (s CreateContainerGroupRequestVolumeConfigFileVolume) String() string {
@@ -6935,8 +6840,8 @@ func (s *CreateContainerGroupRequestVolumeConfigFileVolume) SetConfigFileToPath(
 	return s
 }
 
-func (s *CreateContainerGroupRequestVolumeConfigFileVolume) SetDefaultModel(v int) *CreateContainerGroupRequestVolumeConfigFileVolume {
-	s.DefaultModel = &v
+func (s *CreateContainerGroupRequestVolumeConfigFileVolume) SetDefaultMode(v int) *CreateContainerGroupRequestVolumeConfigFileVolume {
+	s.DefaultMode = &v
 	return s
 }
 
@@ -7633,37 +7538,41 @@ func (s *DescribeContainerGroupsResponse) SetContainerGroups(v []*DescribeContai
 }
 
 type DescribeContainerGroupsResponseContainerGroups struct {
-	ContainerGroupId   *string                                                           `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ContainerGroupName *string                                                           `json:"ContainerGroupName" xml:"ContainerGroupName" require:"true"`
-	RegionId           *string                                                           `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId             *string                                                           `json:"ZoneId" xml:"ZoneId" require:"true"`
-	Memory             *float32                                                          `json:"Memory" xml:"Memory" require:"true"`
-	Cpu                *float32                                                          `json:"Cpu" xml:"Cpu" require:"true"`
-	VSwitchId          *string                                                           `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	SecurityGroupId    *string                                                           `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	RestartPolicy      *string                                                           `json:"RestartPolicy" xml:"RestartPolicy" require:"true"`
-	IntranetIp         *string                                                           `json:"IntranetIp" xml:"IntranetIp" require:"true"`
-	Status             *string                                                           `json:"Status" xml:"Status" require:"true"`
-	InternetIp         *string                                                           `json:"InternetIp" xml:"InternetIp" require:"true"`
-	CreationTime       *string                                                           `json:"CreationTime" xml:"CreationTime" require:"true"`
-	SucceededTime      *string                                                           `json:"SucceededTime" xml:"SucceededTime" require:"true"`
-	EniInstanceId      *string                                                           `json:"EniInstanceId" xml:"EniInstanceId" require:"true"`
-	InstanceType       *string                                                           `json:"InstanceType" xml:"InstanceType" require:"true"`
-	ExpiredTime        *string                                                           `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
-	FailedTime         *string                                                           `json:"FailedTime" xml:"FailedTime" require:"true"`
-	RamRoleName        *string                                                           `json:"RamRoleName" xml:"RamRoleName" require:"true"`
-	Ipv6Address        *string                                                           `json:"Ipv6Address" xml:"Ipv6Address" require:"true"`
-	VpcId              *string                                                           `json:"VpcId" xml:"VpcId" require:"true"`
-	Discount           *int                                                              `json:"Discount" xml:"Discount" require:"true"`
-	ResourceGroupId    *string                                                           `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	Tags               []*DescribeContainerGroupsResponseContainerGroupsTags             `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
-	Events             []*DescribeContainerGroupsResponseContainerGroupsEvents           `json:"Events" xml:"Events" require:"true" type:"Repeated"`
-	Containers         []*DescribeContainerGroupsResponseContainerGroupsContainers       `json:"Containers" xml:"Containers" require:"true" type:"Repeated"`
-	Volumes            []*DescribeContainerGroupsResponseContainerGroupsVolumes          `json:"Volumes" xml:"Volumes" require:"true" type:"Repeated"`
-	InitContainers     []*DescribeContainerGroupsResponseContainerGroupsInitContainers   `json:"InitContainers" xml:"InitContainers" require:"true" type:"Repeated"`
-	HostAliases        []*DescribeContainerGroupsResponseContainerGroupsHostAliases      `json:"HostAliases" xml:"HostAliases" require:"true" type:"Repeated"`
-	DnsConfig          *DescribeContainerGroupsResponseContainerGroupsDnsConfig          `json:"DnsConfig" xml:"DnsConfig" require:"true" type:"Struct"`
-	EciSecurityContext *DescribeContainerGroupsResponseContainerGroupsEciSecurityContext `json:"EciSecurityContext" xml:"EciSecurityContext" require:"true" type:"Struct"`
+	ContainerGroupId      *string                                                           `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
+	ContainerGroupName    *string                                                           `json:"ContainerGroupName" xml:"ContainerGroupName" require:"true"`
+	RegionId              *string                                                           `json:"RegionId" xml:"RegionId" require:"true"`
+	ZoneId                *string                                                           `json:"ZoneId" xml:"ZoneId" require:"true"`
+	Memory                *float32                                                          `json:"Memory" xml:"Memory" require:"true"`
+	Cpu                   *float32                                                          `json:"Cpu" xml:"Cpu" require:"true"`
+	VSwitchId             *string                                                           `json:"VSwitchId" xml:"VSwitchId" require:"true"`
+	SecurityGroupId       *string                                                           `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
+	RestartPolicy         *string                                                           `json:"RestartPolicy" xml:"RestartPolicy" require:"true"`
+	IntranetIp            *string                                                           `json:"IntranetIp" xml:"IntranetIp" require:"true"`
+	Status                *string                                                           `json:"Status" xml:"Status" require:"true"`
+	InternetIp            *string                                                           `json:"InternetIp" xml:"InternetIp" require:"true"`
+	CreationTime          *string                                                           `json:"CreationTime" xml:"CreationTime" require:"true"`
+	SucceededTime         *string                                                           `json:"SucceededTime" xml:"SucceededTime" require:"true"`
+	EniInstanceId         *string                                                           `json:"EniInstanceId" xml:"EniInstanceId" require:"true"`
+	InstanceType          *string                                                           `json:"InstanceType" xml:"InstanceType" require:"true"`
+	ExpiredTime           *string                                                           `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
+	FailedTime            *string                                                           `json:"FailedTime" xml:"FailedTime" require:"true"`
+	RamRoleName           *string                                                           `json:"RamRoleName" xml:"RamRoleName" require:"true"`
+	Ipv6Address           *string                                                           `json:"Ipv6Address" xml:"Ipv6Address" require:"true"`
+	VpcId                 *string                                                           `json:"VpcId" xml:"VpcId" require:"true"`
+	Discount              *int                                                              `json:"Discount" xml:"Discount" require:"true"`
+	ResourceGroupId       *string                                                           `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
+	TenantEniInstanceId   *string                                                           `json:"TenantEniInstanceId" xml:"TenantEniInstanceId" require:"true"`
+	TenantVSwitchId       *string                                                           `json:"TenantVSwitchId" xml:"TenantVSwitchId" require:"true"`
+	TenantSecurityGroupId *string                                                           `json:"TenantSecurityGroupId" xml:"TenantSecurityGroupId" require:"true"`
+	SpotStrategy          *string                                                           `json:"SpotStrategy" xml:"SpotStrategy" require:"true"`
+	Tags                  []*DescribeContainerGroupsResponseContainerGroupsTags             `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
+	Events                []*DescribeContainerGroupsResponseContainerGroupsEvents           `json:"Events" xml:"Events" require:"true" type:"Repeated"`
+	Containers            []*DescribeContainerGroupsResponseContainerGroupsContainers       `json:"Containers" xml:"Containers" require:"true" type:"Repeated"`
+	Volumes               []*DescribeContainerGroupsResponseContainerGroupsVolumes          `json:"Volumes" xml:"Volumes" require:"true" type:"Repeated"`
+	InitContainers        []*DescribeContainerGroupsResponseContainerGroupsInitContainers   `json:"InitContainers" xml:"InitContainers" require:"true" type:"Repeated"`
+	HostAliases           []*DescribeContainerGroupsResponseContainerGroupsHostAliases      `json:"HostAliases" xml:"HostAliases" require:"true" type:"Repeated"`
+	DnsConfig             *DescribeContainerGroupsResponseContainerGroupsDnsConfig          `json:"DnsConfig" xml:"DnsConfig" require:"true" type:"Struct"`
+	EciSecurityContext    *DescribeContainerGroupsResponseContainerGroupsEciSecurityContext `json:"EciSecurityContext" xml:"EciSecurityContext" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroups) String() string {
@@ -7786,6 +7695,26 @@ func (s *DescribeContainerGroupsResponseContainerGroups) SetDiscount(v int) *Des
 
 func (s *DescribeContainerGroupsResponseContainerGroups) SetResourceGroupId(v string) *DescribeContainerGroupsResponseContainerGroups {
 	s.ResourceGroupId = &v
+	return s
+}
+
+func (s *DescribeContainerGroupsResponseContainerGroups) SetTenantEniInstanceId(v string) *DescribeContainerGroupsResponseContainerGroups {
+	s.TenantEniInstanceId = &v
+	return s
+}
+
+func (s *DescribeContainerGroupsResponseContainerGroups) SetTenantVSwitchId(v string) *DescribeContainerGroupsResponseContainerGroups {
+	s.TenantVSwitchId = &v
+	return s
+}
+
+func (s *DescribeContainerGroupsResponseContainerGroups) SetTenantSecurityGroupId(v string) *DescribeContainerGroupsResponseContainerGroups {
+	s.TenantSecurityGroupId = &v
+	return s
+}
+
+func (s *DescribeContainerGroupsResponseContainerGroups) SetSpotStrategy(v string) *DescribeContainerGroupsResponseContainerGroups {
+	s.SpotStrategy = &v
 	return s
 }
 
@@ -9227,187 +9156,40 @@ func (s *DeleteContainerGroupResponse) SetRequestId(v string) *DeleteContainerGr
 }
 
 type Client struct {
-	Endpoint       string
-	RegionId       string
-	Protocol       string
-	UserAgent      string
-	ReadTimeout    int
-	ConnectTimeout int
-	HttpProxy      string
-	HttpsProxy     string
-	NoProxy        string
-	Socks5Proxy    string
-	Socks5NetWork  string
-	MaxIdleConns   int
-	Credential     credential.Credential
+	rpc.Client
 }
 
-func NewClient(config *Config) (*Client, error) {
+func NewClient(config *rpc.Config) (*Client, error) {
 	client := new(Client)
 	err := client.Init(config)
 	return client, err
 }
 
-func (client *Client) Init(config *Config) (_err error) {
-	if util.IsUnset(tea.ToMap(config)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config' can not be unset",
-		})
+func (client *Client) Init(config *rpc.Config) (_err error) {
+	_err = client.Client.Init(config)
+	if _err != nil {
 		return _err
 	}
-
-	if util.Empty(tea.StringValue(config.Endpoint)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config.endpoint' can not be empty",
-		})
-		return _err
+	client.EndpointRule = tea.String("")
+	_err = client.CheckConfig(config)
+	if _err != nil {
+		return
 	}
-
-	if util.Empty(tea.StringValue(config.RegionId)) {
-		_err = tea.NewSDKError(map[string]interface{}{
-			"name":    "ParameterMissing",
-			"message": "'config.regionId' can not be empty",
-		})
-		return _err
-	}
-
-	if util.Empty(tea.StringValue(config.Type)) {
-		config.Type = tea.String("access_key")
-	}
-
-	credentialConfig := &credential.Config{
-		AccessKeyId:     config.AccessKeyId,
-		Type:            config.Type,
-		AccessKeySecret: config.AccessKeySecret,
-		SecurityToken:   config.SecurityToken,
-	}
-	client.Credential, _err = credential.NewCredential(credentialConfig)
+	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
-	client.Endpoint = tea.StringValue(config.Endpoint)
-	client.Protocol = tea.StringValue(config.Protocol)
-	client.RegionId = tea.StringValue(config.RegionId)
-	client.UserAgent = tea.StringValue(config.UserAgent)
-	client.ReadTimeout = tea.IntValue(config.ReadTimeout)
-	client.ConnectTimeout = tea.IntValue(config.ConnectTimeout)
-	client.HttpProxy = tea.StringValue(config.HttpProxy)
-	client.HttpsProxy = tea.StringValue(config.HttpsProxy)
-	client.NoProxy = tea.StringValue(config.NoProxy)
-	client.Socks5Proxy = tea.StringValue(config.Socks5Proxy)
-	client.Socks5NetWork = tea.StringValue(config.Socks5NetWork)
-	client.MaxIdleConns = tea.IntValue(config.MaxIdleConns)
 	return nil
 }
 
-func (client *Client) _request(action string, protocol string, method string, authType string, query map[string]interface{}, body map[string]interface{}, runtime *util.RuntimeOptions) (_result map[string]interface{}, _err error) {
-	_err = tea.Validate(runtime)
+func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
+	_err = util.ValidateModel(request)
 	if _err != nil {
-		return nil, _err
+		return
 	}
-	_runtime := map[string]interface{}{
-		"timeouted":      "retry",
-		"readTimeout":    util.DefaultNumber(tea.IntValue(runtime.ReadTimeout), client.ReadTimeout),
-		"connectTimeout": util.DefaultNumber(tea.IntValue(runtime.ConnectTimeout), client.ConnectTimeout),
-		"httpProxy":      util.DefaultString(tea.StringValue(runtime.HttpProxy), client.HttpProxy),
-		"httpsProxy":     util.DefaultString(tea.StringValue(runtime.HttpsProxy), client.HttpsProxy),
-		"noProxy":        util.DefaultString(tea.StringValue(runtime.NoProxy), client.NoProxy),
-		"maxIdleConns":   util.DefaultNumber(tea.IntValue(runtime.MaxIdleConns), client.MaxIdleConns),
-		"retry": map[string]interface{}{
-			"retryable":   tea.BoolValue(runtime.Autoretry),
-			"maxAttempts": util.DefaultNumber(tea.IntValue(runtime.MaxAttempts), 2),
-		},
-		"backoff": map[string]interface{}{
-			"policy": util.DefaultString(tea.StringValue(runtime.BackoffPolicy), "no"),
-			"period": util.DefaultNumber(tea.IntValue(runtime.BackoffPeriod), 0),
-		},
-		"ignoreSSL": tea.BoolValue(runtime.IgnoreSSL),
-	}
-
-	_resp := make(map[string]interface{})
-	for _retryTimes := 0; tea.AllowRetry(_runtime["retry"], _retryTimes); _retryTimes++ {
-		if _retryTimes > 0 {
-			_backoffTime := tea.GetBackoffTime(_runtime["backoff"], _retryTimes)
-			if _backoffTime > 0 {
-				tea.Sleep(_backoffTime)
-			}
-		}
-
-		_resp, _err = func() (map[string]interface{}, error) {
-			request_ := tea.NewRequest()
-			request_.Protocol = util.DefaultString(client.Protocol, protocol)
-			request_.Method = method
-			request_.Pathname = "/"
-			request_.Query = rpcutil.Query(tea.ToMap(map[string]interface{}{
-				"Action":         action,
-				"Format":         "json",
-				"RegionId":       client.RegionId,
-				"Timestamp":      rpcutil.GetTimestamp(),
-				"Version":        "2018-08-08",
-				"SignatureNonce": util.GetNonce(),
-			}, query))
-			if !util.IsUnset(body) {
-				tmp := util.AnyifyMapValue(rpcutil.Query(body))
-				request_.Body = tea.ToReader(util.ToFormString(tmp))
-			}
-
-			request_.Headers = map[string]string{
-				"host":       rpcutil.GetHost("Eci", client.RegionId, client.Endpoint),
-				"user-agent": client.GetUserAgent(),
-			}
-			if !util.EqualString(authType, "Anonymous") {
-				accessKeyId, _err := client.GetAccessKeyId()
-				if _err != nil {
-					return nil, _err
-				}
-
-				accessKeySecret, _err := client.GetAccessKeySecret()
-				if _err != nil {
-					return nil, _err
-				}
-
-				request_.Query["SignatureMethod"] = "HMAC-SHA1"
-				request_.Query["SignatureVersion"] = "1.0"
-				request_.Query["AccessKeyId"] = accessKeyId
-				request_.Query["Signature"] = rpcutil.GetSignature(request_, accessKeySecret)
-			}
-
-			response_, _err := tea.DoRequest(request_, _runtime)
-			if _err != nil {
-				return nil, _err
-			}
-			obj, _err := util.ReadAsJSON(response_.Body)
-			if _err != nil {
-				return nil, _err
-			}
-
-			res := util.AssertAsMap(obj)
-			if rpcutil.HasError(res) {
-				_err = tea.NewSDKError(map[string]interface{}{
-					"message": res["Message"],
-					"data":    res,
-					"code":    res["Code"],
-				})
-				return nil, _err
-			}
-
-			_result = res
-			return _result, _err
-		}()
-		if !tea.Retryable(_err) {
-			break
-		}
-	}
-
-	return _resp, _err
-}
-
-func (client *Client) DescribeRegions(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
 	_result = &DescribeRegionsResponse{}
-	_body, _err := client._request("DescribeRegions", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeRegions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9415,9 +9197,24 @@ func (client *Client) DescribeRegions(request *DescribeRegionsRequest, runtime *
 	return _result, _err
 }
 
-func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest, runtime *util.RuntimeOptions) (_result *DescribeImageCachesResponse, _err error) {
+func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result *DescribeRegionsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeRegionsResponse{}
+	_body, _err := client.DescribeRegionsEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeImageCachesEx(request *DescribeImageCachesRequest, runtime *util.RuntimeOptions) (_result *DescribeImageCachesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DescribeImageCachesResponse{}
-	_body, _err := client._request("DescribeImageCaches", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeImageCaches"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9425,9 +9222,24 @@ func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest, r
 	return _result, _err
 }
 
-func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest, runtime *util.RuntimeOptions) (_result *DeleteImageCacheResponse, _err error) {
+func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest) (_result *DescribeImageCachesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeImageCachesResponse{}
+	_body, _err := client.DescribeImageCachesEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteImageCacheEx(request *DeleteImageCacheRequest, runtime *util.RuntimeOptions) (_result *DeleteImageCacheResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DeleteImageCacheResponse{}
-	_body, _err := client._request("DeleteImageCache", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9435,9 +9247,24 @@ func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest, runtime
 	return _result, _err
 }
 
-func (client *Client) CreateImageCache(request *CreateImageCacheRequest, runtime *util.RuntimeOptions) (_result *CreateImageCacheResponse, _err error) {
+func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest) (_result *DeleteImageCacheResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteImageCacheResponse{}
+	_body, _err := client.DeleteImageCacheEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateImageCacheEx(request *CreateImageCacheRequest, runtime *util.RuntimeOptions) (_result *CreateImageCacheResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &CreateImageCacheResponse{}
-	_body, _err := client._request("CreateImageCache", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9445,9 +9272,24 @@ func (client *Client) CreateImageCache(request *CreateImageCacheRequest, runtime
 	return _result, _err
 }
 
-func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
+func (client *Client) CreateImageCache(request *CreateImageCacheRequest) (_result *CreateImageCacheResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateImageCacheResponse{}
+	_body, _err := client.CreateImageCacheEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeMultiContainerGroupMetricEx(request *DescribeMultiContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DescribeMultiContainerGroupMetricResponse{}
-	_body, _err := client._request("DescribeMultiContainerGroupMetric", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeMultiContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9455,9 +9297,24 @@ func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiCo
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupMetricResponse, _err error) {
+func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiContainerGroupMetricRequest) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeMultiContainerGroupMetricResponse{}
+	_body, _err := client.DescribeMultiContainerGroupMetricEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeContainerGroupMetricEx(request *DescribeContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupMetricResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DescribeContainerGroupMetricResponse{}
-	_body, _err := client._request("DescribeContainerGroupMetric", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9465,9 +9322,24 @@ func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGro
 	return _result, _err
 }
 
-func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGroupByTemplateRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
+func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGroupMetricRequest) (_result *DescribeContainerGroupMetricResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeContainerGroupMetricResponse{}
+	_body, _err := client.DescribeContainerGroupMetricEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UpdateContainerGroupByTemplateEx(request *UpdateContainerGroupByTemplateRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &UpdateContainerGroupByTemplateResponse{}
-	_body, _err := client._request("UpdateContainerGroupByTemplate", "HTTPS", "POST", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateContainerGroupByTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9475,9 +9347,24 @@ func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGro
 	return _result, _err
 }
 
-func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerGroupFromTemplateRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
+func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGroupByTemplateRequest) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UpdateContainerGroupByTemplateResponse{}
+	_body, _err := client.UpdateContainerGroupByTemplateEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateContainerGroupFromTemplateEx(request *CreateContainerGroupFromTemplateRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &CreateContainerGroupFromTemplateResponse{}
-	_body, _err := client._request("CreateContainerGroupFromTemplate", "HTTPS", "POST", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateContainerGroupFromTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9485,9 +9372,24 @@ func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerG
 	return _result, _err
 }
 
-func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroupTemplateRequest, runtime *util.RuntimeOptions) (_result *ExportContainerGroupTemplateResponse, _err error) {
+func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerGroupFromTemplateRequest) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateContainerGroupFromTemplateResponse{}
+	_body, _err := client.CreateContainerGroupFromTemplateEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ExportContainerGroupTemplateEx(request *ExportContainerGroupTemplateRequest, runtime *util.RuntimeOptions) (_result *ExportContainerGroupTemplateResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &ExportContainerGroupTemplateResponse{}
-	_body, _err := client._request("ExportContainerGroupTemplate", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ExportContainerGroupTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9495,9 +9397,24 @@ func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroup
 	return _result, _err
 }
 
-func (client *Client) RestartContainerGroup(request *RestartContainerGroupRequest, runtime *util.RuntimeOptions) (_result *RestartContainerGroupResponse, _err error) {
+func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroupTemplateRequest) (_result *ExportContainerGroupTemplateResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ExportContainerGroupTemplateResponse{}
+	_body, _err := client.ExportContainerGroupTemplateEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) RestartContainerGroupEx(request *RestartContainerGroupRequest, runtime *util.RuntimeOptions) (_result *RestartContainerGroupResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &RestartContainerGroupResponse{}
-	_body, _err := client._request("RestartContainerGroup", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("RestartContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9505,9 +9422,24 @@ func (client *Client) RestartContainerGroup(request *RestartContainerGroupReques
 	return _result, _err
 }
 
-func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupResponse, _err error) {
+func (client *Client) RestartContainerGroup(request *RestartContainerGroupRequest) (_result *RestartContainerGroupResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &RestartContainerGroupResponse{}
+	_body, _err := client.RestartContainerGroupEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UpdateContainerGroupEx(request *UpdateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &UpdateContainerGroupResponse{}
-	_body, _err := client._request("UpdateContainerGroup", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9515,9 +9447,24 @@ func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest,
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGroupPriceRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupPriceResponse, _err error) {
+func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest) (_result *UpdateContainerGroupResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UpdateContainerGroupResponse{}
+	_body, _err := client.UpdateContainerGroupEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeContainerGroupPriceEx(request *DescribeContainerGroupPriceRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupPriceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DescribeContainerGroupPriceResponse{}
-	_body, _err := client._request("DescribeContainerGroupPrice", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupPrice"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9525,9 +9472,24 @@ func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGrou
 	return _result, _err
 }
 
-func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest, runtime *util.RuntimeOptions) (_result *ExecContainerCommandResponse, _err error) {
+func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGroupPriceRequest) (_result *DescribeContainerGroupPriceResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeContainerGroupPriceResponse{}
+	_body, _err := client.DescribeContainerGroupPriceEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ExecContainerCommandEx(request *ExecContainerCommandRequest, runtime *util.RuntimeOptions) (_result *ExecContainerCommandResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &ExecContainerCommandResponse{}
-	_body, _err := client._request("ExecContainerCommand", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ExecContainerCommand"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9535,9 +9497,24 @@ func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest,
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerLogResponse, _err error) {
+func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest) (_result *ExecContainerCommandResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ExecContainerCommandResponse{}
+	_body, _err := client.ExecContainerCommandEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeContainerLogEx(request *DescribeContainerLogRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerLogResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DescribeContainerLogResponse{}
-	_body, _err := client._request("DescribeContainerLog", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerLog"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9545,9 +9522,24 @@ func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest,
 	return _result, _err
 }
 
-func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupResponse, _err error) {
+func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest) (_result *DescribeContainerLogResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeContainerLogResponse{}
+	_body, _err := client.DescribeContainerLogEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateContainerGroupEx(request *CreateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &CreateContainerGroupResponse{}
-	_body, _err := client._request("CreateContainerGroup", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9555,9 +9547,24 @@ func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest,
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupsResponse, _err error) {
+func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest) (_result *CreateContainerGroupResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateContainerGroupResponse{}
+	_body, _err := client.CreateContainerGroupEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeContainerGroupsEx(request *DescribeContainerGroupsRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DescribeContainerGroupsResponse{}
-	_body, _err := client._request("DescribeContainerGroups", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerGroups"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9565,9 +9572,24 @@ func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRe
 	return _result, _err
 }
 
-func (client *Client) DeleteContainerGroup(request *DeleteContainerGroupRequest, runtime *util.RuntimeOptions) (_result *DeleteContainerGroupResponse, _err error) {
+func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRequest) (_result *DescribeContainerGroupsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeContainerGroupsResponse{}
+	_body, _err := client.DescribeContainerGroupsEx(request, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteContainerGroupEx(request *DeleteContainerGroupRequest, runtime *util.RuntimeOptions) (_result *DeleteContainerGroupResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
 	_result = &DeleteContainerGroupResponse{}
-	_body, _err := client._request("DeleteContainerGroup", "HTTPS", "GET", "AK", tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return nil, _err
 	}
@@ -9575,36 +9597,32 @@ func (client *Client) DeleteContainerGroup(request *DeleteContainerGroupRequest,
 	return _result, _err
 }
 
-func (client *Client) GetUserAgent() (_result string) {
-	userAgent := util.GetUserAgent(client.UserAgent)
-	_result = userAgent
-	return _result
-}
-
-func (client *Client) GetAccessKeyId() (_result string, _err error) {
-	if util.IsUnset(client.Credential) {
-		return _result, _err
-	}
-
-	accessKeyId, _err := client.Credential.GetAccessKeyId()
+func (client *Client) DeleteContainerGroup(request *DeleteContainerGroupRequest) (_result *DeleteContainerGroupResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteContainerGroupResponse{}
+	_body, _err := client.DeleteContainerGroupEx(request, runtime)
 	if _err != nil {
-		return "", _err
+		return nil, _err
 	}
-
-	_result = accessKeyId
+	_result = _body
 	return _result, _err
 }
 
-func (client *Client) GetAccessKeySecret() (_result string, _err error) {
-	if util.IsUnset(client.Credential) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+	if !tea.BoolValue(util.Empty(endpoint)) {
+		_result = endpoint
 		return _result, _err
 	}
 
-	secret, _err := client.Credential.GetAccessKeySecret()
-	if _err != nil {
-		return "", _err
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
+		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+		return _result, _err
 	}
 
-	_result = secret
+	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
+	if _err != nil {
+		return tea.String(""), _err
+	}
+	_result = _body
 	return _result, _err
 }

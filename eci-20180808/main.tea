@@ -1,142 +1,15 @@
-import RPCUtil;
 import Util;
-import Credential;
+import RPC;
+import EndpointUtil;
 
-type @endpoint = string
-type @regionId = string
-type @protocol = string
-type @userAgent = string
-type @readTimeout = number
-type @connectTimeout = number
-type @httpProxy = string
-type @httpsProxy = string
-type @noProxy = string
-type @socks5Proxy = string
-type @socks5NetWork = string
-type @maxIdleConns = number
-type @credential = Credential
+extends RPC;
 
-model Config {
-  accessKeyId?: string(description='accessKeyId', name='accessKeyId'),
-  accessKeySecret?: string(description='accessKeySecret', name='accessKeySecret'),
-  type?: string(description='credential type', name='type'),
-  securityToken?: string(description='securityToken', name='securityToken'),
-  endpoint: string(description='endpoint', name='endpoint'),
-  protocol?: string(description='protocol', name='protocol'),
-  regionId: string(description='regionId', name='regionId'),
-  readTimeout?: number(description='read timeout', name='read timeout'),
-  connectTimeout?: number(description='connect timeout', name='connect timeout'),
-  httpProxy?: string(description='http proxy', name='http proxy'),
-  httpsProxy?: string(description='https proxy', name='https proxy'),
-  socks5Proxy?: string(description='socks5 proxy', name='socks5 proxy'),
-  socks5NetWork?: string(description='socks5 NetWork', name='socks5 NetWork'),
-  noProxy?: string(description='no proxy', name='no proxy'),
-  userAgent?: string(description='userAgent', name='userAgent'),
-  maxIdleConns?: number(description='maxIdleConns', name='maxIdleConns'),
-}
-
-init(config: Config){
-  if (Util.isUnset(config)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config' can not be unset"
-    };
-  }
-
-  if (Util.empty(config.endpoint)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.endpoint' can not be empty"
-    };
-  }
-
-  if (Util.empty(config.regionId)) {
-    throw {
-      name = "ParameterMissing",
-      message = "'config.regionId' can not be empty"
-    };
-  }
-  if (Util.empty(config.type)) {
-    config.type = 'access_key';
-  }
-  var credentialConfig = new Credential.Config{
-    accessKeyId =  config.accessKeyId,
-    type = config.type,
-    accessKeySecret =  config.accessKeySecret,
-    securityToken = config.securityToken,
-  };
-  @credential = new Credential(credentialConfig);
-  @endpoint = config.endpoint;
-  @protocol = config.protocol;
-  @regionId = config.regionId;
-  @userAgent = config.userAgent;
-  @readTimeout = config.readTimeout;
-  @connectTimeout = config.connectTimeout;
-  @httpProxy = config.httpProxy;
-  @httpsProxy = config.httpsProxy;
-  @noProxy = config.noProxy;
-  @socks5Proxy = config.socks5Proxy;
-  @socks5NetWork = config.socks5NetWork;
-  @maxIdleConns = config.maxIdleConns;
-}
-
-api _request(action: string, protocol: string, method: string, authType: string,query: object, body: object, runtime: Util.RuntimeOptions): object {
-  __request.protocol = Util.defaultString(@protocol, protocol);
-  __request.method = method;
-  __request.pathname = '/';
-  __request.query = RPCUtil.query({
-    Action = action,
-    Format = 'json',
-    RegionId = @regionId,
-    Timestamp = RPCUtil.getTimestamp(),
-    Version = '2018-08-08',
-    SignatureNonce = Util.getNonce(),
-    ...query,
-  });
-  if (!Util.isUnset(body)) {
-    var tmp = Util.anyifyMapValue(RPCUtil.query(body));
-    __request.body = Util.toFormString(tmp);
-  }
-  __request.headers = {
-    host = RPCUtil.getHost('Eci', @regionId, @endpoint),
-    user-agent = getUserAgent(),
-  };
-  if (!Util.equalString(authType, 'Anonymous')) {
-    var accessKeyId = getAccessKeyId();
-    var accessKeySecret = getAccessKeySecret();
-    __request.query.SignatureMethod = 'HMAC-SHA1';
-    __request.query.SignatureVersion = '1.0';
-    __request.query.AccessKeyId = accessKeyId;
-    __request.query.Signature = RPCUtil.getSignature(__request, accessKeySecret);
-  }
-} returns {
-  var obj = Util.readAsJSON(__response.body);
-  var res = Util.assertAsMap(obj);
-  if (RPCUtil.hasError(res)) {
-    throw {
-      message = res.Message,
-      data = res,
-      code = res.Code,
-    }
-  }
-  return res;
-} runtime {
-  timeouted = 'retry',
-  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
-  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
-  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
-  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
-  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
-  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
-  retry = {
-    retryable = runtime.autoretry,
-    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 2)
-  },
-  backoff = {
-    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
-    period = Util.defaultNumber(runtime.backoffPeriod, 0)
-  },
-  ignoreSSL = runtime.ignoreSSL
+init(config: RPC.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
 model DescribeRegionsRequest = {
@@ -158,8 +31,14 @@ model DescribeRegionsResponse = {
   ](name='Regions', description='data'),
 }
 
-async function describeRegions(request: DescribeRegionsRequest, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
-  return _request('DescribeRegions', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeRegionsEx(request: DescribeRegionsRequest, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeRegions', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeRegionsEx(request, runtime);
 }
 
 model DescribeImageCachesRequest = {
@@ -201,8 +80,14 @@ model DescribeImageCachesResponse = {
   ](name='ImageCaches', description='data'),
 }
 
-async function describeImageCaches(request: DescribeImageCachesRequest, runtime: Util.RuntimeOptions): DescribeImageCachesResponse {
-  return _request('DescribeImageCaches', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeImageCachesEx(request: DescribeImageCachesRequest, runtime: Util.RuntimeOptions): DescribeImageCachesResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeImageCaches', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeImageCaches(request: DescribeImageCachesRequest): DescribeImageCachesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeImageCachesEx(request, runtime);
 }
 
 model DeleteImageCacheRequest = {
@@ -219,8 +104,14 @@ model DeleteImageCacheResponse = {
   requestId: string(name='RequestId', description='requestId'),
 }
 
-async function deleteImageCache(request: DeleteImageCacheRequest, runtime: Util.RuntimeOptions): DeleteImageCacheResponse {
-  return _request('DeleteImageCache', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function deleteImageCacheEx(request: DeleteImageCacheRequest, runtime: Util.RuntimeOptions): DeleteImageCacheResponse {
+  Util.validateModel(request);
+  return doRequest('DeleteImageCache', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function deleteImageCache(request: DeleteImageCacheRequest): DeleteImageCacheResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteImageCacheEx(request, runtime);
 }
 
 model CreateImageCacheRequest = {
@@ -254,8 +145,14 @@ model CreateImageCacheResponse = {
   containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
 }
 
-async function createImageCache(request: CreateImageCacheRequest, runtime: Util.RuntimeOptions): CreateImageCacheResponse {
-  return _request('CreateImageCache', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function createImageCacheEx(request: CreateImageCacheRequest, runtime: Util.RuntimeOptions): CreateImageCacheResponse {
+  Util.validateModel(request);
+  return doRequest('CreateImageCache', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function createImageCache(request: CreateImageCacheRequest): CreateImageCacheResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createImageCacheEx(request, runtime);
 }
 
 model DescribeMultiContainerGroupMetricRequest = {
@@ -563,8 +460,14 @@ model DescribeMultiContainerGroupMetricResponse = {
   ](name='MonitorDatas', description='data'),
 }
 
-async function describeMultiContainerGroupMetric(request: DescribeMultiContainerGroupMetricRequest, runtime: Util.RuntimeOptions): DescribeMultiContainerGroupMetricResponse {
-  return _request('DescribeMultiContainerGroupMetric', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeMultiContainerGroupMetricEx(request: DescribeMultiContainerGroupMetricRequest, runtime: Util.RuntimeOptions): DescribeMultiContainerGroupMetricResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeMultiContainerGroupMetric', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeMultiContainerGroupMetric(request: DescribeMultiContainerGroupMetricRequest): DescribeMultiContainerGroupMetricResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeMultiContainerGroupMetricEx(request, runtime);
 }
 
 model DescribeContainerGroupMetricRequest = {
@@ -631,8 +534,14 @@ model DescribeContainerGroupMetricResponse = {
   ](name='Records', description='data.podStats'),
 }
 
-async function describeContainerGroupMetric(request: DescribeContainerGroupMetricRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupMetricResponse {
-  return _request('DescribeContainerGroupMetric', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeContainerGroupMetricEx(request: DescribeContainerGroupMetricRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupMetricResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeContainerGroupMetric', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeContainerGroupMetric(request: DescribeContainerGroupMetricRequest): DescribeContainerGroupMetricResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeContainerGroupMetricEx(request, runtime);
 }
 
 model UpdateContainerGroupByTemplateRequest = {
@@ -649,8 +558,14 @@ model UpdateContainerGroupByTemplateResponse = {
   requestId: string(name='RequestId', description='requestId'),
 }
 
-async function updateContainerGroupByTemplate(request: UpdateContainerGroupByTemplateRequest, runtime: Util.RuntimeOptions): UpdateContainerGroupByTemplateResponse {
-  return _request('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', 'AK', request, null, runtime);
+async function updateContainerGroupByTemplateEx(request: UpdateContainerGroupByTemplateRequest, runtime: Util.RuntimeOptions): UpdateContainerGroupByTemplateResponse {
+  Util.validateModel(request);
+  return doRequest('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function updateContainerGroupByTemplate(request: UpdateContainerGroupByTemplateRequest): UpdateContainerGroupByTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateContainerGroupByTemplateEx(request, runtime);
 }
 
 model CreateContainerGroupFromTemplateRequest = {
@@ -668,8 +583,14 @@ model CreateContainerGroupFromTemplateResponse = {
   containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
 }
 
-async function createContainerGroupFromTemplate(request: CreateContainerGroupFromTemplateRequest, runtime: Util.RuntimeOptions): CreateContainerGroupFromTemplateResponse {
-  return _request('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', 'AK', request, null, runtime);
+async function createContainerGroupFromTemplateEx(request: CreateContainerGroupFromTemplateRequest, runtime: Util.RuntimeOptions): CreateContainerGroupFromTemplateResponse {
+  Util.validateModel(request);
+  return doRequest('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function createContainerGroupFromTemplate(request: CreateContainerGroupFromTemplateRequest): CreateContainerGroupFromTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createContainerGroupFromTemplateEx(request, runtime);
 }
 
 model ExportContainerGroupTemplateRequest = {
@@ -888,8 +809,14 @@ model ExportContainerGroupTemplateResponse = {
   }(name='Template', description='data'),
 }
 
-async function exportContainerGroupTemplate(request: ExportContainerGroupTemplateRequest, runtime: Util.RuntimeOptions): ExportContainerGroupTemplateResponse {
-  return _request('ExportContainerGroupTemplate', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function exportContainerGroupTemplateEx(request: ExportContainerGroupTemplateRequest, runtime: Util.RuntimeOptions): ExportContainerGroupTemplateResponse {
+  Util.validateModel(request);
+  return doRequest('ExportContainerGroupTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function exportContainerGroupTemplate(request: ExportContainerGroupTemplateRequest): ExportContainerGroupTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return exportContainerGroupTemplateEx(request, runtime);
 }
 
 model RestartContainerGroupRequest = {
@@ -906,8 +833,14 @@ model RestartContainerGroupResponse = {
   requestId: string(name='RequestId', description='requestId'),
 }
 
-async function restartContainerGroup(request: RestartContainerGroupRequest, runtime: Util.RuntimeOptions): RestartContainerGroupResponse {
-  return _request('RestartContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function restartContainerGroupEx(request: RestartContainerGroupRequest, runtime: Util.RuntimeOptions): RestartContainerGroupResponse {
+  Util.validateModel(request);
+  return doRequest('RestartContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function restartContainerGroup(request: RestartContainerGroupRequest): RestartContainerGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return restartContainerGroupEx(request, runtime);
 }
 
 model UpdateContainerGroupRequest = {
@@ -1094,8 +1027,14 @@ model UpdateContainerGroupResponse = {
   requestId: string(name='RequestId', description='requestId'),
 }
 
-async function updateContainerGroup(request: UpdateContainerGroupRequest, runtime: Util.RuntimeOptions): UpdateContainerGroupResponse {
-  return _request('UpdateContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function updateContainerGroupEx(request: UpdateContainerGroupRequest, runtime: Util.RuntimeOptions): UpdateContainerGroupResponse {
+  Util.validateModel(request);
+  return doRequest('UpdateContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function updateContainerGroup(request: UpdateContainerGroupRequest): UpdateContainerGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateContainerGroupEx(request, runtime);
 }
 
 model DescribeContainerGroupPriceRequest = {
@@ -1146,8 +1085,14 @@ model DescribeContainerGroupPriceResponse = {
   }(name='PriceInfo', description='data'),
 }
 
-async function describeContainerGroupPrice(request: DescribeContainerGroupPriceRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupPriceResponse {
-  return _request('DescribeContainerGroupPrice', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeContainerGroupPriceEx(request: DescribeContainerGroupPriceRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupPriceResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeContainerGroupPrice', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeContainerGroupPrice(request: DescribeContainerGroupPriceRequest): DescribeContainerGroupPriceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeContainerGroupPriceEx(request, runtime);
 }
 
 model ExecContainerCommandRequest = {
@@ -1167,8 +1112,14 @@ model ExecContainerCommandResponse = {
   webSocketUri: string(name='WebSocketUri', description='data'),
 }
 
-async function execContainerCommand(request: ExecContainerCommandRequest, runtime: Util.RuntimeOptions): ExecContainerCommandResponse {
-  return _request('ExecContainerCommand', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function execContainerCommandEx(request: ExecContainerCommandRequest, runtime: Util.RuntimeOptions): ExecContainerCommandResponse {
+  Util.validateModel(request);
+  return doRequest('ExecContainerCommand', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function execContainerCommand(request: ExecContainerCommandRequest): ExecContainerCommandResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return execContainerCommandEx(request, runtime);
 }
 
 model DescribeContainerLogRequest = {
@@ -1191,8 +1142,14 @@ model DescribeContainerLogResponse = {
   content: string(name='Content', description='data.log'),
 }
 
-async function describeContainerLog(request: DescribeContainerLogRequest, runtime: Util.RuntimeOptions): DescribeContainerLogResponse {
-  return _request('DescribeContainerLog', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeContainerLogEx(request: DescribeContainerLogRequest, runtime: Util.RuntimeOptions): DescribeContainerLogResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeContainerLog', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeContainerLog(request: DescribeContainerLogRequest): DescribeContainerLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeContainerLogEx(request, runtime);
 }
 
 model CreateContainerGroupRequest = {
@@ -1343,7 +1300,7 @@ model CreateContainerGroupRequest = {
             mode?: integer(name='Mode', description='mode'),
           }
         ](name='ConfigFileToPath', description='configFileVolumeConfigFileToPaths'),
-        defaultModel?: integer(name='DefaultModel', description='configFileVolumeDefaultModel'),
+        defaultMode?: integer(name='DefaultMode', description='configFileVolumeDefaultModel'),
       }(name='ConfigFileVolume', description='ConfigFileVolume'),
       type?: string(name='Type', description='type'),
       emptyDirVolume: {
@@ -1457,6 +1414,8 @@ model CreateContainerGroupRequest = {
   spotStrategy?: string(name='SpotStrategy', description='spotStrategy'),
   spotPriceLimit?: float(name='SpotPriceLimit', description='spotPriceLimit'),
   VSwitchStrategy?: string(name='VSwitchStrategy', description='multiVswitchStrategy'),
+  tenantVSwitchId?: string(name='TenantVSwitchId', description='tenantVSwitchId'),
+  tenantSecurityGroupId?: string(name='TenantSecurityGroupId', description='tenantSecurityGroupId'),
 }
 
 model CreateContainerGroupResponse = {
@@ -1464,8 +1423,14 @@ model CreateContainerGroupResponse = {
   containerGroupId: string(name='ContainerGroupId', description='data.containerGroupId'),
 }
 
-async function createContainerGroup(request: CreateContainerGroupRequest, runtime: Util.RuntimeOptions): CreateContainerGroupResponse {
-  return _request('CreateContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function createContainerGroupEx(request: CreateContainerGroupRequest, runtime: Util.RuntimeOptions): CreateContainerGroupResponse {
+  Util.validateModel(request);
+  return doRequest('CreateContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function createContainerGroup(request: CreateContainerGroupRequest): CreateContainerGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createContainerGroupEx(request, runtime);
 }
 
 model DescribeContainerGroupsRequest = {
@@ -1520,6 +1485,10 @@ model DescribeContainerGroupsResponse = {
       vpcId: string(name='VpcId', description='vpcInstanceId'),
       discount: integer(name='Discount', description='discount'),
       resourceGroupId: string(name='ResourceGroupId', description='resourceGroupId'),
+      tenantEniInstanceId: string(name='TenantEniInstanceId', description='tenantEniInstanceId'),
+      tenantVSwitchId: string(name='TenantVSwitchId', description='tenantVSwitchId'),
+      tenantSecurityGroupId: string(name='TenantSecurityGroupId', description='tenantSecurityGroupId'),
+      spotStrategy: string(name='SpotStrategy', description='spotStrategy'),
       tags: [
         {
           key: string(name='Key', description='key'),
@@ -1754,8 +1723,14 @@ model DescribeContainerGroupsResponse = {
   ](name='ContainerGroups', description='data.data'),
 }
 
-async function describeContainerGroups(request: DescribeContainerGroupsRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupsResponse {
-  return _request('DescribeContainerGroups', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function describeContainerGroupsEx(request: DescribeContainerGroupsRequest, runtime: Util.RuntimeOptions): DescribeContainerGroupsResponse {
+  Util.validateModel(request);
+  return doRequest('DescribeContainerGroups', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
+}
+
+async function describeContainerGroups(request: DescribeContainerGroupsRequest): DescribeContainerGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeContainerGroupsEx(request, runtime);
 }
 
 model DeleteContainerGroupRequest = {
@@ -1772,28 +1747,23 @@ model DeleteContainerGroupResponse = {
   requestId: string(name='RequestId', description='requestId'),
 }
 
-async function deleteContainerGroup(request: DeleteContainerGroupRequest, runtime: Util.RuntimeOptions): DeleteContainerGroupResponse {
-  return _request('DeleteContainerGroup', 'HTTPS', 'GET', 'AK', request, null, runtime);
+async function deleteContainerGroupEx(request: DeleteContainerGroupRequest, runtime: Util.RuntimeOptions): DeleteContainerGroupResponse {
+  Util.validateModel(request);
+  return doRequest('DeleteContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', request, null, runtime);
 }
 
-function getUserAgent(): string {
-  var userAgent =  Util.getUserAgent(@userAgent);
-  return userAgent;
+async function deleteContainerGroup(request: DeleteContainerGroupRequest): DeleteContainerGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteContainerGroupEx(request, runtime);
 }
 
-async function getAccessKeyId(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
   }
-  var accessKeyId = @credential.getAccessKeyId();
-  return accessKeyId;
-}
 
-async function getAccessKeySecret(): string{
-  if (Util.isUnset(@credential)) {
-    return '';
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
   }
-  var secret = @credential.getAccessKeySecret();
-  return secret;
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
-
