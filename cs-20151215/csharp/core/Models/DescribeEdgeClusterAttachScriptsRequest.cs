@@ -9,13 +9,13 @@ using Tea;
 namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class DescribeEdgeClusterAttachScriptsRequest : TeaModel {
-        [NameInMap("query")]
-        [Validation(Required=true)]
-        public DescribeEdgeClusterAttachScriptsQuery Query { get; set; }
-
         [NameInMap("headers")]
         [Validation(Required=false)]
         public Dictionary<string, string> Headers { get; set; }
+
+        [NameInMap("query")]
+        [Validation(Required=true)]
+        public DescribeEdgeClusterAttachScriptsQuery Query { get; set; }
 
         [NameInMap("body")]
         [Validation(Required=true)]

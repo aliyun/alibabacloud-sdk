@@ -10,7 +10,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class DescribeAddonsQuery : TeaModel {
         [NameInMap("region")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string Region { get; set; }
 
     }

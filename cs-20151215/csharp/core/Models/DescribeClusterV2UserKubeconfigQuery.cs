@@ -10,7 +10,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class DescribeClusterV2UserKubeconfigQuery : TeaModel {
         [NameInMap("PrivateIpAddress")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? PrivateIpAddress { get; set; }
 
     }

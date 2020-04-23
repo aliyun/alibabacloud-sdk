@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imageaudit.Models
+namespace AlibabaCloud.SDK.Imageaudit20191230.Models
 {
     public class ScanImageResponse : TeaModel {
         [NameInMap("RequestId")]
@@ -68,10 +68,7 @@ namespace AlibabaCloud.Imageaudit.Models
                                             public string Id { get; set; }
                                     }
                             }
-                            public List<ScanImageResponseDataResultsSubResultsOCRDataList> OCRDataList { get; set; }
-                            public class ScanImageResponseDataResultsSubResultsOCRDataList : TeaModel {
-                                    public string OCRData { get; set; }
-                            }
+                            public List<string> OCRDataList { get; set; }
                     }
             }
         };

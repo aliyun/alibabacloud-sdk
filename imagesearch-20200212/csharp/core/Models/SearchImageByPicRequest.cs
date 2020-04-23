@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.ImageSearch.Models
+namespace AlibabaCloud.SDK.ImageSearch20200212.Models
 {
     public class SearchImageByPicRequest : TeaModel {
         [NameInMap("CategoryId")]

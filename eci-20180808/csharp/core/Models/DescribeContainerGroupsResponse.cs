@@ -117,6 +117,22 @@ namespace AlibabaCloud.SDK.ECI.Models
             [Validation(Required=true)]
             public string ResourceGroupId { get; set; }
 
+            [NameInMap("TenantEniInstanceId")]
+            [Validation(Required=true)]
+            public string TenantEniInstanceId { get; set; }
+
+            [NameInMap("TenantVSwitchId")]
+            [Validation(Required=true)]
+            public string TenantVSwitchId { get; set; }
+
+            [NameInMap("TenantSecurityGroupId")]
+            [Validation(Required=true)]
+            public string TenantSecurityGroupId { get; set; }
+
+            [NameInMap("SpotStrategy")]
+            [Validation(Required=true)]
+            public string SpotStrategy { get; set; }
+
             [NameInMap("Tags")]
             [Validation(Required=true)]
             public List<DescribeContainerGroupsResponseContainerGroupsTags> Tags { get; set; }
