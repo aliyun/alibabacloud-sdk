@@ -304,7 +304,7 @@ namespace AlibabaCloud.SDK.ECI.Models
 
                             [NameInMap("PerCpuUsages")]
                             [Validation(Required=true)]
-                            public List<string> PerCpuUsages { get; set; }
+                            public List<long> PerCpuUsages { get; set; }
 
                         }
                         [NameInMap("CpuCFS")]

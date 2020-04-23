@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.Imageaudit.Models
+namespace AlibabaCloud.SDK.Imageaudit20191230.Models
 {
     public class ScanTextResponse : TeaModel {
         [NameInMap("RequestId")]

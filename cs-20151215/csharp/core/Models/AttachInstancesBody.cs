@@ -10,15 +10,15 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class AttachInstancesBody : TeaModel {
         [NameInMap("format_disk")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? FormatDisk { get; set; }
 
         [NameInMap("keep_instance_name")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? KeepInstanceName { get; set; }
 
         [NameInMap("cpu_policy")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string CpuPolicy { get; set; }
 
         [NameInMap("key_pair")]
@@ -34,11 +34,11 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public List<AttachInstancesBodyTags> Tags { get; set; }
         public class AttachInstancesBodyTags : TeaModel {
             [NameInMap("key")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Key { get; set; }
 
             [NameInMap("value")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Value { get; set; }
 
         }

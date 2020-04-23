@@ -22,7 +22,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public string RegionId { get; set; }
 
         [NameInMap("kubernetes_version")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string KubernetesVersion { get; set; }
 
         [NameInMap("snat_entry")]
@@ -30,39 +30,39 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public bool? SnatEntry { get; set; }
 
         [NameInMap("endpoint_public_access")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? EndpointPublicAccess { get; set; }
 
         [NameInMap("ssh_flags")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? SshFlags { get; set; }
 
         [NameInMap("cloud_monitor_flags")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? CloudMonitorFlags { get; set; }
 
         [NameInMap("deletion_protection")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? DeletionProtection { get; set; }
 
         [NameInMap("node_cidr_mask")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string NodeCidrMask { get; set; }
 
         [NameInMap("proxy_mode")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ProxyMode { get; set; }
 
         [NameInMap("os_type")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string OsType { get; set; }
 
         [NameInMap("platform")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string Platform { get; set; }
 
         [NameInMap("node_port_range")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string NodePortRange { get; set; }
 
         [NameInMap("key_pair")]
@@ -74,51 +74,51 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public string LoginPassword { get; set; }
 
         [NameInMap("master_instance_charge_type")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string MasterInstanceChargeType { get; set; }
 
         [NameInMap("worker_instance_charge_type")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string WorkerInstanceChargeType { get; set; }
 
         [NameInMap("master_period")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public int? MasterPeriod { get; set; }
 
         [NameInMap("worker_period")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public int? WorkerPeriod { get; set; }
 
         [NameInMap("master_period_unit")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string MasterPeriodUnit { get; set; }
 
         [NameInMap("worker_period_unit")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string WorkerPeriodUnit { get; set; }
 
         [NameInMap("master_auto_renew")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? MasterAutoRenew { get; set; }
 
         [NameInMap("master_auto_renew_period")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public int? MasterAutoRenewPeriod { get; set; }
 
         [NameInMap("worker_auto_renew")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? WorkerAutoRenew { get; set; }
 
         [NameInMap("worker_auto_renew_period")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public int? WorkerAutoRenewPeriod { get; set; }
 
         [NameInMap("cpu_policy")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string CpuPolicy { get; set; }
 
         [NameInMap("master_count")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public int? MasterCount { get; set; }
 
         [NameInMap("master_system_disk_category")]
@@ -130,7 +130,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public int? MasterSystemDiskSize { get; set; }
 
         [NameInMap("runtime")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public Dictionary<string, string> Runtime { get; set; }
 
         [NameInMap("num_of_nodes")]
@@ -146,31 +146,31 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public int? WorkerSystemDiskSize { get; set; }
 
         [NameInMap("worker_data_disk")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? WorkerDataDisk { get; set; }
 
         [NameInMap("vpcid")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string Vpcid { get; set; }
 
         [NameInMap("security_group_id")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string SecurityGroupId { get; set; }
 
         [NameInMap("container_cidr")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ContainerCidr { get; set; }
 
         [NameInMap("service_cidr")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ServiceCidr { get; set; }
 
         [NameInMap("disable_rollback")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public bool? DisableRollback { get; set; }
 
         [NameInMap("timeout_mins")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public int? TimeoutMins { get; set; }
 
         [NameInMap("tags")]
@@ -178,11 +178,11 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public List<CreateClusterBodyTags> Tags { get; set; }
         public class CreateClusterBodyTags : TeaModel {
             [NameInMap("key")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Key { get; set; }
 
             [NameInMap("value")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Value { get; set; }
 
         }
@@ -192,11 +192,11 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public List<CreateClusterBodyAddons> Addons { get; set; }
         public class CreateClusterBodyAddons : TeaModel {
             [NameInMap("name")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Name { get; set; }
 
             [NameInMap("config")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Config { get; set; }
 
         }
@@ -206,15 +206,15 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public List<CreateClusterBodyTaints> Taints { get; set; }
         public class CreateClusterBodyTaints : TeaModel {
             [NameInMap("key")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Key { get; set; }
 
             [NameInMap("value")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Value { get; set; }
 
             [NameInMap("effect")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Effect { get; set; }
 
         }
@@ -224,15 +224,15 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public List<CreateClusterBodyWorkerDataDisks> WorkerDataDisks { get; set; }
         public class CreateClusterBodyWorkerDataDisks : TeaModel {
             [NameInMap("category")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Category { get; set; }
 
             [NameInMap("size")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Size { get; set; }
 
             [NameInMap("encrypted")]
-            [Validation(Required=true)]
+            [Validation(Required=false)]
             public string Encrypted { get; set; }
 
         }

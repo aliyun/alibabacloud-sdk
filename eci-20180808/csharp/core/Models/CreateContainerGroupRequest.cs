@@ -446,9 +446,9 @@ namespace AlibabaCloud.SDK.ECI.Models
                         public string Path { get; set; }
                         public int? Mode { get; set; }
                 }
-                [NameInMap("DefaultModel")]
+                [NameInMap("DefaultMode")]
                 [Validation(Required=false)]
-                public int? DefaultModel { get; set; }
+                public int? DefaultMode { get; set; }
             };
 
             [NameInMap("Type")]
@@ -765,6 +765,14 @@ namespace AlibabaCloud.SDK.ECI.Models
         [NameInMap("VSwitchStrategy")]
         [Validation(Required=false)]
         public string VSwitchStrategy { get; set; }
+
+        [NameInMap("TenantVSwitchId")]
+        [Validation(Required=false)]
+        public string TenantVSwitchId { get; set; }
+
+        [NameInMap("TenantSecurityGroupId")]
+        [Validation(Required=false)]
+        public string TenantSecurityGroupId { get; set; }
 
     }
 

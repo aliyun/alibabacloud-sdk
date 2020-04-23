@@ -15,7 +15,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 
         [NameInMap("body")]
         [Validation(Required=true)]
-        public DescribeClustersResponseBody Body { get; set; }
+        public List<DescribeClustersResponseBody> Body { get; set; }
 
     }
 

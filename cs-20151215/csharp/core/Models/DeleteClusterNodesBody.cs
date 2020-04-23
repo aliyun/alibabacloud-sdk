@@ -10,7 +10,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 {
     public class DeleteClusterNodesBody : TeaModel {
         [NameInMap("release_node")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public string ReleaseNode { get; set; }
 
         [NameInMap("nodes")]
