@@ -53,10 +53,10 @@ async function demo() {
   console.log(`keys: ${JSON.stringify(keys)}`);
 
   // describe key
-  const describeKeysRequest = new KMS.DescribeKeysRequest({
+  const describeKeyRequest = new KMS.DescribeKeyRequest({
     keyId: keyId,
   });
-  const description = await client.describeKey(describeKeysRequest);
+  const description = await client.describeKey(describeKeyRequest);
   console.log(`description: ${JSON.stringify(description)}`);
 
   // encrypt
@@ -151,10 +151,10 @@ async function demo() {
   console.log(`listAliasById: ${JSON.stringify(listAliasById)}`);
 
   // delete alias
-  const deleteAliasesRequest = new KMS.DeleteAliasesRequest({
+  const deleteAliasRequest = new KMS.DeleteAliasRequest({
     aliasName: alias,
   });
-  const deleteAlias = await client.deleteAlias(deleteAliasesRequest);
+  const deleteAlias = await client.deleteAlias(deleteAliasRequest);
   console.log(`deleteAlias: ${JSON.stringify(deleteAlias)}`);
 }
 
