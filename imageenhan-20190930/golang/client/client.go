@@ -14,6 +14,228 @@ import (
 	"io"
 )
 
+type AssessCompositionRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s AssessCompositionRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessCompositionRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AssessCompositionRequest) SetImageURL(v string) *AssessCompositionRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type AssessCompositionResponse struct {
+	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *AssessCompositionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s AssessCompositionResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessCompositionResponse) GoString() string {
+	return s.String()
+}
+
+func (s *AssessCompositionResponse) SetRequestId(v string) *AssessCompositionResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *AssessCompositionResponse) SetData(v *AssessCompositionResponseData) *AssessCompositionResponse {
+	s.Data = v
+	return s
+}
+
+type AssessCompositionResponseData struct {
+	Score *float32 `json:"Score" xml:"Score" require:"true"`
+}
+
+func (s AssessCompositionResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessCompositionResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *AssessCompositionResponseData) SetScore(v float32) *AssessCompositionResponseData {
+	s.Score = &v
+	return s
+}
+
+type AssessCompositionAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s AssessCompositionAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessCompositionAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AssessCompositionAdvanceRequest) SetImageURLObject(v io.Reader) *AssessCompositionAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type AssessSharpnessRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s AssessSharpnessRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessSharpnessRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AssessSharpnessRequest) SetImageURL(v string) *AssessSharpnessRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type AssessSharpnessResponse struct {
+	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *AssessSharpnessResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s AssessSharpnessResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessSharpnessResponse) GoString() string {
+	return s.String()
+}
+
+func (s *AssessSharpnessResponse) SetRequestId(v string) *AssessSharpnessResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *AssessSharpnessResponse) SetData(v *AssessSharpnessResponseData) *AssessSharpnessResponse {
+	s.Data = v
+	return s
+}
+
+type AssessSharpnessResponseData struct {
+	Sharpness *float32 `json:"Sharpness" xml:"Sharpness" require:"true"`
+}
+
+func (s AssessSharpnessResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessSharpnessResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *AssessSharpnessResponseData) SetSharpness(v float32) *AssessSharpnessResponseData {
+	s.Sharpness = &v
+	return s
+}
+
+type AssessSharpnessAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s AssessSharpnessAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessSharpnessAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AssessSharpnessAdvanceRequest) SetImageURLObject(v io.Reader) *AssessSharpnessAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type AssessExposureRequest struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s AssessExposureRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessExposureRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AssessExposureRequest) SetImageURL(v string) *AssessExposureRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type AssessExposureResponse struct {
+	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *AssessExposureResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s AssessExposureResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessExposureResponse) GoString() string {
+	return s.String()
+}
+
+func (s *AssessExposureResponse) SetRequestId(v string) *AssessExposureResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *AssessExposureResponse) SetData(v *AssessExposureResponseData) *AssessExposureResponse {
+	s.Data = v
+	return s
+}
+
+type AssessExposureResponseData struct {
+	Exposure *float32 `json:"Exposure" xml:"Exposure" require:"true"`
+}
+
+func (s AssessExposureResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessExposureResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *AssessExposureResponseData) SetExposure(v float32) *AssessExposureResponseData {
+	s.Exposure = &v
+	return s
+}
+
+type AssessExposureAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+}
+
+func (s AssessExposureAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s AssessExposureAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *AssessExposureAdvanceRequest) SetImageURLObject(v io.Reader) *AssessExposureAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type ImageBlindCharacterWatermarkRequest struct {
 	FunctionType      *string `json:"FunctionType" xml:"FunctionType" require:"true"`
 	Text              *string `json:"Text" xml:"Text"`
@@ -1023,6 +1245,300 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) AssessComposition(request *AssessCompositionRequest, runtime *util.RuntimeOptions) (_result *AssessCompositionResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
+	_result = &AssessCompositionResponse{}
+	_body, _err := client.DoRequest(tea.String("AssessComposition"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvanceRequest, runtime *util.RuntimeOptions) (_result *AssessCompositionResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	assessCompositionreq := &AssessCompositionRequest{}
+	rpcutil.Convert(request, assessCompositionreq)
+	assessCompositionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	assessCompositionResp, _err := client.AssessComposition(assessCompositionreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = assessCompositionResp
+	return _result, _err
+}
+
+func (client *Client) AssessSharpness(request *AssessSharpnessRequest, runtime *util.RuntimeOptions) (_result *AssessSharpnessResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
+	_result = &AssessSharpnessResponse{}
+	_body, _err := client.DoRequest(tea.String("AssessSharpness"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequest, runtime *util.RuntimeOptions) (_result *AssessSharpnessResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	assessSharpnessreq := &AssessSharpnessRequest{}
+	rpcutil.Convert(request, assessSharpnessreq)
+	assessSharpnessreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	assessSharpnessResp, _err := client.AssessSharpness(assessSharpnessreq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = assessSharpnessResp
+	return _result, _err
+}
+
+func (client *Client) AssessExposure(request *AssessExposureRequest, runtime *util.RuntimeOptions) (_result *AssessExposureResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
+	_result = &AssessExposureResponse{}
+	_body, _err := client.DoRequest(tea.String("AssessExposure"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceRequest, runtime *util.RuntimeOptions) (_result *AssessExposureResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return nil, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return nil, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return nil, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return
+	}
+	// Step 2: request final api
+	assessExposurereq := &AssessExposureRequest{}
+	rpcutil.Convert(request, assessExposurereq)
+	assessExposurereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	assessExposureResp, _err := client.AssessExposure(assessExposurereq, runtime)
+	if _err != nil {
+		return nil, _err
+	}
+
+	_result = assessExposureResp
+	return _result, _err
 }
 
 func (client *Client) ImageBlindCharacterWatermark(request *ImageBlindCharacterWatermarkRequest, runtime *util.RuntimeOptions) (_result *ImageBlindCharacterWatermarkResponse, _err error) {
