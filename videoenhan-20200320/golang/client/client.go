@@ -14,6 +14,158 @@ import (
 	"io"
 )
 
+type GenerateVideoRequest struct {
+	FileList         []*GenerateVideoRequestFileList `json:"FileList" xml:"FileList" require:"true" type:"Repeated"`
+	Scene            *string                         `json:"Scene" xml:"Scene"`
+	Width            *int                            `json:"Width" xml:"Width"`
+	Height           *int                            `json:"Height" xml:"Height"`
+	Style            *string                         `json:"Style" xml:"Style"`
+	Duration         *float32                        `json:"Duration" xml:"Duration"`
+	DurationAdaption *bool                           `json:"DurationAdaption" xml:"DurationAdaption"`
+	TransitionStyle  *string                         `json:"TransitionStyle" xml:"TransitionStyle"`
+	SmartEffect      *bool                           `json:"SmartEffect" xml:"SmartEffect"`
+	PuzzleEffect     *bool                           `json:"PuzzleEffect" xml:"PuzzleEffect"`
+	Mute             *bool                           `json:"Mute" xml:"Mute"`
+}
+
+func (s GenerateVideoRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVideoRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVideoRequest) SetFileList(v []*GenerateVideoRequestFileList) *GenerateVideoRequest {
+	s.FileList = v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetScene(v string) *GenerateVideoRequest {
+	s.Scene = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetWidth(v int) *GenerateVideoRequest {
+	s.Width = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetHeight(v int) *GenerateVideoRequest {
+	s.Height = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetStyle(v string) *GenerateVideoRequest {
+	s.Style = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetDuration(v float32) *GenerateVideoRequest {
+	s.Duration = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetDurationAdaption(v bool) *GenerateVideoRequest {
+	s.DurationAdaption = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetTransitionStyle(v string) *GenerateVideoRequest {
+	s.TransitionStyle = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetSmartEffect(v bool) *GenerateVideoRequest {
+	s.SmartEffect = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetPuzzleEffect(v bool) *GenerateVideoRequest {
+	s.PuzzleEffect = &v
+	return s
+}
+
+func (s *GenerateVideoRequest) SetMute(v bool) *GenerateVideoRequest {
+	s.Mute = &v
+	return s
+}
+
+type GenerateVideoRequestFileList struct {
+	FileUrl  *string `json:"FileUrl" xml:"FileUrl" require:"true"`
+	FileName *string `json:"FileName" xml:"FileName" require:"true"`
+	Type     *string `json:"Type" xml:"Type" require:"true"`
+}
+
+func (s GenerateVideoRequestFileList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVideoRequestFileList) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVideoRequestFileList) SetFileUrl(v string) *GenerateVideoRequestFileList {
+	s.FileUrl = &v
+	return s
+}
+
+func (s *GenerateVideoRequestFileList) SetFileName(v string) *GenerateVideoRequestFileList {
+	s.FileName = &v
+	return s
+}
+
+func (s *GenerateVideoRequestFileList) SetType(v string) *GenerateVideoRequestFileList {
+	s.Type = &v
+	return s
+}
+
+type GenerateVideoResponse struct {
+	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *GenerateVideoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s GenerateVideoResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVideoResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVideoResponse) SetRequestId(v string) *GenerateVideoResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GenerateVideoResponse) SetData(v *GenerateVideoResponseData) *GenerateVideoResponse {
+	s.Data = v
+	return s
+}
+
+type GenerateVideoResponseData struct {
+	VideoUrl      *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoCoverUrl *string `json:"VideoCoverUrl" xml:"VideoCoverUrl" require:"true"`
+}
+
+func (s GenerateVideoResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GenerateVideoResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GenerateVideoResponseData) SetVideoUrl(v string) *GenerateVideoResponseData {
+	s.VideoUrl = &v
+	return s
+}
+
+func (s *GenerateVideoResponseData) SetVideoCoverUrl(v string) *GenerateVideoResponseData {
+	s.VideoCoverUrl = &v
+	return s
+}
+
 type GetAsyncJobResultRequest struct {
 	JobId *string `json:"JobId" xml:"JobId" require:"true"`
 }
@@ -809,6 +961,20 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) GenerateVideo(request *GenerateVideoRequest, runtime *util.RuntimeOptions) (_result *GenerateVideoResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return
+	}
+	_result = &GenerateVideoResponse{}
+	_body, _err := client.DoRequest(tea.String("GenerateVideo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return nil, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
 }
 
 func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
