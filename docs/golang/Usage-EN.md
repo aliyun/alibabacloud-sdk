@@ -17,12 +17,13 @@ import (
 	"strings"
 
 	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	util "github.com/alibabacloud-go/tea-util/service"
 )
 
 func main() {
 	// init config
-	var config = new(facebody.Config).SetAccessKeyId("ACCESS_KEY_ID").
+	var config = new(rpc.Config).SetAccessKeyId("ACCESS_KEY_ID").
 		SetAccessKeySecret("ACCESS_KEY_SECRET").
 		SetRegionId("cn-hangzhou").
 		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com").
