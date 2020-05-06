@@ -7,10 +7,11 @@ namespace AlibabaCloud\SDK\OpenPlatform\V20191219;
 use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadResponse;
+use AlibabaCloud\Tea\Rpc\Rpc;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class OpenPlatform
+class OpenPlatform extends Rpc
 {
     public function __construct($config)
     {
