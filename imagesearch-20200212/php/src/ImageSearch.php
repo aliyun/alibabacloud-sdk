@@ -18,11 +18,12 @@ use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
 use AlibabaCloud\Tea\Request;
+use AlibabaCloud\Tea\Rpc\Rpc;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class ImageSearch
+class ImageSearch extends Rpc
 {
     public function __construct($config)
     {
@@ -66,7 +67,7 @@ class ImageSearch
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -75,13 +76,13 @@ class ImageSearch
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ImageSearch',
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
         // Step 1: request OSS api to upload file
-        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        $ossConfig = new Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -90,12 +91,12 @@ class ImageSearch
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->picContentObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -103,11 +104,11 @@ class ImageSearch
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
-        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        $ossRuntime = new RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
         // Step 2: request final api
@@ -152,7 +153,7 @@ class ImageSearch
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -161,13 +162,13 @@ class ImageSearch
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ImageSearch',
             'regionId' => $this->_regionId,
         ]);
         $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
         // Step 1: request OSS api to upload file
-        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+        $ossConfig = new Config([
             'accessKeyId'     => $authResponse->accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -176,12 +177,12 @@ class ImageSearch
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->picContentObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -189,11 +190,11 @@ class ImageSearch
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
-        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        $ossRuntime = new RuntimeOptions([]);
         RpcUtils::convert($runtime, $ossRuntime);
         $ossClient->postObject($uploadRequest, $ossRuntime);
         // Step 2: request final api
