@@ -12,7 +12,7 @@
 ```xml
 <dependency>
     <groupId>com.aliyun</groupId>
-    <artifactId>ocr</artifactId>
+    <artifactId>ocr20191230</artifactId>
     <version>[0.0.1,1.0.0)</version>
 </dependency>
 ```
@@ -27,11 +27,11 @@
 
 4. 发起请求并处理应答或异常。
 ```java
-import com.aliyun.common.models.RuntimeOptions;
-import com.aliyun.ocr.Client;
-import com.aliyun.ocr.models.Config;
-import com.aliyun.ocr.models.RecognizeBankCardAdvanceRequest;
-import com.aliyun.ocr.models.RecognizeBankCardResponse;
+import com.aliyun.ocr20191230.Client;
+import com.aliyun.ocr20191230.models.RecognizeBankCardAdvanceRequest;
+import com.aliyun.ocr20191230.models.RecognizeBankCardResponse;
+import com.aliyun.tearpc.models.Config;
+import com.aliyun.teautil.models.RuntimeOptions;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
