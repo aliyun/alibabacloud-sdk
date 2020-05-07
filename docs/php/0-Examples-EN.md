@@ -6,11 +6,11 @@
 
 - To use Alibaba Cloud SDK for PHP, you must have an Alibaba Cloud account as well as an `AccessKey ID` and an `AccessKey Secret`. Create and view your AccessKey on the [RAM console](https://ram.console.aliyun.com "RAM console") or contact your system administrator.
 - To use the Alibaba Cloud SDK for PHP to access the APIs of a product, you must first activate the product on the [Alibaba Cloud console](https://home.console.aliyun.com) if required.
-- The Alibaba Cloud PHP SDK requires JDK 1.6 or later.
+- The Alibaba Cloud PHP SDK requires PHP 5.6 or later.
 
 ## Installation
 
-If you use `Composer` to manage php libraries
+If you use `Composer` to manage PHP libraries
 
 ```bash
 # require alibabacloud/imagesearch-20200212 for example
