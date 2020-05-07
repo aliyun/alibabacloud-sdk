@@ -35,32 +35,27 @@ namespace demo;
 require __DIR__ . '/vendor/autoload.php';
 
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
-use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\Config;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-$config = new Config([
-    'type'            => 'access_key',
-    'accessKeyId'     => '<Access-Key-Id>',
-    'accessKeySecret' => '<Access-Key-Secret>',
-    'regionId'        => 'cn-shanghai',
-    'endpoint'        => 'imagesearch.cn-shanghai.aliyuncs.com',
-]);
-
-$client = new ImageSearch($config);
-
-$request          = new ImageSearch\SearchImageByNameRequest();
-$request->picName = 'test';
+$config                  = new Config();
+$config->accessKeyId     = "<Access-Key-Id>";
+$config->accessKeySecret = "<Access-Key-Secret>";
+$config->regionId        = "cn-shanghai";
+$config->endpoint        = "imagesearch.cn-shanghai.aliyuncs.com";
+$client                  = new ImageSearch($config);
+$request                 = new ImageSearch\SearchImageByNameRequest();
+$request->picName        = 'test';
 
 $runtime                 = new RuntimeOptions();
 $runtime->maxIdleConns   = 3;
 $runtime->connectTimeout = 10000;
 $runtime->readTimeout    = 10000;
-
 try {
     $response = $client->searchImageByName($request, $runtime);
     var_dump($response);
-} catch (TeaError $e) {
-    var_dump($e->getErrorInfo());
+} catch (TeaUnableRetryError $e) {
+    var_dump($e->getLastException(), $e->getLastRequest());
 }
 ```
 
