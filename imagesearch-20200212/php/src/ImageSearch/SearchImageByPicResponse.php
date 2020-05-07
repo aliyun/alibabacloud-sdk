@@ -124,15 +124,15 @@ class SearchImageByPicResponse extends Model
                 $model->auctions = [];
                 $n               = 0;
                 foreach ($map['Auctions'] as $item) {
-                    $model->auctions[$n++] = null !== $item ? SearchImageByPicResponse\auctions::fromMap($item) : $item;
+                    $model->auctions[$n++] = null !== $item ? \AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicResponse\auctions::fromMap($item) : $item;
                 }
             }
         }
         if (isset($map['Head'])) {
-            $model->head = SearchImageByPicResponse\head::fromMap($map['Head']);
+            $model->head = SearchImageByPicResponse . head::fromMap($map['Head']);
         }
         if (isset($map['PicInfo'])) {
-            $model->picInfo = SearchImageByPicResponse\picInfo::fromMap($map['PicInfo']);
+            $model->picInfo = SearchImageByPicResponse . picInfo::fromMap($map['PicInfo']);
         }
 
         return $model;

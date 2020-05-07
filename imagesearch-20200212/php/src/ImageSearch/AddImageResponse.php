@@ -93,7 +93,7 @@ class AddImageResponse extends Model
             $model->code = $map['Code'];
         }
         if (isset($map['PicInfo'])) {
-            $model->picInfo = AddImageResponse\picInfo::fromMap($map['PicInfo']);
+            $model->picInfo = AddImageResponse . picInfo::fromMap($map['PicInfo']);
         }
 
         return $model;
