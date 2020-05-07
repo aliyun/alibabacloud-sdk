@@ -55,7 +55,7 @@ $runtime->connectTimeout = 10000;
 $runtime->readTimeout    = 10000;
 try {
     $response = $client->searchImageByName($request, $runtime);
-    var_dump($response);
+    var_dump($response->toMap());
 } catch (TeaUnableRetryError $e) {
     $exception = $e->getLastException();
     /* @var \AlibabaCloud\Tea\Exception\TeaError $exception */
