@@ -19,7 +19,7 @@ import (
 
 	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
-	util "github.com/alibabacloud-go/tea-util/service"
+	util "github.com/alibabacloud-go/tea-utils/service"
 )
 
 func main() {
