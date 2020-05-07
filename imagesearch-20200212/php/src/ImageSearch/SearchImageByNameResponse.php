@@ -4,6 +4,7 @@
 
 namespace AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch;
 
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameResponse\auctions;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameResponse\head;
 use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameResponse\picInfo;
 use AlibabaCloud\Tea\Model;
