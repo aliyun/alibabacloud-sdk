@@ -76,7 +76,7 @@ class picInfo extends Model
                 $model->allCategories = [];
                 $n                    = 0;
                 foreach ($map['AllCategories'] as $item) {
-                    $model->allCategories[$n++] = null !== $item ? \AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameResponse\picInfo\allCategories::fromMap($item) : $item;
+                    $model->allCategories[$n++] = null !== $item ? allCategories::fromMap($item) : $item;
                 }
             }
         }
