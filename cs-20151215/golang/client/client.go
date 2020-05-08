@@ -692,7 +692,8 @@ func (s *UnInstallClusterAddonsResponse) SetBody(v *UnInstallClusterAddonsRespon
 }
 
 type DescribeAddonsQuery struct {
-	Region *string `json:"region" xml:"region"`
+	Region      *string `json:"region" xml:"region"`
+	ClusterType *string `json:"cluster_type" xml:"cluster_type"`
 }
 
 func (s DescribeAddonsQuery) String() string {
@@ -705,6 +706,11 @@ func (s DescribeAddonsQuery) GoString() string {
 
 func (s *DescribeAddonsQuery) SetRegion(v string) *DescribeAddonsQuery {
 	s.Region = &v
+	return s
+}
+
+func (s *DescribeAddonsQuery) SetClusterType(v string) *DescribeAddonsQuery {
+	s.ClusterType = &v
 	return s
 }
 
@@ -905,59 +911,134 @@ func (s *DescribeAddonsResponse) SetBody(v *DescribeAddonsResponseBody) *Describ
 	return s
 }
 
-type UpdateK8sClusterUserConfigExpireRequest struct {
+type CancelClusterUpgradeRequest struct {
 	Headers map[string]string `json:"headers" xml:"headers"`
 }
 
-func (s UpdateK8sClusterUserConfigExpireRequest) String() string {
+func (s CancelClusterUpgradeRequest) String() string {
 	return tea.Prettify(s)
 }
 
-func (s UpdateK8sClusterUserConfigExpireRequest) GoString() string {
+func (s CancelClusterUpgradeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *UpdateK8sClusterUserConfigExpireRequest) SetHeaders(v map[string]string) *UpdateK8sClusterUserConfigExpireRequest {
+func (s *CancelClusterUpgradeRequest) SetHeaders(v map[string]string) *CancelClusterUpgradeRequest {
 	s.Headers = v
 	return s
 }
 
-type UpdateK8sClusterUserConfigExpireResponseBody struct {
+type CancelClusterUpgradeResponseBody struct {
 	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
 }
 
-func (s UpdateK8sClusterUserConfigExpireResponseBody) String() string {
+func (s CancelClusterUpgradeResponseBody) String() string {
 	return tea.Prettify(s)
 }
 
-func (s UpdateK8sClusterUserConfigExpireResponseBody) GoString() string {
+func (s CancelClusterUpgradeResponseBody) GoString() string {
 	return s.String()
 }
 
-func (s *UpdateK8sClusterUserConfigExpireResponseBody) SetRequestId(v string) *UpdateK8sClusterUserConfigExpireResponseBody {
+func (s *CancelClusterUpgradeResponseBody) SetRequestId(v string) *CancelClusterUpgradeResponseBody {
 	s.RequestId = &v
 	return s
 }
 
-type UpdateK8sClusterUserConfigExpireResponse struct {
-	Headers map[string]string                             `json:"headers" xml:"headers" require:"true"`
-	Body    *UpdateK8sClusterUserConfigExpireResponseBody `json:"body" xml:"body" require:"true"`
+type CancelClusterUpgradeResponse struct {
+	Headers map[string]string                 `json:"headers" xml:"headers" require:"true"`
+	Body    *CancelClusterUpgradeResponseBody `json:"body" xml:"body" require:"true"`
 }
 
-func (s UpdateK8sClusterUserConfigExpireResponse) String() string {
+func (s CancelClusterUpgradeResponse) String() string {
 	return tea.Prettify(s)
 }
 
-func (s UpdateK8sClusterUserConfigExpireResponse) GoString() string {
+func (s CancelClusterUpgradeResponse) GoString() string {
 	return s.String()
 }
 
-func (s *UpdateK8sClusterUserConfigExpireResponse) SetHeaders(v map[string]string) *UpdateK8sClusterUserConfigExpireResponse {
+func (s *CancelClusterUpgradeResponse) SetHeaders(v map[string]string) *CancelClusterUpgradeResponse {
 	s.Headers = v
 	return s
 }
 
-func (s *UpdateK8sClusterUserConfigExpireResponse) SetBody(v *UpdateK8sClusterUserConfigExpireResponseBody) *UpdateK8sClusterUserConfigExpireResponse {
+func (s *CancelClusterUpgradeResponse) SetBody(v *CancelClusterUpgradeResponseBody) *CancelClusterUpgradeResponse {
+	s.Body = v
+	return s
+}
+
+type DescribeUserQuotaRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s DescribeUserQuotaRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeUserQuotaRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeUserQuotaRequest) SetHeaders(v map[string]string) *DescribeUserQuotaRequest {
+	s.Headers = v
+	return s
+}
+
+type DescribeUserQuotaResponseBody struct {
+	ClusterQuota    *int `json:"cluster_quota" xml:"cluster_quota" require:"true"`
+	NodeQuota       *int `json:"node_quota" xml:"node_quota" require:"true"`
+	AskClusterQuota *int `json:"ask_cluster_quota" xml:"ask_cluster_quota" require:"true"`
+	AmkClusterQuota *int `json:"amk_cluster_quota" xml:"amk_cluster_quota" require:"true"`
+}
+
+func (s DescribeUserQuotaResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeUserQuotaResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeUserQuotaResponseBody) SetClusterQuota(v int) *DescribeUserQuotaResponseBody {
+	s.ClusterQuota = &v
+	return s
+}
+
+func (s *DescribeUserQuotaResponseBody) SetNodeQuota(v int) *DescribeUserQuotaResponseBody {
+	s.NodeQuota = &v
+	return s
+}
+
+func (s *DescribeUserQuotaResponseBody) SetAskClusterQuota(v int) *DescribeUserQuotaResponseBody {
+	s.AskClusterQuota = &v
+	return s
+}
+
+func (s *DescribeUserQuotaResponseBody) SetAmkClusterQuota(v int) *DescribeUserQuotaResponseBody {
+	s.AmkClusterQuota = &v
+	return s
+}
+
+type DescribeUserQuotaResponse struct {
+	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Body    *DescribeUserQuotaResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeUserQuotaResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeUserQuotaResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeUserQuotaResponse) SetHeaders(v map[string]string) *DescribeUserQuotaResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeUserQuotaResponse) SetBody(v *DescribeUserQuotaResponseBody) *DescribeUserQuotaResponse {
 	s.Body = v
 	return s
 }
@@ -1039,6 +1120,476 @@ func (s *DescribeClusterV2UserKubeconfigResponse) SetHeaders(v map[string]string
 
 func (s *DescribeClusterV2UserKubeconfigResponse) SetBody(v *DescribeClusterV2UserKubeconfigResponseBody) *DescribeClusterV2UserKubeconfigResponse {
 	s.Body = v
+	return s
+}
+
+type RemoveClusterNodesBody struct {
+	ReleaseNode *bool                          `json:"release_node" xml:"release_node"`
+	DrainNode   *bool                          `json:"drain_node" xml:"drain_node"`
+	Nodes       []*RemoveClusterNodesBodyNodes `json:"nodes" xml:"nodes" require:"true" type:"Repeated"`
+}
+
+func (s RemoveClusterNodesBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RemoveClusterNodesBody) GoString() string {
+	return s.String()
+}
+
+func (s *RemoveClusterNodesBody) SetReleaseNode(v bool) *RemoveClusterNodesBody {
+	s.ReleaseNode = &v
+	return s
+}
+
+func (s *RemoveClusterNodesBody) SetDrainNode(v bool) *RemoveClusterNodesBody {
+	s.DrainNode = &v
+	return s
+}
+
+func (s *RemoveClusterNodesBody) SetNodes(v []*RemoveClusterNodesBodyNodes) *RemoveClusterNodesBody {
+	s.Nodes = v
+	return s
+}
+
+type RemoveClusterNodesBodyNodes struct {
+	NodeName *string `json:"node_name" xml:"node_name"`
+}
+
+func (s RemoveClusterNodesBodyNodes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RemoveClusterNodesBodyNodes) GoString() string {
+	return s.String()
+}
+
+func (s *RemoveClusterNodesBodyNodes) SetNodeName(v string) *RemoveClusterNodesBodyNodes {
+	s.NodeName = &v
+	return s
+}
+
+type RemoveClusterNodesRequest struct {
+	Headers map[string]string       `json:"headers" xml:"headers"`
+	Body    *RemoveClusterNodesBody `json:"body" xml:"body"`
+}
+
+func (s RemoveClusterNodesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RemoveClusterNodesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RemoveClusterNodesRequest) SetHeaders(v map[string]string) *RemoveClusterNodesRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *RemoveClusterNodesRequest) SetBody(v *RemoveClusterNodesBody) *RemoveClusterNodesRequest {
+	s.Body = v
+	return s
+}
+
+type RemoveClusterNodesResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s RemoveClusterNodesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RemoveClusterNodesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RemoveClusterNodesResponse) SetHeaders(v map[string]string) *RemoveClusterNodesResponse {
+	s.Headers = v
+	return s
+}
+
+type UpgradeClusterBody struct {
+	Version *string `json:"version" xml:"version"`
+}
+
+func (s UpgradeClusterBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UpgradeClusterBody) GoString() string {
+	return s.String()
+}
+
+func (s *UpgradeClusterBody) SetVersion(v string) *UpgradeClusterBody {
+	s.Version = &v
+	return s
+}
+
+type UpgradeClusterRequest struct {
+	Headers map[string]string   `json:"headers" xml:"headers"`
+	Body    *UpgradeClusterBody `json:"body" xml:"body"`
+}
+
+func (s UpgradeClusterRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UpgradeClusterRequest) GoString() string {
+	return s.String()
+}
+
+func (s *UpgradeClusterRequest) SetHeaders(v map[string]string) *UpgradeClusterRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *UpgradeClusterRequest) SetBody(v *UpgradeClusterBody) *UpgradeClusterRequest {
+	s.Body = v
+	return s
+}
+
+type UpgradeClusterResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s UpgradeClusterResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UpgradeClusterResponse) GoString() string {
+	return s.String()
+}
+
+func (s *UpgradeClusterResponse) SetHeaders(v map[string]string) *UpgradeClusterResponse {
+	s.Headers = v
+	return s
+}
+
+type PauseClusterUpgradeRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s PauseClusterUpgradeRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s PauseClusterUpgradeRequest) GoString() string {
+	return s.String()
+}
+
+func (s *PauseClusterUpgradeRequest) SetHeaders(v map[string]string) *PauseClusterUpgradeRequest {
+	s.Headers = v
+	return s
+}
+
+type PauseClusterUpgradeResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s PauseClusterUpgradeResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s PauseClusterUpgradeResponse) GoString() string {
+	return s.String()
+}
+
+func (s *PauseClusterUpgradeResponse) SetHeaders(v map[string]string) *PauseClusterUpgradeResponse {
+	s.Headers = v
+	return s
+}
+
+type ResumeUpgradeClusterRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s ResumeUpgradeClusterRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ResumeUpgradeClusterRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ResumeUpgradeClusterRequest) SetHeaders(v map[string]string) *ResumeUpgradeClusterRequest {
+	s.Headers = v
+	return s
+}
+
+type ResumeUpgradeClusterResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s ResumeUpgradeClusterResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ResumeUpgradeClusterResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ResumeUpgradeClusterResponse) SetHeaders(v map[string]string) *ResumeUpgradeClusterResponse {
+	s.Headers = v
+	return s
+}
+
+type GetUpgradeStatusRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s GetUpgradeStatusRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetUpgradeStatusRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetUpgradeStatusRequest) SetHeaders(v map[string]string) *GetUpgradeStatusRequest {
+	s.Headers = v
+	return s
+}
+
+type GetUpgradeStatusResponseBody struct {
+	Status           *string `json:"status" xml:"status" require:"true"`
+	PrecheckReportId *string `json:"precheck_report_id" xml:"precheck_report_id" require:"true"`
+	UpgradeStep      *string `json:"upgrade_step" xml:"upgrade_step" require:"true"`
+	ErrorMessage     *string `json:"error_message" xml:"error_message" require:"true"`
+}
+
+func (s GetUpgradeStatusResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetUpgradeStatusResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *GetUpgradeStatusResponseBody) SetStatus(v string) *GetUpgradeStatusResponseBody {
+	s.Status = &v
+	return s
+}
+
+func (s *GetUpgradeStatusResponseBody) SetPrecheckReportId(v string) *GetUpgradeStatusResponseBody {
+	s.PrecheckReportId = &v
+	return s
+}
+
+func (s *GetUpgradeStatusResponseBody) SetUpgradeStep(v string) *GetUpgradeStatusResponseBody {
+	s.UpgradeStep = &v
+	return s
+}
+
+func (s *GetUpgradeStatusResponseBody) SetErrorMessage(v string) *GetUpgradeStatusResponseBody {
+	s.ErrorMessage = &v
+	return s
+}
+
+type GetUpgradeStatusResponse struct {
+	Headers map[string]string             `json:"headers" xml:"headers" require:"true"`
+	Body    *GetUpgradeStatusResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s GetUpgradeStatusResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetUpgradeStatusResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetUpgradeStatusResponse) SetHeaders(v map[string]string) *GetUpgradeStatusResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *GetUpgradeStatusResponse) SetBody(v *GetUpgradeStatusResponseBody) *GetUpgradeStatusResponse {
+	s.Body = v
+	return s
+}
+
+type ModifyClusterBody struct {
+	DeletionProtection    *bool   `json:"deletion_protection" xml:"deletion_protection"`
+	IngressLoadbalancerId *string `json:"ingress_loadbalancer_id" xml:"ingress_loadbalancer_id"`
+	ResourceGroupId       *string `json:"resource_group_id" xml:"resource_group_id"`
+}
+
+func (s ModifyClusterBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ModifyClusterBody) GoString() string {
+	return s.String()
+}
+
+func (s *ModifyClusterBody) SetDeletionProtection(v bool) *ModifyClusterBody {
+	s.DeletionProtection = &v
+	return s
+}
+
+func (s *ModifyClusterBody) SetIngressLoadbalancerId(v string) *ModifyClusterBody {
+	s.IngressLoadbalancerId = &v
+	return s
+}
+
+func (s *ModifyClusterBody) SetResourceGroupId(v string) *ModifyClusterBody {
+	s.ResourceGroupId = &v
+	return s
+}
+
+type ModifyClusterRequest struct {
+	Headers map[string]string  `json:"headers" xml:"headers"`
+	Body    *ModifyClusterBody `json:"body" xml:"body"`
+}
+
+func (s ModifyClusterRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ModifyClusterRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ModifyClusterRequest) SetHeaders(v map[string]string) *ModifyClusterRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *ModifyClusterRequest) SetBody(v *ModifyClusterBody) *ModifyClusterRequest {
+	s.Body = v
+	return s
+}
+
+type ModifyClusterResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s ModifyClusterResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ModifyClusterResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ModifyClusterResponse) SetHeaders(v map[string]string) *ModifyClusterResponse {
+	s.Headers = v
+	return s
+}
+
+type InstallClusterAddonsBody struct {
+	Name     *string `json:"name" xml:"name"`
+	Version  *string `json:"version" xml:"version"`
+	Disabled *bool   `json:"disabled" xml:"disabled"`
+	Required *string `json:"required" xml:"required"`
+	Config   *string `json:"config" xml:"config"`
+}
+
+func (s InstallClusterAddonsBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s InstallClusterAddonsBody) GoString() string {
+	return s.String()
+}
+
+func (s *InstallClusterAddonsBody) SetName(v string) *InstallClusterAddonsBody {
+	s.Name = &v
+	return s
+}
+
+func (s *InstallClusterAddonsBody) SetVersion(v string) *InstallClusterAddonsBody {
+	s.Version = &v
+	return s
+}
+
+func (s *InstallClusterAddonsBody) SetDisabled(v bool) *InstallClusterAddonsBody {
+	s.Disabled = &v
+	return s
+}
+
+func (s *InstallClusterAddonsBody) SetRequired(v string) *InstallClusterAddonsBody {
+	s.Required = &v
+	return s
+}
+
+func (s *InstallClusterAddonsBody) SetConfig(v string) *InstallClusterAddonsBody {
+	s.Config = &v
+	return s
+}
+
+type InstallClusterAddonsRequest struct {
+	Headers map[string]string         `json:"headers" xml:"headers"`
+	Body    *InstallClusterAddonsBody `json:"body" xml:"body"`
+}
+
+func (s InstallClusterAddonsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s InstallClusterAddonsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *InstallClusterAddonsRequest) SetHeaders(v map[string]string) *InstallClusterAddonsRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *InstallClusterAddonsRequest) SetBody(v *InstallClusterAddonsBody) *InstallClusterAddonsRequest {
+	s.Body = v
+	return s
+}
+
+type InstallClusterAddonsResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s InstallClusterAddonsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s InstallClusterAddonsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *InstallClusterAddonsResponse) SetHeaders(v map[string]string) *InstallClusterAddonsResponse {
+	s.Headers = v
+	return s
+}
+
+type DeleteTriggerHookRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s DeleteTriggerHookRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteTriggerHookRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteTriggerHookRequest) SetHeaders(v map[string]string) *DeleteTriggerHookRequest {
+	s.Headers = v
+	return s
+}
+
+type DeleteTriggerHookResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s DeleteTriggerHookResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteTriggerHookResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteTriggerHookResponse) SetHeaders(v map[string]string) *DeleteTriggerHookResponse {
+	s.Headers = v
 	return s
 }
 
@@ -1125,6 +1676,167 @@ func (s *ModifyClusterTagsResponse) SetHeaders(v map[string]string) *ModifyClust
 
 func (s *ModifyClusterTagsResponse) SetBody(v *ModifyClusterTagsResponseBody) *ModifyClusterTagsResponse {
 	s.Body = v
+	return s
+}
+
+type DescribeExternalAgentRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s DescribeExternalAgentRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeExternalAgentRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeExternalAgentRequest) SetHeaders(v map[string]string) *DescribeExternalAgentRequest {
+	s.Headers = v
+	return s
+}
+
+type DescribeExternalAgentResponseBody struct {
+	Config *string `json:"config" xml:"config" require:"true"`
+}
+
+func (s DescribeExternalAgentResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeExternalAgentResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeExternalAgentResponseBody) SetConfig(v string) *DescribeExternalAgentResponseBody {
+	s.Config = &v
+	return s
+}
+
+type DescribeExternalAgentResponse struct {
+	Headers map[string]string                  `json:"headers" xml:"headers" require:"true"`
+	Body    *DescribeExternalAgentResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeExternalAgentResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeExternalAgentResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeExternalAgentResponse) SetHeaders(v map[string]string) *DescribeExternalAgentResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeExternalAgentResponse) SetBody(v *DescribeExternalAgentResponseBody) *DescribeExternalAgentResponse {
+	s.Body = v
+	return s
+}
+
+type DescribeClusterAttachScriptsBody struct {
+	Options *DescribeClusterAttachScriptsBodyOptions `json:"options" xml:"options" require:"true" type:"Struct"`
+}
+
+func (s DescribeClusterAttachScriptsBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterAttachScriptsBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterAttachScriptsBody) SetOptions(v *DescribeClusterAttachScriptsBodyOptions) *DescribeClusterAttachScriptsBody {
+	s.Options = v
+	return s
+}
+
+type DescribeClusterAttachScriptsBodyOptions struct {
+	FlannelIface     *string `json:"flannelIface" xml:"flannelIface"`
+	EnableIptables   *bool   `json:"enableIptables" xml:"enableIptables"`
+	ManageRuntime    *bool   `json:"manageRuntime" xml:"manageRuntime"`
+	NodeNameStrategy *string `json:"nodeNameStrategy" xml:"nodeNameStrategy"`
+	NodeName         *string `json:"nodeName" xml:"nodeName"`
+	NodeNamePrefix   *string `json:"nodeNamePrefix" xml:"nodeNamePrefix"`
+}
+
+func (s DescribeClusterAttachScriptsBodyOptions) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterAttachScriptsBodyOptions) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetFlannelIface(v string) *DescribeClusterAttachScriptsBodyOptions {
+	s.FlannelIface = &v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetEnableIptables(v bool) *DescribeClusterAttachScriptsBodyOptions {
+	s.EnableIptables = &v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetManageRuntime(v bool) *DescribeClusterAttachScriptsBodyOptions {
+	s.ManageRuntime = &v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeNameStrategy(v string) *DescribeClusterAttachScriptsBodyOptions {
+	s.NodeNameStrategy = &v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeName(v string) *DescribeClusterAttachScriptsBodyOptions {
+	s.NodeName = &v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeNamePrefix(v string) *DescribeClusterAttachScriptsBodyOptions {
+	s.NodeNamePrefix = &v
+	return s
+}
+
+type DescribeClusterAttachScriptsRequest struct {
+	Headers map[string]string                 `json:"headers" xml:"headers"`
+	Body    *DescribeClusterAttachScriptsBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeClusterAttachScriptsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterAttachScriptsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterAttachScriptsRequest) SetHeaders(v map[string]string) *DescribeClusterAttachScriptsRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsRequest) SetBody(v *DescribeClusterAttachScriptsBody) *DescribeClusterAttachScriptsRequest {
+	s.Body = v
+	return s
+}
+
+type DescribeClusterAttachScriptsResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s DescribeClusterAttachScriptsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterAttachScriptsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterAttachScriptsResponse) SetHeaders(v map[string]string) *DescribeClusterAttachScriptsResponse {
+	s.Headers = v
 	return s
 }
 
@@ -1415,6 +2127,150 @@ func (s *ScaleOutClusterResponse) SetBody(v *ScaleOutClusterResponseBody) *Scale
 	return s
 }
 
+type CreateTriggerHookBody struct {
+	RegionId   *string `json:"region_id" xml:"region_id"`
+	ClusterId  *string `json:"cluster_id" xml:"cluster_id"`
+	ProjectId  *string `json:"project_id" xml:"project_id"`
+	Action     *string `json:"action" xml:"action"`
+	TriggerUrl *string `json:"trigger_url" xml:"trigger_url"`
+}
+
+func (s CreateTriggerHookBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTriggerHookBody) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTriggerHookBody) SetRegionId(v string) *CreateTriggerHookBody {
+	s.RegionId = &v
+	return s
+}
+
+func (s *CreateTriggerHookBody) SetClusterId(v string) *CreateTriggerHookBody {
+	s.ClusterId = &v
+	return s
+}
+
+func (s *CreateTriggerHookBody) SetProjectId(v string) *CreateTriggerHookBody {
+	s.ProjectId = &v
+	return s
+}
+
+func (s *CreateTriggerHookBody) SetAction(v string) *CreateTriggerHookBody {
+	s.Action = &v
+	return s
+}
+
+func (s *CreateTriggerHookBody) SetTriggerUrl(v string) *CreateTriggerHookBody {
+	s.TriggerUrl = &v
+	return s
+}
+
+type CreateTriggerHookRequest struct {
+	Headers map[string]string      `json:"headers" xml:"headers"`
+	Body    *CreateTriggerHookBody `json:"body" xml:"body"`
+}
+
+func (s CreateTriggerHookRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTriggerHookRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTriggerHookRequest) SetHeaders(v map[string]string) *CreateTriggerHookRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *CreateTriggerHookRequest) SetBody(v *CreateTriggerHookBody) *CreateTriggerHookRequest {
+	s.Body = v
+	return s
+}
+
+type CreateTriggerHookResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s CreateTriggerHookResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTriggerHookResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTriggerHookResponse) SetHeaders(v map[string]string) *CreateTriggerHookResponse {
+	s.Headers = v
+	return s
+}
+
+type UpgradeClusterAddonsBody struct {
+	ComponentName *string `json:"component_name" xml:"component_name"`
+	Version       *string `json:"version" xml:"version"`
+}
+
+func (s UpgradeClusterAddonsBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UpgradeClusterAddonsBody) GoString() string {
+	return s.String()
+}
+
+func (s *UpgradeClusterAddonsBody) SetComponentName(v string) *UpgradeClusterAddonsBody {
+	s.ComponentName = &v
+	return s
+}
+
+func (s *UpgradeClusterAddonsBody) SetVersion(v string) *UpgradeClusterAddonsBody {
+	s.Version = &v
+	return s
+}
+
+type UpgradeClusterAddonsRequest struct {
+	Headers map[string]string         `json:"headers" xml:"headers"`
+	Body    *UpgradeClusterAddonsBody `json:"body" xml:"body"`
+}
+
+func (s UpgradeClusterAddonsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UpgradeClusterAddonsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *UpgradeClusterAddonsRequest) SetHeaders(v map[string]string) *UpgradeClusterAddonsRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *UpgradeClusterAddonsRequest) SetBody(v *UpgradeClusterAddonsBody) *UpgradeClusterAddonsRequest {
+	s.Body = v
+	return s
+}
+
+type UpgradeClusterAddonsResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s UpgradeClusterAddonsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UpgradeClusterAddonsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *UpgradeClusterAddonsResponse) SetHeaders(v map[string]string) *UpgradeClusterAddonsResponse {
+	s.Headers = v
+	return s
+}
+
 type DescribeClusterAddonsVersionRequest struct {
 	Headers map[string]string `json:"headers" xml:"headers"`
 }
@@ -1433,18 +2289,14 @@ func (s *DescribeClusterAddonsVersionRequest) SetHeaders(v map[string]string) *D
 }
 
 type DescribeClusterAddonsVersionResponseBody struct {
-	Template       *string `json:"template" xml:"template" require:"true"`
-	ReadyToUpgrade *string `json:"ready_to_upgrade" xml:"ready_to_upgrade" require:"true"`
-	NextVersion    *string `json:"next_version" xml:"next_version" require:"true"`
-	CanUpgrade     *bool   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
-	ComponentName  *string `json:"component_name" xml:"component_name" require:"true"`
-	Version        *string `json:"version" xml:"version" require:"true"`
-	Changed        *string `json:"changed" xml:"changed" require:"true"`
-	Message        *string `json:"message" xml:"message" require:"true"`
-	Policy         *string `json:"policy" xml:"policy" require:"true"`
-	Force          *bool   `json:"force" xml:"force" require:"true"`
-	Required       *bool   `json:"required" xml:"required" require:"true"`
-	Exist          *bool   `json:"exist" xml:"exist" require:"true"`
+	Template      *string `json:"template" xml:"template" require:"true"`
+	NextVersion   *string `json:"next_version" xml:"next_version" require:"true"`
+	CanUpgrade    *bool   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
+	ComponentName *string `json:"component_name" xml:"component_name" require:"true"`
+	Version       *string `json:"version" xml:"version" require:"true"`
+	Changed       *string `json:"changed" xml:"changed" require:"true"`
+	Message       *string `json:"message" xml:"message" require:"true"`
+	Required      *bool   `json:"required" xml:"required" require:"true"`
 }
 
 func (s DescribeClusterAddonsVersionResponseBody) String() string {
@@ -1457,11 +2309,6 @@ func (s DescribeClusterAddonsVersionResponseBody) GoString() string {
 
 func (s *DescribeClusterAddonsVersionResponseBody) SetTemplate(v string) *DescribeClusterAddonsVersionResponseBody {
 	s.Template = &v
-	return s
-}
-
-func (s *DescribeClusterAddonsVersionResponseBody) SetReadyToUpgrade(v string) *DescribeClusterAddonsVersionResponseBody {
-	s.ReadyToUpgrade = &v
 	return s
 }
 
@@ -1495,23 +2342,8 @@ func (s *DescribeClusterAddonsVersionResponseBody) SetMessage(v string) *Describ
 	return s
 }
 
-func (s *DescribeClusterAddonsVersionResponseBody) SetPolicy(v string) *DescribeClusterAddonsVersionResponseBody {
-	s.Policy = &v
-	return s
-}
-
-func (s *DescribeClusterAddonsVersionResponseBody) SetForce(v bool) *DescribeClusterAddonsVersionResponseBody {
-	s.Force = &v
-	return s
-}
-
 func (s *DescribeClusterAddonsVersionResponseBody) SetRequired(v bool) *DescribeClusterAddonsVersionResponseBody {
 	s.Required = &v
-	return s
-}
-
-func (s *DescribeClusterAddonsVersionResponseBody) SetExist(v bool) *DescribeClusterAddonsVersionResponseBody {
-	s.Exist = &v
 	return s
 }
 
@@ -1556,7 +2388,9 @@ func (s *DescribeClusterAddonUpgradeStatusRequest) SetHeaders(v map[string]strin
 }
 
 type DescribeClusterAddonUpgradeStatusResponseBody struct {
-	ComponentId *DescribeClusterAddonUpgradeStatusResponseBodyComponentId `json:"ComponentId" xml:"ComponentId" require:"true" type:"Struct"`
+	Template   *string                                                 `json:"template" xml:"template" require:"true"`
+	CanUpgrade *bool                                                   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
+	AddonInfo  *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo `json:"addon_info" xml:"addon_info" require:"true" type:"Struct"`
 }
 
 func (s DescribeClusterAddonUpgradeStatusResponseBody) String() string {
@@ -1567,125 +2401,59 @@ func (s DescribeClusterAddonUpgradeStatusResponseBody) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBody) SetComponentId(v *DescribeClusterAddonUpgradeStatusResponseBodyComponentId) *DescribeClusterAddonUpgradeStatusResponseBody {
-	s.ComponentId = v
-	return s
-}
-
-type DescribeClusterAddonUpgradeStatusResponseBodyComponentId struct {
-	Template   *string                                                            `json:"template" xml:"template" require:"true"`
-	CanUpgrade *bool                                                              `json:"can_upgrade" xml:"can_upgrade" require:"true"`
-	Changed    *string                                                            `json:"changed" xml:"changed" require:"true"`
-	AddonInfo  *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo `json:"addon_info" xml:"addon_info" require:"true" type:"Struct"`
-	Tasks      *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks     `json:"tasks" xml:"tasks" require:"true" type:"Struct"`
-}
-
-func (s DescribeClusterAddonUpgradeStatusResponseBodyComponentId) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClusterAddonUpgradeStatusResponseBodyComponentId) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentId) SetTemplate(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentId {
+func (s *DescribeClusterAddonUpgradeStatusResponseBody) SetTemplate(v string) *DescribeClusterAddonUpgradeStatusResponseBody {
 	s.Template = &v
 	return s
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentId) SetCanUpgrade(v bool) *DescribeClusterAddonUpgradeStatusResponseBodyComponentId {
+func (s *DescribeClusterAddonUpgradeStatusResponseBody) SetCanUpgrade(v bool) *DescribeClusterAddonUpgradeStatusResponseBody {
 	s.CanUpgrade = &v
 	return s
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentId) SetChanged(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentId {
-	s.Changed = &v
-	return s
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentId) SetAddonInfo(v *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) *DescribeClusterAddonUpgradeStatusResponseBodyComponentId {
+func (s *DescribeClusterAddonUpgradeStatusResponseBody) SetAddonInfo(v *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) *DescribeClusterAddonUpgradeStatusResponseBody {
 	s.AddonInfo = v
 	return s
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentId) SetTasks(v *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) *DescribeClusterAddonUpgradeStatusResponseBodyComponentId {
-	s.Tasks = v
-	return s
+type DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo struct {
+	Message       *string `json:"message" xml:"message" require:"true"`
+	Category      *string `json:"category" xml:"category" require:"true"`
+	Yaml          *string `json:"yaml" xml:"yaml" require:"true"`
+	ComponentName *string `json:"component_name" xml:"component_name" require:"true"`
+	Version       *string `json:"version" xml:"version" require:"true"`
 }
 
-type DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo struct {
-	ComponentName  *string `json:"component_name" xml:"component_name" require:"true"`
-	ReadyToUpgrade *string `json:"ready_to_upgrade" xml:"ready_to_upgrade" require:"true"`
-	Message        *string `json:"message" xml:"message" require:"true"`
-	Version        *string `json:"version" xml:"version" require:"true"`
-	Yaml           *string `json:"yaml" xml:"yaml" require:"true"`
-}
-
-func (s DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) String() string {
+func (s DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) String() string {
 	return tea.Prettify(s)
 }
 
-func (s DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) GoString() string {
+func (s DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) SetComponentName(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo {
-	s.ComponentName = &v
-	return s
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) SetReadyToUpgrade(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo {
-	s.ReadyToUpgrade = &v
-	return s
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) SetMessage(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo {
+func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetMessage(v string) *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo {
 	s.Message = &v
 	return s
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) SetVersion(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo {
-	s.Version = &v
+func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetCategory(v string) *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo {
+	s.Category = &v
 	return s
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo) SetYaml(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdAddonInfo {
+func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetYaml(v string) *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo {
 	s.Yaml = &v
 	return s
 }
 
-type DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks struct {
-	FinishedAt *string `json:"finished_at" xml:"finished_at" require:"true"`
-	MasterUrl  *string `json:"master_url" xml:"master_url" require:"true"`
-	CreatedAt  *string `json:"created_at" xml:"created_at" require:"true"`
-	Status     *string `json:"status" xml:"status" require:"true"`
-}
-
-func (s DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) SetFinishedAt(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks {
-	s.FinishedAt = &v
+func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetComponentName(v string) *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo {
+	s.ComponentName = &v
 	return s
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) SetMasterUrl(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks {
-	s.MasterUrl = &v
-	return s
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) SetCreatedAt(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks {
-	s.CreatedAt = &v
-	return s
-}
-
-func (s *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks) SetStatus(v string) *DescribeClusterAddonUpgradeStatusResponseBodyComponentIdTasks {
-	s.Status = &v
+func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetVersion(v string) *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo {
+	s.Version = &v
 	return s
 }
 
@@ -1708,168 +2476,6 @@ func (s *DescribeClusterAddonUpgradeStatusResponse) SetHeaders(v map[string]stri
 }
 
 func (s *DescribeClusterAddonUpgradeStatusResponse) SetBody(v *DescribeClusterAddonUpgradeStatusResponseBody) *DescribeClusterAddonUpgradeStatusResponse {
-	s.Body = v
-	return s
-}
-
-type DescribeEdgeClusterAttachScriptsQuery struct {
-	NamePrefix *string `json:"NamePrefix" xml:"NamePrefix" require:"true"`
-}
-
-func (s DescribeEdgeClusterAttachScriptsQuery) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeEdgeClusterAttachScriptsQuery) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeEdgeClusterAttachScriptsQuery) SetNamePrefix(v string) *DescribeEdgeClusterAttachScriptsQuery {
-	s.NamePrefix = &v
-	return s
-}
-
-type DescribeEdgeClusterAttachScriptsBody struct {
-	Options *DescribeEdgeClusterAttachScriptsBodyOptions `json:"options" xml:"options" require:"true" type:"Struct"`
-}
-
-func (s DescribeEdgeClusterAttachScriptsBody) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeEdgeClusterAttachScriptsBody) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBody) SetOptions(v *DescribeEdgeClusterAttachScriptsBodyOptions) *DescribeEdgeClusterAttachScriptsBody {
-	s.Options = v
-	return s
-}
-
-type DescribeEdgeClusterAttachScriptsBodyOptions struct {
-	EnableIptables   *bool   `json:"enableIptables" xml:"enableIptables"`
-	FlannelIface     *string `json:"flannelIface" xml:"flannelIface"`
-	GpuVersion       *string `json:"gpuVersion" xml:"gpuVersion"`
-	ManageRuntime    *bool   `json:"manageRuntime" xml:"manageRuntime"`
-	NodeName         *string `json:"nodeName" xml:"nodeName"`
-	NodeNamePrefix   *string `json:"nodeNamePrefix" xml:"nodeNamePrefix"`
-	NodeNameStrategy *bool   `json:"nodeNameStrategy" xml:"nodeNameStrategy"`
-}
-
-func (s DescribeEdgeClusterAttachScriptsBodyOptions) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeEdgeClusterAttachScriptsBodyOptions) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetEnableIptables(v bool) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.EnableIptables = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetFlannelIface(v string) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.FlannelIface = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetGpuVersion(v string) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.GpuVersion = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetManageRuntime(v bool) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.ManageRuntime = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetNodeName(v string) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.NodeName = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetNodeNamePrefix(v string) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.NodeNamePrefix = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsBodyOptions) SetNodeNameStrategy(v bool) *DescribeEdgeClusterAttachScriptsBodyOptions {
-	s.NodeNameStrategy = &v
-	return s
-}
-
-type DescribeEdgeClusterAttachScriptsRequest struct {
-	Headers map[string]string                      `json:"headers" xml:"headers"`
-	Query   *DescribeEdgeClusterAttachScriptsQuery `json:"query" xml:"query" require:"true"`
-	Body    *DescribeEdgeClusterAttachScriptsBody  `json:"body" xml:"body" require:"true"`
-}
-
-func (s DescribeEdgeClusterAttachScriptsRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeEdgeClusterAttachScriptsRequest) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeEdgeClusterAttachScriptsRequest) SetHeaders(v map[string]string) *DescribeEdgeClusterAttachScriptsRequest {
-	s.Headers = v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsRequest) SetQuery(v *DescribeEdgeClusterAttachScriptsQuery) *DescribeEdgeClusterAttachScriptsRequest {
-	s.Query = v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsRequest) SetBody(v *DescribeEdgeClusterAttachScriptsBody) *DescribeEdgeClusterAttachScriptsRequest {
-	s.Body = v
-	return s
-}
-
-type DescribeEdgeClusterAttachScriptsResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Config    *string `json:"config" xml:"config" require:"true"`
-}
-
-func (s DescribeEdgeClusterAttachScriptsResponseBody) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeEdgeClusterAttachScriptsResponseBody) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeEdgeClusterAttachScriptsResponseBody) SetRequestId(v string) *DescribeEdgeClusterAttachScriptsResponseBody {
-	s.RequestId = &v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsResponseBody) SetConfig(v string) *DescribeEdgeClusterAttachScriptsResponseBody {
-	s.Config = &v
-	return s
-}
-
-type DescribeEdgeClusterAttachScriptsResponse struct {
-	Headers map[string]string                             `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeEdgeClusterAttachScriptsResponseBody `json:"body" xml:"body" require:"true"`
-}
-
-func (s DescribeEdgeClusterAttachScriptsResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeEdgeClusterAttachScriptsResponse) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeEdgeClusterAttachScriptsResponse) SetHeaders(v map[string]string) *DescribeEdgeClusterAttachScriptsResponse {
-	s.Headers = v
-	return s
-}
-
-func (s *DescribeEdgeClusterAttachScriptsResponse) SetBody(v *DescribeEdgeClusterAttachScriptsResponseBody) *DescribeEdgeClusterAttachScriptsResponse {
 	s.Body = v
 	return s
 }
@@ -1960,6 +2566,40 @@ func (s *DeleteClusterNodesResponse) SetBody(v *DeleteClusterNodesResponseBody) 
 	return s
 }
 
+type DeleteTemplateRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s DeleteTemplateRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteTemplateRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteTemplateRequest) SetHeaders(v map[string]string) *DeleteTemplateRequest {
+	s.Headers = v
+	return s
+}
+
+type DeleteTemplateResponse struct {
+	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+}
+
+func (s DeleteTemplateResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteTemplateResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteTemplateResponse) SetHeaders(v map[string]string) *DeleteTemplateResponse {
+	s.Headers = v
+	return s
+}
+
 type DescribeClusterUserKubeconfigQuery struct {
 	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress"`
 }
@@ -2001,8 +2641,7 @@ func (s *DescribeClusterUserKubeconfigRequest) SetQuery(v *DescribeClusterUserKu
 }
 
 type DescribeClusterUserKubeconfigResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Config    *string `json:"config" xml:"config" require:"true"`
+	Config *string `json:"config" xml:"config" require:"true"`
 }
 
 func (s DescribeClusterUserKubeconfigResponseBody) String() string {
@@ -2011,11 +2650,6 @@ func (s DescribeClusterUserKubeconfigResponseBody) String() string {
 
 func (s DescribeClusterUserKubeconfigResponseBody) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeClusterUserKubeconfigResponseBody) SetRequestId(v string) *DescribeClusterUserKubeconfigResponseBody {
-	s.RequestId = &v
-	return s
 }
 
 func (s *DescribeClusterUserKubeconfigResponseBody) SetConfig(v string) *DescribeClusterUserKubeconfigResponseBody {
@@ -2042,6 +2676,367 @@ func (s *DescribeClusterUserKubeconfigResponse) SetHeaders(v map[string]string) 
 }
 
 func (s *DescribeClusterUserKubeconfigResponse) SetBody(v *DescribeClusterUserKubeconfigResponseBody) *DescribeClusterUserKubeconfigResponse {
+	s.Body = v
+	return s
+}
+
+type DescribeClusterNodesQuery struct {
+	PageSize   *string `json:"pageSize" xml:"pageSize"`
+	PageNumber *string `json:"pageNumber" xml:"pageNumber"`
+	NodepoolId *string `json:"nodepool_id" xml:"nodepool_id"`
+	State      *string `json:"state" xml:"state"`
+}
+
+func (s DescribeClusterNodesQuery) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesQuery) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesQuery) SetPageSize(v string) *DescribeClusterNodesQuery {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeClusterNodesQuery) SetPageNumber(v string) *DescribeClusterNodesQuery {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeClusterNodesQuery) SetNodepoolId(v string) *DescribeClusterNodesQuery {
+	s.NodepoolId = &v
+	return s
+}
+
+func (s *DescribeClusterNodesQuery) SetState(v string) *DescribeClusterNodesQuery {
+	s.State = &v
+	return s
+}
+
+type DescribeClusterNodesRequest struct {
+	Headers map[string]string          `json:"headers" xml:"headers"`
+	Query   *DescribeClusterNodesQuery `json:"query" xml:"query"`
+}
+
+func (s DescribeClusterNodesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesRequest) SetHeaders(v map[string]string) *DescribeClusterNodesRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeClusterNodesRequest) SetQuery(v *DescribeClusterNodesQuery) *DescribeClusterNodesRequest {
+	s.Query = v
+	return s
+}
+
+type DescribeClusterNodesResponseBody struct {
+	Nodes *DescribeClusterNodesResponseBodyNodes `json:"nodes" xml:"nodes" require:"true" type:"Struct"`
+	Page  *DescribeClusterNodesResponseBodyPage  `json:"page" xml:"page" require:"true" type:"Struct"`
+}
+
+func (s DescribeClusterNodesResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesResponseBody) SetNodes(v *DescribeClusterNodesResponseBodyNodes) *DescribeClusterNodesResponseBody {
+	s.Nodes = v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBody) SetPage(v *DescribeClusterNodesResponseBodyPage) *DescribeClusterNodesResponseBody {
+	s.Page = v
+	return s
+}
+
+type DescribeClusterNodesResponseBodyNodes struct {
+	Nodes []*DescribeClusterNodesResponseBodyNodesNodes `json:"nodes" xml:"nodes" require:"true" type:"Repeated"`
+}
+
+func (s DescribeClusterNodesResponseBodyNodes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesResponseBodyNodes) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesResponseBodyNodes) SetNodes(v []*DescribeClusterNodesResponseBodyNodesNodes) *DescribeClusterNodesResponseBodyNodes {
+	s.Nodes = v
+	return s
+}
+
+type DescribeClusterNodesResponseBodyNodesNodes struct {
+	InstanceId         *string                                              `json:"instance_id" xml:"instance_id" require:"true"`
+	InstanceRole       *string                                              `json:"instance_role" xml:"instance_role" require:"true"`
+	InstanceName       *string                                              `json:"instance_name" xml:"instance_name" require:"true"`
+	HostName           *string                                              `json:"host_name" xml:"host_name" require:"true"`
+	NodeName           *string                                              `json:"node_name" xml:"node_name" require:"true"`
+	InstanceType       *string                                              `json:"instance_type" xml:"instance_type" require:"true"`
+	InstanceChargeType *string                                              `json:"instance_charge_type" xml:"instance_charge_type" require:"true"`
+	ImageId            *string                                              `json:"image_id" xml:"image_id" require:"true"`
+	InstanceTypeFamily *string                                              `json:"instance_type_family" xml:"instance_type_family" require:"true"`
+	DockerVersion      *string                                              `json:"docker_version" xml:"docker_version" require:"true"`
+	AgentVersion       *string                                              `json:"agent_version" xml:"agent_version" require:"true"`
+	IsLeader           *bool                                                `json:"is_leader" xml:"is_leader" require:"true"`
+	Containers         *int                                                 `json:"containers" xml:"containers" require:"true"`
+	IsAliyunNode       *bool                                                `json:"is_aliyun_node" xml:"is_aliyun_node" require:"true"`
+	State              *string                                              `json:"state" xml:"state" require:"true"`
+	NodepoolId         *string                                              `json:"nodepool_id" xml:"nodepool_id" require:"true"`
+	ErrorMessage       *string                                              `json:"error_message" xml:"error_message" require:"true"`
+	IpAddress          *DescribeClusterNodesResponseBodyNodesNodesIpAddress `json:"ip_address" xml:"ip_address" require:"true" type:"Struct"`
+}
+
+func (s DescribeClusterNodesResponseBodyNodesNodes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesResponseBodyNodesNodes) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetInstanceId(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.InstanceId = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetInstanceRole(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.InstanceRole = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetInstanceName(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.InstanceName = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetHostName(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.HostName = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetNodeName(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.NodeName = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetInstanceType(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.InstanceType = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetInstanceChargeType(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.InstanceChargeType = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetImageId(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.ImageId = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetInstanceTypeFamily(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.InstanceTypeFamily = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetDockerVersion(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.DockerVersion = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetAgentVersion(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.AgentVersion = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetIsLeader(v bool) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.IsLeader = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetContainers(v int) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.Containers = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetIsAliyunNode(v bool) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.IsAliyunNode = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetState(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.State = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetNodepoolId(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.NodepoolId = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetErrorMessage(v string) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodes) SetIpAddress(v *DescribeClusterNodesResponseBodyNodesNodesIpAddress) *DescribeClusterNodesResponseBodyNodesNodes {
+	s.IpAddress = v
+	return s
+}
+
+type DescribeClusterNodesResponseBodyNodesNodesIpAddress struct {
+	Ip []*string `json:"ip" xml:"ip" require:"true" type:"Repeated"`
+}
+
+func (s DescribeClusterNodesResponseBodyNodesNodesIpAddress) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesResponseBodyNodesNodesIpAddress) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesResponseBodyNodesNodesIpAddress) SetIp(v []*string) *DescribeClusterNodesResponseBodyNodesNodesIpAddress {
+	s.Ip = v
+	return s
+}
+
+type DescribeClusterNodesResponseBodyPage struct {
+	TotalCount *int `json:"total_count" xml:"total_count" require:"true"`
+	PageNumber *int `json:"page_number" xml:"page_number" require:"true"`
+	PageSize   *int `json:"page_size" xml:"page_size" require:"true"`
+}
+
+func (s DescribeClusterNodesResponseBodyPage) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesResponseBodyPage) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesResponseBodyPage) SetTotalCount(v int) *DescribeClusterNodesResponseBodyPage {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyPage) SetPageNumber(v int) *DescribeClusterNodesResponseBodyPage {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeClusterNodesResponseBodyPage) SetPageSize(v int) *DescribeClusterNodesResponseBodyPage {
+	s.PageSize = &v
+	return s
+}
+
+type DescribeClusterNodesResponse struct {
+	Headers map[string]string                 `json:"headers" xml:"headers" require:"true"`
+	Body    *DescribeClusterNodesResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeClusterNodesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterNodesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterNodesResponse) SetHeaders(v map[string]string) *DescribeClusterNodesResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeClusterNodesResponse) SetBody(v *DescribeClusterNodesResponseBody) *DescribeClusterNodesResponse {
+	s.Body = v
+	return s
+}
+
+type DescribeClusterLogsRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s DescribeClusterLogsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterLogsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterLogsRequest) SetHeaders(v map[string]string) *DescribeClusterLogsRequest {
+	s.Headers = v
+	return s
+}
+
+type DescribeClusterLogsResponseBody struct {
+	ClusterId  *string `json:"cluster_id" xml:"cluster_id" require:"true"`
+	ClusterLog *string `json:"cluster_log" xml:"cluster_log" require:"true"`
+	LogLevel   *string `json:"log_level" xml:"log_level" require:"true"`
+	Created    *string `json:"created" xml:"created" require:"true"`
+}
+
+func (s DescribeClusterLogsResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterLogsResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterLogsResponseBody) SetClusterId(v string) *DescribeClusterLogsResponseBody {
+	s.ClusterId = &v
+	return s
+}
+
+func (s *DescribeClusterLogsResponseBody) SetClusterLog(v string) *DescribeClusterLogsResponseBody {
+	s.ClusterLog = &v
+	return s
+}
+
+func (s *DescribeClusterLogsResponseBody) SetLogLevel(v string) *DescribeClusterLogsResponseBody {
+	s.LogLevel = &v
+	return s
+}
+
+func (s *DescribeClusterLogsResponseBody) SetCreated(v string) *DescribeClusterLogsResponseBody {
+	s.Created = &v
+	return s
+}
+
+type DescribeClusterLogsResponse struct {
+	Headers map[string]string                `json:"headers" xml:"headers" require:"true"`
+	Body    *DescribeClusterLogsResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeClusterLogsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeClusterLogsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeClusterLogsResponse) SetHeaders(v map[string]string) *DescribeClusterLogsResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeClusterLogsResponse) SetBody(v *DescribeClusterLogsResponseBody) *DescribeClusterLogsResponse {
 	s.Body = v
 	return s
 }
@@ -2146,8 +3141,8 @@ func (s *AttachInstancesRequest) SetBody(v *AttachInstancesBody) *AttachInstance
 }
 
 type AttachInstancesResponseBody struct {
-	TaskId *string                          `json:"task_id" xml:"task_id" require:"true"`
-	List   *AttachInstancesResponseBodyList `json:"list" xml:"list" require:"true" type:"Struct"`
+	TaskId *string                            `json:"task_id" xml:"task_id" require:"true"`
+	List   []*AttachInstancesResponseBodyList `json:"list" xml:"list" require:"true" type:"Repeated"`
 }
 
 func (s AttachInstancesResponseBody) String() string {
@@ -2163,13 +3158,15 @@ func (s *AttachInstancesResponseBody) SetTaskId(v string) *AttachInstancesRespon
 	return s
 }
 
-func (s *AttachInstancesResponseBody) SetList(v *AttachInstancesResponseBodyList) *AttachInstancesResponseBody {
+func (s *AttachInstancesResponseBody) SetList(v []*AttachInstancesResponseBodyList) *AttachInstancesResponseBody {
 	s.List = v
 	return s
 }
 
 type AttachInstancesResponseBodyList struct {
-	List []*AttachInstancesResponseBodyListList `json:"list" xml:"list" require:"true" type:"Repeated"`
+	Code       *string `json:"code" xml:"code" require:"true"`
+	InstanceId *string `json:"instanceId" xml:"instanceId" require:"true"`
+	Message    *string `json:"message" xml:"message" require:"true"`
 }
 
 func (s AttachInstancesResponseBodyList) String() string {
@@ -2180,36 +3177,17 @@ func (s AttachInstancesResponseBodyList) GoString() string {
 	return s.String()
 }
 
-func (s *AttachInstancesResponseBodyList) SetList(v []*AttachInstancesResponseBodyListList) *AttachInstancesResponseBodyList {
-	s.List = v
-	return s
-}
-
-type AttachInstancesResponseBodyListList struct {
-	Code       *string `json:"code" xml:"code" require:"true"`
-	InstanceId *string `json:"instanceId" xml:"instanceId" require:"true"`
-	Message    *string `json:"message" xml:"message" require:"true"`
-}
-
-func (s AttachInstancesResponseBodyListList) String() string {
-	return tea.Prettify(s)
-}
-
-func (s AttachInstancesResponseBodyListList) GoString() string {
-	return s.String()
-}
-
-func (s *AttachInstancesResponseBodyListList) SetCode(v string) *AttachInstancesResponseBodyListList {
+func (s *AttachInstancesResponseBodyList) SetCode(v string) *AttachInstancesResponseBodyList {
 	s.Code = &v
 	return s
 }
 
-func (s *AttachInstancesResponseBodyListList) SetInstanceId(v string) *AttachInstancesResponseBodyListList {
+func (s *AttachInstancesResponseBodyList) SetInstanceId(v string) *AttachInstancesResponseBodyList {
 	s.InstanceId = &v
 	return s
 }
 
-func (s *AttachInstancesResponseBodyListList) SetMessage(v string) *AttachInstancesResponseBodyListList {
+func (s *AttachInstancesResponseBodyList) SetMessage(v string) *AttachInstancesResponseBodyList {
 	s.Message = &v
 	return s
 }
@@ -2233,6 +3211,214 @@ func (s *AttachInstancesResponse) SetHeaders(v map[string]string) *AttachInstanc
 }
 
 func (s *AttachInstancesResponse) SetBody(v *AttachInstancesResponseBody) *AttachInstancesResponse {
+	s.Body = v
+	return s
+}
+
+type DescribeTemplatesQuery struct {
+	TemplateType *string `json:"template_type" xml:"template_type"`
+}
+
+func (s DescribeTemplatesQuery) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeTemplatesQuery) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeTemplatesQuery) SetTemplateType(v string) *DescribeTemplatesQuery {
+	s.TemplateType = &v
+	return s
+}
+
+type DescribeTemplatesRequest struct {
+	Headers map[string]string       `json:"headers" xml:"headers"`
+	Query   *DescribeTemplatesQuery `json:"query" xml:"query"`
+}
+
+func (s DescribeTemplatesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeTemplatesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeTemplatesRequest) SetHeaders(v map[string]string) *DescribeTemplatesRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeTemplatesRequest) SetQuery(v *DescribeTemplatesQuery) *DescribeTemplatesRequest {
+	s.Query = v
+	return s
+}
+
+type DescribeTemplatesResponseBody struct {
+	Template     *string `json:"template" xml:"template" require:"true"`
+	Acl          *string `json:"acl" xml:"acl" require:"true"`
+	Name         *string `json:"name" xml:"name" require:"true"`
+	Tags         *string `json:"tags" xml:"tags" require:"true"`
+	TemplateType *string `json:"template_type" xml:"template_type" require:"true"`
+	Description  *string `json:"description" xml:"description" require:"true"`
+}
+
+func (s DescribeTemplatesResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeTemplatesResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeTemplatesResponseBody) SetTemplate(v string) *DescribeTemplatesResponseBody {
+	s.Template = &v
+	return s
+}
+
+func (s *DescribeTemplatesResponseBody) SetAcl(v string) *DescribeTemplatesResponseBody {
+	s.Acl = &v
+	return s
+}
+
+func (s *DescribeTemplatesResponseBody) SetName(v string) *DescribeTemplatesResponseBody {
+	s.Name = &v
+	return s
+}
+
+func (s *DescribeTemplatesResponseBody) SetTags(v string) *DescribeTemplatesResponseBody {
+	s.Tags = &v
+	return s
+}
+
+func (s *DescribeTemplatesResponseBody) SetTemplateType(v string) *DescribeTemplatesResponseBody {
+	s.TemplateType = &v
+	return s
+}
+
+func (s *DescribeTemplatesResponseBody) SetDescription(v string) *DescribeTemplatesResponseBody {
+	s.Description = &v
+	return s
+}
+
+type DescribeTemplatesResponse struct {
+	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Body    *DescribeTemplatesResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeTemplatesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeTemplatesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeTemplatesResponse) SetHeaders(v map[string]string) *DescribeTemplatesResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeTemplatesResponse) SetBody(v *DescribeTemplatesResponseBody) *DescribeTemplatesResponse {
+	s.Body = v
+	return s
+}
+
+type CreateTemplateBody struct {
+	Name         *string `json:"name" xml:"name" require:"true"`
+	Template     *string `json:"template" xml:"template" require:"true"`
+	Tags         *string `json:"tags" xml:"tags"`
+	TemplateType *string `json:"template_type" xml:"template_type"`
+}
+
+func (s CreateTemplateBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTemplateBody) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTemplateBody) SetName(v string) *CreateTemplateBody {
+	s.Name = &v
+	return s
+}
+
+func (s *CreateTemplateBody) SetTemplate(v string) *CreateTemplateBody {
+	s.Template = &v
+	return s
+}
+
+func (s *CreateTemplateBody) SetTags(v string) *CreateTemplateBody {
+	s.Tags = &v
+	return s
+}
+
+func (s *CreateTemplateBody) SetTemplateType(v string) *CreateTemplateBody {
+	s.TemplateType = &v
+	return s
+}
+
+type CreateTemplateRequest struct {
+	Headers map[string]string   `json:"headers" xml:"headers"`
+	Body    *CreateTemplateBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s CreateTemplateRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTemplateRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTemplateRequest) SetHeaders(v map[string]string) *CreateTemplateRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *CreateTemplateRequest) SetBody(v *CreateTemplateBody) *CreateTemplateRequest {
+	s.Body = v
+	return s
+}
+
+type CreateTemplateResponseBody struct {
+	TemplateId *string `json:"template_id" xml:"template_id" require:"true"`
+}
+
+func (s CreateTemplateResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTemplateResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTemplateResponseBody) SetTemplateId(v string) *CreateTemplateResponseBody {
+	s.TemplateId = &v
+	return s
+}
+
+type CreateTemplateResponse struct {
+	Headers map[string]string           `json:"headers" xml:"headers" require:"true"`
+	Body    *CreateTemplateResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s CreateTemplateResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateTemplateResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateTemplateResponse) SetHeaders(v map[string]string) *CreateTemplateResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *CreateTemplateResponse) SetBody(v *CreateTemplateResponseBody) *CreateTemplateResponse {
 	s.Body = v
 	return s
 }
@@ -2825,46 +4011,26 @@ func (s *DescribeClustersRequest) SetQuery(v *DescribeClustersQuery) *DescribeCl
 }
 
 type DescribeClustersResponseBody struct {
-	Name                   *string                                        `json:"name" xml:"name" require:"true"`
-	ClusterId              *string                                        `json:"cluster_id" xml:"cluster_id" require:"true"`
-	Size                   *int                                           `json:"size" xml:"size" require:"true"`
-	RegionId               *string                                        `json:"region_id" xml:"region_id" require:"true"`
-	State                  *string                                        `json:"state" xml:"state" require:"true"`
-	ClusterType            *string                                        `json:"cluster_type" xml:"cluster_type" require:"true"`
-	Created                *string                                        `json:"created" xml:"created" require:"true"`
-	Updated                *string                                        `json:"updated" xml:"updated" require:"true"`
-	InitVersion            *string                                        `json:"init_version" xml:"init_version" require:"true"`
-	CurrentVersion         *string                                        `json:"current_version" xml:"current_version" require:"true"`
-	MetaData               *string                                        `json:"meta_data" xml:"meta_data" require:"true"`
-	ResourceGroupId        *string                                        `json:"resource_group_id" xml:"resource_group_id" require:"true"`
-	InstanceType           *string                                        `json:"instance_type" xml:"instance_type" require:"true"`
-	VpcId                  *string                                        `json:"vpc_id" xml:"vpc_id" require:"true"`
-	VswitchId              *string                                        `json:"vswitch_id" xml:"vswitch_id" require:"true"`
-	VswitchCidr            *string                                        `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
-	DataDiskSize           *int                                           `json:"data_disk_size" xml:"data_disk_size" require:"true"`
-	DataDiskCategory       *string                                        `json:"data_disk_category" xml:"data_disk_category" require:"true"`
-	SecurityGroupId        *string                                        `json:"security_group_id" xml:"security_group_id" require:"true"`
-	ZoneId                 *string                                        `json:"zone_id" xml:"zone_id" require:"true"`
-	NetworkMode            *string                                        `json:"network_mode" xml:"network_mode" require:"true"`
-	SubnetCidr             *string                                        `json:"subnet_cidr" xml:"subnet_cidr" require:"true"`
-	MasterUrl              *string                                        `json:"master_url" xml:"master_url" require:"true"`
-	ExternalLoadbalancerId *string                                        `json:"external_loadbalancer_id" xml:"external_loadbalancer_id" require:"true"`
-	Port                   *int                                           `json:"port" xml:"port" require:"true"`
-	NodeStatus             *string                                        `json:"node_status" xml:"node_status" require:"true"`
-	ClusterHealthy         *string                                        `json:"cluster_healthy" xml:"cluster_healthy" require:"true"`
-	DockerVersion          *string                                        `json:"docker_version" xml:"docker_version" require:"true"`
-	SwarmMode              *bool                                          `json:"swarm_mode" xml:"swarm_mode" require:"true"`
-	GwBridge               *string                                        `json:"gw_bridge" xml:"gw_bridge" require:"true"`
-	PrivateZone            *bool                                          `json:"private_zone" xml:"private_zone" require:"true"`
-	Profile                *string                                        `json:"profile" xml:"profile" require:"true"`
-	DeletionProtection     *bool                                          `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	Capabilities           *string                                        `json:"capabilities" xml:"capabilities" require:"true"`
-	EnabledMigration       *bool                                          `json:"enabled_migration" xml:"enabled_migration" require:"true"`
-	NeedUpdateAgent        *bool                                          `json:"need_update_agent" xml:"need_update_agent" require:"true"`
-	Tags                   []*DescribeClustersResponseBodyTags            `json:"tags" xml:"tags" require:"true" type:"Repeated"`
-	Outputs                []*DescribeClustersResponseBodyOutputs         `json:"outputs" xml:"outputs" require:"true" type:"Repeated"`
-	UpgradeComponents      *DescribeClustersResponseBodyUpgradeComponents `json:"upgrade_components" xml:"upgrade_components" require:"true" type:"Struct"`
-	Parameters             *DescribeClustersResponseBodyParameters        `json:"parameters" xml:"parameters" require:"true" type:"Struct"`
+	Name               *string                             `json:"name" xml:"name" require:"true"`
+	ClusterId          *string                             `json:"cluster_id" xml:"cluster_id" require:"true"`
+	RegionId           *string                             `json:"region_id" xml:"region_id" require:"true"`
+	State              *string                             `json:"state" xml:"state" require:"true"`
+	ClusterType        *string                             `json:"cluster_type" xml:"cluster_type" require:"true"`
+	CurrentVersion     *string                             `json:"current_version" xml:"current_version" require:"true"`
+	MetaData           *string                             `json:"meta_data" xml:"meta_data" require:"true"`
+	ResourceGroupId    *string                             `json:"resource_group_id" xml:"resource_group_id" require:"true"`
+	VpcId              *string                             `json:"vpc_id" xml:"vpc_id" require:"true"`
+	VswitchId          *string                             `json:"vswitch_id" xml:"vswitch_id" require:"true"`
+	VswitchCidr        *string                             `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
+	DataDiskSize       *int                                `json:"data_disk_size" xml:"data_disk_size" require:"true"`
+	DataDiskCategory   *string                             `json:"data_disk_category" xml:"data_disk_category" require:"true"`
+	SecurityGroupId    *string                             `json:"security_group_id" xml:"security_group_id" require:"true"`
+	ZoneId             *string                             `json:"zone_id" xml:"zone_id" require:"true"`
+	NetworkMode        *string                             `json:"network_mode" xml:"network_mode" require:"true"`
+	MasterUrl          *string                             `json:"master_url" xml:"master_url" require:"true"`
+	DockerVersion      *string                             `json:"docker_version" xml:"docker_version" require:"true"`
+	DeletionProtection *bool                               `json:"deletion_protection" xml:"deletion_protection" require:"true"`
+	Tags               []*DescribeClustersResponseBodyTags `json:"tags" xml:"tags" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClustersResponseBody) String() string {
@@ -2885,11 +4051,6 @@ func (s *DescribeClustersResponseBody) SetClusterId(v string) *DescribeClustersR
 	return s
 }
 
-func (s *DescribeClustersResponseBody) SetSize(v int) *DescribeClustersResponseBody {
-	s.Size = &v
-	return s
-}
-
 func (s *DescribeClustersResponseBody) SetRegionId(v string) *DescribeClustersResponseBody {
 	s.RegionId = &v
 	return s
@@ -2905,21 +4066,6 @@ func (s *DescribeClustersResponseBody) SetClusterType(v string) *DescribeCluster
 	return s
 }
 
-func (s *DescribeClustersResponseBody) SetCreated(v string) *DescribeClustersResponseBody {
-	s.Created = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetUpdated(v string) *DescribeClustersResponseBody {
-	s.Updated = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetInitVersion(v string) *DescribeClustersResponseBody {
-	s.InitVersion = &v
-	return s
-}
-
 func (s *DescribeClustersResponseBody) SetCurrentVersion(v string) *DescribeClustersResponseBody {
 	s.CurrentVersion = &v
 	return s
@@ -2932,11 +4078,6 @@ func (s *DescribeClustersResponseBody) SetMetaData(v string) *DescribeClustersRe
 
 func (s *DescribeClustersResponseBody) SetResourceGroupId(v string) *DescribeClustersResponseBody {
 	s.ResourceGroupId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetInstanceType(v string) *DescribeClustersResponseBody {
-	s.InstanceType = &v
 	return s
 }
 
@@ -2980,33 +4121,8 @@ func (s *DescribeClustersResponseBody) SetNetworkMode(v string) *DescribeCluster
 	return s
 }
 
-func (s *DescribeClustersResponseBody) SetSubnetCidr(v string) *DescribeClustersResponseBody {
-	s.SubnetCidr = &v
-	return s
-}
-
 func (s *DescribeClustersResponseBody) SetMasterUrl(v string) *DescribeClustersResponseBody {
 	s.MasterUrl = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetExternalLoadbalancerId(v string) *DescribeClustersResponseBody {
-	s.ExternalLoadbalancerId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetPort(v int) *DescribeClustersResponseBody {
-	s.Port = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetNodeStatus(v string) *DescribeClustersResponseBody {
-	s.NodeStatus = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetClusterHealthy(v string) *DescribeClustersResponseBody {
-	s.ClusterHealthy = &v
 	return s
 }
 
@@ -3015,63 +4131,13 @@ func (s *DescribeClustersResponseBody) SetDockerVersion(v string) *DescribeClust
 	return s
 }
 
-func (s *DescribeClustersResponseBody) SetSwarmMode(v bool) *DescribeClustersResponseBody {
-	s.SwarmMode = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetGwBridge(v string) *DescribeClustersResponseBody {
-	s.GwBridge = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetPrivateZone(v bool) *DescribeClustersResponseBody {
-	s.PrivateZone = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetProfile(v string) *DescribeClustersResponseBody {
-	s.Profile = &v
-	return s
-}
-
 func (s *DescribeClustersResponseBody) SetDeletionProtection(v bool) *DescribeClustersResponseBody {
 	s.DeletionProtection = &v
 	return s
 }
 
-func (s *DescribeClustersResponseBody) SetCapabilities(v string) *DescribeClustersResponseBody {
-	s.Capabilities = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetEnabledMigration(v bool) *DescribeClustersResponseBody {
-	s.EnabledMigration = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetNeedUpdateAgent(v bool) *DescribeClustersResponseBody {
-	s.NeedUpdateAgent = &v
-	return s
-}
-
 func (s *DescribeClustersResponseBody) SetTags(v []*DescribeClustersResponseBodyTags) *DescribeClustersResponseBody {
 	s.Tags = v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetOutputs(v []*DescribeClustersResponseBodyOutputs) *DescribeClustersResponseBody {
-	s.Outputs = v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetUpgradeComponents(v *DescribeClustersResponseBodyUpgradeComponents) *DescribeClustersResponseBody {
-	s.UpgradeComponents = v
-	return s
-}
-
-func (s *DescribeClustersResponseBody) SetParameters(v *DescribeClustersResponseBodyParameters) *DescribeClustersResponseBody {
-	s.Parameters = v
 	return s
 }
 
@@ -3095,716 +4161,6 @@ func (s *DescribeClustersResponseBodyTags) SetKey(v string) *DescribeClustersRes
 
 func (s *DescribeClustersResponseBodyTags) SetValue(v string) *DescribeClustersResponseBodyTags {
 	s.Value = &v
-	return s
-}
-
-type DescribeClustersResponseBodyOutputs struct {
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	OutputKey   *string `json:"OutputKey" xml:"OutputKey" require:"true"`
-	OutputValue *string `json:"OutputValue" xml:"OutputValue" require:"true"`
-}
-
-func (s DescribeClustersResponseBodyOutputs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClustersResponseBodyOutputs) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClustersResponseBodyOutputs) SetDescription(v string) *DescribeClustersResponseBodyOutputs {
-	s.Description = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyOutputs) SetOutputKey(v string) *DescribeClustersResponseBodyOutputs {
-	s.OutputKey = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyOutputs) SetOutputValue(v string) *DescribeClustersResponseBodyOutputs {
-	s.OutputValue = &v
-	return s
-}
-
-type DescribeClustersResponseBodyUpgradeComponents struct {
-	Kubernetes *DescribeClustersResponseBodyUpgradeComponentsKubernetes `json:"Kubernetes" xml:"Kubernetes" require:"true" type:"Struct"`
-}
-
-func (s DescribeClustersResponseBodyUpgradeComponents) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClustersResponseBodyUpgradeComponents) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponents) SetKubernetes(v *DescribeClustersResponseBodyUpgradeComponentsKubernetes) *DescribeClustersResponseBodyUpgradeComponents {
-	s.Kubernetes = v
-	return s
-}
-
-type DescribeClustersResponseBodyUpgradeComponentsKubernetes struct {
-	ComponentName  *string `json:"component_name" xml:"component_name" require:"true"`
-	Version        *string `json:"version" xml:"version" require:"true"`
-	NextVersion    *string `json:"next_version" xml:"next_version" require:"true"`
-	Changed        *string `json:"changed" xml:"changed" require:"true"`
-	CanUpgrade     *bool   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
-	Force          *bool   `json:"force" xml:"force" require:"true"`
-	Policy         *string `json:"policy" xml:"policy" require:"true"`
-	ExtraVars      *string `json:"ExtraVars" xml:"ExtraVars" require:"true"`
-	ReadyToUpgrade *string `json:"ready_to_upgrade" xml:"ready_to_upgrade" require:"true"`
-	Message        *string `json:"message" xml:"message" require:"true"`
-	Exist          *bool   `json:"exist" xml:"exist" require:"true"`
-	Required       *bool   `json:"required" xml:"required" require:"true"`
-	Template       *string `json:"template" xml:"template" require:"true"`
-}
-
-func (s DescribeClustersResponseBodyUpgradeComponentsKubernetes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClustersResponseBodyUpgradeComponentsKubernetes) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetComponentName(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.ComponentName = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetVersion(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Version = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetNextVersion(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.NextVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetChanged(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Changed = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetCanUpgrade(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.CanUpgrade = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetForce(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Force = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetPolicy(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Policy = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetExtraVars(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.ExtraVars = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetReadyToUpgrade(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.ReadyToUpgrade = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetMessage(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Message = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetExist(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Exist = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetRequired(v bool) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Required = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyUpgradeComponentsKubernetes) SetTemplate(v string) *DescribeClustersResponseBodyUpgradeComponentsKubernetes {
-	s.Template = &v
-	return s
-}
-
-type DescribeClustersResponseBodyParameters struct {
-	AdjustmentType           *string `json:"AdjustmentType" xml:"AdjustmentType" require:"true"`
-	AuditFlags               *string `json:"AuditFlags" xml:"AuditFlags" require:"true"`
-	BetaVersion              *string `json:"BetaVersion" xml:"BetaVersion" require:"true"`
-	CA                       *string `json:"CA" xml:"CA" require:"true"`
-	ClientCA                 *string `json:"ClientCA" xml:"ClientCA" require:"true"`
-	CloudMonitorFlags        *string `json:"CloudMonitorFlags" xml:"CloudMonitorFlags" require:"true"`
-	CloudMonitorVersion      *string `json:"CloudMonitorVersion" xml:"CloudMonitorVersion" require:"true"`
-	ContainerCIDR            *string `json:"ContainerCIDR" xml:"ContainerCIDR" require:"true"`
-	DisableAddons            *string `json:"DisableAddons" xml:"DisableAddons" require:"true"`
-	DockerVersion            *string `json:"DockerVersion" xml:"DockerVersion" require:"true"`
-	ESSDeletionProtection    *string `json:"ESSDeletionProtection" xml:"ESSDeletionProtection" require:"true"`
-	Eip                      *string `json:"Eip" xml:"Eip" require:"true"`
-	EipAddress               *string `json:"EipAddress" xml:"EipAddress" require:"true"`
-	ElasticSearchHost        *string `json:"ElasticSearchHost" xml:"ElasticSearchHost" require:"true"`
-	ElasticSearchPass        *string `json:"ElasticSearchPass" xml:"ElasticSearchPass" require:"true"`
-	ElasticSearchPort        *string `json:"ElasticSearchPort" xml:"ElasticSearchPort" require:"true"`
-	ElasticSearchUser        *string `json:"ElasticSearchUser" xml:"ElasticSearchUser" require:"true"`
-	EtcdVersion              *string `json:"EtcdVersion" xml:"EtcdVersion" require:"true"`
-	ExecuteVersion           *string `json:"ExecuteVersion" xml:"ExecuteVersion" require:"true"`
-	GPUFlags                 *string `json:"GPUFlags" xml:"GPUFlags" require:"true"`
-	HealthCheckType          *string `json:"HealthCheckType" xml:"HealthCheckType" require:"true"`
-	ImageId                  *string `json:"ImageId" xml:"ImageId" require:"true"`
-	K8SMasterPolicyDocument  *string `json:"K8SMasterPolicyDocument" xml:"K8SMasterPolicyDocument" require:"true"`
-	K8sWorkerPolicyDocument  *string `json:"K8sWorkerPolicyDocument" xml:"K8sWorkerPolicyDocument" require:"true"`
-	Key                      *string `json:"Key" xml:"Key" require:"true"`
-	KeyPair                  *string `json:"KeyPair" xml:"KeyPair" require:"true"`
-	KubernetesVersion        *string `json:"KubernetesVersion" xml:"KubernetesVersion" require:"true"`
-	LoggingType              *string `json:"LoggingType" xml:"LoggingType" require:"true"`
-	MasterAmounts            *string `json:"MasterAmounts" xml:"MasterAmounts" require:"true"`
-	MasterAutoRenew          *string `json:"MasterAutoRenew" xml:"MasterAutoRenew" require:"true"`
-	MasterAutoRenewPeriod    *string `json:"MasterAutoRenewPeriod" xml:"MasterAutoRenewPeriod" require:"true"`
-	MasterCount              *string `json:"MasterCount" xml:"MasterCount" require:"true"`
-	MasterDataDisk           *string `json:"MasterDataDisk" xml:"MasterDataDisk" require:"true"`
-	MasterDataDisks          *string `json:"MasterDataDisks" xml:"MasterDataDisks" require:"true"`
-	MasterDeletionProtection *string `json:"MasterDeletionProtection" xml:"MasterDeletionProtection" require:"true"`
-	MasterDeploymentSetId    *string `json:"MasterDeploymentSetId" xml:"MasterDeploymentSetId" require:"true"`
-	MasterHpcClusterId       *string `json:"MasterHpcClusterId" xml:"MasterHpcClusterId" require:"true"`
-	MasterImageId            *string `json:"MasterImageId" xml:"MasterImageId" require:"true"`
-	MasterInstanceChargeType *string `json:"MasterInstanceChargeType" xml:"MasterInstanceChargeType" require:"true"`
-	MasterInstanceTypes      *string `json:"MasterInstanceTypes" xml:"MasterInstanceTypes" require:"true"`
-	MasterKeyPair            *string `json:"MasterKeyPair" xml:"MasterKeyPair" require:"true"`
-	MasterLoginPassword      *string `json:"MasterLoginPassword" xml:"MasterLoginPassword" require:"true"`
-	MasterPeriod             *string `json:"MasterPeriod" xml:"MasterPeriod" require:"true"`
-	MasterPeriodUnit         *string `json:"MasterPeriodUnit" xml:"MasterPeriodUnit" require:"true"`
-	MasterSlbSShHealthCheck  *string `json:"MasterSlbSShHealthCheck" xml:"MasterSlbSShHealthCheck" require:"true"`
-	MasterSnapshotPolicyId   *string `json:"MasterSnapshotPolicyId" xml:"MasterSnapshotPolicyId" require:"true"`
-	MasterSystemDiskCategory *string `json:"MasterSystemDiskCategory" xml:"MasterSystemDiskCategory" require:"true"`
-	MasterSystemDiskSize     *string `json:"MasterSystemDiskSize" xml:"MasterSystemDiskSize" require:"true"`
-	MasterVSwitchIds         *string `json:"MasterVSwitchIds" xml:"MasterVSwitchIds" require:"true"`
-	NatGateway               *string `json:"NatGateway" xml:"NatGateway" require:"true"`
-	NatGatewayId             *string `json:"NatGatewayId" xml:"NatGatewayId" require:"true"`
-	Network                  *string `json:"Network" xml:"Network" require:"true"`
-	NodeCIDRMask             *string `json:"NodeCIDRMask" xml:"NodeCIDRMask" require:"true"`
-	NodeNameMode             *string `json:"NodeNameMode" xml:"NodeNameMode" require:"true"`
-	NumOfNodes               *string `json:"NumOfNodes" xml:"NumOfNodes" require:"true"`
-	Password                 *string `json:"Password" xml:"Password" require:"true"`
-	PodVswitchIds            *string `json:"PodVswitchIds" xml:"PodVswitchIds" require:"true"`
-	ProtectedInstances       *string `json:"ProtectedInstances" xml:"ProtectedInstances" require:"true"`
-	ProxyMode                *string `json:"ProxyMode" xml:"ProxyMode" require:"true"`
-	PublicSLB                *string `json:"PublicSLB" xml:"PublicSLB" require:"true"`
-	RemoveInstanceIds        *string `json:"RemoveInstanceIds" xml:"RemoveInstanceIds" require:"true"`
-	ResourceGroupId          *string `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	SLBDeletionProtection    *string `json:"SLBDeletionProtection" xml:"SLBDeletionProtection" require:"true"`
-	SLSProjectName           *string `json:"SLSProjectName" xml:"SLSProjectName" require:"true"`
-	SNatEntry                *string `json:"SNatEntry" xml:"SNatEntry" require:"true"`
-	SSHFlags                 *string `json:"SSHFlags" xml:"SSHFlags" require:"true"`
-	SecurityGroupId          *string `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	ServiceCIDR              *string `json:"ServiceCIDR" xml:"ServiceCIDR" require:"true"`
-	SetUpArgs                *string `json:"SetUpArgs" xml:"SetUpArgs" require:"true"`
-	SnatTableId              *string `json:"SnatTableId" xml:"SnatTableId" require:"true"`
-	Tags                     *string `json:"Tags" xml:"Tags" require:"true"`
-	UserCA                   *string `json:"UserCA" xml:"UserCA" require:"true"`
-	UserData                 *string `json:"UserData" xml:"UserData" require:"true"`
-	VpcId                    *string `json:"VpcId" xml:"VpcId" require:"true"`
-	WillReplace              *string `json:"WillReplace" xml:"WillReplace" require:"true"`
-	WorkerAutoRenew          *string `json:"WorkerAutoRenew" xml:"WorkerAutoRenew" require:"true"`
-	WorkerAutoRenewPeriod    *string `json:"WorkerAutoRenewPeriod" xml:"WorkerAutoRenewPeriod" require:"true"`
-	WorkerDataDisk           *string `json:"WorkerDataDisk" xml:"WorkerDataDisk" require:"true"`
-	WorkerDataDisks          *string `json:"WorkerDataDisks" xml:"WorkerDataDisks" require:"true"`
-	WorkerDeletionProtection *string `json:"WorkerDeletionProtection" xml:"WorkerDeletionProtection" require:"true"`
-	WorkerDeploymentSetId    *string `json:"WorkerDeploymentSetId" xml:"WorkerDeploymentSetId" require:"true"`
-	WorkerHpcClusterId       *string `json:"WorkerHpcClusterId" xml:"WorkerHpcClusterId" require:"true"`
-	WorkerImageId            *string `json:"WorkerImageId" xml:"WorkerImageId" require:"true"`
-	WorkerInstanceChargeType *string `json:"WorkerInstanceChargeType" xml:"WorkerInstanceChargeType" require:"true"`
-	WorkerInstanceTypes      *string `json:"WorkerInstanceTypes" xml:"WorkerInstanceTypes" require:"true"`
-	WorkerKeyPair            *string `json:"WorkerKeyPair" xml:"WorkerKeyPair" require:"true"`
-	WorkerLoginPassword      *string `json:"WorkerLoginPassword" xml:"WorkerLoginPassword" require:"true"`
-	WorkerPeriod             *string `json:"WorkerPeriod" xml:"WorkerPeriod" require:"true"`
-	WorkerPeriodUnit         *string `json:"WorkerPeriodUnit" xml:"WorkerPeriodUnit" require:"true"`
-	WorkerSnapshotPolicyId   *string `json:"WorkerSnapshotPolicyId" xml:"WorkerSnapshotPolicyId" require:"true"`
-	WorkerSystemDiskCategory *string `json:"WorkerSystemDiskCategory" xml:"WorkerSystemDiskCategory" require:"true"`
-	WorkerSystemDiskSize     *string `json:"WorkerSystemDiskSize" xml:"WorkerSystemDiskSize" require:"true"`
-	WorkerVSwitchIds         *string `json:"WorkerVSwitchIds" xml:"WorkerVSwitchIds" require:"true"`
-	ZoneId                   *string `json:"ZoneId" xml:"ZoneId" require:"true"`
-}
-
-func (s DescribeClustersResponseBodyParameters) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClustersResponseBodyParameters) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetAdjustmentType(v string) *DescribeClustersResponseBodyParameters {
-	s.AdjustmentType = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetAuditFlags(v string) *DescribeClustersResponseBodyParameters {
-	s.AuditFlags = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetBetaVersion(v string) *DescribeClustersResponseBodyParameters {
-	s.BetaVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetCA(v string) *DescribeClustersResponseBodyParameters {
-	s.CA = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetClientCA(v string) *DescribeClustersResponseBodyParameters {
-	s.ClientCA = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetCloudMonitorFlags(v string) *DescribeClustersResponseBodyParameters {
-	s.CloudMonitorFlags = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetCloudMonitorVersion(v string) *DescribeClustersResponseBodyParameters {
-	s.CloudMonitorVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetContainerCIDR(v string) *DescribeClustersResponseBodyParameters {
-	s.ContainerCIDR = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetDisableAddons(v string) *DescribeClustersResponseBodyParameters {
-	s.DisableAddons = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetDockerVersion(v string) *DescribeClustersResponseBodyParameters {
-	s.DockerVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetESSDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
-	s.ESSDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetEip(v string) *DescribeClustersResponseBodyParameters {
-	s.Eip = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetEipAddress(v string) *DescribeClustersResponseBodyParameters {
-	s.EipAddress = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetElasticSearchHost(v string) *DescribeClustersResponseBodyParameters {
-	s.ElasticSearchHost = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetElasticSearchPass(v string) *DescribeClustersResponseBodyParameters {
-	s.ElasticSearchPass = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetElasticSearchPort(v string) *DescribeClustersResponseBodyParameters {
-	s.ElasticSearchPort = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetElasticSearchUser(v string) *DescribeClustersResponseBodyParameters {
-	s.ElasticSearchUser = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetEtcdVersion(v string) *DescribeClustersResponseBodyParameters {
-	s.EtcdVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetExecuteVersion(v string) *DescribeClustersResponseBodyParameters {
-	s.ExecuteVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetGPUFlags(v string) *DescribeClustersResponseBodyParameters {
-	s.GPUFlags = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetHealthCheckType(v string) *DescribeClustersResponseBodyParameters {
-	s.HealthCheckType = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetImageId(v string) *DescribeClustersResponseBodyParameters {
-	s.ImageId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetK8SMasterPolicyDocument(v string) *DescribeClustersResponseBodyParameters {
-	s.K8SMasterPolicyDocument = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetK8sWorkerPolicyDocument(v string) *DescribeClustersResponseBodyParameters {
-	s.K8sWorkerPolicyDocument = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetKey(v string) *DescribeClustersResponseBodyParameters {
-	s.Key = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetKeyPair(v string) *DescribeClustersResponseBodyParameters {
-	s.KeyPair = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetKubernetesVersion(v string) *DescribeClustersResponseBodyParameters {
-	s.KubernetesVersion = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetLoggingType(v string) *DescribeClustersResponseBodyParameters {
-	s.LoggingType = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterAmounts(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterAmounts = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterAutoRenew(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterAutoRenew = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterAutoRenewPeriod(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterAutoRenewPeriod = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterCount(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterCount = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterDataDisk(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterDataDisk = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterDataDisks(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterDataDisks = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterDeploymentSetId(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterDeploymentSetId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterHpcClusterId(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterHpcClusterId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterImageId(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterImageId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterInstanceChargeType(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterInstanceChargeType = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterInstanceTypes(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterInstanceTypes = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterKeyPair(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterKeyPair = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterLoginPassword(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterLoginPassword = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterPeriod(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterPeriod = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterPeriodUnit(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterPeriodUnit = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterSlbSShHealthCheck(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterSlbSShHealthCheck = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterSnapshotPolicyId(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterSnapshotPolicyId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterSystemDiskCategory(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterSystemDiskCategory = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterSystemDiskSize(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterSystemDiskSize = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetMasterVSwitchIds(v string) *DescribeClustersResponseBodyParameters {
-	s.MasterVSwitchIds = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetNatGateway(v string) *DescribeClustersResponseBodyParameters {
-	s.NatGateway = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetNatGatewayId(v string) *DescribeClustersResponseBodyParameters {
-	s.NatGatewayId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetNetwork(v string) *DescribeClustersResponseBodyParameters {
-	s.Network = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetNodeCIDRMask(v string) *DescribeClustersResponseBodyParameters {
-	s.NodeCIDRMask = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetNodeNameMode(v string) *DescribeClustersResponseBodyParameters {
-	s.NodeNameMode = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetNumOfNodes(v string) *DescribeClustersResponseBodyParameters {
-	s.NumOfNodes = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetPassword(v string) *DescribeClustersResponseBodyParameters {
-	s.Password = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetPodVswitchIds(v string) *DescribeClustersResponseBodyParameters {
-	s.PodVswitchIds = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetProtectedInstances(v string) *DescribeClustersResponseBodyParameters {
-	s.ProtectedInstances = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetProxyMode(v string) *DescribeClustersResponseBodyParameters {
-	s.ProxyMode = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetPublicSLB(v string) *DescribeClustersResponseBodyParameters {
-	s.PublicSLB = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetRemoveInstanceIds(v string) *DescribeClustersResponseBodyParameters {
-	s.RemoveInstanceIds = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetResourceGroupId(v string) *DescribeClustersResponseBodyParameters {
-	s.ResourceGroupId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSLBDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
-	s.SLBDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSLSProjectName(v string) *DescribeClustersResponseBodyParameters {
-	s.SLSProjectName = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSNatEntry(v string) *DescribeClustersResponseBodyParameters {
-	s.SNatEntry = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSSHFlags(v string) *DescribeClustersResponseBodyParameters {
-	s.SSHFlags = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSecurityGroupId(v string) *DescribeClustersResponseBodyParameters {
-	s.SecurityGroupId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetServiceCIDR(v string) *DescribeClustersResponseBodyParameters {
-	s.ServiceCIDR = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSetUpArgs(v string) *DescribeClustersResponseBodyParameters {
-	s.SetUpArgs = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetSnatTableId(v string) *DescribeClustersResponseBodyParameters {
-	s.SnatTableId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetTags(v string) *DescribeClustersResponseBodyParameters {
-	s.Tags = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetUserCA(v string) *DescribeClustersResponseBodyParameters {
-	s.UserCA = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetUserData(v string) *DescribeClustersResponseBodyParameters {
-	s.UserData = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetVpcId(v string) *DescribeClustersResponseBodyParameters {
-	s.VpcId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWillReplace(v string) *DescribeClustersResponseBodyParameters {
-	s.WillReplace = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerAutoRenew(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerAutoRenew = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerAutoRenewPeriod(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerAutoRenewPeriod = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerDataDisk(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerDataDisk = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerDataDisks(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerDataDisks = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerDeletionProtection(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerDeploymentSetId(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerDeploymentSetId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerHpcClusterId(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerHpcClusterId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerImageId(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerImageId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerInstanceChargeType(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerInstanceChargeType = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerInstanceTypes(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerInstanceTypes = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerKeyPair(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerKeyPair = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerLoginPassword(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerLoginPassword = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerPeriod(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerPeriod = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerPeriodUnit(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerPeriodUnit = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerSnapshotPolicyId(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerSnapshotPolicyId = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerSystemDiskCategory(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerSystemDiskCategory = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerSystemDiskSize(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerSystemDiskSize = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetWorkerVSwitchIds(v string) *DescribeClustersResponseBodyParameters {
-	s.WorkerVSwitchIds = &v
-	return s
-}
-
-func (s *DescribeClustersResponseBodyParameters) SetZoneId(v string) *DescribeClustersResponseBodyParameters {
-	s.ZoneId = &v
 	return s
 }
 
@@ -3849,46 +4205,26 @@ func (s *DescribeClusterDetailRequest) SetHeaders(v map[string]string) *Describe
 }
 
 type DescribeClusterDetailResponseBody struct {
-	Name                   *string                                             `json:"name" xml:"name" require:"true"`
-	ClusterId              *string                                             `json:"cluster_id" xml:"cluster_id" require:"true"`
-	Size                   *int                                                `json:"size" xml:"size" require:"true"`
-	RegionId               *string                                             `json:"region_id" xml:"region_id" require:"true"`
-	State                  *string                                             `json:"state" xml:"state" require:"true"`
-	ClusterType            *string                                             `json:"cluster_type" xml:"cluster_type" require:"true"`
-	Created                *string                                             `json:"created" xml:"created" require:"true"`
-	Updated                *string                                             `json:"updated" xml:"updated" require:"true"`
-	InitVersion            *string                                             `json:"init_version" xml:"init_version" require:"true"`
-	CurrentVersion         *string                                             `json:"current_version" xml:"current_version" require:"true"`
-	MetaData               *string                                             `json:"meta_data" xml:"meta_data" require:"true"`
-	ResourceGroupId        *string                                             `json:"resource_group_id" xml:"resource_group_id" require:"true"`
-	InstanceType           *string                                             `json:"instance_type" xml:"instance_type" require:"true"`
-	VpcId                  *string                                             `json:"vpc_id" xml:"vpc_id" require:"true"`
-	VswitchId              *string                                             `json:"vswitch_id" xml:"vswitch_id" require:"true"`
-	VswitchCidr            *string                                             `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
-	DataDiskSize           *int                                                `json:"data_disk_size" xml:"data_disk_size" require:"true"`
-	DataDiskCategory       *string                                             `json:"data_disk_category" xml:"data_disk_category" require:"true"`
-	SecurityGroupId        *string                                             `json:"security_group_id" xml:"security_group_id" require:"true"`
-	ZoneId                 *string                                             `json:"zone_id" xml:"zone_id" require:"true"`
-	NetworkMode            *string                                             `json:"network_mode" xml:"network_mode" require:"true"`
-	SubnetCidr             *string                                             `json:"subnet_cidr" xml:"subnet_cidr" require:"true"`
-	MasterUrl              *string                                             `json:"master_url" xml:"master_url" require:"true"`
-	ExternalLoadbalancerId *string                                             `json:"external_loadbalancer_id" xml:"external_loadbalancer_id" require:"true"`
-	Port                   *int                                                `json:"port" xml:"port" require:"true"`
-	NodeStatus             *string                                             `json:"node_status" xml:"node_status" require:"true"`
-	ClusterHealthy         *string                                             `json:"cluster_healthy" xml:"cluster_healthy" require:"true"`
-	DockerVersion          *string                                             `json:"docker_version" xml:"docker_version" require:"true"`
-	SwarmMode              *bool                                               `json:"swarm_mode" xml:"swarm_mode" require:"true"`
-	GwBridge               *string                                             `json:"gw_bridge" xml:"gw_bridge" require:"true"`
-	PrivateZone            *bool                                               `json:"private_zone" xml:"private_zone" require:"true"`
-	Profile                *string                                             `json:"profile" xml:"profile" require:"true"`
-	DeletionProtection     *bool                                               `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	Capabilities           *string                                             `json:"capabilities" xml:"capabilities" require:"true"`
-	EnabledMigration       *bool                                               `json:"enabled_migration" xml:"enabled_migration" require:"true"`
-	NeedUpdateAgent        *bool                                               `json:"need_update_agent" xml:"need_update_agent" require:"true"`
-	Tags                   []*DescribeClusterDetailResponseBodyTags            `json:"tags" xml:"tags" require:"true" type:"Repeated"`
-	Outputs                []*DescribeClusterDetailResponseBodyOutputs         `json:"outputs" xml:"outputs" require:"true" type:"Repeated"`
-	UpgradeComponents      *DescribeClusterDetailResponseBodyUpgradeComponents `json:"upgrade_components" xml:"upgrade_components" require:"true" type:"Struct"`
-	Parameters             *DescribeClusterDetailResponseBodyParameters        `json:"parameters" xml:"parameters" require:"true" type:"Struct"`
+	Name               *string                                  `json:"name" xml:"name" require:"true"`
+	ClusterId          *string                                  `json:"cluster_id" xml:"cluster_id" require:"true"`
+	RegionId           *string                                  `json:"region_id" xml:"region_id" require:"true"`
+	State              *string                                  `json:"state" xml:"state" require:"true"`
+	ClusterType        *string                                  `json:"cluster_type" xml:"cluster_type" require:"true"`
+	CurrentVersion     *string                                  `json:"current_version" xml:"current_version" require:"true"`
+	MetaData           *string                                  `json:"meta_data" xml:"meta_data" require:"true"`
+	ResourceGroupId    *string                                  `json:"resource_group_id" xml:"resource_group_id" require:"true"`
+	InstanceType       *string                                  `json:"instance_type" xml:"instance_type" require:"true"`
+	VpcId              *string                                  `json:"vpc_id" xml:"vpc_id" require:"true"`
+	VswitchId          *string                                  `json:"vswitch_id" xml:"vswitch_id" require:"true"`
+	VswitchCidr        *string                                  `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
+	DataDiskSize       *int                                     `json:"data_disk_size" xml:"data_disk_size" require:"true"`
+	DataDiskCategory   *string                                  `json:"data_disk_category" xml:"data_disk_category" require:"true"`
+	SecurityGroupId    *string                                  `json:"security_group_id" xml:"security_group_id" require:"true"`
+	ZoneId             *string                                  `json:"zone_id" xml:"zone_id" require:"true"`
+	NetworkMode        *string                                  `json:"network_mode" xml:"network_mode" require:"true"`
+	DockerVersion      *string                                  `json:"docker_version" xml:"docker_version" require:"true"`
+	DeletionProtection *bool                                    `json:"deletion_protection" xml:"deletion_protection" require:"true"`
+	Tags               []*DescribeClusterDetailResponseBodyTags `json:"tags" xml:"tags" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClusterDetailResponseBody) String() string {
@@ -3909,11 +4245,6 @@ func (s *DescribeClusterDetailResponseBody) SetClusterId(v string) *DescribeClus
 	return s
 }
 
-func (s *DescribeClusterDetailResponseBody) SetSize(v int) *DescribeClusterDetailResponseBody {
-	s.Size = &v
-	return s
-}
-
 func (s *DescribeClusterDetailResponseBody) SetRegionId(v string) *DescribeClusterDetailResponseBody {
 	s.RegionId = &v
 	return s
@@ -3926,21 +4257,6 @@ func (s *DescribeClusterDetailResponseBody) SetState(v string) *DescribeClusterD
 
 func (s *DescribeClusterDetailResponseBody) SetClusterType(v string) *DescribeClusterDetailResponseBody {
 	s.ClusterType = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetCreated(v string) *DescribeClusterDetailResponseBody {
-	s.Created = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetUpdated(v string) *DescribeClusterDetailResponseBody {
-	s.Updated = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetInitVersion(v string) *DescribeClusterDetailResponseBody {
-	s.InitVersion = &v
 	return s
 }
 
@@ -4004,58 +4320,8 @@ func (s *DescribeClusterDetailResponseBody) SetNetworkMode(v string) *DescribeCl
 	return s
 }
 
-func (s *DescribeClusterDetailResponseBody) SetSubnetCidr(v string) *DescribeClusterDetailResponseBody {
-	s.SubnetCidr = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetMasterUrl(v string) *DescribeClusterDetailResponseBody {
-	s.MasterUrl = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetExternalLoadbalancerId(v string) *DescribeClusterDetailResponseBody {
-	s.ExternalLoadbalancerId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetPort(v int) *DescribeClusterDetailResponseBody {
-	s.Port = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetNodeStatus(v string) *DescribeClusterDetailResponseBody {
-	s.NodeStatus = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetClusterHealthy(v string) *DescribeClusterDetailResponseBody {
-	s.ClusterHealthy = &v
-	return s
-}
-
 func (s *DescribeClusterDetailResponseBody) SetDockerVersion(v string) *DescribeClusterDetailResponseBody {
 	s.DockerVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetSwarmMode(v bool) *DescribeClusterDetailResponseBody {
-	s.SwarmMode = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetGwBridge(v string) *DescribeClusterDetailResponseBody {
-	s.GwBridge = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetPrivateZone(v bool) *DescribeClusterDetailResponseBody {
-	s.PrivateZone = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetProfile(v string) *DescribeClusterDetailResponseBody {
-	s.Profile = &v
 	return s
 }
 
@@ -4064,38 +4330,8 @@ func (s *DescribeClusterDetailResponseBody) SetDeletionProtection(v bool) *Descr
 	return s
 }
 
-func (s *DescribeClusterDetailResponseBody) SetCapabilities(v string) *DescribeClusterDetailResponseBody {
-	s.Capabilities = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetEnabledMigration(v bool) *DescribeClusterDetailResponseBody {
-	s.EnabledMigration = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetNeedUpdateAgent(v bool) *DescribeClusterDetailResponseBody {
-	s.NeedUpdateAgent = &v
-	return s
-}
-
 func (s *DescribeClusterDetailResponseBody) SetTags(v []*DescribeClusterDetailResponseBodyTags) *DescribeClusterDetailResponseBody {
 	s.Tags = v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetOutputs(v []*DescribeClusterDetailResponseBodyOutputs) *DescribeClusterDetailResponseBody {
-	s.Outputs = v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetUpgradeComponents(v *DescribeClusterDetailResponseBodyUpgradeComponents) *DescribeClusterDetailResponseBody {
-	s.UpgradeComponents = v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetParameters(v *DescribeClusterDetailResponseBodyParameters) *DescribeClusterDetailResponseBody {
-	s.Parameters = v
 	return s
 }
 
@@ -4119,716 +4355,6 @@ func (s *DescribeClusterDetailResponseBodyTags) SetKey(v string) *DescribeCluste
 
 func (s *DescribeClusterDetailResponseBodyTags) SetValue(v string) *DescribeClusterDetailResponseBodyTags {
 	s.Value = &v
-	return s
-}
-
-type DescribeClusterDetailResponseBodyOutputs struct {
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	OutputKey   *string `json:"OutputKey" xml:"OutputKey" require:"true"`
-	OutputValue *string `json:"OutputValue" xml:"OutputValue" require:"true"`
-}
-
-func (s DescribeClusterDetailResponseBodyOutputs) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClusterDetailResponseBodyOutputs) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClusterDetailResponseBodyOutputs) SetDescription(v string) *DescribeClusterDetailResponseBodyOutputs {
-	s.Description = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyOutputs) SetOutputKey(v string) *DescribeClusterDetailResponseBodyOutputs {
-	s.OutputKey = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyOutputs) SetOutputValue(v string) *DescribeClusterDetailResponseBodyOutputs {
-	s.OutputValue = &v
-	return s
-}
-
-type DescribeClusterDetailResponseBodyUpgradeComponents struct {
-	Kubernetes *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes `json:"Kubernetes" xml:"Kubernetes" require:"true" type:"Struct"`
-}
-
-func (s DescribeClusterDetailResponseBodyUpgradeComponents) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClusterDetailResponseBodyUpgradeComponents) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponents) SetKubernetes(v *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) *DescribeClusterDetailResponseBodyUpgradeComponents {
-	s.Kubernetes = v
-	return s
-}
-
-type DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes struct {
-	ComponentName  *string `json:"component_name" xml:"component_name" require:"true"`
-	Version        *string `json:"version" xml:"version" require:"true"`
-	NextVersion    *string `json:"next_version" xml:"next_version" require:"true"`
-	Changed        *string `json:"changed" xml:"changed" require:"true"`
-	CanUpgrade     *bool   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
-	Force          *bool   `json:"force" xml:"force" require:"true"`
-	Policy         *string `json:"policy" xml:"policy" require:"true"`
-	ExtraVars      *string `json:"ExtraVars" xml:"ExtraVars" require:"true"`
-	ReadyToUpgrade *string `json:"ready_to_upgrade" xml:"ready_to_upgrade" require:"true"`
-	Message        *string `json:"message" xml:"message" require:"true"`
-	Exist          *bool   `json:"exist" xml:"exist" require:"true"`
-	Required       *bool   `json:"required" xml:"required" require:"true"`
-	Template       *string `json:"template" xml:"template" require:"true"`
-}
-
-func (s DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetComponentName(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.ComponentName = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetVersion(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Version = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetNextVersion(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.NextVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetChanged(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Changed = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetCanUpgrade(v bool) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.CanUpgrade = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetForce(v bool) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Force = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetPolicy(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Policy = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetExtraVars(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.ExtraVars = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetReadyToUpgrade(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.ReadyToUpgrade = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetMessage(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Message = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetExist(v bool) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Exist = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetRequired(v bool) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Required = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes) SetTemplate(v string) *DescribeClusterDetailResponseBodyUpgradeComponentsKubernetes {
-	s.Template = &v
-	return s
-}
-
-type DescribeClusterDetailResponseBodyParameters struct {
-	AdjustmentType           *string `json:"AdjustmentType" xml:"AdjustmentType" require:"true"`
-	AuditFlags               *string `json:"AuditFlags" xml:"AuditFlags" require:"true"`
-	BetaVersion              *string `json:"BetaVersion" xml:"BetaVersion" require:"true"`
-	CA                       *string `json:"CA" xml:"CA" require:"true"`
-	ClientCA                 *string `json:"ClientCA" xml:"ClientCA" require:"true"`
-	CloudMonitorFlags        *string `json:"CloudMonitorFlags" xml:"CloudMonitorFlags" require:"true"`
-	CloudMonitorVersion      *string `json:"CloudMonitorVersion" xml:"CloudMonitorVersion" require:"true"`
-	ContainerCIDR            *string `json:"ContainerCIDR" xml:"ContainerCIDR" require:"true"`
-	DisableAddons            *string `json:"DisableAddons" xml:"DisableAddons" require:"true"`
-	DockerVersion            *string `json:"DockerVersion" xml:"DockerVersion" require:"true"`
-	ESSDeletionProtection    *string `json:"ESSDeletionProtection" xml:"ESSDeletionProtection" require:"true"`
-	Eip                      *string `json:"Eip" xml:"Eip" require:"true"`
-	EipAddress               *string `json:"EipAddress" xml:"EipAddress" require:"true"`
-	ElasticSearchHost        *string `json:"ElasticSearchHost" xml:"ElasticSearchHost" require:"true"`
-	ElasticSearchPass        *string `json:"ElasticSearchPass" xml:"ElasticSearchPass" require:"true"`
-	ElasticSearchPort        *string `json:"ElasticSearchPort" xml:"ElasticSearchPort" require:"true"`
-	ElasticSearchUser        *string `json:"ElasticSearchUser" xml:"ElasticSearchUser" require:"true"`
-	EtcdVersion              *string `json:"EtcdVersion" xml:"EtcdVersion" require:"true"`
-	ExecuteVersion           *string `json:"ExecuteVersion" xml:"ExecuteVersion" require:"true"`
-	GPUFlags                 *string `json:"GPUFlags" xml:"GPUFlags" require:"true"`
-	HealthCheckType          *string `json:"HealthCheckType" xml:"HealthCheckType" require:"true"`
-	ImageId                  *string `json:"ImageId" xml:"ImageId" require:"true"`
-	K8SMasterPolicyDocument  *string `json:"K8SMasterPolicyDocument" xml:"K8SMasterPolicyDocument" require:"true"`
-	K8sWorkerPolicyDocument  *string `json:"K8sWorkerPolicyDocument" xml:"K8sWorkerPolicyDocument" require:"true"`
-	Key                      *string `json:"Key" xml:"Key" require:"true"`
-	KeyPair                  *string `json:"KeyPair" xml:"KeyPair" require:"true"`
-	KubernetesVersion        *string `json:"KubernetesVersion" xml:"KubernetesVersion" require:"true"`
-	LoggingType              *string `json:"LoggingType" xml:"LoggingType" require:"true"`
-	MasterAmounts            *string `json:"MasterAmounts" xml:"MasterAmounts" require:"true"`
-	MasterAutoRenew          *string `json:"MasterAutoRenew" xml:"MasterAutoRenew" require:"true"`
-	MasterAutoRenewPeriod    *string `json:"MasterAutoRenewPeriod" xml:"MasterAutoRenewPeriod" require:"true"`
-	MasterCount              *string `json:"MasterCount" xml:"MasterCount" require:"true"`
-	MasterDataDisk           *string `json:"MasterDataDisk" xml:"MasterDataDisk" require:"true"`
-	MasterDataDisks          *string `json:"MasterDataDisks" xml:"MasterDataDisks" require:"true"`
-	MasterDeletionProtection *string `json:"MasterDeletionProtection" xml:"MasterDeletionProtection" require:"true"`
-	MasterDeploymentSetId    *string `json:"MasterDeploymentSetId" xml:"MasterDeploymentSetId" require:"true"`
-	MasterHpcClusterId       *string `json:"MasterHpcClusterId" xml:"MasterHpcClusterId" require:"true"`
-	MasterImageId            *string `json:"MasterImageId" xml:"MasterImageId" require:"true"`
-	MasterInstanceChargeType *string `json:"MasterInstanceChargeType" xml:"MasterInstanceChargeType" require:"true"`
-	MasterInstanceTypes      *string `json:"MasterInstanceTypes" xml:"MasterInstanceTypes" require:"true"`
-	MasterKeyPair            *string `json:"MasterKeyPair" xml:"MasterKeyPair" require:"true"`
-	MasterLoginPassword      *string `json:"MasterLoginPassword" xml:"MasterLoginPassword" require:"true"`
-	MasterPeriod             *string `json:"MasterPeriod" xml:"MasterPeriod" require:"true"`
-	MasterPeriodUnit         *string `json:"MasterPeriodUnit" xml:"MasterPeriodUnit" require:"true"`
-	MasterSlbSShHealthCheck  *string `json:"MasterSlbSShHealthCheck" xml:"MasterSlbSShHealthCheck" require:"true"`
-	MasterSnapshotPolicyId   *string `json:"MasterSnapshotPolicyId" xml:"MasterSnapshotPolicyId" require:"true"`
-	MasterSystemDiskCategory *string `json:"MasterSystemDiskCategory" xml:"MasterSystemDiskCategory" require:"true"`
-	MasterSystemDiskSize     *string `json:"MasterSystemDiskSize" xml:"MasterSystemDiskSize" require:"true"`
-	MasterVSwitchIds         *string `json:"MasterVSwitchIds" xml:"MasterVSwitchIds" require:"true"`
-	NatGateway               *string `json:"NatGateway" xml:"NatGateway" require:"true"`
-	NatGatewayId             *string `json:"NatGatewayId" xml:"NatGatewayId" require:"true"`
-	Network                  *string `json:"Network" xml:"Network" require:"true"`
-	NodeCIDRMask             *string `json:"NodeCIDRMask" xml:"NodeCIDRMask" require:"true"`
-	NodeNameMode             *string `json:"NodeNameMode" xml:"NodeNameMode" require:"true"`
-	NumOfNodes               *string `json:"NumOfNodes" xml:"NumOfNodes" require:"true"`
-	Password                 *string `json:"Password" xml:"Password" require:"true"`
-	PodVswitchIds            *string `json:"PodVswitchIds" xml:"PodVswitchIds" require:"true"`
-	ProtectedInstances       *string `json:"ProtectedInstances" xml:"ProtectedInstances" require:"true"`
-	ProxyMode                *string `json:"ProxyMode" xml:"ProxyMode" require:"true"`
-	PublicSLB                *string `json:"PublicSLB" xml:"PublicSLB" require:"true"`
-	RemoveInstanceIds        *string `json:"RemoveInstanceIds" xml:"RemoveInstanceIds" require:"true"`
-	ResourceGroupId          *string `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	SLBDeletionProtection    *string `json:"SLBDeletionProtection" xml:"SLBDeletionProtection" require:"true"`
-	SLSProjectName           *string `json:"SLSProjectName" xml:"SLSProjectName" require:"true"`
-	SNatEntry                *string `json:"SNatEntry" xml:"SNatEntry" require:"true"`
-	SSHFlags                 *string `json:"SSHFlags" xml:"SSHFlags" require:"true"`
-	SecurityGroupId          *string `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	ServiceCIDR              *string `json:"ServiceCIDR" xml:"ServiceCIDR" require:"true"`
-	SetUpArgs                *string `json:"SetUpArgs" xml:"SetUpArgs" require:"true"`
-	SnatTableId              *string `json:"SnatTableId" xml:"SnatTableId" require:"true"`
-	Tags                     *string `json:"Tags" xml:"Tags" require:"true"`
-	UserCA                   *string `json:"UserCA" xml:"UserCA" require:"true"`
-	UserData                 *string `json:"UserData" xml:"UserData" require:"true"`
-	VpcId                    *string `json:"VpcId" xml:"VpcId" require:"true"`
-	WillReplace              *string `json:"WillReplace" xml:"WillReplace" require:"true"`
-	WorkerAutoRenew          *string `json:"WorkerAutoRenew" xml:"WorkerAutoRenew" require:"true"`
-	WorkerAutoRenewPeriod    *string `json:"WorkerAutoRenewPeriod" xml:"WorkerAutoRenewPeriod" require:"true"`
-	WorkerDataDisk           *string `json:"WorkerDataDisk" xml:"WorkerDataDisk" require:"true"`
-	WorkerDataDisks          *string `json:"WorkerDataDisks" xml:"WorkerDataDisks" require:"true"`
-	WorkerDeletionProtection *string `json:"WorkerDeletionProtection" xml:"WorkerDeletionProtection" require:"true"`
-	WorkerDeploymentSetId    *string `json:"WorkerDeploymentSetId" xml:"WorkerDeploymentSetId" require:"true"`
-	WorkerHpcClusterId       *string `json:"WorkerHpcClusterId" xml:"WorkerHpcClusterId" require:"true"`
-	WorkerImageId            *string `json:"WorkerImageId" xml:"WorkerImageId" require:"true"`
-	WorkerInstanceChargeType *string `json:"WorkerInstanceChargeType" xml:"WorkerInstanceChargeType" require:"true"`
-	WorkerInstanceTypes      *string `json:"WorkerInstanceTypes" xml:"WorkerInstanceTypes" require:"true"`
-	WorkerKeyPair            *string `json:"WorkerKeyPair" xml:"WorkerKeyPair" require:"true"`
-	WorkerLoginPassword      *string `json:"WorkerLoginPassword" xml:"WorkerLoginPassword" require:"true"`
-	WorkerPeriod             *string `json:"WorkerPeriod" xml:"WorkerPeriod" require:"true"`
-	WorkerPeriodUnit         *string `json:"WorkerPeriodUnit" xml:"WorkerPeriodUnit" require:"true"`
-	WorkerSnapshotPolicyId   *string `json:"WorkerSnapshotPolicyId" xml:"WorkerSnapshotPolicyId" require:"true"`
-	WorkerSystemDiskCategory *string `json:"WorkerSystemDiskCategory" xml:"WorkerSystemDiskCategory" require:"true"`
-	WorkerSystemDiskSize     *string `json:"WorkerSystemDiskSize" xml:"WorkerSystemDiskSize" require:"true"`
-	WorkerVSwitchIds         *string `json:"WorkerVSwitchIds" xml:"WorkerVSwitchIds" require:"true"`
-	ZoneId                   *string `json:"ZoneId" xml:"ZoneId" require:"true"`
-}
-
-func (s DescribeClusterDetailResponseBodyParameters) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeClusterDetailResponseBodyParameters) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetAdjustmentType(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.AdjustmentType = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetAuditFlags(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.AuditFlags = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetBetaVersion(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.BetaVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetCA(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.CA = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetClientCA(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ClientCA = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetCloudMonitorFlags(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.CloudMonitorFlags = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetCloudMonitorVersion(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.CloudMonitorVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetContainerCIDR(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ContainerCIDR = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetDisableAddons(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.DisableAddons = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetDockerVersion(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.DockerVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetESSDeletionProtection(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ESSDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetEip(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.Eip = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetEipAddress(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.EipAddress = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetElasticSearchHost(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ElasticSearchHost = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetElasticSearchPass(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ElasticSearchPass = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetElasticSearchPort(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ElasticSearchPort = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetElasticSearchUser(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ElasticSearchUser = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetEtcdVersion(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.EtcdVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetExecuteVersion(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ExecuteVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetGPUFlags(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.GPUFlags = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetHealthCheckType(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.HealthCheckType = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetImageId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ImageId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetK8SMasterPolicyDocument(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.K8SMasterPolicyDocument = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetK8sWorkerPolicyDocument(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.K8sWorkerPolicyDocument = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetKey(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.Key = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetKeyPair(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.KeyPair = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetKubernetesVersion(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.KubernetesVersion = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetLoggingType(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.LoggingType = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterAmounts(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterAmounts = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterAutoRenew(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterAutoRenew = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterAutoRenewPeriod(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterAutoRenewPeriod = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterCount(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterCount = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterDataDisk(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterDataDisk = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterDataDisks(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterDataDisks = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterDeletionProtection(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterDeploymentSetId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterDeploymentSetId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterHpcClusterId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterHpcClusterId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterImageId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterImageId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterInstanceChargeType(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterInstanceChargeType = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterInstanceTypes(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterInstanceTypes = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterKeyPair(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterKeyPair = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterLoginPassword(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterLoginPassword = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterPeriod(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterPeriod = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterPeriodUnit(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterPeriodUnit = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterSlbSShHealthCheck(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterSlbSShHealthCheck = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterSnapshotPolicyId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterSnapshotPolicyId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterSystemDiskCategory(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterSystemDiskCategory = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterSystemDiskSize(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterSystemDiskSize = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetMasterVSwitchIds(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.MasterVSwitchIds = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetNatGateway(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.NatGateway = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetNatGatewayId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.NatGatewayId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetNetwork(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.Network = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetNodeCIDRMask(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.NodeCIDRMask = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetNodeNameMode(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.NodeNameMode = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetNumOfNodes(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.NumOfNodes = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetPassword(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.Password = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetPodVswitchIds(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.PodVswitchIds = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetProtectedInstances(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ProtectedInstances = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetProxyMode(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ProxyMode = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetPublicSLB(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.PublicSLB = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetRemoveInstanceIds(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.RemoveInstanceIds = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetResourceGroupId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ResourceGroupId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSLBDeletionProtection(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SLBDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSLSProjectName(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SLSProjectName = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSNatEntry(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SNatEntry = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSSHFlags(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SSHFlags = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSecurityGroupId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SecurityGroupId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetServiceCIDR(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ServiceCIDR = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSetUpArgs(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SetUpArgs = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetSnatTableId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.SnatTableId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetTags(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.Tags = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetUserCA(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.UserCA = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetUserData(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.UserData = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetVpcId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.VpcId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWillReplace(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WillReplace = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerAutoRenew(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerAutoRenew = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerAutoRenewPeriod(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerAutoRenewPeriod = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerDataDisk(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerDataDisk = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerDataDisks(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerDataDisks = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerDeletionProtection(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerDeletionProtection = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerDeploymentSetId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerDeploymentSetId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerHpcClusterId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerHpcClusterId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerImageId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerImageId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerInstanceChargeType(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerInstanceChargeType = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerInstanceTypes(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerInstanceTypes = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerKeyPair(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerKeyPair = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerLoginPassword(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerLoginPassword = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerPeriod(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerPeriod = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerPeriodUnit(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerPeriodUnit = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerSnapshotPolicyId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerSnapshotPolicyId = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerSystemDiskCategory(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerSystemDiskCategory = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerSystemDiskSize(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerSystemDiskSize = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetWorkerVSwitchIds(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.WorkerVSwitchIds = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBodyParameters) SetZoneId(v string) *DescribeClusterDetailResponseBodyParameters {
-	s.ZoneId = &v
 	return s
 }
 
@@ -4912,6 +4438,81 @@ func (s *DeleteClusterResponse) SetBody(v *DeleteClusterResponseBody) *DeleteClu
 	return s
 }
 
+type DescribeApiVersionRequest struct {
+	Headers map[string]string `json:"headers" xml:"headers"`
+}
+
+func (s DescribeApiVersionRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeApiVersionRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeApiVersionRequest) SetHeaders(v map[string]string) *DescribeApiVersionRequest {
+	s.Headers = v
+	return s
+}
+
+type DescribeApiVersionResponseBody struct {
+	Version              *string `json:"version" xml:"version" require:"true"`
+	Build                *string `json:"build" xml:"build" require:"true"`
+	DockerVersion        *string `json:"docker_version" xml:"docker_version" require:"true"`
+	DockerRegionVersions *string `json:"docker_region_versions" xml:"docker_region_versions" require:"true"`
+}
+
+func (s DescribeApiVersionResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeApiVersionResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeApiVersionResponseBody) SetVersion(v string) *DescribeApiVersionResponseBody {
+	s.Version = &v
+	return s
+}
+
+func (s *DescribeApiVersionResponseBody) SetBuild(v string) *DescribeApiVersionResponseBody {
+	s.Build = &v
+	return s
+}
+
+func (s *DescribeApiVersionResponseBody) SetDockerVersion(v string) *DescribeApiVersionResponseBody {
+	s.DockerVersion = &v
+	return s
+}
+
+func (s *DescribeApiVersionResponseBody) SetDockerRegionVersions(v string) *DescribeApiVersionResponseBody {
+	s.DockerRegionVersions = &v
+	return s
+}
+
+type DescribeApiVersionResponse struct {
+	Headers map[string]string               `json:"headers" xml:"headers" require:"true"`
+	Body    *DescribeApiVersionResponseBody `json:"body" xml:"body" require:"true"`
+}
+
+func (s DescribeApiVersionResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeApiVersionResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeApiVersionResponse) SetHeaders(v map[string]string) *DescribeApiVersionResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DescribeApiVersionResponse) SetBody(v *DescribeApiVersionResponseBody) *DescribeApiVersionResponse {
+	s.Body = v
+	return s
+}
+
 type Client struct {
 	roa.Client
 }
@@ -4930,7 +4531,7 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	client.EndpointRule = tea.String("")
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.EndpointHost, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.EndpointHost)
 	if _err != nil {
@@ -4943,12 +4544,12 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 func (client *Client) ResumeComponentUpgradeEx(clusterid *string, componentid *string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ResumeComponentUpgradeResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterid))+"/components/"+tea.ToString(tea.StringValue(componentid))+"/resume"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterid)+"/components/"+tea.StringValue(componentid)+"/resume"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4959,7 +4560,7 @@ func (client *Client) ResumeComponentUpgrade(clusterid *string, componentid *str
 	_result = &ResumeComponentUpgradeResponse{}
 	_body, _err := client.ResumeComponentUpgradeEx(clusterid, componentid, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -4968,12 +4569,12 @@ func (client *Client) ResumeComponentUpgrade(clusterid *string, componentid *str
 func (client *Client) PauseComponentUpgradeEx(clusterid *string, componentid *string, request *PauseComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *PauseComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &PauseComponentUpgradeResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterid))+"/components/"+tea.ToString(tea.StringValue(componentid))+"/pause"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterid)+"/components/"+tea.StringValue(componentid)+"/pause"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4984,7 +4585,7 @@ func (client *Client) PauseComponentUpgrade(clusterid *string, componentid *stri
 	_result = &PauseComponentUpgradeResponse{}
 	_body, _err := client.PauseComponentUpgradeEx(clusterid, componentid, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -4993,12 +4594,12 @@ func (client *Client) PauseComponentUpgrade(clusterid *string, componentid *stri
 func (client *Client) CancelComponentUpgradeEx(clusterid *string, componentid *string, request *CancelComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *CancelComponentUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CancelComponentUpgradeResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterid))+"/components/"+tea.ToString(tea.StringValue(componentid))+"/cancel"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterid)+"/components/"+tea.StringValue(componentid)+"/cancel"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5009,7 +4610,7 @@ func (client *Client) CancelComponentUpgrade(clusterid *string, componentid *str
 	_result = &CancelComponentUpgradeResponse{}
 	_body, _err := client.CancelComponentUpgradeEx(clusterid, componentid, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5018,12 +4619,12 @@ func (client *Client) CancelComponentUpgrade(clusterid *string, componentid *str
 func (client *Client) CancelWorkflowEx(workflowName *string, request *CancelWorkflowRequest, runtime *util.RuntimeOptions) (_result *CancelWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CancelWorkflowResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/gs/workflow/"+tea.ToString(tea.StringValue(workflowName))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/gs/workflow/"+tea.StringValue(workflowName)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5034,7 +4635,7 @@ func (client *Client) CancelWorkflow(workflowName *string, request *CancelWorkfl
 	_result = &CancelWorkflowResponse{}
 	_body, _err := client.CancelWorkflowEx(workflowName, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5043,12 +4644,12 @@ func (client *Client) CancelWorkflow(workflowName *string, request *CancelWorkfl
 func (client *Client) DescirbeWorkflowEx(workflowName *string, request *DescirbeWorkflowRequest, runtime *util.RuntimeOptions) (_result *DescirbeWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescirbeWorkflowResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/gs/workflow/"+tea.ToString(tea.StringValue(workflowName))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/gs/workflow/"+tea.StringValue(workflowName)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5059,7 +4660,7 @@ func (client *Client) DescirbeWorkflow(workflowName *string, request *DescirbeWo
 	_result = &DescirbeWorkflowResponse{}
 	_body, _err := client.DescirbeWorkflowEx(workflowName, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5068,12 +4669,12 @@ func (client *Client) DescirbeWorkflow(workflowName *string, request *DescirbeWo
 func (client *Client) RemoveWorkflowEx(workflowName *string, request *RemoveWorkflowRequest, runtime *util.RuntimeOptions) (_result *RemoveWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RemoveWorkflowResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/gs/workflow/"+tea.ToString(tea.StringValue(workflowName))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/gs/workflow/"+tea.StringValue(workflowName)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5084,7 +4685,7 @@ func (client *Client) RemoveWorkflow(workflowName *string, request *RemoveWorkfl
 	_result = &RemoveWorkflowResponse{}
 	_body, _err := client.RemoveWorkflowEx(workflowName, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5093,12 +4694,12 @@ func (client *Client) RemoveWorkflow(workflowName *string, request *RemoveWorkfl
 func (client *Client) DescribeWorkflowsEx(request *DescribeWorkflowsRequest, runtime *util.RuntimeOptions) (_result *DescribeWorkflowsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeWorkflowsResponse{}
 	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/gs/workflows"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5109,7 +4710,7 @@ func (client *Client) DescribeWorkflows(request *DescribeWorkflowsRequest) (_res
 	_result = &DescribeWorkflowsResponse{}
 	_body, _err := client.DescribeWorkflowsEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5118,12 +4719,12 @@ func (client *Client) DescribeWorkflows(request *DescribeWorkflowsRequest) (_res
 func (client *Client) StartWorkflowEx(request *StartWorkflowRequest, runtime *util.RuntimeOptions) (_result *StartWorkflowResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &StartWorkflowResponse{}
 	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/gs/workflow"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5134,7 +4735,7 @@ func (client *Client) StartWorkflow(request *StartWorkflowRequest) (_result *Sta
 	_result = &StartWorkflowResponse{}
 	_body, _err := client.StartWorkflowEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5143,12 +4744,12 @@ func (client *Client) StartWorkflow(request *StartWorkflowRequest) (_result *Sta
 func (client *Client) CreateServiceMeshEx(request *CreateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *CreateServiceMeshResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CreateServiceMeshResponse{}
 	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/servicemesh"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5159,7 +4760,7 @@ func (client *Client) CreateServiceMesh(request *CreateServiceMeshRequest) (_res
 	_result = &CreateServiceMeshResponse{}
 	_body, _err := client.CreateServiceMeshEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5168,12 +4769,12 @@ func (client *Client) CreateServiceMesh(request *CreateServiceMeshRequest) (_res
 func (client *Client) ServiceMeshAddClusterEx(serviceMeshId *string, request *ServiceMeshAddClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshAddClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ServiceMeshAddClusterResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))+"/add/clusters"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.StringValue(serviceMeshId)+"/add/clusters"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5184,7 +4785,7 @@ func (client *Client) ServiceMeshAddCluster(serviceMeshId *string, request *Serv
 	_result = &ServiceMeshAddClusterResponse{}
 	_body, _err := client.ServiceMeshAddClusterEx(serviceMeshId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5193,12 +4794,12 @@ func (client *Client) ServiceMeshAddCluster(serviceMeshId *string, request *Serv
 func (client *Client) ServiceMeshRemoveClusterEx(serviceMeshId *string, request *ServiceMeshRemoveClusterRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshRemoveClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ServiceMeshRemoveClusterResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))+"/remove/clusters"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.StringValue(serviceMeshId)+"/remove/clusters"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5209,7 +4810,7 @@ func (client *Client) ServiceMeshRemoveCluster(serviceMeshId *string, request *S
 	_result = &ServiceMeshRemoveClusterResponse{}
 	_body, _err := client.ServiceMeshRemoveClusterEx(serviceMeshId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5218,12 +4819,12 @@ func (client *Client) ServiceMeshRemoveCluster(serviceMeshId *string, request *S
 func (client *Client) UpdateServiceMeshEx(serviceMeshId *string, request *UpdateServiceMeshRequest, runtime *util.RuntimeOptions) (_result *UpdateServiceMeshResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &UpdateServiceMeshResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/servicemesh/"+tea.StringValue(serviceMeshId)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5234,7 +4835,7 @@ func (client *Client) UpdateServiceMesh(serviceMeshId *string, request *UpdateSe
 	_result = &UpdateServiceMeshResponse{}
 	_body, _err := client.UpdateServiceMeshEx(serviceMeshId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5243,12 +4844,12 @@ func (client *Client) UpdateServiceMesh(serviceMeshId *string, request *UpdateSe
 func (client *Client) ServiceMeshApiServerEx(serviceMeshId *string, request *ServiceMeshApiServerRequest, runtime *util.RuntimeOptions) (_result *ServiceMeshApiServerResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ServiceMeshApiServerResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/servicemesh/"+tea.ToString(tea.StringValue(serviceMeshId))+"/api_proxy"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/servicemesh/"+tea.StringValue(serviceMeshId)+"/api_proxy"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5259,7 +4860,7 @@ func (client *Client) ServiceMeshApiServer(serviceMeshId *string, request *Servi
 	_result = &ServiceMeshApiServerResponse{}
 	_body, _err := client.ServiceMeshApiServerEx(serviceMeshId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5268,12 +4869,12 @@ func (client *Client) ServiceMeshApiServer(serviceMeshId *string, request *Servi
 func (client *Client) UnInstallClusterAddonsEx(clusterId *string, request *UnInstallClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *UnInstallClusterAddonsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &UnInstallClusterAddonsResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/components/uninstall"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/components/uninstall"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5284,7 +4885,7 @@ func (client *Client) UnInstallClusterAddons(clusterId *string, request *UnInsta
 	_result = &UnInstallClusterAddonsResponse{}
 	_body, _err := client.UnInstallClusterAddonsEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5293,12 +4894,12 @@ func (client *Client) UnInstallClusterAddons(clusterId *string, request *UnInsta
 func (client *Client) DescribeAddonsEx(request *DescribeAddonsRequest, runtime *util.RuntimeOptions) (_result *DescribeAddonsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeAddonsResponse{}
 	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/components/metadata"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5309,32 +4910,57 @@ func (client *Client) DescribeAddons(request *DescribeAddonsRequest) (_result *D
 	_result = &DescribeAddonsResponse{}
 	_body, _err := client.DescribeAddonsEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
 }
 
-func (client *Client) UpdateK8sClusterUserConfigExpireEx(clusterId *string, request *UpdateK8sClusterUserConfigExpireRequest, runtime *util.RuntimeOptions) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
+func (client *Client) CancelClusterUpgradeEx(clusterId *string, request *CancelClusterUpgradeRequest, runtime *util.RuntimeOptions) (_result *CancelClusterUpgradeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
-	_result = &UpdateK8sClusterUserConfigExpireResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/k8s/"+tea.ToString(tea.StringValue(clusterId))+"/user_config/expire"), nil, request.Headers, nil, runtime)
+	_result = &CancelClusterUpgradeResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)+"/upgrade/cancel"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
 }
 
-func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId *string, request *UpdateK8sClusterUserConfigExpireRequest) (_result *UpdateK8sClusterUserConfigExpireResponse, _err error) {
+func (client *Client) CancelClusterUpgrade(clusterId *string, request *CancelClusterUpgradeRequest) (_result *CancelClusterUpgradeResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
-	_result = &UpdateK8sClusterUserConfigExpireResponse{}
-	_body, _err := client.UpdateK8sClusterUserConfigExpireEx(clusterId, request, runtime)
+	_result = &CancelClusterUpgradeResponse{}
+	_body, _err := client.CancelClusterUpgradeEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeUserQuotaEx(request *DescribeUserQuotaRequest, runtime *util.RuntimeOptions) (_result *DescribeUserQuotaResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeUserQuotaResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/quota"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeUserQuota(request *DescribeUserQuotaRequest) (_result *DescribeUserQuotaResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeUserQuotaResponse{}
+	_body, _err := client.DescribeUserQuotaEx(request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5343,12 +4969,12 @@ func (client *Client) UpdateK8sClusterUserConfigExpire(clusterId *string, reques
 func (client *Client) DescribeClusterV2UserKubeconfigEx(clusterId *string, request *DescribeClusterV2UserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterV2UserKubeconfigResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeClusterV2UserKubeconfigResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/api/v2/k8s/"+tea.ToString(tea.StringValue(clusterId))+"/user_config"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/api/v2/k8s/"+tea.StringValue(clusterId)+"/user_config"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5359,7 +4985,207 @@ func (client *Client) DescribeClusterV2UserKubeconfig(clusterId *string, request
 	_result = &DescribeClusterV2UserKubeconfigResponse{}
 	_body, _err := client.DescribeClusterV2UserKubeconfigEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) RemoveClusterNodesEx(clusterId *string, request *RemoveClusterNodesRequest, runtime *util.RuntimeOptions) (_result *RemoveClusterNodesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &RemoveClusterNodesResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)+"/nodes/remove"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RemoveClusterNodes(clusterId *string, request *RemoveClusterNodesRequest) (_result *RemoveClusterNodesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &RemoveClusterNodesResponse{}
+	_body, _err := client.RemoveClusterNodesEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UpgradeClusterEx(clusterId *string, request *UpgradeClusterRequest, runtime *util.RuntimeOptions) (_result *UpgradeClusterResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &UpgradeClusterResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)+"/upgrade"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) UpgradeCluster(clusterId *string, request *UpgradeClusterRequest) (_result *UpgradeClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UpgradeClusterResponse{}
+	_body, _err := client.UpgradeClusterEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) PauseClusterUpgradeEx(clusterId *string, request *PauseClusterUpgradeRequest, runtime *util.RuntimeOptions) (_result *PauseClusterUpgradeResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &PauseClusterUpgradeResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)+"/upgrade/pause"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) PauseClusterUpgrade(clusterId *string, request *PauseClusterUpgradeRequest) (_result *PauseClusterUpgradeResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &PauseClusterUpgradeResponse{}
+	_body, _err := client.PauseClusterUpgradeEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ResumeUpgradeClusterEx(clusterId *string, request *ResumeUpgradeClusterRequest, runtime *util.RuntimeOptions) (_result *ResumeUpgradeClusterResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ResumeUpgradeClusterResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)+"/upgrade/resume"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ResumeUpgradeCluster(clusterId *string, request *ResumeUpgradeClusterRequest) (_result *ResumeUpgradeClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ResumeUpgradeClusterResponse{}
+	_body, _err := client.ResumeUpgradeClusterEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetUpgradeStatusEx(clusterId *string, request *GetUpgradeStatusRequest, runtime *util.RuntimeOptions) (_result *GetUpgradeStatusResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetUpgradeStatusResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)+"/upgrade/status"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetUpgradeStatus(clusterId *string, request *GetUpgradeStatusRequest) (_result *GetUpgradeStatusResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetUpgradeStatusResponse{}
+	_body, _err := client.GetUpgradeStatusEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ModifyClusterEx(clusterId *string, request *ModifyClusterRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ModifyClusterResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ModifyCluster(clusterId *string, request *ModifyClusterRequest) (_result *ModifyClusterResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ModifyClusterResponse{}
+	_body, _err := client.ModifyClusterEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) InstallClusterAddonsEx(clusterId *string, request *InstallClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *InstallClusterAddonsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &InstallClusterAddonsResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/components/install"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) InstallClusterAddons(clusterId *string, request *InstallClusterAddonsRequest) (_result *InstallClusterAddonsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &InstallClusterAddonsResponse{}
+	_body, _err := client.InstallClusterAddonsEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteTriggerHookEx(request *DeleteTriggerHookRequest, runtime *util.RuntimeOptions) (_result *DeleteTriggerHookResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteTriggerHookResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/hook/trigger"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteTriggerHook(request *DeleteTriggerHookRequest) (_result *DeleteTriggerHookResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteTriggerHookResponse{}
+	_body, _err := client.DeleteTriggerHookEx(request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5368,12 +5194,12 @@ func (client *Client) DescribeClusterV2UserKubeconfig(clusterId *string, request
 func (client *Client) ModifyClusterTagsEx(clusterId *string, request *ModifyClusterTagsRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterTagsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ModifyClusterTagsResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/tags"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/tags"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5384,7 +5210,57 @@ func (client *Client) ModifyClusterTags(clusterId *string, request *ModifyCluste
 	_result = &ModifyClusterTagsResponse{}
 	_body, _err := client.ModifyClusterTagsEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeExternalAgentEx(clusterId *string, request *DescribeExternalAgentRequest, runtime *util.RuntimeOptions) (_result *DescribeExternalAgentResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeExternalAgentResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/k8s/"+tea.StringValue(clusterId)+"/external/agent/deployment"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeExternalAgent(clusterId *string, request *DescribeExternalAgentRequest) (_result *DescribeExternalAgentResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeExternalAgentResponse{}
+	_body, _err := client.DescribeExternalAgentEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterAttachScriptsEx(clusterId *string, request *DescribeClusterAttachScriptsRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAttachScriptsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeClusterAttachScriptsResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/attachscript"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterAttachScripts(clusterId *string, request *DescribeClusterAttachScriptsRequest) (_result *DescribeClusterAttachScriptsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterAttachScriptsResponse{}
+	_body, _err := client.DescribeClusterAttachScriptsEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5393,12 +5269,12 @@ func (client *Client) ModifyClusterTags(clusterId *string, request *ModifyCluste
 func (client *Client) ScaleOutClusterEx(clusterId *string, request *ScaleOutClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleOutClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ScaleOutClusterResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/clusters/"+tea.StringValue(clusterId)), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5409,7 +5285,57 @@ func (client *Client) ScaleOutCluster(clusterId *string, request *ScaleOutCluste
 	_result = &ScaleOutClusterResponse{}
 	_body, _err := client.ScaleOutClusterEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateTriggerHookEx(request *CreateTriggerHookRequest, runtime *util.RuntimeOptions) (_result *CreateTriggerHookResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateTriggerHookResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/hook/trigger"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateTriggerHook(request *CreateTriggerHookRequest) (_result *CreateTriggerHookResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateTriggerHookResponse{}
+	_body, _err := client.CreateTriggerHookEx(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UpgradeClusterAddonsEx(clusterId *string, request *UpgradeClusterAddonsRequest, runtime *util.RuntimeOptions) (_result *UpgradeClusterAddonsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &UpgradeClusterAddonsResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/components/upgrade"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) UpgradeClusterAddons(clusterId *string, request *UpgradeClusterAddonsRequest) (_result *UpgradeClusterAddonsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UpgradeClusterAddonsResponse{}
+	_body, _err := client.UpgradeClusterAddonsEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5418,12 +5344,12 @@ func (client *Client) ScaleOutCluster(clusterId *string, request *ScaleOutCluste
 func (client *Client) DescribeClusterAddonsVersionEx(clusterId *string, request *DescribeClusterAddonsVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonsVersionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeClusterAddonsVersionResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/components/version"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/components/version"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5434,7 +5360,7 @@ func (client *Client) DescribeClusterAddonsVersion(clusterId *string, request *D
 	_result = &DescribeClusterAddonsVersionResponse{}
 	_body, _err := client.DescribeClusterAddonsVersionEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5443,12 +5369,12 @@ func (client *Client) DescribeClusterAddonsVersion(clusterId *string, request *D
 func (client *Client) DescribeClusterAddonUpgradeStatusEx(clusterId *string, componentId *string, request *DescribeClusterAddonUpgradeStatusRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterAddonUpgradeStatusResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeClusterAddonUpgradeStatusResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/components/"+tea.ToString(tea.StringValue(componentId))+"/upgradestatus"), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/components/"+tea.StringValue(componentId)+"/upgradestatus"), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5459,32 +5385,7 @@ func (client *Client) DescribeClusterAddonUpgradeStatus(clusterId *string, compo
 	_result = &DescribeClusterAddonUpgradeStatusResponse{}
 	_body, _err := client.DescribeClusterAddonUpgradeStatusEx(clusterId, componentId, request, runtime)
 	if _err != nil {
-		return nil, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
-func (client *Client) DescribeEdgeClusterAttachScriptsEx(clusterId *string, request *DescribeEdgeClusterAttachScriptsRequest, runtime *util.RuntimeOptions) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return
-	}
-	_result = &DescribeEdgeClusterAttachScriptsResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/attachscript"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
-	if _err != nil {
-		return nil, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) DescribeEdgeClusterAttachScripts(clusterId *string, request *DescribeEdgeClusterAttachScriptsRequest) (_result *DescribeEdgeClusterAttachScriptsResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &DescribeEdgeClusterAttachScriptsResponse{}
-	_body, _err := client.DescribeEdgeClusterAttachScriptsEx(clusterId, request, runtime)
-	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5493,12 +5394,12 @@ func (client *Client) DescribeEdgeClusterAttachScripts(clusterId *string, reques
 func (client *Client) DeleteClusterNodesEx(clusterId *string, request *DeleteClusterNodesRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterNodesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DeleteClusterNodesResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/nodes"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/nodes"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5509,7 +5410,32 @@ func (client *Client) DeleteClusterNodes(clusterId *string, request *DeleteClust
 	_result = &DeleteClusterNodesResponse{}
 	_body, _err := client.DeleteClusterNodesEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteTemplateEx(templateId *string, request *DeleteTemplateRequest, runtime *util.RuntimeOptions) (_result *DeleteTemplateResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteTemplateResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/templates/"+tea.StringValue(templateId)), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteTemplate(templateId *string, request *DeleteTemplateRequest) (_result *DeleteTemplateResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteTemplateResponse{}
+	_body, _err := client.DeleteTemplateEx(templateId, request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5518,12 +5444,12 @@ func (client *Client) DeleteClusterNodes(clusterId *string, request *DeleteClust
 func (client *Client) DescribeClusterUserKubeconfigEx(clusterId *string, request *DescribeClusterUserKubeconfigRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterUserKubeconfigResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeClusterUserKubeconfigResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/k8s/"+tea.ToString(tea.StringValue(clusterId))+"/user_config"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/k8s/"+tea.StringValue(clusterId)+"/user_config"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5534,7 +5460,57 @@ func (client *Client) DescribeClusterUserKubeconfig(clusterId *string, request *
 	_result = &DescribeClusterUserKubeconfigResponse{}
 	_body, _err := client.DescribeClusterUserKubeconfigEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterNodesEx(clusterId *string, request *DescribeClusterNodesRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterNodesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeClusterNodesResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/nodes"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterNodes(clusterId *string, request *DescribeClusterNodesRequest) (_result *DescribeClusterNodesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterNodesResponse{}
+	_body, _err := client.DescribeClusterNodesEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterLogsEx(clusterId *string, request *DescribeClusterLogsRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterLogsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeClusterLogsResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/logs"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeClusterLogs(clusterId *string, request *DescribeClusterLogsRequest) (_result *DescribeClusterLogsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeClusterLogsResponse{}
+	_body, _err := client.DescribeClusterLogsEx(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5543,12 +5519,12 @@ func (client *Client) DescribeClusterUserKubeconfig(clusterId *string, request *
 func (client *Client) AttachInstancesEx(clusterId *string, request *AttachInstancesRequest, runtime *util.RuntimeOptions) (_result *AttachInstancesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &AttachInstancesResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))+"/attach"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)+"/attach"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5559,7 +5535,57 @@ func (client *Client) AttachInstances(clusterId *string, request *AttachInstance
 	_result = &AttachInstancesResponse{}
 	_body, _err := client.AttachInstancesEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeTemplatesEx(request *DescribeTemplatesRequest, runtime *util.RuntimeOptions) (_result *DescribeTemplatesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeTemplatesResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/templates"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeTemplates(request *DescribeTemplatesRequest) (_result *DescribeTemplatesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeTemplatesResponse{}
+	_body, _err := client.DescribeTemplatesEx(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateTemplateEx(request *CreateTemplateRequest, runtime *util.RuntimeOptions) (_result *CreateTemplateResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateTemplateResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/templates"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateTemplate(request *CreateTemplateRequest) (_result *CreateTemplateResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateTemplateResponse{}
+	_body, _err := client.CreateTemplateEx(request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5568,12 +5594,12 @@ func (client *Client) AttachInstances(clusterId *string, request *AttachInstance
 func (client *Client) CreateClusterEx(request *CreateClusterRequest, runtime *util.RuntimeOptions) (_result *CreateClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CreateClusterResponse{}
 	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/clusters"), nil, request.Headers, tea.ToMap(request.Body), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5584,7 +5610,7 @@ func (client *Client) CreateCluster(request *CreateClusterRequest) (_result *Cre
 	_result = &CreateClusterResponse{}
 	_body, _err := client.CreateClusterEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5593,12 +5619,12 @@ func (client *Client) CreateCluster(request *CreateClusterRequest) (_result *Cre
 func (client *Client) ScaleClusterEx(clusterId *string, request *ScaleClusterRequest, runtime *util.RuntimeOptions) (_result *ScaleClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ScaleClusterResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5609,7 +5635,7 @@ func (client *Client) ScaleCluster(clusterId *string, request *ScaleClusterReque
 	_result = &ScaleClusterResponse{}
 	_body, _err := client.ScaleClusterEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5618,12 +5644,12 @@ func (client *Client) ScaleCluster(clusterId *string, request *ScaleClusterReque
 func (client *Client) DescribeClustersEx(request *DescribeClustersRequest, runtime *util.RuntimeOptions) (_result *DescribeClustersResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeClustersResponse{}
 	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5634,7 +5660,7 @@ func (client *Client) DescribeClusters(request *DescribeClustersRequest) (_resul
 	_result = &DescribeClustersResponse{}
 	_body, _err := client.DescribeClustersEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5643,12 +5669,12 @@ func (client *Client) DescribeClusters(request *DescribeClustersRequest) (_resul
 func (client *Client) DescribeClusterDetailEx(clusterId *string, request *DescribeClusterDetailRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterDetailResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeClusterDetailResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5659,7 +5685,7 @@ func (client *Client) DescribeClusterDetail(clusterId *string, request *Describe
 	_result = &DescribeClusterDetailResponse{}
 	_body, _err := client.DescribeClusterDetailEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5668,12 +5694,12 @@ func (client *Client) DescribeClusterDetail(clusterId *string, request *Describe
 func (client *Client) DeleteClusterEx(clusterId *string, request *DeleteClusterRequest, runtime *util.RuntimeOptions) (_result *DeleteClusterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DeleteClusterResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/clusters/"+tea.ToString(tea.StringValue(clusterId))), nil, request.Headers, nil, runtime)
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/clusters/"+tea.StringValue(clusterId)), nil, request.Headers, nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5684,7 +5710,32 @@ func (client *Client) DeleteCluster(clusterId *string, request *DeleteClusterReq
 	_result = &DeleteClusterResponse{}
 	_body, _err := client.DeleteClusterEx(clusterId, request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeApiVersionEx(request *DescribeApiVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeApiVersionResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeApiVersionResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/version"), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeApiVersion(request *DescribeApiVersionRequest) (_result *DescribeApiVersionResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeApiVersionResponse{}
+	_body, _err := client.DescribeApiVersionEx(request, runtime)
+	if _err != nil {
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -5703,7 +5754,7 @@ func (client *Client) GetEndpoint(productId *string, regionId *string, endpointR
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
