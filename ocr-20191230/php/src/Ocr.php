@@ -5,78 +5,83 @@
 namespace AlibabaCloud\SDK\Ocr\V20191230;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\GetAsyncJobResultRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\GetAsyncJobResultResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeAccountPageAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeAccountPageRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeAccountPageResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBankCardAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBankCardRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBankCardResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBusinessCardAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBusinessCardRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBusinessCardResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBusinessLicenseAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBusinessLicenseRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeBusinessLicenseResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeCharacterAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeCharacterRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeCharacterResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeChinapassportAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeChinapassportRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeChinapassportResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeDriverLicenseAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeDriverLicenseRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeDriverLicenseResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeDrivingLicenseAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeDrivingLicenseRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeDrivingLicenseResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeIdentityCardAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeIdentityCardRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeIdentityCardResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeLicensePlateAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeLicensePlateRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeLicensePlateResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizePassportMRZAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizePassportMRZRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizePassportMRZResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeQrCodeRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeQrCodeResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeStampAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeStampRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeStampResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTableAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTableRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTableResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTakeoutOrderAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTakeoutOrderRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTakeoutOrderResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTaxiInvoiceAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTaxiInvoiceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTaxiInvoiceResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTrainTicketAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTrainTicketRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeTrainTicketResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVATInvoiceAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVATInvoiceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVATInvoiceResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVerificationcodeAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVerificationcodeRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVerificationcodeResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVINCodeAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVINCodeRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\RecognizeVINCodeResponse;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\TrimDocumentAdvanceRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\TrimDocumentRequest;
-use AlibabaCloud\SDK\Ocr\V20191230\Ocr\TrimDocumentResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\GetAsyncJobResultRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\GetAsyncJobResultResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBankCardAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBankCardRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBankCardResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessCardAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessCardRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessCardResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeCharacterAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeCharacterRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeCharacterResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeChinapassportAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeChinapassportRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeChinapassportResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDriverLicenseAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDriverLicenseRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDriverLicenseResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDrivingLicenseAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDrivingLicenseRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDrivingLicenseResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeLicensePlateAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeLicensePlateRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeLicensePlateResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizePassportMRZAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizePassportMRZRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizePassportMRZResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeQrCodeRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeQrCodeResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTableAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTableRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTableResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTakeoutOrderAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTakeoutOrderRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTakeoutOrderResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTrainTicketAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTrainTicketRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTrainTicketResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVATInvoiceAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVATInvoiceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVATInvoiceResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVerificationcodeAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVerificationcodeRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVerificationcodeResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVINCodeAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVINCodeRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVINCodeResponse;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\TrimDocumentAdvanceRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\TrimDocumentRequest;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\TrimDocumentResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Request;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
+use AlibabaCloud\Tea\FileForm\FileForm\FileField;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Ocr
+class Ocr extends Rpc
 {
     public function __construct($config)
     {
@@ -120,7 +125,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -129,7 +134,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -144,12 +149,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->fileURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -157,7 +162,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -194,7 +199,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -203,7 +208,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -218,12 +223,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -231,7 +236,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -268,7 +273,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -277,7 +282,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -292,12 +297,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -305,7 +310,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -342,7 +347,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -351,7 +356,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -366,12 +371,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -379,7 +384,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -416,7 +421,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -425,7 +430,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -440,12 +445,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -453,7 +458,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -502,7 +507,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -511,7 +516,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -526,12 +531,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->fileURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -539,7 +544,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -576,7 +581,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -585,7 +590,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -600,12 +605,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -613,7 +618,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -650,7 +655,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -659,7 +664,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -674,12 +679,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -687,7 +692,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -724,7 +729,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -733,7 +738,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -748,12 +753,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -761,7 +766,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -798,7 +803,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -807,7 +812,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -822,12 +827,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -835,7 +840,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -872,7 +877,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -881,7 +886,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -896,12 +901,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -909,7 +914,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -946,7 +951,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -955,7 +960,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -970,12 +975,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -983,7 +988,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1020,7 +1025,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1029,7 +1034,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1044,12 +1049,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1057,7 +1062,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1094,7 +1099,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1103,7 +1108,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1118,12 +1123,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1131,7 +1136,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1168,7 +1173,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1177,7 +1182,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1192,12 +1197,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1205,7 +1210,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1242,7 +1247,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1251,7 +1256,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1266,12 +1271,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1279,7 +1284,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1316,7 +1321,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1325,7 +1330,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1340,12 +1345,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1353,7 +1358,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1390,7 +1395,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1399,7 +1404,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1414,12 +1419,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1427,7 +1432,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1464,7 +1469,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1473,7 +1478,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1488,12 +1493,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1501,7 +1506,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -1538,7 +1543,7 @@ class Ocr
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -1547,7 +1552,7 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
@@ -1562,12 +1567,12 @@ class Ocr
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -1575,7 +1580,7 @@ class Ocr
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);

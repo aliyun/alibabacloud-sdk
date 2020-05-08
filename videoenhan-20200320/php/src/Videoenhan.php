@@ -6,33 +6,40 @@ namespace AlibabaCloud\SDK\Videoenhan\V20200320;
 
 use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AbstractEcommerceVideoAdvanceRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AbstractEcommerceVideoRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AbstractEcommerceVideoResponse;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AbstractFilmVideoAdvanceRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AbstractFilmVideoRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AbstractFilmVideoResponse;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AdjustVideoColorAdvanceRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AdjustVideoColorRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\AdjustVideoColorResponse;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\EraseVideoLogoAdvanceRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\EraseVideoLogoRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\EraseVideoLogoResponse;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\EraseVideoSubtitlesAdvanceRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\EraseVideoSubtitlesRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\EraseVideoSubtitlesResponse;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\GetAsyncJobResultRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\GetAsyncJobResultResponse;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\SuperResolveVideoAdvanceRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\SuperResolveVideoRequest;
-use AlibabaCloud\SDK\Videoenhan\V20200320\Videoenhan\SuperResolveVideoResponse;
-use AlibabaCloud\Tea\Request;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractEcommerceVideoAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractEcommerceVideoRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractEcommerceVideoResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractFilmVideoAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractFilmVideoRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AbstractFilmVideoResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AdjustVideoColorAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AdjustVideoColorRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\AdjustVideoColorResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoLogoResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoSubtitlesAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoSubtitlesRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\EraseVideoSubtitlesResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\GenerateVideoRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\GenerateVideoResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\GetAsyncJobResultRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\GetAsyncJobResultResponse;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\SuperResolveVideoAdvanceRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\SuperResolveVideoRequest;
+use AlibabaCloud\SDK\Videoenhan\V20200320\Models\SuperResolveVideoResponse;
+use AlibabaCloud\Tea\FileForm\FileForm\FileField;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Videoenhan
+class Videoenhan extends Rpc
 {
     public function __construct($config)
     {
@@ -40,6 +47,18 @@ class Videoenhan
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return GenerateVideoResponse
+     */
+    public function generateVideo(GenerateVideoRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GenerateVideoResponse::fromMap($this->doRequest('GenerateVideo', 'HTTPS', 'POST', '2020-03-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -76,7 +95,7 @@ class Videoenhan
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -85,7 +104,7 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoenhan',
             'regionId' => $this->_regionId,
         ]);
@@ -100,12 +119,12 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -113,7 +132,7 @@ class Videoenhan
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -150,7 +169,7 @@ class Videoenhan
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -159,7 +178,7 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoenhan',
             'regionId' => $this->_regionId,
         ]);
@@ -174,12 +193,12 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -187,7 +206,7 @@ class Videoenhan
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -224,7 +243,7 @@ class Videoenhan
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -233,7 +252,7 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoenhan',
             'regionId' => $this->_regionId,
         ]);
@@ -248,12 +267,12 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -261,7 +280,7 @@ class Videoenhan
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -298,7 +317,7 @@ class Videoenhan
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -307,7 +326,7 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoenhan',
             'regionId' => $this->_regionId,
         ]);
@@ -322,12 +341,12 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -335,7 +354,7 @@ class Videoenhan
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -372,7 +391,7 @@ class Videoenhan
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -381,7 +400,7 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoenhan',
             'regionId' => $this->_regionId,
         ]);
@@ -396,12 +415,12 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -409,7 +428,7 @@ class Videoenhan
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -446,7 +465,7 @@ class Videoenhan
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -455,7 +474,7 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoenhan',
             'regionId' => $this->_regionId,
         ]);
@@ -470,12 +489,12 @@ class Videoenhan
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -483,7 +502,7 @@ class Videoenhan
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);

@@ -5,23 +5,28 @@
 namespace AlibabaCloud\SDK\Goodstech\V20191230;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\ClassifyCommodityAdvanceRequest;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\ClassifyCommodityRequest;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\ClassifyCommodityResponse;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureAttributeAdvanceRequest;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureAttributeRequest;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureAttributeResponse;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureSpuAdvanceRequest;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureSpuRequest;
-use AlibabaCloud\SDK\Goodstech\V20191230\Goodstech\RecognizeFurnitureSpuResponse;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\ClassifyCommodityAdvanceRequest;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\ClassifyCommodityRequest;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\ClassifyCommodityResponse;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureAttributeAdvanceRequest;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureAttributeRequest;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureAttributeResponse;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureSpuAdvanceRequest;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureSpuRequest;
+use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureSpuResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Request;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
+use AlibabaCloud\Tea\FileForm\FileForm\FileField;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Goodstech
+class Goodstech extends Rpc
 {
     public function __construct($config)
     {
@@ -53,7 +58,7 @@ class Goodstech
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -62,7 +67,7 @@ class Goodstech
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'goodstech',
             'regionId' => $this->_regionId,
         ]);
@@ -77,12 +82,12 @@ class Goodstech
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -90,7 +95,7 @@ class Goodstech
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -127,7 +132,7 @@ class Goodstech
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -136,7 +141,7 @@ class Goodstech
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'goodstech',
             'regionId' => $this->_regionId,
         ]);
@@ -151,12 +156,12 @@ class Goodstech
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -164,7 +169,7 @@ class Goodstech
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -201,7 +206,7 @@ class Goodstech
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -210,7 +215,7 @@ class Goodstech
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'goodstech',
             'regionId' => $this->_regionId,
         ]);
@@ -225,12 +230,12 @@ class Goodstech
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -238,7 +243,7 @@ class Goodstech
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);

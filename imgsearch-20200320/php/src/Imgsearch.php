@@ -5,30 +5,35 @@
 namespace AlibabaCloud\SDK\Imgsearch\V20200320;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\AddImageAdvanceRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\AddImageRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\AddImageResponse;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\CreateImageDbRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\CreateImageDbResponse;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\DeleteImageDbRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\DeleteImageDbResponse;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\DeleteImageRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\DeleteImageResponse;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\ListImageDbsRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\ListImageDbsResponse;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\ListImagesRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\ListImagesResponse;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\SearchImageAdvanceRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\SearchImageRequest;
-use AlibabaCloud\SDK\Imgsearch\V20200320\Imgsearch\SearchImageResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\AddImageAdvanceRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\AddImageRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\AddImageResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\CreateImageDbRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\CreateImageDbResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\DeleteImageDbRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\DeleteImageDbResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\DeleteImageRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\DeleteImageResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\ListImageDbsRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\ListImageDbsResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\ListImagesRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\ListImagesResponse;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\SearchImageAdvanceRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\SearchImageRequest;
+use AlibabaCloud\SDK\Imgsearch\V20200320\Models\SearchImageResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Request;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
+use AlibabaCloud\Tea\FileForm\FileForm\FileField;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Imgsearch
+class Imgsearch extends Rpc
 {
     public function __construct($config)
     {
@@ -84,7 +89,7 @@ class Imgsearch
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -93,7 +98,7 @@ class Imgsearch
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imgsearch',
             'regionId' => $this->_regionId,
         ]);
@@ -108,12 +113,12 @@ class Imgsearch
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -121,7 +126,7 @@ class Imgsearch
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -158,7 +163,7 @@ class Imgsearch
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -167,7 +172,7 @@ class Imgsearch
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imgsearch',
             'regionId' => $this->_regionId,
         ]);
@@ -182,12 +187,12 @@ class Imgsearch
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -195,7 +200,7 @@ class Imgsearch
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);

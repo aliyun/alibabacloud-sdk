@@ -6,18 +6,23 @@ namespace AlibabaCloud\SDK\Videoseg\V20200320;
 
 use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\GetAsyncJobResultRequest;
-use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\GetAsyncJobResultResponse;
-use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\SegmentVideoBodyAdvanceRequest;
-use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\SegmentVideoBodyRequest;
-use AlibabaCloud\SDK\Videoseg\V20200320\Videoseg\SegmentVideoBodyResponse;
-use AlibabaCloud\Tea\Request;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
+use AlibabaCloud\SDK\Videoseg\V20200320\Models\GetAsyncJobResultRequest;
+use AlibabaCloud\SDK\Videoseg\V20200320\Models\GetAsyncJobResultResponse;
+use AlibabaCloud\SDK\Videoseg\V20200320\Models\SegmentVideoBodyAdvanceRequest;
+use AlibabaCloud\SDK\Videoseg\V20200320\Models\SegmentVideoBodyRequest;
+use AlibabaCloud\SDK\Videoseg\V20200320\Models\SegmentVideoBodyResponse;
+use AlibabaCloud\Tea\FileForm\FileForm\FileField;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Videoseg
+class Videoseg extends Rpc
 {
     public function __construct($config)
     {
@@ -49,7 +54,7 @@ class Videoseg
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -58,7 +63,7 @@ class Videoseg
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'videoseg',
             'regionId' => $this->_regionId,
         ]);
@@ -73,12 +78,12 @@ class Videoseg
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->videoUrlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -86,7 +91,7 @@ class Videoseg
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
