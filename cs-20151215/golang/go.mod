@@ -5,6 +5,9 @@ require (
 	github.com/alibabacloud-go/tea v1.0.0
 	github.com/alibabacloud-go/tea-roa v1.0.1
 	github.com/alibabacloud-go/tea-utils v1.0.0
-	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd // indirect
-	golang.org/x/tools v0.0.0-20200422022333-3d57cf2e726e // indirect
+	github.com/smartystreets/assertions v1.1.0 // indirect
+	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79 // indirect
+	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f // indirect
+	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
+	golang.org/x/tools v0.0.0-20200507205054-480da3ebd79c // indirect
 )
