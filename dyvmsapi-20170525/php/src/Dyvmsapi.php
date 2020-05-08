@@ -5,88 +5,89 @@
 namespace AlibabaCloud\SDK\Dyvmsapi\V20170525;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\AddRtcAccountRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\AddRtcAccountResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\BatchRobotSmartCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\BatchRobotSmartCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\BindNumberAndVoipIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\BindNumberAndVoipIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CancelCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CancelCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CancelOrderRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CancelOrderRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CancelRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CancelRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ClickToDialRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ClickToDialResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CreateRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\CreateRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\DeleteRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\DeleteRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\DescribeRecordDataRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\DescribeRecordDataResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\DoRtcNumberAuthRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\DoRtcNumberAuthResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\GetRtcTokenRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\GetRtcTokenResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\IvrCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\IvrCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ListOrderedNumbersRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ListOrderedNumbersResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ListOutboundStrategiesRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ListOutboundStrategiesResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ListRobotTaskCallsRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ListRobotTaskCallsResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryCallDetailByCallIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryCallDetailByCallIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryCallDetailByTaskIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryCallDetailByTaskIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotInfoListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotInfoListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskCallDetailRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskCallDetailResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskCallListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskCallListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskDetailRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskDetailResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotTaskListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotv2AllListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRobotv2AllListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRtcNumberAuthStatusRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryRtcNumberAuthStatusResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryVoipNumberBindInfosRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\QueryVoipNumberBindInfosResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ReportVoipProblemsRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\ReportVoipProblemsResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SingleCallByTtsRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SingleCallByTtsResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SingleCallByVoiceRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SingleCallByVoiceResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SmartCallOperateRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SmartCallOperateResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SmartCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\SmartCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\StartMicroOutboundRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\StartMicroOutboundResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\StartRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\StartRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\StopRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\StopRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\UnbindNumberAndVoipIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\UnbindNumberAndVoipIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\UndoRtcNumberAuthRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\UndoRtcNumberAuthResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\UploadRobotTaskCalledFileRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\UploadRobotTaskCalledFileResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipAddAccountRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipAddAccountResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipGetTokenRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Dyvmsapi\VoipGetTokenResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\AddRtcAccountRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\AddRtcAccountResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BatchRobotSmartCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BatchRobotSmartCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BindNumberAndVoipIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BindNumberAndVoipIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelOrderRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelOrderRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ClickToDialRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ClickToDialResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CreateRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CreateRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DeleteRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DeleteRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DescribeRecordDataRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DescribeRecordDataResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DoRtcNumberAuthRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DoRtcNumberAuthResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\GetRtcTokenRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\GetRtcTokenResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\IvrCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\IvrCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOrderedNumbersRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOrderedNumbersResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOutboundStrategiesRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOutboundStrategiesResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListRobotTaskCallsRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListRobotTaskCallsResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByCallIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByCallIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByTaskIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByTaskIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotInfoListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotInfoListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallDetailRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallDetailResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskDetailRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskDetailResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotv2AllListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotv2AllListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRtcNumberAuthStatusRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRtcNumberAuthStatusResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryVoipNumberBindInfosRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryVoipNumberBindInfosResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ReportVoipProblemsRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ReportVoipProblemsResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByTtsRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByTtsResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByVoiceRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByVoiceResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallOperateRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallOperateResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartMicroOutboundRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartMicroOutboundResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StopRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StopRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UnbindNumberAndVoipIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UnbindNumberAndVoipIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UndoRtcNumberAuthRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UndoRtcNumberAuthResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UploadRobotTaskCalledFileRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UploadRobotTaskCalledFileResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipAddAccountRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipAddAccountResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipGetTokenRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipGetTokenResponse;
+use AlibabaCloud\Tea\Rpc\Rpc;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Dyvmsapi
+class Dyvmsapi extends Rpc
 {
     public function __construct($config)
     {
@@ -116,7 +117,7 @@ class Dyvmsapi
     public function listRobotTaskCalls(ListRobotTaskCallsRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listRobotTaskCallsEx($request, $runtime);
     }
@@ -141,7 +142,7 @@ class Dyvmsapi
     public function doRtcNumberAuth(DoRtcNumberAuthRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->doRtcNumberAuthEx($request, $runtime);
     }
@@ -166,7 +167,7 @@ class Dyvmsapi
     public function undoRtcNumberAuth(UndoRtcNumberAuthRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->undoRtcNumberAuthEx($request, $runtime);
     }
@@ -191,7 +192,7 @@ class Dyvmsapi
     public function queryRtcNumberAuthStatus(QueryRtcNumberAuthStatusRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRtcNumberAuthStatusEx($request, $runtime);
     }
@@ -216,7 +217,7 @@ class Dyvmsapi
     public function listOrderedNumbers(ListOrderedNumbersRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listOrderedNumbersEx($request, $runtime);
     }
@@ -241,7 +242,7 @@ class Dyvmsapi
     public function startMicroOutbound(StartMicroOutboundRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->startMicroOutboundEx($request, $runtime);
     }
@@ -266,7 +267,7 @@ class Dyvmsapi
     public function listOutboundStrategies(ListOutboundStrategiesRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listOutboundStrategiesEx($request, $runtime);
     }
@@ -291,7 +292,7 @@ class Dyvmsapi
     public function describeRecordData(DescribeRecordDataRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeRecordDataEx($request, $runtime);
     }
@@ -316,7 +317,7 @@ class Dyvmsapi
     public function queryVoipNumberBindInfos(QueryVoipNumberBindInfosRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryVoipNumberBindInfosEx($request, $runtime);
     }
@@ -341,7 +342,7 @@ class Dyvmsapi
     public function reportVoipProblems(ReportVoipProblemsRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->reportVoipProblemsEx($request, $runtime);
     }
@@ -366,7 +367,7 @@ class Dyvmsapi
     public function unbindNumberAndVoipId(UnbindNumberAndVoipIdRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->unbindNumberAndVoipIdEx($request, $runtime);
     }
@@ -391,7 +392,7 @@ class Dyvmsapi
     public function bindNumberAndVoipId(BindNumberAndVoipIdRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->bindNumberAndVoipIdEx($request, $runtime);
     }
@@ -416,7 +417,7 @@ class Dyvmsapi
     public function cancelRobotTask(CancelRobotTaskRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->cancelRobotTaskEx($request, $runtime);
     }
@@ -441,7 +442,7 @@ class Dyvmsapi
     public function uploadRobotTaskCalledFile(UploadRobotTaskCalledFileRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->uploadRobotTaskCalledFileEx($request, $runtime);
     }
@@ -466,7 +467,7 @@ class Dyvmsapi
     public function deleteRobotTask(DeleteRobotTaskRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->deleteRobotTaskEx($request, $runtime);
     }
@@ -491,7 +492,7 @@ class Dyvmsapi
     public function stopRobotTask(StopRobotTaskRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->stopRobotTaskEx($request, $runtime);
     }
@@ -516,7 +517,7 @@ class Dyvmsapi
     public function queryRobotTaskCallDetail(QueryRobotTaskCallDetailRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRobotTaskCallDetailEx($request, $runtime);
     }
@@ -541,7 +542,7 @@ class Dyvmsapi
     public function queryRobotv2AllList(QueryRobotv2AllListRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRobotv2AllListEx($request, $runtime);
     }
@@ -566,7 +567,7 @@ class Dyvmsapi
     public function queryRobotTaskDetail(QueryRobotTaskDetailRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRobotTaskDetailEx($request, $runtime);
     }
@@ -591,7 +592,7 @@ class Dyvmsapi
     public function queryRobotTaskCallList(QueryRobotTaskCallListRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRobotTaskCallListEx($request, $runtime);
     }
@@ -616,7 +617,7 @@ class Dyvmsapi
     public function startRobotTask(StartRobotTaskRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->startRobotTaskEx($request, $runtime);
     }
@@ -641,7 +642,7 @@ class Dyvmsapi
     public function queryRobotTaskList(QueryRobotTaskListRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRobotTaskListEx($request, $runtime);
     }
@@ -666,7 +667,7 @@ class Dyvmsapi
     public function createRobotTask(CreateRobotTaskRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createRobotTaskEx($request, $runtime);
     }
@@ -691,7 +692,7 @@ class Dyvmsapi
     public function cancelOrderRobotTask(CancelOrderRobotTaskRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->cancelOrderRobotTaskEx($request, $runtime);
     }
@@ -716,7 +717,7 @@ class Dyvmsapi
     public function smartCallOperate(SmartCallOperateRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->smartCallOperateEx($request, $runtime);
     }
@@ -741,7 +742,7 @@ class Dyvmsapi
     public function queryRobotInfoList(QueryRobotInfoListRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryRobotInfoListEx($request, $runtime);
     }
@@ -766,7 +767,7 @@ class Dyvmsapi
     public function batchRobotSmartCall(BatchRobotSmartCallRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->batchRobotSmartCallEx($request, $runtime);
     }
@@ -791,7 +792,7 @@ class Dyvmsapi
     public function queryCallDetailByTaskId(QueryCallDetailByTaskIdRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryCallDetailByTaskIdEx($request, $runtime);
     }
@@ -816,7 +817,7 @@ class Dyvmsapi
     public function getRtcToken(GetRtcTokenRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->getRtcTokenEx($request, $runtime);
     }
@@ -841,7 +842,7 @@ class Dyvmsapi
     public function addRtcAccount(AddRtcAccountRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->addRtcAccountEx($request, $runtime);
     }
@@ -866,7 +867,7 @@ class Dyvmsapi
     public function voipAddAccount(VoipAddAccountRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->voipAddAccountEx($request, $runtime);
     }
@@ -891,7 +892,7 @@ class Dyvmsapi
     public function voipGetToken(VoipGetTokenRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->voipGetTokenEx($request, $runtime);
     }
@@ -916,7 +917,7 @@ class Dyvmsapi
     public function smartCall(SmartCallRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->smartCallEx($request, $runtime);
     }
@@ -941,7 +942,7 @@ class Dyvmsapi
     public function queryCallDetailByCallId(QueryCallDetailByCallIdRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->queryCallDetailByCallIdEx($request, $runtime);
     }
@@ -966,7 +967,7 @@ class Dyvmsapi
     public function cancelCall(CancelCallRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->cancelCallEx($request, $runtime);
     }
@@ -991,7 +992,7 @@ class Dyvmsapi
     public function clickToDial(ClickToDialRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->clickToDialEx($request, $runtime);
     }
@@ -1016,7 +1017,7 @@ class Dyvmsapi
     public function ivrCall(IvrCallRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->ivrCallEx($request, $runtime);
     }
@@ -1041,7 +1042,7 @@ class Dyvmsapi
     public function singleCallByVoice(SingleCallByVoiceRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->singleCallByVoiceEx($request, $runtime);
     }
@@ -1066,7 +1067,7 @@ class Dyvmsapi
     public function singleCallByTts(SingleCallByTtsRequest $request)
     {
         Utils::validateModel($request);
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->singleCallByTtsEx($request, $runtime);
     }

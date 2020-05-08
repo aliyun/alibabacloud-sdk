@@ -5,100 +5,101 @@
 namespace AlibabaCloud\SDK\Kms\V20160120;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricDecryptRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricDecryptResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricEncryptRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricEncryptResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricSignRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricSignResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricVerifyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\AsymmetricVerifyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CancelKeyDeletionRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CancelKeyDeletionResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateAliasRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateAliasResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateKeyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateKeyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateKeyVersionRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateKeyVersionResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateSecretRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\CreateSecretResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DecryptRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DecryptResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DeleteAliasRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DeleteAliasResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DeleteKeyMaterialRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DeleteKeyMaterialResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DeleteSecretRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DeleteSecretResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeKeyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeKeyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeKeyVersionRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeKeyVersionResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeRegionsRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeRegionsResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeSecretRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeSecretResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeServiceRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DescribeServiceResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DisableKeyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\DisableKeyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\EnableKeyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\EnableKeyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\EncryptRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\EncryptResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GenerateDataKeyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GenerateDataKeyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GenerateDataKeyWithoutPlaintextRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GenerateDataKeyWithoutPlaintextResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetParametersForImportRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetParametersForImportResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetPublicKeyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetPublicKeyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetRandomPasswordRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetRandomPasswordResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetSecretValueRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\GetSecretValueResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ImportKeyMaterialRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ImportKeyMaterialResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListAliasesByKeyIdRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListAliasesByKeyIdResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListAliasesRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListAliasesResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListKeysRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListKeysResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListKeyVersionsRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListKeyVersionsResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListResourceTagsRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListResourceTagsResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListSecretsRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListSecretsResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListSecretVersionIdsRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ListSecretVersionIdsResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\PutSecretValueRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\PutSecretValueResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\RestoreSecretRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\RestoreSecretResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ScheduleKeyDeletionRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\ScheduleKeyDeletionResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\TagResourceRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\TagResourceResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UntagResourceRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UntagResourceResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateAliasRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateAliasResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateKeyDescriptionRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateKeyDescriptionResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateRotationPolicyRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateRotationPolicyResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretResponse;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretVersionStageRequest;
-use AlibabaCloud\SDK\Kms\V20160120\Kms\UpdateSecretVersionStageResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricDecryptRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricDecryptResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricEncryptRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricEncryptResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricSignRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricSignResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricVerifyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\AsymmetricVerifyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CancelKeyDeletionRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CancelKeyDeletionResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateAliasRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateAliasResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateKeyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateKeyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateKeyVersionRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateKeyVersionResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateSecretRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\CreateSecretResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DecryptRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DecryptResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DeleteAliasRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DeleteAliasResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DeleteKeyMaterialRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DeleteKeyMaterialResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DeleteSecretRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DeleteSecretResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeKeyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeKeyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeKeyVersionRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeKeyVersionResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeRegionsRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeRegionsResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeSecretRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeSecretResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeServiceRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeServiceResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DisableKeyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DisableKeyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\EnableKeyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\EnableKeyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\EncryptRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\EncryptResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GenerateDataKeyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GenerateDataKeyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GenerateDataKeyWithoutPlaintextRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GenerateDataKeyWithoutPlaintextResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetParametersForImportRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetParametersForImportResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetPublicKeyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetPublicKeyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetRandomPasswordRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetRandomPasswordResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetSecretValueRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\GetSecretValueResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ImportKeyMaterialRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ImportKeyMaterialResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListAliasesByKeyIdRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListAliasesByKeyIdResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListAliasesRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListAliasesResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListKeysRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListKeysResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListKeyVersionsRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListKeyVersionsResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListResourceTagsRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListResourceTagsResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretsRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretsResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretVersionIdsRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretVersionIdsResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\PutSecretValueRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\PutSecretValueResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\RestoreSecretRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\RestoreSecretResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ScheduleKeyDeletionRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ScheduleKeyDeletionResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\TagResourceRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\TagResourceResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UntagResourceRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UntagResourceResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateAliasRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateAliasResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateKeyDescriptionRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateKeyDescriptionResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateRotationPolicyRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateRotationPolicyResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateSecretRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateSecretResponse;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateSecretVersionStageRequest;
+use AlibabaCloud\SDK\Kms\V20160120\Models\UpdateSecretVersionStageResponse;
+use AlibabaCloud\Tea\Rpc\Rpc;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Kms
+class Kms extends Rpc
 {
     public function __construct($config)
     {
@@ -127,7 +128,7 @@ class Kms
      */
     public function listSecrets(ListSecretsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listSecretsEx($request, $runtime);
     }
@@ -151,7 +152,7 @@ class Kms
      */
     public function listSecretVersionIds(ListSecretVersionIdsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listSecretVersionIdsEx($request, $runtime);
     }
@@ -175,7 +176,7 @@ class Kms
      */
     public function describeSecret(DescribeSecretRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeSecretEx($request, $runtime);
     }
@@ -199,7 +200,7 @@ class Kms
      */
     public function updateSecret(UpdateSecretRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateSecretEx($request, $runtime);
     }
@@ -223,7 +224,7 @@ class Kms
      */
     public function getSecretValue(GetSecretValueRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->getSecretValueEx($request, $runtime);
     }
@@ -247,7 +248,7 @@ class Kms
      */
     public function getRandomPassword(GetRandomPasswordRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->getRandomPasswordEx($request, $runtime);
     }
@@ -271,7 +272,7 @@ class Kms
      */
     public function restoreSecret(RestoreSecretRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->restoreSecretEx($request, $runtime);
     }
@@ -295,7 +296,7 @@ class Kms
      */
     public function createSecret(CreateSecretRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createSecretEx($request, $runtime);
     }
@@ -319,7 +320,7 @@ class Kms
      */
     public function putSecretValue(PutSecretValueRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->putSecretValueEx($request, $runtime);
     }
@@ -343,7 +344,7 @@ class Kms
      */
     public function deleteSecret(DeleteSecretRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->deleteSecretEx($request, $runtime);
     }
@@ -367,7 +368,7 @@ class Kms
      */
     public function updateSecretVersionStage(UpdateSecretVersionStageRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateSecretVersionStageEx($request, $runtime);
     }
@@ -391,7 +392,7 @@ class Kms
      */
     public function asymmetricDecrypt(AsymmetricDecryptRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->asymmetricDecryptEx($request, $runtime);
     }
@@ -415,7 +416,7 @@ class Kms
      */
     public function asymmetricVerify(AsymmetricVerifyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->asymmetricVerifyEx($request, $runtime);
     }
@@ -439,7 +440,7 @@ class Kms
      */
     public function asymmetricSign(AsymmetricSignRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->asymmetricSignEx($request, $runtime);
     }
@@ -463,7 +464,7 @@ class Kms
      */
     public function asymmetricEncrypt(AsymmetricEncryptRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->asymmetricEncryptEx($request, $runtime);
     }
@@ -487,7 +488,7 @@ class Kms
      */
     public function getPublicKey(GetPublicKeyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->getPublicKeyEx($request, $runtime);
     }
@@ -511,7 +512,7 @@ class Kms
      */
     public function generateDataKeyWithoutPlaintext(GenerateDataKeyWithoutPlaintextRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->generateDataKeyWithoutPlaintextEx($request, $runtime);
     }
@@ -535,7 +536,7 @@ class Kms
      */
     public function updateKeyDescription(UpdateKeyDescriptionRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateKeyDescriptionEx($request, $runtime);
     }
@@ -559,7 +560,7 @@ class Kms
      */
     public function describeKeyVersion(DescribeKeyVersionRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeKeyVersionEx($request, $runtime);
     }
@@ -583,7 +584,7 @@ class Kms
      */
     public function updateRotationPolicy(UpdateRotationPolicyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateRotationPolicyEx($request, $runtime);
     }
@@ -607,7 +608,7 @@ class Kms
      */
     public function listKeyVersions(ListKeyVersionsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listKeyVersionsEx($request, $runtime);
     }
@@ -631,7 +632,7 @@ class Kms
      */
     public function createKeyVersion(CreateKeyVersionRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createKeyVersionEx($request, $runtime);
     }
@@ -655,7 +656,7 @@ class Kms
      */
     public function describeService(DescribeServiceRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeServiceEx($request, $runtime);
     }
@@ -679,7 +680,7 @@ class Kms
      */
     public function updateAlias(UpdateAliasRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateAliasEx($request, $runtime);
     }
@@ -703,7 +704,7 @@ class Kms
      */
     public function untagResource(UntagResourceRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->untagResourceEx($request, $runtime);
     }
@@ -727,7 +728,7 @@ class Kms
      */
     public function tagResource(TagResourceRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->tagResourceEx($request, $runtime);
     }
@@ -751,7 +752,7 @@ class Kms
      */
     public function scheduleKeyDeletion(ScheduleKeyDeletionRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->scheduleKeyDeletionEx($request, $runtime);
     }
@@ -775,7 +776,7 @@ class Kms
      */
     public function listResourceTags(ListResourceTagsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listResourceTagsEx($request, $runtime);
     }
@@ -799,7 +800,7 @@ class Kms
      */
     public function listKeys(ListKeysRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listKeysEx($request, $runtime);
     }
@@ -823,7 +824,7 @@ class Kms
      */
     public function listAliasesByKeyId(ListAliasesByKeyIdRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listAliasesByKeyIdEx($request, $runtime);
     }
@@ -847,7 +848,7 @@ class Kms
      */
     public function listAliases(ListAliasesRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->listAliasesEx($request, $runtime);
     }
@@ -871,7 +872,7 @@ class Kms
      */
     public function importKeyMaterial(ImportKeyMaterialRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->importKeyMaterialEx($request, $runtime);
     }
@@ -895,7 +896,7 @@ class Kms
      */
     public function getParametersForImport(GetParametersForImportRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->getParametersForImportEx($request, $runtime);
     }
@@ -919,7 +920,7 @@ class Kms
      */
     public function generateDataKey(GenerateDataKeyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->generateDataKeyEx($request, $runtime);
     }
@@ -943,7 +944,7 @@ class Kms
      */
     public function encrypt(EncryptRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->encryptEx($request, $runtime);
     }
@@ -967,7 +968,7 @@ class Kms
      */
     public function enableKey(EnableKeyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->enableKeyEx($request, $runtime);
     }
@@ -991,7 +992,7 @@ class Kms
      */
     public function disableKey(DisableKeyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->disableKeyEx($request, $runtime);
     }
@@ -1015,7 +1016,7 @@ class Kms
      */
     public function describeRegions(DescribeRegionsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeRegionsEx($request, $runtime);
     }
@@ -1039,7 +1040,7 @@ class Kms
      */
     public function describeKey(DescribeKeyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeKeyEx($request, $runtime);
     }
@@ -1063,7 +1064,7 @@ class Kms
      */
     public function deleteKeyMaterial(DeleteKeyMaterialRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->deleteKeyMaterialEx($request, $runtime);
     }
@@ -1087,7 +1088,7 @@ class Kms
      */
     public function deleteAlias(DeleteAliasRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->deleteAliasEx($request, $runtime);
     }
@@ -1111,7 +1112,7 @@ class Kms
      */
     public function decrypt(DecryptRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->decryptEx($request, $runtime);
     }
@@ -1135,7 +1136,7 @@ class Kms
      */
     public function createKey(CreateKeyRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createKeyEx($request, $runtime);
     }
@@ -1159,7 +1160,7 @@ class Kms
      */
     public function createAlias(CreateAliasRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createAliasEx($request, $runtime);
     }
@@ -1183,7 +1184,7 @@ class Kms
      */
     public function cancelKeyDeletion(CancelKeyDeletionRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->cancelKeyDeletionEx($request, $runtime);
     }

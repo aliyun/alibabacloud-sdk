@@ -5,37 +5,42 @@
 namespace AlibabaCloud\SDK\Imagerecog\V20190930;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\ClassifyingRubbishAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\ClassifyingRubbishRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\ClassifyingRubbishResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\DetectImageElementsAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\DetectImageElementsRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\DetectImageElementsResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeImageColorAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeImageColorRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeImageColorResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeImageStyleAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeImageStyleRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeImageStyleResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeLogoRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeLogoResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeSceneAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeSceneRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeSceneResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeVehicleTypeAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeVehicleTypeRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\RecognizeVehicleTypeResponse;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageAdvanceRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageRequest;
-use AlibabaCloud\SDK\Imagerecog\V20190930\Imagerecog\TaggingImageResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\ClassifyingRubbishAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\ClassifyingRubbishRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\ClassifyingRubbishResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectImageElementsAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectImageElementsRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectImageElementsResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeImageColorAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeImageColorRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeImageColorResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeImageStyleAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeImageStyleRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeImageStyleResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeLogoRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeLogoResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeSceneAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeSceneRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeSceneResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeVehicleTypeAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeVehicleTypeRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeVehicleTypeResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\TaggingImageAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\TaggingImageRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\TaggingImageResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
-use AlibabaCloud\Tea\Request;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
+use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
+use AlibabaCloud\Tea\FileForm\FileForm\FileField;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Rpc\Rpc\Config;
 use AlibabaCloud\Tea\RpcUtils\RpcUtils;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Imagerecog
+class Imagerecog extends Rpc
 {
     public function __construct($config)
     {
@@ -67,7 +72,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -76,7 +81,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -91,12 +96,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -104,7 +109,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -141,7 +146,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -150,7 +155,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -165,12 +170,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -178,7 +183,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -227,7 +232,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -236,7 +241,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -251,12 +256,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -264,7 +269,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -301,7 +306,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -310,7 +315,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -325,12 +330,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->imageURLObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -338,7 +343,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -375,7 +380,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -384,7 +389,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -399,12 +404,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->urlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -412,7 +417,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -449,7 +454,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -458,7 +463,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -473,12 +478,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->urlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -486,7 +491,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);
@@ -523,7 +528,7 @@ class Imagerecog
         // Step 0: init client
         $accessKeyId     = $this->_credential->getAccessKeyId();
         $accessKeySecret = $this->_credential->getAccessKeySecret();
-        $authConfig      = new \AlibabaCloud\Tea\Rpc\Rpc\Config([
+        $authConfig      = new Config([
             'accessKeyId'     => $accessKeyId,
             'accessKeySecret' => $accessKeySecret,
             'type'            => 'access_key',
@@ -532,7 +537,7 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $authClient  = new OpenPlatform($authConfig);
-        $authRequest = new \AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest([
+        $authRequest = new AuthorizeFileUploadRequest([
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
@@ -547,12 +552,12 @@ class Imagerecog
             'regionId'        => $this->_regionId,
         ]);
         $ossClient = new OSS($ossConfig);
-        $fileObj   = new \AlibabaCloud\Tea\FileForm\FileForm\FileField([
+        $fileObj   = new FileField([
             'filename'    => $authResponse->objectKey,
             'content'     => $request->urlObject,
             'contentType' => '',
         ]);
-        $ossHeader = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header([
+        $ossHeader = new header([
             'accessKeyId'         => $authResponse->accessKeyId,
             'policy'              => $authResponse->encodedPolicy,
             'signature'           => $authResponse->signature,
@@ -560,7 +565,7 @@ class Imagerecog
             'file'                => $fileObj,
             'successActionStatus' => '201',
         ]);
-        $uploadRequest = new \AlibabaCloud\SDK\OSS\OSS\PostObjectRequest([
+        $uploadRequest = new PostObjectRequest([
             'bucketName' => $authResponse->bucket,
             'header'     => $ossHeader,
         ]);

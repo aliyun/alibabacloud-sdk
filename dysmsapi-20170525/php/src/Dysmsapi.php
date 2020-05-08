@@ -5,32 +5,33 @@
 namespace AlibabaCloud\SDK\Dysmsapi\V20170525;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\AddSmsSignRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\AddSmsSignResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\AddSmsTemplateRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\AddSmsTemplateResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\DeleteSmsSignRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\DeleteSmsSignResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\DeleteSmsTemplateRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\DeleteSmsTemplateResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\ModifySmsSignRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\ModifySmsSignResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\ModifySmsTemplateRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\ModifySmsTemplateResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\QuerySendDetailsRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\QuerySendDetailsResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\QuerySmsSignRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\QuerySmsSignResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\QuerySmsTemplateRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\QuerySmsTemplateResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendBatchSmsRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendBatchSmsResponse;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendSmsRequest;
-use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi\SendSmsResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\AddSmsSignRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\AddSmsSignResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\AddSmsTemplateRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\AddSmsTemplateResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\DeleteSmsSignRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\DeleteSmsSignResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\DeleteSmsTemplateRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\DeleteSmsTemplateResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\ModifySmsSignRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\ModifySmsSignResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\ModifySmsTemplateRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\ModifySmsTemplateResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\QuerySendDetailsRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\QuerySendDetailsResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\QuerySmsSignRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\QuerySmsSignResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\QuerySmsTemplateRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\QuerySmsTemplateResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendBatchSmsRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendBatchSmsResponse;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendSmsRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendSmsResponse;
+use AlibabaCloud\Tea\Rpc\Rpc;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Dysmsapi
+class Dysmsapi extends Rpc
 {
     public function __construct($config)
     {

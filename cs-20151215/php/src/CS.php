@@ -5,70 +5,71 @@
 namespace AlibabaCloud\SDK\CS\V20151215;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\CS\V20151215\CS\AttachInstancesRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\AttachInstancesResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\CancelComponentUpgradeRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\CancelComponentUpgradeResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\CancelWorkflowRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\CancelWorkflowResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\CreateClusterRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\CreateClusterResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\CreateServiceMeshRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\CreateServiceMeshResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DeleteClusterNodesRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DeleteClusterNodesResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DeleteClusterRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DeleteClusterResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescirbeWorkflowRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescirbeWorkflowResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeAddonsRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeAddonsResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterAddonsVersionRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterAddonsVersionResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterAddonUpgradeStatusRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterAddonUpgradeStatusResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterDetailRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterDetailResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClustersRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClustersResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterUserKubeconfigRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterUserKubeconfigResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterV2UserKubeconfigRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeClusterV2UserKubeconfigResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeEdgeClusterAttachScriptsRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeEdgeClusterAttachScriptsResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeWorkflowsRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\DescribeWorkflowsResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ModifyClusterTagsRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ModifyClusterTagsResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\PauseComponentUpgradeRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\PauseComponentUpgradeResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\RemoveWorkflowRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\RemoveWorkflowResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ResumeComponentUpgradeRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ResumeComponentUpgradeResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ScaleClusterRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ScaleClusterResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ScaleOutClusterRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ScaleOutClusterResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ServiceMeshAddClusterRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ServiceMeshAddClusterResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ServiceMeshApiServerRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ServiceMeshApiServerResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\ServiceMeshRemoveClusterRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\ServiceMeshRemoveClusterResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\StartWorkflowRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\StartWorkflowResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\UnInstallClusterAddonsRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\UnInstallClusterAddonsResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\UpdateK8sClusterUserConfigExpireRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\UpdateK8sClusterUserConfigExpireResponse;
-use AlibabaCloud\SDK\CS\V20151215\CS\UpdateServiceMeshRequest;
-use AlibabaCloud\SDK\CS\V20151215\CS\UpdateServiceMeshResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\AttachInstancesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\AttachInstancesResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CancelComponentUpgradeRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CancelComponentUpgradeResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CancelWorkflowRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CancelWorkflowResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateServiceMeshRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateServiceMeshResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonsVersionRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonsVersionResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonUpgradeStatusRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonUpgradeStatusResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterDetailRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterDetailResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClustersRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClustersResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterUserKubeconfigRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterUserKubeconfigResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterV2UserKubeconfigRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterV2UserKubeconfigResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeEdgeClusterAttachScriptsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeEdgeClusterAttachScriptsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeWorkflowsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeWorkflowsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterTagsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterTagsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\PauseComponentUpgradeRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\PauseComponentUpgradeResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\RemoveWorkflowRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\RemoveWorkflowResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ResumeComponentUpgradeRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ResumeComponentUpgradeResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ScaleClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ScaleClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ScaleOutClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ScaleOutClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ServiceMeshAddClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ServiceMeshAddClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ServiceMeshApiServerRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ServiceMeshApiServerResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ServiceMeshRemoveClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ServiceMeshRemoveClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\StartWorkflowRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\StartWorkflowResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\UnInstallClusterAddonsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\UnInstallClusterAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpdateK8sClusterUserConfigExpireRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpdateK8sClusterUserConfigExpireResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpdateServiceMeshRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpdateServiceMeshResponse;
+use AlibabaCloud\Tea\Roa\Roa;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class CS
+class CS extends Roa
 {
     public function __construct($config)
     {
@@ -103,7 +104,7 @@ class CS
      */
     public function resumeComponentUpgrade($clusterid, $componentid, ResumeComponentUpgradeRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->resumeComponentUpgradeEx($clusterid, $componentid, $request, $runtime);
     }
@@ -133,7 +134,7 @@ class CS
      */
     public function pauseComponentUpgrade($clusterid, $componentid, PauseComponentUpgradeRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->pauseComponentUpgradeEx($clusterid, $componentid, $request, $runtime);
     }
@@ -163,7 +164,7 @@ class CS
      */
     public function cancelComponentUpgrade($clusterid, $componentid, CancelComponentUpgradeRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->cancelComponentUpgradeEx($clusterid, $componentid, $request, $runtime);
     }
@@ -191,7 +192,7 @@ class CS
      */
     public function cancelWorkflow($workflowName, CancelWorkflowRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->cancelWorkflowEx($workflowName, $request, $runtime);
     }
@@ -219,7 +220,7 @@ class CS
      */
     public function descirbeWorkflow($workflowName, DescirbeWorkflowRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->descirbeWorkflowEx($workflowName, $request, $runtime);
     }
@@ -247,7 +248,7 @@ class CS
      */
     public function removeWorkflow($workflowName, RemoveWorkflowRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->removeWorkflowEx($workflowName, $request, $runtime);
     }
@@ -271,7 +272,7 @@ class CS
      */
     public function describeWorkflows(DescribeWorkflowsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeWorkflowsEx($request, $runtime);
     }
@@ -295,7 +296,7 @@ class CS
      */
     public function startWorkflow(StartWorkflowRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->startWorkflowEx($request, $runtime);
     }
@@ -319,7 +320,7 @@ class CS
      */
     public function createServiceMesh(CreateServiceMeshRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createServiceMeshEx($request, $runtime);
     }
@@ -347,7 +348,7 @@ class CS
      */
     public function serviceMeshAddCluster($serviceMeshId, ServiceMeshAddClusterRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->serviceMeshAddClusterEx($serviceMeshId, $request, $runtime);
     }
@@ -375,7 +376,7 @@ class CS
      */
     public function serviceMeshRemoveCluster($serviceMeshId, ServiceMeshRemoveClusterRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->serviceMeshRemoveClusterEx($serviceMeshId, $request, $runtime);
     }
@@ -403,7 +404,7 @@ class CS
      */
     public function updateServiceMesh($serviceMeshId, UpdateServiceMeshRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateServiceMeshEx($serviceMeshId, $request, $runtime);
     }
@@ -431,7 +432,7 @@ class CS
      */
     public function serviceMeshApiServer($serviceMeshId, ServiceMeshApiServerRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->serviceMeshApiServerEx($serviceMeshId, $request, $runtime);
     }
@@ -459,7 +460,7 @@ class CS
      */
     public function unInstallClusterAddons($clusterId, UnInstallClusterAddonsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->unInstallClusterAddonsEx($clusterId, $request, $runtime);
     }
@@ -483,7 +484,7 @@ class CS
      */
     public function describeAddons(DescribeAddonsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeAddonsEx($request, $runtime);
     }
@@ -511,7 +512,7 @@ class CS
      */
     public function updateK8sClusterUserConfigExpire($clusterId, UpdateK8sClusterUserConfigExpireRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->updateK8sClusterUserConfigExpireEx($clusterId, $request, $runtime);
     }
@@ -539,7 +540,7 @@ class CS
      */
     public function describeClusterV2UserKubeconfig($clusterId, DescribeClusterV2UserKubeconfigRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterV2UserKubeconfigEx($clusterId, $request, $runtime);
     }
@@ -567,7 +568,7 @@ class CS
      */
     public function modifyClusterTags($clusterId, ModifyClusterTagsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->modifyClusterTagsEx($clusterId, $request, $runtime);
     }
@@ -595,7 +596,7 @@ class CS
      */
     public function scaleOutCluster($clusterId, ScaleOutClusterRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->scaleOutClusterEx($clusterId, $request, $runtime);
     }
@@ -623,7 +624,7 @@ class CS
      */
     public function describeClusterAddonsVersion($clusterId, DescribeClusterAddonsVersionRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterAddonsVersionEx($clusterId, $request, $runtime);
     }
@@ -653,7 +654,7 @@ class CS
      */
     public function describeClusterAddonUpgradeStatus($clusterId, $componentId, DescribeClusterAddonUpgradeStatusRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterAddonUpgradeStatusEx($clusterId, $componentId, $request, $runtime);
     }
@@ -681,7 +682,7 @@ class CS
      */
     public function describeEdgeClusterAttachScripts($clusterId, DescribeEdgeClusterAttachScriptsRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeEdgeClusterAttachScriptsEx($clusterId, $request, $runtime);
     }
@@ -709,7 +710,7 @@ class CS
      */
     public function deleteClusterNodes($clusterId, DeleteClusterNodesRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->deleteClusterNodesEx($clusterId, $request, $runtime);
     }
@@ -737,7 +738,7 @@ class CS
      */
     public function describeClusterUserKubeconfig($clusterId, DescribeClusterUserKubeconfigRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterUserKubeconfigEx($clusterId, $request, $runtime);
     }
@@ -765,7 +766,7 @@ class CS
      */
     public function attachInstances($clusterId, AttachInstancesRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->attachInstancesEx($clusterId, $request, $runtime);
     }
@@ -789,7 +790,7 @@ class CS
      */
     public function createCluster(CreateClusterRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->createClusterEx($request, $runtime);
     }
@@ -817,7 +818,7 @@ class CS
      */
     public function scaleCluster($clusterId, ScaleClusterRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->scaleClusterEx($clusterId, $request, $runtime);
     }
@@ -841,7 +842,7 @@ class CS
      */
     public function describeClusters(DescribeClustersRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeClustersEx($request, $runtime);
     }
@@ -869,7 +870,7 @@ class CS
      */
     public function describeClusterDetail($clusterId, DescribeClusterDetailRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterDetailEx($clusterId, $request, $runtime);
     }
@@ -897,7 +898,7 @@ class CS
      */
     public function deleteCluster($clusterId, DeleteClusterRequest $request)
     {
-        $runtime = new \AlibabaCloud\Tea\Utils\Utils\RuntimeOptions([]);
+        $runtime = new RuntimeOptions([]);
 
         return $this->deleteClusterEx($clusterId, $request, $runtime);
     }
