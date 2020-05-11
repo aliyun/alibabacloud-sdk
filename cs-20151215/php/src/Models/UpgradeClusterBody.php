@@ -6,27 +6,26 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DescribeClusterUserKubeconfigResponseBody extends Model
+class UpgradeClusterBody extends Model
 {
     /**
-     * @description config
+     * @description version
      *
      * @var string
      */
-    public $config;
+    public $version;
     protected $_name = [
-        'config' => 'config',
+        'version' => 'version',
     ];
 
     public function validate()
     {
-        Model::validateRequired('config', $this->config, true);
     }
 
     public function toMap()
     {
-        $res           = [];
-        $res['config'] = $this->config;
+        $res            = [];
+        $res['version'] = $this->version;
 
         return $res;
     }
@@ -34,13 +33,13 @@ class DescribeClusterUserKubeconfigResponseBody extends Model
     /**
      * @param array $map
      *
-     * @return DescribeClusterUserKubeconfigResponseBody
+     * @return UpgradeClusterBody
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['config'])) {
-            $model->config = $map['config'];
+        if (isset($map['version'])) {
+            $model->version = $map['version'];
         }
 
         return $model;

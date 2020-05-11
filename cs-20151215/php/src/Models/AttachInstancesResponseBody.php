@@ -19,7 +19,7 @@ class AttachInstancesResponseBody extends Model
     /**
      * @description list
      *
-     * @var AttachInstancesResponseBody.list
+     * @var array
      */
     public $list;
     protected $_name = [
@@ -37,7 +37,13 @@ class AttachInstancesResponseBody extends Model
     {
         $res            = [];
         $res['task_id'] = $this->taskId;
-        $res['list']    = null !== $this->list ? $this->list->toMap() : null;
+        $res['list']    = [];
+        if (null !== $this->list && \is_array($this->list)) {
+            $n = 0;
+            foreach ($this->list as $item) {
+                $res['list'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
 
         return $res;
     }
@@ -54,7 +60,13 @@ class AttachInstancesResponseBody extends Model
             $model->taskId = $map['task_id'];
         }
         if (isset($map['list'])) {
-            $model->list = list_::fromMap($map['list']);
+            if (!empty($map['list'])) {
+                $model->list = [];
+                $n           = 0;
+                foreach ($map['list'] as $item) {
+                    $model->list[$n++] = null !== $item ? list_::fromMap($item) : $item;
+                }
+            }
         }
 
         return $model;
