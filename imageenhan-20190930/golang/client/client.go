@@ -1237,7 +1237,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
@@ -1250,12 +1250,12 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 func (client *Client) AssessComposition(request *AssessCompositionRequest, runtime *util.RuntimeOptions) (_result *AssessCompositionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &AssessCompositionResponse{}
 	_body, _err := client.DoRequest(tea.String("AssessComposition"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1265,12 +1265,12 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1283,7 +1283,7 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1292,7 +1292,7 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1306,7 +1306,7 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1330,7 +1330,7 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	assessCompositionreq := &AssessCompositionRequest{}
@@ -1338,7 +1338,7 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 	assessCompositionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	assessCompositionResp, _err := client.AssessComposition(assessCompositionreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = assessCompositionResp
@@ -1348,12 +1348,12 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 func (client *Client) AssessSharpness(request *AssessSharpnessRequest, runtime *util.RuntimeOptions) (_result *AssessSharpnessResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &AssessSharpnessResponse{}
 	_body, _err := client.DoRequest(tea.String("AssessSharpness"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1363,12 +1363,12 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1381,7 +1381,7 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1390,7 +1390,7 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1404,7 +1404,7 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1428,7 +1428,7 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	assessSharpnessreq := &AssessSharpnessRequest{}
@@ -1436,7 +1436,7 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 	assessSharpnessreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	assessSharpnessResp, _err := client.AssessSharpness(assessSharpnessreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = assessSharpnessResp
@@ -1446,12 +1446,12 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 func (client *Client) AssessExposure(request *AssessExposureRequest, runtime *util.RuntimeOptions) (_result *AssessExposureResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &AssessExposureResponse{}
 	_body, _err := client.DoRequest(tea.String("AssessExposure"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1461,12 +1461,12 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1479,7 +1479,7 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1488,7 +1488,7 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1502,7 +1502,7 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1526,7 +1526,7 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	assessExposurereq := &AssessExposureRequest{}
@@ -1534,7 +1534,7 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 	assessExposurereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	assessExposureResp, _err := client.AssessExposure(assessExposurereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = assessExposureResp
@@ -1544,12 +1544,12 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 func (client *Client) ImageBlindCharacterWatermark(request *ImageBlindCharacterWatermarkRequest, runtime *util.RuntimeOptions) (_result *ImageBlindCharacterWatermarkResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ImageBlindCharacterWatermarkResponse{}
 	_body, _err := client.DoRequest(tea.String("ImageBlindCharacterWatermark"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1559,12 +1559,12 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1577,7 +1577,7 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1586,7 +1586,7 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1600,7 +1600,7 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1624,7 +1624,7 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	imageBlindCharacterWatermarkreq := &ImageBlindCharacterWatermarkRequest{}
@@ -1632,7 +1632,7 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 	imageBlindCharacterWatermarkreq.OriginImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	imageBlindCharacterWatermarkResp, _err := client.ImageBlindCharacterWatermark(imageBlindCharacterWatermarkreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = imageBlindCharacterWatermarkResp
@@ -1642,12 +1642,12 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 func (client *Client) RemoveImageSubtitles(request *RemoveImageSubtitlesRequest, runtime *util.RuntimeOptions) (_result *RemoveImageSubtitlesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RemoveImageSubtitlesResponse{}
 	_body, _err := client.DoRequest(tea.String("RemoveImageSubtitles"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1657,12 +1657,12 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1675,7 +1675,7 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1684,7 +1684,7 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1698,7 +1698,7 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1722,7 +1722,7 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	removeImageSubtitlesreq := &RemoveImageSubtitlesRequest{}
@@ -1730,7 +1730,7 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 	removeImageSubtitlesreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	removeImageSubtitlesResp, _err := client.RemoveImageSubtitles(removeImageSubtitlesreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = removeImageSubtitlesResp
@@ -1740,12 +1740,12 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 func (client *Client) RemoveImageWatermark(request *RemoveImageWatermarkRequest, runtime *util.RuntimeOptions) (_result *RemoveImageWatermarkResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RemoveImageWatermarkResponse{}
 	_body, _err := client.DoRequest(tea.String("RemoveImageWatermark"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1755,12 +1755,12 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1773,7 +1773,7 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1782,7 +1782,7 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1796,7 +1796,7 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1820,7 +1820,7 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	removeImageWatermarkreq := &RemoveImageWatermarkRequest{}
@@ -1828,7 +1828,7 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 	removeImageWatermarkreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	removeImageWatermarkResp, _err := client.RemoveImageWatermark(removeImageWatermarkreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = removeImageWatermarkResp
@@ -1838,12 +1838,12 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 func (client *Client) ImageBlindPicWatermark(request *ImageBlindPicWatermarkRequest, runtime *util.RuntimeOptions) (_result *ImageBlindPicWatermarkResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ImageBlindPicWatermarkResponse{}
 	_body, _err := client.DoRequest(tea.String("ImageBlindPicWatermark"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1853,12 +1853,12 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1871,7 +1871,7 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1880,7 +1880,7 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1894,7 +1894,7 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1918,7 +1918,7 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	imageBlindPicWatermarkreq := &ImageBlindPicWatermarkRequest{}
@@ -1926,7 +1926,7 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 	imageBlindPicWatermarkreq.OriginImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	imageBlindPicWatermarkResp, _err := client.ImageBlindPicWatermark(imageBlindPicWatermarkreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = imageBlindPicWatermarkResp
@@ -1936,12 +1936,12 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 func (client *Client) IntelligentComposition(request *IntelligentCompositionRequest, runtime *util.RuntimeOptions) (_result *IntelligentCompositionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &IntelligentCompositionResponse{}
 	_body, _err := client.DoRequest(tea.String("IntelligentComposition"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1951,12 +1951,12 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1969,7 +1969,7 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1978,7 +1978,7 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1992,7 +1992,7 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -2016,7 +2016,7 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	intelligentCompositionreq := &IntelligentCompositionRequest{}
@@ -2024,7 +2024,7 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 	intelligentCompositionreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	intelligentCompositionResp, _err := client.IntelligentComposition(intelligentCompositionreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = intelligentCompositionResp
@@ -2034,12 +2034,12 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 func (client *Client) ChangeImageSize(request *ChangeImageSizeRequest, runtime *util.RuntimeOptions) (_result *ChangeImageSizeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ChangeImageSizeResponse{}
 	_body, _err := client.DoRequest(tea.String("ChangeImageSize"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -2049,12 +2049,12 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -2067,7 +2067,7 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -2076,7 +2076,7 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -2090,7 +2090,7 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -2114,7 +2114,7 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	changeImageSizereq := &ChangeImageSizeRequest{}
@@ -2122,7 +2122,7 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 	changeImageSizereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	changeImageSizeResp, _err := client.ChangeImageSize(changeImageSizereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = changeImageSizeResp
@@ -2132,12 +2132,12 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime *util.RuntimeOptions) (_result *ExtendImageStyleResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ExtendImageStyleResponse{}
 	_body, _err := client.DoRequest(tea.String("ExtendImageStyle"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -2146,12 +2146,12 @@ func (client *Client) ExtendImageStyle(request *ExtendImageStyleRequest, runtime
 func (client *Client) MakeSuperResolutionImage(request *MakeSuperResolutionImageRequest, runtime *util.RuntimeOptions) (_result *MakeSuperResolutionImageResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &MakeSuperResolutionImageResponse{}
 	_body, _err := client.DoRequest(tea.String("MakeSuperResolutionImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -2161,12 +2161,12 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -2179,7 +2179,7 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -2188,7 +2188,7 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -2202,7 +2202,7 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -2226,7 +2226,7 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	makeSuperResolutionImagereq := &MakeSuperResolutionImageRequest{}
@@ -2234,7 +2234,7 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 	makeSuperResolutionImagereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	makeSuperResolutionImageResp, _err := client.MakeSuperResolutionImage(makeSuperResolutionImagereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = makeSuperResolutionImageResp
@@ -2244,31 +2244,31 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 func (client *Client) RecolorImage(request *RecolorImageRequest, runtime *util.RuntimeOptions) (_result *RecolorImageResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecolorImageResponse{}
 	_body, _err := client.DoRequest(tea.String("RecolorImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err

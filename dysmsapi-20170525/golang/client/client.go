@@ -1198,26 +1198,26 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 		return _err
 	}
 	client.EndpointRule = tea.String("central")
-	client.EndpointMap = map[string]string{
-		"ap-northeast-1":     "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"ap-northeast-2-pop": "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"ap-south-1":         "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"ap-southeast-1":     "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"ap-southeast-2":     "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"ap-southeast-3":     "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"ap-southeast-5":     "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"cn-beijing":         "dysmsapi-proxy.cn-beijing.aliyuncs.com",
-		"eu-central-1":       "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"eu-west-1":          "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"eu-west-1-oxs":      "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"me-east-1":          "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"rus-west-1-pop":     "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"us-east-1":          "dysmsapi.ap-southeast-1.aliyuncs.com",
-		"us-west-1":          "dysmsapi.ap-southeast-1.aliyuncs.com",
+	client.EndpointMap = map[string]*string{
+		"ap-northeast-1":     tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"ap-northeast-2-pop": tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"ap-south-1":         tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"ap-southeast-1":     tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"ap-southeast-2":     tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"ap-southeast-3":     tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"ap-southeast-5":     tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"cn-beijing":         tea.String("dysmsapi-proxy.cn-beijing.aliyuncs.com"),
+		"eu-central-1":       tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"eu-west-1":          tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"eu-west-1-oxs":      tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"me-east-1":          tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"rus-west-1-pop":     tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"us-east-1":          tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
+		"us-west-1":          tea.String("dysmsapi.ap-southeast-1.aliyuncs.com"),
 	}
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
@@ -1230,12 +1230,12 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 func (client *Client) QuerySmsTemplate(request *QuerySmsTemplateRequest, runtime *util.RuntimeOptions) (_result *QuerySmsTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &QuerySmsTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("QuerySmsTemplate"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1244,12 +1244,12 @@ func (client *Client) QuerySmsTemplate(request *QuerySmsTemplateRequest, runtime
 func (client *Client) QuerySmsSign(request *QuerySmsSignRequest, runtime *util.RuntimeOptions) (_result *QuerySmsSignResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &QuerySmsSignResponse{}
 	_body, _err := client.DoRequest(tea.String("QuerySmsSign"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1258,12 +1258,12 @@ func (client *Client) QuerySmsSign(request *QuerySmsSignRequest, runtime *util.R
 func (client *Client) ModifySmsTemplate(request *ModifySmsTemplateRequest, runtime *util.RuntimeOptions) (_result *ModifySmsTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ModifySmsTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("ModifySmsTemplate"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1272,12 +1272,12 @@ func (client *Client) ModifySmsTemplate(request *ModifySmsTemplateRequest, runti
 func (client *Client) ModifySmsSign(request *ModifySmsSignRequest, runtime *util.RuntimeOptions) (_result *ModifySmsSignResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ModifySmsSignResponse{}
 	_body, _err := client.DoRequest(tea.String("ModifySmsSign"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1286,12 +1286,12 @@ func (client *Client) ModifySmsSign(request *ModifySmsSignRequest, runtime *util
 func (client *Client) DeleteSmsTemplate(request *DeleteSmsTemplateRequest, runtime *util.RuntimeOptions) (_result *DeleteSmsTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DeleteSmsTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("DeleteSmsTemplate"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1300,12 +1300,12 @@ func (client *Client) DeleteSmsTemplate(request *DeleteSmsTemplateRequest, runti
 func (client *Client) DeleteSmsSign(request *DeleteSmsSignRequest, runtime *util.RuntimeOptions) (_result *DeleteSmsSignResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DeleteSmsSignResponse{}
 	_body, _err := client.DoRequest(tea.String("DeleteSmsSign"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1314,12 +1314,12 @@ func (client *Client) DeleteSmsSign(request *DeleteSmsSignRequest, runtime *util
 func (client *Client) AddSmsTemplate(request *AddSmsTemplateRequest, runtime *util.RuntimeOptions) (_result *AddSmsTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &AddSmsTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("AddSmsTemplate"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1328,12 +1328,12 @@ func (client *Client) AddSmsTemplate(request *AddSmsTemplateRequest, runtime *ut
 func (client *Client) AddSmsSign(request *AddSmsSignRequest, runtime *util.RuntimeOptions) (_result *AddSmsSignResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &AddSmsSignResponse{}
 	_body, _err := client.DoRequest(tea.String("AddSmsSign"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1342,12 +1342,12 @@ func (client *Client) AddSmsSign(request *AddSmsSignRequest, runtime *util.Runti
 func (client *Client) SendBatchSms(request *SendBatchSmsRequest, runtime *util.RuntimeOptions) (_result *SendBatchSmsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SendBatchSmsResponse{}
 	_body, _err := client.DoRequest(tea.String("SendBatchSms"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1356,12 +1356,12 @@ func (client *Client) SendBatchSms(request *SendBatchSmsRequest, runtime *util.R
 func (client *Client) SendSms(request *SendSmsRequest, runtime *util.RuntimeOptions) (_result *SendSmsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SendSmsResponse{}
 	_body, _err := client.DoRequest(tea.String("SendSms"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1370,31 +1370,31 @@ func (client *Client) SendSms(request *SendSmsRequest, runtime *util.RuntimeOpti
 func (client *Client) QuerySendDetails(request *QuerySendDetailsRequest, runtime *util.RuntimeOptions) (_result *QuerySendDetailsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &QuerySendDetailsResponse{}
 	_body, _err := client.DoRequest(tea.String("QuerySendDetails"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-05-25"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err

@@ -1086,7 +1086,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
@@ -1099,12 +1099,12 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &GetAsyncJobResultResponse{}
 	_body, _err := client.DoRequest(tea.String("GetAsyncJobResult"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1113,12 +1113,12 @@ func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runti
 func (client *Client) SegmentFurniture(request *SegmentFurnitureRequest, runtime *util.RuntimeOptions) (_result *SegmentFurnitureResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentFurnitureResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentFurniture"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1128,12 +1128,12 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1146,7 +1146,7 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1155,7 +1155,7 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1169,7 +1169,7 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1193,7 +1193,7 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentFurniturereq := &SegmentFurnitureRequest{}
@@ -1201,7 +1201,7 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 	segmentFurniturereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentFurnitureResp, _err := client.SegmentFurniture(segmentFurniturereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentFurnitureResp
@@ -1211,12 +1211,12 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 func (client *Client) RefineMask(request *RefineMaskRequest, runtime *util.RuntimeOptions) (_result *RefineMaskResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RefineMaskResponse{}
 	_body, _err := client.DoRequest(tea.String("RefineMask"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1226,12 +1226,12 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1244,7 +1244,7 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1253,7 +1253,7 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1267,7 +1267,7 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1291,7 +1291,7 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	refineMaskreq := &RefineMaskRequest{}
@@ -1299,7 +1299,7 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 	refineMaskreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	refineMaskResp, _err := client.RefineMask(refineMaskreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = refineMaskResp
@@ -1309,12 +1309,12 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 func (client *Client) ParseFace(request *ParseFaceRequest, runtime *util.RuntimeOptions) (_result *ParseFaceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ParseFaceResponse{}
 	_body, _err := client.DoRequest(tea.String("ParseFace"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1324,12 +1324,12 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1342,7 +1342,7 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1351,7 +1351,7 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1365,7 +1365,7 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1389,7 +1389,7 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	parseFacereq := &ParseFaceRequest{}
@@ -1397,7 +1397,7 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 	parseFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	parseFaceResp, _err := client.ParseFace(parseFacereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = parseFaceResp
@@ -1407,12 +1407,12 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 func (client *Client) SegmentVehicle(request *SegmentVehicleRequest, runtime *util.RuntimeOptions) (_result *SegmentVehicleResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentVehicleResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentVehicle"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1422,12 +1422,12 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1440,7 +1440,7 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1449,7 +1449,7 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1463,7 +1463,7 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1487,7 +1487,7 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentVehiclereq := &SegmentVehicleRequest{}
@@ -1495,7 +1495,7 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 	segmentVehiclereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentVehicleResp, _err := client.SegmentVehicle(segmentVehiclereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentVehicleResp
@@ -1505,12 +1505,12 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 func (client *Client) SegmentHair(request *SegmentHairRequest, runtime *util.RuntimeOptions) (_result *SegmentHairResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentHairResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentHair"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1520,12 +1520,12 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1538,7 +1538,7 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1547,7 +1547,7 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1561,7 +1561,7 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1585,7 +1585,7 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentHairreq := &SegmentHairRequest{}
@@ -1593,7 +1593,7 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 	segmentHairreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentHairResp, _err := client.SegmentHair(segmentHairreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentHairResp
@@ -1603,12 +1603,12 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 func (client *Client) SegmentFace(request *SegmentFaceRequest, runtime *util.RuntimeOptions) (_result *SegmentFaceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentFaceResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentFace"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1618,12 +1618,12 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1636,7 +1636,7 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1645,7 +1645,7 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1659,7 +1659,7 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1683,7 +1683,7 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentFacereq := &SegmentFaceRequest{}
@@ -1691,7 +1691,7 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 	segmentFacereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentFaceResp, _err := client.SegmentFace(segmentFacereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentFaceResp
@@ -1701,12 +1701,12 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 func (client *Client) SegmentHead(request *SegmentHeadRequest, runtime *util.RuntimeOptions) (_result *SegmentHeadResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentHeadResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentHead"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1716,12 +1716,12 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1734,7 +1734,7 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1743,7 +1743,7 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1757,7 +1757,7 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1781,7 +1781,7 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentHeadreq := &SegmentHeadRequest{}
@@ -1789,7 +1789,7 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 	segmentHeadreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentHeadResp, _err := client.SegmentHead(segmentHeadreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentHeadResp
@@ -1799,12 +1799,12 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 func (client *Client) SegmentCommodity(request *SegmentCommodityRequest, runtime *util.RuntimeOptions) (_result *SegmentCommodityResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentCommodityResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentCommodity"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1814,12 +1814,12 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1832,7 +1832,7 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1841,7 +1841,7 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1855,7 +1855,7 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1879,7 +1879,7 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentCommodityreq := &SegmentCommodityRequest{}
@@ -1887,7 +1887,7 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 	segmentCommodityreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentCommodityResp, _err := client.SegmentCommodity(segmentCommodityreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentCommodityResp
@@ -1897,12 +1897,12 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 func (client *Client) SegmentBody(request *SegmentBodyRequest, runtime *util.RuntimeOptions) (_result *SegmentBodyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentBodyResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentBody"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -1912,12 +1912,12 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -1930,7 +1930,7 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -1939,7 +1939,7 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -1953,7 +1953,7 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -1977,7 +1977,7 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentBodyreq := &SegmentBodyRequest{}
@@ -1985,7 +1985,7 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 	segmentBodyreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentBodyResp, _err := client.SegmentBody(segmentBodyreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentBodyResp
@@ -1995,12 +1995,12 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 func (client *Client) SegmentCommonImage(request *SegmentCommonImageRequest, runtime *util.RuntimeOptions) (_result *SegmentCommonImageResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &SegmentCommonImageResponse{}
 	_body, _err := client.DoRequest(tea.String("SegmentCommonImage"), tea.String("HTTPS"), tea.String("GET"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -2010,12 +2010,12 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -2028,7 +2028,7 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -2037,7 +2037,7 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -2051,7 +2051,7 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -2075,7 +2075,7 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	segmentCommonImagereq := &SegmentCommonImageRequest{}
@@ -2083,27 +2083,27 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 	segmentCommonImagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	segmentCommonImageResp, _err := client.SegmentCommonImage(segmentCommonImagereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = segmentCommonImageResp
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
