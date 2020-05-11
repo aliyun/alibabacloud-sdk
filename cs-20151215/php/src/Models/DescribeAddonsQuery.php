@@ -14,8 +14,16 @@ class DescribeAddonsQuery extends Model
      * @var string
      */
     public $region;
+
+    /**
+     * @description cluster_type
+     *
+     * @var string
+     */
+    public $clusterType;
     protected $_name = [
-        'region' => 'region',
+        'region'      => 'region',
+        'clusterType' => 'cluster_type',
     ];
 
     public function validate()
@@ -24,8 +32,9 @@ class DescribeAddonsQuery extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['region'] = $this->region;
+        $res                 = [];
+        $res['region']       = $this->region;
+        $res['cluster_type'] = $this->clusterType;
 
         return $res;
     }
@@ -40,6 +49,9 @@ class DescribeAddonsQuery extends Model
         $model = new self();
         if (isset($map['region'])) {
             $model->region = $map['region'];
+        }
+        if (isset($map['cluster_type'])) {
+            $model->clusterType = $map['cluster_type'];
         }
 
         return $model;

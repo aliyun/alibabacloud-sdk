@@ -4,30 +4,50 @@
 
 namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
-use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonUpgradeStatusResponseBody\componentId;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonUpgradeStatusResponseBody\addonInfo;
 use AlibabaCloud\Tea\Model;
 
 class DescribeClusterAddonUpgradeStatusResponseBody extends Model
 {
     /**
-     * @description ComponentId
+     * @description template
      *
-     * @var DescribeClusterAddonUpgradeStatusResponseBody.componentId
+     * @var string
      */
-    public $componentId;
+    public $template;
+
+    /**
+     * @description can_upgrade
+     *
+     * @var bool
+     */
+    public $canUpgrade;
+
+    /**
+     * @description addon_info
+     *
+     * @var DescribeClusterAddonUpgradeStatusResponseBody.addonInfo
+     */
+    public $addonInfo;
     protected $_name = [
-        'componentId' => 'ComponentId',
+        'template'   => 'template',
+        'canUpgrade' => 'can_upgrade',
+        'addonInfo'  => 'addon_info',
     ];
 
     public function validate()
     {
-        Model::validateRequired('componentId', $this->componentId, true);
+        Model::validateRequired('template', $this->template, true);
+        Model::validateRequired('canUpgrade', $this->canUpgrade, true);
+        Model::validateRequired('addonInfo', $this->addonInfo, true);
     }
 
     public function toMap()
     {
         $res                = [];
-        $res['ComponentId'] = null !== $this->componentId ? $this->componentId->toMap() : null;
+        $res['template']    = $this->template;
+        $res['can_upgrade'] = $this->canUpgrade;
+        $res['addon_info']  = null !== $this->addonInfo ? $this->addonInfo->toMap() : null;
 
         return $res;
     }
@@ -40,8 +60,14 @@ class DescribeClusterAddonUpgradeStatusResponseBody extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['ComponentId'])) {
-            $model->componentId = componentId::fromMap($map['ComponentId']);
+        if (isset($map['template'])) {
+            $model->template = $map['template'];
+        }
+        if (isset($map['can_upgrade'])) {
+            $model->canUpgrade = $map['can_upgrade'];
+        }
+        if (isset($map['addon_info'])) {
+            $model->addonInfo = addonInfo::fromMap($map['addon_info']);
         }
 
         return $model;

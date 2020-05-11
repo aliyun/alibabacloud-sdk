@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DescribeClusterUserKubeconfigResponseBody extends Model
+class DescribeExternalAgentResponseBody extends Model
 {
     /**
      * @description config
@@ -34,7 +34,7 @@ class DescribeClusterUserKubeconfigResponseBody extends Model
     /**
      * @param array $map
      *
-     * @return DescribeClusterUserKubeconfigResponseBody
+     * @return DescribeExternalAgentResponseBody
      */
     public static function fromMap($map = [])
     {

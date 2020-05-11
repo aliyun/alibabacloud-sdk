@@ -6,27 +6,27 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DescribeClusterUserKubeconfigResponseBody extends Model
+class CreateTemplateResponseBody extends Model
 {
     /**
-     * @description config
+     * @description template_id
      *
      * @var string
      */
-    public $config;
+    public $templateId;
     protected $_name = [
-        'config' => 'config',
+        'templateId' => 'template_id',
     ];
 
     public function validate()
     {
-        Model::validateRequired('config', $this->config, true);
+        Model::validateRequired('templateId', $this->templateId, true);
     }
 
     public function toMap()
     {
-        $res           = [];
-        $res['config'] = $this->config;
+        $res                = [];
+        $res['template_id'] = $this->templateId;
 
         return $res;
     }
@@ -34,13 +34,13 @@ class DescribeClusterUserKubeconfigResponseBody extends Model
     /**
      * @param array $map
      *
-     * @return DescribeClusterUserKubeconfigResponseBody
+     * @return CreateTemplateResponseBody
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['config'])) {
-            $model->config = $map['config'];
+        if (isset($map['template_id'])) {
+            $model->templateId = $map['template_id'];
         }
 
         return $model;

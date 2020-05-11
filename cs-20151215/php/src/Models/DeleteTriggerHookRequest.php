@@ -6,27 +6,26 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DescribeClusterUserKubeconfigResponseBody extends Model
+class DeleteTriggerHookRequest extends Model
 {
     /**
-     * @description config
+     * @description headers
      *
-     * @var string
+     * @var array
      */
-    public $config;
+    public $headers;
     protected $_name = [
-        'config' => 'config',
+        'headers' => 'headers',
     ];
 
     public function validate()
     {
-        Model::validateRequired('config', $this->config, true);
     }
 
     public function toMap()
     {
-        $res           = [];
-        $res['config'] = $this->config;
+        $res            = [];
+        $res['headers'] = $this->headers;
 
         return $res;
     }
@@ -34,13 +33,13 @@ class DescribeClusterUserKubeconfigResponseBody extends Model
     /**
      * @param array $map
      *
-     * @return DescribeClusterUserKubeconfigResponseBody
+     * @return DeleteTriggerHookRequest
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['config'])) {
-            $model->config = $map['config'];
+        if (isset($map['headers'])) {
+            $model->headers = $map['headers'];
         }
 
         return $model;

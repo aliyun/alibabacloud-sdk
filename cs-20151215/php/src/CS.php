@@ -7,6 +7,8 @@ namespace AlibabaCloud\SDK\CS\V20151215;
 use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\CS\V20151215\Models\AttachInstancesRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\AttachInstancesResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CancelClusterUpgradeRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CancelClusterUpgradeResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\CancelComponentUpgradeRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CancelComponentUpgradeResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\CancelWorkflowRequest;
@@ -15,38 +17,70 @@ use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateServiceMeshRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateServiceMeshResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateTemplateRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateTemplateResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateTriggerHookRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\CreateTriggerHookResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTemplateRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTemplateResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTriggerHookRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTriggerHookResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeApiVersionRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeApiVersionResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonsVersionRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonsVersionResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonUpgradeStatusRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAddonUpgradeStatusResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAttachScriptsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterAttachScriptsResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterDetailRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterDetailResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterLogsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterLogsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterNodesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterNodesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClustersRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClustersResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterUserKubeconfigRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterUserKubeconfigResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterV2UserKubeconfigRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterV2UserKubeconfigResponse;
-use AlibabaCloud\SDK\CS\V20151215\Models\DescribeEdgeClusterAttachScriptsRequest;
-use AlibabaCloud\SDK\CS\V20151215\Models\DescribeEdgeClusterAttachScriptsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeExternalAgentRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeExternalAgentResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeTemplatesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeTemplatesResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeUserQuotaRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeUserQuotaResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeWorkflowsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeWorkflowsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterTagsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterTagsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\PauseClusterUpgradeRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\PauseClusterUpgradeResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\PauseComponentUpgradeRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\PauseComponentUpgradeResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\RemoveClusterNodesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\RemoveClusterNodesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\RemoveWorkflowRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\RemoveWorkflowResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ResumeComponentUpgradeRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\ResumeComponentUpgradeResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ResumeUpgradeClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ResumeUpgradeClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ScaleClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\ScaleClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ScaleOutClusterRequest;
@@ -61,10 +95,12 @@ use AlibabaCloud\SDK\CS\V20151215\Models\StartWorkflowRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\StartWorkflowResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\UnInstallClusterAddonsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\UnInstallClusterAddonsResponse;
-use AlibabaCloud\SDK\CS\V20151215\Models\UpdateK8sClusterUserConfigExpireRequest;
-use AlibabaCloud\SDK\CS\V20151215\Models\UpdateK8sClusterUserConfigExpireResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\UpdateServiceMeshRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\UpdateServiceMeshResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpgradeClusterAddonsRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpgradeClusterAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpgradeClusterRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\UpgradeClusterResponse;
 use AlibabaCloud\Tea\Roa\Roa;
 use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
@@ -494,13 +530,13 @@ class CS extends Roa
      *
      * @throws \Exception
      *
-     * @return UpdateK8sClusterUserConfigExpireResponse
+     * @return CancelClusterUpgradeResponse
      */
-    public function updateK8sClusterUserConfigExpireEx($clusterId, UpdateK8sClusterUserConfigExpireRequest $request, RuntimeOptions $runtime)
+    public function cancelClusterUpgradeEx($clusterId, CancelClusterUpgradeRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UpdateK8sClusterUserConfigExpireResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/k8s/' . $clusterId . '/user_config/expire', null, $request->headers, null, $runtime));
+        return CancelClusterUpgradeResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade/cancel', null, $request->headers, null, $runtime));
     }
 
     /**
@@ -508,13 +544,37 @@ class CS extends Roa
      *
      * @throws \Exception
      *
-     * @return UpdateK8sClusterUserConfigExpireResponse
+     * @return CancelClusterUpgradeResponse
      */
-    public function updateK8sClusterUserConfigExpire($clusterId, UpdateK8sClusterUserConfigExpireRequest $request)
+    public function cancelClusterUpgrade($clusterId, CancelClusterUpgradeRequest $request)
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->updateK8sClusterUserConfigExpireEx($clusterId, $request, $runtime);
+        return $this->cancelClusterUpgradeEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DescribeUserQuotaResponse
+     */
+    public function describeUserQuotaEx(DescribeUserQuotaRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeUserQuotaResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/quota', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DescribeUserQuotaResponse
+     */
+    public function describeUserQuota(DescribeUserQuotaRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeUserQuotaEx($request, $runtime);
     }
 
     /**
@@ -550,6 +610,226 @@ class CS extends Roa
      *
      * @throws \Exception
      *
+     * @return RemoveClusterNodesResponse
+     */
+    public function removeClusterNodesEx($clusterId, RemoveClusterNodesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return RemoveClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/nodes/remove', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return RemoveClusterNodesResponse
+     */
+    public function removeClusterNodes($clusterId, RemoveClusterNodesRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->removeClusterNodesEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return UpgradeClusterResponse
+     */
+    public function upgradeClusterEx($clusterId, UpgradeClusterRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return UpgradeClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return UpgradeClusterResponse
+     */
+    public function upgradeCluster($clusterId, UpgradeClusterRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->upgradeClusterEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return PauseClusterUpgradeResponse
+     */
+    public function pauseClusterUpgradeEx($clusterId, PauseClusterUpgradeRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return PauseClusterUpgradeResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade/pause', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return PauseClusterUpgradeResponse
+     */
+    public function pauseClusterUpgrade($clusterId, PauseClusterUpgradeRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->pauseClusterUpgradeEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return ResumeUpgradeClusterResponse
+     */
+    public function resumeUpgradeClusterEx($clusterId, ResumeUpgradeClusterRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ResumeUpgradeClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade/resume', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return ResumeUpgradeClusterResponse
+     */
+    public function resumeUpgradeCluster($clusterId, ResumeUpgradeClusterRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->resumeUpgradeClusterEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return GetUpgradeStatusResponse
+     */
+    public function getUpgradeStatusEx($clusterId, GetUpgradeStatusRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GetUpgradeStatusResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade/status', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return GetUpgradeStatusResponse
+     */
+    public function getUpgradeStatus($clusterId, GetUpgradeStatusRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->getUpgradeStatusEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return ModifyClusterResponse
+     */
+    public function modifyClusterEx($clusterId, ModifyClusterRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ModifyClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return ModifyClusterResponse
+     */
+    public function modifyCluster($clusterId, ModifyClusterRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->modifyClusterEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return InstallClusterAddonsResponse
+     */
+    public function installClusterAddonsEx($clusterId, InstallClusterAddonsRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return InstallClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/install', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return InstallClusterAddonsResponse
+     */
+    public function installClusterAddons($clusterId, InstallClusterAddonsRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->installClusterAddonsEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DeleteTriggerHookResponse
+     */
+    public function deleteTriggerHookEx(DeleteTriggerHookRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DeleteTriggerHookResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/hook/trigger', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DeleteTriggerHookResponse
+     */
+    public function deleteTriggerHook(DeleteTriggerHookRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->deleteTriggerHookEx($request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
      * @return ModifyClusterTagsResponse
      */
     public function modifyClusterTagsEx($clusterId, ModifyClusterTagsRequest $request, RuntimeOptions $runtime)
@@ -578,6 +858,62 @@ class CS extends Roa
      *
      * @throws \Exception
      *
+     * @return DescribeExternalAgentResponse
+     */
+    public function describeExternalAgentEx($clusterId, DescribeExternalAgentRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeExternalAgentResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/k8s/' . $clusterId . '/external/agent/deployment', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return DescribeExternalAgentResponse
+     */
+    public function describeExternalAgent($clusterId, DescribeExternalAgentRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeExternalAgentEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return DescribeClusterAttachScriptsResponse
+     */
+    public function describeClusterAttachScriptsEx($clusterId, DescribeClusterAttachScriptsRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeClusterAttachScriptsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/attachscript', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return DescribeClusterAttachScriptsResponse
+     */
+    public function describeClusterAttachScripts($clusterId, DescribeClusterAttachScriptsRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeClusterAttachScriptsEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
      * @return ScaleOutClusterResponse
      */
     public function scaleOutClusterEx($clusterId, ScaleOutClusterRequest $request, RuntimeOptions $runtime)
@@ -599,6 +935,58 @@ class CS extends Roa
         $runtime = new RuntimeOptions([]);
 
         return $this->scaleOutClusterEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return CreateTriggerHookResponse
+     */
+    public function createTriggerHookEx(CreateTriggerHookRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return CreateTriggerHookResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/hook/trigger', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return CreateTriggerHookResponse
+     */
+    public function createTriggerHook(CreateTriggerHookRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->createTriggerHookEx($request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return UpgradeClusterAddonsResponse
+     */
+    public function upgradeClusterAddonsEx($clusterId, UpgradeClusterAddonsRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return UpgradeClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/upgrade', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return UpgradeClusterAddonsResponse
+     */
+    public function upgradeClusterAddons($clusterId, UpgradeClusterAddonsRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->upgradeClusterAddonsEx($clusterId, $request, $runtime);
     }
 
     /**
@@ -664,34 +1052,6 @@ class CS extends Roa
      *
      * @throws \Exception
      *
-     * @return DescribeEdgeClusterAttachScriptsResponse
-     */
-    public function describeEdgeClusterAttachScriptsEx($clusterId, DescribeEdgeClusterAttachScriptsRequest $request, RuntimeOptions $runtime)
-    {
-        Utils::validateModel($request);
-
-        return DescribeEdgeClusterAttachScriptsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/attachscript', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
-    }
-
-    /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
-     *
-     * @return DescribeEdgeClusterAttachScriptsResponse
-     */
-    public function describeEdgeClusterAttachScripts($clusterId, DescribeEdgeClusterAttachScriptsRequest $request)
-    {
-        $runtime = new RuntimeOptions([]);
-
-        return $this->describeEdgeClusterAttachScriptsEx($clusterId, $request, $runtime);
-    }
-
-    /**
-     * @param string $clusterId
-     *
-     * @throws \Exception
-     *
      * @return DeleteClusterNodesResponse
      */
     public function deleteClusterNodesEx($clusterId, DeleteClusterNodesRequest $request, RuntimeOptions $runtime)
@@ -713,6 +1073,34 @@ class CS extends Roa
         $runtime = new RuntimeOptions([]);
 
         return $this->deleteClusterNodesEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $templateId
+     *
+     * @throws \Exception
+     *
+     * @return DeleteTemplateResponse
+     */
+    public function deleteTemplateEx($templateId, DeleteTemplateRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DeleteTemplateResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'DELETE', 'AK', '/templates/' . $templateId . '', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $templateId
+     *
+     * @throws \Exception
+     *
+     * @return DeleteTemplateResponse
+     */
+    public function deleteTemplate($templateId, DeleteTemplateRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->deleteTemplateEx($templateId, $request, $runtime);
     }
 
     /**
@@ -748,6 +1136,62 @@ class CS extends Roa
      *
      * @throws \Exception
      *
+     * @return DescribeClusterNodesResponse
+     */
+    public function describeClusterNodesEx($clusterId, DescribeClusterNodesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/nodes', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return DescribeClusterNodesResponse
+     */
+    public function describeClusterNodes($clusterId, DescribeClusterNodesRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeClusterNodesEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return DescribeClusterLogsResponse
+     */
+    public function describeClusterLogsEx($clusterId, DescribeClusterLogsRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeClusterLogsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/logs', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
+     * @return DescribeClusterLogsResponse
+     */
+    public function describeClusterLogs($clusterId, DescribeClusterLogsRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeClusterLogsEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @param string $clusterId
+     *
+     * @throws \Exception
+     *
      * @return AttachInstancesResponse
      */
     public function attachInstancesEx($clusterId, AttachInstancesRequest $request, RuntimeOptions $runtime)
@@ -769,6 +1213,54 @@ class CS extends Roa
         $runtime = new RuntimeOptions([]);
 
         return $this->attachInstancesEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DescribeTemplatesResponse
+     */
+    public function describeTemplatesEx(DescribeTemplatesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeTemplatesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/templates', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DescribeTemplatesResponse
+     */
+    public function describeTemplates(DescribeTemplatesRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeTemplatesEx($request, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return CreateTemplateResponse
+     */
+    public function createTemplateEx(CreateTemplateRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return CreateTemplateResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/templates', null, $request->headers, $request->body, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return CreateTemplateResponse
+     */
+    public function createTemplate(CreateTemplateRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->createTemplateEx($request, $runtime);
     }
 
     /**
@@ -901,6 +1393,30 @@ class CS extends Roa
         $runtime = new RuntimeOptions([]);
 
         return $this->deleteClusterEx($clusterId, $request, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DescribeApiVersionResponse
+     */
+    public function describeApiVersionEx(DescribeApiVersionRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DescribeApiVersionResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/version', null, $request->headers, null, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DescribeApiVersionResponse
+     */
+    public function describeApiVersion(DescribeApiVersionRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->describeApiVersionEx($request, $runtime);
     }
 
     /**
