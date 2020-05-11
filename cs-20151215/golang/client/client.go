@@ -9,7 +9,7 @@ import (
 )
 
 type ResumeComponentUpgradeRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s ResumeComponentUpgradeRequest) String() string {
@@ -20,7 +20,7 @@ func (s ResumeComponentUpgradeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ResumeComponentUpgradeRequest) SetHeaders(v map[string]string) *ResumeComponentUpgradeRequest {
+func (s *ResumeComponentUpgradeRequest) SetHeaders(v map[string]*string) *ResumeComponentUpgradeRequest {
 	s.Headers = v
 	return s
 }
@@ -43,7 +43,7 @@ func (s *ResumeComponentUpgradeResponseBody) SetRequestId(v string) *ResumeCompo
 }
 
 type ResumeComponentUpgradeResponse struct {
-	Headers map[string]string                   `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                  `json:"headers" xml:"headers" require:"true"`
 	Body    *ResumeComponentUpgradeResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -55,7 +55,7 @@ func (s ResumeComponentUpgradeResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ResumeComponentUpgradeResponse) SetHeaders(v map[string]string) *ResumeComponentUpgradeResponse {
+func (s *ResumeComponentUpgradeResponse) SetHeaders(v map[string]*string) *ResumeComponentUpgradeResponse {
 	s.Headers = v
 	return s
 }
@@ -66,7 +66,7 @@ func (s *ResumeComponentUpgradeResponse) SetBody(v *ResumeComponentUpgradeRespon
 }
 
 type PauseComponentUpgradeRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s PauseComponentUpgradeRequest) String() string {
@@ -77,7 +77,7 @@ func (s PauseComponentUpgradeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *PauseComponentUpgradeRequest) SetHeaders(v map[string]string) *PauseComponentUpgradeRequest {
+func (s *PauseComponentUpgradeRequest) SetHeaders(v map[string]*string) *PauseComponentUpgradeRequest {
 	s.Headers = v
 	return s
 }
@@ -100,7 +100,7 @@ func (s *PauseComponentUpgradeResponseBody) SetRequestId(v string) *PauseCompone
 }
 
 type PauseComponentUpgradeResponse struct {
-	Headers map[string]string                  `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
 	Body    *PauseComponentUpgradeResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -112,7 +112,7 @@ func (s PauseComponentUpgradeResponse) GoString() string {
 	return s.String()
 }
 
-func (s *PauseComponentUpgradeResponse) SetHeaders(v map[string]string) *PauseComponentUpgradeResponse {
+func (s *PauseComponentUpgradeResponse) SetHeaders(v map[string]*string) *PauseComponentUpgradeResponse {
 	s.Headers = v
 	return s
 }
@@ -123,7 +123,7 @@ func (s *PauseComponentUpgradeResponse) SetBody(v *PauseComponentUpgradeResponse
 }
 
 type CancelComponentUpgradeRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s CancelComponentUpgradeRequest) String() string {
@@ -134,7 +134,7 @@ func (s CancelComponentUpgradeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CancelComponentUpgradeRequest) SetHeaders(v map[string]string) *CancelComponentUpgradeRequest {
+func (s *CancelComponentUpgradeRequest) SetHeaders(v map[string]*string) *CancelComponentUpgradeRequest {
 	s.Headers = v
 	return s
 }
@@ -157,7 +157,7 @@ func (s *CancelComponentUpgradeResponseBody) SetRequestId(v string) *CancelCompo
 }
 
 type CancelComponentUpgradeResponse struct {
-	Headers map[string]string                   `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                  `json:"headers" xml:"headers" require:"true"`
 	Body    *CancelComponentUpgradeResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -169,7 +169,7 @@ func (s CancelComponentUpgradeResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CancelComponentUpgradeResponse) SetHeaders(v map[string]string) *CancelComponentUpgradeResponse {
+func (s *CancelComponentUpgradeResponse) SetHeaders(v map[string]*string) *CancelComponentUpgradeResponse {
 	s.Headers = v
 	return s
 }
@@ -180,7 +180,7 @@ func (s *CancelComponentUpgradeResponse) SetBody(v *CancelComponentUpgradeRespon
 }
 
 type CancelWorkflowRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s CancelWorkflowRequest) String() string {
@@ -191,13 +191,13 @@ func (s CancelWorkflowRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CancelWorkflowRequest) SetHeaders(v map[string]string) *CancelWorkflowRequest {
+func (s *CancelWorkflowRequest) SetHeaders(v map[string]*string) *CancelWorkflowRequest {
 	s.Headers = v
 	return s
 }
 
 type CancelWorkflowResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s CancelWorkflowResponse) String() string {
@@ -208,13 +208,13 @@ func (s CancelWorkflowResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CancelWorkflowResponse) SetHeaders(v map[string]string) *CancelWorkflowResponse {
+func (s *CancelWorkflowResponse) SetHeaders(v map[string]*string) *CancelWorkflowResponse {
 	s.Headers = v
 	return s
 }
 
 type DescirbeWorkflowRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescirbeWorkflowRequest) String() string {
@@ -225,13 +225,13 @@ func (s DescirbeWorkflowRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescirbeWorkflowRequest) SetHeaders(v map[string]string) *DescirbeWorkflowRequest {
+func (s *DescirbeWorkflowRequest) SetHeaders(v map[string]*string) *DescirbeWorkflowRequest {
 	s.Headers = v
 	return s
 }
 
 type DescirbeWorkflowResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s DescirbeWorkflowResponse) String() string {
@@ -242,13 +242,13 @@ func (s DescirbeWorkflowResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescirbeWorkflowResponse) SetHeaders(v map[string]string) *DescirbeWorkflowResponse {
+func (s *DescirbeWorkflowResponse) SetHeaders(v map[string]*string) *DescirbeWorkflowResponse {
 	s.Headers = v
 	return s
 }
 
 type RemoveWorkflowRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s RemoveWorkflowRequest) String() string {
@@ -259,13 +259,13 @@ func (s RemoveWorkflowRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RemoveWorkflowRequest) SetHeaders(v map[string]string) *RemoveWorkflowRequest {
+func (s *RemoveWorkflowRequest) SetHeaders(v map[string]*string) *RemoveWorkflowRequest {
 	s.Headers = v
 	return s
 }
 
 type RemoveWorkflowResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s RemoveWorkflowResponse) String() string {
@@ -276,13 +276,13 @@ func (s RemoveWorkflowResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RemoveWorkflowResponse) SetHeaders(v map[string]string) *RemoveWorkflowResponse {
+func (s *RemoveWorkflowResponse) SetHeaders(v map[string]*string) *RemoveWorkflowResponse {
 	s.Headers = v
 	return s
 }
 
 type DescribeWorkflowsRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeWorkflowsRequest) String() string {
@@ -293,13 +293,13 @@ func (s DescribeWorkflowsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeWorkflowsRequest) SetHeaders(v map[string]string) *DescribeWorkflowsRequest {
+func (s *DescribeWorkflowsRequest) SetHeaders(v map[string]*string) *DescribeWorkflowsRequest {
 	s.Headers = v
 	return s
 }
 
 type DescribeWorkflowsResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s DescribeWorkflowsResponse) String() string {
@@ -310,13 +310,13 @@ func (s DescribeWorkflowsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeWorkflowsResponse) SetHeaders(v map[string]string) *DescribeWorkflowsResponse {
+func (s *DescribeWorkflowsResponse) SetHeaders(v map[string]*string) *DescribeWorkflowsResponse {
 	s.Headers = v
 	return s
 }
 
 type StartWorkflowRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s StartWorkflowRequest) String() string {
@@ -327,13 +327,13 @@ func (s StartWorkflowRequest) GoString() string {
 	return s.String()
 }
 
-func (s *StartWorkflowRequest) SetHeaders(v map[string]string) *StartWorkflowRequest {
+func (s *StartWorkflowRequest) SetHeaders(v map[string]*string) *StartWorkflowRequest {
 	s.Headers = v
 	return s
 }
 
 type StartWorkflowResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s StartWorkflowResponse) String() string {
@@ -344,13 +344,13 @@ func (s StartWorkflowResponse) GoString() string {
 	return s.String()
 }
 
-func (s *StartWorkflowResponse) SetHeaders(v map[string]string) *StartWorkflowResponse {
+func (s *StartWorkflowResponse) SetHeaders(v map[string]*string) *StartWorkflowResponse {
 	s.Headers = v
 	return s
 }
 
 type CreateServiceMeshRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s CreateServiceMeshRequest) String() string {
@@ -361,7 +361,7 @@ func (s CreateServiceMeshRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CreateServiceMeshRequest) SetHeaders(v map[string]string) *CreateServiceMeshRequest {
+func (s *CreateServiceMeshRequest) SetHeaders(v map[string]*string) *CreateServiceMeshRequest {
 	s.Headers = v
 	return s
 }
@@ -384,7 +384,7 @@ func (s *CreateServiceMeshResponseBody) SetRequestId(v string) *CreateServiceMes
 }
 
 type CreateServiceMeshResponse struct {
-	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
 	Body    *CreateServiceMeshResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -396,7 +396,7 @@ func (s CreateServiceMeshResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CreateServiceMeshResponse) SetHeaders(v map[string]string) *CreateServiceMeshResponse {
+func (s *CreateServiceMeshResponse) SetHeaders(v map[string]*string) *CreateServiceMeshResponse {
 	s.Headers = v
 	return s
 }
@@ -407,7 +407,7 @@ func (s *CreateServiceMeshResponse) SetBody(v *CreateServiceMeshResponseBody) *C
 }
 
 type ServiceMeshAddClusterRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s ServiceMeshAddClusterRequest) String() string {
@@ -418,7 +418,7 @@ func (s ServiceMeshAddClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ServiceMeshAddClusterRequest) SetHeaders(v map[string]string) *ServiceMeshAddClusterRequest {
+func (s *ServiceMeshAddClusterRequest) SetHeaders(v map[string]*string) *ServiceMeshAddClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -441,7 +441,7 @@ func (s *ServiceMeshAddClusterResponseBody) SetRequestId(v string) *ServiceMeshA
 }
 
 type ServiceMeshAddClusterResponse struct {
-	Headers map[string]string                  `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
 	Body    *ServiceMeshAddClusterResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -453,7 +453,7 @@ func (s ServiceMeshAddClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ServiceMeshAddClusterResponse) SetHeaders(v map[string]string) *ServiceMeshAddClusterResponse {
+func (s *ServiceMeshAddClusterResponse) SetHeaders(v map[string]*string) *ServiceMeshAddClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -464,7 +464,7 @@ func (s *ServiceMeshAddClusterResponse) SetBody(v *ServiceMeshAddClusterResponse
 }
 
 type ServiceMeshRemoveClusterRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s ServiceMeshRemoveClusterRequest) String() string {
@@ -475,7 +475,7 @@ func (s ServiceMeshRemoveClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ServiceMeshRemoveClusterRequest) SetHeaders(v map[string]string) *ServiceMeshRemoveClusterRequest {
+func (s *ServiceMeshRemoveClusterRequest) SetHeaders(v map[string]*string) *ServiceMeshRemoveClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -498,7 +498,7 @@ func (s *ServiceMeshRemoveClusterResponseBody) SetRequestId(v string) *ServiceMe
 }
 
 type ServiceMeshRemoveClusterResponse struct {
-	Headers map[string]string                     `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                    `json:"headers" xml:"headers" require:"true"`
 	Body    *ServiceMeshRemoveClusterResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -510,7 +510,7 @@ func (s ServiceMeshRemoveClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ServiceMeshRemoveClusterResponse) SetHeaders(v map[string]string) *ServiceMeshRemoveClusterResponse {
+func (s *ServiceMeshRemoveClusterResponse) SetHeaders(v map[string]*string) *ServiceMeshRemoveClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -521,7 +521,7 @@ func (s *ServiceMeshRemoveClusterResponse) SetBody(v *ServiceMeshRemoveClusterRe
 }
 
 type UpdateServiceMeshRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s UpdateServiceMeshRequest) String() string {
@@ -532,7 +532,7 @@ func (s UpdateServiceMeshRequest) GoString() string {
 	return s.String()
 }
 
-func (s *UpdateServiceMeshRequest) SetHeaders(v map[string]string) *UpdateServiceMeshRequest {
+func (s *UpdateServiceMeshRequest) SetHeaders(v map[string]*string) *UpdateServiceMeshRequest {
 	s.Headers = v
 	return s
 }
@@ -555,7 +555,7 @@ func (s *UpdateServiceMeshResponseBody) SetRequestId(v string) *UpdateServiceMes
 }
 
 type UpdateServiceMeshResponse struct {
-	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
 	Body    *UpdateServiceMeshResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -567,7 +567,7 @@ func (s UpdateServiceMeshResponse) GoString() string {
 	return s.String()
 }
 
-func (s *UpdateServiceMeshResponse) SetHeaders(v map[string]string) *UpdateServiceMeshResponse {
+func (s *UpdateServiceMeshResponse) SetHeaders(v map[string]*string) *UpdateServiceMeshResponse {
 	s.Headers = v
 	return s
 }
@@ -578,7 +578,7 @@ func (s *UpdateServiceMeshResponse) SetBody(v *UpdateServiceMeshResponseBody) *U
 }
 
 type ServiceMeshApiServerRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s ServiceMeshApiServerRequest) String() string {
@@ -589,13 +589,13 @@ func (s ServiceMeshApiServerRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ServiceMeshApiServerRequest) SetHeaders(v map[string]string) *ServiceMeshApiServerRequest {
+func (s *ServiceMeshApiServerRequest) SetHeaders(v map[string]*string) *ServiceMeshApiServerRequest {
 	s.Headers = v
 	return s
 }
 
 type ServiceMeshApiServerResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s ServiceMeshApiServerResponse) String() string {
@@ -606,7 +606,7 @@ func (s ServiceMeshApiServerResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ServiceMeshApiServerResponse) SetHeaders(v map[string]string) *ServiceMeshApiServerResponse {
+func (s *ServiceMeshApiServerResponse) SetHeaders(v map[string]*string) *ServiceMeshApiServerResponse {
 	s.Headers = v
 	return s
 }
@@ -629,7 +629,7 @@ func (s *UnInstallClusterAddonsBody) SetName(v string) *UnInstallClusterAddonsBo
 }
 
 type UnInstallClusterAddonsRequest struct {
-	Headers map[string]string           `json:"headers" xml:"headers"`
+	Headers map[string]*string          `json:"headers" xml:"headers"`
 	Body    *UnInstallClusterAddonsBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -641,7 +641,7 @@ func (s UnInstallClusterAddonsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *UnInstallClusterAddonsRequest) SetHeaders(v map[string]string) *UnInstallClusterAddonsRequest {
+func (s *UnInstallClusterAddonsRequest) SetHeaders(v map[string]*string) *UnInstallClusterAddonsRequest {
 	s.Headers = v
 	return s
 }
@@ -669,7 +669,7 @@ func (s *UnInstallClusterAddonsResponseBody) SetRequestId(v string) *UnInstallCl
 }
 
 type UnInstallClusterAddonsResponse struct {
-	Headers map[string]string                   `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                  `json:"headers" xml:"headers" require:"true"`
 	Body    *UnInstallClusterAddonsResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -681,7 +681,7 @@ func (s UnInstallClusterAddonsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *UnInstallClusterAddonsResponse) SetHeaders(v map[string]string) *UnInstallClusterAddonsResponse {
+func (s *UnInstallClusterAddonsResponse) SetHeaders(v map[string]*string) *UnInstallClusterAddonsResponse {
 	s.Headers = v
 	return s
 }
@@ -715,7 +715,7 @@ func (s *DescribeAddonsQuery) SetClusterType(v string) *DescribeAddonsQuery {
 }
 
 type DescribeAddonsRequest struct {
-	Headers map[string]string    `json:"headers" xml:"headers"`
+	Headers map[string]*string   `json:"headers" xml:"headers"`
 	Query   *DescribeAddonsQuery `json:"query" xml:"query"`
 }
 
@@ -727,7 +727,7 @@ func (s DescribeAddonsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeAddonsRequest) SetHeaders(v map[string]string) *DescribeAddonsRequest {
+func (s *DescribeAddonsRequest) SetHeaders(v map[string]*string) *DescribeAddonsRequest {
 	s.Headers = v
 	return s
 }
@@ -889,7 +889,7 @@ func (s *DescribeAddonsResponseBodyStandardComponentsAddonName) SetVersion(v str
 }
 
 type DescribeAddonsResponse struct {
-	Headers map[string]string           `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string          `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeAddonsResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -901,7 +901,7 @@ func (s DescribeAddonsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeAddonsResponse) SetHeaders(v map[string]string) *DescribeAddonsResponse {
+func (s *DescribeAddonsResponse) SetHeaders(v map[string]*string) *DescribeAddonsResponse {
 	s.Headers = v
 	return s
 }
@@ -912,7 +912,7 @@ func (s *DescribeAddonsResponse) SetBody(v *DescribeAddonsResponseBody) *Describ
 }
 
 type CancelClusterUpgradeRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s CancelClusterUpgradeRequest) String() string {
@@ -923,7 +923,7 @@ func (s CancelClusterUpgradeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CancelClusterUpgradeRequest) SetHeaders(v map[string]string) *CancelClusterUpgradeRequest {
+func (s *CancelClusterUpgradeRequest) SetHeaders(v map[string]*string) *CancelClusterUpgradeRequest {
 	s.Headers = v
 	return s
 }
@@ -946,7 +946,7 @@ func (s *CancelClusterUpgradeResponseBody) SetRequestId(v string) *CancelCluster
 }
 
 type CancelClusterUpgradeResponse struct {
-	Headers map[string]string                 `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                `json:"headers" xml:"headers" require:"true"`
 	Body    *CancelClusterUpgradeResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -958,7 +958,7 @@ func (s CancelClusterUpgradeResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CancelClusterUpgradeResponse) SetHeaders(v map[string]string) *CancelClusterUpgradeResponse {
+func (s *CancelClusterUpgradeResponse) SetHeaders(v map[string]*string) *CancelClusterUpgradeResponse {
 	s.Headers = v
 	return s
 }
@@ -969,7 +969,7 @@ func (s *CancelClusterUpgradeResponse) SetBody(v *CancelClusterUpgradeResponseBo
 }
 
 type DescribeUserQuotaRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeUserQuotaRequest) String() string {
@@ -980,7 +980,7 @@ func (s DescribeUserQuotaRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeUserQuotaRequest) SetHeaders(v map[string]string) *DescribeUserQuotaRequest {
+func (s *DescribeUserQuotaRequest) SetHeaders(v map[string]*string) *DescribeUserQuotaRequest {
 	s.Headers = v
 	return s
 }
@@ -1021,7 +1021,7 @@ func (s *DescribeUserQuotaResponseBody) SetAmkClusterQuota(v int) *DescribeUserQ
 }
 
 type DescribeUserQuotaResponse struct {
-	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeUserQuotaResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1033,7 +1033,7 @@ func (s DescribeUserQuotaResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeUserQuotaResponse) SetHeaders(v map[string]string) *DescribeUserQuotaResponse {
+func (s *DescribeUserQuotaResponse) SetHeaders(v map[string]*string) *DescribeUserQuotaResponse {
 	s.Headers = v
 	return s
 }
@@ -1061,7 +1061,7 @@ func (s *DescribeClusterV2UserKubeconfigQuery) SetPrivateIpAddress(v bool) *Desc
 }
 
 type DescribeClusterV2UserKubeconfigRequest struct {
-	Headers map[string]string                     `json:"headers" xml:"headers"`
+	Headers map[string]*string                    `json:"headers" xml:"headers"`
 	Query   *DescribeClusterV2UserKubeconfigQuery `json:"query" xml:"query"`
 }
 
@@ -1073,7 +1073,7 @@ func (s DescribeClusterV2UserKubeconfigRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterV2UserKubeconfigRequest) SetHeaders(v map[string]string) *DescribeClusterV2UserKubeconfigRequest {
+func (s *DescribeClusterV2UserKubeconfigRequest) SetHeaders(v map[string]*string) *DescribeClusterV2UserKubeconfigRequest {
 	s.Headers = v
 	return s
 }
@@ -1101,7 +1101,7 @@ func (s *DescribeClusterV2UserKubeconfigResponseBody) SetRequestId(v string) *De
 }
 
 type DescribeClusterV2UserKubeconfigResponse struct {
-	Headers map[string]string                            `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                           `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterV2UserKubeconfigResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1113,7 +1113,7 @@ func (s DescribeClusterV2UserKubeconfigResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterV2UserKubeconfigResponse) SetHeaders(v map[string]string) *DescribeClusterV2UserKubeconfigResponse {
+func (s *DescribeClusterV2UserKubeconfigResponse) SetHeaders(v map[string]*string) *DescribeClusterV2UserKubeconfigResponse {
 	s.Headers = v
 	return s
 }
@@ -1170,7 +1170,7 @@ func (s *RemoveClusterNodesBodyNodes) SetNodeName(v string) *RemoveClusterNodesB
 }
 
 type RemoveClusterNodesRequest struct {
-	Headers map[string]string       `json:"headers" xml:"headers"`
+	Headers map[string]*string      `json:"headers" xml:"headers"`
 	Body    *RemoveClusterNodesBody `json:"body" xml:"body"`
 }
 
@@ -1182,7 +1182,7 @@ func (s RemoveClusterNodesRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RemoveClusterNodesRequest) SetHeaders(v map[string]string) *RemoveClusterNodesRequest {
+func (s *RemoveClusterNodesRequest) SetHeaders(v map[string]*string) *RemoveClusterNodesRequest {
 	s.Headers = v
 	return s
 }
@@ -1193,7 +1193,7 @@ func (s *RemoveClusterNodesRequest) SetBody(v *RemoveClusterNodesBody) *RemoveCl
 }
 
 type RemoveClusterNodesResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s RemoveClusterNodesResponse) String() string {
@@ -1204,7 +1204,7 @@ func (s RemoveClusterNodesResponse) GoString() string {
 	return s.String()
 }
 
-func (s *RemoveClusterNodesResponse) SetHeaders(v map[string]string) *RemoveClusterNodesResponse {
+func (s *RemoveClusterNodesResponse) SetHeaders(v map[string]*string) *RemoveClusterNodesResponse {
 	s.Headers = v
 	return s
 }
@@ -1227,7 +1227,7 @@ func (s *UpgradeClusterBody) SetVersion(v string) *UpgradeClusterBody {
 }
 
 type UpgradeClusterRequest struct {
-	Headers map[string]string   `json:"headers" xml:"headers"`
+	Headers map[string]*string  `json:"headers" xml:"headers"`
 	Body    *UpgradeClusterBody `json:"body" xml:"body"`
 }
 
@@ -1239,7 +1239,7 @@ func (s UpgradeClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *UpgradeClusterRequest) SetHeaders(v map[string]string) *UpgradeClusterRequest {
+func (s *UpgradeClusterRequest) SetHeaders(v map[string]*string) *UpgradeClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -1250,7 +1250,7 @@ func (s *UpgradeClusterRequest) SetBody(v *UpgradeClusterBody) *UpgradeClusterRe
 }
 
 type UpgradeClusterResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s UpgradeClusterResponse) String() string {
@@ -1261,13 +1261,13 @@ func (s UpgradeClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *UpgradeClusterResponse) SetHeaders(v map[string]string) *UpgradeClusterResponse {
+func (s *UpgradeClusterResponse) SetHeaders(v map[string]*string) *UpgradeClusterResponse {
 	s.Headers = v
 	return s
 }
 
 type PauseClusterUpgradeRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s PauseClusterUpgradeRequest) String() string {
@@ -1278,13 +1278,13 @@ func (s PauseClusterUpgradeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *PauseClusterUpgradeRequest) SetHeaders(v map[string]string) *PauseClusterUpgradeRequest {
+func (s *PauseClusterUpgradeRequest) SetHeaders(v map[string]*string) *PauseClusterUpgradeRequest {
 	s.Headers = v
 	return s
 }
 
 type PauseClusterUpgradeResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s PauseClusterUpgradeResponse) String() string {
@@ -1295,13 +1295,13 @@ func (s PauseClusterUpgradeResponse) GoString() string {
 	return s.String()
 }
 
-func (s *PauseClusterUpgradeResponse) SetHeaders(v map[string]string) *PauseClusterUpgradeResponse {
+func (s *PauseClusterUpgradeResponse) SetHeaders(v map[string]*string) *PauseClusterUpgradeResponse {
 	s.Headers = v
 	return s
 }
 
 type ResumeUpgradeClusterRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s ResumeUpgradeClusterRequest) String() string {
@@ -1312,13 +1312,13 @@ func (s ResumeUpgradeClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ResumeUpgradeClusterRequest) SetHeaders(v map[string]string) *ResumeUpgradeClusterRequest {
+func (s *ResumeUpgradeClusterRequest) SetHeaders(v map[string]*string) *ResumeUpgradeClusterRequest {
 	s.Headers = v
 	return s
 }
 
 type ResumeUpgradeClusterResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s ResumeUpgradeClusterResponse) String() string {
@@ -1329,13 +1329,13 @@ func (s ResumeUpgradeClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ResumeUpgradeClusterResponse) SetHeaders(v map[string]string) *ResumeUpgradeClusterResponse {
+func (s *ResumeUpgradeClusterResponse) SetHeaders(v map[string]*string) *ResumeUpgradeClusterResponse {
 	s.Headers = v
 	return s
 }
 
 type GetUpgradeStatusRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s GetUpgradeStatusRequest) String() string {
@@ -1346,7 +1346,7 @@ func (s GetUpgradeStatusRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetUpgradeStatusRequest) SetHeaders(v map[string]string) *GetUpgradeStatusRequest {
+func (s *GetUpgradeStatusRequest) SetHeaders(v map[string]*string) *GetUpgradeStatusRequest {
 	s.Headers = v
 	return s
 }
@@ -1387,7 +1387,7 @@ func (s *GetUpgradeStatusResponseBody) SetErrorMessage(v string) *GetUpgradeStat
 }
 
 type GetUpgradeStatusResponse struct {
-	Headers map[string]string             `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string            `json:"headers" xml:"headers" require:"true"`
 	Body    *GetUpgradeStatusResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1399,7 +1399,7 @@ func (s GetUpgradeStatusResponse) GoString() string {
 	return s.String()
 }
 
-func (s *GetUpgradeStatusResponse) SetHeaders(v map[string]string) *GetUpgradeStatusResponse {
+func (s *GetUpgradeStatusResponse) SetHeaders(v map[string]*string) *GetUpgradeStatusResponse {
 	s.Headers = v
 	return s
 }
@@ -1439,7 +1439,7 @@ func (s *ModifyClusterBody) SetResourceGroupId(v string) *ModifyClusterBody {
 }
 
 type ModifyClusterRequest struct {
-	Headers map[string]string  `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 	Body    *ModifyClusterBody `json:"body" xml:"body"`
 }
 
@@ -1451,7 +1451,7 @@ func (s ModifyClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ModifyClusterRequest) SetHeaders(v map[string]string) *ModifyClusterRequest {
+func (s *ModifyClusterRequest) SetHeaders(v map[string]*string) *ModifyClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -1462,7 +1462,7 @@ func (s *ModifyClusterRequest) SetBody(v *ModifyClusterBody) *ModifyClusterReque
 }
 
 type ModifyClusterResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s ModifyClusterResponse) String() string {
@@ -1473,7 +1473,7 @@ func (s ModifyClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ModifyClusterResponse) SetHeaders(v map[string]string) *ModifyClusterResponse {
+func (s *ModifyClusterResponse) SetHeaders(v map[string]*string) *ModifyClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -1520,7 +1520,7 @@ func (s *InstallClusterAddonsBody) SetConfig(v string) *InstallClusterAddonsBody
 }
 
 type InstallClusterAddonsRequest struct {
-	Headers map[string]string         `json:"headers" xml:"headers"`
+	Headers map[string]*string        `json:"headers" xml:"headers"`
 	Body    *InstallClusterAddonsBody `json:"body" xml:"body"`
 }
 
@@ -1532,7 +1532,7 @@ func (s InstallClusterAddonsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *InstallClusterAddonsRequest) SetHeaders(v map[string]string) *InstallClusterAddonsRequest {
+func (s *InstallClusterAddonsRequest) SetHeaders(v map[string]*string) *InstallClusterAddonsRequest {
 	s.Headers = v
 	return s
 }
@@ -1543,7 +1543,7 @@ func (s *InstallClusterAddonsRequest) SetBody(v *InstallClusterAddonsBody) *Inst
 }
 
 type InstallClusterAddonsResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s InstallClusterAddonsResponse) String() string {
@@ -1554,13 +1554,13 @@ func (s InstallClusterAddonsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *InstallClusterAddonsResponse) SetHeaders(v map[string]string) *InstallClusterAddonsResponse {
+func (s *InstallClusterAddonsResponse) SetHeaders(v map[string]*string) *InstallClusterAddonsResponse {
 	s.Headers = v
 	return s
 }
 
 type DeleteTriggerHookRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DeleteTriggerHookRequest) String() string {
@@ -1571,13 +1571,13 @@ func (s DeleteTriggerHookRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteTriggerHookRequest) SetHeaders(v map[string]string) *DeleteTriggerHookRequest {
+func (s *DeleteTriggerHookRequest) SetHeaders(v map[string]*string) *DeleteTriggerHookRequest {
 	s.Headers = v
 	return s
 }
 
 type DeleteTriggerHookResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s DeleteTriggerHookResponse) String() string {
@@ -1588,7 +1588,7 @@ func (s DeleteTriggerHookResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteTriggerHookResponse) SetHeaders(v map[string]string) *DeleteTriggerHookResponse {
+func (s *DeleteTriggerHookResponse) SetHeaders(v map[string]*string) *DeleteTriggerHookResponse {
 	s.Headers = v
 	return s
 }
@@ -1617,7 +1617,7 @@ func (s *ModifyClusterTagsBody) SetValue(v string) *ModifyClusterTagsBody {
 }
 
 type ModifyClusterTagsRequest struct {
-	Headers map[string]string      `json:"headers" xml:"headers"`
+	Headers map[string]*string     `json:"headers" xml:"headers"`
 	Body    *ModifyClusterTagsBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1629,7 +1629,7 @@ func (s ModifyClusterTagsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ModifyClusterTagsRequest) SetHeaders(v map[string]string) *ModifyClusterTagsRequest {
+func (s *ModifyClusterTagsRequest) SetHeaders(v map[string]*string) *ModifyClusterTagsRequest {
 	s.Headers = v
 	return s
 }
@@ -1657,7 +1657,7 @@ func (s *ModifyClusterTagsResponseBody) SetRequestId(v string) *ModifyClusterTag
 }
 
 type ModifyClusterTagsResponse struct {
-	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
 	Body    *ModifyClusterTagsResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1669,7 +1669,7 @@ func (s ModifyClusterTagsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ModifyClusterTagsResponse) SetHeaders(v map[string]string) *ModifyClusterTagsResponse {
+func (s *ModifyClusterTagsResponse) SetHeaders(v map[string]*string) *ModifyClusterTagsResponse {
 	s.Headers = v
 	return s
 }
@@ -1680,7 +1680,7 @@ func (s *ModifyClusterTagsResponse) SetBody(v *ModifyClusterTagsResponseBody) *M
 }
 
 type DescribeExternalAgentRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeExternalAgentRequest) String() string {
@@ -1691,7 +1691,7 @@ func (s DescribeExternalAgentRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeExternalAgentRequest) SetHeaders(v map[string]string) *DescribeExternalAgentRequest {
+func (s *DescribeExternalAgentRequest) SetHeaders(v map[string]*string) *DescribeExternalAgentRequest {
 	s.Headers = v
 	return s
 }
@@ -1714,7 +1714,7 @@ func (s *DescribeExternalAgentResponseBody) SetConfig(v string) *DescribeExterna
 }
 
 type DescribeExternalAgentResponse struct {
-	Headers map[string]string                  `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeExternalAgentResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1726,7 +1726,7 @@ func (s DescribeExternalAgentResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeExternalAgentResponse) SetHeaders(v map[string]string) *DescribeExternalAgentResponse {
+func (s *DescribeExternalAgentResponse) SetHeaders(v map[string]*string) *DescribeExternalAgentResponse {
 	s.Headers = v
 	return s
 }
@@ -1801,7 +1801,7 @@ func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeNamePrefix(v string) *D
 }
 
 type DescribeClusterAttachScriptsRequest struct {
-	Headers map[string]string                 `json:"headers" xml:"headers"`
+	Headers map[string]*string                `json:"headers" xml:"headers"`
 	Body    *DescribeClusterAttachScriptsBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -1813,7 +1813,7 @@ func (s DescribeClusterAttachScriptsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAttachScriptsRequest) SetHeaders(v map[string]string) *DescribeClusterAttachScriptsRequest {
+func (s *DescribeClusterAttachScriptsRequest) SetHeaders(v map[string]*string) *DescribeClusterAttachScriptsRequest {
 	s.Headers = v
 	return s
 }
@@ -1824,7 +1824,7 @@ func (s *DescribeClusterAttachScriptsRequest) SetBody(v *DescribeClusterAttachSc
 }
 
 type DescribeClusterAttachScriptsResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s DescribeClusterAttachScriptsResponse) String() string {
@@ -1835,7 +1835,7 @@ func (s DescribeClusterAttachScriptsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAttachScriptsResponse) SetHeaders(v map[string]string) *DescribeClusterAttachScriptsResponse {
+func (s *DescribeClusterAttachScriptsResponse) SetHeaders(v map[string]*string) *DescribeClusterAttachScriptsResponse {
 	s.Headers = v
 	return s
 }
@@ -2047,7 +2047,7 @@ func (s *ScaleOutClusterBodyTaints) SetEffect(v string) *ScaleOutClusterBodyTain
 }
 
 type ScaleOutClusterRequest struct {
-	Headers map[string]string    `json:"headers" xml:"headers"`
+	Headers map[string]*string   `json:"headers" xml:"headers"`
 	Body    *ScaleOutClusterBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2059,7 +2059,7 @@ func (s ScaleOutClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ScaleOutClusterRequest) SetHeaders(v map[string]string) *ScaleOutClusterRequest {
+func (s *ScaleOutClusterRequest) SetHeaders(v map[string]*string) *ScaleOutClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -2105,7 +2105,7 @@ func (s *ScaleOutClusterResponseBody) SetInstanceId(v string) *ScaleOutClusterRe
 }
 
 type ScaleOutClusterResponse struct {
-	Headers map[string]string            `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string           `json:"headers" xml:"headers" require:"true"`
 	Body    *ScaleOutClusterResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2117,7 +2117,7 @@ func (s ScaleOutClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ScaleOutClusterResponse) SetHeaders(v map[string]string) *ScaleOutClusterResponse {
+func (s *ScaleOutClusterResponse) SetHeaders(v map[string]*string) *ScaleOutClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -2169,7 +2169,7 @@ func (s *CreateTriggerHookBody) SetTriggerUrl(v string) *CreateTriggerHookBody {
 }
 
 type CreateTriggerHookRequest struct {
-	Headers map[string]string      `json:"headers" xml:"headers"`
+	Headers map[string]*string     `json:"headers" xml:"headers"`
 	Body    *CreateTriggerHookBody `json:"body" xml:"body"`
 }
 
@@ -2181,7 +2181,7 @@ func (s CreateTriggerHookRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CreateTriggerHookRequest) SetHeaders(v map[string]string) *CreateTriggerHookRequest {
+func (s *CreateTriggerHookRequest) SetHeaders(v map[string]*string) *CreateTriggerHookRequest {
 	s.Headers = v
 	return s
 }
@@ -2192,7 +2192,7 @@ func (s *CreateTriggerHookRequest) SetBody(v *CreateTriggerHookBody) *CreateTrig
 }
 
 type CreateTriggerHookResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s CreateTriggerHookResponse) String() string {
@@ -2203,7 +2203,7 @@ func (s CreateTriggerHookResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CreateTriggerHookResponse) SetHeaders(v map[string]string) *CreateTriggerHookResponse {
+func (s *CreateTriggerHookResponse) SetHeaders(v map[string]*string) *CreateTriggerHookResponse {
 	s.Headers = v
 	return s
 }
@@ -2232,7 +2232,7 @@ func (s *UpgradeClusterAddonsBody) SetVersion(v string) *UpgradeClusterAddonsBod
 }
 
 type UpgradeClusterAddonsRequest struct {
-	Headers map[string]string         `json:"headers" xml:"headers"`
+	Headers map[string]*string        `json:"headers" xml:"headers"`
 	Body    *UpgradeClusterAddonsBody `json:"body" xml:"body"`
 }
 
@@ -2244,7 +2244,7 @@ func (s UpgradeClusterAddonsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *UpgradeClusterAddonsRequest) SetHeaders(v map[string]string) *UpgradeClusterAddonsRequest {
+func (s *UpgradeClusterAddonsRequest) SetHeaders(v map[string]*string) *UpgradeClusterAddonsRequest {
 	s.Headers = v
 	return s
 }
@@ -2255,7 +2255,7 @@ func (s *UpgradeClusterAddonsRequest) SetBody(v *UpgradeClusterAddonsBody) *Upgr
 }
 
 type UpgradeClusterAddonsResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s UpgradeClusterAddonsResponse) String() string {
@@ -2266,13 +2266,13 @@ func (s UpgradeClusterAddonsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *UpgradeClusterAddonsResponse) SetHeaders(v map[string]string) *UpgradeClusterAddonsResponse {
+func (s *UpgradeClusterAddonsResponse) SetHeaders(v map[string]*string) *UpgradeClusterAddonsResponse {
 	s.Headers = v
 	return s
 }
 
 type DescribeClusterAddonsVersionRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeClusterAddonsVersionRequest) String() string {
@@ -2283,7 +2283,7 @@ func (s DescribeClusterAddonsVersionRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAddonsVersionRequest) SetHeaders(v map[string]string) *DescribeClusterAddonsVersionRequest {
+func (s *DescribeClusterAddonsVersionRequest) SetHeaders(v map[string]*string) *DescribeClusterAddonsVersionRequest {
 	s.Headers = v
 	return s
 }
@@ -2348,7 +2348,7 @@ func (s *DescribeClusterAddonsVersionResponseBody) SetRequired(v bool) *Describe
 }
 
 type DescribeClusterAddonsVersionResponse struct {
-	Headers map[string]string                         `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                        `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterAddonsVersionResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2360,7 +2360,7 @@ func (s DescribeClusterAddonsVersionResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAddonsVersionResponse) SetHeaders(v map[string]string) *DescribeClusterAddonsVersionResponse {
+func (s *DescribeClusterAddonsVersionResponse) SetHeaders(v map[string]*string) *DescribeClusterAddonsVersionResponse {
 	s.Headers = v
 	return s
 }
@@ -2371,7 +2371,7 @@ func (s *DescribeClusterAddonsVersionResponse) SetBody(v *DescribeClusterAddonsV
 }
 
 type DescribeClusterAddonUpgradeStatusRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeClusterAddonUpgradeStatusRequest) String() string {
@@ -2382,7 +2382,7 @@ func (s DescribeClusterAddonUpgradeStatusRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAddonUpgradeStatusRequest) SetHeaders(v map[string]string) *DescribeClusterAddonUpgradeStatusRequest {
+func (s *DescribeClusterAddonUpgradeStatusRequest) SetHeaders(v map[string]*string) *DescribeClusterAddonUpgradeStatusRequest {
 	s.Headers = v
 	return s
 }
@@ -2458,7 +2458,7 @@ func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetVersion(v st
 }
 
 type DescribeClusterAddonUpgradeStatusResponse struct {
-	Headers map[string]string                              `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                             `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterAddonUpgradeStatusResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2470,7 +2470,7 @@ func (s DescribeClusterAddonUpgradeStatusResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterAddonUpgradeStatusResponse) SetHeaders(v map[string]string) *DescribeClusterAddonUpgradeStatusResponse {
+func (s *DescribeClusterAddonUpgradeStatusResponse) SetHeaders(v map[string]*string) *DescribeClusterAddonUpgradeStatusResponse {
 	s.Headers = v
 	return s
 }
@@ -2504,7 +2504,7 @@ func (s *DeleteClusterNodesBody) SetNodes(v []*string) *DeleteClusterNodesBody {
 }
 
 type DeleteClusterNodesRequest struct {
-	Headers map[string]string       `json:"headers" xml:"headers"`
+	Headers map[string]*string      `json:"headers" xml:"headers"`
 	Body    *DeleteClusterNodesBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2516,7 +2516,7 @@ func (s DeleteClusterNodesRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteClusterNodesRequest) SetHeaders(v map[string]string) *DeleteClusterNodesRequest {
+func (s *DeleteClusterNodesRequest) SetHeaders(v map[string]*string) *DeleteClusterNodesRequest {
 	s.Headers = v
 	return s
 }
@@ -2544,7 +2544,7 @@ func (s *DeleteClusterNodesResponseBody) SetRequestId(v string) *DeleteClusterNo
 }
 
 type DeleteClusterNodesResponse struct {
-	Headers map[string]string               `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
 	Body    *DeleteClusterNodesResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2556,7 +2556,7 @@ func (s DeleteClusterNodesResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteClusterNodesResponse) SetHeaders(v map[string]string) *DeleteClusterNodesResponse {
+func (s *DeleteClusterNodesResponse) SetHeaders(v map[string]*string) *DeleteClusterNodesResponse {
 	s.Headers = v
 	return s
 }
@@ -2567,7 +2567,7 @@ func (s *DeleteClusterNodesResponse) SetBody(v *DeleteClusterNodesResponseBody) 
 }
 
 type DeleteTemplateRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DeleteTemplateRequest) String() string {
@@ -2578,13 +2578,13 @@ func (s DeleteTemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteTemplateRequest) SetHeaders(v map[string]string) *DeleteTemplateRequest {
+func (s *DeleteTemplateRequest) SetHeaders(v map[string]*string) *DeleteTemplateRequest {
 	s.Headers = v
 	return s
 }
 
 type DeleteTemplateResponse struct {
-	Headers map[string]string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
 }
 
 func (s DeleteTemplateResponse) String() string {
@@ -2595,7 +2595,7 @@ func (s DeleteTemplateResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteTemplateResponse) SetHeaders(v map[string]string) *DeleteTemplateResponse {
+func (s *DeleteTemplateResponse) SetHeaders(v map[string]*string) *DeleteTemplateResponse {
 	s.Headers = v
 	return s
 }
@@ -2618,7 +2618,7 @@ func (s *DescribeClusterUserKubeconfigQuery) SetPrivateIpAddress(v bool) *Descri
 }
 
 type DescribeClusterUserKubeconfigRequest struct {
-	Headers map[string]string                   `json:"headers" xml:"headers"`
+	Headers map[string]*string                  `json:"headers" xml:"headers"`
 	Query   *DescribeClusterUserKubeconfigQuery `json:"query" xml:"query"`
 }
 
@@ -2630,7 +2630,7 @@ func (s DescribeClusterUserKubeconfigRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterUserKubeconfigRequest) SetHeaders(v map[string]string) *DescribeClusterUserKubeconfigRequest {
+func (s *DescribeClusterUserKubeconfigRequest) SetHeaders(v map[string]*string) *DescribeClusterUserKubeconfigRequest {
 	s.Headers = v
 	return s
 }
@@ -2658,7 +2658,7 @@ func (s *DescribeClusterUserKubeconfigResponseBody) SetConfig(v string) *Describ
 }
 
 type DescribeClusterUserKubeconfigResponse struct {
-	Headers map[string]string                          `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                         `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterUserKubeconfigResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2670,7 +2670,7 @@ func (s DescribeClusterUserKubeconfigResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterUserKubeconfigResponse) SetHeaders(v map[string]string) *DescribeClusterUserKubeconfigResponse {
+func (s *DescribeClusterUserKubeconfigResponse) SetHeaders(v map[string]*string) *DescribeClusterUserKubeconfigResponse {
 	s.Headers = v
 	return s
 }
@@ -2716,7 +2716,7 @@ func (s *DescribeClusterNodesQuery) SetState(v string) *DescribeClusterNodesQuer
 }
 
 type DescribeClusterNodesRequest struct {
-	Headers map[string]string          `json:"headers" xml:"headers"`
+	Headers map[string]*string         `json:"headers" xml:"headers"`
 	Query   *DescribeClusterNodesQuery `json:"query" xml:"query"`
 }
 
@@ -2728,7 +2728,7 @@ func (s DescribeClusterNodesRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterNodesRequest) SetHeaders(v map[string]string) *DescribeClusterNodesRequest {
+func (s *DescribeClusterNodesRequest) SetHeaders(v map[string]*string) *DescribeClusterNodesRequest {
 	s.Headers = v
 	return s
 }
@@ -2944,7 +2944,7 @@ func (s *DescribeClusterNodesResponseBodyPage) SetPageSize(v int) *DescribeClust
 }
 
 type DescribeClusterNodesResponse struct {
-	Headers map[string]string                 `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterNodesResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -2956,7 +2956,7 @@ func (s DescribeClusterNodesResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterNodesResponse) SetHeaders(v map[string]string) *DescribeClusterNodesResponse {
+func (s *DescribeClusterNodesResponse) SetHeaders(v map[string]*string) *DescribeClusterNodesResponse {
 	s.Headers = v
 	return s
 }
@@ -2967,7 +2967,7 @@ func (s *DescribeClusterNodesResponse) SetBody(v *DescribeClusterNodesResponseBo
 }
 
 type DescribeClusterLogsRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeClusterLogsRequest) String() string {
@@ -2978,7 +2978,7 @@ func (s DescribeClusterLogsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterLogsRequest) SetHeaders(v map[string]string) *DescribeClusterLogsRequest {
+func (s *DescribeClusterLogsRequest) SetHeaders(v map[string]*string) *DescribeClusterLogsRequest {
 	s.Headers = v
 	return s
 }
@@ -3019,7 +3019,7 @@ func (s *DescribeClusterLogsResponseBody) SetCreated(v string) *DescribeClusterL
 }
 
 type DescribeClusterLogsResponse struct {
-	Headers map[string]string                `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string               `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterLogsResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3031,7 +3031,7 @@ func (s DescribeClusterLogsResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterLogsResponse) SetHeaders(v map[string]string) *DescribeClusterLogsResponse {
+func (s *DescribeClusterLogsResponse) SetHeaders(v map[string]*string) *DescribeClusterLogsResponse {
 	s.Headers = v
 	return s
 }
@@ -3118,7 +3118,7 @@ func (s *AttachInstancesBodyTags) SetValue(v string) *AttachInstancesBodyTags {
 }
 
 type AttachInstancesRequest struct {
-	Headers map[string]string    `json:"headers" xml:"headers"`
+	Headers map[string]*string   `json:"headers" xml:"headers"`
 	Body    *AttachInstancesBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3130,7 +3130,7 @@ func (s AttachInstancesRequest) GoString() string {
 	return s.String()
 }
 
-func (s *AttachInstancesRequest) SetHeaders(v map[string]string) *AttachInstancesRequest {
+func (s *AttachInstancesRequest) SetHeaders(v map[string]*string) *AttachInstancesRequest {
 	s.Headers = v
 	return s
 }
@@ -3193,7 +3193,7 @@ func (s *AttachInstancesResponseBodyList) SetMessage(v string) *AttachInstancesR
 }
 
 type AttachInstancesResponse struct {
-	Headers map[string]string            `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string           `json:"headers" xml:"headers" require:"true"`
 	Body    *AttachInstancesResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3205,7 +3205,7 @@ func (s AttachInstancesResponse) GoString() string {
 	return s.String()
 }
 
-func (s *AttachInstancesResponse) SetHeaders(v map[string]string) *AttachInstancesResponse {
+func (s *AttachInstancesResponse) SetHeaders(v map[string]*string) *AttachInstancesResponse {
 	s.Headers = v
 	return s
 }
@@ -3233,7 +3233,7 @@ func (s *DescribeTemplatesQuery) SetTemplateType(v string) *DescribeTemplatesQue
 }
 
 type DescribeTemplatesRequest struct {
-	Headers map[string]string       `json:"headers" xml:"headers"`
+	Headers map[string]*string      `json:"headers" xml:"headers"`
 	Query   *DescribeTemplatesQuery `json:"query" xml:"query"`
 }
 
@@ -3245,7 +3245,7 @@ func (s DescribeTemplatesRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeTemplatesRequest) SetHeaders(v map[string]string) *DescribeTemplatesRequest {
+func (s *DescribeTemplatesRequest) SetHeaders(v map[string]*string) *DescribeTemplatesRequest {
 	s.Headers = v
 	return s
 }
@@ -3303,7 +3303,7 @@ func (s *DescribeTemplatesResponseBody) SetDescription(v string) *DescribeTempla
 }
 
 type DescribeTemplatesResponse struct {
-	Headers map[string]string              `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeTemplatesResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3315,7 +3315,7 @@ func (s DescribeTemplatesResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeTemplatesResponse) SetHeaders(v map[string]string) *DescribeTemplatesResponse {
+func (s *DescribeTemplatesResponse) SetHeaders(v map[string]*string) *DescribeTemplatesResponse {
 	s.Headers = v
 	return s
 }
@@ -3361,7 +3361,7 @@ func (s *CreateTemplateBody) SetTemplateType(v string) *CreateTemplateBody {
 }
 
 type CreateTemplateRequest struct {
-	Headers map[string]string   `json:"headers" xml:"headers"`
+	Headers map[string]*string  `json:"headers" xml:"headers"`
 	Body    *CreateTemplateBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3373,7 +3373,7 @@ func (s CreateTemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CreateTemplateRequest) SetHeaders(v map[string]string) *CreateTemplateRequest {
+func (s *CreateTemplateRequest) SetHeaders(v map[string]*string) *CreateTemplateRequest {
 	s.Headers = v
 	return s
 }
@@ -3401,7 +3401,7 @@ func (s *CreateTemplateResponseBody) SetTemplateId(v string) *CreateTemplateResp
 }
 
 type CreateTemplateResponse struct {
-	Headers map[string]string           `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string          `json:"headers" xml:"headers" require:"true"`
 	Body    *CreateTemplateResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3413,7 +3413,7 @@ func (s CreateTemplateResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CreateTemplateResponse) SetHeaders(v map[string]string) *CreateTemplateResponse {
+func (s *CreateTemplateResponse) SetHeaders(v map[string]*string) *CreateTemplateResponse {
 	s.Headers = v
 	return s
 }
@@ -3833,7 +3833,7 @@ func (s *CreateClusterBodyWorkerDataDisks) SetEncrypted(v string) *CreateCluster
 }
 
 type CreateClusterRequest struct {
-	Headers map[string]string  `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 	Body    *CreateClusterBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3845,7 +3845,7 @@ func (s CreateClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CreateClusterRequest) SetHeaders(v map[string]string) *CreateClusterRequest {
+func (s *CreateClusterRequest) SetHeaders(v map[string]*string) *CreateClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -3885,7 +3885,7 @@ func (s *CreateClusterResponseBody) SetTaskId(v string) *CreateClusterResponseBo
 }
 
 type CreateClusterResponse struct {
-	Headers map[string]string          `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string         `json:"headers" xml:"headers" require:"true"`
 	Body    *CreateClusterResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3897,7 +3897,7 @@ func (s CreateClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *CreateClusterResponse) SetHeaders(v map[string]string) *CreateClusterResponse {
+func (s *CreateClusterResponse) SetHeaders(v map[string]*string) *CreateClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -3908,7 +3908,7 @@ func (s *CreateClusterResponse) SetBody(v *CreateClusterResponseBody) *CreateClu
 }
 
 type ScaleClusterRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s ScaleClusterRequest) String() string {
@@ -3919,7 +3919,7 @@ func (s ScaleClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ScaleClusterRequest) SetHeaders(v map[string]string) *ScaleClusterRequest {
+func (s *ScaleClusterRequest) SetHeaders(v map[string]*string) *ScaleClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -3942,7 +3942,7 @@ func (s *ScaleClusterResponseBody) SetRequestId(v string) *ScaleClusterResponseB
 }
 
 type ScaleClusterResponse struct {
-	Headers map[string]string         `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string        `json:"headers" xml:"headers" require:"true"`
 	Body    *ScaleClusterResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -3954,7 +3954,7 @@ func (s ScaleClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *ScaleClusterResponse) SetHeaders(v map[string]string) *ScaleClusterResponse {
+func (s *ScaleClusterResponse) SetHeaders(v map[string]*string) *ScaleClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -3988,7 +3988,7 @@ func (s *DescribeClustersQuery) SetClusterType(v string) *DescribeClustersQuery 
 }
 
 type DescribeClustersRequest struct {
-	Headers map[string]string      `json:"headers" xml:"headers"`
+	Headers map[string]*string     `json:"headers" xml:"headers"`
 	Query   *DescribeClustersQuery `json:"query" xml:"query"`
 }
 
@@ -4000,7 +4000,7 @@ func (s DescribeClustersRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersRequest) SetHeaders(v map[string]string) *DescribeClustersRequest {
+func (s *DescribeClustersRequest) SetHeaders(v map[string]*string) *DescribeClustersRequest {
 	s.Headers = v
 	return s
 }
@@ -4165,7 +4165,7 @@ func (s *DescribeClustersResponseBodyTags) SetValue(v string) *DescribeClustersR
 }
 
 type DescribeClustersResponse struct {
-	Headers map[string]string               `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
 	Body    []*DescribeClustersResponseBody `json:"body" xml:"body" require:"true" type:"Repeated"`
 }
 
@@ -4177,7 +4177,7 @@ func (s DescribeClustersResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClustersResponse) SetHeaders(v map[string]string) *DescribeClustersResponse {
+func (s *DescribeClustersResponse) SetHeaders(v map[string]*string) *DescribeClustersResponse {
 	s.Headers = v
 	return s
 }
@@ -4188,7 +4188,7 @@ func (s *DescribeClustersResponse) SetBody(v []*DescribeClustersResponseBody) *D
 }
 
 type DescribeClusterDetailRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeClusterDetailRequest) String() string {
@@ -4199,7 +4199,7 @@ func (s DescribeClusterDetailRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterDetailRequest) SetHeaders(v map[string]string) *DescribeClusterDetailRequest {
+func (s *DescribeClusterDetailRequest) SetHeaders(v map[string]*string) *DescribeClusterDetailRequest {
 	s.Headers = v
 	return s
 }
@@ -4359,7 +4359,7 @@ func (s *DescribeClusterDetailResponseBodyTags) SetValue(v string) *DescribeClus
 }
 
 type DescribeClusterDetailResponse struct {
-	Headers map[string]string                  `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeClusterDetailResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -4371,7 +4371,7 @@ func (s DescribeClusterDetailResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeClusterDetailResponse) SetHeaders(v map[string]string) *DescribeClusterDetailResponse {
+func (s *DescribeClusterDetailResponse) SetHeaders(v map[string]*string) *DescribeClusterDetailResponse {
 	s.Headers = v
 	return s
 }
@@ -4382,7 +4382,7 @@ func (s *DescribeClusterDetailResponse) SetBody(v *DescribeClusterDetailResponse
 }
 
 type DeleteClusterRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DeleteClusterRequest) String() string {
@@ -4393,7 +4393,7 @@ func (s DeleteClusterRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteClusterRequest) SetHeaders(v map[string]string) *DeleteClusterRequest {
+func (s *DeleteClusterRequest) SetHeaders(v map[string]*string) *DeleteClusterRequest {
 	s.Headers = v
 	return s
 }
@@ -4416,7 +4416,7 @@ func (s *DeleteClusterResponseBody) SetRequestId(v string) *DeleteClusterRespons
 }
 
 type DeleteClusterResponse struct {
-	Headers map[string]string          `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string         `json:"headers" xml:"headers" require:"true"`
 	Body    *DeleteClusterResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -4428,7 +4428,7 @@ func (s DeleteClusterResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteClusterResponse) SetHeaders(v map[string]string) *DeleteClusterResponse {
+func (s *DeleteClusterResponse) SetHeaders(v map[string]*string) *DeleteClusterResponse {
 	s.Headers = v
 	return s
 }
@@ -4439,7 +4439,7 @@ func (s *DeleteClusterResponse) SetBody(v *DeleteClusterResponseBody) *DeleteClu
 }
 
 type DescribeApiVersionRequest struct {
-	Headers map[string]string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers" xml:"headers"`
 }
 
 func (s DescribeApiVersionRequest) String() string {
@@ -4450,7 +4450,7 @@ func (s DescribeApiVersionRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeApiVersionRequest) SetHeaders(v map[string]string) *DescribeApiVersionRequest {
+func (s *DescribeApiVersionRequest) SetHeaders(v map[string]*string) *DescribeApiVersionRequest {
 	s.Headers = v
 	return s
 }
@@ -4491,7 +4491,7 @@ func (s *DescribeApiVersionResponseBody) SetDockerRegionVersions(v string) *Desc
 }
 
 type DescribeApiVersionResponse struct {
-	Headers map[string]string               `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
 	Body    *DescribeApiVersionResponseBody `json:"body" xml:"body" require:"true"`
 }
 
@@ -4503,7 +4503,7 @@ func (s DescribeApiVersionResponse) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeApiVersionResponse) SetHeaders(v map[string]string) *DescribeApiVersionResponse {
+func (s *DescribeApiVersionResponse) SetHeaders(v map[string]*string) *DescribeApiVersionResponse {
 	s.Headers = v
 	return s
 }
@@ -5741,14 +5741,14 @@ func (client *Client) DescribeApiVersion(request *DescribeApiVersionRequest) (_r
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 

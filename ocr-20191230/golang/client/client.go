@@ -3886,7 +3886,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
@@ -3899,12 +3899,12 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &GetAsyncJobResultResponse{}
 	_body, _err := client.DoRequest(tea.String("GetAsyncJobResult"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -3913,12 +3913,12 @@ func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runti
 func (client *Client) TrimDocument(request *TrimDocumentRequest, runtime *util.RuntimeOptions) (_result *TrimDocumentResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &TrimDocumentResponse{}
 	_body, _err := client.DoRequest(tea.String("TrimDocument"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -3928,12 +3928,12 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -3946,7 +3946,7 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -3955,7 +3955,7 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -3969,7 +3969,7 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -3993,7 +3993,7 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	trimDocumentreq := &TrimDocumentRequest{}
@@ -4001,7 +4001,7 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 	trimDocumentreq.FileURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	trimDocumentResp, _err := client.TrimDocument(trimDocumentreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = trimDocumentResp
@@ -4011,12 +4011,12 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 func (client *Client) RecognizeChinapassport(request *RecognizeChinapassportRequest, runtime *util.RuntimeOptions) (_result *RecognizeChinapassportResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeChinapassportResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeChinapassport"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4026,12 +4026,12 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4044,7 +4044,7 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4053,7 +4053,7 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4067,7 +4067,7 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4091,7 +4091,7 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeChinapassportreq := &RecognizeChinapassportRequest{}
@@ -4099,7 +4099,7 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 	recognizeChinapassportreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeChinapassportResp, _err := client.RecognizeChinapassport(recognizeChinapassportreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeChinapassportResp
@@ -4109,12 +4109,12 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 func (client *Client) RecognizeVerificationcode(request *RecognizeVerificationcodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeVerificationcodeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeVerificationcodeResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeVerificationcode"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4124,12 +4124,12 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4142,7 +4142,7 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4151,7 +4151,7 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4165,7 +4165,7 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4189,7 +4189,7 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeVerificationcodereq := &RecognizeVerificationcodeRequest{}
@@ -4197,7 +4197,7 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 	recognizeVerificationcodereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVerificationcodeResp, _err := client.RecognizeVerificationcode(recognizeVerificationcodereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeVerificationcodeResp
@@ -4207,12 +4207,12 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 func (client *Client) RecognizePassportMRZ(request *RecognizePassportMRZRequest, runtime *util.RuntimeOptions) (_result *RecognizePassportMRZResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizePassportMRZResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizePassportMRZ"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4222,12 +4222,12 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4240,7 +4240,7 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4249,7 +4249,7 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4263,7 +4263,7 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4287,7 +4287,7 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizePassportMRZreq := &RecognizePassportMRZRequest{}
@@ -4295,7 +4295,7 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 	recognizePassportMRZreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizePassportMRZResp, _err := client.RecognizePassportMRZ(recognizePassportMRZreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizePassportMRZResp
@@ -4305,12 +4305,12 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 func (client *Client) RecognizeTakeoutOrder(request *RecognizeTakeoutOrderRequest, runtime *util.RuntimeOptions) (_result *RecognizeTakeoutOrderResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeTakeoutOrderResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeTakeoutOrder"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4320,12 +4320,12 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4338,7 +4338,7 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4347,7 +4347,7 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4361,7 +4361,7 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4385,7 +4385,7 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeTakeoutOrderreq := &RecognizeTakeoutOrderRequest{}
@@ -4393,7 +4393,7 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 	recognizeTakeoutOrderreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTakeoutOrderResp, _err := client.RecognizeTakeoutOrder(recognizeTakeoutOrderreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeTakeoutOrderResp
@@ -4403,12 +4403,12 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 func (client *Client) RecognizeQrCode(request *RecognizeQrCodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeQrCodeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeQrCodeResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeQrCode"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4417,12 +4417,12 @@ func (client *Client) RecognizeQrCode(request *RecognizeQrCodeRequest, runtime *
 func (client *Client) RecognizeVATInvoice(request *RecognizeVATInvoiceRequest, runtime *util.RuntimeOptions) (_result *RecognizeVATInvoiceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeVATInvoiceResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeVATInvoice"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4432,12 +4432,12 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4450,7 +4450,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4459,7 +4459,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4473,7 +4473,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4497,7 +4497,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeVATInvoicereq := &RecognizeVATInvoiceRequest{}
@@ -4505,7 +4505,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 	recognizeVATInvoicereq.FileURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVATInvoiceResp, _err := client.RecognizeVATInvoice(recognizeVATInvoicereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeVATInvoiceResp
@@ -4515,12 +4515,12 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 func (client *Client) RecognizeCharacter(request *RecognizeCharacterRequest, runtime *util.RuntimeOptions) (_result *RecognizeCharacterResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeCharacterResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeCharacter"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4530,12 +4530,12 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4548,7 +4548,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4557,7 +4557,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4571,7 +4571,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4595,7 +4595,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeCharacterreq := &RecognizeCharacterRequest{}
@@ -4603,7 +4603,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 	recognizeCharacterreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeCharacterResp, _err := client.RecognizeCharacter(recognizeCharacterreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeCharacterResp
@@ -4613,12 +4613,12 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 func (client *Client) RecognizeTaxiInvoice(request *RecognizeTaxiInvoiceRequest, runtime *util.RuntimeOptions) (_result *RecognizeTaxiInvoiceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeTaxiInvoiceResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeTaxiInvoice"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4628,12 +4628,12 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4646,7 +4646,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4655,7 +4655,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4669,7 +4669,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4693,7 +4693,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeTaxiInvoicereq := &RecognizeTaxiInvoiceRequest{}
@@ -4701,7 +4701,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 	recognizeTaxiInvoicereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTaxiInvoiceResp, _err := client.RecognizeTaxiInvoice(recognizeTaxiInvoicereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeTaxiInvoiceResp
@@ -4711,12 +4711,12 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 func (client *Client) RecognizeIdentityCard(request *RecognizeIdentityCardRequest, runtime *util.RuntimeOptions) (_result *RecognizeIdentityCardResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeIdentityCardResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeIdentityCard"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4726,12 +4726,12 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4744,7 +4744,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4753,7 +4753,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4767,7 +4767,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4791,7 +4791,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeIdentityCardreq := &RecognizeIdentityCardRequest{}
@@ -4799,7 +4799,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 	recognizeIdentityCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeIdentityCardResp, _err := client.RecognizeIdentityCard(recognizeIdentityCardreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeIdentityCardResp
@@ -4809,12 +4809,12 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 func (client *Client) RecognizeLicensePlate(request *RecognizeLicensePlateRequest, runtime *util.RuntimeOptions) (_result *RecognizeLicensePlateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeLicensePlateResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeLicensePlate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4824,12 +4824,12 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4842,7 +4842,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4851,7 +4851,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4865,7 +4865,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4889,7 +4889,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeLicensePlatereq := &RecognizeLicensePlateRequest{}
@@ -4897,7 +4897,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 	recognizeLicensePlatereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeLicensePlateResp, _err := client.RecognizeLicensePlate(recognizeLicensePlatereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeLicensePlateResp
@@ -4907,12 +4907,12 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 func (client *Client) RecognizeTable(request *RecognizeTableRequest, runtime *util.RuntimeOptions) (_result *RecognizeTableResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeTableResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeTable"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -4922,12 +4922,12 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -4940,7 +4940,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -4949,7 +4949,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -4963,7 +4963,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -4987,7 +4987,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeTablereq := &RecognizeTableRequest{}
@@ -4995,7 +4995,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 	recognizeTablereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTableResp, _err := client.RecognizeTable(recognizeTablereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeTableResp
@@ -5005,12 +5005,12 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 func (client *Client) RecognizeDrivingLicense(request *RecognizeDrivingLicenseRequest, runtime *util.RuntimeOptions) (_result *RecognizeDrivingLicenseResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeDrivingLicenseResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeDrivingLicense"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5020,12 +5020,12 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5038,7 +5038,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5047,7 +5047,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5061,7 +5061,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5085,7 +5085,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeDrivingLicensereq := &RecognizeDrivingLicenseRequest{}
@@ -5093,7 +5093,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 	recognizeDrivingLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeDrivingLicenseResp, _err := client.RecognizeDrivingLicense(recognizeDrivingLicensereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeDrivingLicenseResp
@@ -5103,12 +5103,12 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 func (client *Client) RecognizeBankCard(request *RecognizeBankCardRequest, runtime *util.RuntimeOptions) (_result *RecognizeBankCardResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeBankCardResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeBankCard"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5118,12 +5118,12 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5136,7 +5136,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5145,7 +5145,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5159,7 +5159,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5183,7 +5183,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeBankCardreq := &RecognizeBankCardRequest{}
@@ -5191,7 +5191,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 	recognizeBankCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeBankCardResp, _err := client.RecognizeBankCard(recognizeBankCardreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeBankCardResp
@@ -5201,12 +5201,12 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 func (client *Client) RecognizeTrainTicket(request *RecognizeTrainTicketRequest, runtime *util.RuntimeOptions) (_result *RecognizeTrainTicketResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeTrainTicketResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeTrainTicket"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5216,12 +5216,12 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5234,7 +5234,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5243,7 +5243,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5257,7 +5257,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5281,7 +5281,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeTrainTicketreq := &RecognizeTrainTicketRequest{}
@@ -5289,7 +5289,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 	recognizeTrainTicketreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeTrainTicketResp, _err := client.RecognizeTrainTicket(recognizeTrainTicketreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeTrainTicketResp
@@ -5299,12 +5299,12 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 func (client *Client) RecognizeDriverLicense(request *RecognizeDriverLicenseRequest, runtime *util.RuntimeOptions) (_result *RecognizeDriverLicenseResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeDriverLicenseResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeDriverLicense"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5314,12 +5314,12 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5332,7 +5332,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5341,7 +5341,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5355,7 +5355,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5379,7 +5379,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeDriverLicensereq := &RecognizeDriverLicenseRequest{}
@@ -5387,7 +5387,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 	recognizeDriverLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeDriverLicenseResp, _err := client.RecognizeDriverLicense(recognizeDriverLicensereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeDriverLicenseResp
@@ -5397,12 +5397,12 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 func (client *Client) RecognizeAccountPage(request *RecognizeAccountPageRequest, runtime *util.RuntimeOptions) (_result *RecognizeAccountPageResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeAccountPageResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeAccountPage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5412,12 +5412,12 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5430,7 +5430,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5439,7 +5439,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5453,7 +5453,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5477,7 +5477,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeAccountPagereq := &RecognizeAccountPageRequest{}
@@ -5485,7 +5485,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 	recognizeAccountPagereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeAccountPageResp, _err := client.RecognizeAccountPage(recognizeAccountPagereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeAccountPageResp
@@ -5495,12 +5495,12 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 func (client *Client) RecognizeStamp(request *RecognizeStampRequest, runtime *util.RuntimeOptions) (_result *RecognizeStampResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeStampResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeStamp"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5510,12 +5510,12 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5528,7 +5528,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5537,7 +5537,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5551,7 +5551,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5575,7 +5575,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeStampreq := &RecognizeStampRequest{}
@@ -5583,7 +5583,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 	recognizeStampreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeStampResp, _err := client.RecognizeStamp(recognizeStampreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeStampResp
@@ -5593,12 +5593,12 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 func (client *Client) RecognizeBusinessCard(request *RecognizeBusinessCardRequest, runtime *util.RuntimeOptions) (_result *RecognizeBusinessCardResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeBusinessCardResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeBusinessCard"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5608,12 +5608,12 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5626,7 +5626,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5635,7 +5635,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5649,7 +5649,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5673,7 +5673,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeBusinessCardreq := &RecognizeBusinessCardRequest{}
@@ -5681,7 +5681,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 	recognizeBusinessCardreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeBusinessCardResp, _err := client.RecognizeBusinessCard(recognizeBusinessCardreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeBusinessCardResp
@@ -5691,12 +5691,12 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 func (client *Client) RecognizeVINCode(request *RecognizeVINCodeRequest, runtime *util.RuntimeOptions) (_result *RecognizeVINCodeResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeVINCodeResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeVINCode"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5706,12 +5706,12 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5724,7 +5724,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5733,7 +5733,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5747,7 +5747,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5771,7 +5771,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeVINCodereq := &RecognizeVINCodeRequest{}
@@ -5779,7 +5779,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 	recognizeVINCodereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeVINCodeResp, _err := client.RecognizeVINCode(recognizeVINCodereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeVINCodeResp
@@ -5789,12 +5789,12 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 func (client *Client) RecognizeBusinessLicense(request *RecognizeBusinessLicenseRequest, runtime *util.RuntimeOptions) (_result *RecognizeBusinessLicenseResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RecognizeBusinessLicenseResponse{}
 	_body, _err := client.DoRequest(tea.String("RecognizeBusinessLicense"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -5804,12 +5804,12 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -5822,7 +5822,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -5831,7 +5831,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -5845,7 +5845,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -5869,7 +5869,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	recognizeBusinessLicensereq := &RecognizeBusinessLicenseRequest{}
@@ -5877,27 +5877,27 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 	recognizeBusinessLicensereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	recognizeBusinessLicenseResp, _err := client.RecognizeBusinessLicense(recognizeBusinessLicensereq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = recognizeBusinessLicenseResp
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err

@@ -296,7 +296,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	client.EndpointRule = tea.String("regional")
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
@@ -309,12 +309,12 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 func (client *Client) DetectVideoShot(request *DetectVideoShotRequest, runtime *util.RuntimeOptions) (_result *DetectVideoShotResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DetectVideoShotResponse{}
 	_body, _err := client.DoRequest(tea.String("DetectVideoShot"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -324,12 +324,12 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -342,7 +342,7 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -351,7 +351,7 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -365,7 +365,7 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -389,7 +389,7 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	detectVideoShotreq := &DetectVideoShotRequest{}
@@ -397,7 +397,7 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 	detectVideoShotreq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	detectVideoShotResp, _err := client.DetectVideoShot(detectVideoShotreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = detectVideoShotResp
@@ -407,12 +407,12 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 func (client *Client) GenerateVideoCover(request *GenerateVideoCoverRequest, runtime *util.RuntimeOptions) (_result *GenerateVideoCoverResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &GenerateVideoCoverResponse{}
 	_body, _err := client.DoRequest(tea.String("GenerateVideoCover"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -422,12 +422,12 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 	// Step 0: init client
 	accessKeyId, _err := client.Credential.GetAccessKeyId()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authConfig := &rpc.Config{
@@ -440,7 +440,7 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 	}
 	authClient, _err := openplatform.NewClient(authConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	authRequest := &openplatform.AuthorizeFileUploadRequest{
@@ -449,7 +449,7 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 	}
 	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	// Step 1: request OSS api to upload file
@@ -463,7 +463,7 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 	}
 	ossClient, _err := oss.NewClient(ossConfig)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	fileObj := &fileform.FileField{
@@ -487,7 +487,7 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 	rpcutil.Convert(runtime, ossRuntime)
 	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	// Step 2: request final api
 	generateVideoCoverreq := &GenerateVideoCoverRequest{}
@@ -495,7 +495,7 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 	generateVideoCoverreq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
 	generateVideoCoverResp, _err := client.GenerateVideoCover(generateVideoCoverreq, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 
 	_result = generateVideoCoverResp
@@ -505,31 +505,31 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &GetAsyncJobResultResponse{}
 	_body, _err := client.DoRequest(tea.String("GetAsyncJobResult"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-03-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err

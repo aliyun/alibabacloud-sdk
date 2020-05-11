@@ -9173,7 +9173,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	client.EndpointRule = tea.String("")
 	_err = client.CheckConfig(config)
 	if _err != nil {
-		return
+		return _err
 	}
 	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
@@ -9186,12 +9186,12 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeRegionsResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeRegions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9202,7 +9202,7 @@ func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result 
 	_result = &DescribeRegionsResponse{}
 	_body, _err := client.DescribeRegionsEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9211,12 +9211,12 @@ func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result 
 func (client *Client) DescribeImageCachesEx(request *DescribeImageCachesRequest, runtime *util.RuntimeOptions) (_result *DescribeImageCachesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeImageCachesResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeImageCaches"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9227,7 +9227,7 @@ func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest) (
 	_result = &DescribeImageCachesResponse{}
 	_body, _err := client.DescribeImageCachesEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9236,12 +9236,12 @@ func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest) (
 func (client *Client) DeleteImageCacheEx(request *DeleteImageCacheRequest, runtime *util.RuntimeOptions) (_result *DeleteImageCacheResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DeleteImageCacheResponse{}
 	_body, _err := client.DoRequest(tea.String("DeleteImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9252,7 +9252,7 @@ func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest) (_resul
 	_result = &DeleteImageCacheResponse{}
 	_body, _err := client.DeleteImageCacheEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9261,12 +9261,12 @@ func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest) (_resul
 func (client *Client) CreateImageCacheEx(request *CreateImageCacheRequest, runtime *util.RuntimeOptions) (_result *CreateImageCacheResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CreateImageCacheResponse{}
 	_body, _err := client.DoRequest(tea.String("CreateImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9277,7 +9277,7 @@ func (client *Client) CreateImageCache(request *CreateImageCacheRequest) (_resul
 	_result = &CreateImageCacheResponse{}
 	_body, _err := client.CreateImageCacheEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9286,12 +9286,12 @@ func (client *Client) CreateImageCache(request *CreateImageCacheRequest) (_resul
 func (client *Client) DescribeMultiContainerGroupMetricEx(request *DescribeMultiContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeMultiContainerGroupMetricResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeMultiContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9302,7 +9302,7 @@ func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiCo
 	_result = &DescribeMultiContainerGroupMetricResponse{}
 	_body, _err := client.DescribeMultiContainerGroupMetricEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9311,12 +9311,12 @@ func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiCo
 func (client *Client) DescribeContainerGroupMetricEx(request *DescribeContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupMetricResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeContainerGroupMetricResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9327,7 +9327,7 @@ func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGro
 	_result = &DescribeContainerGroupMetricResponse{}
 	_body, _err := client.DescribeContainerGroupMetricEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9336,12 +9336,12 @@ func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGro
 func (client *Client) UpdateContainerGroupByTemplateEx(request *UpdateContainerGroupByTemplateRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &UpdateContainerGroupByTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("UpdateContainerGroupByTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9352,7 +9352,7 @@ func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGro
 	_result = &UpdateContainerGroupByTemplateResponse{}
 	_body, _err := client.UpdateContainerGroupByTemplateEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9361,12 +9361,12 @@ func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGro
 func (client *Client) CreateContainerGroupFromTemplateEx(request *CreateContainerGroupFromTemplateRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CreateContainerGroupFromTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("CreateContainerGroupFromTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9377,7 +9377,7 @@ func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerG
 	_result = &CreateContainerGroupFromTemplateResponse{}
 	_body, _err := client.CreateContainerGroupFromTemplateEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9386,12 +9386,12 @@ func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerG
 func (client *Client) ExportContainerGroupTemplateEx(request *ExportContainerGroupTemplateRequest, runtime *util.RuntimeOptions) (_result *ExportContainerGroupTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ExportContainerGroupTemplateResponse{}
 	_body, _err := client.DoRequest(tea.String("ExportContainerGroupTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9402,7 +9402,7 @@ func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroup
 	_result = &ExportContainerGroupTemplateResponse{}
 	_body, _err := client.ExportContainerGroupTemplateEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9411,12 +9411,12 @@ func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroup
 func (client *Client) RestartContainerGroupEx(request *RestartContainerGroupRequest, runtime *util.RuntimeOptions) (_result *RestartContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &RestartContainerGroupResponse{}
 	_body, _err := client.DoRequest(tea.String("RestartContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9427,7 +9427,7 @@ func (client *Client) RestartContainerGroup(request *RestartContainerGroupReques
 	_result = &RestartContainerGroupResponse{}
 	_body, _err := client.RestartContainerGroupEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9436,12 +9436,12 @@ func (client *Client) RestartContainerGroup(request *RestartContainerGroupReques
 func (client *Client) UpdateContainerGroupEx(request *UpdateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &UpdateContainerGroupResponse{}
 	_body, _err := client.DoRequest(tea.String("UpdateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9452,7 +9452,7 @@ func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest)
 	_result = &UpdateContainerGroupResponse{}
 	_body, _err := client.UpdateContainerGroupEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9461,12 +9461,12 @@ func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest)
 func (client *Client) DescribeContainerGroupPriceEx(request *DescribeContainerGroupPriceRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupPriceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeContainerGroupPriceResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupPrice"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9477,7 +9477,7 @@ func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGrou
 	_result = &DescribeContainerGroupPriceResponse{}
 	_body, _err := client.DescribeContainerGroupPriceEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9486,12 +9486,12 @@ func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGrou
 func (client *Client) ExecContainerCommandEx(request *ExecContainerCommandRequest, runtime *util.RuntimeOptions) (_result *ExecContainerCommandResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &ExecContainerCommandResponse{}
 	_body, _err := client.DoRequest(tea.String("ExecContainerCommand"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9502,7 +9502,7 @@ func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest)
 	_result = &ExecContainerCommandResponse{}
 	_body, _err := client.ExecContainerCommandEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9511,12 +9511,12 @@ func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest)
 func (client *Client) DescribeContainerLogEx(request *DescribeContainerLogRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerLogResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeContainerLogResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeContainerLog"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9527,7 +9527,7 @@ func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest)
 	_result = &DescribeContainerLogResponse{}
 	_body, _err := client.DescribeContainerLogEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9536,12 +9536,12 @@ func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest)
 func (client *Client) CreateContainerGroupEx(request *CreateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &CreateContainerGroupResponse{}
 	_body, _err := client.DoRequest(tea.String("CreateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9552,7 +9552,7 @@ func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest)
 	_result = &CreateContainerGroupResponse{}
 	_body, _err := client.CreateContainerGroupEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9561,12 +9561,12 @@ func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest)
 func (client *Client) DescribeContainerGroupsEx(request *DescribeContainerGroupsRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DescribeContainerGroupsResponse{}
 	_body, _err := client.DoRequest(tea.String("DescribeContainerGroups"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9577,7 +9577,7 @@ func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRe
 	_result = &DescribeContainerGroupsResponse{}
 	_body, _err := client.DescribeContainerGroupsEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
@@ -9586,12 +9586,12 @@ func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRe
 func (client *Client) DeleteContainerGroupEx(request *DeleteContainerGroupRequest, runtime *util.RuntimeOptions) (_result *DeleteContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
-		return
+		return _result, _err
 	}
 	_result = &DeleteContainerGroupResponse{}
 	_body, _err := client.DoRequest(tea.String("DeleteContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_err = tea.Convert(_body, &_result)
 	return _result, _err
@@ -9602,26 +9602,26 @@ func (client *Client) DeleteContainerGroup(request *DeleteContainerGroupRequest)
 	_result = &DeleteContainerGroupResponse{}
 	_body, _err := client.DeleteContainerGroupEx(request, runtime)
 	if _err != nil {
-		return nil, _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
 }
 
-func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]string, endpoint *string) (_result *string, _err error) {
+func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(tea.String(endpointMap[tea.StringValue(regionId)]))) {
-		_result = tea.String(endpointMap[tea.StringValue(regionId)])
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}
 
 	_body, _err := endpointutil.GetEndpointRules(productId, regionId, endpointRule, network, suffix)
 	if _err != nil {
-		return tea.String(""), _err
+		return _result, _err
 	}
 	_result = _body
 	return _result, _err
