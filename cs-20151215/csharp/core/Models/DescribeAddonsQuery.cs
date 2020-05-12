@@ -13,6 +13,10 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=false)]
         public string Region { get; set; }
 
+        [NameInMap("cluster_type")]
+        [Validation(Required=false)]
+        public string ClusterType { get; set; }
+
     }
 
 }
