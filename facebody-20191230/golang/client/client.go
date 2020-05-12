@@ -14,6 +14,104 @@ import (
 	"io"
 )
 
+type SwapFacialFeaturesRequest struct {
+	SourceImageURL *string `json:"SourceImageURL" xml:"SourceImageURL" require:"true"`
+	EditPart       *string `json:"EditPart" xml:"EditPart" require:"true"`
+	TargetImageURL *string `json:"TargetImageURL" xml:"TargetImageURL" require:"true"`
+}
+
+func (s SwapFacialFeaturesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SwapFacialFeaturesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SwapFacialFeaturesRequest) SetSourceImageURL(v string) *SwapFacialFeaturesRequest {
+	s.SourceImageURL = &v
+	return s
+}
+
+func (s *SwapFacialFeaturesRequest) SetEditPart(v string) *SwapFacialFeaturesRequest {
+	s.EditPart = &v
+	return s
+}
+
+func (s *SwapFacialFeaturesRequest) SetTargetImageURL(v string) *SwapFacialFeaturesRequest {
+	s.TargetImageURL = &v
+	return s
+}
+
+type SwapFacialFeaturesResponse struct {
+	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *SwapFacialFeaturesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s SwapFacialFeaturesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SwapFacialFeaturesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *SwapFacialFeaturesResponse) SetRequestId(v string) *SwapFacialFeaturesResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *SwapFacialFeaturesResponse) SetData(v *SwapFacialFeaturesResponseData) *SwapFacialFeaturesResponse {
+	s.Data = v
+	return s
+}
+
+type SwapFacialFeaturesResponseData struct {
+	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+}
+
+func (s SwapFacialFeaturesResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SwapFacialFeaturesResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *SwapFacialFeaturesResponseData) SetImageURL(v string) *SwapFacialFeaturesResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type SwapFacialFeaturesAdvanceRequest struct {
+	SourceImageURLObject io.Reader `json:"SourceImageURLObject" xml:"SourceImageURLObject" require:"true"`
+	EditPart             *string   `json:"EditPart" xml:"EditPart" require:"true"`
+	TargetImageURL       *string   `json:"TargetImageURL" xml:"TargetImageURL" require:"true"`
+}
+
+func (s SwapFacialFeaturesAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SwapFacialFeaturesAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SwapFacialFeaturesAdvanceRequest) SetSourceImageURLObject(v io.Reader) *SwapFacialFeaturesAdvanceRequest {
+	s.SourceImageURLObject = v
+	return s
+}
+
+func (s *SwapFacialFeaturesAdvanceRequest) SetEditPart(v string) *SwapFacialFeaturesAdvanceRequest {
+	s.EditPart = &v
+	return s
+}
+
+func (s *SwapFacialFeaturesAdvanceRequest) SetTargetImageURL(v string) *SwapFacialFeaturesAdvanceRequest {
+	s.TargetImageURL = &v
+	return s
+}
+
 type AddFaceEntityRequest struct {
 	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
 	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
@@ -2943,6 +3041,104 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) SwapFacialFeatures(request *SwapFacialFeaturesRequest, runtime *util.RuntimeOptions) (_result *SwapFacialFeaturesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &SwapFacialFeaturesResponse{}
+	_body, _err := client.DoRequest(tea.String("SwapFacialFeatures"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) SwapFacialFeaturesAdvance(request *SwapFacialFeaturesAdvanceRequest, runtime *util.RuntimeOptions) (_result *SwapFacialFeaturesResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.SourceImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	swapFacialFeaturesreq := &SwapFacialFeaturesRequest{}
+	rpcutil.Convert(request, swapFacialFeaturesreq)
+	swapFacialFeaturesreq.SourceImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	swapFacialFeaturesResp, _err := client.SwapFacialFeatures(swapFacialFeaturesreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = swapFacialFeaturesResp
+	return _result, _err
 }
 
 func (client *Client) AddFaceEntity(request *AddFaceEntityRequest, runtime *util.RuntimeOptions) (_result *AddFaceEntityResponse, _err error) {

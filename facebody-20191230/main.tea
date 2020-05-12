@@ -17,6 +17,88 @@ init(config: RPC.Config){
   @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model SwapFacialFeaturesRequest = {
+  sourceImageURL: string(name='SourceImageURL', description='sourceImageUrl'),
+  editPart: string(name='EditPart', description='editPart'),
+  targetImageURL: string(name='TargetImageURL', description='targetImageUrl'),
+}
+
+model SwapFacialFeaturesResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function swapFacialFeatures(request: SwapFacialFeaturesRequest, runtime: Util.RuntimeOptions): SwapFacialFeaturesResponse {
+  Util.validateModel(request);
+  return doRequest('SwapFacialFeatures', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model SwapFacialFeaturesAdvanceRequest = {
+  sourceImageURLObject: readable(description='SourceImageURLObject', name='SourceImageURLObject'),
+  editPart: string(name='EditPart', description='editPart'),
+  targetImageURL: string(name='TargetImageURL', description='targetImageUrl'),
+}
+
+async function swapFacialFeaturesAdvance(request: SwapFacialFeaturesAdvanceRequest, runtime: Util.RuntimeOptions): SwapFacialFeaturesResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.sourceImageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var swapFacialFeaturesreq = new SwapFacialFeaturesRequest{};
+  RPCUtil.convert(request, swapFacialFeaturesreq);
+  swapFacialFeaturesreq.sourceImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var swapFacialFeaturesResp = swapFacialFeatures(swapFacialFeaturesreq, runtime);
+  return swapFacialFeaturesResp;
+}
+
 model AddFaceEntityRequest = {
   dbName: string(name='DbName', description='dbName'),
   entityId: string(name='EntityId', description='entityId'),
