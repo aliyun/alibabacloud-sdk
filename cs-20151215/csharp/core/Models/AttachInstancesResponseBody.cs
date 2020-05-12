@@ -15,17 +15,21 @@ namespace AlibabaCloud.SDK.CS20151215.Models
 
         [NameInMap("list")]
         [Validation(Required=true)]
-        public AttachInstancesResponseBodyList List { get; set; }
+        public List<AttachInstancesResponseBodyList> List { get; set; }
         public class AttachInstancesResponseBodyList : TeaModel {
-            [NameInMap("list")]
+            [NameInMap("code")]
             [Validation(Required=true)]
-            public List<AttachInstancesResponseBodyListList> List { get; set; }
-            public class AttachInstancesResponseBodyListList : TeaModel {
-                    public string Code { get; set; }
-                    public string InstanceId { get; set; }
-                    public string Message { get; set; }
-            }
-        };
+            public string Code { get; set; }
+
+            [NameInMap("instanceId")]
+            [Validation(Required=true)]
+            public string InstanceId { get; set; }
+
+            [NameInMap("message")]
+            [Validation(Required=true)]
+            public string Message { get; set; }
+
+        }
 
     }
 
