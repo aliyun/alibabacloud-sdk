@@ -38,7 +38,7 @@ import java.io.InputStream;
 
 public class TeaDemo {
     public static void main(String[] args) throws Exception{
-        // 1 创建DefaultAcsClient实例并初始化。
+        // 1 创建Config实例并初始化。
         Config authConfig = new Config();
         authConfig.accessKeyId = "your accessKeyId";
         authConfig.accessKeySecret = "your accessKeySecret";
