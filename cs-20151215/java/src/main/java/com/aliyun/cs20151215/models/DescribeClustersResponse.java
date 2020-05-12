@@ -10,7 +10,7 @@ public class DescribeClustersResponse extends TeaModel {
 
     @NameInMap("body")
     @Validation(required = true)
-    public DescribeClustersResponseBody body;
+    public java.util.List<DescribeClustersResponseBody> body;
 
     public static DescribeClustersResponse build(java.util.Map<String, ?> map) throws Exception {
         DescribeClustersResponse self = new DescribeClustersResponse();
