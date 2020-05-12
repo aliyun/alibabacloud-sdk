@@ -13,10 +13,6 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public string Template { get; set; }
 
-        [NameInMap("ready_to_upgrade")]
-        [Validation(Required=true)]
-        public string ReadyToUpgrade { get; set; }
-
         [NameInMap("next_version")]
         [Validation(Required=true)]
         public string NextVersion { get; set; }
@@ -41,21 +37,9 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public string Message { get; set; }
 
-        [NameInMap("policy")]
-        [Validation(Required=true)]
-        public string Policy { get; set; }
-
-        [NameInMap("force")]
-        [Validation(Required=true)]
-        public bool? Force { get; set; }
-
         [NameInMap("required")]
         [Validation(Required=true)]
         public bool? Required { get; set; }
-
-        [NameInMap("exist")]
-        [Validation(Required=true)]
-        public bool? Exist { get; set; }
 
     }
 
