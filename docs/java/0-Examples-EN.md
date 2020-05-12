@@ -41,7 +41,7 @@ import java.io.InputStream;
 
 public class TeaDemo {
     public static void main(String[] args) throws Exception{
-        // 1 Create and initialize a Client instance.
+        // 1 Create and initialize a Config instance.
         Config authConfig = new Config();
         authConfig.accessKeyId = "your accessKeyId";
         authConfig.accessKeySecret = "your accessKeySecret";
