@@ -19,7 +19,7 @@ class EnhanceFaceResponse extends Model
     /**
      * @description data
      *
-     * @var EnhanceFaceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

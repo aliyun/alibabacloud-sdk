@@ -19,7 +19,7 @@ class FaceBeautyResponse extends Model
     /**
      * @description data
      *
-     * @var FaceBeautyResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

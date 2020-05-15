@@ -40,7 +40,7 @@ class ListSecretsResponse extends Model
     /**
      * @description SecretList
      *
-     * @var ListSecretsResponse.secretList
+     * @var secretList
      */
     public $secretList;
     protected $_name = [

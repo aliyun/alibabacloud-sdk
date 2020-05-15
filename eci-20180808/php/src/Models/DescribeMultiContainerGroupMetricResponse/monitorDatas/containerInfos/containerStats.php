@@ -39,35 +39,35 @@ class containerStats extends Model
     /**
      * @description cpu
      *
-     * @var containerStats.cpuStats
+     * @var cpuStats
      */
     public $cpuStats;
 
     /**
      * @description diskIo
      *
-     * @var containerStats.diskIoStats
+     * @var diskIoStats
      */
     public $diskIoStats;
 
     /**
      * @description memory
      *
-     * @var containerStats.memoryStats
+     * @var memoryStats
      */
     public $memoryStats;
 
     /**
      * @description network
      *
-     * @var containerStats.networkStats
+     * @var networkStats
      */
     public $networkStats;
 
     /**
      * @description taskStats
      *
-     * @var containerStats.taskStats
+     * @var taskStats
      */
     public $taskStats;
     protected $_name = [

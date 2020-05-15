@@ -19,7 +19,7 @@ class DetectLivingFaceResponse extends Model
     /**
      * @description data
      *
-     * @var DetectLivingFaceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

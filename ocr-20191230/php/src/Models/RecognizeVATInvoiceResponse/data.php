@@ -13,14 +13,14 @@ class data extends Model
     /**
      * @description content
      *
-     * @var data.content
+     * @var content
      */
     public $content;
 
     /**
      * @description box
      *
-     * @var data.box
+     * @var box
      */
     public $box;
     protected $_name = [

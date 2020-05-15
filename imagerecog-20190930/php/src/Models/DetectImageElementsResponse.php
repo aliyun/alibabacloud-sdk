@@ -19,7 +19,7 @@ class DetectImageElementsResponse extends Model
     /**
      * @description data
      *
-     * @var DetectImageElementsResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

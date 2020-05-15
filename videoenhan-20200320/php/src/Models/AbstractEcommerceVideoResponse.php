@@ -19,7 +19,7 @@ class AbstractEcommerceVideoResponse extends Model
     /**
      * @description data
      *
-     * @var AbstractEcommerceVideoResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

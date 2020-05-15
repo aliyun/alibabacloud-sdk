@@ -51,14 +51,14 @@ class spec extends Model
     /**
      * @description dnsConfig
      *
-     * @var spec.dnsConfig
+     * @var dnsConfig
      */
     public $dnsConfig;
 
     /**
      * @description podSecurityContext
      *
-     * @var spec.securityContext
+     * @var securityContext
      */
     public $securityContext;
     protected $_name = [

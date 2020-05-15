@@ -19,7 +19,7 @@ class AssessSharpnessResponse extends Model
     /**
      * @description data
      *
-     * @var AssessSharpnessResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

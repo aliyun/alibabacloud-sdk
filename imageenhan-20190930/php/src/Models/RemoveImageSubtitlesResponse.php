@@ -19,7 +19,7 @@ class RemoveImageSubtitlesResponse extends Model
     /**
      * @description data
      *
-     * @var RemoveImageSubtitlesResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

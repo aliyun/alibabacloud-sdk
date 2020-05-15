@@ -19,7 +19,7 @@ class RecognizeImageStyleResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeImageStyleResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

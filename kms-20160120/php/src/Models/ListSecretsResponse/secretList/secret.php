@@ -40,7 +40,7 @@ class secret extends Model
     /**
      * @description Tags
      *
-     * @var secret.tags
+     * @var tags
      */
     public $tags;
     protected $_name = [

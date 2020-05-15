@@ -124,35 +124,35 @@ class containers extends Model
     /**
      * @description previousState
      *
-     * @var containers.previousState
+     * @var previousState
      */
     public $previousState;
 
     /**
      * @description currentState
      *
-     * @var containers.currentState
+     * @var currentState
      */
     public $currentState;
 
     /**
      * @description innerReadinessProbe
      *
-     * @var containers.readinessProbe
+     * @var readinessProbe
      */
     public $readinessProbe;
 
     /**
      * @description innerLivenessProbe
      *
-     * @var containers.livenessProbe
+     * @var livenessProbe
      */
     public $livenessProbe;
 
     /**
      * @description securityContext
      *
-     * @var containers.securityContext
+     * @var securityContext
      */
     public $securityContext;
 

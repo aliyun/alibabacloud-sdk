@@ -40,7 +40,7 @@ class plates extends Model
     /**
      * @description roi
      *
-     * @var plates.roi
+     * @var roi
      */
     public $roi;
     protected $_name = [

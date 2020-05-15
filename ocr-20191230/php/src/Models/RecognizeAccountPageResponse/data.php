@@ -107,7 +107,7 @@ class data extends Model
     /**
      * @description titleArea
      *
-     * @var data.titleArea
+     * @var titleArea
      */
     public $titleArea;
     protected $_name = [

@@ -101,21 +101,21 @@ class initContainers extends Model
     /**
      * @description previousState
      *
-     * @var initContainers.previousState
+     * @var previousState
      */
     public $previousState;
 
     /**
      * @description currentState
      *
-     * @var initContainers.currentState
+     * @var currentState
      */
     public $currentState;
 
     /**
      * @description securityContext
      *
-     * @var initContainers.securityContext
+     * @var securityContext
      */
     public $securityContext;
 

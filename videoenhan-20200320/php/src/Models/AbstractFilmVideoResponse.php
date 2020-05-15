@@ -19,7 +19,7 @@ class AbstractFilmVideoResponse extends Model
     /**
      * @description data
      *
-     * @var AbstractFilmVideoResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

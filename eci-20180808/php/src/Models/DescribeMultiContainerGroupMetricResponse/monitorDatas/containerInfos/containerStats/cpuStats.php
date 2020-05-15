@@ -20,14 +20,14 @@ class cpuStats extends Model
     /**
      * @description usage
      *
-     * @var cpuStats.cpuUsage
+     * @var cpuUsage
      */
     public $cpuUsage;
 
     /**
      * @description cfs
      *
-     * @var cpuStats.cpuCFS
+     * @var cpuCFS
      */
     public $cpuCFS;
     protected $_name = [

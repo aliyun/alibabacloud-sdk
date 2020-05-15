@@ -47,7 +47,7 @@ class ListSecretVersionIdsResponse extends Model
     /**
      * @description VersionIds
      *
-     * @var ListSecretVersionIdsResponse.versionIds
+     * @var versionIds
      */
     public $versionIds;
     protected $_name = [

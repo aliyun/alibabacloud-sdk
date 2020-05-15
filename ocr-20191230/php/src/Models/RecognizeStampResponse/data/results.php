@@ -21,14 +21,14 @@ class results extends Model
     /**
      * @description roi
      *
-     * @var results.roi
+     * @var roi
      */
     public $roi;
 
     /**
      * @description text
      *
-     * @var results.text
+     * @var text
      */
     public $text;
     protected $_name = [

@@ -26,7 +26,7 @@ class env extends Model
     /**
      * @description valueFrom
      *
-     * @var env.valueFrom
+     * @var valueFrom
      */
     public $valueFrom;
     protected $_name = [

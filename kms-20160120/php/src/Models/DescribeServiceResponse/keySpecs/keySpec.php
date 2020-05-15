@@ -20,14 +20,14 @@ class keySpec extends Model
     /**
      * @description SupportedProtectionLevels
      *
-     * @var keySpec.supportedProtectionLevels
+     * @var supportedProtectionLevels
      */
     public $supportedProtectionLevels;
 
     /**
      * @description Usages
      *
-     * @var keySpec.usages
+     * @var usages
      */
     public $usages;
     protected $_name = [

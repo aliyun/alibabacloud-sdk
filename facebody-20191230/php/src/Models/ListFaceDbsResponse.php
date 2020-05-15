@@ -19,7 +19,7 @@ class ListFaceDbsResponse extends Model
     /**
      * @description data
      *
-     * @var ListFaceDbsResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

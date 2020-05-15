@@ -13,14 +13,14 @@ class DescribeClusterNodesResponseBody extends Model
     /**
      * @description nodes
      *
-     * @var DescribeClusterNodesResponseBody.nodes
+     * @var nodes
      */
     public $nodes;
 
     /**
      * @description page
      *
-     * @var DescribeClusterNodesResponseBody.page
+     * @var page
      */
     public $page;
     protected $_name = [

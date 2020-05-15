@@ -12,7 +12,7 @@ class DescribeClusterAttachScriptsBody extends Model
     /**
      * @description options
      *
-     * @var DescribeClusterAttachScriptsBody.options
+     * @var options
      */
     public $options;
     protected $_name = [

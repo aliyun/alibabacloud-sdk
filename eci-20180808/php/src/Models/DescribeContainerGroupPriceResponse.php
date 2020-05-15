@@ -19,7 +19,7 @@ class DescribeContainerGroupPriceResponse extends Model
     /**
      * @description data
      *
-     * @var DescribeContainerGroupPriceResponse.priceInfo
+     * @var priceInfo
      */
     public $priceInfo;
     protected $_name = [

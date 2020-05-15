@@ -28,21 +28,21 @@ class volume extends Model
     /**
      * @description NFSVolume
      *
-     * @var volume.NFSVolume
+     * @var NFSVolume
      */
     public $NFSVolume;
 
     /**
      * @description ConfigFileVolume
      *
-     * @var volume.configFileVolume
+     * @var configFileVolume
      */
     public $configFileVolume;
 
     /**
      * @description EmptyDirVolume
      *
-     * @var volume.emptyDirVolume
+     * @var emptyDirVolume
      */
     public $emptyDirVolume;
     protected $_name = [

@@ -19,7 +19,7 @@ class RecognizeSceneResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeSceneResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -19,7 +19,7 @@ class RecognizeAccountPageResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeAccountPageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

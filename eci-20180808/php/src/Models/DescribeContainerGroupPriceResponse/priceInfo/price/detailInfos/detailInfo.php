@@ -40,7 +40,7 @@ class detailInfo extends Model
     /**
      * @description rules
      *
-     * @var detailInfo.rules
+     * @var rules
      */
     public $rules;
     protected $_name = [

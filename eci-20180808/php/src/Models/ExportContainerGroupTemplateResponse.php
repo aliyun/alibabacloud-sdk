@@ -19,7 +19,7 @@ class ExportContainerGroupTemplateResponse extends Model
     /**
      * @description data
      *
-     * @var ExportContainerGroupTemplateResponse.template
+     * @var template
      */
     public $template;
     protected $_name = [

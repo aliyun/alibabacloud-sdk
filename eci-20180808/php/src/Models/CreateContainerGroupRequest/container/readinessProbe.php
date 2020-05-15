@@ -14,7 +14,7 @@ class readinessProbe extends Model
     /**
      * @description HttpGet
      *
-     * @var readinessProbe.httpGet
+     * @var httpGet
      */
     public $httpGet;
 
@@ -56,14 +56,14 @@ class readinessProbe extends Model
     /**
      * @description Exec
      *
-     * @var readinessProbe.exec
+     * @var exec
      */
     public $exec;
 
     /**
      * @description TcpSocket
      *
-     * @var readinessProbe.tcpSocket
+     * @var tcpSocket
      */
     public $tcpSocket;
     protected $_name = [

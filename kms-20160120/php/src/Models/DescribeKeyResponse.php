@@ -19,7 +19,7 @@ class DescribeKeyResponse extends Model
     /**
      * @description keyMetadataResponse
      *
-     * @var DescribeKeyResponse.keyMetadata
+     * @var keyMetadata
      */
     public $keyMetadata;
     protected $_name = [

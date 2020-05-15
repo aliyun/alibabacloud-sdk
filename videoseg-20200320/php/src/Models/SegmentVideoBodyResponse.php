@@ -19,7 +19,7 @@ class SegmentVideoBodyResponse extends Model
     /**
      * @description data
      *
-     * @var SegmentVideoBodyResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

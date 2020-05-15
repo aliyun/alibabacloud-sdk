@@ -19,7 +19,7 @@ class AssessExposureResponse extends Model
     /**
      * @description data
      *
-     * @var AssessExposureResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

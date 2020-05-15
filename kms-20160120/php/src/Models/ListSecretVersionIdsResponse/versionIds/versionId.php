@@ -26,7 +26,7 @@ class versionId extends Model
     /**
      * @description VersionStages
      *
-     * @var versionId.versionStages
+     * @var versionStages
      */
     public $versionStages;
     protected $_name = [

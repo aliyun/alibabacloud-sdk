@@ -19,7 +19,7 @@ class RecognizeVerificationcodeResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeVerificationcodeResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

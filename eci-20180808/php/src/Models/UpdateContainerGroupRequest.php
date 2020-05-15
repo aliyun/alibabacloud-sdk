@@ -80,7 +80,7 @@ class UpdateContainerGroupRequest extends Model
     /**
      * @description DnsConfig
      *
-     * @var UpdateContainerGroupRequest.dnsConfig
+     * @var dnsConfig
      */
     public $dnsConfig;
 

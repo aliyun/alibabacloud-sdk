@@ -19,7 +19,7 @@ class ImageBlindPicWatermarkResponse extends Model
     /**
      * @description data
      *
-     * @var ImageBlindPicWatermarkResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

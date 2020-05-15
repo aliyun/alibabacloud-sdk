@@ -20,7 +20,7 @@ class data extends Model
     /**
      * @description meta
      *
-     * @var data.metaObject
+     * @var metaObject
      */
     public $metaObject;
     protected $_name = [

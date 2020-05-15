@@ -250,14 +250,14 @@ class containerGroups extends Model
     /**
      * @description dnsConfig
      *
-     * @var containerGroups.dnsConfig
+     * @var dnsConfig
      */
     public $dnsConfig;
 
     /**
      * @description podSecurityContext
      *
-     * @var containerGroups.eciSecurityContext
+     * @var eciSecurityContext
      */
     public $eciSecurityContext;
     protected $_name = [

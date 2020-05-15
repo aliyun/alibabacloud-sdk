@@ -19,7 +19,7 @@ class RecognizeLicensePlateResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeLicensePlateResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

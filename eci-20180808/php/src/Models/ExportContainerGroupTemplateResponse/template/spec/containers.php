@@ -88,28 +88,28 @@ class containers extends Model
     /**
      * @description securityContext
      *
-     * @var containers.securityContext
+     * @var securityContext
      */
     public $securityContext;
 
     /**
      * @description resources
      *
-     * @var containers.resources
+     * @var resources
      */
     public $resources;
 
     /**
      * @description readinessProbe
      *
-     * @var containers.readinessProbe
+     * @var readinessProbe
      */
     public $readinessProbe;
 
     /**
      * @description livenessProbe
      *
-     * @var containers.livenessProbe
+     * @var livenessProbe
      */
     public $livenessProbe;
 

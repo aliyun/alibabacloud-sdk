@@ -19,7 +19,7 @@ class RecognizeVehicleDashboardResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeVehicleDashboardResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

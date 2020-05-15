@@ -19,7 +19,7 @@ class RecolorImageResponse extends Model
     /**
      * @description data
      *
-     * @var RecolorImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

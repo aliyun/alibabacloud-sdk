@@ -19,7 +19,7 @@ class RecognizeQrCodeResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeQrCodeResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

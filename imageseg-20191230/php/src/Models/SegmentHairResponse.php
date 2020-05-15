@@ -19,7 +19,7 @@ class SegmentHairResponse extends Model
     /**
      * @description data
      *
-     * @var SegmentHairResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

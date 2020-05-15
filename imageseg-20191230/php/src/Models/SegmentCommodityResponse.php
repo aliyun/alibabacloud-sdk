@@ -19,7 +19,7 @@ class SegmentCommodityResponse extends Model
     /**
      * @description data
      *
-     * @var SegmentCommodityResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

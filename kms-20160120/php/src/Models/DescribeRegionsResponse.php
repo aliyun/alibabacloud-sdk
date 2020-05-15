@@ -19,7 +19,7 @@ class DescribeRegionsResponse extends Model
     /**
      * @description data.regions
      *
-     * @var DescribeRegionsResponse.regions
+     * @var regions
      */
     public $regions;
     protected $_name = [

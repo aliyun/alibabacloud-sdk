@@ -19,7 +19,7 @@ class RecognizeTakeoutOrderResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeTakeoutOrderResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

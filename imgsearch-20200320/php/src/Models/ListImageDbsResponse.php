@@ -19,7 +19,7 @@ class ListImageDbsResponse extends Model
     /**
      * @description data
      *
-     * @var ListImageDbsResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

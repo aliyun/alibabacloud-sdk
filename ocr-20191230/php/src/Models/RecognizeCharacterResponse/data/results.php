@@ -26,7 +26,7 @@ class results extends Model
     /**
      * @description textRectangles
      *
-     * @var results.textRectangles
+     * @var textRectangles
      */
     public $textRectangles;
     protected $_name = [

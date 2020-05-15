@@ -48,14 +48,14 @@ class livenessProbe extends Model
     /**
      * @description httpGet
      *
-     * @var livenessProbe.httpGet
+     * @var httpGet
      */
     public $httpGet;
 
     /**
      * @description tcpSocket
      *
-     * @var livenessProbe.tcpSocket
+     * @var tcpSocket
      */
     public $tcpSocket;
 

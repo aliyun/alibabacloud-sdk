@@ -19,7 +19,7 @@ class RecognizeFurnitureAttributeResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeFurnitureAttributeResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

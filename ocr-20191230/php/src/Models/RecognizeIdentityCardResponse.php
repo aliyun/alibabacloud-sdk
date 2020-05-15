@@ -19,7 +19,7 @@ class RecognizeIdentityCardResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeIdentityCardResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

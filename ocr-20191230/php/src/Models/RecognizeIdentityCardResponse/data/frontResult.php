@@ -70,7 +70,7 @@ class frontResult extends Model
     /**
      * @description faceRectangle
      *
-     * @var frontResult.faceRectangle
+     * @var faceRectangle
      */
     public $faceRectangle;
     protected $_name = [
