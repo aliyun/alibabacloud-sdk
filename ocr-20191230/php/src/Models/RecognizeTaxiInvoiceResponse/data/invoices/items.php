@@ -19,7 +19,7 @@ class items extends Model
     /**
      * @description itemRoi
      *
-     * @var items.itemRoi
+     * @var itemRoi
      */
     public $itemRoi;
     protected $_name = [

@@ -19,7 +19,7 @@ class RecognizeExpressionResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeExpressionResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -12,7 +12,7 @@ class data extends Model
     /**
      * @description location
      *
-     * @var data.location
+     * @var location
      */
     public $location;
     protected $_name = [

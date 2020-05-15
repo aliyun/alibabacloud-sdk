@@ -19,7 +19,7 @@ class SegmentHeadResponse extends Model
     /**
      * @description data
      *
-     * @var SegmentHeadResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

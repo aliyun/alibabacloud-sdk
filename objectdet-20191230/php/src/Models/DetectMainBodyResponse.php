@@ -19,7 +19,7 @@ class DetectMainBodyResponse extends Model
     /**
      * @description data
      *
-     * @var DetectMainBodyResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

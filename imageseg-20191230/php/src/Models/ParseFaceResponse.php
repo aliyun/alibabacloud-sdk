@@ -19,7 +19,7 @@ class ParseFaceResponse extends Model
     /**
      * @description data
      *
-     * @var ParseFaceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

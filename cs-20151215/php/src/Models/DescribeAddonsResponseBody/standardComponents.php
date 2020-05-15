@@ -12,7 +12,7 @@ class standardComponents extends Model
     /**
      * @description addon_name
      *
-     * @var standardComponents.addonName
+     * @var addonName
      */
     public $addonName;
     protected $_name = [

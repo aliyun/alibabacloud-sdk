@@ -19,7 +19,7 @@ class ChangeImageSizeResponse extends Model
     /**
      * @description data
      *
-     * @var ChangeImageSizeResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

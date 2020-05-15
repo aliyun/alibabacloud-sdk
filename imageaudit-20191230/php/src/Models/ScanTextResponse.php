@@ -19,7 +19,7 @@ class ScanTextResponse extends Model
     /**
      * @description data
      *
-     * @var ScanTextResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

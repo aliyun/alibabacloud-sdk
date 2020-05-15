@@ -62,14 +62,14 @@ class memoryStats extends Model
     /**
      * @description containerData
      *
-     * @var memoryStats.containerData
+     * @var containerData
      */
     public $containerData;
 
     /**
      * @description hierarchicalData
      *
-     * @var memoryStats.hierarchicalData
+     * @var hierarchicalData
      */
     public $hierarchicalData;
     protected $_name = [

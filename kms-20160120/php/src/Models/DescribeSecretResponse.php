@@ -68,7 +68,7 @@ class DescribeSecretResponse extends Model
     /**
      * @description Tags
      *
-     * @var DescribeSecretResponse.tags
+     * @var tags
      */
     public $tags;
     protected $_name = [

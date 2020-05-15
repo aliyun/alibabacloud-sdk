@@ -26,7 +26,7 @@ class environmentVars extends Model
     /**
      * @description valueFrom
      *
-     * @var environmentVars.valueFrom
+     * @var valueFrom
      */
     public $valueFrom;
     protected $_name = [

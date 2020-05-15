@@ -19,7 +19,7 @@ class AddImageResponse extends Model
     /**
      * @description data
      *
-     * @var AddImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

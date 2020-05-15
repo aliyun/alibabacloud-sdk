@@ -19,7 +19,7 @@ class GetAsyncJobResultResponse extends Model
     /**
      * @description data
      *
-     * @var GetAsyncJobResultResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

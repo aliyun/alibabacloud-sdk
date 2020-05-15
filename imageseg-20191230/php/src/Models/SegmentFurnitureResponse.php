@@ -19,7 +19,7 @@ class SegmentFurnitureResponse extends Model
     /**
      * @description data
      *
-     * @var SegmentFurnitureResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

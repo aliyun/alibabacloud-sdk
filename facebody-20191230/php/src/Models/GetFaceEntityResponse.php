@@ -19,7 +19,7 @@ class GetFaceEntityResponse extends Model
     /**
      * @description data
      *
-     * @var GetFaceEntityResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

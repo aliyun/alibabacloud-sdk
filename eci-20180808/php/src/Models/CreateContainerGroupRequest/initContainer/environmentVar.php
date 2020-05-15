@@ -26,7 +26,7 @@ class environmentVar extends Model
     /**
      * @description FieldRef
      *
-     * @var environmentVar.fieldRef
+     * @var fieldRef
      */
     public $fieldRef;
     protected $_name = [

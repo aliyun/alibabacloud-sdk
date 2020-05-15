@@ -19,7 +19,7 @@ class DetectVideoShotResponse extends Model
     /**
      * @description data
      *
-     * @var DetectVideoShotResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

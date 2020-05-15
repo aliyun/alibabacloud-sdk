@@ -86,14 +86,14 @@ class initContainers extends Model
     /**
      * @description securityContext
      *
-     * @var initContainers.securityContext
+     * @var securityContext
      */
     public $securityContext;
 
     /**
      * @description resources
      *
-     * @var initContainers.resources
+     * @var resources
      */
     public $resources;
 

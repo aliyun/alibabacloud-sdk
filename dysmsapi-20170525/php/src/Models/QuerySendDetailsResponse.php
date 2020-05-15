@@ -40,7 +40,7 @@ class QuerySendDetailsResponse extends Model
     /**
      * @description module
      *
-     * @var QuerySendDetailsResponse.smsSendDetailDTOs
+     * @var smsSendDetailDTOs
      */
     public $smsSendDetailDTOs;
     protected $_name = [

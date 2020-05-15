@@ -19,7 +19,7 @@ class DetectTransparentImageResponse extends Model
     /**
      * @description data
      *
-     * @var DetectTransparentImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

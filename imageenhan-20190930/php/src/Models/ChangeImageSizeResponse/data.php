@@ -19,7 +19,7 @@ class data extends Model
     /**
      * @description retainLocation
      *
-     * @var data.retainLocation
+     * @var retainLocation
      */
     public $retainLocation;
     protected $_name = [

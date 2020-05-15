@@ -83,14 +83,14 @@ class containerSpec extends Model
     /**
      * @description cpu
      *
-     * @var containerSpec.containerCpu
+     * @var containerCpu
      */
     public $containerCpu;
 
     /**
      * @description memory
      *
-     * @var containerSpec.containerMemory
+     * @var containerMemory
      */
     public $containerMemory;
     protected $_name = [

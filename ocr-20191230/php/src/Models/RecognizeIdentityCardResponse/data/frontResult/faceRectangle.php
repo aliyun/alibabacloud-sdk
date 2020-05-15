@@ -20,14 +20,14 @@ class faceRectangle extends Model
     /**
      * @description center
      *
-     * @var faceRectangle.center
+     * @var center
      */
     public $center;
 
     /**
      * @description size
      *
-     * @var faceRectangle.size
+     * @var size
      */
     public $size;
     protected $_name = [

@@ -40,7 +40,7 @@ class AddImageResponse extends Model
     /**
      * @description picInfo
      *
-     * @var AddImageResponse.picInfo
+     * @var picInfo
      */
     public $picInfo;
     protected $_name = [

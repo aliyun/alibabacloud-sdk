@@ -40,7 +40,7 @@ class price extends Model
     /**
      * @description detailInfos
      *
-     * @var price.detailInfos
+     * @var detailInfos
      */
     public $detailInfos;
     protected $_name = [

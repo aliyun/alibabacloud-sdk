@@ -40,7 +40,7 @@ class ListAliasesResponse extends Model
     /**
      * @description data.Aliases
      *
-     * @var ListAliasesResponse.aliases
+     * @var aliases
      */
     public $aliases;
     protected $_name = [

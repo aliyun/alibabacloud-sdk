@@ -72,6 +72,9 @@ use AlibabaCloud\SDK\Facebody\V20191230\Models\RecognizePublicFaceResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\SearchFaceAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\SearchFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\SearchFaceResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\SwapFacialFeaturesAdvanceRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\SwapFacialFeaturesRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\SwapFacialFeaturesResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\UpdateFaceEntityRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\UpdateFaceEntityResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
@@ -94,6 +97,80 @@ class Facebody extends Rpc
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SwapFacialFeaturesResponse
+     */
+    public function swapFacialFeatures(SwapFacialFeaturesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return SwapFacialFeaturesResponse::fromMap($this->doRequest('SwapFacialFeatures', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SwapFacialFeaturesResponse
+     */
+    public function swapFacialFeaturesAdvance(SwapFacialFeaturesAdvanceRequest $request, RuntimeOptions $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'facebody',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->sourceImageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $swapFacialFeaturesreq = new SwapFacialFeaturesRequest([]);
+        RpcUtils::convert($request, $swapFacialFeaturesreq);
+        $swapFacialFeaturesreq->sourceImageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->swapFacialFeatures($swapFacialFeaturesreq, $runtime);
     }
 
     /**

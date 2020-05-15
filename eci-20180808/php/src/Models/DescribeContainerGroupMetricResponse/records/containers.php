@@ -20,14 +20,14 @@ class containers extends Model
     /**
      * @description cpuStats
      *
-     * @var containers.CPU
+     * @var CPU
      */
     public $CPU;
 
     /**
      * @description memoryStats
      *
-     * @var containers.memory
+     * @var memory
      */
     public $memory;
     protected $_name = [

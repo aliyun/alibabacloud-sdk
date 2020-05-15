@@ -19,7 +19,7 @@ class MakeSuperResolutionImageResponse extends Model
     /**
      * @description data
      *
-     * @var MakeSuperResolutionImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

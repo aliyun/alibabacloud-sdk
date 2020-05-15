@@ -484,7 +484,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return UnInstallClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/uninstall', null, $request->headers, $request->body, $runtime));
+        return UnInstallClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/uninstall', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -510,7 +510,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DescribeAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/components/metadata', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+        return DescribeAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/components/metadata', Utils::stringifyMapValue($request->query->toMap()), $request->headers, null, $runtime));
     }
 
     /**
@@ -588,7 +588,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DescribeClusterV2UserKubeconfigResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/api/v2/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+        return DescribeClusterV2UserKubeconfigResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/api/v2/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query->toMap()), $request->headers, null, $runtime));
     }
 
     /**
@@ -616,7 +616,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return RemoveClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/nodes/remove', null, $request->headers, $request->body, $runtime));
+        return RemoveClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/nodes/remove', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -644,7 +644,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return UpgradeClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade', null, $request->headers, $request->body, $runtime));
+        return UpgradeClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '/upgrade', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -756,7 +756,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return ModifyClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body, $runtime));
+        return ModifyClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -784,7 +784,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return InstallClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/install', null, $request->headers, $request->body, $runtime));
+        return InstallClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/install', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -836,7 +836,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return ModifyClusterTagsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/tags', null, $request->headers, $request->body, $runtime));
+        return ModifyClusterTagsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/tags', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -920,7 +920,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return ScaleOutClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body, $runtime));
+        return ScaleOutClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/clusters/' . $clusterId . '', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -946,7 +946,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return CreateTriggerHookResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/hook/trigger', null, $request->headers, $request->body, $runtime));
+        return CreateTriggerHookResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/hook/trigger', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -972,7 +972,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return UpgradeClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/upgrade', null, $request->headers, $request->body, $runtime));
+        return UpgradeClusterAddonsResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/components/upgrade', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -1058,7 +1058,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DeleteClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/nodes', null, $request->headers, $request->body, $runtime));
+        return DeleteClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/nodes', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -1114,7 +1114,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DescribeClusterUserKubeconfigResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+        return DescribeClusterUserKubeconfigResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/k8s/' . $clusterId . '/user_config', Utils::stringifyMapValue($request->query->toMap()), $request->headers, null, $runtime));
     }
 
     /**
@@ -1142,7 +1142,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DescribeClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/nodes', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+        return DescribeClusterNodesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters/' . $clusterId . '/nodes', Utils::stringifyMapValue($request->query->toMap()), $request->headers, null, $runtime));
     }
 
     /**
@@ -1198,7 +1198,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return AttachInstancesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/attach', null, $request->headers, $request->body, $runtime));
+        return AttachInstancesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters/' . $clusterId . '/attach', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -1224,7 +1224,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DescribeTemplatesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/templates', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+        return DescribeTemplatesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/templates', Utils::stringifyMapValue($request->query->toMap()), $request->headers, null, $runtime));
     }
 
     /**
@@ -1248,7 +1248,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return CreateTemplateResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/templates', null, $request->headers, $request->body, $runtime));
+        return CreateTemplateResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/templates', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -1272,7 +1272,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return CreateClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters', null, $request->headers, $request->body, $runtime));
+        return CreateClusterResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/clusters', null, $request->headers, $request->body->toMap(), $runtime));
     }
 
     /**
@@ -1324,7 +1324,7 @@ class CS extends Roa
     {
         Utils::validateModel($request);
 
-        return DescribeClustersResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+        return DescribeClustersResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/clusters', Utils::stringifyMapValue($request->query->toMap()), $request->headers, null, $runtime));
     }
 
     /**

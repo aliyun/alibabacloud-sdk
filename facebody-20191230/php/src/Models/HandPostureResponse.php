@@ -19,7 +19,7 @@ class HandPostureResponse extends Model
     /**
      * @description data
      *
-     * @var HandPostureResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

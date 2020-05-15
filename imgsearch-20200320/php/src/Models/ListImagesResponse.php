@@ -19,7 +19,7 @@ class ListImagesResponse extends Model
     /**
      * @description data
      *
-     * @var ListImagesResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

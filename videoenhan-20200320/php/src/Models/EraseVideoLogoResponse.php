@@ -19,7 +19,7 @@ class EraseVideoLogoResponse extends Model
     /**
      * @description data
      *
-     * @var EraseVideoLogoResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

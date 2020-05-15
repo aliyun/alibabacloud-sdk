@@ -19,7 +19,7 @@ class RecognizeVATInvoiceResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeVATInvoiceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

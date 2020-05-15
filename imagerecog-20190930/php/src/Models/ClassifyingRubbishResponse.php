@@ -19,7 +19,7 @@ class ClassifyingRubbishResponse extends Model
     /**
      * @description data
      *
-     * @var ClassifyingRubbishResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

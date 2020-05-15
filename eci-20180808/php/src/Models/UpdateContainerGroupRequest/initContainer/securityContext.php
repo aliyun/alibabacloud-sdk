@@ -26,7 +26,7 @@ class securityContext extends Model
     /**
      * @description Capability
      *
-     * @var securityContext.capability
+     * @var capability
      */
     public $capability;
     protected $_name = [

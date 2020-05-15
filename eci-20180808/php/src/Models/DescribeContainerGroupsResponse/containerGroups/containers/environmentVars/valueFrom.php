@@ -12,7 +12,7 @@ class valueFrom extends Model
     /**
      * @description fieldRef
      *
-     * @var valueFrom.fieldRef
+     * @var fieldRef
      */
     public $fieldRef;
     protected $_name = [

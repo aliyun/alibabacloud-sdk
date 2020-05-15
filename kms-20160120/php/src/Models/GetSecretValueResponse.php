@@ -54,7 +54,7 @@ class GetSecretValueResponse extends Model
     /**
      * @description VersionStages
      *
-     * @var GetSecretValueResponse.versionStages
+     * @var versionStages
      */
     public $versionStages;
     protected $_name = [

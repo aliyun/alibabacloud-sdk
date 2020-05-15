@@ -26,7 +26,7 @@ class elements extends Model
     /**
      * @description faceRectangle
      *
-     * @var elements.faceRectangle
+     * @var faceRectangle
      */
     public $faceRectangle;
     protected $_name = [

@@ -19,7 +19,7 @@ class AssessCompositionResponse extends Model
     /**
      * @description data
      *
-     * @var AssessCompositionResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

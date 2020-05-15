@@ -19,7 +19,7 @@ class RecognizeBankCardResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeBankCardResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

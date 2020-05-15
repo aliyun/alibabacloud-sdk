@@ -19,7 +19,7 @@ class SegmentFaceResponse extends Model
     /**
      * @description data
      *
-     * @var SegmentFaceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

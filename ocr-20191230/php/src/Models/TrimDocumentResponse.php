@@ -19,7 +19,7 @@ class TrimDocumentResponse extends Model
     /**
      * @description data
      *
-     * @var TrimDocumentResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

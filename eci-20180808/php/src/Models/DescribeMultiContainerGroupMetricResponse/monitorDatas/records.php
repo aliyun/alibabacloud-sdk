@@ -29,21 +29,21 @@ class records extends Model
     /**
      * @description cpuStats
      *
-     * @var records.CPU
+     * @var CPU
      */
     public $CPU;
 
     /**
      * @description memoryStats
      *
-     * @var records.memory
+     * @var memory
      */
     public $memory;
 
     /**
      * @description networkStats
      *
-     * @var records.network
+     * @var network
      */
     public $network;
     protected $_name = [

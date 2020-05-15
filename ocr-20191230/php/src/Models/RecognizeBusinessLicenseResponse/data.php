@@ -85,28 +85,28 @@ class data extends Model
     /**
      * @description emblem
      *
-     * @var data.emblem
+     * @var emblem
      */
     public $emblem;
 
     /**
      * @description title
      *
-     * @var data.title
+     * @var title
      */
     public $title;
 
     /**
      * @description stamp
      *
-     * @var data.stamp
+     * @var stamp
      */
     public $stamp;
 
     /**
      * @description qrCode
      *
-     * @var data.QRCode
+     * @var QRCode
      */
     public $QRCode;
     protected $_name = [

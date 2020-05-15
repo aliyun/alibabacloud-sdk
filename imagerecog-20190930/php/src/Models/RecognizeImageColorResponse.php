@@ -19,7 +19,7 @@ class RecognizeImageColorResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeImageColorResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

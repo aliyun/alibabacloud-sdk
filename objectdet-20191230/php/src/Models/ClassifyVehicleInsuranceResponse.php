@@ -19,7 +19,7 @@ class ClassifyVehicleInsuranceResponse extends Model
     /**
      * @description data
      *
-     * @var ClassifyVehicleInsuranceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [
