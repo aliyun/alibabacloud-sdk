@@ -40,7 +40,7 @@ class ListKeyVersionsResponse extends Model
     /**
      * @description KeyVersions
      *
-     * @var ListKeyVersionsResponse.keyVersions
+     * @var keyVersions
      */
     public $keyVersions;
     protected $_name = [

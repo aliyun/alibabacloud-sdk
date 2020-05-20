@@ -115,21 +115,21 @@ class container extends Model
     /**
      * @description ReadinessProbe
      *
-     * @var container.readinessProbe
+     * @var readinessProbe
      */
     public $readinessProbe;
 
     /**
      * @description LivenessProbe
      *
-     * @var container.livenessProbe
+     * @var livenessProbe
      */
     public $livenessProbe;
 
     /**
      * @description SecurityContext
      *
-     * @var container.securityContext
+     * @var securityContext
      */
     public $securityContext;
 

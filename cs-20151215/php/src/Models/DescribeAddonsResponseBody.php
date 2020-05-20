@@ -20,7 +20,7 @@ class DescribeAddonsResponseBody extends Model
     /**
      * @description StandardComponents
      *
-     * @var DescribeAddonsResponseBody.standardComponents
+     * @var standardComponents
      */
     public $standardComponents;
     protected $_name = [

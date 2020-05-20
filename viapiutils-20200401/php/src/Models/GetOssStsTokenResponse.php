@@ -19,7 +19,7 @@ class GetOssStsTokenResponse extends Model
     /**
      * @description data
      *
-     * @var GetOssStsTokenResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

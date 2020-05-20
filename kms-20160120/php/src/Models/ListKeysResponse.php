@@ -40,7 +40,7 @@ class ListKeysResponse extends Model
     /**
      * @description data.keys
      *
-     * @var ListKeysResponse.keys
+     * @var keys
      */
     public $keys;
     protected $_name = [

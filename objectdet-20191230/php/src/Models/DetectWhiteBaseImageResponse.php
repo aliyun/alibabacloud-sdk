@@ -19,7 +19,7 @@ class DetectWhiteBaseImageResponse extends Model
     /**
      * @description data
      *
-     * @var DetectWhiteBaseImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

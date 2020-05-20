@@ -19,7 +19,7 @@ class RecognizePassportMRZResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizePassportMRZResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

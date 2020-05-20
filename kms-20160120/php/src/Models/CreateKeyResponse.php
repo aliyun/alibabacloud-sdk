@@ -19,7 +19,7 @@ class CreateKeyResponse extends Model
     /**
      * @description keyMetadataResponse
      *
-     * @var CreateKeyResponse.keyMetadata
+     * @var keyMetadata
      */
     public $keyMetadata;
     protected $_name = [

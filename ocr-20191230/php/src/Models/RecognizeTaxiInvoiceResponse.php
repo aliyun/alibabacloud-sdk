@@ -19,7 +19,7 @@ class RecognizeTaxiInvoiceResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeTaxiInvoiceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

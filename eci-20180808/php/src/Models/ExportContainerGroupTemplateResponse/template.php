@@ -77,14 +77,14 @@ class template extends Model
     /**
      * @description resources
      *
-     * @var template.resources
+     * @var resources
      */
     public $resources;
 
     /**
      * @description spec
      *
-     * @var template.spec
+     * @var spec
      */
     public $spec;
     protected $_name = [

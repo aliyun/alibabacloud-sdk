@@ -19,7 +19,7 @@ class AdjustVideoColorResponse extends Model
     /**
      * @description data
      *
-     * @var AdjustVideoColorResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -20,14 +20,14 @@ class DescribeServiceResponse extends Model
     /**
      * @description ProtectionLevels
      *
-     * @var DescribeServiceResponse.protectionLevels
+     * @var protectionLevels
      */
     public $protectionLevels;
 
     /**
      * @description KeySpecs
      *
-     * @var DescribeServiceResponse.keySpecs
+     * @var keySpecs
      */
     public $keySpecs;
     protected $_name = [

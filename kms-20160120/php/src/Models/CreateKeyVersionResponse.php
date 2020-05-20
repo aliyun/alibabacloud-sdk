@@ -19,7 +19,7 @@ class CreateKeyVersionResponse extends Model
     /**
      * @description KeyVersion
      *
-     * @var CreateKeyVersionResponse.keyVersion
+     * @var keyVersion
      */
     public $keyVersion;
     protected $_name = [

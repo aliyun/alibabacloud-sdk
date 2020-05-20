@@ -19,7 +19,7 @@ class RecognizePublicFaceResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizePublicFaceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

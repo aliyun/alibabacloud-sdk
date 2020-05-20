@@ -19,7 +19,7 @@ class SuperResolveVideoResponse extends Model
     /**
      * @description data
      *
-     * @var SuperResolveVideoResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

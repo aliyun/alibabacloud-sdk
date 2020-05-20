@@ -19,7 +19,7 @@ class TaggingImageResponse extends Model
     /**
      * @description data
      *
-     * @var TaggingImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

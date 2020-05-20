@@ -14,21 +14,21 @@ class readinessProbe extends Model
     /**
      * @description TcpSocket
      *
-     * @var readinessProbe.tcpSocket
+     * @var tcpSocket
      */
     public $tcpSocket;
 
     /**
      * @description Exec
      *
-     * @var readinessProbe.exec
+     * @var exec
      */
     public $exec;
 
     /**
      * @description HttpGet
      *
-     * @var readinessProbe.httpGet
+     * @var httpGet
      */
     public $httpGet;
 

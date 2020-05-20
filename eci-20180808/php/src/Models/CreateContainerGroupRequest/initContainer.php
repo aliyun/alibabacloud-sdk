@@ -92,7 +92,7 @@ class initContainer extends Model
     /**
      * @description SecurityContext
      *
-     * @var initContainer.securityContext
+     * @var securityContext
      */
     public $securityContext;
 

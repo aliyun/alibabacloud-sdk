@@ -19,7 +19,7 @@ class RecognizeFurnitureSpuResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeFurnitureSpuResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -19,7 +19,7 @@ class SearchImageResponse extends Model
     /**
      * @description data
      *
-     * @var SearchImageResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

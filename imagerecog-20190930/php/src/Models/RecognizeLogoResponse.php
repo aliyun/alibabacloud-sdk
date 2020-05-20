@@ -19,7 +19,7 @@ class RecognizeLogoResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeLogoResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

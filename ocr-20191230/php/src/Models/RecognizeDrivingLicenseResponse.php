@@ -19,7 +19,7 @@ class RecognizeDrivingLicenseResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeDrivingLicenseResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -20,7 +20,7 @@ class matchList extends Model
     /**
      * @description location
      *
-     * @var matchList.location
+     * @var location
      */
     public $location;
     protected $_name = [

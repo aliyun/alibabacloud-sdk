@@ -24,14 +24,14 @@ class volume extends Model
     /**
      * @description NFSVolume
      *
-     * @var volume.NFSVolume
+     * @var NFSVolume
      */
     public $NFSVolume;
 
     /**
      * @description ConfigFileVolume
      *
-     * @var volume.configFileVolume
+     * @var configFileVolume
      */
     public $configFileVolume;
 
@@ -45,28 +45,28 @@ class volume extends Model
     /**
      * @description EmptyDirVolume
      *
-     * @var volume.emptyDirVolume
+     * @var emptyDirVolume
      */
     public $emptyDirVolume;
 
     /**
      * @description DiskVolume
      *
-     * @var volume.diskVolume
+     * @var diskVolume
      */
     public $diskVolume;
 
     /**
      * @description FlexVolume
      *
-     * @var volume.flexVolume
+     * @var flexVolume
      */
     public $flexVolume;
 
     /**
      * @description HostPathVolume
      *
-     * @var volume.hostPathVolume
+     * @var hostPathVolume
      */
     public $hostPathVolume;
     protected $_name = [

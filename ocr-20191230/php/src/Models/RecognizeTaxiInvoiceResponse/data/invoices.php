@@ -27,7 +27,7 @@ class invoices extends Model
     /**
      * @description invoiceRoi
      *
-     * @var invoices.invoiceRoi
+     * @var invoiceRoi
      */
     public $invoiceRoi;
     protected $_name = [

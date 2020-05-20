@@ -26,7 +26,7 @@ class DescribeClusterAddonUpgradeStatusResponseBody extends Model
     /**
      * @description addon_info
      *
-     * @var DescribeClusterAddonUpgradeStatusResponseBody.addonInfo
+     * @var addonInfo
      */
     public $addonInfo;
     protected $_name = [

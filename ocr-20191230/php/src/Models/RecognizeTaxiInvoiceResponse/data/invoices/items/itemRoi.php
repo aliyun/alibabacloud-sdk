@@ -20,14 +20,14 @@ class itemRoi extends Model
     /**
      * @description center
      *
-     * @var itemRoi.center
+     * @var center
      */
     public $center;
 
     /**
      * @description size
      *
-     * @var itemRoi.size
+     * @var size
      */
     public $size;
     protected $_name = [

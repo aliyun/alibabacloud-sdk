@@ -19,7 +19,7 @@ class RemoveImageWatermarkResponse extends Model
     /**
      * @description data
      *
-     * @var RemoveImageWatermarkResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

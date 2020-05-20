@@ -19,7 +19,7 @@ class DetectBodyCountResponse extends Model
     /**
      * @description data
      *
-     * @var DetectBodyCountResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

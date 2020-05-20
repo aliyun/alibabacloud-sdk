@@ -19,7 +19,7 @@ class RecognizeVINCodeResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeVINCodeResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -13,14 +13,14 @@ class data extends Model
     /**
      * @description frontResult
      *
-     * @var data.frontResult
+     * @var frontResult
      */
     public $frontResult;
 
     /**
      * @description backResult
      *
-     * @var data.backResult
+     * @var backResult
      */
     public $backResult;
     protected $_name = [

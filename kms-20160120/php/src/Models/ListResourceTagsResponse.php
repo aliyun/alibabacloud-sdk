@@ -19,7 +19,7 @@ class ListResourceTagsResponse extends Model
     /**
      * @description data.tags
      *
-     * @var ListResourceTagsResponse.tags
+     * @var tags
      */
     public $tags;
     protected $_name = [

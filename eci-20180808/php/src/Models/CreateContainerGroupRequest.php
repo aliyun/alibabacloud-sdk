@@ -132,7 +132,7 @@ class CreateContainerGroupRequest extends Model
     /**
      * @description DnsConfig
      *
-     * @var CreateContainerGroupRequest.dnsConfig
+     * @var dnsConfig
      */
     public $dnsConfig;
 
@@ -195,7 +195,7 @@ class CreateContainerGroupRequest extends Model
     /**
      * @description SecurityContext
      *
-     * @var CreateContainerGroupRequest.securityContext
+     * @var securityContext
      */
     public $securityContext;
 

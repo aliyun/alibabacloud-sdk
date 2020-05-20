@@ -48,7 +48,7 @@ class containerInfos extends Model
     /**
      * @description spec
      *
-     * @var containerInfos.containerSpec
+     * @var containerSpec
      */
     public $containerSpec;
 

@@ -19,7 +19,7 @@ class DetectObjectResponse extends Model
     /**
      * @description data
      *
-     * @var DetectObjectResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

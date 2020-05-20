@@ -19,7 +19,7 @@ class DetectMaskResponse extends Model
     /**
      * @description data
      *
-     * @var DetectMaskResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

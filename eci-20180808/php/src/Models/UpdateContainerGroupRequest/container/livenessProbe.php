@@ -14,21 +14,21 @@ class livenessProbe extends Model
     /**
      * @description TcpSocket
      *
-     * @var livenessProbe.tcpSocket
+     * @var tcpSocket
      */
     public $tcpSocket;
 
     /**
      * @description Exec
      *
-     * @var livenessProbe.exec
+     * @var exec
      */
     public $exec;
 
     /**
      * @description HttpGet
      *
-     * @var livenessProbe.httpGet
+     * @var httpGet
      */
     public $httpGet;
 

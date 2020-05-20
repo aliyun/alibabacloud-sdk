@@ -19,7 +19,7 @@ class ClassifyCommodityResponse extends Model
     /**
      * @description data
      *
-     * @var ClassifyCommodityResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

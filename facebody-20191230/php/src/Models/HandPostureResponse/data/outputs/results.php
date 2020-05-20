@@ -13,14 +13,14 @@ class results extends Model
     /**
      * @description box
      *
-     * @var results.box
+     * @var box
      */
     public $box;
 
     /**
      * @description hands
      *
-     * @var results.hands
+     * @var hands
      */
     public $hands;
     protected $_name = [

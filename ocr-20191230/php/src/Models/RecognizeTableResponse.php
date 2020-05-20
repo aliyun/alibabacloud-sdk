@@ -19,7 +19,7 @@ class RecognizeTableResponse extends Model
     /**
      * @description data
      *
-     * @var RecognizeTableResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

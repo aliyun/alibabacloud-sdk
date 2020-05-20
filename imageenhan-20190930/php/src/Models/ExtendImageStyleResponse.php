@@ -19,7 +19,7 @@ class ExtendImageStyleResponse extends Model
     /**
      * @description data
      *
-     * @var ExtendImageStyleResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

@@ -131,7 +131,7 @@ class nodes extends Model
     /**
      * @description ip_address
      *
-     * @var nodes.ipAddress
+     * @var ipAddress
      */
     public $ipAddress;
     protected $_name = [

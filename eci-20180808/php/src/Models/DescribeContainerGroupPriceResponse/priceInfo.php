@@ -13,14 +13,14 @@ class priceInfo extends Model
     /**
      * @description rules
      *
-     * @var priceInfo.rules
+     * @var rules
      */
     public $rules;
 
     /**
      * @description price
      *
-     * @var priceInfo.price
+     * @var price
      */
     public $price;
     protected $_name = [

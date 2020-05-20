@@ -49,21 +49,21 @@ class readinessProbe extends Model
     /**
      * @description exec
      *
-     * @var readinessProbe.exec
+     * @var exec
      */
     public $exec;
 
     /**
      * @description tcpSocket
      *
-     * @var readinessProbe.tcpSocket
+     * @var tcpSocket
      */
     public $tcpSocket;
 
     /**
      * @description httpGet
      *
-     * @var readinessProbe.httpGet
+     * @var httpGet
      */
     public $httpGet;
     protected $_name = [

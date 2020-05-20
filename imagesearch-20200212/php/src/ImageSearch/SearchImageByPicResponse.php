@@ -49,14 +49,14 @@ class SearchImageByPicResponse extends Model
     /**
      * @description head
      *
-     * @var SearchImageByPicResponse.head
+     * @var head
      */
     public $head;
 
     /**
      * @description picInfo
      *
-     * @var SearchImageByPicResponse.picInfo
+     * @var picInfo
      */
     public $picInfo;
     protected $_name = [

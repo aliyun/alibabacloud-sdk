@@ -86,28 +86,28 @@ class networkStats extends Model
     /**
      * @description tcp
      *
-     * @var networkStats.tcp
+     * @var tcp
      */
     public $tcp;
 
     /**
      * @description tcp6
      *
-     * @var networkStats.tcp6
+     * @var tcp6
      */
     public $tcp6;
 
     /**
      * @description udp
      *
-     * @var networkStats.udp
+     * @var udp
      */
     public $udp;
 
     /**
      * @description udp6
      *
-     * @var networkStats.udp6
+     * @var udp6
      */
     public $udp6;
     protected $_name = [

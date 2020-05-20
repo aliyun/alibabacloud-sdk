@@ -19,7 +19,7 @@ class SearchFaceResponse extends Model
     /**
      * @description data
      *
-     * @var SearchFaceResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

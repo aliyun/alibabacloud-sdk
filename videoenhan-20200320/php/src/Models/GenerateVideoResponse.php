@@ -19,7 +19,7 @@ class GenerateVideoResponse extends Model
     /**
      * @description data
      *
-     * @var GenerateVideoResponse.data
+     * @var data
      */
     public $data;
     protected $_name = [

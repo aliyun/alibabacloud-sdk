@@ -33,7 +33,7 @@ class PutSecretValueResponse extends Model
     /**
      * @description VersionStages
      *
-     * @var PutSecretValueResponse.versionStages
+     * @var versionStages
      */
     public $versionStages;
     protected $_name = [
