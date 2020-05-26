@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models\BodyPostureResponse;
 
+use AlibabaCloud\SDK\Facebody\V20191230\Models\BodyPostureResponse\data\metaObject;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\BodyPostureResponse\data\outputs;
-use AlibabaCloud\SDK\Facebody\V20191230\Models\data\metaObject;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

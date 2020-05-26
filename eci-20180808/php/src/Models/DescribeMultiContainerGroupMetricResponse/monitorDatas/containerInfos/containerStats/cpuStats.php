@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\cpuStats\cpuCFS;
-use AlibabaCloud\SDK\ECI\V20180808\Models\cpuStats\cpuUsage;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\cpuStats\cpuCFS;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\cpuStats\cpuUsage;
 use AlibabaCloud\Tea\Model;
 
 class cpuStats extends Model

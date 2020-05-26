@@ -5,9 +5,9 @@
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupMetricResponse;
 
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupMetricResponse\records\containers;
-use AlibabaCloud\SDK\ECI\V20180808\Models\records\CPU;
-use AlibabaCloud\SDK\ECI\V20180808\Models\records\memory;
-use AlibabaCloud\SDK\ECI\V20180808\Models\records\network;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupMetricResponse\records\CPU;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupMetricResponse\records\memory;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupMetricResponse\records\network;
 use AlibabaCloud\Tea\Model;
 
 class records extends Model

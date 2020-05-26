@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDrivingLicenseResponse;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\backResult;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\faceResult;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDrivingLicenseResponse\data\backResult;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDrivingLicenseResponse\data\faceResult;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

@@ -1,0 +1,84 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+
+namespace AlibabaCloud\SDK\ROS\V20190910\Models;
+
+use AlibabaCloud\Tea\Model;
+
+class ListStackGroupsRequest extends Model
+{
+    /**
+     * @description RegionId
+     *
+     * @var string
+     */
+    public $regionId;
+
+    /**
+     * @description Status
+     *
+     * @var string
+     */
+    public $status;
+
+    /**
+     * @description PageSize
+     *
+     * @var int
+     */
+    public $pageSize;
+
+    /**
+     * @description PageNumber
+     *
+     * @var int
+     */
+    public $pageNumber;
+    protected $_name = [
+        'regionId'   => 'RegionId',
+        'status'     => 'Status',
+        'pageSize'   => 'PageSize',
+        'pageNumber' => 'PageNumber',
+    ];
+
+    public function validate()
+    {
+        Model::validateRequired('regionId', $this->regionId, true);
+    }
+
+    public function toMap()
+    {
+        $res               = [];
+        $res['RegionId']   = $this->regionId;
+        $res['Status']     = $this->status;
+        $res['PageSize']   = $this->pageSize;
+        $res['PageNumber'] = $this->pageNumber;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return ListStackGroupsRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['Status'])) {
+            $model->status = $map['Status'];
+        }
+        if (isset($map['PageSize'])) {
+            $model->pageSize = $map['PageSize'];
+        }
+        if (isset($map['PageNumber'])) {
+            $model->pageNumber = $map['PageNumber'];
+        }
+
+        return $model;
+    }
+}

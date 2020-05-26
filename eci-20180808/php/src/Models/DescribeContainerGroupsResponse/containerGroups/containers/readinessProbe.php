@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\containers;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\readinessProbe\httpGet;
-use AlibabaCloud\SDK\ECI\V20180808\Models\readinessProbe\tcpSocket;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\containers\readinessProbe\httpGet;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\containers\readinessProbe\tcpSocket;
 use AlibabaCloud\Tea\Model;
 
 class readinessProbe extends Model

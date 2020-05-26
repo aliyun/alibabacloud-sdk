@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models\HandPostureResponse\data\outputs;
 
-use AlibabaCloud\SDK\Facebody\V20191230\Models\results\box;
-use AlibabaCloud\SDK\Facebody\V20191230\Models\results\hands;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\HandPostureResponse\data\outputs\results\box;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\HandPostureResponse\data\outputs\results\hands;
 use AlibabaCloud\Tea\Model;
 
 class results extends Model

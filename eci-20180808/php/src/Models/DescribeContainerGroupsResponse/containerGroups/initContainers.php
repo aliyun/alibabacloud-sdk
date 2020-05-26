@@ -4,12 +4,12 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups;
 
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\currentState;
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\environmentVars;
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\ports;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\previousState;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\securityContext;
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\volumeMounts;
-use AlibabaCloud\SDK\ECI\V20180808\Models\initContainers\currentState;
-use AlibabaCloud\SDK\ECI\V20180808\Models\initContainers\previousState;
-use AlibabaCloud\SDK\ECI\V20180808\Models\initContainers\securityContext;
 use AlibabaCloud\Tea\Model;
 
 class initContainers extends Model

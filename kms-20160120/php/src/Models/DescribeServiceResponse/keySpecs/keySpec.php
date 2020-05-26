@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Models\DescribeServiceResponse\keySpecs;
 
-use AlibabaCloud\SDK\Kms\V20160120\Models\keySpec\supportedProtectionLevels;
-use AlibabaCloud\SDK\Kms\V20160120\Models\keySpec\usages;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeServiceResponse\keySpecs\keySpec\supportedProtectionLevels;
+use AlibabaCloud\SDK\Kms\V20160120\Models\DescribeServiceResponse\keySpecs\keySpec\usages;
 use AlibabaCloud\Tea\Model;
 
 class keySpec extends Model

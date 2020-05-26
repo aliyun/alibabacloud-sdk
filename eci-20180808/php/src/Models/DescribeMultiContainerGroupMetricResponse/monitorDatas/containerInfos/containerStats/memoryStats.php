@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\memoryStats\containerData;
-use AlibabaCloud\SDK\ECI\V20180808\Models\memoryStats\hierarchicalData;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\memoryStats\containerData;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\memoryStats\hierarchicalData;
 use AlibabaCloud\Tea\Model;
 
 class memoryStats extends Model

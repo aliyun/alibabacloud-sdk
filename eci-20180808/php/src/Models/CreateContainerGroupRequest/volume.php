@@ -4,12 +4,12 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\configFileVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\diskVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\emptyDirVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\flexVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\hostPathVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\NFSVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\volume\configFileVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\volume\diskVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\volume\emptyDirVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\volume\flexVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\volume\hostPathVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\volume\NFSVolume;
 use AlibabaCloud\Tea\Model;
 
 class volume extends Model

@@ -1,0 +1,100 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+
+namespace AlibabaCloud\SDK\ROS\V20190910\Models\ListTemplatesResponse;
+
+use AlibabaCloud\Tea\Model;
+
+class templates extends Model
+{
+    /**
+     * @description CreateTime
+     *
+     * @var string
+     */
+    public $createTime;
+
+    /**
+     * @description Description
+     *
+     * @var string
+     */
+    public $description;
+
+    /**
+     * @description TemplateId
+     *
+     * @var string
+     */
+    public $templateId;
+
+    /**
+     * @description TemplateName
+     *
+     * @var string
+     */
+    public $templateName;
+
+    /**
+     * @description UpdateTime
+     *
+     * @var string
+     */
+    public $updateTime;
+    protected $_name = [
+        'createTime'   => 'CreateTime',
+        'description'  => 'Description',
+        'templateId'   => 'TemplateId',
+        'templateName' => 'TemplateName',
+        'updateTime'   => 'UpdateTime',
+    ];
+
+    public function validate()
+    {
+        Model::validateRequired('createTime', $this->createTime, true);
+        Model::validateRequired('description', $this->description, true);
+        Model::validateRequired('templateId', $this->templateId, true);
+        Model::validateRequired('templateName', $this->templateName, true);
+        Model::validateRequired('updateTime', $this->updateTime, true);
+    }
+
+    public function toMap()
+    {
+        $res                 = [];
+        $res['CreateTime']   = $this->createTime;
+        $res['Description']  = $this->description;
+        $res['TemplateId']   = $this->templateId;
+        $res['TemplateName'] = $this->templateName;
+        $res['UpdateTime']   = $this->updateTime;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return templates
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['CreateTime'])) {
+            $model->createTime = $map['CreateTime'];
+        }
+        if (isset($map['Description'])) {
+            $model->description = $map['Description'];
+        }
+        if (isset($map['TemplateId'])) {
+            $model->templateId = $map['TemplateId'];
+        }
+        if (isset($map['TemplateName'])) {
+            $model->templateName = $map['TemplateName'];
+        }
+        if (isset($map['UpdateTime'])) {
+            $model->updateTime = $map['UpdateTime'];
+        }
+
+        return $model;
+    }
+}

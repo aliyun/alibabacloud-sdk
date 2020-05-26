@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterNodesResponseBody\nodes;
 
-use AlibabaCloud\SDK\CS\V20151215\Models\nodes\ipAddress;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterNodesResponseBody\nodes\nodes\ipAddress;
 use AlibabaCloud\Tea\Model;
 
 class nodes extends Model

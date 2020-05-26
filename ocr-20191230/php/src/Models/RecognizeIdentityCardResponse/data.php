@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\backResult;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\frontResult;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\backResult;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

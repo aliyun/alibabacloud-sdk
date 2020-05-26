@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\env\valueFrom;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers\env\valueFrom;
 use AlibabaCloud\Tea\Model;
 
 class env extends Model

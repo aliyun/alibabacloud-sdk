@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVATInvoiceResponse;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\box;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\content;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVATInvoiceResponse\data\box;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVATInvoiceResponse\data\content;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

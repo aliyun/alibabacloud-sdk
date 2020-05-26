@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Objectdet\V20191230\Models\DetectMainBodyResponse;
 
-use AlibabaCloud\SDK\Objectdet\V20191230\Models\data\location;
+use AlibabaCloud\SDK\Objectdet\V20191230\Models\DetectMainBodyResponse\data\location;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

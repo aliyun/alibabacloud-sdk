@@ -4,13 +4,13 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerStats\cpuStats;
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerStats\diskIoStats;
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerStats\memoryStats;
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerStats\networkStats;
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerStats\taskStats;
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\acceleratorStats;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\cpuStats;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\diskIoStats;
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\fsStats;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\memoryStats;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\taskStats;
 use AlibabaCloud\Tea\Model;
 
 class containerStats extends Model

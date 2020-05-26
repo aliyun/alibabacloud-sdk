@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsResponseBody;
 
-use AlibabaCloud\SDK\CS\V20151215\Models\standardComponents\addonName;
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsResponseBody\standardComponents\addonName;
 use AlibabaCloud\Tea\Model;
 
 class standardComponents extends Model

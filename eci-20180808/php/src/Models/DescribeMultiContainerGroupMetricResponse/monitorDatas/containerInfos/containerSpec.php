@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerSpec\containerCpu;
-use AlibabaCloud\SDK\ECI\V20180808\Models\containerSpec\containerMemory;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerSpec\containerCpu;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerSpec\containerMemory;
 use AlibabaCloud\Tea\Model;
 
 class containerSpec extends Model

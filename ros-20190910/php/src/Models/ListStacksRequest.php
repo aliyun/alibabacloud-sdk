@@ -1,0 +1,169 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+
+namespace AlibabaCloud\SDK\ROS\V20190910\Models;
+
+use AlibabaCloud\SDK\ROS\V20190910\Models\ListStacksRequest\tag;
+use AlibabaCloud\Tea\Model;
+
+class ListStacksRequest extends Model
+{
+    /**
+     * @description Status
+     *
+     * @var array
+     */
+    public $status;
+
+    /**
+     * @description PageSize
+     *
+     * @var int
+     */
+    public $pageSize;
+
+    /**
+     * @description ParentStackId
+     *
+     * @var string
+     */
+    public $parentStackId;
+
+    /**
+     * @description RegionId
+     *
+     * @var string
+     */
+    public $regionId;
+
+    /**
+     * @description StackName
+     *
+     * @var array
+     */
+    public $stackName;
+
+    /**
+     * @description PageNumber
+     *
+     * @var int
+     */
+    public $pageNumber;
+
+    /**
+     * @description ShowNestedStack
+     *
+     * @var bool
+     */
+    public $showNestedStack;
+
+    /**
+     * @description Tags
+     *
+     * @var array
+     */
+    public $tag;
+
+    /**
+     * @description StackId
+     *
+     * @var string
+     */
+    public $stackId;
+    protected $_name = [
+        'status'          => 'Status',
+        'pageSize'        => 'PageSize',
+        'parentStackId'   => 'ParentStackId',
+        'regionId'        => 'RegionId',
+        'stackName'       => 'StackName',
+        'pageNumber'      => 'PageNumber',
+        'showNestedStack' => 'ShowNestedStack',
+        'tag'             => 'Tag',
+        'stackId'         => 'StackId',
+    ];
+
+    public function validate()
+    {
+        Model::validateRequired('regionId', $this->regionId, true);
+    }
+
+    public function toMap()
+    {
+        $res           = [];
+        $res['Status'] = [];
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        $res['PageSize']      = $this->pageSize;
+        $res['ParentStackId'] = $this->parentStackId;
+        $res['RegionId']      = $this->regionId;
+        $res['StackName']     = [];
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        $res['PageNumber']      = $this->pageNumber;
+        $res['ShowNestedStack'] = $this->showNestedStack;
+        $res['Tag']             = [];
+        if (null !== $this->tag && \is_array($this->tag)) {
+            $n = 0;
+            foreach ($this->tag as $item) {
+                $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+        $res['StackId'] = $this->stackId;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return ListStacksRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['Status'])) {
+            if (!empty($map['Status'])) {
+                $model->status = [];
+                $model->status = $map['Status'];
+            }
+        }
+        if (isset($map['PageSize'])) {
+            $model->pageSize = $map['PageSize'];
+        }
+        if (isset($map['ParentStackId'])) {
+            $model->parentStackId = $map['ParentStackId'];
+        }
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['StackName'])) {
+            if (!empty($map['StackName'])) {
+                $model->stackName = [];
+                $model->stackName = $map['StackName'];
+            }
+        }
+        if (isset($map['PageNumber'])) {
+            $model->pageNumber = $map['PageNumber'];
+        }
+        if (isset($map['ShowNestedStack'])) {
+            $model->showNestedStack = $map['ShowNestedStack'];
+        }
+        if (isset($map['Tag'])) {
+            if (!empty($map['Tag'])) {
+                $model->tag = [];
+                $n          = 0;
+                foreach ($map['Tag'] as $item) {
+                    $model->tag[$n++] = null !== $item ? tag::fromMap($item) : $item;
+                }
+            }
+        }
+        if (isset($map['StackId'])) {
+            $model->stackId = $map['StackId'];
+        }
+
+        return $model;
+    }
+}

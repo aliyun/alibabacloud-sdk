@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Imageenhan\V20190930\Models\ChangeImageSizeResponse;
 
-use AlibabaCloud\SDK\Imageenhan\V20190930\Models\data\retainLocation;
+use AlibabaCloud\SDK\Imageenhan\V20190930\Models\ChangeImageSizeResponse\data\retainLocation;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

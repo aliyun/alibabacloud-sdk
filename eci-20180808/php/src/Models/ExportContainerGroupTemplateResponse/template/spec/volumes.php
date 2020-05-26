@@ -4,9 +4,9 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\volumes\configFile;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volumes\emptyDir;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volumes\nfs;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\volumes\configFile;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\volumes\emptyDir;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\volumes\nfs;
 use AlibabaCloud\Tea\Model;
 
 class volumes extends Model

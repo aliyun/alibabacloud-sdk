@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeCharacterResponse\data;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\results\textRectangles;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeCharacterResponse\data\results\textRectangles;
 use AlibabaCloud\Tea\Model;
 
 class results extends Model

@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models\HandPostureResponse;
 
-use AlibabaCloud\SDK\Facebody\V20191230\Models\data\metaObject;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\HandPostureResponse\data\metaObject;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\HandPostureResponse\data\outputs;
 use AlibabaCloud\Tea\Model;
 

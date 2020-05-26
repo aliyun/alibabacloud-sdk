@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretsResponse\secretList;
 
-use AlibabaCloud\SDK\Kms\V20160120\Models\secret\tags;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretsResponse\secretList\secret\tags;
 use AlibabaCloud\Tea\Model;
 
 class secret extends Model
