@@ -4,9 +4,9 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\readinessProbe\exec;
-use AlibabaCloud\SDK\ECI\V20180808\Models\readinessProbe\httpGet;
-use AlibabaCloud\SDK\ECI\V20180808\Models\readinessProbe\tcpSocket;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\exec;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\httpGet;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\tcpSocket;
 use AlibabaCloud\Tea\Model;
 
 class readinessProbe extends Model

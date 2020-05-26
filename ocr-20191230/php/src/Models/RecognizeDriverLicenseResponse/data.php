@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDriverLicenseResponse;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\backResult;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\faceResult;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDriverLicenseResponse\data\backResult;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeDriverLicenseResponse\data\faceResult;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

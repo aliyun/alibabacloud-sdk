@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupPriceResponse\priceInfo\price\detailInfos;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\detailInfo\rules;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupPriceResponse\priceInfo\price\detailInfos\detailInfo\rules;
 use AlibabaCloud\Tea\Model;
 
 class detailInfo extends Model

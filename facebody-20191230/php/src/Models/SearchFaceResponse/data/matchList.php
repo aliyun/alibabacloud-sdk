@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models\SearchFaceResponse\data;
 
-use AlibabaCloud\SDK\Facebody\V20191230\Models\matchList\location;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\SearchFaceResponse\data\matchList\faceItems;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\SearchFaceResponse\data\matchList\location;
 use AlibabaCloud\Tea\Model;
 
 class matchList extends Model

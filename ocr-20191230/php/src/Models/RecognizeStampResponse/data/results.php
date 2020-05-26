@@ -5,8 +5,8 @@
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampResponse\data;
 
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampResponse\data\results\generalText;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\results\roi;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\results\text;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampResponse\data\results\roi;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeStampResponse\data\results\text;
 use AlibabaCloud\Tea\Model;
 
 class results extends Model

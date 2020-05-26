@@ -6,9 +6,9 @@ namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResp
 
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers\env;
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers\ports;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers\resources;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers\securityContext;
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers\volumeMounts;
-use AlibabaCloud\SDK\ECI\V20180808\Models\initContainers\resources;
-use AlibabaCloud\SDK\ECI\V20180808\Models\initContainers\securityContext;
 use AlibabaCloud\Tea\Model;
 
 class initContainers extends Model

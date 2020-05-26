@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretVersionIdsResponse\versionIds;
 
-use AlibabaCloud\SDK\Kms\V20160120\Models\versionId\versionStages;
+use AlibabaCloud\SDK\Kms\V20160120\Models\ListSecretVersionIdsResponse\versionIds\versionId\versionStages;
 use AlibabaCloud\Tea\Model;
 
 class versionId extends Model

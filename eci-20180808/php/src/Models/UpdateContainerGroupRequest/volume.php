@@ -4,9 +4,9 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\configFileVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\emptyDirVolume;
-use AlibabaCloud\SDK\ECI\V20180808\Models\volume\NFSVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\volume\configFileVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\volume\emptyDirVolume;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\volume\NFSVolume;
 use AlibabaCloud\Tea\Model;
 
 class volume extends Model

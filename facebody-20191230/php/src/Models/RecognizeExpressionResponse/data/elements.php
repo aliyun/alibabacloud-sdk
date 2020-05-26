@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models\RecognizeExpressionResponse\data;
 
-use AlibabaCloud\SDK\Facebody\V20191230\Models\elements\faceRectangle;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\RecognizeExpressionResponse\data\elements\faceRectangle;
 use AlibabaCloud\Tea\Model;
 
 class elements extends Model

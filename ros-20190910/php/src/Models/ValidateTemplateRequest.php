@@ -1,0 +1,71 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+
+namespace AlibabaCloud\SDK\ROS\V20190910\Models;
+
+use AlibabaCloud\Tea\Model;
+
+class ValidateTemplateRequest extends Model
+{
+    /**
+     * @description TemplateURL
+     *
+     * @var string
+     */
+    public $templateURL;
+
+    /**
+     * @description RegionId
+     *
+     * @var string
+     */
+    public $regionId;
+
+    /**
+     * @description TemplateBody
+     *
+     * @var string
+     */
+    public $templateBody;
+    protected $_name = [
+        'templateURL'  => 'TemplateURL',
+        'regionId'     => 'RegionId',
+        'templateBody' => 'TemplateBody',
+    ];
+
+    public function validate()
+    {
+    }
+
+    public function toMap()
+    {
+        $res                 = [];
+        $res['TemplateURL']  = $this->templateURL;
+        $res['RegionId']     = $this->regionId;
+        $res['TemplateBody'] = $this->templateBody;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return ValidateTemplateRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['TemplateURL'])) {
+            $model->templateURL = $map['TemplateURL'];
+        }
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['TemplateBody'])) {
+            $model->templateBody = $map['TemplateBody'];
+        }
+
+        return $model;
+    }
+}

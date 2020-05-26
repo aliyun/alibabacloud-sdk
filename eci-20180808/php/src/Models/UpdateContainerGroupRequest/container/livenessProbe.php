@@ -4,9 +4,9 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\container;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\livenessProbe\exec;
-use AlibabaCloud\SDK\ECI\V20180808\Models\livenessProbe\httpGet;
-use AlibabaCloud\SDK\ECI\V20180808\Models\livenessProbe\tcpSocket;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\container\livenessProbe\exec;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\container\livenessProbe\httpGet;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\container\livenessProbe\tcpSocket;
 use AlibabaCloud\Tea\Model;
 
 class livenessProbe extends Model

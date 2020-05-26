@@ -4,9 +4,9 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse;
 
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\resources;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec;
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\tags;
-use AlibabaCloud\SDK\ECI\V20180808\Models\template\resources;
-use AlibabaCloud\SDK\ECI\V20180808\Models\template\spec;
 use AlibabaCloud\Tea\Model;
 
 class template extends Model

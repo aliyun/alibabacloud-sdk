@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeLicensePlateResponse\data;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\plates\roi;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeLicensePlateResponse\data\plates\roi;
 use AlibabaCloud\Tea\Model;
 
 class plates extends Model

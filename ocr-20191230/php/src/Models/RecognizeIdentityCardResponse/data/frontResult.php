@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\frontResult\faceRectangle;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult\cardAreas;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult\faceRectangle;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult\faceRectVertices;
 use AlibabaCloud\Tea\Model;
 

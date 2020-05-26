@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\securityContext\capability;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\securityContext\capability;
 use AlibabaCloud\Tea\Model;
 
 class securityContext extends Model

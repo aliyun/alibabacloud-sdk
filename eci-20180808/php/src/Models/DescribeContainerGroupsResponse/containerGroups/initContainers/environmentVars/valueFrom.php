@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\environmentVars;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\valueFrom\fieldRef;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\initContainers\environmentVars\valueFrom\fieldRef;
 use AlibabaCloud\Tea\Model;
 
 class valueFrom extends Model

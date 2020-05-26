@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseResponse;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\emblem;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\QRCode;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\stamp;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\title;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseResponse\data\emblem;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseResponse\data\QRCode;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseResponse\data\stamp;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeBusinessLicenseResponse\data\title;
 use AlibabaCloud\Tea\Model;
 
 class data extends Model

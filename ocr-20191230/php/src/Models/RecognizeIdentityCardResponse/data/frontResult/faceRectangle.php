@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\faceRectangle\center;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\faceRectangle\size;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult\faceRectangle\center;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeIdentityCardResponse\data\frontResult\faceRectangle\size;
 use AlibabaCloud\Tea\Model;
 
 class faceRectangle extends Model

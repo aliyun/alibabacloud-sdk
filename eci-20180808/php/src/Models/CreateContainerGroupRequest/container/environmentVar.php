@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\container;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\environmentVar\fieldRef;
+use AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\container\environmentVar\fieldRef;
 use AlibabaCloud\Tea\Model;
 
 class environmentVar extends Model

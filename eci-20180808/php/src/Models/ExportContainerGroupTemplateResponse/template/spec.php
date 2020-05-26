@@ -5,10 +5,10 @@
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template;
 
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\dnsConfig;
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\initContainers;
+use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\securityContext;
 use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\volumes;
-use AlibabaCloud\SDK\ECI\V20180808\Models\spec\dnsConfig;
-use AlibabaCloud\SDK\ECI\V20180808\Models\spec\securityContext;
 use AlibabaCloud\Tea\Model;
 
 class spec extends Model

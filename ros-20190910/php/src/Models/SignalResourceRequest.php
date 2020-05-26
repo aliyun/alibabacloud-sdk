@@ -1,0 +1,112 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+
+namespace AlibabaCloud\SDK\ROS\V20190910\Models;
+
+use AlibabaCloud\Tea\Model;
+
+class SignalResourceRequest extends Model
+{
+    /**
+     * @description StackId
+     *
+     * @var string
+     */
+    public $stackId;
+
+    /**
+     * @description Status
+     *
+     * @var string
+     */
+    public $status;
+
+    /**
+     * @description RegionId
+     *
+     * @var string
+     */
+    public $regionId;
+
+    /**
+     * @description UniqueId
+     *
+     * @var string
+     */
+    public $uniqueId;
+
+    /**
+     * @description ClientToken
+     *
+     * @var string
+     */
+    public $clientToken;
+
+    /**
+     * @description LogicalResourceId
+     *
+     * @var string
+     */
+    public $logicalResourceId;
+    protected $_name = [
+        'stackId'           => 'StackId',
+        'status'            => 'Status',
+        'regionId'          => 'RegionId',
+        'uniqueId'          => 'UniqueId',
+        'clientToken'       => 'ClientToken',
+        'logicalResourceId' => 'LogicalResourceId',
+    ];
+
+    public function validate()
+    {
+        Model::validateRequired('stackId', $this->stackId, true);
+        Model::validateRequired('status', $this->status, true);
+        Model::validateRequired('regionId', $this->regionId, true);
+        Model::validateRequired('uniqueId', $this->uniqueId, true);
+        Model::validateRequired('logicalResourceId', $this->logicalResourceId, true);
+    }
+
+    public function toMap()
+    {
+        $res                      = [];
+        $res['StackId']           = $this->stackId;
+        $res['Status']            = $this->status;
+        $res['RegionId']          = $this->regionId;
+        $res['UniqueId']          = $this->uniqueId;
+        $res['ClientToken']       = $this->clientToken;
+        $res['LogicalResourceId'] = $this->logicalResourceId;
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return SignalResourceRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['StackId'])) {
+            $model->stackId = $map['StackId'];
+        }
+        if (isset($map['Status'])) {
+            $model->status = $map['Status'];
+        }
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['UniqueId'])) {
+            $model->uniqueId = $map['UniqueId'];
+        }
+        if (isset($map['ClientToken'])) {
+            $model->clientToken = $map['ClientToken'];
+        }
+        if (isset($map['LogicalResourceId'])) {
+            $model->logicalResourceId = $map['LogicalResourceId'];
+        }
+
+        return $model;
+    }
+}

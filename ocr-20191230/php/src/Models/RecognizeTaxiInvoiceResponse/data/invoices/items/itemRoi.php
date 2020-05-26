@@ -4,8 +4,8 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse\data\invoices\items;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\itemRoi\center;
-use AlibabaCloud\SDK\Ocr\V20191230\Models\itemRoi\size;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse\data\invoices\items\itemRoi\center;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse\data\invoices\items\itemRoi\size;
 use AlibabaCloud\Tea\Model;
 
 class itemRoi extends Model

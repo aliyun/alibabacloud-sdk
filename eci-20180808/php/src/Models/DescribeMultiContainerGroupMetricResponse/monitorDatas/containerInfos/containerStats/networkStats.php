@@ -5,10 +5,10 @@
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats;
 
 use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\interfaceStats;
-use AlibabaCloud\SDK\ECI\V20180808\Models\networkStats\tcp;
-use AlibabaCloud\SDK\ECI\V20180808\Models\networkStats\tcp6;
-use AlibabaCloud\SDK\ECI\V20180808\Models\networkStats\udp;
-use AlibabaCloud\SDK\ECI\V20180808\Models\networkStats\udp6;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\tcp;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\tcp6;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\udp;
+use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\udp6;
 use AlibabaCloud\Tea\Model;
 
 class networkStats extends Model

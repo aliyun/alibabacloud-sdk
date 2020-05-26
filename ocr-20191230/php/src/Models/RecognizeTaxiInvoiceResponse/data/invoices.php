@@ -4,7 +4,7 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse\data;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\invoices\invoiceRoi;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse\data\invoices\invoiceRoi;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeTaxiInvoiceResponse\data\invoices\items;
 use AlibabaCloud\Tea\Model;
 

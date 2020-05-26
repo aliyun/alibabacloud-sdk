@@ -4,9 +4,9 @@
 
 namespace AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest;
 
-use AlibabaCloud\SDK\ECI\V20180808\Models\initContainer\securityContext;
 use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\initContainer\environmentVar;
 use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\initContainer\port;
+use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\initContainer\securityContext;
 use AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\initContainer\volumeMount;
 use AlibabaCloud\Tea\Model;
 

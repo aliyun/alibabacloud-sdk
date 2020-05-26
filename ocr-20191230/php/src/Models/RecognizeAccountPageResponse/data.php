@@ -4,10 +4,10 @@
 
 namespace AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse;
 
-use AlibabaCloud\SDK\Ocr\V20191230\Models\data\titleArea;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse\data\invalidStampAreas;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse\data\otherStampAreas;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse\data\registerStampAreas;
+use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse\data\titleArea;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeAccountPageResponse\data\undertakeStampAreas;
 use AlibabaCloud\Tea\Model;
 
