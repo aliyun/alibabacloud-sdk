@@ -3,7 +3,8 @@ from Tea.model import TeaModel
 
 
 class SearchImageByNameRequest(TeaModel):
-    def __init__(self, category_id=0, instance_name="", product_id="", pic_name="", num=0, start=0, filter=""):
+    def __init__(self, category_id=None, instance_name=None, product_id=None, pic_name=None, num=None, start=None,
+                 filter=None):
         self.category_id = category_id
         self.instance_name = instance_name
         self.product_id = product_id
@@ -40,7 +41,7 @@ class SearchImageByNameRequest(TeaModel):
 
 
 class SearchImageByNameResponse(TeaModel):
-    def __init__(self, request_id="", success=False, code=0, msg="", auctions=None, head=None, pic_info=None):
+    def __init__(self, request_id=None, success=None, code=None, msg=None, auctions=None, head=None, pic_info=None):
         self.request_id = request_id
         self.success = success
         self.code = code
@@ -115,8 +116,8 @@ class SearchImageByNameResponse(TeaModel):
 
 
 class SearchImageByNameResponseAuctions(TeaModel):
-    def __init__(self, category_id=0, product_id="", pic_name="", custom_content="", sort_expr_values="", int_attr=0,
-                 str_attr=""):
+    def __init__(self, category_id=None, product_id=None, pic_name=None, custom_content=None, sort_expr_values=None,
+                 int_attr=None, str_attr=None):
         self.category_id = category_id
         self.product_id = product_id
         self.pic_name = pic_name
@@ -157,7 +158,7 @@ class SearchImageByNameResponseAuctions(TeaModel):
 
 
 class SearchImageByNameResponseHead(TeaModel):
-    def __init__(self, docs_return=0, docs_found=0, search_time=0):
+    def __init__(self, docs_return=None, docs_found=None, search_time=None):
         self.docs_return = docs_return
         self.docs_found = docs_found
         self.search_time = search_time
@@ -182,7 +183,7 @@ class SearchImageByNameResponseHead(TeaModel):
 
 
 class SearchImageByNameResponsePicInfoAllCategories(TeaModel):
-    def __init__(self, id=0, name=""):
+    def __init__(self, id=None, name=None):
         self.id = id
         self.name = name
 
@@ -203,7 +204,7 @@ class SearchImageByNameResponsePicInfoAllCategories(TeaModel):
 
 
 class SearchImageByNameResponsePicInfo(TeaModel):
-    def __init__(self, category_id=0, region="", all_categories=None):
+    def __init__(self, category_id=None, region=None, all_categories=None):
         self.category_id = category_id
         self.region = region
         self.all_categories = []
@@ -244,8 +245,8 @@ class SearchImageByNameResponsePicInfo(TeaModel):
 
 
 class SearchImageByPicRequest(TeaModel):
-    def __init__(self, category_id=0, instance_name="", pic_content="", crop=False, region="", num=0, start=0,
-                 filter=""):
+    def __init__(self, category_id=None, instance_name=None, pic_content=None, crop=None, region=None, num=None,
+                 start=None, filter=None):
         self.category_id = category_id
         self.instance_name = instance_name
         self.pic_content = pic_content
@@ -284,7 +285,7 @@ class SearchImageByPicRequest(TeaModel):
 
 
 class SearchImageByPicResponse(TeaModel):
-    def __init__(self, request_id="", success=False, code=0, msg="", auctions=None, head=None, pic_info=None):
+    def __init__(self, request_id=None, success=None, code=None, msg=None, auctions=None, head=None, pic_info=None):
         self.request_id = request_id
         self.success = success
         self.code = code
@@ -359,8 +360,8 @@ class SearchImageByPicResponse(TeaModel):
 
 
 class SearchImageByPicResponseAuctions(TeaModel):
-    def __init__(self, category_id=0, product_id="", pic_name="", custom_content="", sort_expr_values="", int_attr=0,
-                 str_attr=""):
+    def __init__(self, category_id=None, product_id=None, pic_name=None, custom_content=None, sort_expr_values=None,
+                 int_attr=None, str_attr=None):
         self.category_id = category_id
         self.product_id = product_id
         self.pic_name = pic_name
@@ -401,7 +402,7 @@ class SearchImageByPicResponseAuctions(TeaModel):
 
 
 class SearchImageByPicResponseHead(TeaModel):
-    def __init__(self, docs_return=0, docs_found=0, search_time=0):
+    def __init__(self, docs_return=None, docs_found=None, search_time=None):
         self.docs_return = docs_return
         self.docs_found = docs_found
         self.search_time = search_time
@@ -426,7 +427,7 @@ class SearchImageByPicResponseHead(TeaModel):
 
 
 class SearchImageByPicResponsePicInfoAllCategories(TeaModel):
-    def __init__(self, id=0, name=""):
+    def __init__(self, id=None, name=None):
         self.id = id
         self.name = name
 
@@ -447,7 +448,7 @@ class SearchImageByPicResponsePicInfoAllCategories(TeaModel):
 
 
 class SearchImageByPicResponsePicInfo(TeaModel):
-    def __init__(self, category_id=0, region="", all_categories=None):
+    def __init__(self, category_id=None, region=None, all_categories=None):
         self.category_id = category_id
         self.region = region
         self.all_categories = []
@@ -488,8 +489,8 @@ class SearchImageByPicResponsePicInfo(TeaModel):
 
 
 class SearchImageByPicAdvanceRequest(TeaModel):
-    def __init__(self, pic_content_object=None, category_id=0, instance_name="", crop=False, region="", num=0, start=0,
-                 filter=""):
+    def __init__(self, pic_content_object=None, category_id=None, instance_name=None, crop=None, region=None, num=None,
+                 start=None, filter=None):
         self.pic_content_object = pic_content_object
         self.category_id = category_id
         self.instance_name = instance_name
@@ -528,7 +529,7 @@ class SearchImageByPicAdvanceRequest(TeaModel):
 
 
 class DeleteImageRequest(TeaModel):
-    def __init__(self, instance_name="", product_id="", pic_name=""):
+    def __init__(self, instance_name=None, product_id=None, pic_name=None):
         self.instance_name = instance_name
         self.product_id = product_id
         self.pic_name = pic_name
@@ -552,7 +553,7 @@ class DeleteImageRequest(TeaModel):
 
 
 class DeleteImageResponse(TeaModel):
-    def __init__(self, request_id="", success=False, message="", code=0):
+    def __init__(self, request_id=None, success=None, message=None, code=None):
         self.request_id = request_id
         self.success = success
         self.message = message
@@ -581,8 +582,8 @@ class DeleteImageResponse(TeaModel):
 
 
 class AddImageRequest(TeaModel):
-    def __init__(self, instance_name="", category_id=0, product_id="", pic_name="", pic_content="", crop=False,
-                 region="", custom_content="", int_attr=0, str_attr=""):
+    def __init__(self, instance_name=None, category_id=None, product_id=None, pic_name=None, pic_content=None,
+                 crop=None, region=None, custom_content=None, int_attr=None, str_attr=None):
         self.instance_name = instance_name
         self.category_id = category_id
         self.product_id = product_id
@@ -629,7 +630,7 @@ class AddImageRequest(TeaModel):
 
 
 class AddImageResponse(TeaModel):
-    def __init__(self, request_id="", success=False, message="", code=0, pic_info=None):
+    def __init__(self, request_id=None, success=None, message=None, code=None, pic_info=None):
         self.request_id = request_id
         self.success = success
         self.message = message
@@ -671,7 +672,7 @@ class AddImageResponse(TeaModel):
 
 
 class AddImageResponsePicInfo(TeaModel):
-    def __init__(self, category_id=0, region=""):
+    def __init__(self, category_id=None, region=None):
         self.category_id = category_id
         self.region = region
 
@@ -692,8 +693,8 @@ class AddImageResponsePicInfo(TeaModel):
 
 
 class AddImageAdvanceRequest(TeaModel):
-    def __init__(self, pic_content_object=None, instance_name="", category_id=0, product_id="", pic_name="", crop=False,
-                 region="", custom_content="", int_attr=0, str_attr=""):
+    def __init__(self, pic_content_object=None, instance_name=None, category_id=None, product_id=None, pic_name=None,
+                 crop=None, region=None, custom_content=None, int_attr=None, str_attr=None):
         self.pic_content_object = pic_content_object
         self.instance_name = instance_name
         self.category_id = category_id
