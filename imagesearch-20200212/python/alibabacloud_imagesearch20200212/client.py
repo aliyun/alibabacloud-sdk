@@ -6,9 +6,9 @@ from alibabacloud_tea_util.client import Client as UtilClient
 from alibabacloud_tea_rpc import models as _rpc_models
 from alibabacloud_openplatform20191219.client import Client as OpenPlatformClient
 from alibabacloud_openplatform20191219 import models as open_platform_models
-from alibabacloud_sdk_oss import models as _oss_models
+from alibabacloud_oss_sdk import models as _oss_models
 from alibabacloud_rpc_util.client import Client as RPCUtilClient
-from alibabacloud_sdk_oss.client import Client as OSSClient
+from alibabacloud_oss_sdk.client import Client as OSSClient
 from alibabacloud_tea_fileform import models as file_form_models
 from alibabacloud_oss_util import models as ossutil_models
 from alibabacloud_endpoint_util.client import Client as EndpointUtilClient

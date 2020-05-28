@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -39,7 +38,8 @@ URL = "https://github.com/aliyun/alibabacloud-sdk/tree/master/imagesearch-202002
 TOPDIR = os.path.dirname(__file__) or "."
 VERSION = __import__(PACKAGE).__version__
 REQUIRES = ["alibabacloud_rpc_util>=0.0.2", "alibabacloud_tea_rpc>=0.0.2", "alibabacloud_oss_util>=0.0.1",
-            "alibabacloud_tea_util>=0.0.2", "alibabacloud_tea_fileform>=0.0.1", "alibabacloud_endpoint_util>=0.0.2"]
+            "alibabacloud_tea_util>=0.0.2", "alibabacloud_tea_fileform>=0.0.1", "alibabacloud_endpoint_util>=0.0.2",
+            'alibabacloud_oss_sdk>=0.0.2', 'alibabacloud_openplatform20191219>=0.0.1']
 
 desc_file = open("README.md", encoding='utf-8')
 try:
