@@ -1,11 +1,9 @@
 # This file is auto-generated, don't edit it. Thanks.
-from Tea.model import TeaModel as Tea_model_TeaModel
-from alibabacloud_sdk_cs20151215 import models as alibabacloud_sdk_cs20151215_models
+from Tea.model import TeaModel
 
 
-
-class ResumeComponentUpgradeRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ResumeComponentUpgradeRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -16,13 +14,13 @@ class ResumeComponentUpgradeRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ResumeComponentUpgradeResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class ResumeComponentUpgradeResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -33,13 +31,13 @@ class ResumeComponentUpgradeResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class ResumeComponentUpgradeResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ResumeComponentUpgradeResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -58,7 +56,7 @@ class ResumeComponentUpgradeResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ResumeComponentUpgradeResponseBody()
@@ -68,8 +66,8 @@ class ResumeComponentUpgradeResponse(Tea_model_TeaModel):
         return self
 
 
-class PauseComponentUpgradeRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class PauseComponentUpgradeRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -80,13 +78,13 @@ class PauseComponentUpgradeRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class PauseComponentUpgradeResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class PauseComponentUpgradeResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -97,13 +95,13 @@ class PauseComponentUpgradeResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class PauseComponentUpgradeResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class PauseComponentUpgradeResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -122,7 +120,7 @@ class PauseComponentUpgradeResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = PauseComponentUpgradeResponseBody()
@@ -132,8 +130,8 @@ class PauseComponentUpgradeResponse(Tea_model_TeaModel):
         return self
 
 
-class CancelComponentUpgradeRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class CancelComponentUpgradeRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -144,13 +142,13 @@ class CancelComponentUpgradeRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class CancelComponentUpgradeResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class CancelComponentUpgradeResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -161,13 +159,13 @@ class CancelComponentUpgradeResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class CancelComponentUpgradeResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CancelComponentUpgradeResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -186,7 +184,7 @@ class CancelComponentUpgradeResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CancelComponentUpgradeResponseBody()
@@ -196,8 +194,8 @@ class CancelComponentUpgradeResponse(Tea_model_TeaModel):
         return self
 
 
-class CancelWorkflowRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class CancelWorkflowRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -208,13 +206,13 @@ class CancelWorkflowRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class CancelWorkflowResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class CancelWorkflowResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -225,13 +223,13 @@ class CancelWorkflowResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescirbeWorkflowRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescirbeWorkflowRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -242,13 +240,13 @@ class DescirbeWorkflowRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescirbeWorkflowResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescirbeWorkflowResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -259,13 +257,13 @@ class DescirbeWorkflowResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class RemoveWorkflowRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class RemoveWorkflowRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -276,13 +274,13 @@ class RemoveWorkflowRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class RemoveWorkflowResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class RemoveWorkflowResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -293,13 +291,13 @@ class RemoveWorkflowResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeWorkflowsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeWorkflowsRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -310,13 +308,13 @@ class DescribeWorkflowsRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeWorkflowsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeWorkflowsResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -327,13 +325,13 @@ class DescribeWorkflowsResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class StartWorkflowRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class StartWorkflowRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -344,13 +342,13 @@ class StartWorkflowRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class StartWorkflowResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class StartWorkflowResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -361,13 +359,13 @@ class StartWorkflowResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class CreateServiceMeshRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class CreateServiceMeshRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -378,13 +376,13 @@ class CreateServiceMeshRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class CreateServiceMeshResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class CreateServiceMeshResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -395,13 +393,13 @@ class CreateServiceMeshResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class CreateServiceMeshResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CreateServiceMeshResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -420,7 +418,7 @@ class CreateServiceMeshResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CreateServiceMeshResponseBody()
@@ -430,8 +428,8 @@ class CreateServiceMeshResponse(Tea_model_TeaModel):
         return self
 
 
-class ServiceMeshAddClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ServiceMeshAddClusterRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -442,13 +440,13 @@ class ServiceMeshAddClusterRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ServiceMeshAddClusterResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class ServiceMeshAddClusterResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -459,13 +457,13 @@ class ServiceMeshAddClusterResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class ServiceMeshAddClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ServiceMeshAddClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -484,7 +482,7 @@ class ServiceMeshAddClusterResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ServiceMeshAddClusterResponseBody()
@@ -494,8 +492,8 @@ class ServiceMeshAddClusterResponse(Tea_model_TeaModel):
         return self
 
 
-class ServiceMeshRemoveClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ServiceMeshRemoveClusterRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -506,13 +504,13 @@ class ServiceMeshRemoveClusterRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ServiceMeshRemoveClusterResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class ServiceMeshRemoveClusterResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -523,13 +521,13 @@ class ServiceMeshRemoveClusterResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class ServiceMeshRemoveClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ServiceMeshRemoveClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -548,7 +546,7 @@ class ServiceMeshRemoveClusterResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ServiceMeshRemoveClusterResponseBody()
@@ -558,8 +556,8 @@ class ServiceMeshRemoveClusterResponse(Tea_model_TeaModel):
         return self
 
 
-class UpdateServiceMeshRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class UpdateServiceMeshRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -570,13 +568,13 @@ class UpdateServiceMeshRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class UpdateServiceMeshResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class UpdateServiceMeshResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -587,13 +585,13 @@ class UpdateServiceMeshResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class UpdateServiceMeshResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class UpdateServiceMeshResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -612,7 +610,7 @@ class UpdateServiceMeshResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = UpdateServiceMeshResponseBody()
@@ -622,8 +620,8 @@ class UpdateServiceMeshResponse(Tea_model_TeaModel):
         return self
 
 
-class ServiceMeshApiServerRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ServiceMeshApiServerRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -634,13 +632,13 @@ class ServiceMeshApiServerRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ServiceMeshApiServerResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ServiceMeshApiServerResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -651,13 +649,13 @@ class ServiceMeshApiServerResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class UnInstallClusterAddonsBody(Tea_model_TeaModel):
-    def __init__(self, name = ""):
+class UnInstallClusterAddonsBody(TeaModel):
+    def __init__(self, name=""):
         self.name = name
 
     def validate(self):
@@ -668,13 +666,13 @@ class UnInstallClusterAddonsBody(Tea_model_TeaModel):
         result['name'] = self.name
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         return self
 
 
-class UnInstallClusterAddonsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class UnInstallClusterAddonsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -692,7 +690,7 @@ class UnInstallClusterAddonsRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = UnInstallClusterAddonsBody()
@@ -702,8 +700,8 @@ class UnInstallClusterAddonsRequest(Tea_model_TeaModel):
         return self
 
 
-class UnInstallClusterAddonsResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class UnInstallClusterAddonsResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -714,13 +712,13 @@ class UnInstallClusterAddonsResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class UnInstallClusterAddonsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class UnInstallClusterAddonsResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -739,7 +737,7 @@ class UnInstallClusterAddonsResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = UnInstallClusterAddonsResponseBody()
@@ -749,8 +747,8 @@ class UnInstallClusterAddonsResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeAddonsQuery(Tea_model_TeaModel):
-    def __init__(self, region = "", cluster_type = ""):
+class DescribeAddonsQuery(TeaModel):
+    def __init__(self, region="", cluster_type=""):
         self.region = region
         self.cluster_type = cluster_type
 
@@ -763,14 +761,14 @@ class DescribeAddonsQuery(Tea_model_TeaModel):
         result['cluster_type'] = self.cluster_type
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.region = map.get('region')
         self.cluster_type = map.get('cluster_type')
         return self
 
 
-class DescribeAddonsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, query = None):
+class DescribeAddonsRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
         self.headers = {}
         self.query = query
 
@@ -787,7 +785,7 @@ class DescribeAddonsRequest(Tea_model_TeaModel):
             result['query'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('query') is not None:
             temp_model = DescribeAddonsQuery()
@@ -797,8 +795,8 @@ class DescribeAddonsRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeAddonsResponseBody(Tea_model_TeaModel):
-    def __init__(self, component_groups = None, standard_components = None):
+class DescribeAddonsResponseBody(TeaModel):
+    def __init__(self, component_groups=None, standard_components=None):
         self.component_groups = []
         self.standard_components = standard_components
 
@@ -806,7 +804,7 @@ class DescribeAddonsResponseBody(Tea_model_TeaModel):
         self.validate_required(self.component_groups, 'component_groups')
         if self.component_groups:
             for k in self.component_groups:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.standard_components, 'standard_components')
         if self.standard_components:
@@ -826,7 +824,7 @@ class DescribeAddonsResponseBody(Tea_model_TeaModel):
             result['StandardComponents'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.component_groups = []
         if map.get('ComponentGroups') is not None:
             for k in map.get('ComponentGroups'):
@@ -843,8 +841,8 @@ class DescribeAddonsResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeAddonsResponseBodyComponentGroupsItems(Tea_model_TeaModel):
-    def __init__(self, name = "", config = "", required = "", disabled = False, version = ""):
+class DescribeAddonsResponseBodyComponentGroupsItems(TeaModel):
+    def __init__(self, name="", config="", required="", disabled=False, version=""):
         self.name = name
         self.config = config
         self.required = required
@@ -867,7 +865,7 @@ class DescribeAddonsResponseBodyComponentGroupsItems(Tea_model_TeaModel):
         result['version'] = self.version
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.config = map.get('config')
         self.required = map.get('required')
@@ -876,20 +874,20 @@ class DescribeAddonsResponseBodyComponentGroupsItems(Tea_model_TeaModel):
         return self
 
 
-class DescribeAddonsResponseBodyComponentGroups(Tea_model_TeaModel):
-    def __init__(self, group_name = "", items = None, default = None):
+class DescribeAddonsResponseBodyComponentGroups(TeaModel):
+    def __init__(self, group_name="", items=None, default_=None):
         self.group_name = group_name
         self.items = []
-        self.default = []
+        self.default_ = []
 
     def validate(self):
         self.validate_required(self.group_name, 'group_name')
         self.validate_required(self.items, 'items')
         if self.items:
             for k in self.items:
-                if k :
+                if k:
                     k.validate()
-        self.validate_required(self.default, 'default')
+        self.validate_required(self.default_, 'default_')
 
     def to_map(self):
         result = {}
@@ -901,14 +899,14 @@ class DescribeAddonsResponseBodyComponentGroups(Tea_model_TeaModel):
         else:
             result['items'] = None
         result['default'] = []
-        if self.default is not None:
-            for k in self.default:
+        if self.default_ is not None:
+            for k in self.default_:
                 result['default'].append(k)
         else:
             result['default'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.group_name = map.get('group_name')
         self.items = []
         if map.get('items') is not None:
@@ -918,17 +916,17 @@ class DescribeAddonsResponseBodyComponentGroups(Tea_model_TeaModel):
                 self.items.append(temp_model)
         else:
             self.items = None
-        self.default = []
+        self.default_ = []
         if map.get('default') is not None:
             for k in map.get('default'):
-                self.default.append(k)
+                self.default_.append(k)
         else:
-            self.default = None
+            self.default_ = None
         return self
 
 
-class DescribeAddonsResponseBodyStandardComponentsAddonName(Tea_model_TeaModel):
-    def __init__(self, name = "", config = "", required = "", disabled = False, version = ""):
+class DescribeAddonsResponseBodyStandardComponentsAddonName(TeaModel):
+    def __init__(self, name="", config="", required="", disabled=False, version=""):
         self.name = name
         self.config = config
         self.required = required
@@ -951,7 +949,7 @@ class DescribeAddonsResponseBodyStandardComponentsAddonName(Tea_model_TeaModel):
         result['version'] = self.version
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.config = map.get('config')
         self.required = map.get('required')
@@ -960,8 +958,8 @@ class DescribeAddonsResponseBodyStandardComponentsAddonName(Tea_model_TeaModel):
         return self
 
 
-class DescribeAddonsResponseBodyStandardComponents(Tea_model_TeaModel):
-    def __init__(self, addon_name = None):
+class DescribeAddonsResponseBodyStandardComponents(TeaModel):
+    def __init__(self, addon_name=None):
         self.addon_name = addon_name
 
     def validate(self):
@@ -977,17 +975,17 @@ class DescribeAddonsResponseBodyStandardComponents(Tea_model_TeaModel):
             result['addon_name'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         if map.get('addon_name') is not None:
-            temp_model = StandardComponentsAddonName()
+            temp_model = DescribeAddonsResponseBodyStandardComponentsAddonName()
             self.addon_name = temp_model.from_map(map['addon_name'])
         else:
             self.addon_name = None
         return self
 
 
-class DescribeAddonsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeAddonsResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1006,7 +1004,7 @@ class DescribeAddonsResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeAddonsResponseBody()
@@ -1016,8 +1014,8 @@ class DescribeAddonsResponse(Tea_model_TeaModel):
         return self
 
 
-class CancelClusterUpgradeRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class CancelClusterUpgradeRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1028,13 +1026,13 @@ class CancelClusterUpgradeRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class CancelClusterUpgradeResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class CancelClusterUpgradeResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -1045,13 +1043,13 @@ class CancelClusterUpgradeResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class CancelClusterUpgradeResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CancelClusterUpgradeResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1070,7 +1068,7 @@ class CancelClusterUpgradeResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CancelClusterUpgradeResponseBody()
@@ -1080,8 +1078,8 @@ class CancelClusterUpgradeResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeUserQuotaRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeUserQuotaRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1092,13 +1090,13 @@ class DescribeUserQuotaRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeUserQuotaResponseBody(Tea_model_TeaModel):
-    def __init__(self, cluster_quota = 0, node_quota = 0, ask_cluster_quota = 0, amk_cluster_quota = 0):
+class DescribeUserQuotaResponseBody(TeaModel):
+    def __init__(self, cluster_quota=0, node_quota=0, ask_cluster_quota=0, amk_cluster_quota=0):
         self.cluster_quota = cluster_quota
         self.node_quota = node_quota
         self.ask_cluster_quota = ask_cluster_quota
@@ -1118,7 +1116,7 @@ class DescribeUserQuotaResponseBody(Tea_model_TeaModel):
         result['amk_cluster_quota'] = self.amk_cluster_quota
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.cluster_quota = map.get('cluster_quota')
         self.node_quota = map.get('node_quota')
         self.ask_cluster_quota = map.get('ask_cluster_quota')
@@ -1126,8 +1124,8 @@ class DescribeUserQuotaResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeUserQuotaResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeUserQuotaResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1146,7 +1144,7 @@ class DescribeUserQuotaResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeUserQuotaResponseBody()
@@ -1156,8 +1154,8 @@ class DescribeUserQuotaResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterV2UserKubeconfigQuery(Tea_model_TeaModel):
-    def __init__(self, private_ip_address = False):
+class DescribeClusterV2UserKubeconfigQuery(TeaModel):
+    def __init__(self, private_ip_address=False):
         self.private_ip_address = private_ip_address
 
     def validate(self):
@@ -1168,13 +1166,13 @@ class DescribeClusterV2UserKubeconfigQuery(Tea_model_TeaModel):
         result['PrivateIpAddress'] = self.private_ip_address
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.private_ip_address = map.get('PrivateIpAddress')
         return self
 
 
-class DescribeClusterV2UserKubeconfigRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, query = None):
+class DescribeClusterV2UserKubeconfigRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
         self.headers = {}
         self.query = query
 
@@ -1191,7 +1189,7 @@ class DescribeClusterV2UserKubeconfigRequest(Tea_model_TeaModel):
             result['query'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('query') is not None:
             temp_model = DescribeClusterV2UserKubeconfigQuery()
@@ -1201,8 +1199,8 @@ class DescribeClusterV2UserKubeconfigRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterV2UserKubeconfigResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class DescribeClusterV2UserKubeconfigResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -1213,13 +1211,13 @@ class DescribeClusterV2UserKubeconfigResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class DescribeClusterV2UserKubeconfigResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterV2UserKubeconfigResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1238,7 +1236,7 @@ class DescribeClusterV2UserKubeconfigResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterV2UserKubeconfigResponseBody()
@@ -1248,8 +1246,8 @@ class DescribeClusterV2UserKubeconfigResponse(Tea_model_TeaModel):
         return self
 
 
-class RemoveClusterNodesBody(Tea_model_TeaModel):
-    def __init__(self, release_node = False, drain_node = False, nodes = None):
+class RemoveClusterNodesBody(TeaModel):
+    def __init__(self, release_node=False, drain_node=False, nodes=None):
         self.release_node = release_node
         self.drain_node = drain_node
         self.nodes = []
@@ -1258,7 +1256,7 @@ class RemoveClusterNodesBody(Tea_model_TeaModel):
         self.validate_required(self.nodes, 'nodes')
         if self.nodes:
             for k in self.nodes:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -1273,7 +1271,7 @@ class RemoveClusterNodesBody(Tea_model_TeaModel):
             result['nodes'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.release_node = map.get('release_node')
         self.drain_node = map.get('drain_node')
         self.nodes = []
@@ -1287,8 +1285,8 @@ class RemoveClusterNodesBody(Tea_model_TeaModel):
         return self
 
 
-class RemoveClusterNodesBodyNodes(Tea_model_TeaModel):
-    def __init__(self, node_name = ""):
+class RemoveClusterNodesBodyNodes(TeaModel):
+    def __init__(self, node_name=""):
         self.node_name = node_name
 
     def validate(self):
@@ -1299,13 +1297,13 @@ class RemoveClusterNodesBodyNodes(Tea_model_TeaModel):
         result['node_name'] = self.node_name
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.node_name = map.get('node_name')
         return self
 
 
-class RemoveClusterNodesRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class RemoveClusterNodesRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1322,7 +1320,7 @@ class RemoveClusterNodesRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = RemoveClusterNodesBody()
@@ -1332,8 +1330,8 @@ class RemoveClusterNodesRequest(Tea_model_TeaModel):
         return self
 
 
-class RemoveClusterNodesResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class RemoveClusterNodesResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1344,13 +1342,13 @@ class RemoveClusterNodesResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class UpgradeClusterBody(Tea_model_TeaModel):
-    def __init__(self, version = ""):
+class UpgradeClusterBody(TeaModel):
+    def __init__(self, version=""):
         self.version = version
 
     def validate(self):
@@ -1361,13 +1359,13 @@ class UpgradeClusterBody(Tea_model_TeaModel):
         result['version'] = self.version
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.version = map.get('version')
         return self
 
 
-class UpgradeClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class UpgradeClusterRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1384,7 +1382,7 @@ class UpgradeClusterRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = UpgradeClusterBody()
@@ -1394,8 +1392,8 @@ class UpgradeClusterRequest(Tea_model_TeaModel):
         return self
 
 
-class UpgradeClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class UpgradeClusterResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1406,13 +1404,13 @@ class UpgradeClusterResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class PauseClusterUpgradeRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class PauseClusterUpgradeRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1423,13 +1421,13 @@ class PauseClusterUpgradeRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class PauseClusterUpgradeResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class PauseClusterUpgradeResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1440,13 +1438,13 @@ class PauseClusterUpgradeResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ResumeUpgradeClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ResumeUpgradeClusterRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1457,13 +1455,13 @@ class ResumeUpgradeClusterRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ResumeUpgradeClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ResumeUpgradeClusterResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1474,13 +1472,13 @@ class ResumeUpgradeClusterResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class GetUpgradeStatusRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class GetUpgradeStatusRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1491,13 +1489,13 @@ class GetUpgradeStatusRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class GetUpgradeStatusResponseBody(Tea_model_TeaModel):
-    def __init__(self, status = "", precheck_report_id = "", upgrade_step = "", error_message = ""):
+class GetUpgradeStatusResponseBody(TeaModel):
+    def __init__(self, status="", precheck_report_id="", upgrade_step="", error_message=""):
         self.status = status
         self.precheck_report_id = precheck_report_id
         self.upgrade_step = upgrade_step
@@ -1517,7 +1515,7 @@ class GetUpgradeStatusResponseBody(Tea_model_TeaModel):
         result['error_message'] = self.error_message
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.status = map.get('status')
         self.precheck_report_id = map.get('precheck_report_id')
         self.upgrade_step = map.get('upgrade_step')
@@ -1525,8 +1523,8 @@ class GetUpgradeStatusResponseBody(Tea_model_TeaModel):
         return self
 
 
-class GetUpgradeStatusResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class GetUpgradeStatusResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1545,7 +1543,7 @@ class GetUpgradeStatusResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = GetUpgradeStatusResponseBody()
@@ -1555,8 +1553,8 @@ class GetUpgradeStatusResponse(Tea_model_TeaModel):
         return self
 
 
-class ModifyClusterBody(Tea_model_TeaModel):
-    def __init__(self, deletion_protection = False, ingress_loadbalancer_id = "", resource_group_id = ""):
+class ModifyClusterBody(TeaModel):
+    def __init__(self, deletion_protection=False, ingress_loadbalancer_id="", resource_group_id=""):
         self.deletion_protection = deletion_protection
         self.ingress_loadbalancer_id = ingress_loadbalancer_id
         self.resource_group_id = resource_group_id
@@ -1571,15 +1569,15 @@ class ModifyClusterBody(Tea_model_TeaModel):
         result['resource_group_id'] = self.resource_group_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.deletion_protection = map.get('deletion_protection')
         self.ingress_loadbalancer_id = map.get('ingress_loadbalancer_id')
         self.resource_group_id = map.get('resource_group_id')
         return self
 
 
-class ModifyClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ModifyClusterRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1596,7 +1594,7 @@ class ModifyClusterRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ModifyClusterBody()
@@ -1606,8 +1604,8 @@ class ModifyClusterRequest(Tea_model_TeaModel):
         return self
 
 
-class ModifyClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ModifyClusterResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1618,13 +1616,13 @@ class ModifyClusterResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class InstallClusterAddonsBody(Tea_model_TeaModel):
-    def __init__(self, name = "", version = "", disabled = False, required = "", config = ""):
+class InstallClusterAddonsBody(TeaModel):
+    def __init__(self, name="", version="", disabled=False, required="", config=""):
         self.name = name
         self.version = version
         self.disabled = disabled
@@ -1643,7 +1641,7 @@ class InstallClusterAddonsBody(Tea_model_TeaModel):
         result['config'] = self.config
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.version = map.get('version')
         self.disabled = map.get('disabled')
@@ -1652,8 +1650,8 @@ class InstallClusterAddonsBody(Tea_model_TeaModel):
         return self
 
 
-class InstallClusterAddonsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class InstallClusterAddonsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1670,7 +1668,7 @@ class InstallClusterAddonsRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = InstallClusterAddonsBody()
@@ -1680,8 +1678,8 @@ class InstallClusterAddonsRequest(Tea_model_TeaModel):
         return self
 
 
-class InstallClusterAddonsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class InstallClusterAddonsResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1692,13 +1690,13 @@ class InstallClusterAddonsResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DeleteTriggerHookRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DeleteTriggerHookRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1709,13 +1707,13 @@ class DeleteTriggerHookRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DeleteTriggerHookResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DeleteTriggerHookResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1726,13 +1724,13 @@ class DeleteTriggerHookResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ModifyClusterTagsBody(Tea_model_TeaModel):
-    def __init__(self, key = "", value = ""):
+class ModifyClusterTagsBody(TeaModel):
+    def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
@@ -1746,14 +1744,14 @@ class ModifyClusterTagsBody(Tea_model_TeaModel):
         result['value'] = self.value
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         return self
 
 
-class ModifyClusterTagsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ModifyClusterTagsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1771,7 +1769,7 @@ class ModifyClusterTagsRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ModifyClusterTagsBody()
@@ -1781,8 +1779,8 @@ class ModifyClusterTagsRequest(Tea_model_TeaModel):
         return self
 
 
-class ModifyClusterTagsResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class ModifyClusterTagsResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -1793,13 +1791,13 @@ class ModifyClusterTagsResponseBody(Tea_model_TeaModel):
         result['requestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('requestId')
         return self
 
 
-class ModifyClusterTagsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ModifyClusterTagsResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1818,7 +1816,7 @@ class ModifyClusterTagsResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ModifyClusterTagsResponseBody()
@@ -1828,8 +1826,8 @@ class ModifyClusterTagsResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeExternalAgentRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeExternalAgentRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1840,13 +1838,13 @@ class DescribeExternalAgentRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeExternalAgentResponseBody(Tea_model_TeaModel):
-    def __init__(self, config = ""):
+class DescribeExternalAgentResponseBody(TeaModel):
+    def __init__(self, config=""):
         self.config = config
 
     def validate(self):
@@ -1857,13 +1855,13 @@ class DescribeExternalAgentResponseBody(Tea_model_TeaModel):
         result['config'] = self.config
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.config = map.get('config')
         return self
 
 
-class DescribeExternalAgentResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeExternalAgentResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1882,7 +1880,7 @@ class DescribeExternalAgentResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeExternalAgentResponseBody()
@@ -1892,8 +1890,8 @@ class DescribeExternalAgentResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAttachScriptsBody(Tea_model_TeaModel):
-    def __init__(self, options = None):
+class DescribeClusterAttachScriptsBody(TeaModel):
+    def __init__(self, options=None):
         self.options = options
 
     def validate(self):
@@ -1909,7 +1907,7 @@ class DescribeClusterAttachScriptsBody(Tea_model_TeaModel):
             result['options'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         if map.get('options') is not None:
             temp_model = DescribeClusterAttachScriptsBodyOptions()
             self.options = temp_model.from_map(map['options'])
@@ -1918,8 +1916,9 @@ class DescribeClusterAttachScriptsBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAttachScriptsBodyOptions(Tea_model_TeaModel):
-    def __init__(self, flannel_iface = "", enable_iptables = False, manage_runtime = False, node_name_strategy = "", node_name = "", node_name_prefix = ""):
+class DescribeClusterAttachScriptsBodyOptions(TeaModel):
+    def __init__(self, flannel_iface="", enable_iptables=False, manage_runtime=False, node_name_strategy="",
+                 node_name="", node_name_prefix=""):
         self.flannel_iface = flannel_iface
         self.enable_iptables = enable_iptables
         self.manage_runtime = manage_runtime
@@ -1940,7 +1939,7 @@ class DescribeClusterAttachScriptsBodyOptions(Tea_model_TeaModel):
         result['nodeNamePrefix'] = self.node_name_prefix
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.flannel_iface = map.get('flannelIface')
         self.enable_iptables = map.get('enableIptables')
         self.manage_runtime = map.get('manageRuntime')
@@ -1950,8 +1949,8 @@ class DescribeClusterAttachScriptsBodyOptions(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAttachScriptsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterAttachScriptsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -1969,7 +1968,7 @@ class DescribeClusterAttachScriptsRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterAttachScriptsBody()
@@ -1979,8 +1978,8 @@ class DescribeClusterAttachScriptsRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAttachScriptsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeClusterAttachScriptsResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -1991,13 +1990,17 @@ class DescribeClusterAttachScriptsResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ScaleOutClusterBody(Tea_model_TeaModel):
-    def __init__(self, count = 0, worker_instance_charge_type = "", worker_period = 0, worker_period_unit = "", worker_auto_renew = False, worker_auto_renew_period = 0, worker_system_disk_category = "", worker_system_disk_size = 0, worker_data_disk = False, key_pair = "", login_password = "", cloud_monitor_flags = False, cpu_policy = "", disable_rollback = False, worker_data_disks = None, tags = None, taints = None, vswitch_ids = None, worker_instance_types = None):
+class ScaleOutClusterBody(TeaModel):
+    def __init__(self, count=0, worker_instance_charge_type="", worker_period=0, worker_period_unit="",
+                 worker_auto_renew=False, worker_auto_renew_period=0, worker_system_disk_category="",
+                 worker_system_disk_size=0, worker_data_disk=False, key_pair="", login_password="",
+                 cloud_monitor_flags=False, cpu_policy="", disable_rollback=False, worker_data_disks=None, tags=None,
+                 taints=None, vswitch_ids=None, worker_instance_types=None):
         self.count = count
         self.worker_instance_charge_type = worker_instance_charge_type
         self.worker_period = worker_period
@@ -2026,17 +2029,17 @@ class ScaleOutClusterBody(Tea_model_TeaModel):
         self.validate_required(self.worker_data_disks, 'worker_data_disks')
         if self.worker_data_disks:
             for k in self.worker_data_disks:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.taints, 'taints')
         if self.taints:
             for k in self.taints:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.vswitch_ids, 'vswitch_ids')
         self.validate_required(self.worker_instance_types, 'worker_instance_types')
@@ -2089,7 +2092,7 @@ class ScaleOutClusterBody(Tea_model_TeaModel):
             result['worker_instance_types'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.count = map.get('count')
         self.worker_instance_charge_type = map.get('worker_instance_charge_type')
         self.worker_period = map.get('worker_period')
@@ -2143,8 +2146,8 @@ class ScaleOutClusterBody(Tea_model_TeaModel):
         return self
 
 
-class ScaleOutClusterBodyWorkerDataDisks(Tea_model_TeaModel):
-    def __init__(self, category = "", size = "", encrypted = ""):
+class ScaleOutClusterBodyWorkerDataDisks(TeaModel):
+    def __init__(self, category="", size="", encrypted=""):
         self.category = category
         self.size = size
         self.encrypted = encrypted
@@ -2159,15 +2162,15 @@ class ScaleOutClusterBodyWorkerDataDisks(Tea_model_TeaModel):
         result['encrypted'] = self.encrypted
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.category = map.get('category')
         self.size = map.get('size')
         self.encrypted = map.get('encrypted')
         return self
 
 
-class ScaleOutClusterBodyTags(Tea_model_TeaModel):
-    def __init__(self, key = "", value = ""):
+class ScaleOutClusterBodyTags(TeaModel):
+    def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
@@ -2180,14 +2183,14 @@ class ScaleOutClusterBodyTags(Tea_model_TeaModel):
         result['value'] = self.value
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         return self
 
 
-class ScaleOutClusterBodyTaints(Tea_model_TeaModel):
-    def __init__(self, key = "", value = "", effect = ""):
+class ScaleOutClusterBodyTaints(TeaModel):
+    def __init__(self, key="", value="", effect=""):
         self.key = key
         self.value = value
         self.effect = effect
@@ -2202,15 +2205,15 @@ class ScaleOutClusterBodyTaints(Tea_model_TeaModel):
         result['effect'] = self.effect
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         self.effect = map.get('effect')
         return self
 
 
-class ScaleOutClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ScaleOutClusterRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2228,7 +2231,7 @@ class ScaleOutClusterRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ScaleOutClusterBody()
@@ -2238,8 +2241,8 @@ class ScaleOutClusterRequest(Tea_model_TeaModel):
         return self
 
 
-class ScaleOutClusterResponseBody(Tea_model_TeaModel):
-    def __init__(self, cluster_id = "", request_id = "", task_id = "", instance_id = ""):
+class ScaleOutClusterResponseBody(TeaModel):
+    def __init__(self, cluster_id="", request_id="", task_id="", instance_id=""):
         self.cluster_id = cluster_id
         self.request_id = request_id
         self.task_id = task_id
@@ -2259,7 +2262,7 @@ class ScaleOutClusterResponseBody(Tea_model_TeaModel):
         result['instanceId'] = self.instance_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.cluster_id = map.get('cluster_id')
         self.request_id = map.get('request_id')
         self.task_id = map.get('task_id')
@@ -2267,8 +2270,8 @@ class ScaleOutClusterResponseBody(Tea_model_TeaModel):
         return self
 
 
-class ScaleOutClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ScaleOutClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2287,7 +2290,7 @@ class ScaleOutClusterResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ScaleOutClusterResponseBody()
@@ -2297,8 +2300,8 @@ class ScaleOutClusterResponse(Tea_model_TeaModel):
         return self
 
 
-class CreateTriggerHookBody(Tea_model_TeaModel):
-    def __init__(self, region_id = "", cluster_id = "", project_id = "", action = "", trigger_url = ""):
+class CreateTriggerHookBody(TeaModel):
+    def __init__(self, region_id="", cluster_id="", project_id="", action="", trigger_url=""):
         self.region_id = region_id
         self.cluster_id = cluster_id
         self.project_id = project_id
@@ -2317,7 +2320,7 @@ class CreateTriggerHookBody(Tea_model_TeaModel):
         result['trigger_url'] = self.trigger_url
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.region_id = map.get('region_id')
         self.cluster_id = map.get('cluster_id')
         self.project_id = map.get('project_id')
@@ -2326,8 +2329,8 @@ class CreateTriggerHookBody(Tea_model_TeaModel):
         return self
 
 
-class CreateTriggerHookRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CreateTriggerHookRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2344,7 +2347,7 @@ class CreateTriggerHookRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CreateTriggerHookBody()
@@ -2354,8 +2357,8 @@ class CreateTriggerHookRequest(Tea_model_TeaModel):
         return self
 
 
-class CreateTriggerHookResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class CreateTriggerHookResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -2366,13 +2369,13 @@ class CreateTriggerHookResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class UpgradeClusterAddonsBody(Tea_model_TeaModel):
-    def __init__(self, component_name = "", version = ""):
+class UpgradeClusterAddonsBody(TeaModel):
+    def __init__(self, component_name="", version=""):
         self.component_name = component_name
         self.version = version
 
@@ -2385,14 +2388,14 @@ class UpgradeClusterAddonsBody(Tea_model_TeaModel):
         result['version'] = self.version
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.component_name = map.get('component_name')
         self.version = map.get('version')
         return self
 
 
-class UpgradeClusterAddonsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class UpgradeClusterAddonsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2409,7 +2412,7 @@ class UpgradeClusterAddonsRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = UpgradeClusterAddonsBody()
@@ -2419,8 +2422,8 @@ class UpgradeClusterAddonsRequest(Tea_model_TeaModel):
         return self
 
 
-class UpgradeClusterAddonsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class UpgradeClusterAddonsResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -2431,13 +2434,13 @@ class UpgradeClusterAddonsResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeClusterAddonsVersionRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeClusterAddonsVersionRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -2448,13 +2451,14 @@ class DescribeClusterAddonsVersionRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeClusterAddonsVersionResponseBody(Tea_model_TeaModel):
-    def __init__(self, template = "", next_version = "", can_upgrade = False, component_name = "", version = "", changed = "", message = "", required = False):
+class DescribeClusterAddonsVersionResponseBody(TeaModel):
+    def __init__(self, template="", next_version="", can_upgrade=False, component_name="", version="", changed="",
+                 message="", required=False):
         self.template = template
         self.next_version = next_version
         self.can_upgrade = can_upgrade
@@ -2486,7 +2490,7 @@ class DescribeClusterAddonsVersionResponseBody(Tea_model_TeaModel):
         result['required'] = self.required
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.template = map.get('template')
         self.next_version = map.get('next_version')
         self.can_upgrade = map.get('can_upgrade')
@@ -2498,8 +2502,8 @@ class DescribeClusterAddonsVersionResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAddonsVersionResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterAddonsVersionResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2518,7 +2522,7 @@ class DescribeClusterAddonsVersionResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterAddonsVersionResponseBody()
@@ -2528,8 +2532,8 @@ class DescribeClusterAddonsVersionResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAddonUpgradeStatusRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeClusterAddonUpgradeStatusRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -2540,13 +2544,13 @@ class DescribeClusterAddonUpgradeStatusRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeClusterAddonUpgradeStatusResponseBody(Tea_model_TeaModel):
-    def __init__(self, template = "", can_upgrade = False, addon_info = None):
+class DescribeClusterAddonUpgradeStatusResponseBody(TeaModel):
+    def __init__(self, template="", can_upgrade=False, addon_info=None):
         self.template = template
         self.can_upgrade = can_upgrade
         self.addon_info = addon_info
@@ -2568,7 +2572,7 @@ class DescribeClusterAddonUpgradeStatusResponseBody(Tea_model_TeaModel):
             result['addon_info'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.template = map.get('template')
         self.can_upgrade = map.get('can_upgrade')
         if map.get('addon_info') is not None:
@@ -2579,8 +2583,8 @@ class DescribeClusterAddonUpgradeStatusResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo(Tea_model_TeaModel):
-    def __init__(self, message = "", category = "", yaml = "", component_name = "", version = ""):
+class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo(TeaModel):
+    def __init__(self, message="", category="", yaml="", component_name="", version=""):
         self.message = message
         self.category = category
         self.yaml = yaml
@@ -2603,7 +2607,7 @@ class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo(Tea_model_TeaModel)
         result['version'] = self.version
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.message = map.get('message')
         self.category = map.get('category')
         self.yaml = map.get('yaml')
@@ -2612,8 +2616,8 @@ class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo(Tea_model_TeaModel)
         return self
 
 
-class DescribeClusterAddonUpgradeStatusResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterAddonUpgradeStatusResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2632,7 +2636,7 @@ class DescribeClusterAddonUpgradeStatusResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterAddonUpgradeStatusResponseBody()
@@ -2642,8 +2646,8 @@ class DescribeClusterAddonUpgradeStatusResponse(Tea_model_TeaModel):
         return self
 
 
-class DeleteClusterNodesBody(Tea_model_TeaModel):
-    def __init__(self, release_node = "", nodes = None):
+class DeleteClusterNodesBody(TeaModel):
+    def __init__(self, release_node="", nodes=None):
         self.release_node = release_node
         self.nodes = []
 
@@ -2661,7 +2665,7 @@ class DeleteClusterNodesBody(Tea_model_TeaModel):
             result['nodes'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.release_node = map.get('release_node')
         self.nodes = []
         if map.get('nodes') is not None:
@@ -2672,8 +2676,8 @@ class DeleteClusterNodesBody(Tea_model_TeaModel):
         return self
 
 
-class DeleteClusterNodesRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DeleteClusterNodesRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2691,7 +2695,7 @@ class DeleteClusterNodesRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DeleteClusterNodesBody()
@@ -2701,8 +2705,8 @@ class DeleteClusterNodesRequest(Tea_model_TeaModel):
         return self
 
 
-class DeleteClusterNodesResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class DeleteClusterNodesResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -2713,13 +2717,13 @@ class DeleteClusterNodesResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class DeleteClusterNodesResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DeleteClusterNodesResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2738,7 +2742,7 @@ class DeleteClusterNodesResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DeleteClusterNodesResponseBody()
@@ -2748,8 +2752,8 @@ class DeleteClusterNodesResponse(Tea_model_TeaModel):
         return self
 
 
-class DeleteTemplateRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DeleteTemplateRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -2760,13 +2764,13 @@ class DeleteTemplateRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DeleteTemplateResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DeleteTemplateResponse(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -2777,13 +2781,13 @@ class DeleteTemplateResponse(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeClusterUserKubeconfigQuery(Tea_model_TeaModel):
-    def __init__(self, private_ip_address = False):
+class DescribeClusterUserKubeconfigQuery(TeaModel):
+    def __init__(self, private_ip_address=False):
         self.private_ip_address = private_ip_address
 
     def validate(self):
@@ -2794,13 +2798,13 @@ class DescribeClusterUserKubeconfigQuery(Tea_model_TeaModel):
         result['PrivateIpAddress'] = self.private_ip_address
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.private_ip_address = map.get('PrivateIpAddress')
         return self
 
 
-class DescribeClusterUserKubeconfigRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, query = None):
+class DescribeClusterUserKubeconfigRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
         self.headers = {}
         self.query = query
 
@@ -2817,7 +2821,7 @@ class DescribeClusterUserKubeconfigRequest(Tea_model_TeaModel):
             result['query'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('query') is not None:
             temp_model = DescribeClusterUserKubeconfigQuery()
@@ -2827,8 +2831,8 @@ class DescribeClusterUserKubeconfigRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterUserKubeconfigResponseBody(Tea_model_TeaModel):
-    def __init__(self, config = ""):
+class DescribeClusterUserKubeconfigResponseBody(TeaModel):
+    def __init__(self, config=""):
         self.config = config
 
     def validate(self):
@@ -2839,13 +2843,13 @@ class DescribeClusterUserKubeconfigResponseBody(Tea_model_TeaModel):
         result['config'] = self.config
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.config = map.get('config')
         return self
 
 
-class DescribeClusterUserKubeconfigResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterUserKubeconfigResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -2864,7 +2868,7 @@ class DescribeClusterUserKubeconfigResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterUserKubeconfigResponseBody()
@@ -2874,8 +2878,8 @@ class DescribeClusterUserKubeconfigResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterNodesQuery(Tea_model_TeaModel):
-    def __init__(self, page_size = "", page_number = "", nodepool_id = "", state = ""):
+class DescribeClusterNodesQuery(TeaModel):
+    def __init__(self, page_size="", page_number="", nodepool_id="", state=""):
         self.page_size = page_size
         self.page_number = page_number
         self.nodepool_id = nodepool_id
@@ -2892,7 +2896,7 @@ class DescribeClusterNodesQuery(Tea_model_TeaModel):
         result['state'] = self.state
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.page_size = map.get('pageSize')
         self.page_number = map.get('pageNumber')
         self.nodepool_id = map.get('nodepool_id')
@@ -2900,8 +2904,8 @@ class DescribeClusterNodesQuery(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterNodesRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, query = None):
+class DescribeClusterNodesRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
         self.headers = {}
         self.query = query
 
@@ -2918,7 +2922,7 @@ class DescribeClusterNodesRequest(Tea_model_TeaModel):
             result['query'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('query') is not None:
             temp_model = DescribeClusterNodesQuery()
@@ -2928,8 +2932,8 @@ class DescribeClusterNodesRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterNodesResponseBody(Tea_model_TeaModel):
-    def __init__(self, nodes = None, page = None):
+class DescribeClusterNodesResponseBody(TeaModel):
+    def __init__(self, nodes=None, page=None):
         self.nodes = nodes
         self.page = page
 
@@ -2953,7 +2957,7 @@ class DescribeClusterNodesResponseBody(Tea_model_TeaModel):
             result['page'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         if map.get('nodes') is not None:
             temp_model = DescribeClusterNodesResponseBodyNodes()
             self.nodes = temp_model.from_map(map['nodes'])
@@ -2967,8 +2971,8 @@ class DescribeClusterNodesResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterNodesResponseBodyNodesNodesIpAddress(Tea_model_TeaModel):
-    def __init__(self, ip = None):
+class DescribeClusterNodesResponseBodyNodesNodesIpAddress(TeaModel):
+    def __init__(self, ip=None):
         self.ip = []
 
     def validate(self):
@@ -2984,7 +2988,7 @@ class DescribeClusterNodesResponseBodyNodesNodesIpAddress(Tea_model_TeaModel):
             result['ip'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.ip = []
         if map.get('ip') is not None:
             for k in map.get('ip'):
@@ -2994,8 +2998,11 @@ class DescribeClusterNodesResponseBodyNodesNodesIpAddress(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterNodesResponseBodyNodesNodes(Tea_model_TeaModel):
-    def __init__(self, instance_id = "", instance_role = "", instance_name = "", host_name = "", node_name = "", instance_type = "", instance_charge_type = "", image_id = "", instance_type_family = "", docker_version = "", agent_version = "", is_leader = False, containers = 0, is_aliyun_node = False, state = "", nodepool_id = "", error_message = "", ip_address = None):
+class DescribeClusterNodesResponseBodyNodesNodes(TeaModel):
+    def __init__(self, instance_id="", instance_role="", instance_name="", host_name="", node_name="", instance_type="",
+                 instance_charge_type="", image_id="", instance_type_family="", docker_version="", agent_version="",
+                 is_leader=False, containers=0, is_aliyun_node=False, state="", nodepool_id="", error_message="",
+                 ip_address=None):
         self.instance_id = instance_id
         self.instance_role = instance_role
         self.instance_name = instance_name
@@ -3062,7 +3069,7 @@ class DescribeClusterNodesResponseBodyNodesNodes(Tea_model_TeaModel):
             result['ip_address'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.instance_id = map.get('instance_id')
         self.instance_role = map.get('instance_role')
         self.instance_name = map.get('instance_name')
@@ -3081,22 +3088,22 @@ class DescribeClusterNodesResponseBodyNodesNodes(Tea_model_TeaModel):
         self.nodepool_id = map.get('nodepool_id')
         self.error_message = map.get('error_message')
         if map.get('ip_address') is not None:
-            temp_model = NodesIpAddress()
+            temp_model = DescribeClusterNodesResponseBodyNodesNodesIpAddress()
             self.ip_address = temp_model.from_map(map['ip_address'])
         else:
             self.ip_address = None
         return self
 
 
-class DescribeClusterNodesResponseBodyNodes(Tea_model_TeaModel):
-    def __init__(self, nodes = None):
+class DescribeClusterNodesResponseBodyNodes(TeaModel):
+    def __init__(self, nodes=None):
         self.nodes = []
 
     def validate(self):
         self.validate_required(self.nodes, 'nodes')
         if self.nodes:
             for k in self.nodes:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -3109,7 +3116,7 @@ class DescribeClusterNodesResponseBodyNodes(Tea_model_TeaModel):
             result['nodes'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.nodes = []
         if map.get('nodes') is not None:
             for k in map.get('nodes'):
@@ -3121,8 +3128,8 @@ class DescribeClusterNodesResponseBodyNodes(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterNodesResponseBodyPage(Tea_model_TeaModel):
-    def __init__(self, total_count = 0, page_number = 0, page_size = 0):
+class DescribeClusterNodesResponseBodyPage(TeaModel):
+    def __init__(self, total_count=0, page_number=0, page_size=0):
         self.total_count = total_count
         self.page_number = page_number
         self.page_size = page_size
@@ -3139,15 +3146,15 @@ class DescribeClusterNodesResponseBodyPage(Tea_model_TeaModel):
         result['page_size'] = self.page_size
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.total_count = map.get('total_count')
         self.page_number = map.get('page_number')
         self.page_size = map.get('page_size')
         return self
 
 
-class DescribeClusterNodesResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterNodesResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3166,7 +3173,7 @@ class DescribeClusterNodesResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterNodesResponseBody()
@@ -3176,8 +3183,8 @@ class DescribeClusterNodesResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterLogsRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeClusterLogsRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -3188,13 +3195,13 @@ class DescribeClusterLogsRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeClusterLogsResponseBody(Tea_model_TeaModel):
-    def __init__(self, cluster_id = "", cluster_log = "", log_level = "", created = ""):
+class DescribeClusterLogsResponseBody(TeaModel):
+    def __init__(self, cluster_id="", cluster_log="", log_level="", created=""):
         self.cluster_id = cluster_id
         self.cluster_log = cluster_log
         self.log_level = log_level
@@ -3214,7 +3221,7 @@ class DescribeClusterLogsResponseBody(Tea_model_TeaModel):
         result['created'] = self.created
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.cluster_id = map.get('cluster_id')
         self.cluster_log = map.get('cluster_log')
         self.log_level = map.get('log_level')
@@ -3222,8 +3229,8 @@ class DescribeClusterLogsResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterLogsResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterLogsResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3242,7 +3249,7 @@ class DescribeClusterLogsResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterLogsResponseBody()
@@ -3252,8 +3259,9 @@ class DescribeClusterLogsResponse(Tea_model_TeaModel):
         return self
 
 
-class AttachInstancesBody(Tea_model_TeaModel):
-    def __init__(self, format_disk = False, keep_instance_name = False, cpu_policy = "", key_pair = "", password = "", tags = None, instances = None):
+class AttachInstancesBody(TeaModel):
+    def __init__(self, format_disk=False, keep_instance_name=False, cpu_policy="", key_pair="", password="", tags=None,
+                 instances=None):
         self.format_disk = format_disk
         self.keep_instance_name = keep_instance_name
         self.cpu_policy = cpu_policy
@@ -3268,7 +3276,7 @@ class AttachInstancesBody(Tea_model_TeaModel):
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.instances, 'instances')
 
@@ -3293,7 +3301,7 @@ class AttachInstancesBody(Tea_model_TeaModel):
             result['instances'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.format_disk = map.get('format_disk')
         self.keep_instance_name = map.get('keep_instance_name')
         self.cpu_policy = map.get('cpu_policy')
@@ -3316,8 +3324,8 @@ class AttachInstancesBody(Tea_model_TeaModel):
         return self
 
 
-class AttachInstancesBodyTags(Tea_model_TeaModel):
-    def __init__(self, key = "", value = ""):
+class AttachInstancesBodyTags(TeaModel):
+    def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
@@ -3330,14 +3338,14 @@ class AttachInstancesBodyTags(Tea_model_TeaModel):
         result['value'] = self.value
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         return self
 
 
-class AttachInstancesRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class AttachInstancesRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3355,7 +3363,7 @@ class AttachInstancesRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = AttachInstancesBody()
@@ -3365,45 +3373,45 @@ class AttachInstancesRequest(Tea_model_TeaModel):
         return self
 
 
-class AttachInstancesResponseBody(Tea_model_TeaModel):
-    def __init__(self, task_id = "", list = None):
+class AttachInstancesResponseBody(TeaModel):
+    def __init__(self, task_id="", list_=None):
         self.task_id = task_id
-        self.list = []
+        self.list_ = []
 
     def validate(self):
         self.validate_required(self.task_id, 'task_id')
-        self.validate_required(self.list, 'list')
-        if self.list:
-            for k in self.list:
-                if k :
+        self.validate_required(self.list_, 'list_')
+        if self.list_:
+            for k in self.list_:
+                if k:
                     k.validate()
 
     def to_map(self):
         result = {}
         result['task_id'] = self.task_id
         result['list'] = []
-        if self.list is not None:
-            for k in self.list:
+        if self.list_ is not None:
+            for k in self.list_:
                 result['list'].append(k.to_map() if k else None)
         else:
             result['list'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.task_id = map.get('task_id')
-        self.list = []
+        self.list_ = []
         if map.get('list') is not None:
             for k in map.get('list'):
                 temp_model = AttachInstancesResponseBodyList()
                 temp_model = temp_model.from_map(k)
-                self.list.append(temp_model)
+                self.list_.append(temp_model)
         else:
-            self.list = None
+            self.list_ = None
         return self
 
 
-class AttachInstancesResponseBodyList_(Tea_model_TeaModel):
-    def __init__(self, code = "", instance_id = "", message = ""):
+class AttachInstancesResponseBodyList(TeaModel):
+    def __init__(self, code="", instance_id="", message=""):
         self.code = code
         self.instance_id = instance_id
         self.message = message
@@ -3420,15 +3428,15 @@ class AttachInstancesResponseBodyList_(Tea_model_TeaModel):
         result['message'] = self.message
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.code = map.get('code')
         self.instance_id = map.get('instanceId')
         self.message = map.get('message')
         return self
 
 
-class AttachInstancesResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class AttachInstancesResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3447,7 +3455,7 @@ class AttachInstancesResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = AttachInstancesResponseBody()
@@ -3457,8 +3465,8 @@ class AttachInstancesResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeTemplatesQuery(Tea_model_TeaModel):
-    def __init__(self, template_type = ""):
+class DescribeTemplatesQuery(TeaModel):
+    def __init__(self, template_type=""):
         self.template_type = template_type
 
     def validate(self):
@@ -3469,13 +3477,13 @@ class DescribeTemplatesQuery(Tea_model_TeaModel):
         result['template_type'] = self.template_type
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.template_type = map.get('template_type')
         return self
 
 
-class DescribeTemplatesRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, query = None):
+class DescribeTemplatesRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
         self.headers = {}
         self.query = query
 
@@ -3492,7 +3500,7 @@ class DescribeTemplatesRequest(Tea_model_TeaModel):
             result['query'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('query') is not None:
             temp_model = DescribeTemplatesQuery()
@@ -3502,8 +3510,8 @@ class DescribeTemplatesRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeTemplatesResponseBody(Tea_model_TeaModel):
-    def __init__(self, template = "", acl = "", name = "", tags = "", template_type = "", description = ""):
+class DescribeTemplatesResponseBody(TeaModel):
+    def __init__(self, template="", acl="", name="", tags="", template_type="", description=""):
         self.template = template
         self.acl = acl
         self.name = name
@@ -3529,7 +3537,7 @@ class DescribeTemplatesResponseBody(Tea_model_TeaModel):
         result['description'] = self.description
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.template = map.get('template')
         self.acl = map.get('acl')
         self.name = map.get('name')
@@ -3539,8 +3547,8 @@ class DescribeTemplatesResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeTemplatesResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeTemplatesResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3559,7 +3567,7 @@ class DescribeTemplatesResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeTemplatesResponseBody()
@@ -3569,8 +3577,8 @@ class DescribeTemplatesResponse(Tea_model_TeaModel):
         return self
 
 
-class CreateTemplateBody(Tea_model_TeaModel):
-    def __init__(self, name = "", template = "", tags = "", template_type = ""):
+class CreateTemplateBody(TeaModel):
+    def __init__(self, name="", template="", tags="", template_type=""):
         self.name = name
         self.template = template
         self.tags = tags
@@ -3588,7 +3596,7 @@ class CreateTemplateBody(Tea_model_TeaModel):
         result['template_type'] = self.template_type
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.template = map.get('template')
         self.tags = map.get('tags')
@@ -3596,8 +3604,8 @@ class CreateTemplateBody(Tea_model_TeaModel):
         return self
 
 
-class CreateTemplateRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CreateTemplateRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3615,7 +3623,7 @@ class CreateTemplateRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CreateTemplateBody()
@@ -3625,8 +3633,8 @@ class CreateTemplateRequest(Tea_model_TeaModel):
         return self
 
 
-class CreateTemplateResponseBody(Tea_model_TeaModel):
-    def __init__(self, template_id = ""):
+class CreateTemplateResponseBody(TeaModel):
+    def __init__(self, template_id=""):
         self.template_id = template_id
 
     def validate(self):
@@ -3637,13 +3645,13 @@ class CreateTemplateResponseBody(Tea_model_TeaModel):
         result['template_id'] = self.template_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.template_id = map.get('template_id')
         return self
 
 
-class CreateTemplateResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CreateTemplateResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -3662,7 +3670,7 @@ class CreateTemplateResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CreateTemplateResponseBody()
@@ -3672,8 +3680,18 @@ class CreateTemplateResponse(Tea_model_TeaModel):
         return self
 
 
-class CreateClusterBody(Tea_model_TeaModel):
-    def __init__(self, cluster_type = "", name = "", region_id = "", kubernetes_version = "", snat_entry = False, endpoint_public_access = False, ssh_flags = False, cloud_monitor_flags = False, deletion_protection = False, node_cidr_mask = "", proxy_mode = "", os_type = "", platform = "", node_port_range = "", key_pair = "", login_password = "", master_instance_charge_type = "", worker_instance_charge_type = "", master_period = 0, worker_period = 0, master_period_unit = "", worker_period_unit = "", master_auto_renew = False, master_auto_renew_period = 0, worker_auto_renew = False, worker_auto_renew_period = 0, cpu_policy = "", master_count = 0, master_system_disk_category = "", master_system_disk_size = 0, runtime = None, num_of_nodes = 0, worker_system_disk_category = "", worker_system_disk_size = 0, worker_data_disk = False, vpcid = "", security_group_id = "", container_cidr = "", service_cidr = "", disable_rollback = False, timeout_mins = 0, tags = None, addons = None, taints = None, worker_data_disks = None, master_vswitch_ids = None, master_instance_types = None, worker_instance_types = None, worker_vswitch_ids = None):
+class CreateClusterBody(TeaModel):
+    def __init__(self, cluster_type="", name="", region_id="", kubernetes_version="", snat_entry=False,
+                 endpoint_public_access=False, ssh_flags=False, cloud_monitor_flags=False, deletion_protection=False,
+                 node_cidr_mask="", proxy_mode="", os_type="", platform="", node_port_range="", key_pair="",
+                 login_password="", master_instance_charge_type="", worker_instance_charge_type="", master_period=0,
+                 worker_period=0, master_period_unit="", worker_period_unit="", master_auto_renew=False,
+                 master_auto_renew_period=0, worker_auto_renew=False, worker_auto_renew_period=0, cpu_policy="",
+                 master_count=0, master_system_disk_category="", master_system_disk_size=0, runtime=None,
+                 num_of_nodes=0, worker_system_disk_category="", worker_system_disk_size=0, worker_data_disk=False,
+                 vpcid="", security_group_id="", container_cidr="", service_cidr="", disable_rollback=False,
+                 timeout_mins=0, tags=None, addons=None, taints=None, worker_data_disks=None, master_vswitch_ids=None,
+                 master_instance_types=None, worker_instance_types=None, worker_vswitch_ids=None):
         self.cluster_type = cluster_type
         self.name = name
         self.region_id = region_id
@@ -3739,22 +3757,22 @@ class CreateClusterBody(Tea_model_TeaModel):
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.addons, 'addons')
         if self.addons:
             for k in self.addons:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.taints, 'taints')
         if self.taints:
             for k in self.taints:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.worker_data_disks, 'worker_data_disks')
         if self.worker_data_disks:
             for k in self.worker_data_disks:
-                if k :
+                if k:
                     k.validate()
         self.validate_required(self.master_vswitch_ids, 'master_vswitch_ids')
         self.validate_required(self.master_instance_types, 'master_instance_types')
@@ -3854,7 +3872,7 @@ class CreateClusterBody(Tea_model_TeaModel):
             result['worker_vswitch_ids'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.cluster_type = map.get('cluster_type')
         self.name = map.get('name')
         self.region_id = map.get('region_id')
@@ -3955,8 +3973,8 @@ class CreateClusterBody(Tea_model_TeaModel):
         return self
 
 
-class CreateClusterBodyTags(Tea_model_TeaModel):
-    def __init__(self, key = "", value = ""):
+class CreateClusterBodyTags(TeaModel):
+    def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
@@ -3969,14 +3987,14 @@ class CreateClusterBodyTags(Tea_model_TeaModel):
         result['value'] = self.value
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         return self
 
 
-class CreateClusterBodyAddons(Tea_model_TeaModel):
-    def __init__(self, name = "", config = ""):
+class CreateClusterBodyAddons(TeaModel):
+    def __init__(self, name="", config=""):
         self.name = name
         self.config = config
 
@@ -3989,14 +4007,14 @@ class CreateClusterBodyAddons(Tea_model_TeaModel):
         result['config'] = self.config
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.config = map.get('config')
         return self
 
 
-class CreateClusterBodyTaints(Tea_model_TeaModel):
-    def __init__(self, key = "", value = "", effect = ""):
+class CreateClusterBodyTaints(TeaModel):
+    def __init__(self, key="", value="", effect=""):
         self.key = key
         self.value = value
         self.effect = effect
@@ -4011,15 +4029,15 @@ class CreateClusterBodyTaints(Tea_model_TeaModel):
         result['effect'] = self.effect
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         self.effect = map.get('effect')
         return self
 
 
-class CreateClusterBodyWorkerDataDisks(Tea_model_TeaModel):
-    def __init__(self, category = "", size = "", encrypted = ""):
+class CreateClusterBodyWorkerDataDisks(TeaModel):
+    def __init__(self, category="", size="", encrypted=""):
         self.category = category
         self.size = size
         self.encrypted = encrypted
@@ -4034,15 +4052,15 @@ class CreateClusterBodyWorkerDataDisks(Tea_model_TeaModel):
         result['encrypted'] = self.encrypted
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.category = map.get('category')
         self.size = map.get('size')
         self.encrypted = map.get('encrypted')
         return self
 
 
-class CreateClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CreateClusterRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -4060,7 +4078,7 @@ class CreateClusterRequest(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CreateClusterBody()
@@ -4070,8 +4088,8 @@ class CreateClusterRequest(Tea_model_TeaModel):
         return self
 
 
-class CreateClusterResponseBody(Tea_model_TeaModel):
-    def __init__(self, cluster_id = "", request_id = "", task_id = ""):
+class CreateClusterResponseBody(TeaModel):
+    def __init__(self, cluster_id="", request_id="", task_id=""):
         self.cluster_id = cluster_id
         self.request_id = request_id
         self.task_id = task_id
@@ -4088,15 +4106,15 @@ class CreateClusterResponseBody(Tea_model_TeaModel):
         result['task_id'] = self.task_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.cluster_id = map.get('cluster_id')
         self.request_id = map.get('request_id')
         self.task_id = map.get('task_id')
         return self
 
 
-class CreateClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class CreateClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -4115,7 +4133,7 @@ class CreateClusterResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = CreateClusterResponseBody()
@@ -4125,8 +4143,8 @@ class CreateClusterResponse(Tea_model_TeaModel):
         return self
 
 
-class ScaleClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class ScaleClusterRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -4137,13 +4155,13 @@ class ScaleClusterRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class ScaleClusterResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class ScaleClusterResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -4154,13 +4172,13 @@ class ScaleClusterResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class ScaleClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class ScaleClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -4179,7 +4197,7 @@ class ScaleClusterResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = ScaleClusterResponseBody()
@@ -4189,8 +4207,8 @@ class ScaleClusterResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClustersQuery(Tea_model_TeaModel):
-    def __init__(self, name = "", cluster_type = ""):
+class DescribeClustersQuery(TeaModel):
+    def __init__(self, name="", cluster_type=""):
         self.name = name
         self.cluster_type = cluster_type
 
@@ -4203,14 +4221,14 @@ class DescribeClustersQuery(Tea_model_TeaModel):
         result['clusterType'] = self.cluster_type
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.cluster_type = map.get('clusterType')
         return self
 
 
-class DescribeClustersRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None, query = None):
+class DescribeClustersRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
         self.headers = {}
         self.query = query
 
@@ -4227,7 +4245,7 @@ class DescribeClustersRequest(Tea_model_TeaModel):
             result['query'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('query') is not None:
             temp_model = DescribeClustersQuery()
@@ -4237,8 +4255,11 @@ class DescribeClustersRequest(Tea_model_TeaModel):
         return self
 
 
-class DescribeClustersResponseBody(Tea_model_TeaModel):
-    def __init__(self, name = "", cluster_id = "", region_id = "", state = "", cluster_type = "", current_version = "", meta_data = "", resource_group_id = "", vpc_id = "", vswitch_id = "", vswitch_cidr = "", data_disk_size = 0, data_disk_category = "", security_group_id = "", zone_id = "", network_mode = "", master_url = "", docker_version = "", deletion_protection = False, tags = None):
+class DescribeClustersResponseBody(TeaModel):
+    def __init__(self, name="", cluster_id="", region_id="", state="", cluster_type="", current_version="",
+                 meta_data="", resource_group_id="", vpc_id="", vswitch_id="", vswitch_cidr="", data_disk_size=0,
+                 data_disk_category="", security_group_id="", zone_id="", network_mode="", master_url="",
+                 docker_version="", deletion_protection=False, tags=None):
         self.name = name
         self.cluster_id = cluster_id
         self.region_id = region_id
@@ -4283,7 +4304,7 @@ class DescribeClustersResponseBody(Tea_model_TeaModel):
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -4315,7 +4336,7 @@ class DescribeClustersResponseBody(Tea_model_TeaModel):
             result['tags'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.cluster_id = map.get('cluster_id')
         self.region_id = map.get('region_id')
@@ -4346,8 +4367,8 @@ class DescribeClustersResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClustersResponseBodyTags(Tea_model_TeaModel):
-    def __init__(self, key = "", value = ""):
+class DescribeClustersResponseBodyTags(TeaModel):
+    def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
@@ -4361,14 +4382,14 @@ class DescribeClustersResponseBodyTags(Tea_model_TeaModel):
         result['value'] = self.value
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         return self
 
 
-class DescribeClustersResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClustersResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = []
 
@@ -4377,7 +4398,7 @@ class DescribeClustersResponse(Tea_model_TeaModel):
         self.validate_required(self.body, 'body')
         if self.body:
             for k in self.body:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -4391,7 +4412,7 @@ class DescribeClustersResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         self.body = []
         if map.get('body') is not None:
@@ -4404,8 +4425,8 @@ class DescribeClustersResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterDetailRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeClusterDetailRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -4416,13 +4437,16 @@ class DescribeClusterDetailRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeClusterDetailResponseBody(Tea_model_TeaModel):
-    def __init__(self, name = "", cluster_id = "", region_id = "", state = "", cluster_type = "", current_version = "", meta_data = "", resource_group_id = "", instance_type = "", vpc_id = "", vswitch_id = "", vswitch_cidr = "", data_disk_size = 0, data_disk_category = "", security_group_id = "", zone_id = "", network_mode = "", docker_version = "", deletion_protection = False, tags = None):
+class DescribeClusterDetailResponseBody(TeaModel):
+    def __init__(self, name="", cluster_id="", region_id="", state="", cluster_type="", current_version="",
+                 meta_data="", resource_group_id="", instance_type="", vpc_id="", vswitch_id="", vswitch_cidr="",
+                 data_disk_size=0, data_disk_category="", security_group_id="", zone_id="", network_mode="",
+                 docker_version="", deletion_protection=False, tags=None):
         self.name = name
         self.cluster_id = cluster_id
         self.region_id = region_id
@@ -4467,7 +4491,7 @@ class DescribeClusterDetailResponseBody(Tea_model_TeaModel):
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
-                if k :
+                if k:
                     k.validate()
 
     def to_map(self):
@@ -4499,7 +4523,7 @@ class DescribeClusterDetailResponseBody(Tea_model_TeaModel):
             result['tags'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.name = map.get('name')
         self.cluster_id = map.get('cluster_id')
         self.region_id = map.get('region_id')
@@ -4530,8 +4554,8 @@ class DescribeClusterDetailResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeClusterDetailResponseBodyTags(Tea_model_TeaModel):
-    def __init__(self, key = "", value = ""):
+class DescribeClusterDetailResponseBodyTags(TeaModel):
+    def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
@@ -4545,14 +4569,14 @@ class DescribeClusterDetailResponseBodyTags(Tea_model_TeaModel):
         result['value'] = self.value
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.key = map.get('key')
         self.value = map.get('value')
         return self
 
 
-class DescribeClusterDetailResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeClusterDetailResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -4571,7 +4595,7 @@ class DescribeClusterDetailResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeClusterDetailResponseBody()
@@ -4581,8 +4605,8 @@ class DescribeClusterDetailResponse(Tea_model_TeaModel):
         return self
 
 
-class DeleteClusterRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DeleteClusterRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -4593,13 +4617,13 @@ class DeleteClusterRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DeleteClusterResponseBody(Tea_model_TeaModel):
-    def __init__(self, request_id = ""):
+class DeleteClusterResponseBody(TeaModel):
+    def __init__(self, request_id=""):
         self.request_id = request_id
 
     def validate(self):
@@ -4610,13 +4634,13 @@ class DeleteClusterResponseBody(Tea_model_TeaModel):
         result['RequestId'] = self.request_id
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         return self
 
 
-class DeleteClusterResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DeleteClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -4635,7 +4659,7 @@ class DeleteClusterResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DeleteClusterResponseBody()
@@ -4645,8 +4669,8 @@ class DeleteClusterResponse(Tea_model_TeaModel):
         return self
 
 
-class DescribeApiVersionRequest(Tea_model_TeaModel):
-    def __init__(self, headers = None):
+class DescribeApiVersionRequest(TeaModel):
+    def __init__(self, headers=None):
         self.headers = {}
 
     def validate(self):
@@ -4657,13 +4681,13 @@ class DescribeApiVersionRequest(Tea_model_TeaModel):
         result['headers'] = self.headers
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         return self
 
 
-class DescribeApiVersionResponseBody(Tea_model_TeaModel):
-    def __init__(self, version = "", build = "", docker_version = "", docker_region_versions = ""):
+class DescribeApiVersionResponseBody(TeaModel):
+    def __init__(self, version="", build="", docker_version="", docker_region_versions=""):
         self.version = version
         self.build = build
         self.docker_version = docker_version
@@ -4683,7 +4707,7 @@ class DescribeApiVersionResponseBody(Tea_model_TeaModel):
         result['docker_region_versions'] = self.docker_region_versions
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.version = map.get('version')
         self.build = map.get('build')
         self.docker_version = map.get('docker_version')
@@ -4691,8 +4715,8 @@ class DescribeApiVersionResponseBody(Tea_model_TeaModel):
         return self
 
 
-class DescribeApiVersionResponse(Tea_model_TeaModel):
-    def __init__(self, headers = None, body = None):
+class DescribeApiVersionResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
         self.headers = {}
         self.body = body
 
@@ -4711,7 +4735,7 @@ class DescribeApiVersionResponse(Tea_model_TeaModel):
             result['body'] = None
         return result
 
-    def from_map(self, map = {}):
+    def from_map(self, map={}):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeApiVersionResponseBody()
@@ -4719,4 +4743,3 @@ class DescribeApiVersionResponse(Tea_model_TeaModel):
         else:
             self.body = None
         return self
-
