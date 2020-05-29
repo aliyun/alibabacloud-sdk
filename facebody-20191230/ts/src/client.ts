@@ -10,6 +10,138 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class DetectVideoLivingFaceRequest extends $tea.Model {
+  videoUrl: string;
+  static names(): { [key: string]: string } {
+    return {
+      videoUrl: 'VideoUrl',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      videoUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectVideoLivingFaceResponse extends $tea.Model {
+  requestId: string;
+  data: DetectVideoLivingFaceResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: DetectVideoLivingFaceResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectVideoLivingFaceAdvanceRequest extends $tea.Model {
+  videoUrlObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      videoUrlObject: 'VideoUrlObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      videoUrlObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SwapFacialFeaturesRequest extends $tea.Model {
+  sourceImageURL: string;
+  editPart: string;
+  targetImageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      sourceImageURL: 'SourceImageURL',
+      editPart: 'EditPart',
+      targetImageURL: 'TargetImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      sourceImageURL: 'string',
+      editPart: 'string',
+      targetImageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SwapFacialFeaturesResponse extends $tea.Model {
+  requestId: string;
+  data: SwapFacialFeaturesResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: SwapFacialFeaturesResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SwapFacialFeaturesAdvanceRequest extends $tea.Model {
+  sourceImageURLObject: Readable;
+  editPart: string;
+  targetImageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      sourceImageURLObject: 'SourceImageURLObject',
+      editPart: 'EditPart',
+      targetImageURL: 'TargetImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      sourceImageURLObject: 'Readable',
+      editPart: 'string',
+      targetImageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class AddFaceEntityRequest extends $tea.Model {
   dbName: string;
   entityId: string;
@@ -1513,6 +1645,69 @@ export class DetectFaceAdvanceRequest extends $tea.Model {
   }
 }
 
+export class DetectVideoLivingFaceResponseDataElements extends $tea.Model {
+  liveConfidence: number;
+  faceConfidence: number;
+  rect: number[];
+  static names(): { [key: string]: string } {
+    return {
+      liveConfidence: 'LiveConfidence',
+      faceConfidence: 'FaceConfidence',
+      rect: 'Rect',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      liveConfidence: 'number',
+      faceConfidence: 'number',
+      rect: { 'type': 'array', 'itemType': 'integer' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DetectVideoLivingFaceResponseData extends $tea.Model {
+  elements: DetectVideoLivingFaceResponseDataElements[];
+  static names(): { [key: string]: string } {
+    return {
+      elements: 'Elements',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      elements: { 'type': 'array', 'itemType': DetectVideoLivingFaceResponseDataElements },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SwapFacialFeaturesResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ListFaceEntitiesResponseDataEntities extends $tea.Model {
   dbName: string;
   entityId: string;
@@ -2743,29 +2938,151 @@ export default class Client extends RPC {
   }
 
 
+  async detectVideoLivingFace(request: DetectVideoLivingFaceRequest, runtime: $Util.RuntimeOptions): Promise<DetectVideoLivingFaceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DetectVideoLivingFaceResponse>(await this.doRequest("DetectVideoLivingFace", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DetectVideoLivingFaceResponse({}));
+  }
+
+  async detectVideoLivingFaceAdvance(request: DetectVideoLivingFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<DetectVideoLivingFaceResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.videoUrlObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let detectVideoLivingFacereq = new DetectVideoLivingFaceRequest({ });
+    RPCUtil.convert(request, detectVideoLivingFacereq);
+    detectVideoLivingFacereq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let detectVideoLivingFaceResp = await this.detectVideoLivingFace(detectVideoLivingFacereq, runtime);
+    return detectVideoLivingFaceResp;
+  }
+
+  async swapFacialFeatures(request: SwapFacialFeaturesRequest, runtime: $Util.RuntimeOptions): Promise<SwapFacialFeaturesResponse> {
+    Util.validateModel(request);
+    return $tea.cast<SwapFacialFeaturesResponse>(await this.doRequest("SwapFacialFeatures", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new SwapFacialFeaturesResponse({}));
+  }
+
+  async swapFacialFeaturesAdvance(request: SwapFacialFeaturesAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SwapFacialFeaturesResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.sourceImageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let swapFacialFeaturesreq = new SwapFacialFeaturesRequest({ });
+    RPCUtil.convert(request, swapFacialFeaturesreq);
+    swapFacialFeaturesreq.sourceImageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let swapFacialFeaturesResp = await this.swapFacialFeatures(swapFacialFeaturesreq, runtime);
+    return swapFacialFeaturesResp;
+  }
+
   async addFaceEntity(request: AddFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<AddFaceEntityResponse> {
     Util.validateModel(request);
-    return $tea.cast<AddFaceEntityResponse>(await this.doRequest("AddFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new AddFaceEntityResponse({}));
+    return $tea.cast<AddFaceEntityResponse>(await this.doRequest("AddFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new AddFaceEntityResponse({}));
   }
 
   async deleteFaceEntity(request: DeleteFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<DeleteFaceEntityResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteFaceEntityResponse>(await this.doRequest("DeleteFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DeleteFaceEntityResponse({}));
+    return $tea.cast<DeleteFaceEntityResponse>(await this.doRequest("DeleteFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DeleteFaceEntityResponse({}));
   }
 
   async listFaceEntities(request: ListFaceEntitiesRequest, runtime: $Util.RuntimeOptions): Promise<ListFaceEntitiesResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListFaceEntitiesResponse>(await this.doRequest("ListFaceEntities", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new ListFaceEntitiesResponse({}));
+    return $tea.cast<ListFaceEntitiesResponse>(await this.doRequest("ListFaceEntities", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new ListFaceEntitiesResponse({}));
   }
 
   async getFaceEntity(request: GetFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<GetFaceEntityResponse> {
     Util.validateModel(request);
-    return $tea.cast<GetFaceEntityResponse>(await this.doRequest("GetFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new GetFaceEntityResponse({}));
+    return $tea.cast<GetFaceEntityResponse>(await this.doRequest("GetFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new GetFaceEntityResponse({}));
   }
 
   async updateFaceEntity(request: UpdateFaceEntityRequest, runtime: $Util.RuntimeOptions): Promise<UpdateFaceEntityResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateFaceEntityResponse>(await this.doRequest("UpdateFaceEntity", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new UpdateFaceEntityResponse({}));
+    return $tea.cast<UpdateFaceEntityResponse>(await this.doRequest("UpdateFaceEntity", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new UpdateFaceEntityResponse({}));
   }
 
   async faceMakeup(request: FaceMakeupRequest, runtime: $Util.RuntimeOptions): Promise<FaceMakeupResponse> {
@@ -3258,7 +3575,7 @@ export default class Client extends RPC {
 
   async searchFace(request: SearchFaceRequest, runtime: $Util.RuntimeOptions): Promise<SearchFaceResponse> {
     Util.validateModel(request);
-    return $tea.cast<SearchFaceResponse>(await this.doRequest("SearchFace", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new SearchFaceResponse({}));
+    return $tea.cast<SearchFaceResponse>(await this.doRequest("SearchFace", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new SearchFaceResponse({}));
   }
 
   async searchFaceAdvance(request: SearchFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SearchFaceResponse> {
@@ -3319,27 +3636,27 @@ export default class Client extends RPC {
 
   async listFaceDbs(request: ListFaceDbsRequest, runtime: $Util.RuntimeOptions): Promise<ListFaceDbsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListFaceDbsResponse>(await this.doRequest("ListFaceDbs", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new ListFaceDbsResponse({}));
+    return $tea.cast<ListFaceDbsResponse>(await this.doRequest("ListFaceDbs", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new ListFaceDbsResponse({}));
   }
 
   async createFaceDb(request: CreateFaceDbRequest, runtime: $Util.RuntimeOptions): Promise<CreateFaceDbResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateFaceDbResponse>(await this.doRequest("CreateFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new CreateFaceDbResponse({}));
+    return $tea.cast<CreateFaceDbResponse>(await this.doRequest("CreateFaceDb", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new CreateFaceDbResponse({}));
   }
 
   async deleteFace(request: DeleteFaceRequest, runtime: $Util.RuntimeOptions): Promise<DeleteFaceResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteFaceResponse>(await this.doRequest("DeleteFace", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DeleteFaceResponse({}));
+    return $tea.cast<DeleteFaceResponse>(await this.doRequest("DeleteFace", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DeleteFaceResponse({}));
   }
 
   async deleteFaceDb(request: DeleteFaceDbRequest, runtime: $Util.RuntimeOptions): Promise<DeleteFaceDbResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteFaceDbResponse>(await this.doRequest("DeleteFaceDb", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DeleteFaceDbResponse({}));
+    return $tea.cast<DeleteFaceDbResponse>(await this.doRequest("DeleteFaceDb", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new DeleteFaceDbResponse({}));
   }
 
   async addFace(request: AddFaceRequest, runtime: $Util.RuntimeOptions): Promise<AddFaceResponse> {
     Util.validateModel(request);
-    return $tea.cast<AddFaceResponse>(await this.doRequest("AddFace", "HTTPS", "GET", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new AddFaceResponse({}));
+    return $tea.cast<AddFaceResponse>(await this.doRequest("AddFace", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new AddFaceResponse({}));
   }
 
   async addFaceAdvance(request: AddFaceAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AddFaceResponse> {
@@ -3723,7 +4040,7 @@ export default class Client extends RPC {
       return endpoint;
     }
 
-    if (!Util.empty(endpointMap[regionId])) {
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
       return endpointMap[regionId];
     }
 
