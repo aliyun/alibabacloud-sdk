@@ -17,6 +17,90 @@ init(config: RPC.Config){
   @endpoint = getEndpoint(@productId, @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model DetectVideoLivingFaceRequest = {
+  videoUrl: string(name='VideoUrl', description='videoUrl'),
+}
+
+model DetectVideoLivingFaceResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        liveConfidence: float(name='LiveConfidence', description='liveConfidence'),
+        faceConfidence: float(name='FaceConfidence', description='faceConfidence'),
+        rect: [ integer ](name='Rect', description='rect'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function detectVideoLivingFace(request: DetectVideoLivingFaceRequest, runtime: Util.RuntimeOptions): DetectVideoLivingFaceResponse {
+  Util.validateModel(request);
+  return doRequest('DetectVideoLivingFace', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model DetectVideoLivingFaceAdvanceRequest = {
+  videoUrlObject: readable(description='VideoUrlObject', name='VideoUrlObject'),
+}
+
+async function detectVideoLivingFaceAdvance(request: DetectVideoLivingFaceAdvanceRequest, runtime: Util.RuntimeOptions): DetectVideoLivingFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.videoUrlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectVideoLivingFacereq = new DetectVideoLivingFaceRequest{};
+  RPCUtil.convert(request, detectVideoLivingFacereq);
+  detectVideoLivingFacereq.videoUrl = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectVideoLivingFaceResp = detectVideoLivingFace(detectVideoLivingFacereq, runtime);
+  return detectVideoLivingFaceResp;
+}
+
 model SwapFacialFeaturesRequest = {
   sourceImageURL: string(name='SourceImageURL', description='sourceImageUrl'),
   editPart: string(name='EditPart', description='editPart'),
@@ -1601,8 +1685,8 @@ model DetectFaceResponse = {
     faceCount: integer(name='FaceCount', description='faceCount'),
     landmarkCount: integer(name='LandmarkCount', description='landmarkCount'),
     faceRectangles: [ integer ](name='FaceRectangles', description='faceRectangles'),
-    faceProbabilityList: [ float ](name='FaceProbabilityList', description='faceProbability'),
-    poseList: [ float ](name='PoseList', description='pose'),
+    faceProbabilityList: [ float ](name='FaceProbabilityList', description='faceProbabilityList'),
+    poseList: [ float ](name='PoseList', description='poseList'),
     landmarks: [ float ](name='Landmarks', description='landmarks'),
     pupils: [ float ](name='Pupils', description='pupils'),
   }(name='Data', description='data'),
