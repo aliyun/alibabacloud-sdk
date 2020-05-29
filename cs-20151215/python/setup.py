@@ -21,15 +21,15 @@ from setuptools import setup, find_packages
 import os
 
 """
-setup module for alibabacloud_sdk_cs20151215.
+setup module for alibabacloud_cs20151215.
 
 Created on 28/05/2020
 
 @author: Alibaba Cloud
 """
 
-PACKAGE = "alibabacloud_sdk_cs20151215"
-NAME = "alibabacloud_sdk_cs20151215"
+PACKAGE = "alibabacloud_cs20151215"
+NAME = "alibabacloud_cs20151215"
 DESCRIPTION = "Aliyun CS SDK Library for Python"
 AUTHOR = "Alibaba Cloud"
 AUTHOR_EMAIL = "alibaba-cloud-sdk-dev-team@list.alibaba-inc.com"
@@ -54,7 +54,7 @@ setup(
     author_email=AUTHOR_EMAIL,
     license="Apache License 2.0",
     url=URL,
-    keywords=["alibabacloud_sdk_cs20151215"],
+    keywords=["alibabacloud_cs20151215"],
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     platforms="any",
