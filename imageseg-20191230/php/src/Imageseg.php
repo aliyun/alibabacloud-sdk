@@ -13,6 +13,9 @@ use AlibabaCloud\SDK\Imageseg\V20191230\Models\ParseFaceResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\RefineMaskAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\RefineMaskRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\RefineMaskResponse;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentAnimalAdvanceRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentAnimalRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentAnimalResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentBodyAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentBodyRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentBodyResponse;
@@ -31,9 +34,15 @@ use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentFurnitureResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHairAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHairRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHairResponse;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHDBodyAdvanceRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHDBodyRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHDBodyResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHeadAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHeadRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentHeadResponse;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyAdvanceRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyRequest;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyResponse;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentVehicleAdvanceRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentVehicleRequest;
 use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentVehicleResponse;
@@ -62,13 +71,235 @@ class Imageseg extends Rpc
     /**
      * @throws \Exception
      *
+     * @return SegmentAnimalResponse
+     */
+    public function segmentAnimal(SegmentAnimalRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return SegmentAnimalResponse::fromMap($this->doRequest('SegmentAnimal', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SegmentAnimalResponse
+     */
+    public function segmentAnimalAdvance(SegmentAnimalAdvanceRequest $request, RuntimeOptions $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'imageseg',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $segmentAnimalreq = new SegmentAnimalRequest([]);
+        RpcUtils::convert($request, $segmentAnimalreq);
+        $segmentAnimalreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->segmentAnimal($segmentAnimalreq, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SegmentHDBodyResponse
+     */
+    public function segmentHDBody(SegmentHDBodyRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return SegmentHDBodyResponse::fromMap($this->doRequest('SegmentHDBody', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SegmentHDBodyResponse
+     */
+    public function segmentHDBodyAdvance(SegmentHDBodyAdvanceRequest $request, RuntimeOptions $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'imageseg',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $segmentHDBodyreq = new SegmentHDBodyRequest([]);
+        RpcUtils::convert($request, $segmentHDBodyreq);
+        $segmentHDBodyreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->segmentHDBody($segmentHDBodyreq, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SegmentSkyResponse
+     */
+    public function segmentSky(SegmentSkyRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return SegmentSkyResponse::fromMap($this->doRequest('SegmentSky', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return SegmentSkyResponse
+     */
+    public function segmentSkyAdvance(SegmentSkyAdvanceRequest $request, RuntimeOptions $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'imageseg',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $segmentSkyreq = new SegmentSkyRequest([]);
+        RpcUtils::convert($request, $segmentSkyreq);
+        $segmentSkyreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->segmentSky($segmentSkyreq, $runtime);
+    }
+
+    /**
+     * @throws \Exception
+     *
      * @return GetAsyncJobResultResponse
      */
     public function getAsyncJobResult(GetAsyncJobResultRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'GET', '2019-12-30', 'AK', null, $request, $runtime));
+        return GetAsyncJobResultResponse::fromMap($this->doRequest('GetAsyncJobResult', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -228,7 +459,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return ParseFaceResponse::fromMap($this->doRequest('ParseFace', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return ParseFaceResponse::fromMap($this->doRequest('ParseFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -376,7 +607,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return SegmentHairResponse::fromMap($this->doRequest('SegmentHair', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return SegmentHairResponse::fromMap($this->doRequest('SegmentHair', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -450,7 +681,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return SegmentFaceResponse::fromMap($this->doRequest('SegmentFace', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return SegmentFaceResponse::fromMap($this->doRequest('SegmentFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -524,7 +755,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return SegmentHeadResponse::fromMap($this->doRequest('SegmentHead', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return SegmentHeadResponse::fromMap($this->doRequest('SegmentHead', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -598,7 +829,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return SegmentCommodityResponse::fromMap($this->doRequest('SegmentCommodity', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return SegmentCommodityResponse::fromMap($this->doRequest('SegmentCommodity', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -672,7 +903,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return SegmentBodyResponse::fromMap($this->doRequest('SegmentBody', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return SegmentBodyResponse::fromMap($this->doRequest('SegmentBody', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -746,7 +977,7 @@ class Imageseg extends Rpc
     {
         Utils::validateModel($request);
 
-        return SegmentCommonImageResponse::fromMap($this->doRequest('SegmentCommonImage', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return SegmentCommonImageResponse::fromMap($this->doRequest('SegmentCommonImage', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**

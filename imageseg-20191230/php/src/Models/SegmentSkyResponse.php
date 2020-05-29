@@ -2,12 +2,12 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Facebody\V20191230\Models;
+namespace AlibabaCloud\SDK\Imageseg\V20191230\Models;
 
-use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectVideoLivingFaceResponse\data;
+use AlibabaCloud\SDK\Imageseg\V20191230\Models\SegmentSkyResponse\data;
 use AlibabaCloud\Tea\Model;
 
-class DetectVideoLivingFaceResponse extends Model
+class SegmentSkyResponse extends Model
 {
     /**
      * @description requestId
@@ -45,7 +45,7 @@ class DetectVideoLivingFaceResponse extends Model
     /**
      * @param array $map
      *
-     * @return DetectVideoLivingFaceResponse
+     * @return SegmentSkyResponse
      */
     public static function fromMap($map = [])
     {

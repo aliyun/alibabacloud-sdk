@@ -30,14 +30,14 @@ class data extends Model
     public $faceRectangles;
 
     /**
-     * @description faceProbability
+     * @description faceProbabilityList
      *
      * @var array
      */
     public $faceProbabilityList;
 
     /**
-     * @description pose
+     * @description poseList
      *
      * @var array
      */
