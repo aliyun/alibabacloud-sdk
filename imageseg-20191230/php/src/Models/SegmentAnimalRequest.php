@@ -2,31 +2,31 @@
 
 // This file is auto-generated, don't edit it. Thanks.
 
-namespace AlibabaCloud\SDK\Facebody\V20191230\Models;
+namespace AlibabaCloud\SDK\Imageseg\V20191230\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DetectVideoLivingFaceRequest extends Model
+class SegmentAnimalRequest extends Model
 {
     /**
-     * @description videoUrl
+     * @description imageUrl
      *
      * @var string
      */
-    public $videoUrl;
+    public $imageURL;
     protected $_name = [
-        'videoUrl' => 'VideoUrl',
+        'imageURL' => 'ImageURL',
     ];
 
     public function validate()
     {
-        Model::validateRequired('videoUrl', $this->videoUrl, true);
+        Model::validateRequired('imageURL', $this->imageURL, true);
     }
 
     public function toMap()
     {
         $res             = [];
-        $res['VideoUrl'] = $this->videoUrl;
+        $res['ImageURL'] = $this->imageURL;
 
         return $res;
     }
@@ -34,13 +34,13 @@ class DetectVideoLivingFaceRequest extends Model
     /**
      * @param array $map
      *
-     * @return DetectVideoLivingFaceRequest
+     * @return SegmentAnimalRequest
      */
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['VideoUrl'])) {
-            $model->videoUrl = $map['VideoUrl'];
+        if (isset($map['ImageURL'])) {
+            $model->imageURL = $map['ImageURL'];
         }
 
         return $model;

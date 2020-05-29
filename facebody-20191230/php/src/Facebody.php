@@ -37,6 +37,9 @@ use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectMaskResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectPedestrianAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectPedestrianRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectPedestrianResponse;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectVideoLivingFaceAdvanceRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectVideoLivingFaceRequest;
+use AlibabaCloud\SDK\Facebody\V20191230\Models\DetectVideoLivingFaceResponse;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\EnhanceFaceAdvanceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\EnhanceFaceRequest;
 use AlibabaCloud\SDK\Facebody\V20191230\Models\EnhanceFaceResponse;
@@ -97,6 +100,80 @@ class Facebody extends Rpc
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DetectVideoLivingFaceResponse
+     */
+    public function detectVideoLivingFace(DetectVideoLivingFaceRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DetectVideoLivingFaceResponse::fromMap($this->doRequest('DetectVideoLivingFace', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DetectVideoLivingFaceResponse
+     */
+    public function detectVideoLivingFaceAdvance(DetectVideoLivingFaceAdvanceRequest $request, RuntimeOptions $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'facebody',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->videoUrlObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $detectVideoLivingFacereq = new DetectVideoLivingFaceRequest([]);
+        RpcUtils::convert($request, $detectVideoLivingFacereq);
+        $detectVideoLivingFacereq->videoUrl = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->detectVideoLivingFace($detectVideoLivingFacereq, $runtime);
     }
 
     /**
