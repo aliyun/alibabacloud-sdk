@@ -592,6 +592,6 @@ class Client(ROAClient):
     def get_endpoint(self, product_id, region_id, endpoint_rule, network, suffix, endpoint_map, endpoint):
         if not UtilClient.empty(endpoint):
             return endpoint
-        if not UtilClient.is_unset(endpoint_map) and not UtilClient.empty(endpoint_map["regionId"]):
-            return endpoint_map["regionId"]
+        if not UtilClient.is_unset(endpoint_map) and not UtilClient.empty(endpoint_map.get("regionId")):
+            return endpoint_map.get("regionId")
         return EndpointUtilClient.get_endpoint_rules(product_id, region_id, endpoint_rule, network, suffix)

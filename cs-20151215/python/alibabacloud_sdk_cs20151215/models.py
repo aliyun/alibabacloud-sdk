@@ -20,7 +20,7 @@ class ResumeComponentUpgradeRequest(TeaModel):
 
 
 class ResumeComponentUpgradeResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -84,7 +84,7 @@ class PauseComponentUpgradeRequest(TeaModel):
 
 
 class PauseComponentUpgradeResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -148,7 +148,7 @@ class CancelComponentUpgradeRequest(TeaModel):
 
 
 class CancelComponentUpgradeResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -382,7 +382,7 @@ class CreateServiceMeshRequest(TeaModel):
 
 
 class CreateServiceMeshResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -446,7 +446,7 @@ class ServiceMeshAddClusterRequest(TeaModel):
 
 
 class ServiceMeshAddClusterResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -510,7 +510,7 @@ class ServiceMeshRemoveClusterRequest(TeaModel):
 
 
 class ServiceMeshRemoveClusterResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -574,7 +574,7 @@ class UpdateServiceMeshRequest(TeaModel):
 
 
 class UpdateServiceMeshResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -655,7 +655,7 @@ class ServiceMeshApiServerResponse(TeaModel):
 
 
 class UnInstallClusterAddonsBody(TeaModel):
-    def __init__(self, name=""):
+    def __init__(self, name=None):
         self.name = name
 
     def validate(self):
@@ -701,7 +701,7 @@ class UnInstallClusterAddonsRequest(TeaModel):
 
 
 class UnInstallClusterAddonsResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -748,7 +748,7 @@ class UnInstallClusterAddonsResponse(TeaModel):
 
 
 class DescribeAddonsQuery(TeaModel):
-    def __init__(self, region="", cluster_type=""):
+    def __init__(self, region=None, cluster_type=None):
         self.region = region
         self.cluster_type = cluster_type
 
@@ -842,7 +842,7 @@ class DescribeAddonsResponseBody(TeaModel):
 
 
 class DescribeAddonsResponseBodyComponentGroupsItems(TeaModel):
-    def __init__(self, name="", config="", required="", disabled=False, version=""):
+    def __init__(self, name=None, config=None, required=None, disabled=None, version=None):
         self.name = name
         self.config = config
         self.required = required
@@ -875,7 +875,7 @@ class DescribeAddonsResponseBodyComponentGroupsItems(TeaModel):
 
 
 class DescribeAddonsResponseBodyComponentGroups(TeaModel):
-    def __init__(self, group_name="", items=None, default_=None):
+    def __init__(self, group_name=None, items=None, default_=None):
         self.group_name = group_name
         self.items = []
         self.default_ = []
@@ -926,7 +926,7 @@ class DescribeAddonsResponseBodyComponentGroups(TeaModel):
 
 
 class DescribeAddonsResponseBodyStandardComponentsAddonName(TeaModel):
-    def __init__(self, name="", config="", required="", disabled=False, version=""):
+    def __init__(self, name=None, config=None, required=None, disabled=None, version=None):
         self.name = name
         self.config = config
         self.required = required
@@ -1032,7 +1032,7 @@ class CancelClusterUpgradeRequest(TeaModel):
 
 
 class CancelClusterUpgradeResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -1096,7 +1096,7 @@ class DescribeUserQuotaRequest(TeaModel):
 
 
 class DescribeUserQuotaResponseBody(TeaModel):
-    def __init__(self, cluster_quota=0, node_quota=0, ask_cluster_quota=0, amk_cluster_quota=0):
+    def __init__(self, cluster_quota=None, node_quota=None, ask_cluster_quota=None, amk_cluster_quota=None):
         self.cluster_quota = cluster_quota
         self.node_quota = node_quota
         self.ask_cluster_quota = ask_cluster_quota
@@ -1155,7 +1155,7 @@ class DescribeUserQuotaResponse(TeaModel):
 
 
 class DescribeClusterV2UserKubeconfigQuery(TeaModel):
-    def __init__(self, private_ip_address=False):
+    def __init__(self, private_ip_address=None):
         self.private_ip_address = private_ip_address
 
     def validate(self):
@@ -1200,7 +1200,7 @@ class DescribeClusterV2UserKubeconfigRequest(TeaModel):
 
 
 class DescribeClusterV2UserKubeconfigResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -1247,7 +1247,7 @@ class DescribeClusterV2UserKubeconfigResponse(TeaModel):
 
 
 class RemoveClusterNodesBody(TeaModel):
-    def __init__(self, release_node=False, drain_node=False, nodes=None):
+    def __init__(self, release_node=None, drain_node=None, nodes=None):
         self.release_node = release_node
         self.drain_node = drain_node
         self.nodes = []
@@ -1286,7 +1286,7 @@ class RemoveClusterNodesBody(TeaModel):
 
 
 class RemoveClusterNodesBodyNodes(TeaModel):
-    def __init__(self, node_name=""):
+    def __init__(self, node_name=None):
         self.node_name = node_name
 
     def validate(self):
@@ -1348,7 +1348,7 @@ class RemoveClusterNodesResponse(TeaModel):
 
 
 class UpgradeClusterBody(TeaModel):
-    def __init__(self, version=""):
+    def __init__(self, version=None):
         self.version = version
 
     def validate(self):
@@ -1495,7 +1495,7 @@ class GetUpgradeStatusRequest(TeaModel):
 
 
 class GetUpgradeStatusResponseBody(TeaModel):
-    def __init__(self, status="", precheck_report_id="", upgrade_step="", error_message=""):
+    def __init__(self, status=None, precheck_report_id=None, upgrade_step=None, error_message=None):
         self.status = status
         self.precheck_report_id = precheck_report_id
         self.upgrade_step = upgrade_step
@@ -1554,7 +1554,7 @@ class GetUpgradeStatusResponse(TeaModel):
 
 
 class ModifyClusterBody(TeaModel):
-    def __init__(self, deletion_protection=False, ingress_loadbalancer_id="", resource_group_id=""):
+    def __init__(self, deletion_protection=None, ingress_loadbalancer_id=None, resource_group_id=None):
         self.deletion_protection = deletion_protection
         self.ingress_loadbalancer_id = ingress_loadbalancer_id
         self.resource_group_id = resource_group_id
@@ -1622,7 +1622,7 @@ class ModifyClusterResponse(TeaModel):
 
 
 class InstallClusterAddonsBody(TeaModel):
-    def __init__(self, name="", version="", disabled=False, required="", config=""):
+    def __init__(self, name=None, version=None, disabled=None, required=None, config=None):
         self.name = name
         self.version = version
         self.disabled = disabled
@@ -1730,7 +1730,7 @@ class DeleteTriggerHookResponse(TeaModel):
 
 
 class ModifyClusterTagsBody(TeaModel):
-    def __init__(self, key="", value=""):
+    def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
 
@@ -1780,7 +1780,7 @@ class ModifyClusterTagsRequest(TeaModel):
 
 
 class ModifyClusterTagsResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -1844,7 +1844,7 @@ class DescribeExternalAgentRequest(TeaModel):
 
 
 class DescribeExternalAgentResponseBody(TeaModel):
-    def __init__(self, config=""):
+    def __init__(self, config=None):
         self.config = config
 
     def validate(self):
@@ -1917,8 +1917,8 @@ class DescribeClusterAttachScriptsBody(TeaModel):
 
 
 class DescribeClusterAttachScriptsBodyOptions(TeaModel):
-    def __init__(self, flannel_iface="", enable_iptables=False, manage_runtime=False, node_name_strategy="",
-                 node_name="", node_name_prefix=""):
+    def __init__(self, flannel_iface=None, enable_iptables=None, manage_runtime=None, node_name_strategy=None,
+                 node_name=None, node_name_prefix=None):
         self.flannel_iface = flannel_iface
         self.enable_iptables = enable_iptables
         self.manage_runtime = manage_runtime
@@ -1996,10 +1996,10 @@ class DescribeClusterAttachScriptsResponse(TeaModel):
 
 
 class ScaleOutClusterBody(TeaModel):
-    def __init__(self, count=0, worker_instance_charge_type="", worker_period=0, worker_period_unit="",
-                 worker_auto_renew=False, worker_auto_renew_period=0, worker_system_disk_category="",
-                 worker_system_disk_size=0, worker_data_disk=False, key_pair="", login_password="",
-                 cloud_monitor_flags=False, cpu_policy="", disable_rollback=False, worker_data_disks=None, tags=None,
+    def __init__(self, count=None, worker_instance_charge_type=None, worker_period=None, worker_period_unit=None,
+                 worker_auto_renew=None, worker_auto_renew_period=None, worker_system_disk_category=None,
+                 worker_system_disk_size=None, worker_data_disk=None, key_pair=None, login_password=None,
+                 cloud_monitor_flags=None, cpu_policy=None, disable_rollback=None, worker_data_disks=None, tags=None,
                  taints=None, vswitch_ids=None, worker_instance_types=None):
         self.count = count
         self.worker_instance_charge_type = worker_instance_charge_type
@@ -2147,7 +2147,7 @@ class ScaleOutClusterBody(TeaModel):
 
 
 class ScaleOutClusterBodyWorkerDataDisks(TeaModel):
-    def __init__(self, category="", size="", encrypted=""):
+    def __init__(self, category=None, size=None, encrypted=None):
         self.category = category
         self.size = size
         self.encrypted = encrypted
@@ -2170,7 +2170,7 @@ class ScaleOutClusterBodyWorkerDataDisks(TeaModel):
 
 
 class ScaleOutClusterBodyTags(TeaModel):
-    def __init__(self, key="", value=""):
+    def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
 
@@ -2190,7 +2190,7 @@ class ScaleOutClusterBodyTags(TeaModel):
 
 
 class ScaleOutClusterBodyTaints(TeaModel):
-    def __init__(self, key="", value="", effect=""):
+    def __init__(self, key=None, value=None, effect=None):
         self.key = key
         self.value = value
         self.effect = effect
@@ -2242,7 +2242,7 @@ class ScaleOutClusterRequest(TeaModel):
 
 
 class ScaleOutClusterResponseBody(TeaModel):
-    def __init__(self, cluster_id="", request_id="", task_id="", instance_id=""):
+    def __init__(self, cluster_id=None, request_id=None, task_id=None, instance_id=None):
         self.cluster_id = cluster_id
         self.request_id = request_id
         self.task_id = task_id
@@ -2301,7 +2301,7 @@ class ScaleOutClusterResponse(TeaModel):
 
 
 class CreateTriggerHookBody(TeaModel):
-    def __init__(self, region_id="", cluster_id="", project_id="", action="", trigger_url=""):
+    def __init__(self, region_id=None, cluster_id=None, project_id=None, action=None, trigger_url=None):
         self.region_id = region_id
         self.cluster_id = cluster_id
         self.project_id = project_id
@@ -2375,7 +2375,7 @@ class CreateTriggerHookResponse(TeaModel):
 
 
 class UpgradeClusterAddonsBody(TeaModel):
-    def __init__(self, component_name="", version=""):
+    def __init__(self, component_name=None, version=None):
         self.component_name = component_name
         self.version = version
 
@@ -2457,8 +2457,8 @@ class DescribeClusterAddonsVersionRequest(TeaModel):
 
 
 class DescribeClusterAddonsVersionResponseBody(TeaModel):
-    def __init__(self, template="", next_version="", can_upgrade=False, component_name="", version="", changed="",
-                 message="", required=False):
+    def __init__(self, template=None, next_version=None, can_upgrade=None, component_name=None, version=None,
+                 changed=None, message=None, required=None):
         self.template = template
         self.next_version = next_version
         self.can_upgrade = can_upgrade
@@ -2550,7 +2550,7 @@ class DescribeClusterAddonUpgradeStatusRequest(TeaModel):
 
 
 class DescribeClusterAddonUpgradeStatusResponseBody(TeaModel):
-    def __init__(self, template="", can_upgrade=False, addon_info=None):
+    def __init__(self, template=None, can_upgrade=None, addon_info=None):
         self.template = template
         self.can_upgrade = can_upgrade
         self.addon_info = addon_info
@@ -2584,7 +2584,7 @@ class DescribeClusterAddonUpgradeStatusResponseBody(TeaModel):
 
 
 class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo(TeaModel):
-    def __init__(self, message="", category="", yaml="", component_name="", version=""):
+    def __init__(self, message=None, category=None, yaml=None, component_name=None, version=None):
         self.message = message
         self.category = category
         self.yaml = yaml
@@ -2647,7 +2647,7 @@ class DescribeClusterAddonUpgradeStatusResponse(TeaModel):
 
 
 class DeleteClusterNodesBody(TeaModel):
-    def __init__(self, release_node="", nodes=None):
+    def __init__(self, release_node=None, nodes=None):
         self.release_node = release_node
         self.nodes = []
 
@@ -2706,7 +2706,7 @@ class DeleteClusterNodesRequest(TeaModel):
 
 
 class DeleteClusterNodesResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -2787,7 +2787,7 @@ class DeleteTemplateResponse(TeaModel):
 
 
 class DescribeClusterUserKubeconfigQuery(TeaModel):
-    def __init__(self, private_ip_address=False):
+    def __init__(self, private_ip_address=None):
         self.private_ip_address = private_ip_address
 
     def validate(self):
@@ -2832,7 +2832,7 @@ class DescribeClusterUserKubeconfigRequest(TeaModel):
 
 
 class DescribeClusterUserKubeconfigResponseBody(TeaModel):
-    def __init__(self, config=""):
+    def __init__(self, config=None):
         self.config = config
 
     def validate(self):
@@ -2879,7 +2879,7 @@ class DescribeClusterUserKubeconfigResponse(TeaModel):
 
 
 class DescribeClusterNodesQuery(TeaModel):
-    def __init__(self, page_size="", page_number="", nodepool_id="", state=""):
+    def __init__(self, page_size=None, page_number=None, nodepool_id=None, state=None):
         self.page_size = page_size
         self.page_number = page_number
         self.nodepool_id = nodepool_id
@@ -2999,10 +2999,10 @@ class DescribeClusterNodesResponseBodyNodesNodesIpAddress(TeaModel):
 
 
 class DescribeClusterNodesResponseBodyNodesNodes(TeaModel):
-    def __init__(self, instance_id="", instance_role="", instance_name="", host_name="", node_name="", instance_type="",
-                 instance_charge_type="", image_id="", instance_type_family="", docker_version="", agent_version="",
-                 is_leader=False, containers=0, is_aliyun_node=False, state="", nodepool_id="", error_message="",
-                 ip_address=None):
+    def __init__(self, instance_id=None, instance_role=None, instance_name=None, host_name=None, node_name=None,
+                 instance_type=None, instance_charge_type=None, image_id=None, instance_type_family=None,
+                 docker_version=None, agent_version=None, is_leader=None, containers=None, is_aliyun_node=None,
+                 state=None, nodepool_id=None, error_message=None, ip_address=None):
         self.instance_id = instance_id
         self.instance_role = instance_role
         self.instance_name = instance_name
@@ -3129,7 +3129,7 @@ class DescribeClusterNodesResponseBodyNodes(TeaModel):
 
 
 class DescribeClusterNodesResponseBodyPage(TeaModel):
-    def __init__(self, total_count=0, page_number=0, page_size=0):
+    def __init__(self, total_count=None, page_number=None, page_size=None):
         self.total_count = total_count
         self.page_number = page_number
         self.page_size = page_size
@@ -3201,7 +3201,7 @@ class DescribeClusterLogsRequest(TeaModel):
 
 
 class DescribeClusterLogsResponseBody(TeaModel):
-    def __init__(self, cluster_id="", cluster_log="", log_level="", created=""):
+    def __init__(self, cluster_id=None, cluster_log=None, log_level=None, created=None):
         self.cluster_id = cluster_id
         self.cluster_log = cluster_log
         self.log_level = log_level
@@ -3260,8 +3260,8 @@ class DescribeClusterLogsResponse(TeaModel):
 
 
 class AttachInstancesBody(TeaModel):
-    def __init__(self, format_disk=False, keep_instance_name=False, cpu_policy="", key_pair="", password="", tags=None,
-                 instances=None):
+    def __init__(self, format_disk=None, keep_instance_name=None, cpu_policy=None, key_pair=None, password=None,
+                 tags=None, instances=None):
         self.format_disk = format_disk
         self.keep_instance_name = keep_instance_name
         self.cpu_policy = cpu_policy
@@ -3325,7 +3325,7 @@ class AttachInstancesBody(TeaModel):
 
 
 class AttachInstancesBodyTags(TeaModel):
-    def __init__(self, key="", value=""):
+    def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
 
@@ -3374,7 +3374,7 @@ class AttachInstancesRequest(TeaModel):
 
 
 class AttachInstancesResponseBody(TeaModel):
-    def __init__(self, task_id="", list_=None):
+    def __init__(self, task_id=None, list_=None):
         self.task_id = task_id
         self.list_ = []
 
@@ -3411,7 +3411,7 @@ class AttachInstancesResponseBody(TeaModel):
 
 
 class AttachInstancesResponseBodyList(TeaModel):
-    def __init__(self, code="", instance_id="", message=""):
+    def __init__(self, code=None, instance_id=None, message=None):
         self.code = code
         self.instance_id = instance_id
         self.message = message
@@ -3466,7 +3466,7 @@ class AttachInstancesResponse(TeaModel):
 
 
 class DescribeTemplatesQuery(TeaModel):
-    def __init__(self, template_type=""):
+    def __init__(self, template_type=None):
         self.template_type = template_type
 
     def validate(self):
@@ -3511,7 +3511,7 @@ class DescribeTemplatesRequest(TeaModel):
 
 
 class DescribeTemplatesResponseBody(TeaModel):
-    def __init__(self, template="", acl="", name="", tags="", template_type="", description=""):
+    def __init__(self, template=None, acl=None, name=None, tags=None, template_type=None, description=None):
         self.template = template
         self.acl = acl
         self.name = name
@@ -3578,7 +3578,7 @@ class DescribeTemplatesResponse(TeaModel):
 
 
 class CreateTemplateBody(TeaModel):
-    def __init__(self, name="", template="", tags="", template_type=""):
+    def __init__(self, name=None, template=None, tags=None, template_type=None):
         self.name = name
         self.template = template
         self.tags = tags
@@ -3634,7 +3634,7 @@ class CreateTemplateRequest(TeaModel):
 
 
 class CreateTemplateResponseBody(TeaModel):
-    def __init__(self, template_id=""):
+    def __init__(self, template_id=None):
         self.template_id = template_id
 
     def validate(self):
@@ -3681,17 +3681,18 @@ class CreateTemplateResponse(TeaModel):
 
 
 class CreateClusterBody(TeaModel):
-    def __init__(self, cluster_type="", name="", region_id="", kubernetes_version="", snat_entry=False,
-                 endpoint_public_access=False, ssh_flags=False, cloud_monitor_flags=False, deletion_protection=False,
-                 node_cidr_mask="", proxy_mode="", os_type="", platform="", node_port_range="", key_pair="",
-                 login_password="", master_instance_charge_type="", worker_instance_charge_type="", master_period=0,
-                 worker_period=0, master_period_unit="", worker_period_unit="", master_auto_renew=False,
-                 master_auto_renew_period=0, worker_auto_renew=False, worker_auto_renew_period=0, cpu_policy="",
-                 master_count=0, master_system_disk_category="", master_system_disk_size=0, runtime=None,
-                 num_of_nodes=0, worker_system_disk_category="", worker_system_disk_size=0, worker_data_disk=False,
-                 vpcid="", security_group_id="", container_cidr="", service_cidr="", disable_rollback=False,
-                 timeout_mins=0, tags=None, addons=None, taints=None, worker_data_disks=None, master_vswitch_ids=None,
-                 master_instance_types=None, worker_instance_types=None, worker_vswitch_ids=None):
+    def __init__(self, cluster_type=None, name=None, region_id=None, kubernetes_version=None, snat_entry=None,
+                 endpoint_public_access=None, ssh_flags=None, cloud_monitor_flags=None, deletion_protection=None,
+                 node_cidr_mask=None, proxy_mode=None, os_type=None, platform=None, node_port_range=None, key_pair=None,
+                 login_password=None, master_instance_charge_type=None, worker_instance_charge_type=None,
+                 master_period=None, worker_period=None, master_period_unit=None, worker_period_unit=None,
+                 master_auto_renew=None, master_auto_renew_period=None, worker_auto_renew=None,
+                 worker_auto_renew_period=None, cpu_policy=None, master_count=None, master_system_disk_category=None,
+                 master_system_disk_size=None, runtime=None, num_of_nodes=None, worker_system_disk_category=None,
+                 worker_system_disk_size=None, worker_data_disk=None, vpcid=None, security_group_id=None,
+                 container_cidr=None, service_cidr=None, disable_rollback=None, timeout_mins=None, tags=None,
+                 addons=None, taints=None, worker_data_disks=None, master_vswitch_ids=None, master_instance_types=None,
+                 worker_instance_types=None, worker_vswitch_ids=None):
         self.cluster_type = cluster_type
         self.name = name
         self.region_id = region_id
@@ -3974,7 +3975,7 @@ class CreateClusterBody(TeaModel):
 
 
 class CreateClusterBodyTags(TeaModel):
-    def __init__(self, key="", value=""):
+    def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
 
@@ -3994,7 +3995,7 @@ class CreateClusterBodyTags(TeaModel):
 
 
 class CreateClusterBodyAddons(TeaModel):
-    def __init__(self, name="", config=""):
+    def __init__(self, name=None, config=None):
         self.name = name
         self.config = config
 
@@ -4014,7 +4015,7 @@ class CreateClusterBodyAddons(TeaModel):
 
 
 class CreateClusterBodyTaints(TeaModel):
-    def __init__(self, key="", value="", effect=""):
+    def __init__(self, key=None, value=None, effect=None):
         self.key = key
         self.value = value
         self.effect = effect
@@ -4037,7 +4038,7 @@ class CreateClusterBodyTaints(TeaModel):
 
 
 class CreateClusterBodyWorkerDataDisks(TeaModel):
-    def __init__(self, category="", size="", encrypted=""):
+    def __init__(self, category=None, size=None, encrypted=None):
         self.category = category
         self.size = size
         self.encrypted = encrypted
@@ -4089,7 +4090,7 @@ class CreateClusterRequest(TeaModel):
 
 
 class CreateClusterResponseBody(TeaModel):
-    def __init__(self, cluster_id="", request_id="", task_id=""):
+    def __init__(self, cluster_id=None, request_id=None, task_id=None):
         self.cluster_id = cluster_id
         self.request_id = request_id
         self.task_id = task_id
@@ -4161,7 +4162,7 @@ class ScaleClusterRequest(TeaModel):
 
 
 class ScaleClusterResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -4208,7 +4209,7 @@ class ScaleClusterResponse(TeaModel):
 
 
 class DescribeClustersQuery(TeaModel):
-    def __init__(self, name="", cluster_type=""):
+    def __init__(self, name=None, cluster_type=None):
         self.name = name
         self.cluster_type = cluster_type
 
@@ -4256,10 +4257,10 @@ class DescribeClustersRequest(TeaModel):
 
 
 class DescribeClustersResponseBody(TeaModel):
-    def __init__(self, name="", cluster_id="", region_id="", state="", cluster_type="", current_version="",
-                 meta_data="", resource_group_id="", vpc_id="", vswitch_id="", vswitch_cidr="", data_disk_size=0,
-                 data_disk_category="", security_group_id="", zone_id="", network_mode="", master_url="",
-                 docker_version="", deletion_protection=False, tags=None):
+    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None,
+                 meta_data=None, resource_group_id=None, vpc_id=None, vswitch_id=None, vswitch_cidr=None,
+                 data_disk_size=None, data_disk_category=None, security_group_id=None, zone_id=None, network_mode=None,
+                 master_url=None, docker_version=None, deletion_protection=None, tags=None):
         self.name = name
         self.cluster_id = cluster_id
         self.region_id = region_id
@@ -4368,7 +4369,7 @@ class DescribeClustersResponseBody(TeaModel):
 
 
 class DescribeClustersResponseBodyTags(TeaModel):
-    def __init__(self, key="", value=""):
+    def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
 
@@ -4443,10 +4444,10 @@ class DescribeClusterDetailRequest(TeaModel):
 
 
 class DescribeClusterDetailResponseBody(TeaModel):
-    def __init__(self, name="", cluster_id="", region_id="", state="", cluster_type="", current_version="",
-                 meta_data="", resource_group_id="", instance_type="", vpc_id="", vswitch_id="", vswitch_cidr="",
-                 data_disk_size=0, data_disk_category="", security_group_id="", zone_id="", network_mode="",
-                 docker_version="", deletion_protection=False, tags=None):
+    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None,
+                 meta_data=None, resource_group_id=None, instance_type=None, vpc_id=None, vswitch_id=None,
+                 vswitch_cidr=None, data_disk_size=None, data_disk_category=None, security_group_id=None, zone_id=None,
+                 network_mode=None, docker_version=None, deletion_protection=None, tags=None):
         self.name = name
         self.cluster_id = cluster_id
         self.region_id = region_id
@@ -4555,7 +4556,7 @@ class DescribeClusterDetailResponseBody(TeaModel):
 
 
 class DescribeClusterDetailResponseBodyTags(TeaModel):
-    def __init__(self, key="", value=""):
+    def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
 
@@ -4623,7 +4624,7 @@ class DeleteClusterRequest(TeaModel):
 
 
 class DeleteClusterResponseBody(TeaModel):
-    def __init__(self, request_id=""):
+    def __init__(self, request_id=None):
         self.request_id = request_id
 
     def validate(self):
@@ -4687,7 +4688,7 @@ class DescribeApiVersionRequest(TeaModel):
 
 
 class DescribeApiVersionResponseBody(TeaModel):
-    def __init__(self, version="", build="", docker_version="", docker_region_versions=""):
+    def __init__(self, version=None, build=None, docker_version=None, docker_region_versions=None):
         self.version = version
         self.build = build
         self.docker_version = docker_version
