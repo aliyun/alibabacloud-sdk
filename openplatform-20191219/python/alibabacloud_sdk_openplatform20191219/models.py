@@ -23,8 +23,7 @@ class AuthorizeFileUploadRequest(TeaModel):
 
 
 class AuthorizeFileUploadResponse(TeaModel):
-    def __init__(self, access_key_id="", bucket="", encoded_policy="", endpoint="", object_key="", request_id="",
-                 signature="", use_accelerate=False):
+    def __init__(self, access_key_id="", bucket="", encoded_policy="", endpoint="", object_key="", request_id="", signature="", use_accelerate=False):
         self.access_key_id = access_key_id
         self.bucket = bucket
         self.encoded_policy = encoded_policy
