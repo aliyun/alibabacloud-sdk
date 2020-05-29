@@ -11,6 +11,7 @@ English | [简体中文](README-CN.md)
  - [Usage for PHP](./docs/php/0-Examples-EN.md)
  - [Usage for TypeScript/Node.js](./docs/ts/Usage-EN.md)
  - [Usage for .Net](./docs/csharp/0-Examples-EN.md)
+ - [Usage for Python](./docs/python/0-Usage-EN.md)
 
 ## Issues
 [Opening an Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new), Issues not conforming to the guidelines may be closed immediately.
