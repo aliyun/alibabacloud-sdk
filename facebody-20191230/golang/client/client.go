@@ -14,6 +14,109 @@ import (
 	"io"
 )
 
+type DetectVideoLivingFaceRequest struct {
+	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+}
+
+func (s DetectVideoLivingFaceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectVideoLivingFaceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectVideoLivingFaceRequest) SetVideoUrl(v string) *DetectVideoLivingFaceRequest {
+	s.VideoUrl = &v
+	return s
+}
+
+type DetectVideoLivingFaceResponse struct {
+	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
+	Data      *DetectVideoLivingFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+}
+
+func (s DetectVideoLivingFaceResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectVideoLivingFaceResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectVideoLivingFaceResponse) SetRequestId(v string) *DetectVideoLivingFaceResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectVideoLivingFaceResponse) SetData(v *DetectVideoLivingFaceResponseData) *DetectVideoLivingFaceResponse {
+	s.Data = v
+	return s
+}
+
+type DetectVideoLivingFaceResponseData struct {
+	Elements []*DetectVideoLivingFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+}
+
+func (s DetectVideoLivingFaceResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectVideoLivingFaceResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectVideoLivingFaceResponseData) SetElements(v []*DetectVideoLivingFaceResponseDataElements) *DetectVideoLivingFaceResponseData {
+	s.Elements = v
+	return s
+}
+
+type DetectVideoLivingFaceResponseDataElements struct {
+	LiveConfidence *float32 `json:"LiveConfidence" xml:"LiveConfidence" require:"true"`
+	FaceConfidence *float32 `json:"FaceConfidence" xml:"FaceConfidence" require:"true"`
+	Rect           []*int   `json:"Rect" xml:"Rect" require:"true" type:"Repeated"`
+}
+
+func (s DetectVideoLivingFaceResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectVideoLivingFaceResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectVideoLivingFaceResponseDataElements) SetLiveConfidence(v float32) *DetectVideoLivingFaceResponseDataElements {
+	s.LiveConfidence = &v
+	return s
+}
+
+func (s *DetectVideoLivingFaceResponseDataElements) SetFaceConfidence(v float32) *DetectVideoLivingFaceResponseDataElements {
+	s.FaceConfidence = &v
+	return s
+}
+
+func (s *DetectVideoLivingFaceResponseDataElements) SetRect(v []*int) *DetectVideoLivingFaceResponseDataElements {
+	s.Rect = v
+	return s
+}
+
+type DetectVideoLivingFaceAdvanceRequest struct {
+	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
+}
+
+func (s DetectVideoLivingFaceAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectVideoLivingFaceAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectVideoLivingFaceAdvanceRequest) SetVideoUrlObject(v io.Reader) *DetectVideoLivingFaceAdvanceRequest {
+	s.VideoUrlObject = v
+	return s
+}
+
 type SwapFacialFeaturesRequest struct {
 	SourceImageURL *string `json:"SourceImageURL" xml:"SourceImageURL" require:"true"`
 	EditPart       *string `json:"EditPart" xml:"EditPart" require:"true"`
@@ -3041,6 +3144,104 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) DetectVideoLivingFace(request *DetectVideoLivingFaceRequest, runtime *util.RuntimeOptions) (_result *DetectVideoLivingFaceResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DetectVideoLivingFaceResponse{}
+	_body, _err := client.DoRequest(tea.String("DetectVideoLivingFace"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectVideoLivingFaceAdvance(request *DetectVideoLivingFaceAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectVideoLivingFaceResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.VideoUrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	detectVideoLivingFacereq := &DetectVideoLivingFaceRequest{}
+	rpcutil.Convert(request, detectVideoLivingFacereq)
+	detectVideoLivingFacereq.VideoUrl = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectVideoLivingFaceResp, _err := client.DetectVideoLivingFace(detectVideoLivingFacereq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = detectVideoLivingFaceResp
+	return _result, _err
 }
 
 func (client *Client) SwapFacialFeatures(request *SwapFacialFeaturesRequest, runtime *util.RuntimeOptions) (_result *SwapFacialFeaturesResponse, _err error) {
