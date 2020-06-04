@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Tea;
 using Tea.Utils;
 
-using AlibabaCloud.SDK.ECI.Models;
+using AlibabaCloud.SDK.Eci20180808.Models;
 
-namespace AlibabaCloud.SDK.ECI
+namespace AlibabaCloud.SDK.Eci20180808
 {
     public class Client : AlibabaCloud.RPCClient.Client
     {
@@ -24,13 +24,13 @@ namespace AlibabaCloud.SDK.ECI
         }
 
 
-        public DescribeRegionsResponse DescribeRegionsEx(DescribeRegionsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeRegionsResponse DescribeRegionsWithOptions(DescribeRegionsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeRegionsResponse>(DoRequest("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeRegionsResponse> DescribeRegionsExAsync(DescribeRegionsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeRegionsResponse> DescribeRegionsWithOptionsAsync(DescribeRegionsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeRegionsResponse>(await DoRequestAsync("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -39,22 +39,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeRegionsResponse DescribeRegions(DescribeRegionsRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeRegionsEx(request, runtime);
+            return DescribeRegionsWithOptions(request, runtime);
         }
 
         public async Task<DescribeRegionsResponse> DescribeRegionsAsync(DescribeRegionsRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeRegionsExAsync(request, runtime);
+            return await DescribeRegionsWithOptionsAsync(request, runtime);
         }
 
-        public DescribeImageCachesResponse DescribeImageCachesEx(DescribeImageCachesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeImageCachesResponse DescribeImageCachesWithOptions(DescribeImageCachesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeImageCachesResponse>(DoRequest("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeImageCachesResponse> DescribeImageCachesExAsync(DescribeImageCachesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeImageCachesResponse> DescribeImageCachesWithOptionsAsync(DescribeImageCachesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeImageCachesResponse>(await DoRequestAsync("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -63,22 +63,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeImageCachesResponse DescribeImageCaches(DescribeImageCachesRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeImageCachesEx(request, runtime);
+            return DescribeImageCachesWithOptions(request, runtime);
         }
 
         public async Task<DescribeImageCachesResponse> DescribeImageCachesAsync(DescribeImageCachesRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeImageCachesExAsync(request, runtime);
+            return await DescribeImageCachesWithOptionsAsync(request, runtime);
         }
 
-        public DeleteImageCacheResponse DeleteImageCacheEx(DeleteImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DeleteImageCacheResponse DeleteImageCacheWithOptions(DeleteImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DeleteImageCacheResponse>(DoRequest("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DeleteImageCacheResponse> DeleteImageCacheExAsync(DeleteImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DeleteImageCacheResponse> DeleteImageCacheWithOptionsAsync(DeleteImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DeleteImageCacheResponse>(await DoRequestAsync("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -87,22 +87,22 @@ namespace AlibabaCloud.SDK.ECI
         public DeleteImageCacheResponse DeleteImageCache(DeleteImageCacheRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DeleteImageCacheEx(request, runtime);
+            return DeleteImageCacheWithOptions(request, runtime);
         }
 
         public async Task<DeleteImageCacheResponse> DeleteImageCacheAsync(DeleteImageCacheRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DeleteImageCacheExAsync(request, runtime);
+            return await DeleteImageCacheWithOptionsAsync(request, runtime);
         }
 
-        public CreateImageCacheResponse CreateImageCacheEx(CreateImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public CreateImageCacheResponse CreateImageCacheWithOptions(CreateImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<CreateImageCacheResponse>(DoRequest("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<CreateImageCacheResponse> CreateImageCacheExAsync(CreateImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<CreateImageCacheResponse> CreateImageCacheWithOptionsAsync(CreateImageCacheRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<CreateImageCacheResponse>(await DoRequestAsync("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -111,22 +111,22 @@ namespace AlibabaCloud.SDK.ECI
         public CreateImageCacheResponse CreateImageCache(CreateImageCacheRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return CreateImageCacheEx(request, runtime);
+            return CreateImageCacheWithOptions(request, runtime);
         }
 
         public async Task<CreateImageCacheResponse> CreateImageCacheAsync(CreateImageCacheRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await CreateImageCacheExAsync(request, runtime);
+            return await CreateImageCacheWithOptionsAsync(request, runtime);
         }
 
-        public DescribeMultiContainerGroupMetricResponse DescribeMultiContainerGroupMetricEx(DescribeMultiContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeMultiContainerGroupMetricResponse DescribeMultiContainerGroupMetricWithOptions(DescribeMultiContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeMultiContainerGroupMetricResponse>(DoRequest("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeMultiContainerGroupMetricResponse> DescribeMultiContainerGroupMetricExAsync(DescribeMultiContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeMultiContainerGroupMetricResponse> DescribeMultiContainerGroupMetricWithOptionsAsync(DescribeMultiContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeMultiContainerGroupMetricResponse>(await DoRequestAsync("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -135,22 +135,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeMultiContainerGroupMetricResponse DescribeMultiContainerGroupMetric(DescribeMultiContainerGroupMetricRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeMultiContainerGroupMetricEx(request, runtime);
+            return DescribeMultiContainerGroupMetricWithOptions(request, runtime);
         }
 
         public async Task<DescribeMultiContainerGroupMetricResponse> DescribeMultiContainerGroupMetricAsync(DescribeMultiContainerGroupMetricRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeMultiContainerGroupMetricExAsync(request, runtime);
+            return await DescribeMultiContainerGroupMetricWithOptionsAsync(request, runtime);
         }
 
-        public DescribeContainerGroupMetricResponse DescribeContainerGroupMetricEx(DescribeContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeContainerGroupMetricResponse DescribeContainerGroupMetricWithOptions(DescribeContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerGroupMetricResponse>(DoRequest("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeContainerGroupMetricResponse> DescribeContainerGroupMetricExAsync(DescribeContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeContainerGroupMetricResponse> DescribeContainerGroupMetricWithOptionsAsync(DescribeContainerGroupMetricRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerGroupMetricResponse>(await DoRequestAsync("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -159,22 +159,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeContainerGroupMetricResponse DescribeContainerGroupMetric(DescribeContainerGroupMetricRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeContainerGroupMetricEx(request, runtime);
+            return DescribeContainerGroupMetricWithOptions(request, runtime);
         }
 
         public async Task<DescribeContainerGroupMetricResponse> DescribeContainerGroupMetricAsync(DescribeContainerGroupMetricRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeContainerGroupMetricExAsync(request, runtime);
+            return await DescribeContainerGroupMetricWithOptionsAsync(request, runtime);
         }
 
-        public UpdateContainerGroupByTemplateResponse UpdateContainerGroupByTemplateEx(UpdateContainerGroupByTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public UpdateContainerGroupByTemplateResponse UpdateContainerGroupByTemplateWithOptions(UpdateContainerGroupByTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<UpdateContainerGroupByTemplateResponse>(DoRequest("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<UpdateContainerGroupByTemplateResponse> UpdateContainerGroupByTemplateExAsync(UpdateContainerGroupByTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<UpdateContainerGroupByTemplateResponse> UpdateContainerGroupByTemplateWithOptionsAsync(UpdateContainerGroupByTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<UpdateContainerGroupByTemplateResponse>(await DoRequestAsync("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -183,22 +183,22 @@ namespace AlibabaCloud.SDK.ECI
         public UpdateContainerGroupByTemplateResponse UpdateContainerGroupByTemplate(UpdateContainerGroupByTemplateRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return UpdateContainerGroupByTemplateEx(request, runtime);
+            return UpdateContainerGroupByTemplateWithOptions(request, runtime);
         }
 
         public async Task<UpdateContainerGroupByTemplateResponse> UpdateContainerGroupByTemplateAsync(UpdateContainerGroupByTemplateRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await UpdateContainerGroupByTemplateExAsync(request, runtime);
+            return await UpdateContainerGroupByTemplateWithOptionsAsync(request, runtime);
         }
 
-        public CreateContainerGroupFromTemplateResponse CreateContainerGroupFromTemplateEx(CreateContainerGroupFromTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public CreateContainerGroupFromTemplateResponse CreateContainerGroupFromTemplateWithOptions(CreateContainerGroupFromTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<CreateContainerGroupFromTemplateResponse>(DoRequest("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<CreateContainerGroupFromTemplateResponse> CreateContainerGroupFromTemplateExAsync(CreateContainerGroupFromTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<CreateContainerGroupFromTemplateResponse> CreateContainerGroupFromTemplateWithOptionsAsync(CreateContainerGroupFromTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<CreateContainerGroupFromTemplateResponse>(await DoRequestAsync("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -207,22 +207,22 @@ namespace AlibabaCloud.SDK.ECI
         public CreateContainerGroupFromTemplateResponse CreateContainerGroupFromTemplate(CreateContainerGroupFromTemplateRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return CreateContainerGroupFromTemplateEx(request, runtime);
+            return CreateContainerGroupFromTemplateWithOptions(request, runtime);
         }
 
         public async Task<CreateContainerGroupFromTemplateResponse> CreateContainerGroupFromTemplateAsync(CreateContainerGroupFromTemplateRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await CreateContainerGroupFromTemplateExAsync(request, runtime);
+            return await CreateContainerGroupFromTemplateWithOptionsAsync(request, runtime);
         }
 
-        public ExportContainerGroupTemplateResponse ExportContainerGroupTemplateEx(ExportContainerGroupTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public ExportContainerGroupTemplateResponse ExportContainerGroupTemplateWithOptions(ExportContainerGroupTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<ExportContainerGroupTemplateResponse>(DoRequest("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<ExportContainerGroupTemplateResponse> ExportContainerGroupTemplateExAsync(ExportContainerGroupTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<ExportContainerGroupTemplateResponse> ExportContainerGroupTemplateWithOptionsAsync(ExportContainerGroupTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<ExportContainerGroupTemplateResponse>(await DoRequestAsync("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -231,22 +231,22 @@ namespace AlibabaCloud.SDK.ECI
         public ExportContainerGroupTemplateResponse ExportContainerGroupTemplate(ExportContainerGroupTemplateRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return ExportContainerGroupTemplateEx(request, runtime);
+            return ExportContainerGroupTemplateWithOptions(request, runtime);
         }
 
         public async Task<ExportContainerGroupTemplateResponse> ExportContainerGroupTemplateAsync(ExportContainerGroupTemplateRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await ExportContainerGroupTemplateExAsync(request, runtime);
+            return await ExportContainerGroupTemplateWithOptionsAsync(request, runtime);
         }
 
-        public RestartContainerGroupResponse RestartContainerGroupEx(RestartContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public RestartContainerGroupResponse RestartContainerGroupWithOptions(RestartContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<RestartContainerGroupResponse>(DoRequest("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<RestartContainerGroupResponse> RestartContainerGroupExAsync(RestartContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<RestartContainerGroupResponse> RestartContainerGroupWithOptionsAsync(RestartContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<RestartContainerGroupResponse>(await DoRequestAsync("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -255,22 +255,22 @@ namespace AlibabaCloud.SDK.ECI
         public RestartContainerGroupResponse RestartContainerGroup(RestartContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return RestartContainerGroupEx(request, runtime);
+            return RestartContainerGroupWithOptions(request, runtime);
         }
 
         public async Task<RestartContainerGroupResponse> RestartContainerGroupAsync(RestartContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await RestartContainerGroupExAsync(request, runtime);
+            return await RestartContainerGroupWithOptionsAsync(request, runtime);
         }
 
-        public UpdateContainerGroupResponse UpdateContainerGroupEx(UpdateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public UpdateContainerGroupResponse UpdateContainerGroupWithOptions(UpdateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<UpdateContainerGroupResponse>(DoRequest("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<UpdateContainerGroupResponse> UpdateContainerGroupExAsync(UpdateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<UpdateContainerGroupResponse> UpdateContainerGroupWithOptionsAsync(UpdateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<UpdateContainerGroupResponse>(await DoRequestAsync("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -279,22 +279,22 @@ namespace AlibabaCloud.SDK.ECI
         public UpdateContainerGroupResponse UpdateContainerGroup(UpdateContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return UpdateContainerGroupEx(request, runtime);
+            return UpdateContainerGroupWithOptions(request, runtime);
         }
 
         public async Task<UpdateContainerGroupResponse> UpdateContainerGroupAsync(UpdateContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await UpdateContainerGroupExAsync(request, runtime);
+            return await UpdateContainerGroupWithOptionsAsync(request, runtime);
         }
 
-        public DescribeContainerGroupPriceResponse DescribeContainerGroupPriceEx(DescribeContainerGroupPriceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeContainerGroupPriceResponse DescribeContainerGroupPriceWithOptions(DescribeContainerGroupPriceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerGroupPriceResponse>(DoRequest("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeContainerGroupPriceResponse> DescribeContainerGroupPriceExAsync(DescribeContainerGroupPriceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeContainerGroupPriceResponse> DescribeContainerGroupPriceWithOptionsAsync(DescribeContainerGroupPriceRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerGroupPriceResponse>(await DoRequestAsync("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -303,22 +303,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeContainerGroupPriceResponse DescribeContainerGroupPrice(DescribeContainerGroupPriceRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeContainerGroupPriceEx(request, runtime);
+            return DescribeContainerGroupPriceWithOptions(request, runtime);
         }
 
         public async Task<DescribeContainerGroupPriceResponse> DescribeContainerGroupPriceAsync(DescribeContainerGroupPriceRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeContainerGroupPriceExAsync(request, runtime);
+            return await DescribeContainerGroupPriceWithOptionsAsync(request, runtime);
         }
 
-        public ExecContainerCommandResponse ExecContainerCommandEx(ExecContainerCommandRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public ExecContainerCommandResponse ExecContainerCommandWithOptions(ExecContainerCommandRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<ExecContainerCommandResponse>(DoRequest("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<ExecContainerCommandResponse> ExecContainerCommandExAsync(ExecContainerCommandRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<ExecContainerCommandResponse> ExecContainerCommandWithOptionsAsync(ExecContainerCommandRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<ExecContainerCommandResponse>(await DoRequestAsync("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -327,22 +327,22 @@ namespace AlibabaCloud.SDK.ECI
         public ExecContainerCommandResponse ExecContainerCommand(ExecContainerCommandRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return ExecContainerCommandEx(request, runtime);
+            return ExecContainerCommandWithOptions(request, runtime);
         }
 
         public async Task<ExecContainerCommandResponse> ExecContainerCommandAsync(ExecContainerCommandRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await ExecContainerCommandExAsync(request, runtime);
+            return await ExecContainerCommandWithOptionsAsync(request, runtime);
         }
 
-        public DescribeContainerLogResponse DescribeContainerLogEx(DescribeContainerLogRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeContainerLogResponse DescribeContainerLogWithOptions(DescribeContainerLogRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerLogResponse>(DoRequest("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeContainerLogResponse> DescribeContainerLogExAsync(DescribeContainerLogRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeContainerLogResponse> DescribeContainerLogWithOptionsAsync(DescribeContainerLogRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerLogResponse>(await DoRequestAsync("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -351,22 +351,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeContainerLogResponse DescribeContainerLog(DescribeContainerLogRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeContainerLogEx(request, runtime);
+            return DescribeContainerLogWithOptions(request, runtime);
         }
 
         public async Task<DescribeContainerLogResponse> DescribeContainerLogAsync(DescribeContainerLogRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeContainerLogExAsync(request, runtime);
+            return await DescribeContainerLogWithOptionsAsync(request, runtime);
         }
 
-        public CreateContainerGroupResponse CreateContainerGroupEx(CreateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public CreateContainerGroupResponse CreateContainerGroupWithOptions(CreateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<CreateContainerGroupResponse>(DoRequest("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<CreateContainerGroupResponse> CreateContainerGroupExAsync(CreateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<CreateContainerGroupResponse> CreateContainerGroupWithOptionsAsync(CreateContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<CreateContainerGroupResponse>(await DoRequestAsync("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -375,22 +375,22 @@ namespace AlibabaCloud.SDK.ECI
         public CreateContainerGroupResponse CreateContainerGroup(CreateContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return CreateContainerGroupEx(request, runtime);
+            return CreateContainerGroupWithOptions(request, runtime);
         }
 
         public async Task<CreateContainerGroupResponse> CreateContainerGroupAsync(CreateContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await CreateContainerGroupExAsync(request, runtime);
+            return await CreateContainerGroupWithOptionsAsync(request, runtime);
         }
 
-        public DescribeContainerGroupsResponse DescribeContainerGroupsEx(DescribeContainerGroupsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DescribeContainerGroupsResponse DescribeContainerGroupsWithOptions(DescribeContainerGroupsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerGroupsResponse>(DoRequest("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DescribeContainerGroupsResponse> DescribeContainerGroupsExAsync(DescribeContainerGroupsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DescribeContainerGroupsResponse> DescribeContainerGroupsWithOptionsAsync(DescribeContainerGroupsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DescribeContainerGroupsResponse>(await DoRequestAsync("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -399,22 +399,22 @@ namespace AlibabaCloud.SDK.ECI
         public DescribeContainerGroupsResponse DescribeContainerGroups(DescribeContainerGroupsRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeContainerGroupsEx(request, runtime);
+            return DescribeContainerGroupsWithOptions(request, runtime);
         }
 
         public async Task<DescribeContainerGroupsResponse> DescribeContainerGroupsAsync(DescribeContainerGroupsRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeContainerGroupsExAsync(request, runtime);
+            return await DescribeContainerGroupsWithOptionsAsync(request, runtime);
         }
 
-        public DeleteContainerGroupResponse DeleteContainerGroupEx(DeleteContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public DeleteContainerGroupResponse DeleteContainerGroupWithOptions(DeleteContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DeleteContainerGroupResponse>(DoRequest("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<DeleteContainerGroupResponse> DeleteContainerGroupExAsync(DeleteContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<DeleteContainerGroupResponse> DeleteContainerGroupWithOptionsAsync(DeleteContainerGroupRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<DeleteContainerGroupResponse>(await DoRequestAsync("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.ToMap(), null, runtime));
@@ -423,13 +423,13 @@ namespace AlibabaCloud.SDK.ECI
         public DeleteContainerGroupResponse DeleteContainerGroup(DeleteContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DeleteContainerGroupEx(request, runtime);
+            return DeleteContainerGroupWithOptions(request, runtime);
         }
 
         public async Task<DeleteContainerGroupResponse> DeleteContainerGroupAsync(DeleteContainerGroupRequest request)
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DeleteContainerGroupExAsync(request, runtime);
+            return await DeleteContainerGroupWithOptionsAsync(request, runtime);
         }
 
         public string GetEndpoint(string productId, string regionId, string endpointRule, string network, string suffix, Dictionary<string, string> endpointMap, string endpoint)

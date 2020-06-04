@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.ECI.Models
+namespace AlibabaCloud.SDK.Eci20180808.Models
 {
     public class CreateContainerGroupRequest : TeaModel {
         [NameInMap("OwnerId")]
@@ -409,6 +409,14 @@ namespace AlibabaCloud.SDK.ECI.Models
             [Validation(Required=false)]
             public int? LifecyclePreStopHandlerTcpSocketPort { get; set; }
 
+            [NameInMap("TerminationMessagePath")]
+            [Validation(Required=false)]
+            public string TerminationMessagePath { get; set; }
+
+            [NameInMap("TerminationMessagePolicy")]
+            [Validation(Required=false)]
+            public string TerminationMessagePolicy { get; set; }
+
         }
 
         [NameInMap("Volume")]
@@ -632,6 +640,14 @@ namespace AlibabaCloud.SDK.ECI.Models
             [Validation(Required=false)]
             public int? Gpu { get; set; }
 
+            [NameInMap("TerminationMessagePath")]
+            [Validation(Required=false)]
+            public string TerminationMessagePath { get; set; }
+
+            [NameInMap("TerminationMessagePolicy")]
+            [Validation(Required=false)]
+            public string TerminationMessagePolicy { get; set; }
+
         }
 
         [NameInMap("DnsConfig")]
@@ -762,9 +778,9 @@ namespace AlibabaCloud.SDK.ECI.Models
         [Validation(Required=false)]
         public float? SpotPriceLimit { get; set; }
 
-        [NameInMap("VSwitchStrategy")]
+        [NameInMap("ScheduleStrategy")]
         [Validation(Required=false)]
-        public string VSwitchStrategy { get; set; }
+        public string ScheduleStrategy { get; set; }
 
         [NameInMap("TenantVSwitchId")]
         [Validation(Required=false)]
@@ -773,6 +789,10 @@ namespace AlibabaCloud.SDK.ECI.Models
         [NameInMap("TenantSecurityGroupId")]
         [Validation(Required=false)]
         public string TenantSecurityGroupId { get; set; }
+
+        [NameInMap("CorePattern")]
+        [Validation(Required=false)]
+        public string CorePattern { get; set; }
 
     }
 

@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.ECI.Models
+namespace AlibabaCloud.SDK.Eci20180808.Models
 {
     public class DescribeContainerLogRequest : TeaModel {
         [NameInMap("OwnerId")]
@@ -52,6 +52,10 @@ namespace AlibabaCloud.SDK.ECI.Models
         [NameInMap("SinceSeconds")]
         [Validation(Required=false)]
         public int? SinceSeconds { get; set; }
+
+        [NameInMap("LimitBytes")]
+        [Validation(Required=false)]
+        public long LimitBytes { get; set; }
 
     }
 

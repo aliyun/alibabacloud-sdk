@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.ECI.Models
+namespace AlibabaCloud.SDK.Eci20180808.Models
 {
     public class DescribeContainerGroupPriceResponse : TeaModel {
         [NameInMap("RequestId")]
@@ -32,6 +32,33 @@ namespace AlibabaCloud.SDK.ECI.Models
                     [NameInMap("Description")]
                     [Validation(Required=true)]
                     public string Description { get; set; }
+
+                }
+
+            }
+            [NameInMap("SpotPrices")]
+            [Validation(Required=true)]
+            public DescribeContainerGroupPriceResponsePriceInfoSpotPrices SpotPrices { get; set; }
+            public class DescribeContainerGroupPriceResponsePriceInfoSpotPrices : TeaModel {
+                [NameInMap("SpotPrice")]
+                [Validation(Required=true)]
+                public List<DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice> SpotPrice { get; set; }
+                public class DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice : TeaModel {
+                    [NameInMap("ZoneId")]
+                    [Validation(Required=true)]
+                    public string ZoneId { get; set; }
+
+                    [NameInMap("InstanceType")]
+                    [Validation(Required=true)]
+                    public string InstanceType { get; set; }
+
+                    [NameInMap("SpotPrice")]
+                    [Validation(Required=true)]
+                    public float? SpotPrice { get; set; }
+
+                    [NameInMap("OriginPrice")]
+                    [Validation(Required=true)]
+                    public float? OriginPrice { get; set; }
 
                 }
 

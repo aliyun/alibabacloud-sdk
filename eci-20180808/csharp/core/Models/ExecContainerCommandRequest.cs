@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.ECI.Models
+namespace AlibabaCloud.SDK.Eci20180808.Models
 {
     public class ExecContainerCommandRequest : TeaModel {
         [NameInMap("OwnerId")]
@@ -44,6 +44,10 @@ namespace AlibabaCloud.SDK.ECI.Models
         [NameInMap("TTY")]
         [Validation(Required=false)]
         public bool? TTY { get; set; }
+
+        [NameInMap("Stdin")]
+        [Validation(Required=false)]
+        public bool? Stdin { get; set; }
 
     }
 

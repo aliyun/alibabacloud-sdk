@@ -6,7 +6,7 @@ using System.IO;
 
 using Tea;
 
-namespace AlibabaCloud.SDK.ECI.Models
+namespace AlibabaCloud.SDK.Eci20180808.Models
 {
     public class UpdateContainerGroupByTemplateResponse : TeaModel {
         [NameInMap("RequestId")]
