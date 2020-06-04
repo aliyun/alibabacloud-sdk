@@ -103,7 +103,7 @@ public class CreateClusterBody extends TeaModel {
     public Integer masterSystemDiskSize;
 
     @NameInMap("runtime")
-    public java.util.Map<String, Object> runtime;
+    public java.util.Map<String, ?> runtime;
 
     @NameInMap("num_of_nodes")
     @Validation(required = true)
@@ -139,35 +139,27 @@ public class CreateClusterBody extends TeaModel {
     public Integer timeoutMins;
 
     @NameInMap("tags")
-    @Validation(required = true)
     public java.util.List<CreateClusterBodyTags> tags;
 
     @NameInMap("addons")
-    @Validation(required = true)
     public java.util.List<CreateClusterBodyAddons> addons;
 
     @NameInMap("taints")
-    @Validation(required = true)
     public java.util.List<CreateClusterBodyTaints> taints;
 
     @NameInMap("worker_data_disks")
-    @Validation(required = true)
     public java.util.List<CreateClusterBodyWorkerDataDisks> workerDataDisks;
 
     @NameInMap("master_vswitch_ids")
-    @Validation(required = true)
     public java.util.List<String> masterVswitchIds;
 
     @NameInMap("master_instance_types")
-    @Validation(required = true)
     public java.util.List<String> masterInstanceTypes;
 
     @NameInMap("worker_instance_types")
-    @Validation(required = true)
     public java.util.List<String> workerInstanceTypes;
 
     @NameInMap("worker_vswitch_ids")
-    @Validation(required = true)
     public java.util.List<String> workerVswitchIds;
 
     public static CreateClusterBody build(java.util.Map<String, ?> map) throws Exception {

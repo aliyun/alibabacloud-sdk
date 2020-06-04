@@ -10,14 +10,14 @@ public class AttachInstancesResponseBody extends TeaModel {
 
     @NameInMap("list")
     @Validation(required = true)
-    public AttachInstancesResponseBodyList list;
+    public java.util.List<AttachInstancesResponseBodyList> list;
 
     public static AttachInstancesResponseBody build(java.util.Map<String, ?> map) throws Exception {
         AttachInstancesResponseBody self = new AttachInstancesResponseBody();
         return TeaModel.build(map, self);
     }
 
-    public static class AttachInstancesResponseBodyListList extends TeaModel {
+    public static class AttachInstancesResponseBodyList extends TeaModel {
         @NameInMap("code")
         @Validation(required = true)
         public String code;
@@ -29,18 +29,6 @@ public class AttachInstancesResponseBody extends TeaModel {
         @NameInMap("message")
         @Validation(required = true)
         public String message;
-
-        public static AttachInstancesResponseBodyListList build(java.util.Map<String, ?> map) throws Exception {
-            AttachInstancesResponseBodyListList self = new AttachInstancesResponseBodyListList();
-            return TeaModel.build(map, self);
-        }
-
-    }
-
-    public static class AttachInstancesResponseBodyList extends TeaModel {
-        @NameInMap("list")
-        @Validation(required = true)
-        public java.util.List<AttachInstancesResponseBodyListList> list;
 
         public static AttachInstancesResponseBodyList build(java.util.Map<String, ?> map) throws Exception {
             AttachInstancesResponseBodyList self = new AttachInstancesResponseBodyList();

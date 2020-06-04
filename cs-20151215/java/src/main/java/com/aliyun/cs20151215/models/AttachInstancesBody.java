@@ -22,11 +22,9 @@ public class AttachInstancesBody extends TeaModel {
     public String password;
 
     @NameInMap("tags")
-    @Validation(required = true)
     public java.util.List<AttachInstancesBodyTags> tags;
 
     @NameInMap("instances")
-    @Validation(required = true)
     public java.util.List<String> instances;
 
     public static AttachInstancesBody build(java.util.Map<String, ?> map) throws Exception {

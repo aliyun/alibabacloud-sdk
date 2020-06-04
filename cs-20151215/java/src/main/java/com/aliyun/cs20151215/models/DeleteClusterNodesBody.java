@@ -8,7 +8,6 @@ public class DeleteClusterNodesBody extends TeaModel {
     public String releaseNode;
 
     @NameInMap("nodes")
-    @Validation(required = true)
     public java.util.List<String> nodes;
 
     public static DeleteClusterNodesBody build(java.util.Map<String, ?> map) throws Exception {
