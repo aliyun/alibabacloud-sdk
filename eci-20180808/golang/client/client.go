@@ -5316,8 +5316,12 @@ type DescribeContainerGroupPriceRequest struct {
 	ResourceOwnerId      *int64   `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
 	OwnerAccount         *string  `json:"OwnerAccount" xml:"OwnerAccount"`
 	RegionId             *string  `json:"RegionId" xml:"RegionId" require:"true"`
-	Cpu                  *float32 `json:"Cpu" xml:"Cpu" require:"true"`
-	Memory               *float32 `json:"Memory" xml:"Memory" require:"true"`
+	Cpu                  *float32 `json:"Cpu" xml:"Cpu"`
+	Memory               *float32 `json:"Memory" xml:"Memory"`
+	InstanceType         *string  `json:"InstanceType" xml:"InstanceType"`
+	SpotStrategy         *string  `json:"SpotStrategy" xml:"SpotStrategy"`
+	ZoneId               *string  `json:"ZoneId" xml:"ZoneId"`
+	SpotPriceLimit       *float32 `json:"SpotPriceLimit" xml:"SpotPriceLimit"`
 }
 
 func (s DescribeContainerGroupPriceRequest) String() string {
@@ -5363,6 +5367,26 @@ func (s *DescribeContainerGroupPriceRequest) SetMemory(v float32) *DescribeConta
 	return s
 }
 
+func (s *DescribeContainerGroupPriceRequest) SetInstanceType(v string) *DescribeContainerGroupPriceRequest {
+	s.InstanceType = &v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceRequest) SetSpotStrategy(v string) *DescribeContainerGroupPriceRequest {
+	s.SpotStrategy = &v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceRequest) SetZoneId(v string) *DescribeContainerGroupPriceRequest {
+	s.ZoneId = &v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceRequest) SetSpotPriceLimit(v float32) *DescribeContainerGroupPriceRequest {
+	s.SpotPriceLimit = &v
+	return s
+}
+
 type DescribeContainerGroupPriceResponse struct {
 	RequestId *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
 	PriceInfo *DescribeContainerGroupPriceResponsePriceInfo `json:"PriceInfo" xml:"PriceInfo" require:"true" type:"Struct"`
@@ -5387,8 +5411,9 @@ func (s *DescribeContainerGroupPriceResponse) SetPriceInfo(v *DescribeContainerG
 }
 
 type DescribeContainerGroupPriceResponsePriceInfo struct {
-	Rules *DescribeContainerGroupPriceResponsePriceInfoRules `json:"Rules" xml:"Rules" require:"true" type:"Struct"`
-	Price *DescribeContainerGroupPriceResponsePriceInfoPrice `json:"Price" xml:"Price" require:"true" type:"Struct"`
+	Rules      *DescribeContainerGroupPriceResponsePriceInfoRules      `json:"Rules" xml:"Rules" require:"true" type:"Struct"`
+	SpotPrices *DescribeContainerGroupPriceResponsePriceInfoSpotPrices `json:"SpotPrices" xml:"SpotPrices" require:"true" type:"Struct"`
+	Price      *DescribeContainerGroupPriceResponsePriceInfoPrice      `json:"Price" xml:"Price" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfo) String() string {
@@ -5401,6 +5426,11 @@ func (s DescribeContainerGroupPriceResponsePriceInfo) GoString() string {
 
 func (s *DescribeContainerGroupPriceResponsePriceInfo) SetRules(v *DescribeContainerGroupPriceResponsePriceInfoRules) *DescribeContainerGroupPriceResponsePriceInfo {
 	s.Rules = v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceResponsePriceInfo) SetSpotPrices(v *DescribeContainerGroupPriceResponsePriceInfoSpotPrices) *DescribeContainerGroupPriceResponsePriceInfo {
+	s.SpotPrices = v
 	return s
 }
 
@@ -5446,6 +5476,58 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoRulesRule) SetRuleId(v int6
 
 func (s *DescribeContainerGroupPriceResponsePriceInfoRulesRule) SetDescription(v string) *DescribeContainerGroupPriceResponsePriceInfoRulesRule {
 	s.Description = &v
+	return s
+}
+
+type DescribeContainerGroupPriceResponsePriceInfoSpotPrices struct {
+	SpotPrice []*DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice `json:"SpotPrice" xml:"SpotPrice" require:"true" type:"Repeated"`
+}
+
+func (s DescribeContainerGroupPriceResponsePriceInfoSpotPrices) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeContainerGroupPriceResponsePriceInfoSpotPrices) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPrices) SetSpotPrice(v []*DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) *DescribeContainerGroupPriceResponsePriceInfoSpotPrices {
+	s.SpotPrice = v
+	return s
+}
+
+type DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice struct {
+	ZoneId       *string  `json:"ZoneId" xml:"ZoneId" require:"true"`
+	InstanceType *string  `json:"InstanceType" xml:"InstanceType" require:"true"`
+	SpotPrice    *float32 `json:"SpotPrice" xml:"SpotPrice" require:"true"`
+	OriginPrice  *float32 `json:"OriginPrice" xml:"OriginPrice" require:"true"`
+}
+
+func (s DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) SetZoneId(v string) *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice {
+	s.ZoneId = &v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) SetInstanceType(v string) *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice {
+	s.InstanceType = &v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) SetSpotPrice(v float32) *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice {
+	s.SpotPrice = &v
+	return s
+}
+
+func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) SetOriginPrice(v float32) *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice {
+	s.OriginPrice = &v
 	return s
 }
 
@@ -5598,6 +5680,7 @@ type ExecContainerCommandRequest struct {
 	ContainerName        *string `json:"ContainerName" xml:"ContainerName" require:"true"`
 	Command              *string `json:"Command" xml:"Command" require:"true"`
 	TTY                  *bool   `json:"TTY" xml:"TTY"`
+	Stdin                *bool   `json:"Stdin" xml:"Stdin"`
 }
 
 func (s ExecContainerCommandRequest) String() string {
@@ -5653,6 +5736,11 @@ func (s *ExecContainerCommandRequest) SetTTY(v bool) *ExecContainerCommandReques
 	return s
 }
 
+func (s *ExecContainerCommandRequest) SetStdin(v bool) *ExecContainerCommandRequest {
+	s.Stdin = &v
+	return s
+}
+
 type ExecContainerCommandResponse struct {
 	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
 	WebSocketUri *string `json:"WebSocketUri" xml:"WebSocketUri" require:"true"`
@@ -5688,6 +5776,7 @@ type DescribeContainerLogRequest struct {
 	Tail                 *int    `json:"Tail" xml:"Tail"`
 	LastTime             *bool   `json:"LastTime" xml:"LastTime"`
 	SinceSeconds         *int    `json:"SinceSeconds" xml:"SinceSeconds"`
+	LimitBytes           *int64  `json:"LimitBytes" xml:"LimitBytes"`
 }
 
 func (s DescribeContainerLogRequest) String() string {
@@ -5750,6 +5839,11 @@ func (s *DescribeContainerLogRequest) SetLastTime(v bool) *DescribeContainerLogR
 
 func (s *DescribeContainerLogRequest) SetSinceSeconds(v int) *DescribeContainerLogRequest {
 	s.SinceSeconds = &v
+	return s
+}
+
+func (s *DescribeContainerLogRequest) SetLimitBytes(v int64) *DescribeContainerLogRequest {
+	s.LimitBytes = &v
 	return s
 }
 
@@ -5819,9 +5913,10 @@ type CreateContainerGroupRequest struct {
 	ActiveDeadlineSeconds         *int64                                                `json:"ActiveDeadlineSeconds" xml:"ActiveDeadlineSeconds"`
 	SpotStrategy                  *string                                               `json:"SpotStrategy" xml:"SpotStrategy"`
 	SpotPriceLimit                *float32                                              `json:"SpotPriceLimit" xml:"SpotPriceLimit"`
-	VSwitchStrategy               *string                                               `json:"VSwitchStrategy" xml:"VSwitchStrategy"`
+	ScheduleStrategy              *string                                               `json:"ScheduleStrategy" xml:"ScheduleStrategy"`
 	TenantVSwitchId               *string                                               `json:"TenantVSwitchId" xml:"TenantVSwitchId"`
 	TenantSecurityGroupId         *string                                               `json:"TenantSecurityGroupId" xml:"TenantSecurityGroupId"`
+	CorePattern                   *string                                               `json:"CorePattern" xml:"CorePattern"`
 }
 
 func (s CreateContainerGroupRequest) String() string {
@@ -6012,8 +6107,8 @@ func (s *CreateContainerGroupRequest) SetSpotPriceLimit(v float32) *CreateContai
 	return s
 }
 
-func (s *CreateContainerGroupRequest) SetVSwitchStrategy(v string) *CreateContainerGroupRequest {
-	s.VSwitchStrategy = &v
+func (s *CreateContainerGroupRequest) SetScheduleStrategy(v string) *CreateContainerGroupRequest {
+	s.ScheduleStrategy = &v
 	return s
 }
 
@@ -6024,6 +6119,11 @@ func (s *CreateContainerGroupRequest) SetTenantVSwitchId(v string) *CreateContai
 
 func (s *CreateContainerGroupRequest) SetTenantSecurityGroupId(v string) *CreateContainerGroupRequest {
 	s.TenantSecurityGroupId = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequest) SetCorePattern(v string) *CreateContainerGroupRequest {
+	s.CorePattern = &v
 	return s
 }
 
@@ -6114,6 +6214,8 @@ type CreateContainerGroupRequestContainer struct {
 	LifecyclePreStopHandlerExec                []*string                                                                         `json:"LifecyclePreStopHandlerExec" xml:"LifecyclePreStopHandlerExec" type:"Repeated"`
 	LifecyclePreStopHandlerTcpSocketHost       *string                                                                           `json:"LifecyclePreStopHandlerTcpSocketHost" xml:"LifecyclePreStopHandlerTcpSocketHost"`
 	LifecyclePreStopHandlerTcpSocketPort       *int                                                                              `json:"LifecyclePreStopHandlerTcpSocketPort" xml:"LifecyclePreStopHandlerTcpSocketPort"`
+	TerminationMessagePath                     *string                                                                           `json:"TerminationMessagePath" xml:"TerminationMessagePath"`
+	TerminationMessagePolicy                   *string                                                                           `json:"TerminationMessagePolicy" xml:"TerminationMessagePolicy"`
 }
 
 func (s CreateContainerGroupRequestContainer) String() string {
@@ -6291,6 +6393,16 @@ func (s *CreateContainerGroupRequestContainer) SetLifecyclePreStopHandlerTcpSock
 
 func (s *CreateContainerGroupRequestContainer) SetLifecyclePreStopHandlerTcpSocketPort(v int) *CreateContainerGroupRequestContainer {
 	s.LifecyclePreStopHandlerTcpSocketPort = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequestContainer) SetTerminationMessagePath(v string) *CreateContainerGroupRequestContainer {
+	s.TerminationMessagePath = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequestContainer) SetTerminationMessagePolicy(v string) *CreateContainerGroupRequestContainer {
+	s.TerminationMessagePolicy = &v
 	return s
 }
 
@@ -6973,19 +7085,21 @@ func (s *CreateContainerGroupRequestVolumeHostPathVolume) SetPath(v string) *Cre
 }
 
 type CreateContainerGroupRequestInitContainer struct {
-	Name            *string                                                   `json:"Name" xml:"Name"`
-	Image           *string                                                   `json:"Image" xml:"Image"`
-	Cpu             *float32                                                  `json:"Cpu" xml:"Cpu"`
-	Memory          *float32                                                  `json:"Memory" xml:"Memory"`
-	WorkingDir      *string                                                   `json:"WorkingDir" xml:"WorkingDir"`
-	ImagePullPolicy *string                                                   `json:"ImagePullPolicy" xml:"ImagePullPolicy"`
-	Command         []*string                                                 `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Arg             []*string                                                 `json:"Arg" xml:"Arg" require:"true" type:"Repeated"`
-	VolumeMount     []*CreateContainerGroupRequestInitContainerVolumeMount    `json:"VolumeMount" xml:"VolumeMount" require:"true" type:"Repeated"`
-	Port            []*CreateContainerGroupRequestInitContainerPort           `json:"Port" xml:"Port" require:"true" type:"Repeated"`
-	EnvironmentVar  []*CreateContainerGroupRequestInitContainerEnvironmentVar `json:"EnvironmentVar" xml:"EnvironmentVar" require:"true" type:"Repeated"`
-	SecurityContext *CreateContainerGroupRequestInitContainerSecurityContext  `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Gpu             *int                                                      `json:"Gpu" xml:"Gpu"`
+	Name                     *string                                                   `json:"Name" xml:"Name"`
+	Image                    *string                                                   `json:"Image" xml:"Image"`
+	Cpu                      *float32                                                  `json:"Cpu" xml:"Cpu"`
+	Memory                   *float32                                                  `json:"Memory" xml:"Memory"`
+	WorkingDir               *string                                                   `json:"WorkingDir" xml:"WorkingDir"`
+	ImagePullPolicy          *string                                                   `json:"ImagePullPolicy" xml:"ImagePullPolicy"`
+	Command                  []*string                                                 `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Arg                      []*string                                                 `json:"Arg" xml:"Arg" require:"true" type:"Repeated"`
+	VolumeMount              []*CreateContainerGroupRequestInitContainerVolumeMount    `json:"VolumeMount" xml:"VolumeMount" require:"true" type:"Repeated"`
+	Port                     []*CreateContainerGroupRequestInitContainerPort           `json:"Port" xml:"Port" require:"true" type:"Repeated"`
+	EnvironmentVar           []*CreateContainerGroupRequestInitContainerEnvironmentVar `json:"EnvironmentVar" xml:"EnvironmentVar" require:"true" type:"Repeated"`
+	SecurityContext          *CreateContainerGroupRequestInitContainerSecurityContext  `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
+	Gpu                      *int                                                      `json:"Gpu" xml:"Gpu"`
+	TerminationMessagePath   *string                                                   `json:"TerminationMessagePath" xml:"TerminationMessagePath"`
+	TerminationMessagePolicy *string                                                   `json:"TerminationMessagePolicy" xml:"TerminationMessagePolicy"`
 }
 
 func (s CreateContainerGroupRequestInitContainer) String() string {
@@ -7058,6 +7172,16 @@ func (s *CreateContainerGroupRequestInitContainer) SetSecurityContext(v *CreateC
 
 func (s *CreateContainerGroupRequestInitContainer) SetGpu(v int) *CreateContainerGroupRequestInitContainer {
 	s.Gpu = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequestInitContainer) SetTerminationMessagePath(v string) *CreateContainerGroupRequestInitContainer {
+	s.TerminationMessagePath = &v
+	return s
+}
+
+func (s *CreateContainerGroupRequestInitContainer) SetTerminationMessagePolicy(v string) *CreateContainerGroupRequestInitContainer {
+	s.TerminationMessagePolicy = &v
 	return s
 }
 
@@ -9183,7 +9307,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
+func (client *Client) DescribeRegionsWithOptions(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9200,7 +9324,7 @@ func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime
 func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result *DescribeRegionsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeRegionsResponse{}
-	_body, _err := client.DescribeRegionsEx(request, runtime)
+	_body, _err := client.DescribeRegionsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9208,7 +9332,7 @@ func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result 
 	return _result, _err
 }
 
-func (client *Client) DescribeImageCachesEx(request *DescribeImageCachesRequest, runtime *util.RuntimeOptions) (_result *DescribeImageCachesResponse, _err error) {
+func (client *Client) DescribeImageCachesWithOptions(request *DescribeImageCachesRequest, runtime *util.RuntimeOptions) (_result *DescribeImageCachesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9225,7 +9349,7 @@ func (client *Client) DescribeImageCachesEx(request *DescribeImageCachesRequest,
 func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest) (_result *DescribeImageCachesResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeImageCachesResponse{}
-	_body, _err := client.DescribeImageCachesEx(request, runtime)
+	_body, _err := client.DescribeImageCachesWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9233,7 +9357,7 @@ func (client *Client) DescribeImageCaches(request *DescribeImageCachesRequest) (
 	return _result, _err
 }
 
-func (client *Client) DeleteImageCacheEx(request *DeleteImageCacheRequest, runtime *util.RuntimeOptions) (_result *DeleteImageCacheResponse, _err error) {
+func (client *Client) DeleteImageCacheWithOptions(request *DeleteImageCacheRequest, runtime *util.RuntimeOptions) (_result *DeleteImageCacheResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9250,7 +9374,7 @@ func (client *Client) DeleteImageCacheEx(request *DeleteImageCacheRequest, runti
 func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest) (_result *DeleteImageCacheResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteImageCacheResponse{}
-	_body, _err := client.DeleteImageCacheEx(request, runtime)
+	_body, _err := client.DeleteImageCacheWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9258,7 +9382,7 @@ func (client *Client) DeleteImageCache(request *DeleteImageCacheRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) CreateImageCacheEx(request *CreateImageCacheRequest, runtime *util.RuntimeOptions) (_result *CreateImageCacheResponse, _err error) {
+func (client *Client) CreateImageCacheWithOptions(request *CreateImageCacheRequest, runtime *util.RuntimeOptions) (_result *CreateImageCacheResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9275,7 +9399,7 @@ func (client *Client) CreateImageCacheEx(request *CreateImageCacheRequest, runti
 func (client *Client) CreateImageCache(request *CreateImageCacheRequest) (_result *CreateImageCacheResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateImageCacheResponse{}
-	_body, _err := client.CreateImageCacheEx(request, runtime)
+	_body, _err := client.CreateImageCacheWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9283,7 +9407,7 @@ func (client *Client) CreateImageCache(request *CreateImageCacheRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) DescribeMultiContainerGroupMetricEx(request *DescribeMultiContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
+func (client *Client) DescribeMultiContainerGroupMetricWithOptions(request *DescribeMultiContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9300,7 +9424,7 @@ func (client *Client) DescribeMultiContainerGroupMetricEx(request *DescribeMulti
 func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiContainerGroupMetricRequest) (_result *DescribeMultiContainerGroupMetricResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeMultiContainerGroupMetricResponse{}
-	_body, _err := client.DescribeMultiContainerGroupMetricEx(request, runtime)
+	_body, _err := client.DescribeMultiContainerGroupMetricWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9308,7 +9432,7 @@ func (client *Client) DescribeMultiContainerGroupMetric(request *DescribeMultiCo
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerGroupMetricEx(request *DescribeContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupMetricResponse, _err error) {
+func (client *Client) DescribeContainerGroupMetricWithOptions(request *DescribeContainerGroupMetricRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupMetricResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9325,7 +9449,7 @@ func (client *Client) DescribeContainerGroupMetricEx(request *DescribeContainerG
 func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGroupMetricRequest) (_result *DescribeContainerGroupMetricResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeContainerGroupMetricResponse{}
-	_body, _err := client.DescribeContainerGroupMetricEx(request, runtime)
+	_body, _err := client.DescribeContainerGroupMetricWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9333,7 +9457,7 @@ func (client *Client) DescribeContainerGroupMetric(request *DescribeContainerGro
 	return _result, _err
 }
 
-func (client *Client) UpdateContainerGroupByTemplateEx(request *UpdateContainerGroupByTemplateRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
+func (client *Client) UpdateContainerGroupByTemplateWithOptions(request *UpdateContainerGroupByTemplateRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9350,7 +9474,7 @@ func (client *Client) UpdateContainerGroupByTemplateEx(request *UpdateContainerG
 func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGroupByTemplateRequest) (_result *UpdateContainerGroupByTemplateResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateContainerGroupByTemplateResponse{}
-	_body, _err := client.UpdateContainerGroupByTemplateEx(request, runtime)
+	_body, _err := client.UpdateContainerGroupByTemplateWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9358,7 +9482,7 @@ func (client *Client) UpdateContainerGroupByTemplate(request *UpdateContainerGro
 	return _result, _err
 }
 
-func (client *Client) CreateContainerGroupFromTemplateEx(request *CreateContainerGroupFromTemplateRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
+func (client *Client) CreateContainerGroupFromTemplateWithOptions(request *CreateContainerGroupFromTemplateRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9375,7 +9499,7 @@ func (client *Client) CreateContainerGroupFromTemplateEx(request *CreateContaine
 func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerGroupFromTemplateRequest) (_result *CreateContainerGroupFromTemplateResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateContainerGroupFromTemplateResponse{}
-	_body, _err := client.CreateContainerGroupFromTemplateEx(request, runtime)
+	_body, _err := client.CreateContainerGroupFromTemplateWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9383,7 +9507,7 @@ func (client *Client) CreateContainerGroupFromTemplate(request *CreateContainerG
 	return _result, _err
 }
 
-func (client *Client) ExportContainerGroupTemplateEx(request *ExportContainerGroupTemplateRequest, runtime *util.RuntimeOptions) (_result *ExportContainerGroupTemplateResponse, _err error) {
+func (client *Client) ExportContainerGroupTemplateWithOptions(request *ExportContainerGroupTemplateRequest, runtime *util.RuntimeOptions) (_result *ExportContainerGroupTemplateResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9400,7 +9524,7 @@ func (client *Client) ExportContainerGroupTemplateEx(request *ExportContainerGro
 func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroupTemplateRequest) (_result *ExportContainerGroupTemplateResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ExportContainerGroupTemplateResponse{}
-	_body, _err := client.ExportContainerGroupTemplateEx(request, runtime)
+	_body, _err := client.ExportContainerGroupTemplateWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9408,7 +9532,7 @@ func (client *Client) ExportContainerGroupTemplate(request *ExportContainerGroup
 	return _result, _err
 }
 
-func (client *Client) RestartContainerGroupEx(request *RestartContainerGroupRequest, runtime *util.RuntimeOptions) (_result *RestartContainerGroupResponse, _err error) {
+func (client *Client) RestartContainerGroupWithOptions(request *RestartContainerGroupRequest, runtime *util.RuntimeOptions) (_result *RestartContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9425,7 +9549,7 @@ func (client *Client) RestartContainerGroupEx(request *RestartContainerGroupRequ
 func (client *Client) RestartContainerGroup(request *RestartContainerGroupRequest) (_result *RestartContainerGroupResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &RestartContainerGroupResponse{}
-	_body, _err := client.RestartContainerGroupEx(request, runtime)
+	_body, _err := client.RestartContainerGroupWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9433,7 +9557,7 @@ func (client *Client) RestartContainerGroup(request *RestartContainerGroupReques
 	return _result, _err
 }
 
-func (client *Client) UpdateContainerGroupEx(request *UpdateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupResponse, _err error) {
+func (client *Client) UpdateContainerGroupWithOptions(request *UpdateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *UpdateContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9450,7 +9574,7 @@ func (client *Client) UpdateContainerGroupEx(request *UpdateContainerGroupReques
 func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest) (_result *UpdateContainerGroupResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateContainerGroupResponse{}
-	_body, _err := client.UpdateContainerGroupEx(request, runtime)
+	_body, _err := client.UpdateContainerGroupWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9458,7 +9582,7 @@ func (client *Client) UpdateContainerGroup(request *UpdateContainerGroupRequest)
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerGroupPriceEx(request *DescribeContainerGroupPriceRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupPriceResponse, _err error) {
+func (client *Client) DescribeContainerGroupPriceWithOptions(request *DescribeContainerGroupPriceRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupPriceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9475,7 +9599,7 @@ func (client *Client) DescribeContainerGroupPriceEx(request *DescribeContainerGr
 func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGroupPriceRequest) (_result *DescribeContainerGroupPriceResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeContainerGroupPriceResponse{}
-	_body, _err := client.DescribeContainerGroupPriceEx(request, runtime)
+	_body, _err := client.DescribeContainerGroupPriceWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9483,7 +9607,7 @@ func (client *Client) DescribeContainerGroupPrice(request *DescribeContainerGrou
 	return _result, _err
 }
 
-func (client *Client) ExecContainerCommandEx(request *ExecContainerCommandRequest, runtime *util.RuntimeOptions) (_result *ExecContainerCommandResponse, _err error) {
+func (client *Client) ExecContainerCommandWithOptions(request *ExecContainerCommandRequest, runtime *util.RuntimeOptions) (_result *ExecContainerCommandResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9500,7 +9624,7 @@ func (client *Client) ExecContainerCommandEx(request *ExecContainerCommandReques
 func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest) (_result *ExecContainerCommandResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ExecContainerCommandResponse{}
-	_body, _err := client.ExecContainerCommandEx(request, runtime)
+	_body, _err := client.ExecContainerCommandWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9508,7 +9632,7 @@ func (client *Client) ExecContainerCommand(request *ExecContainerCommandRequest)
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerLogEx(request *DescribeContainerLogRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerLogResponse, _err error) {
+func (client *Client) DescribeContainerLogWithOptions(request *DescribeContainerLogRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerLogResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9525,7 +9649,7 @@ func (client *Client) DescribeContainerLogEx(request *DescribeContainerLogReques
 func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest) (_result *DescribeContainerLogResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeContainerLogResponse{}
-	_body, _err := client.DescribeContainerLogEx(request, runtime)
+	_body, _err := client.DescribeContainerLogWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9533,7 +9657,7 @@ func (client *Client) DescribeContainerLog(request *DescribeContainerLogRequest)
 	return _result, _err
 }
 
-func (client *Client) CreateContainerGroupEx(request *CreateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupResponse, _err error) {
+func (client *Client) CreateContainerGroupWithOptions(request *CreateContainerGroupRequest, runtime *util.RuntimeOptions) (_result *CreateContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9550,7 +9674,7 @@ func (client *Client) CreateContainerGroupEx(request *CreateContainerGroupReques
 func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest) (_result *CreateContainerGroupResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateContainerGroupResponse{}
-	_body, _err := client.CreateContainerGroupEx(request, runtime)
+	_body, _err := client.CreateContainerGroupWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9558,7 +9682,7 @@ func (client *Client) CreateContainerGroup(request *CreateContainerGroupRequest)
 	return _result, _err
 }
 
-func (client *Client) DescribeContainerGroupsEx(request *DescribeContainerGroupsRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupsResponse, _err error) {
+func (client *Client) DescribeContainerGroupsWithOptions(request *DescribeContainerGroupsRequest, runtime *util.RuntimeOptions) (_result *DescribeContainerGroupsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9575,7 +9699,7 @@ func (client *Client) DescribeContainerGroupsEx(request *DescribeContainerGroups
 func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRequest) (_result *DescribeContainerGroupsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeContainerGroupsResponse{}
-	_body, _err := client.DescribeContainerGroupsEx(request, runtime)
+	_body, _err := client.DescribeContainerGroupsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9583,7 +9707,7 @@ func (client *Client) DescribeContainerGroups(request *DescribeContainerGroupsRe
 	return _result, _err
 }
 
-func (client *Client) DeleteContainerGroupEx(request *DeleteContainerGroupRequest, runtime *util.RuntimeOptions) (_result *DeleteContainerGroupResponse, _err error) {
+func (client *Client) DeleteContainerGroupWithOptions(request *DeleteContainerGroupRequest, runtime *util.RuntimeOptions) (_result *DeleteContainerGroupResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -9600,7 +9724,7 @@ func (client *Client) DeleteContainerGroupEx(request *DeleteContainerGroupReques
 func (client *Client) DeleteContainerGroup(request *DeleteContainerGroupRequest) (_result *DeleteContainerGroupResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteContainerGroupResponse{}
-	_body, _err := client.DeleteContainerGroupEx(request, runtime)
+	_body, _err := client.DeleteContainerGroupWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
