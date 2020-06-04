@@ -2986,7 +2986,7 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointHost, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.EndpointHost)
+	client.EndpointHost, _err = client.GetEndpoint(tea.String("cs"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.EndpointHost)
 	if _err != nil {
 		return _err
 	}
