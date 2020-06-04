@@ -48,11 +48,11 @@ class Client(ROAClient):
             "rus-west-1-pop": "cs.aliyuncs.com"
         }
         self.check_config(config)
-        self._endpoint_host = self.get_endpoint(self._product_id, self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint_host)
+        self._endpoint_host = self.get_endpoint("cs", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint_host)
 
     def resume_component_upgrade_with_options(self, clusterid, componentid, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.ResumeComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterid + "/components/" + componentid + "/resume", None, request.headers, None, runtime))
+        return _cs20151215_models.ResumeComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(clusterid) + "/components/" + str(componentid) + "/resume", None, request.headers, None, runtime))
 
 
     def resume_component_upgrade(self, clusterid, componentid, request):
@@ -63,7 +63,7 @@ class Client(ROAClient):
 
     def pause_component_upgrade_with_options(self, clusterid, componentid, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.PauseComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterid + "/components/" + componentid + "/pause", None, request.headers, None, runtime))
+        return _cs20151215_models.PauseComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(clusterid) + "/components/" + str(componentid) + "/pause", None, request.headers, None, runtime))
 
 
     def pause_component_upgrade(self, clusterid, componentid, request):
@@ -74,7 +74,7 @@ class Client(ROAClient):
 
     def cancel_component_upgrade_with_options(self, clusterid, componentid, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.CancelComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterid + "/components/" + componentid + "/cancel", None, request.headers, None, runtime))
+        return _cs20151215_models.CancelComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(clusterid) + "/components/" + str(componentid) + "/cancel", None, request.headers, None, runtime))
 
 
     def cancel_component_upgrade(self, clusterid, componentid, request):
@@ -85,7 +85,7 @@ class Client(ROAClient):
 
     def cancel_workflow_with_options(self, workflow_name, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.CancelWorkflowResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/gs/workflow/" + workflow_name + "", None, request.headers, None, runtime))
+        return _cs20151215_models.CancelWorkflowResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/gs/workflow/" + str(workflow_name) + "", None, request.headers, None, runtime))
 
 
     def cancel_workflow(self, workflow_name, request):
@@ -96,7 +96,7 @@ class Client(ROAClient):
 
     def descirbe_workflow_with_options(self, workflow_name, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DescirbeWorkflowResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/gs/workflow/" + workflow_name + "", None, request.headers, None, runtime))
+        return _cs20151215_models.DescirbeWorkflowResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/gs/workflow/" + str(workflow_name) + "", None, request.headers, None, runtime))
 
 
     def descirbe_workflow(self, workflow_name, request):
@@ -107,7 +107,7 @@ class Client(ROAClient):
 
     def remove_workflow_with_options(self, workflow_name, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.RemoveWorkflowResponse().from_map(self.do_request("2015-12-15", "HTTPS", "DELETE", "AK", "/gs/workflow/" + workflow_name + "", None, request.headers, None, runtime))
+        return _cs20151215_models.RemoveWorkflowResponse().from_map(self.do_request("2015-12-15", "HTTPS", "DELETE", "AK", "/gs/workflow/" + str(workflow_name) + "", None, request.headers, None, runtime))
 
 
     def remove_workflow(self, workflow_name, request):
@@ -140,7 +140,7 @@ class Client(ROAClient):
 
     def un_install_cluster_addons_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.UnInstallClusterAddonsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + cluster_id + "/components/uninstall", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.UnInstallClusterAddonsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/components/uninstall", None, request.headers, request.body.to_map(), runtime))
 
 
     def un_install_cluster_addons(self, cluster_id, request):
@@ -151,7 +151,7 @@ class Client(ROAClient):
 
     def update_k8s_cluster_user_config_expire_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.UpdateK8sClusterUserConfigExpireResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/k8s/" + cluster_id + "/user_config/expire", None, request.headers, None, runtime))
+        return _cs20151215_models.UpdateK8sClusterUserConfigExpireResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/k8s/" + str(cluster_id) + "/user_config/expire", None, request.headers, None, runtime))
 
 
     def update_k8s_cluster_user_config_expire(self, cluster_id, request):
@@ -173,7 +173,7 @@ class Client(ROAClient):
 
     def describe_cluster_v2user_kubeconfig_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DescribeClusterV2UserKubeconfigResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/api/v2/k8s/" + cluster_id + "/user_config", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+        return _cs20151215_models.DescribeClusterV2UserKubeconfigResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/api/v2/k8s/" + str(cluster_id) + "/user_config", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
 
 
     def describe_cluster_v2user_kubeconfig(self, cluster_id, request):
@@ -184,7 +184,7 @@ class Client(ROAClient):
 
     def remove_cluster_nodes_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.RemoveClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + cluster_id + "/nodes/remove", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.RemoveClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + str(cluster_id) + "/nodes/remove", None, request.headers, request.body.to_map(), runtime))
 
 
     def remove_cluster_nodes(self, cluster_id, request):
@@ -195,7 +195,7 @@ class Client(ROAClient):
 
     def upgrade_cluster_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.UpgradeClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + cluster_id + "/upgrade", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.UpgradeClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + str(cluster_id) + "/upgrade", None, request.headers, request.body.to_map(), runtime))
 
 
     def upgrade_cluster(self, cluster_id, request):
@@ -206,7 +206,7 @@ class Client(ROAClient):
 
     def pause_cluster_upgrade_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.PauseClusterUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + cluster_id + "/upgrade/pause", None, request.headers, None, runtime))
+        return _cs20151215_models.PauseClusterUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + str(cluster_id) + "/upgrade/pause", None, request.headers, None, runtime))
 
 
     def pause_cluster_upgrade(self, cluster_id, request):
@@ -217,7 +217,7 @@ class Client(ROAClient):
 
     def resume_upgrade_cluster_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.ResumeUpgradeClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + cluster_id + "/upgrade/resume", None, request.headers, None, runtime))
+        return _cs20151215_models.ResumeUpgradeClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + str(cluster_id) + "/upgrade/resume", None, request.headers, None, runtime))
 
 
     def resume_upgrade_cluster(self, cluster_id, request):
@@ -228,7 +228,7 @@ class Client(ROAClient):
 
     def get_upgrade_status_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.GetUpgradeStatusResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/api/v2/clusters/" + cluster_id + "/upgrade/status", None, request.headers, None, runtime))
+        return _cs20151215_models.GetUpgradeStatusResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/api/v2/clusters/" + str(cluster_id) + "/upgrade/status", None, request.headers, None, runtime))
 
 
     def get_upgrade_status(self, cluster_id, request):
@@ -239,7 +239,7 @@ class Client(ROAClient):
 
     def modify_cluster_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.ModifyClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/api/v2/clusters/" + cluster_id + "", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.ModifyClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/api/v2/clusters/" + str(cluster_id) + "", None, request.headers, request.body.to_map(), runtime))
 
 
     def modify_cluster(self, cluster_id, request):
@@ -250,7 +250,7 @@ class Client(ROAClient):
 
     def install_cluster_addons_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.InstallClusterAddonsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + cluster_id + "/components/install", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.InstallClusterAddonsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/components/install", None, request.headers, request.body.to_map(), runtime))
 
 
     def install_cluster_addons(self, cluster_id, request):
@@ -261,7 +261,7 @@ class Client(ROAClient):
 
     def modify_cluster_tags_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.ModifyClusterTagsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + cluster_id + "/tags", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.ModifyClusterTagsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/tags", None, request.headers, request.body.to_map(), runtime))
 
 
     def modify_cluster_tags(self, cluster_id, request):
@@ -272,7 +272,7 @@ class Client(ROAClient):
 
     def describe_external_agent_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DescribeExternalAgentResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/k8s/" + cluster_id + "/external/agent/deployment", None, request.headers, None, runtime))
+        return _cs20151215_models.DescribeExternalAgentResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/k8s/" + str(cluster_id) + "/external/agent/deployment", None, request.headers, None, runtime))
 
 
     def describe_external_agent(self, cluster_id, request):
@@ -283,7 +283,7 @@ class Client(ROAClient):
 
     def describe_cluster_resources_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DescribeClusterResourcesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + cluster_id + "/resources", None, request.headers, None, runtime))
+        return _cs20151215_models.DescribeClusterResourcesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "/resources", None, request.headers, None, runtime))
 
 
     def describe_cluster_resources(self, cluster_id, request):
@@ -294,7 +294,7 @@ class Client(ROAClient):
 
     def delete_cluster_nodes_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DeleteClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + cluster_id + "/nodes", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.DeleteClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/nodes", None, request.headers, request.body.to_map(), runtime))
 
 
     def delete_cluster_nodes(self, cluster_id, request):
@@ -305,7 +305,7 @@ class Client(ROAClient):
 
     def describe_cluster_user_kubeconfig_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DescribeClusterUserKubeconfigResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/k8s/" + cluster_id + "/user_config", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+        return _cs20151215_models.DescribeClusterUserKubeconfigResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/k8s/" + str(cluster_id) + "/user_config", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
 
 
     def describe_cluster_user_kubeconfig(self, cluster_id, request):
@@ -316,7 +316,7 @@ class Client(ROAClient):
 
     def describe_cluster_nodes_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DescribeClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + cluster_id + "/nodes", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+        return _cs20151215_models.DescribeClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "/nodes", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
 
 
     def describe_cluster_nodes(self, cluster_id, request):
@@ -327,7 +327,7 @@ class Client(ROAClient):
 
     def attach_instances_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.AttachInstancesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + cluster_id + "/attach", None, request.headers, request.body.to_map(), runtime))
+        return _cs20151215_models.AttachInstancesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/attach", None, request.headers, request.body.to_map(), runtime))
 
 
     def attach_instances(self, cluster_id, request):
@@ -360,7 +360,7 @@ class Client(ROAClient):
 
     def scale_cluster_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.ScaleClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/clusters/" + cluster_id + "", None, request.headers, None, runtime))
+        return _cs20151215_models.ScaleClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/clusters/" + str(cluster_id) + "", None, request.headers, None, runtime))
 
 
     def scale_cluster(self, cluster_id, request):
@@ -382,7 +382,7 @@ class Client(ROAClient):
 
     def delete_cluster_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
-        return _cs20151215_models.DeleteClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "DELETE", "AK", "/clusters/" + cluster_id + "", None, request.headers, None, runtime))
+        return _cs20151215_models.DeleteClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "DELETE", "AK", "/clusters/" + str(cluster_id) + "", None, request.headers, None, runtime))
 
 
     def delete_cluster(self, cluster_id, request):
