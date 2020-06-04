@@ -1,73 +1,8 @@
 // This file is auto-generated, don't edit it
-import RPCUtil from '@alicloud/rpc-util';
 import Util, * as $Util from '@alicloud/tea-util';
-import Credential, * as $Credential from '@alicloud/credentials';
-import { Readable } from 'stream';
+import RPC, * as $RPC from '@alicloud/rpc-client';
+import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
-
-export class Config extends $tea.Model {
-  accessKeyId?: string;
-  accessKeySecret?: string;
-  type?: string;
-  securityToken?: string;
-  endpoint: string;
-  protocol?: string;
-  regionId: string;
-  readTimeout?: number;
-  connectTimeout?: number;
-  httpProxy?: string;
-  httpsProxy?: string;
-  socks5Proxy?: string;
-  socks5NetWork?: string;
-  noProxy?: string;
-  userAgent?: string;
-  maxIdleConns?: number;
-  static names(): { [key: string]: string } {
-    return {
-      accessKeyId: 'accessKeyId',
-      accessKeySecret: 'accessKeySecret',
-      type: 'type',
-      securityToken: 'securityToken',
-      endpoint: 'endpoint',
-      protocol: 'protocol',
-      regionId: 'regionId',
-      readTimeout: 'read timeout',
-      connectTimeout: 'connect timeout',
-      httpProxy: 'http proxy',
-      httpsProxy: 'https proxy',
-      socks5Proxy: 'socks5 proxy',
-      socks5NetWork: 'socks5 NetWork',
-      noProxy: 'no proxy',
-      userAgent: 'userAgent',
-      maxIdleConns: 'maxIdleConns',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      accessKeyId: 'string',
-      accessKeySecret: 'string',
-      type: 'string',
-      securityToken: 'string',
-      endpoint: 'string',
-      protocol: 'string',
-      regionId: 'string',
-      readTimeout: 'number',
-      connectTimeout: 'number',
-      httpProxy: 'string',
-      httpsProxy: 'string',
-      socks5Proxy: 'string',
-      socks5NetWork: 'string',
-      noProxy: 'string',
-      userAgent: 'string',
-      maxIdleConns: 'number',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
 
 export class DescribeRegionsRequest extends $tea.Model {
   ownerId?: number;
@@ -778,8 +713,12 @@ export class DescribeContainerGroupPriceRequest extends $tea.Model {
   resourceOwnerId?: number;
   ownerAccount?: string;
   regionId: string;
-  cpu: number;
-  memory: number;
+  cpu?: number;
+  memory?: number;
+  instanceType?: string;
+  spotStrategy?: string;
+  zoneId?: string;
+  spotPriceLimit?: number;
   static names(): { [key: string]: string } {
     return {
       ownerId: 'OwnerId',
@@ -789,6 +728,10 @@ export class DescribeContainerGroupPriceRequest extends $tea.Model {
       regionId: 'RegionId',
       cpu: 'Cpu',
       memory: 'Memory',
+      instanceType: 'InstanceType',
+      spotStrategy: 'SpotStrategy',
+      zoneId: 'ZoneId',
+      spotPriceLimit: 'SpotPriceLimit',
     };
   }
 
@@ -801,6 +744,10 @@ export class DescribeContainerGroupPriceRequest extends $tea.Model {
       regionId: 'string',
       cpu: 'number',
       memory: 'number',
+      instanceType: 'string',
+      spotStrategy: 'string',
+      zoneId: 'string',
+      spotPriceLimit: 'number',
     };
   }
 
@@ -841,6 +788,7 @@ export class ExecContainerCommandRequest extends $tea.Model {
   containerName: string;
   command: string;
   TTY?: boolean;
+  stdin?: boolean;
   static names(): { [key: string]: string } {
     return {
       ownerId: 'OwnerId',
@@ -852,6 +800,7 @@ export class ExecContainerCommandRequest extends $tea.Model {
       containerName: 'ContainerName',
       command: 'Command',
       TTY: 'TTY',
+      stdin: 'Stdin',
     };
   }
 
@@ -866,6 +815,7 @@ export class ExecContainerCommandRequest extends $tea.Model {
       containerName: 'string',
       command: 'string',
       TTY: 'boolean',
+      stdin: 'boolean',
     };
   }
 
@@ -908,6 +858,7 @@ export class DescribeContainerLogRequest extends $tea.Model {
   tail?: number;
   lastTime?: boolean;
   sinceSeconds?: number;
+  limitBytes?: number;
   static names(): { [key: string]: string } {
     return {
       ownerId: 'OwnerId',
@@ -921,6 +872,7 @@ export class DescribeContainerLogRequest extends $tea.Model {
       tail: 'Tail',
       lastTime: 'LastTime',
       sinceSeconds: 'SinceSeconds',
+      limitBytes: 'LimitBytes',
     };
   }
 
@@ -937,6 +889,7 @@ export class DescribeContainerLogRequest extends $tea.Model {
       tail: 'number',
       lastTime: 'boolean',
       sinceSeconds: 'number',
+      limitBytes: 'number',
     };
   }
 
@@ -1007,7 +960,10 @@ export class CreateContainerGroupRequest extends $tea.Model {
   activeDeadlineSeconds?: number;
   spotStrategy?: string;
   spotPriceLimit?: number;
-  VSwitchStrategy?: string;
+  scheduleStrategy?: string;
+  tenantVSwitchId?: string;
+  tenantSecurityGroupId?: string;
+  corePattern?: string;
   static names(): { [key: string]: string } {
     return {
       ownerId: 'OwnerId',
@@ -1046,7 +1002,10 @@ export class CreateContainerGroupRequest extends $tea.Model {
       activeDeadlineSeconds: 'ActiveDeadlineSeconds',
       spotStrategy: 'SpotStrategy',
       spotPriceLimit: 'SpotPriceLimit',
-      VSwitchStrategy: 'VSwitchStrategy',
+      scheduleStrategy: 'ScheduleStrategy',
+      tenantVSwitchId: 'TenantVSwitchId',
+      tenantSecurityGroupId: 'TenantSecurityGroupId',
+      corePattern: 'CorePattern',
     };
   }
 
@@ -1088,7 +1047,10 @@ export class CreateContainerGroupRequest extends $tea.Model {
       activeDeadlineSeconds: 'number',
       spotStrategy: 'string',
       spotPriceLimit: 'number',
-      VSwitchStrategy: 'string',
+      scheduleStrategy: 'string',
+      tenantVSwitchId: 'string',
+      tenantSecurityGroupId: 'string',
+      corePattern: 'string',
     };
   }
 
@@ -4723,6 +4685,53 @@ export class DescribeContainerGroupPriceResponsePriceInfoRules extends $tea.Mode
   }
 }
 
+export class DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice extends $tea.Model {
+  zoneId: string;
+  instanceType: string;
+  spotPrice: number;
+  originPrice: number;
+  static names(): { [key: string]: string } {
+    return {
+      zoneId: 'ZoneId',
+      instanceType: 'InstanceType',
+      spotPrice: 'SpotPrice',
+      originPrice: 'OriginPrice',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      zoneId: 'string',
+      instanceType: 'string',
+      spotPrice: 'number',
+      originPrice: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeContainerGroupPriceResponsePriceInfoSpotPrices extends $tea.Model {
+  spotPrice: DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice[];
+  static names(): { [key: string]: string } {
+    return {
+      spotPrice: 'SpotPrice',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      spotPrice: { 'type': 'array', 'itemType': DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRulesRule extends $tea.Model {
   ruleId: number;
   description: string;
@@ -4847,10 +4856,12 @@ export class DescribeContainerGroupPriceResponsePriceInfoPrice extends $tea.Mode
 
 export class DescribeContainerGroupPriceResponsePriceInfo extends $tea.Model {
   rules: DescribeContainerGroupPriceResponsePriceInfoRules;
+  spotPrices: DescribeContainerGroupPriceResponsePriceInfoSpotPrices;
   price: DescribeContainerGroupPriceResponsePriceInfoPrice;
   static names(): { [key: string]: string } {
     return {
       rules: 'Rules',
+      spotPrices: 'SpotPrices',
       price: 'Price',
     };
   }
@@ -4858,6 +4869,7 @@ export class DescribeContainerGroupPriceResponsePriceInfo extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       rules: DescribeContainerGroupPriceResponsePriceInfoRules,
+      spotPrices: DescribeContainerGroupPriceResponsePriceInfoSpotPrices,
       price: DescribeContainerGroupPriceResponsePriceInfoPrice,
     };
   }
@@ -5337,6 +5349,8 @@ export class CreateContainerGroupRequestContainer extends $tea.Model {
   lifecyclePreStopHandlerExec?: string[];
   lifecyclePreStopHandlerTcpSocketHost?: string;
   lifecyclePreStopHandlerTcpSocketPort?: number;
+  terminationMessagePath?: string;
+  terminationMessagePolicy?: string;
   static names(): { [key: string]: string } {
     return {
       image: 'Image',
@@ -5373,6 +5387,8 @@ export class CreateContainerGroupRequestContainer extends $tea.Model {
       lifecyclePreStopHandlerExec: 'LifecyclePreStopHandlerExec',
       lifecyclePreStopHandlerTcpSocketHost: 'LifecyclePreStopHandlerTcpSocketHost',
       lifecyclePreStopHandlerTcpSocketPort: 'LifecyclePreStopHandlerTcpSocketPort',
+      terminationMessagePath: 'TerminationMessagePath',
+      terminationMessagePolicy: 'TerminationMessagePolicy',
     };
   }
 
@@ -5412,6 +5428,8 @@ export class CreateContainerGroupRequestContainer extends $tea.Model {
       lifecyclePreStopHandlerExec: { 'type': 'array', 'itemType': 'string' },
       lifecyclePreStopHandlerTcpSocketHost: 'string',
       lifecyclePreStopHandlerTcpSocketPort: 'number',
+      terminationMessagePath: 'string',
+      terminationMessagePolicy: 'string',
     };
   }
 
@@ -5472,18 +5490,18 @@ export class CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath e
 
 export class CreateContainerGroupRequestVolumeConfigFileVolume extends $tea.Model {
   configFileToPath: CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath[];
-  defaultModel?: number;
+  defaultMode?: number;
   static names(): { [key: string]: string } {
     return {
       configFileToPath: 'ConfigFileToPath',
-      defaultModel: 'DefaultModel',
+      defaultMode: 'DefaultMode',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
       configFileToPath: { 'type': 'array', 'itemType': CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath },
-      defaultModel: 'number',
+      defaultMode: 'number',
     };
   }
 
@@ -5775,6 +5793,8 @@ export class CreateContainerGroupRequestInitContainer extends $tea.Model {
   environmentVar: CreateContainerGroupRequestInitContainerEnvironmentVar[];
   securityContext: CreateContainerGroupRequestInitContainerSecurityContext;
   gpu?: number;
+  terminationMessagePath?: string;
+  terminationMessagePolicy?: string;
   static names(): { [key: string]: string } {
     return {
       name: 'Name',
@@ -5790,6 +5810,8 @@ export class CreateContainerGroupRequestInitContainer extends $tea.Model {
       environmentVar: 'EnvironmentVar',
       securityContext: 'SecurityContext',
       gpu: 'Gpu',
+      terminationMessagePath: 'TerminationMessagePath',
+      terminationMessagePolicy: 'TerminationMessagePolicy',
     };
   }
 
@@ -5808,6 +5830,8 @@ export class CreateContainerGroupRequestInitContainer extends $tea.Model {
       environmentVar: { 'type': 'array', 'itemType': CreateContainerGroupRequestInitContainerEnvironmentVar },
       securityContext: CreateContainerGroupRequestInitContainerSecurityContext,
       gpu: 'number',
+      terminationMessagePath: 'string',
+      terminationMessagePolicy: 'string',
     };
   }
 
@@ -7028,6 +7052,10 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
   vpcId: string;
   discount: number;
   resourceGroupId: string;
+  tenantEniInstanceId: string;
+  tenantVSwitchId: string;
+  tenantSecurityGroupId: string;
+  spotStrategy: string;
   tags: DescribeContainerGroupsResponseContainerGroupsTags[];
   events: DescribeContainerGroupsResponseContainerGroupsEvents[];
   containers: DescribeContainerGroupsResponseContainerGroupsContainers[];
@@ -7061,6 +7089,10 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
       vpcId: 'VpcId',
       discount: 'Discount',
       resourceGroupId: 'ResourceGroupId',
+      tenantEniInstanceId: 'TenantEniInstanceId',
+      tenantVSwitchId: 'TenantVSwitchId',
+      tenantSecurityGroupId: 'TenantSecurityGroupId',
+      spotStrategy: 'SpotStrategy',
       tags: 'Tags',
       events: 'Events',
       containers: 'Containers',
@@ -7097,6 +7129,10 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
       vpcId: 'string',
       discount: 'number',
       resourceGroupId: 'string',
+      tenantEniInstanceId: 'string',
+      tenantVSwitchId: 'string',
+      tenantSecurityGroupId: 'string',
+      spotStrategy: 'string',
       tags: { 'type': 'array', 'itemType': DescribeContainerGroupsResponseContainerGroupsTags },
       events: { 'type': 'array', 'itemType': DescribeContainerGroupsResponseContainerGroupsEvents },
       containers: { 'type': 'array', 'itemType': DescribeContainerGroupsResponseContainerGroupsContainers },
@@ -7114,246 +7150,196 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
 }
 
 
-export default class Client {
-  _endpoint: string;
-  _regionId: string;
-  _protocol: string;
-  _userAgent: string;
-  _readTimeout: number;
-  _connectTimeout: number;
-  _httpProxy: string;
-  _httpsProxy: string;
-  _noProxy: string;
-  _socks5Proxy: string;
-  _socks5NetWork: string;
-  _maxIdleConns: number;
-  _credential: Credential;
+export default class Client extends RPC {
 
-  constructor(config: Config) {
-    if (Util.isUnset($tea.toMap(config))) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config' can not be unset",
-      });
+  constructor(config: $RPC.Config) {
+    super(config);
+    this._endpointRule = "";
+    this.checkConfig(config);
+    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+  }
+
+
+  async describeRegionsWithOptions(request: DescribeRegionsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRegionsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeRegionsResponse>(await this.doRequest("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeRegionsResponse({}));
+  }
+
+  async describeRegions(request: DescribeRegionsRequest): Promise<DescribeRegionsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeRegionsWithOptions(request, runtime);
+  }
+
+  async describeImageCachesWithOptions(request: DescribeImageCachesRequest, runtime: $Util.RuntimeOptions): Promise<DescribeImageCachesResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeImageCachesResponse>(await this.doRequest("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeImageCachesResponse({}));
+  }
+
+  async describeImageCaches(request: DescribeImageCachesRequest): Promise<DescribeImageCachesResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeImageCachesWithOptions(request, runtime);
+  }
+
+  async deleteImageCacheWithOptions(request: DeleteImageCacheRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageCacheResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteImageCacheResponse>(await this.doRequest("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DeleteImageCacheResponse({}));
+  }
+
+  async deleteImageCache(request: DeleteImageCacheRequest): Promise<DeleteImageCacheResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteImageCacheWithOptions(request, runtime);
+  }
+
+  async createImageCacheWithOptions(request: CreateImageCacheRequest, runtime: $Util.RuntimeOptions): Promise<CreateImageCacheResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateImageCacheResponse>(await this.doRequest("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new CreateImageCacheResponse({}));
+  }
+
+  async createImageCache(request: CreateImageCacheRequest): Promise<CreateImageCacheResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.createImageCacheWithOptions(request, runtime);
+  }
+
+  async describeMultiContainerGroupMetricWithOptions(request: DescribeMultiContainerGroupMetricRequest, runtime: $Util.RuntimeOptions): Promise<DescribeMultiContainerGroupMetricResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeMultiContainerGroupMetricResponse>(await this.doRequest("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeMultiContainerGroupMetricResponse({}));
+  }
+
+  async describeMultiContainerGroupMetric(request: DescribeMultiContainerGroupMetricRequest): Promise<DescribeMultiContainerGroupMetricResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeMultiContainerGroupMetricWithOptions(request, runtime);
+  }
+
+  async describeContainerGroupMetricWithOptions(request: DescribeContainerGroupMetricRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupMetricResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeContainerGroupMetricResponse>(await this.doRequest("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupMetricResponse({}));
+  }
+
+  async describeContainerGroupMetric(request: DescribeContainerGroupMetricRequest): Promise<DescribeContainerGroupMetricResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeContainerGroupMetricWithOptions(request, runtime);
+  }
+
+  async updateContainerGroupByTemplateWithOptions(request: UpdateContainerGroupByTemplateRequest, runtime: $Util.RuntimeOptions): Promise<UpdateContainerGroupByTemplateResponse> {
+    Util.validateModel(request);
+    return $tea.cast<UpdateContainerGroupByTemplateResponse>(await this.doRequest("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new UpdateContainerGroupByTemplateResponse({}));
+  }
+
+  async updateContainerGroupByTemplate(request: UpdateContainerGroupByTemplateRequest): Promise<UpdateContainerGroupByTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.updateContainerGroupByTemplateWithOptions(request, runtime);
+  }
+
+  async createContainerGroupFromTemplateWithOptions(request: CreateContainerGroupFromTemplateRequest, runtime: $Util.RuntimeOptions): Promise<CreateContainerGroupFromTemplateResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateContainerGroupFromTemplateResponse>(await this.doRequest("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new CreateContainerGroupFromTemplateResponse({}));
+  }
+
+  async createContainerGroupFromTemplate(request: CreateContainerGroupFromTemplateRequest): Promise<CreateContainerGroupFromTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.createContainerGroupFromTemplateWithOptions(request, runtime);
+  }
+
+  async exportContainerGroupTemplateWithOptions(request: ExportContainerGroupTemplateRequest, runtime: $Util.RuntimeOptions): Promise<ExportContainerGroupTemplateResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ExportContainerGroupTemplateResponse>(await this.doRequest("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new ExportContainerGroupTemplateResponse({}));
+  }
+
+  async exportContainerGroupTemplate(request: ExportContainerGroupTemplateRequest): Promise<ExportContainerGroupTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.exportContainerGroupTemplateWithOptions(request, runtime);
+  }
+
+  async restartContainerGroupWithOptions(request: RestartContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<RestartContainerGroupResponse> {
+    Util.validateModel(request);
+    return $tea.cast<RestartContainerGroupResponse>(await this.doRequest("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new RestartContainerGroupResponse({}));
+  }
+
+  async restartContainerGroup(request: RestartContainerGroupRequest): Promise<RestartContainerGroupResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.restartContainerGroupWithOptions(request, runtime);
+  }
+
+  async updateContainerGroupWithOptions(request: UpdateContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<UpdateContainerGroupResponse> {
+    Util.validateModel(request);
+    return $tea.cast<UpdateContainerGroupResponse>(await this.doRequest("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new UpdateContainerGroupResponse({}));
+  }
+
+  async updateContainerGroup(request: UpdateContainerGroupRequest): Promise<UpdateContainerGroupResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.updateContainerGroupWithOptions(request, runtime);
+  }
+
+  async describeContainerGroupPriceWithOptions(request: DescribeContainerGroupPriceRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupPriceResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeContainerGroupPriceResponse>(await this.doRequest("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupPriceResponse({}));
+  }
+
+  async describeContainerGroupPrice(request: DescribeContainerGroupPriceRequest): Promise<DescribeContainerGroupPriceResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeContainerGroupPriceWithOptions(request, runtime);
+  }
+
+  async execContainerCommandWithOptions(request: ExecContainerCommandRequest, runtime: $Util.RuntimeOptions): Promise<ExecContainerCommandResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ExecContainerCommandResponse>(await this.doRequest("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new ExecContainerCommandResponse({}));
+  }
+
+  async execContainerCommand(request: ExecContainerCommandRequest): Promise<ExecContainerCommandResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.execContainerCommandWithOptions(request, runtime);
+  }
+
+  async describeContainerLogWithOptions(request: DescribeContainerLogRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerLogResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeContainerLogResponse>(await this.doRequest("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerLogResponse({}));
+  }
+
+  async describeContainerLog(request: DescribeContainerLogRequest): Promise<DescribeContainerLogResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeContainerLogWithOptions(request, runtime);
+  }
+
+  async createContainerGroupWithOptions(request: CreateContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<CreateContainerGroupResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateContainerGroupResponse>(await this.doRequest("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new CreateContainerGroupResponse({}));
+  }
+
+  async createContainerGroup(request: CreateContainerGroupRequest): Promise<CreateContainerGroupResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.createContainerGroupWithOptions(request, runtime);
+  }
+
+  async describeContainerGroupsWithOptions(request: DescribeContainerGroupsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeContainerGroupsResponse>(await this.doRequest("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupsResponse({}));
+  }
+
+  async describeContainerGroups(request: DescribeContainerGroupsRequest): Promise<DescribeContainerGroupsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeContainerGroupsWithOptions(request, runtime);
+  }
+
+  async deleteContainerGroupWithOptions(request: DeleteContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<DeleteContainerGroupResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteContainerGroupResponse>(await this.doRequest("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DeleteContainerGroupResponse({}));
+  }
+
+  async deleteContainerGroup(request: DeleteContainerGroupRequest): Promise<DeleteContainerGroupResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteContainerGroupWithOptions(request, runtime);
+  }
+
+  getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
+    if (!Util.empty(endpoint)) {
+      return endpoint;
     }
 
-    if (Util.empty(config.endpoint)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.endpoint' can not be empty",
-      });
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+      return endpointMap[regionId];
     }
 
-    if (Util.empty(config.regionId)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.regionId' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.type)) {
-      config.type = "access_key";
-    }
-
-    let credentialConfig = new $Credential.Config({
-      accessKeyId: config.accessKeyId,
-      type: config.type,
-      accessKeySecret: config.accessKeySecret,
-      securityToken: config.securityToken,
-    });
-    this._credential = new Credential(credentialConfig);
-    this._endpoint = config.endpoint;
-    this._protocol = config.protocol;
-    this._regionId = config.regionId;
-    this._userAgent = config.userAgent;
-    this._readTimeout = config.readTimeout;
-    this._connectTimeout = config.connectTimeout;
-    this._httpProxy = config.httpProxy;
-    this._httpsProxy = config.httpsProxy;
-    this._noProxy = config.noProxy;
-    this._socks5Proxy = config.socks5Proxy;
-    this._socks5NetWork = config.socks5NetWork;
-    this._maxIdleConns = config.maxIdleConns;
-  }
-
-  async _request(action: string, protocol: string, method: string, authType: string, query: {[key: string]: any}, body: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
-    let _runtime: { [key: string]: any } = {
-      timeouted: "retry",
-      readTimeout: Util.defaultNumber(runtime.readTimeout, this._readTimeout),
-      connectTimeout: Util.defaultNumber(runtime.connectTimeout, this._connectTimeout),
-      httpProxy: Util.defaultString(runtime.httpProxy, this._httpProxy),
-      httpsProxy: Util.defaultString(runtime.httpsProxy, this._httpsProxy),
-      noProxy: Util.defaultString(runtime.noProxy, this._noProxy),
-      maxIdleConns: Util.defaultNumber(runtime.maxIdleConns, this._maxIdleConns),
-      retry: {
-        retryable: runtime.autoretry,
-        maxAttempts: Util.defaultNumber(runtime.maxAttempts, 2),
-      },
-      backoff: {
-        policy: Util.defaultString(runtime.backoffPolicy, "no"),
-        period: Util.defaultNumber(runtime.backoffPeriod, 0),
-      },
-      ignoreSSL: runtime.ignoreSSL,
-    }
-
-    let _lastRequest = null;
-    let _now = Date.now();
-    let _retryTimes = 0;
-    while ($tea.allowRetry(_runtime['retry'], _retryTimes, _now)) {
-      if (_retryTimes > 0) {
-        let _backoffTime = $tea.getBackoffTime(_runtime['backoff'], _retryTimes);
-        if (_backoffTime > 0) {
-          await $tea.sleep(_backoffTime);
-        }
-      }
-
-      _retryTimes = _retryTimes + 1;
-      try {
-        let request_ = new $tea.Request();
-        request_.protocol = Util.defaultString(this._protocol, protocol);
-        request_.method = method;
-        request_.pathname = "/";
-        request_.query = RPCUtil.query({
-          Action: action,
-          Format: "json",
-          RegionId: this._regionId,
-          Timestamp: RPCUtil.getTimestamp(),
-          Version: "2018-08-08",
-          SignatureNonce: Util.getNonce(),
-          ...query,
-        });
-        if (!Util.isUnset(body)) {
-          let tmp = Util.anyifyMapValue(RPCUtil.query(body));
-          request_.body = new $tea.BytesReadable(Util.toFormString(tmp));
-        }
-
-        request_.headers = {
-          host: RPCUtil.getHost("Eci", this._regionId, this._endpoint),
-          'user-agent': this.getUserAgent(),
-        };
-        if (!Util.equalString(authType, "Anonymous")) {
-          let accessKeyId = await this.getAccessKeyId();
-          let accessKeySecret = await this.getAccessKeySecret();
-          request_.query["SignatureMethod"] = "HMAC-SHA1";
-          request_.query["SignatureVersion"] = "1.0";
-          request_.query["AccessKeyId"] = accessKeyId;
-          request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
-        }
-
-        _lastRequest = request_;
-        let response_ = await $tea.doAction(request_, _runtime);
-
-        let obj = await Util.readAsJSON(response_.body);
-        let res = Util.assertAsMap(obj);
-        if (RPCUtil.hasError(res)) {
-          throw $tea.newError({
-            message: res["Message"],
-            data: res,
-            code: res["Code"],
-          });
-        }
-
-        return res;
-      } catch (ex) {
-        if ($tea.isRetryable(ex)) {
-          continue;
-        }
-        throw ex;
-      }
-    }
-
-    throw $tea.newUnretryableError(_lastRequest);
-  }
-
-  async describeRegions(request: DescribeRegionsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRegionsResponse> {
-    return $tea.cast<DescribeRegionsResponse>(await this._request("DescribeRegions", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeRegionsResponse({}));
-  }
-
-  async describeImageCaches(request: DescribeImageCachesRequest, runtime: $Util.RuntimeOptions): Promise<DescribeImageCachesResponse> {
-    return $tea.cast<DescribeImageCachesResponse>(await this._request("DescribeImageCaches", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeImageCachesResponse({}));
-  }
-
-  async deleteImageCache(request: DeleteImageCacheRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageCacheResponse> {
-    return $tea.cast<DeleteImageCacheResponse>(await this._request("DeleteImageCache", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DeleteImageCacheResponse({}));
-  }
-
-  async createImageCache(request: CreateImageCacheRequest, runtime: $Util.RuntimeOptions): Promise<CreateImageCacheResponse> {
-    return $tea.cast<CreateImageCacheResponse>(await this._request("CreateImageCache", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new CreateImageCacheResponse({}));
-  }
-
-  async describeMultiContainerGroupMetric(request: DescribeMultiContainerGroupMetricRequest, runtime: $Util.RuntimeOptions): Promise<DescribeMultiContainerGroupMetricResponse> {
-    return $tea.cast<DescribeMultiContainerGroupMetricResponse>(await this._request("DescribeMultiContainerGroupMetric", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeMultiContainerGroupMetricResponse({}));
-  }
-
-  async describeContainerGroupMetric(request: DescribeContainerGroupMetricRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupMetricResponse> {
-    return $tea.cast<DescribeContainerGroupMetricResponse>(await this._request("DescribeContainerGroupMetric", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupMetricResponse({}));
-  }
-
-  async updateContainerGroupByTemplate(request: UpdateContainerGroupByTemplateRequest, runtime: $Util.RuntimeOptions): Promise<UpdateContainerGroupByTemplateResponse> {
-    return $tea.cast<UpdateContainerGroupByTemplateResponse>(await this._request("UpdateContainerGroupByTemplate", "HTTPS", "POST", "AK", $tea.toMap(request), null, runtime), new UpdateContainerGroupByTemplateResponse({}));
-  }
-
-  async createContainerGroupFromTemplate(request: CreateContainerGroupFromTemplateRequest, runtime: $Util.RuntimeOptions): Promise<CreateContainerGroupFromTemplateResponse> {
-    return $tea.cast<CreateContainerGroupFromTemplateResponse>(await this._request("CreateContainerGroupFromTemplate", "HTTPS", "POST", "AK", $tea.toMap(request), null, runtime), new CreateContainerGroupFromTemplateResponse({}));
-  }
-
-  async exportContainerGroupTemplate(request: ExportContainerGroupTemplateRequest, runtime: $Util.RuntimeOptions): Promise<ExportContainerGroupTemplateResponse> {
-    return $tea.cast<ExportContainerGroupTemplateResponse>(await this._request("ExportContainerGroupTemplate", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new ExportContainerGroupTemplateResponse({}));
-  }
-
-  async restartContainerGroup(request: RestartContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<RestartContainerGroupResponse> {
-    return $tea.cast<RestartContainerGroupResponse>(await this._request("RestartContainerGroup", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new RestartContainerGroupResponse({}));
-  }
-
-  async updateContainerGroup(request: UpdateContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<UpdateContainerGroupResponse> {
-    return $tea.cast<UpdateContainerGroupResponse>(await this._request("UpdateContainerGroup", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new UpdateContainerGroupResponse({}));
-  }
-
-  async describeContainerGroupPrice(request: DescribeContainerGroupPriceRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupPriceResponse> {
-    return $tea.cast<DescribeContainerGroupPriceResponse>(await this._request("DescribeContainerGroupPrice", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupPriceResponse({}));
-  }
-
-  async execContainerCommand(request: ExecContainerCommandRequest, runtime: $Util.RuntimeOptions): Promise<ExecContainerCommandResponse> {
-    return $tea.cast<ExecContainerCommandResponse>(await this._request("ExecContainerCommand", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new ExecContainerCommandResponse({}));
-  }
-
-  async describeContainerLog(request: DescribeContainerLogRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerLogResponse> {
-    return $tea.cast<DescribeContainerLogResponse>(await this._request("DescribeContainerLog", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeContainerLogResponse({}));
-  }
-
-  async createContainerGroup(request: CreateContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<CreateContainerGroupResponse> {
-    return $tea.cast<CreateContainerGroupResponse>(await this._request("CreateContainerGroup", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new CreateContainerGroupResponse({}));
-  }
-
-  async describeContainerGroups(request: DescribeContainerGroupsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupsResponse> {
-    return $tea.cast<DescribeContainerGroupsResponse>(await this._request("DescribeContainerGroups", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupsResponse({}));
-  }
-
-  async deleteContainerGroup(request: DeleteContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<DeleteContainerGroupResponse> {
-    return $tea.cast<DeleteContainerGroupResponse>(await this._request("DeleteContainerGroup", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DeleteContainerGroupResponse({}));
-  }
-
-  getUserAgent(): string {
-    let userAgent = Util.getUserAgent(this._userAgent);
-    return userAgent;
-  }
-
-  async getAccessKeyId(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
-    }
-
-    let accessKeyId = await this._credential.getAccessKeyId();
-    return accessKeyId;
-  }
-
-  async getAccessKeySecret(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
-    }
-
-    let secret = await this._credential.getAccessKeySecret();
-    return secret;
+    return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
   }
 
 }
