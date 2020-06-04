@@ -1,1075 +1,917 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
 namespace AlibabaCloud\SDK\Dyvmsapi\V20170525;
 
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\AddRtcAccountRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\AddRtcAccountResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BatchRobotSmartCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BatchRobotSmartCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BindNumberAndVoipIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BindNumberAndVoipIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelOrderRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelOrderRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ClickToDialRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ClickToDialResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CreateRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CreateRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DeleteRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DeleteRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DescribeRecordDataRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DescribeRecordDataResponse;
+
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListRobotTaskCallsRequest;
+use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListRobotTaskCallsResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DoRtcNumberAuthRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DoRtcNumberAuthResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\GetRtcTokenRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\GetRtcTokenResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\IvrCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\IvrCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOrderedNumbersRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOrderedNumbersResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOutboundStrategiesRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOutboundStrategiesResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListRobotTaskCallsRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListRobotTaskCallsResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByCallIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByCallIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByTaskIdRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByTaskIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotInfoListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotInfoListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallDetailRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallDetailResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskDetailRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskDetailResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskListResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotv2AllListRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotv2AllListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UndoRtcNumberAuthRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UndoRtcNumberAuthResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRtcNumberAuthStatusRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRtcNumberAuthStatusResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOrderedNumbersRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOrderedNumbersResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartMicroOutboundRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartMicroOutboundResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOutboundStrategiesRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ListOutboundStrategiesResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DescribeRecordDataRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DescribeRecordDataResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryVoipNumberBindInfosRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryVoipNumberBindInfosResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ReportVoipProblemsRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ReportVoipProblemsResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByTtsRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByTtsResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByVoiceRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByVoiceResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallOperateRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallOperateResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartMicroOutboundRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartMicroOutboundResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartRobotTaskResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StopRobotTaskRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StopRobotTaskResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UnbindNumberAndVoipIdRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UnbindNumberAndVoipIdResponse;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UndoRtcNumberAuthRequest;
-use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UndoRtcNumberAuthResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BindNumberAndVoipIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BindNumberAndVoipIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelRobotTaskResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UploadRobotTaskCalledFileRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\UploadRobotTaskCalledFileResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DeleteRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\DeleteRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StopRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StopRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallDetailRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallDetailResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotv2AllListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotv2AllListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskDetailRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskDetailResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskCallListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\StartRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotTaskListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CreateRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CreateRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelOrderRobotTaskRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelOrderRobotTaskResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallOperateRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallOperateResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotInfoListRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryRobotInfoListResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BatchRobotSmartCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\BatchRobotSmartCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByTaskIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByTaskIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\GetRtcTokenRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\GetRtcTokenResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\AddRtcAccountRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\AddRtcAccountResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipAddAccountRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipAddAccountResponse;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipGetTokenRequest;
 use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\VoipGetTokenResponse;
-use AlibabaCloud\Tea\Rpc\Rpc;
-use AlibabaCloud\Tea\Utils\Utils;
-use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SmartCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByCallIdRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\QueryCallDetailByCallIdResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\CancelCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ClickToDialRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\ClickToDialResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\IvrCallRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\IvrCallResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByVoiceRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByVoiceResponse;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByTtsRequest;
+use AlibabaCloud\SDK\Dyvmsapi\V20170525\Models\SingleCallByTtsResponse;
 
-class Dyvmsapi extends Rpc
-{
-    public function __construct($config)
-    {
+class Dyvmsapi extends Rpc {
+    public function __construct($config){
         parent::__construct($config);
-        $this->_endpointRule = 'central';
+        $this->_endpointRule = "central";
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ListRobotTaskCallsRequest $request
+     * @param RuntimeOptions $runtime
      * @return ListRobotTaskCallsResponse
+     * @throws \Exception
      */
-    public function listRobotTaskCallsEx(ListRobotTaskCallsRequest $request, RuntimeOptions $runtime)
-    {
+    public function listRobotTaskCallsWithOptions(ListRobotTaskCallsRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return ListRobotTaskCallsResponse::fromMap($this->doRequest('ListRobotTaskCalls', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return ListRobotTaskCallsResponse::fromMap($this->doRequest("ListRobotTaskCalls", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ListRobotTaskCallsRequest $request
      * @return ListRobotTaskCallsResponse
+     * @throws \Exception
      */
-    public function listRobotTaskCalls(ListRobotTaskCallsRequest $request)
-    {
-        Utils::validateModel($request);
+    public function listRobotTaskCalls(ListRobotTaskCallsRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->listRobotTaskCallsEx($request, $runtime);
+        return $this->listRobotTaskCallsWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param DoRtcNumberAuthRequest $request
+     * @param RuntimeOptions $runtime
      * @return DoRtcNumberAuthResponse
+     * @throws \Exception
      */
-    public function doRtcNumberAuthEx(DoRtcNumberAuthRequest $request, RuntimeOptions $runtime)
-    {
+    public function doRtcNumberAuthWithOptions(DoRtcNumberAuthRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return DoRtcNumberAuthResponse::fromMap($this->doRequest('DoRtcNumberAuth', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return DoRtcNumberAuthResponse::fromMap($this->doRequest("DoRtcNumberAuth", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param DoRtcNumberAuthRequest $request
      * @return DoRtcNumberAuthResponse
+     * @throws \Exception
      */
-    public function doRtcNumberAuth(DoRtcNumberAuthRequest $request)
-    {
-        Utils::validateModel($request);
+    public function doRtcNumberAuth(DoRtcNumberAuthRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->doRtcNumberAuthEx($request, $runtime);
+        return $this->doRtcNumberAuthWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param UndoRtcNumberAuthRequest $request
+     * @param RuntimeOptions $runtime
      * @return UndoRtcNumberAuthResponse
+     * @throws \Exception
      */
-    public function undoRtcNumberAuthEx(UndoRtcNumberAuthRequest $request, RuntimeOptions $runtime)
-    {
+    public function undoRtcNumberAuthWithOptions(UndoRtcNumberAuthRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return UndoRtcNumberAuthResponse::fromMap($this->doRequest('UndoRtcNumberAuth', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return UndoRtcNumberAuthResponse::fromMap($this->doRequest("UndoRtcNumberAuth", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param UndoRtcNumberAuthRequest $request
      * @return UndoRtcNumberAuthResponse
+     * @throws \Exception
      */
-    public function undoRtcNumberAuth(UndoRtcNumberAuthRequest $request)
-    {
-        Utils::validateModel($request);
+    public function undoRtcNumberAuth(UndoRtcNumberAuthRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->undoRtcNumberAuthEx($request, $runtime);
+        return $this->undoRtcNumberAuthWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRtcNumberAuthStatusRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRtcNumberAuthStatusResponse
+     * @throws \Exception
      */
-    public function queryRtcNumberAuthStatusEx(QueryRtcNumberAuthStatusRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRtcNumberAuthStatusWithOptions(QueryRtcNumberAuthStatusRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRtcNumberAuthStatusResponse::fromMap($this->doRequest('QueryRtcNumberAuthStatus', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRtcNumberAuthStatusResponse::fromMap($this->doRequest("QueryRtcNumberAuthStatus", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRtcNumberAuthStatusRequest $request
      * @return QueryRtcNumberAuthStatusResponse
+     * @throws \Exception
      */
-    public function queryRtcNumberAuthStatus(QueryRtcNumberAuthStatusRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRtcNumberAuthStatus(QueryRtcNumberAuthStatusRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRtcNumberAuthStatusEx($request, $runtime);
+        return $this->queryRtcNumberAuthStatusWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ListOrderedNumbersRequest $request
+     * @param RuntimeOptions $runtime
      * @return ListOrderedNumbersResponse
+     * @throws \Exception
      */
-    public function listOrderedNumbersEx(ListOrderedNumbersRequest $request, RuntimeOptions $runtime)
-    {
+    public function listOrderedNumbersWithOptions(ListOrderedNumbersRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return ListOrderedNumbersResponse::fromMap($this->doRequest('ListOrderedNumbers', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return ListOrderedNumbersResponse::fromMap($this->doRequest("ListOrderedNumbers", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ListOrderedNumbersRequest $request
      * @return ListOrderedNumbersResponse
+     * @throws \Exception
      */
-    public function listOrderedNumbers(ListOrderedNumbersRequest $request)
-    {
-        Utils::validateModel($request);
+    public function listOrderedNumbers(ListOrderedNumbersRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->listOrderedNumbersEx($request, $runtime);
+        return $this->listOrderedNumbersWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param StartMicroOutboundRequest $request
+     * @param RuntimeOptions $runtime
      * @return StartMicroOutboundResponse
+     * @throws \Exception
      */
-    public function startMicroOutboundEx(StartMicroOutboundRequest $request, RuntimeOptions $runtime)
-    {
+    public function startMicroOutboundWithOptions(StartMicroOutboundRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return StartMicroOutboundResponse::fromMap($this->doRequest('StartMicroOutbound', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return StartMicroOutboundResponse::fromMap($this->doRequest("StartMicroOutbound", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param StartMicroOutboundRequest $request
      * @return StartMicroOutboundResponse
+     * @throws \Exception
      */
-    public function startMicroOutbound(StartMicroOutboundRequest $request)
-    {
-        Utils::validateModel($request);
+    public function startMicroOutbound(StartMicroOutboundRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->startMicroOutboundEx($request, $runtime);
+        return $this->startMicroOutboundWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ListOutboundStrategiesRequest $request
+     * @param RuntimeOptions $runtime
      * @return ListOutboundStrategiesResponse
+     * @throws \Exception
      */
-    public function listOutboundStrategiesEx(ListOutboundStrategiesRequest $request, RuntimeOptions $runtime)
-    {
+    public function listOutboundStrategiesWithOptions(ListOutboundStrategiesRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return ListOutboundStrategiesResponse::fromMap($this->doRequest('ListOutboundStrategies', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return ListOutboundStrategiesResponse::fromMap($this->doRequest("ListOutboundStrategies", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ListOutboundStrategiesRequest $request
      * @return ListOutboundStrategiesResponse
+     * @throws \Exception
      */
-    public function listOutboundStrategies(ListOutboundStrategiesRequest $request)
-    {
-        Utils::validateModel($request);
+    public function listOutboundStrategies(ListOutboundStrategiesRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->listOutboundStrategiesEx($request, $runtime);
+        return $this->listOutboundStrategiesWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param DescribeRecordDataRequest $request
+     * @param RuntimeOptions $runtime
      * @return DescribeRecordDataResponse
+     * @throws \Exception
      */
-    public function describeRecordDataEx(DescribeRecordDataRequest $request, RuntimeOptions $runtime)
-    {
+    public function describeRecordDataWithOptions(DescribeRecordDataRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return DescribeRecordDataResponse::fromMap($this->doRequest('DescribeRecordData', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return DescribeRecordDataResponse::fromMap($this->doRequest("DescribeRecordData", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param DescribeRecordDataRequest $request
      * @return DescribeRecordDataResponse
+     * @throws \Exception
      */
-    public function describeRecordData(DescribeRecordDataRequest $request)
-    {
-        Utils::validateModel($request);
+    public function describeRecordData(DescribeRecordDataRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->describeRecordDataEx($request, $runtime);
+        return $this->describeRecordDataWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryVoipNumberBindInfosRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryVoipNumberBindInfosResponse
+     * @throws \Exception
      */
-    public function queryVoipNumberBindInfosEx(QueryVoipNumberBindInfosRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryVoipNumberBindInfosWithOptions(QueryVoipNumberBindInfosRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryVoipNumberBindInfosResponse::fromMap($this->doRequest('QueryVoipNumberBindInfos', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryVoipNumberBindInfosResponse::fromMap($this->doRequest("QueryVoipNumberBindInfos", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryVoipNumberBindInfosRequest $request
      * @return QueryVoipNumberBindInfosResponse
+     * @throws \Exception
      */
-    public function queryVoipNumberBindInfos(QueryVoipNumberBindInfosRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryVoipNumberBindInfos(QueryVoipNumberBindInfosRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryVoipNumberBindInfosEx($request, $runtime);
+        return $this->queryVoipNumberBindInfosWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ReportVoipProblemsRequest $request
+     * @param RuntimeOptions $runtime
      * @return ReportVoipProblemsResponse
+     * @throws \Exception
      */
-    public function reportVoipProblemsEx(ReportVoipProblemsRequest $request, RuntimeOptions $runtime)
-    {
+    public function reportVoipProblemsWithOptions(ReportVoipProblemsRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return ReportVoipProblemsResponse::fromMap($this->doRequest('ReportVoipProblems', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return ReportVoipProblemsResponse::fromMap($this->doRequest("ReportVoipProblems", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ReportVoipProblemsRequest $request
      * @return ReportVoipProblemsResponse
+     * @throws \Exception
      */
-    public function reportVoipProblems(ReportVoipProblemsRequest $request)
-    {
-        Utils::validateModel($request);
+    public function reportVoipProblems(ReportVoipProblemsRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->reportVoipProblemsEx($request, $runtime);
+        return $this->reportVoipProblemsWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param UnbindNumberAndVoipIdRequest $request
+     * @param RuntimeOptions $runtime
      * @return UnbindNumberAndVoipIdResponse
+     * @throws \Exception
      */
-    public function unbindNumberAndVoipIdEx(UnbindNumberAndVoipIdRequest $request, RuntimeOptions $runtime)
-    {
+    public function unbindNumberAndVoipIdWithOptions(UnbindNumberAndVoipIdRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return UnbindNumberAndVoipIdResponse::fromMap($this->doRequest('UnbindNumberAndVoipId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return UnbindNumberAndVoipIdResponse::fromMap($this->doRequest("UnbindNumberAndVoipId", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param UnbindNumberAndVoipIdRequest $request
      * @return UnbindNumberAndVoipIdResponse
+     * @throws \Exception
      */
-    public function unbindNumberAndVoipId(UnbindNumberAndVoipIdRequest $request)
-    {
-        Utils::validateModel($request);
+    public function unbindNumberAndVoipId(UnbindNumberAndVoipIdRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->unbindNumberAndVoipIdEx($request, $runtime);
+        return $this->unbindNumberAndVoipIdWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param BindNumberAndVoipIdRequest $request
+     * @param RuntimeOptions $runtime
      * @return BindNumberAndVoipIdResponse
+     * @throws \Exception
      */
-    public function bindNumberAndVoipIdEx(BindNumberAndVoipIdRequest $request, RuntimeOptions $runtime)
-    {
+    public function bindNumberAndVoipIdWithOptions(BindNumberAndVoipIdRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return BindNumberAndVoipIdResponse::fromMap($this->doRequest('BindNumberAndVoipId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return BindNumberAndVoipIdResponse::fromMap($this->doRequest("BindNumberAndVoipId", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param BindNumberAndVoipIdRequest $request
      * @return BindNumberAndVoipIdResponse
+     * @throws \Exception
      */
-    public function bindNumberAndVoipId(BindNumberAndVoipIdRequest $request)
-    {
-        Utils::validateModel($request);
+    public function bindNumberAndVoipId(BindNumberAndVoipIdRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->bindNumberAndVoipIdEx($request, $runtime);
+        return $this->bindNumberAndVoipIdWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CancelRobotTaskRequest $request
+     * @param RuntimeOptions $runtime
      * @return CancelRobotTaskResponse
+     * @throws \Exception
      */
-    public function cancelRobotTaskEx(CancelRobotTaskRequest $request, RuntimeOptions $runtime)
-    {
+    public function cancelRobotTaskWithOptions(CancelRobotTaskRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return CancelRobotTaskResponse::fromMap($this->doRequest('CancelRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return CancelRobotTaskResponse::fromMap($this->doRequest("CancelRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CancelRobotTaskRequest $request
      * @return CancelRobotTaskResponse
+     * @throws \Exception
      */
-    public function cancelRobotTask(CancelRobotTaskRequest $request)
-    {
-        Utils::validateModel($request);
+    public function cancelRobotTask(CancelRobotTaskRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->cancelRobotTaskEx($request, $runtime);
+        return $this->cancelRobotTaskWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param UploadRobotTaskCalledFileRequest $request
+     * @param RuntimeOptions $runtime
      * @return UploadRobotTaskCalledFileResponse
+     * @throws \Exception
      */
-    public function uploadRobotTaskCalledFileEx(UploadRobotTaskCalledFileRequest $request, RuntimeOptions $runtime)
-    {
+    public function uploadRobotTaskCalledFileWithOptions(UploadRobotTaskCalledFileRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return UploadRobotTaskCalledFileResponse::fromMap($this->doRequest('UploadRobotTaskCalledFile', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return UploadRobotTaskCalledFileResponse::fromMap($this->doRequest("UploadRobotTaskCalledFile", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param UploadRobotTaskCalledFileRequest $request
      * @return UploadRobotTaskCalledFileResponse
+     * @throws \Exception
      */
-    public function uploadRobotTaskCalledFile(UploadRobotTaskCalledFileRequest $request)
-    {
-        Utils::validateModel($request);
+    public function uploadRobotTaskCalledFile(UploadRobotTaskCalledFileRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->uploadRobotTaskCalledFileEx($request, $runtime);
+        return $this->uploadRobotTaskCalledFileWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param DeleteRobotTaskRequest $request
+     * @param RuntimeOptions $runtime
      * @return DeleteRobotTaskResponse
+     * @throws \Exception
      */
-    public function deleteRobotTaskEx(DeleteRobotTaskRequest $request, RuntimeOptions $runtime)
-    {
+    public function deleteRobotTaskWithOptions(DeleteRobotTaskRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return DeleteRobotTaskResponse::fromMap($this->doRequest('DeleteRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return DeleteRobotTaskResponse::fromMap($this->doRequest("DeleteRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param DeleteRobotTaskRequest $request
      * @return DeleteRobotTaskResponse
+     * @throws \Exception
      */
-    public function deleteRobotTask(DeleteRobotTaskRequest $request)
-    {
-        Utils::validateModel($request);
+    public function deleteRobotTask(DeleteRobotTaskRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->deleteRobotTaskEx($request, $runtime);
+        return $this->deleteRobotTaskWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param StopRobotTaskRequest $request
+     * @param RuntimeOptions $runtime
      * @return StopRobotTaskResponse
+     * @throws \Exception
      */
-    public function stopRobotTaskEx(StopRobotTaskRequest $request, RuntimeOptions $runtime)
-    {
+    public function stopRobotTaskWithOptions(StopRobotTaskRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return StopRobotTaskResponse::fromMap($this->doRequest('StopRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return StopRobotTaskResponse::fromMap($this->doRequest("StopRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param StopRobotTaskRequest $request
      * @return StopRobotTaskResponse
+     * @throws \Exception
      */
-    public function stopRobotTask(StopRobotTaskRequest $request)
-    {
-        Utils::validateModel($request);
+    public function stopRobotTask(StopRobotTaskRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->stopRobotTaskEx($request, $runtime);
+        return $this->stopRobotTaskWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskCallDetailRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRobotTaskCallDetailResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskCallDetailEx(QueryRobotTaskCallDetailRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRobotTaskCallDetailWithOptions(QueryRobotTaskCallDetailRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRobotTaskCallDetailResponse::fromMap($this->doRequest('QueryRobotTaskCallDetail', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRobotTaskCallDetailResponse::fromMap($this->doRequest("QueryRobotTaskCallDetail", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskCallDetailRequest $request
      * @return QueryRobotTaskCallDetailResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskCallDetail(QueryRobotTaskCallDetailRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRobotTaskCallDetail(QueryRobotTaskCallDetailRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRobotTaskCallDetailEx($request, $runtime);
+        return $this->queryRobotTaskCallDetailWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotv2AllListRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRobotv2AllListResponse
+     * @throws \Exception
      */
-    public function queryRobotv2AllListEx(QueryRobotv2AllListRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRobotv2AllListWithOptions(QueryRobotv2AllListRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRobotv2AllListResponse::fromMap($this->doRequest('QueryRobotv2AllList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRobotv2AllListResponse::fromMap($this->doRequest("QueryRobotv2AllList", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotv2AllListRequest $request
      * @return QueryRobotv2AllListResponse
+     * @throws \Exception
      */
-    public function queryRobotv2AllList(QueryRobotv2AllListRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRobotv2AllList(QueryRobotv2AllListRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRobotv2AllListEx($request, $runtime);
+        return $this->queryRobotv2AllListWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskDetailRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRobotTaskDetailResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskDetailEx(QueryRobotTaskDetailRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRobotTaskDetailWithOptions(QueryRobotTaskDetailRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRobotTaskDetailResponse::fromMap($this->doRequest('QueryRobotTaskDetail', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRobotTaskDetailResponse::fromMap($this->doRequest("QueryRobotTaskDetail", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskDetailRequest $request
      * @return QueryRobotTaskDetailResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskDetail(QueryRobotTaskDetailRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRobotTaskDetail(QueryRobotTaskDetailRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRobotTaskDetailEx($request, $runtime);
+        return $this->queryRobotTaskDetailWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskCallListRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRobotTaskCallListResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskCallListEx(QueryRobotTaskCallListRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRobotTaskCallListWithOptions(QueryRobotTaskCallListRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRobotTaskCallListResponse::fromMap($this->doRequest('QueryRobotTaskCallList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRobotTaskCallListResponse::fromMap($this->doRequest("QueryRobotTaskCallList", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskCallListRequest $request
      * @return QueryRobotTaskCallListResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskCallList(QueryRobotTaskCallListRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRobotTaskCallList(QueryRobotTaskCallListRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRobotTaskCallListEx($request, $runtime);
+        return $this->queryRobotTaskCallListWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param StartRobotTaskRequest $request
+     * @param RuntimeOptions $runtime
      * @return StartRobotTaskResponse
+     * @throws \Exception
      */
-    public function startRobotTaskEx(StartRobotTaskRequest $request, RuntimeOptions $runtime)
-    {
+    public function startRobotTaskWithOptions(StartRobotTaskRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return StartRobotTaskResponse::fromMap($this->doRequest('StartRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return StartRobotTaskResponse::fromMap($this->doRequest("StartRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param StartRobotTaskRequest $request
      * @return StartRobotTaskResponse
+     * @throws \Exception
      */
-    public function startRobotTask(StartRobotTaskRequest $request)
-    {
-        Utils::validateModel($request);
+    public function startRobotTask(StartRobotTaskRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->startRobotTaskEx($request, $runtime);
+        return $this->startRobotTaskWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskListRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRobotTaskListResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskListEx(QueryRobotTaskListRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRobotTaskListWithOptions(QueryRobotTaskListRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRobotTaskListResponse::fromMap($this->doRequest('QueryRobotTaskList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRobotTaskListResponse::fromMap($this->doRequest("QueryRobotTaskList", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotTaskListRequest $request
      * @return QueryRobotTaskListResponse
+     * @throws \Exception
      */
-    public function queryRobotTaskList(QueryRobotTaskListRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRobotTaskList(QueryRobotTaskListRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRobotTaskListEx($request, $runtime);
+        return $this->queryRobotTaskListWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CreateRobotTaskRequest $request
+     * @param RuntimeOptions $runtime
      * @return CreateRobotTaskResponse
+     * @throws \Exception
      */
-    public function createRobotTaskEx(CreateRobotTaskRequest $request, RuntimeOptions $runtime)
-    {
+    public function createRobotTaskWithOptions(CreateRobotTaskRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return CreateRobotTaskResponse::fromMap($this->doRequest('CreateRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return CreateRobotTaskResponse::fromMap($this->doRequest("CreateRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CreateRobotTaskRequest $request
      * @return CreateRobotTaskResponse
+     * @throws \Exception
      */
-    public function createRobotTask(CreateRobotTaskRequest $request)
-    {
-        Utils::validateModel($request);
+    public function createRobotTask(CreateRobotTaskRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->createRobotTaskEx($request, $runtime);
+        return $this->createRobotTaskWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CancelOrderRobotTaskRequest $request
+     * @param RuntimeOptions $runtime
      * @return CancelOrderRobotTaskResponse
+     * @throws \Exception
      */
-    public function cancelOrderRobotTaskEx(CancelOrderRobotTaskRequest $request, RuntimeOptions $runtime)
-    {
+    public function cancelOrderRobotTaskWithOptions(CancelOrderRobotTaskRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return CancelOrderRobotTaskResponse::fromMap($this->doRequest('CancelOrderRobotTask', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return CancelOrderRobotTaskResponse::fromMap($this->doRequest("CancelOrderRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CancelOrderRobotTaskRequest $request
      * @return CancelOrderRobotTaskResponse
+     * @throws \Exception
      */
-    public function cancelOrderRobotTask(CancelOrderRobotTaskRequest $request)
-    {
-        Utils::validateModel($request);
+    public function cancelOrderRobotTask(CancelOrderRobotTaskRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->cancelOrderRobotTaskEx($request, $runtime);
+        return $this->cancelOrderRobotTaskWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SmartCallOperateRequest $request
+     * @param RuntimeOptions $runtime
      * @return SmartCallOperateResponse
+     * @throws \Exception
      */
-    public function smartCallOperateEx(SmartCallOperateRequest $request, RuntimeOptions $runtime)
-    {
+    public function smartCallOperateWithOptions(SmartCallOperateRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return SmartCallOperateResponse::fromMap($this->doRequest('SmartCallOperate', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return SmartCallOperateResponse::fromMap($this->doRequest("SmartCallOperate", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SmartCallOperateRequest $request
      * @return SmartCallOperateResponse
+     * @throws \Exception
      */
-    public function smartCallOperate(SmartCallOperateRequest $request)
-    {
-        Utils::validateModel($request);
+    public function smartCallOperate(SmartCallOperateRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->smartCallOperateEx($request, $runtime);
+        return $this->smartCallOperateWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotInfoListRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryRobotInfoListResponse
+     * @throws \Exception
      */
-    public function queryRobotInfoListEx(QueryRobotInfoListRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryRobotInfoListWithOptions(QueryRobotInfoListRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryRobotInfoListResponse::fromMap($this->doRequest('QueryRobotInfoList', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryRobotInfoListResponse::fromMap($this->doRequest("QueryRobotInfoList", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryRobotInfoListRequest $request
      * @return QueryRobotInfoListResponse
+     * @throws \Exception
      */
-    public function queryRobotInfoList(QueryRobotInfoListRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryRobotInfoList(QueryRobotInfoListRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryRobotInfoListEx($request, $runtime);
+        return $this->queryRobotInfoListWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param BatchRobotSmartCallRequest $request
+     * @param RuntimeOptions $runtime
      * @return BatchRobotSmartCallResponse
+     * @throws \Exception
      */
-    public function batchRobotSmartCallEx(BatchRobotSmartCallRequest $request, RuntimeOptions $runtime)
-    {
+    public function batchRobotSmartCallWithOptions(BatchRobotSmartCallRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return BatchRobotSmartCallResponse::fromMap($this->doRequest('BatchRobotSmartCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return BatchRobotSmartCallResponse::fromMap($this->doRequest("BatchRobotSmartCall", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param BatchRobotSmartCallRequest $request
      * @return BatchRobotSmartCallResponse
+     * @throws \Exception
      */
-    public function batchRobotSmartCall(BatchRobotSmartCallRequest $request)
-    {
-        Utils::validateModel($request);
+    public function batchRobotSmartCall(BatchRobotSmartCallRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->batchRobotSmartCallEx($request, $runtime);
+        return $this->batchRobotSmartCallWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryCallDetailByTaskIdRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryCallDetailByTaskIdResponse
+     * @throws \Exception
      */
-    public function queryCallDetailByTaskIdEx(QueryCallDetailByTaskIdRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryCallDetailByTaskIdWithOptions(QueryCallDetailByTaskIdRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryCallDetailByTaskIdResponse::fromMap($this->doRequest('QueryCallDetailByTaskId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryCallDetailByTaskIdResponse::fromMap($this->doRequest("QueryCallDetailByTaskId", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryCallDetailByTaskIdRequest $request
      * @return QueryCallDetailByTaskIdResponse
+     * @throws \Exception
      */
-    public function queryCallDetailByTaskId(QueryCallDetailByTaskIdRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryCallDetailByTaskId(QueryCallDetailByTaskIdRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryCallDetailByTaskIdEx($request, $runtime);
+        return $this->queryCallDetailByTaskIdWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param GetRtcTokenRequest $request
+     * @param RuntimeOptions $runtime
      * @return GetRtcTokenResponse
+     * @throws \Exception
      */
-    public function getRtcTokenEx(GetRtcTokenRequest $request, RuntimeOptions $runtime)
-    {
+    public function getRtcTokenWithOptions(GetRtcTokenRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return GetRtcTokenResponse::fromMap($this->doRequest('GetRtcToken', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return GetRtcTokenResponse::fromMap($this->doRequest("GetRtcToken", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param GetRtcTokenRequest $request
      * @return GetRtcTokenResponse
+     * @throws \Exception
      */
-    public function getRtcToken(GetRtcTokenRequest $request)
-    {
-        Utils::validateModel($request);
+    public function getRtcToken(GetRtcTokenRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->getRtcTokenEx($request, $runtime);
+        return $this->getRtcTokenWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param AddRtcAccountRequest $request
+     * @param RuntimeOptions $runtime
      * @return AddRtcAccountResponse
+     * @throws \Exception
      */
-    public function addRtcAccountEx(AddRtcAccountRequest $request, RuntimeOptions $runtime)
-    {
+    public function addRtcAccountWithOptions(AddRtcAccountRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return AddRtcAccountResponse::fromMap($this->doRequest('AddRtcAccount', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return AddRtcAccountResponse::fromMap($this->doRequest("AddRtcAccount", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param AddRtcAccountRequest $request
      * @return AddRtcAccountResponse
+     * @throws \Exception
      */
-    public function addRtcAccount(AddRtcAccountRequest $request)
-    {
-        Utils::validateModel($request);
+    public function addRtcAccount(AddRtcAccountRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->addRtcAccountEx($request, $runtime);
+        return $this->addRtcAccountWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param VoipAddAccountRequest $request
+     * @param RuntimeOptions $runtime
      * @return VoipAddAccountResponse
+     * @throws \Exception
      */
-    public function voipAddAccountEx(VoipAddAccountRequest $request, RuntimeOptions $runtime)
-    {
+    public function voipAddAccountWithOptions(VoipAddAccountRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return VoipAddAccountResponse::fromMap($this->doRequest('VoipAddAccount', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return VoipAddAccountResponse::fromMap($this->doRequest("VoipAddAccount", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param VoipAddAccountRequest $request
      * @return VoipAddAccountResponse
+     * @throws \Exception
      */
-    public function voipAddAccount(VoipAddAccountRequest $request)
-    {
-        Utils::validateModel($request);
+    public function voipAddAccount(VoipAddAccountRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->voipAddAccountEx($request, $runtime);
+        return $this->voipAddAccountWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param VoipGetTokenRequest $request
+     * @param RuntimeOptions $runtime
      * @return VoipGetTokenResponse
+     * @throws \Exception
      */
-    public function voipGetTokenEx(VoipGetTokenRequest $request, RuntimeOptions $runtime)
-    {
+    public function voipGetTokenWithOptions(VoipGetTokenRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return VoipGetTokenResponse::fromMap($this->doRequest('VoipGetToken', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return VoipGetTokenResponse::fromMap($this->doRequest("VoipGetToken", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param VoipGetTokenRequest $request
      * @return VoipGetTokenResponse
+     * @throws \Exception
      */
-    public function voipGetToken(VoipGetTokenRequest $request)
-    {
-        Utils::validateModel($request);
+    public function voipGetToken(VoipGetTokenRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->voipGetTokenEx($request, $runtime);
+        return $this->voipGetTokenWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SmartCallRequest $request
+     * @param RuntimeOptions $runtime
      * @return SmartCallResponse
+     * @throws \Exception
      */
-    public function smartCallEx(SmartCallRequest $request, RuntimeOptions $runtime)
-    {
+    public function smartCallWithOptions(SmartCallRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return SmartCallResponse::fromMap($this->doRequest('SmartCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return SmartCallResponse::fromMap($this->doRequest("SmartCall", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SmartCallRequest $request
      * @return SmartCallResponse
+     * @throws \Exception
      */
-    public function smartCall(SmartCallRequest $request)
-    {
-        Utils::validateModel($request);
+    public function smartCall(SmartCallRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->smartCallEx($request, $runtime);
+        return $this->smartCallWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryCallDetailByCallIdRequest $request
+     * @param RuntimeOptions $runtime
      * @return QueryCallDetailByCallIdResponse
+     * @throws \Exception
      */
-    public function queryCallDetailByCallIdEx(QueryCallDetailByCallIdRequest $request, RuntimeOptions $runtime)
-    {
+    public function queryCallDetailByCallIdWithOptions(QueryCallDetailByCallIdRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return QueryCallDetailByCallIdResponse::fromMap($this->doRequest('QueryCallDetailByCallId', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return QueryCallDetailByCallIdResponse::fromMap($this->doRequest("QueryCallDetailByCallId", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param QueryCallDetailByCallIdRequest $request
      * @return QueryCallDetailByCallIdResponse
+     * @throws \Exception
      */
-    public function queryCallDetailByCallId(QueryCallDetailByCallIdRequest $request)
-    {
-        Utils::validateModel($request);
+    public function queryCallDetailByCallId(QueryCallDetailByCallIdRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->queryCallDetailByCallIdEx($request, $runtime);
+        return $this->queryCallDetailByCallIdWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CancelCallRequest $request
+     * @param RuntimeOptions $runtime
      * @return CancelCallResponse
+     * @throws \Exception
      */
-    public function cancelCallEx(CancelCallRequest $request, RuntimeOptions $runtime)
-    {
+    public function cancelCallWithOptions(CancelCallRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return CancelCallResponse::fromMap($this->doRequest('CancelCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return CancelCallResponse::fromMap($this->doRequest("CancelCall", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param CancelCallRequest $request
      * @return CancelCallResponse
+     * @throws \Exception
      */
-    public function cancelCall(CancelCallRequest $request)
-    {
-        Utils::validateModel($request);
+    public function cancelCall(CancelCallRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->cancelCallEx($request, $runtime);
+        return $this->cancelCallWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ClickToDialRequest $request
+     * @param RuntimeOptions $runtime
      * @return ClickToDialResponse
+     * @throws \Exception
      */
-    public function clickToDialEx(ClickToDialRequest $request, RuntimeOptions $runtime)
-    {
+    public function clickToDialWithOptions(ClickToDialRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return ClickToDialResponse::fromMap($this->doRequest('ClickToDial', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return ClickToDialResponse::fromMap($this->doRequest("ClickToDial", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param ClickToDialRequest $request
      * @return ClickToDialResponse
+     * @throws \Exception
      */
-    public function clickToDial(ClickToDialRequest $request)
-    {
-        Utils::validateModel($request);
+    public function clickToDial(ClickToDialRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->clickToDialEx($request, $runtime);
+        return $this->clickToDialWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param IvrCallRequest $request
+     * @param RuntimeOptions $runtime
      * @return IvrCallResponse
+     * @throws \Exception
      */
-    public function ivrCallEx(IvrCallRequest $request, RuntimeOptions $runtime)
-    {
+    public function ivrCallWithOptions(IvrCallRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return IvrCallResponse::fromMap($this->doRequest('IvrCall', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return IvrCallResponse::fromMap($this->doRequest("IvrCall", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param IvrCallRequest $request
      * @return IvrCallResponse
+     * @throws \Exception
      */
-    public function ivrCall(IvrCallRequest $request)
-    {
-        Utils::validateModel($request);
+    public function ivrCall(IvrCallRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->ivrCallEx($request, $runtime);
+        return $this->ivrCallWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SingleCallByVoiceRequest $request
+     * @param RuntimeOptions $runtime
      * @return SingleCallByVoiceResponse
+     * @throws \Exception
      */
-    public function singleCallByVoiceEx(SingleCallByVoiceRequest $request, RuntimeOptions $runtime)
-    {
+    public function singleCallByVoiceWithOptions(SingleCallByVoiceRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return SingleCallByVoiceResponse::fromMap($this->doRequest('SingleCallByVoice', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return SingleCallByVoiceResponse::fromMap($this->doRequest("SingleCallByVoice", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SingleCallByVoiceRequest $request
      * @return SingleCallByVoiceResponse
+     * @throws \Exception
      */
-    public function singleCallByVoice(SingleCallByVoiceRequest $request)
-    {
-        Utils::validateModel($request);
+    public function singleCallByVoice(SingleCallByVoiceRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->singleCallByVoiceEx($request, $runtime);
+        return $this->singleCallByVoiceWithOptions($request, $runtime);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SingleCallByTtsRequest $request
+     * @param RuntimeOptions $runtime
      * @return SingleCallByTtsResponse
+     * @throws \Exception
      */
-    public function singleCallByTtsEx(SingleCallByTtsRequest $request, RuntimeOptions $runtime)
-    {
+    public function singleCallByTtsWithOptions(SingleCallByTtsRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
-
-        return SingleCallByTtsResponse::fromMap($this->doRequest('SingleCallByTts', 'HTTPS', 'GET', '2017-05-25', 'AK', $request, null, $runtime));
+        return SingleCallByTtsResponse::fromMap($this->doRequest("SingleCallByTts", "HTTPS", "POST", "2017-05-25", "AK", null, $request, $runtime));
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param SingleCallByTtsRequest $request
      * @return SingleCallByTtsResponse
+     * @throws \Exception
      */
-    public function singleCallByTts(SingleCallByTtsRequest $request)
-    {
-        Utils::validateModel($request);
+    public function singleCallByTts(SingleCallByTtsRequest $request){
         $runtime = new RuntimeOptions([]);
-
-        return $this->singleCallByTtsEx($request, $runtime);
+        return $this->singleCallByTtsWithOptions($request, $runtime);
     }
 
     /**
@@ -1078,22 +920,18 @@ class Dyvmsapi extends Rpc
      * @param string $endpointRule
      * @param string $network
      * @param string $suffix
-     * @param array  $endpointMap
+     * @param array $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
-     *
      * @return string
+     * @throws \Exception
      */
-    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
-    {
+    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint){
         if (!Utils::empty_($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap['regionId'])) {
-            return $endpointMap['regionId'];
+        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap["regionId"])) {
+            return $endpointMap["regionId"];
         }
-
         return Endpoint::getEndpointRules($productId, $regionId, $endpointRule, $network, $suffix);
     }
 }
