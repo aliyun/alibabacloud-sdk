@@ -17,9 +17,11 @@ public class UploadRobotTaskCalledFileRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("Id")
+    @Validation(required = true)
     public Long id;
 
     @NameInMap("CalledNumber")
+    @Validation(required = true)
     public String calledNumber;
 
     @NameInMap("TtsParam")

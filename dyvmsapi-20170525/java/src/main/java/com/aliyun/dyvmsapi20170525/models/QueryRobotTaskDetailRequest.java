@@ -17,6 +17,7 @@ public class QueryRobotTaskDetailRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("Id")
+    @Validation(required = true)
     public Long id;
 
     public static QueryRobotTaskDetailRequest build(java.util.Map<String, ?> map) throws Exception {

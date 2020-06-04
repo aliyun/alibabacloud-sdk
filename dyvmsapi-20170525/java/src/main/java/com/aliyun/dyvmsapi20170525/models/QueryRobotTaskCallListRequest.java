@@ -23,6 +23,7 @@ public class QueryRobotTaskCallListRequest extends TeaModel {
     public Integer pageSize;
 
     @NameInMap("TaskId")
+    @Validation(required = true)
     public String taskId;
 
     @NameInMap("DurationFrom")
