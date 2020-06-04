@@ -13,6 +13,10 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public Dictionary<string, string> Headers { get; set; }
 
+        [NameInMap("body")]
+        [Validation(Required=true)]
+        public ModifyClusterResponseBody Body { get; set; }
+
     }
 
 }

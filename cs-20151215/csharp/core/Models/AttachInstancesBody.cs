@@ -30,7 +30,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public string Password { get; set; }
 
         [NameInMap("tags")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<AttachInstancesBodyTags> Tags { get; set; }
         public class AttachInstancesBodyTags : TeaModel {
             [NameInMap("key")]
@@ -44,7 +44,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         }
 
         [NameInMap("instances")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<string> Instances { get; set; }
 
     }

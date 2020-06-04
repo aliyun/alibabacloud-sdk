@@ -18,7 +18,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public bool? DrainNode { get; set; }
 
         [NameInMap("nodes")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<RemoveClusterNodesBodyNodes> Nodes { get; set; }
         public class RemoveClusterNodesBodyNodes : TeaModel {
             [NameInMap("node_name")]

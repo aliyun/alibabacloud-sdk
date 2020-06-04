@@ -174,7 +174,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public int? TimeoutMins { get; set; }
 
         [NameInMap("tags")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<CreateClusterBodyTags> Tags { get; set; }
         public class CreateClusterBodyTags : TeaModel {
             [NameInMap("key")]
@@ -188,7 +188,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         }
 
         [NameInMap("addons")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<CreateClusterBodyAddons> Addons { get; set; }
         public class CreateClusterBodyAddons : TeaModel {
             [NameInMap("name")]
@@ -202,7 +202,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         }
 
         [NameInMap("taints")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<CreateClusterBodyTaints> Taints { get; set; }
         public class CreateClusterBodyTaints : TeaModel {
             [NameInMap("key")]
@@ -220,7 +220,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         }
 
         [NameInMap("worker_data_disks")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<CreateClusterBodyWorkerDataDisks> WorkerDataDisks { get; set; }
         public class CreateClusterBodyWorkerDataDisks : TeaModel {
             [NameInMap("category")]
@@ -238,19 +238,19 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         }
 
         [NameInMap("master_vswitch_ids")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<string> MasterVswitchIds { get; set; }
 
         [NameInMap("master_instance_types")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<string> MasterInstanceTypes { get; set; }
 
         [NameInMap("worker_instance_types")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<string> WorkerInstanceTypes { get; set; }
 
         [NameInMap("worker_vswitch_ids")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<string> WorkerVswitchIds { get; set; }
 
     }

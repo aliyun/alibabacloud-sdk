@@ -14,7 +14,7 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         public string ReleaseNode { get; set; }
 
         [NameInMap("nodes")]
-        [Validation(Required=true)]
+        [Validation(Required=false)]
         public List<string> Nodes { get; set; }
 
     }
