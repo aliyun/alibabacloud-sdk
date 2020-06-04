@@ -34,7 +34,7 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public int? PageSize { get; set; }
 
         [NameInMap("TaskId")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string TaskId { get; set; }
 
         [NameInMap("DurationFrom")]

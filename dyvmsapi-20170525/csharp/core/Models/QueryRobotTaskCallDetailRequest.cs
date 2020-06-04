@@ -26,15 +26,15 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public long ResourceOwnerId { get; set; }
 
         [NameInMap("TaskId")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public long TaskId { get; set; }
 
         [NameInMap("Callee")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string Callee { get; set; }
 
         [NameInMap("QueryDate")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public long QueryDate { get; set; }
 
     }

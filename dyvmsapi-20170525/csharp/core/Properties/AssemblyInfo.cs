@@ -1,16 +1,16 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("alibabacloud-sdk-dyvmsapi")]
-[assembly: AssemblyDescription("alibabacloud sdk dyvmsapi")]
+[assembly: AssemblyTitle("alibabacloud-dyvmsapi")]
+[assembly: AssemblyDescription("Alibaba Cloud Dyvmsapi (20170525) SDK Library for .NET")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Alibaba Cloud, Inc")]
-[assembly: AssemblyProduct("alibabacloud sdk dyvmsapi")]
-[assembly: AssemblyCopyright("©2009-present Alibaba Cloud")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6bdccf30-e435-46db-9551-c33fd05174e9")]
+[assembly: Guid("9a686de0-a649-11ea-8f96-e5b1800403e2")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -26,7 +26,7 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public long ResourceOwnerId { get; set; }
 
         [NameInMap("Id")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public long Id { get; set; }
 
     }

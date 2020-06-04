@@ -26,11 +26,11 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public long ResourceOwnerId { get; set; }
 
         [NameInMap("TaskName")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string TaskName { get; set; }
 
         [NameInMap("DialogId")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public long DialogId { get; set; }
 
         [NameInMap("CorpName")]
@@ -38,15 +38,15 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public string CorpName { get; set; }
 
         [NameInMap("Caller")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string Caller { get; set; }
 
         [NameInMap("NumberStatusIdent")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public bool? NumberStatusIdent { get; set; }
 
         [NameInMap("RetryType")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public int? RetryType { get; set; }
 
         [NameInMap("RecallStateCodes")]

@@ -26,7 +26,7 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public long ResourceOwnerId { get; set; }
 
         [NameInMap("TaskId")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public long TaskId { get; set; }
 
         [NameInMap("ScheduleTime")]

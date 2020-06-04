@@ -26,11 +26,11 @@ namespace AlibabaCloud.SDK.Dyvmsapi20170525.Models
         public long ResourceOwnerId { get; set; }
 
         [NameInMap("Id")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public long Id { get; set; }
 
         [NameInMap("CalledNumber")]
-        [Validation(Required=false)]
+        [Validation(Required=true)]
         public string CalledNumber { get; set; }
 
         [NameInMap("TtsParam")]
