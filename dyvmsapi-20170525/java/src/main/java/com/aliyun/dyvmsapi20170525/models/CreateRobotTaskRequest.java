@@ -17,21 +17,26 @@ public class CreateRobotTaskRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("TaskName")
+    @Validation(required = true)
     public String taskName;
 
     @NameInMap("DialogId")
+    @Validation(required = true)
     public Long dialogId;
 
     @NameInMap("CorpName")
     public String corpName;
 
     @NameInMap("Caller")
+    @Validation(required = true)
     public String caller;
 
     @NameInMap("NumberStatusIdent")
+    @Validation(required = true)
     public Boolean numberStatusIdent;
 
     @NameInMap("RetryType")
+    @Validation(required = true)
     public Integer retryType;
 
     @NameInMap("RecallStateCodes")

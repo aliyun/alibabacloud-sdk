@@ -17,6 +17,7 @@ public class StartRobotTaskRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("TaskId")
+    @Validation(required = true)
     public Long taskId;
 
     @NameInMap("ScheduleTime")

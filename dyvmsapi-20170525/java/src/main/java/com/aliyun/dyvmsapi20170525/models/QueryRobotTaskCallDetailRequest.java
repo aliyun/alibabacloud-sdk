@@ -17,12 +17,15 @@ public class QueryRobotTaskCallDetailRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("TaskId")
+    @Validation(required = true)
     public Long taskId;
 
     @NameInMap("Callee")
+    @Validation(required = true)
     public String callee;
 
     @NameInMap("QueryDate")
+    @Validation(required = true)
     public Long queryDate;
 
     public static QueryRobotTaskCallDetailRequest build(java.util.Map<String, ?> map) throws Exception {

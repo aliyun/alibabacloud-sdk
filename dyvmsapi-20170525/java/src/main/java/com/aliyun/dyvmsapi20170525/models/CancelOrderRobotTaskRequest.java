@@ -17,6 +17,7 @@ public class CancelOrderRobotTaskRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("TaskId")
+    @Validation(required = true)
     public Long taskId;
 
     public static CancelOrderRobotTaskRequest build(java.util.Map<String, ?> map) throws Exception {

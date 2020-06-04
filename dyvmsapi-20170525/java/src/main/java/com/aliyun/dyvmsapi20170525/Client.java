@@ -9,437 +9,398 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "central";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("dyvmsapi", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
-    public ListRobotTaskCallsResponse listRobotTaskCallsEx(ListRobotTaskCallsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ListRobotTaskCallsResponse listRobotTaskCallsWithOptions(ListRobotTaskCallsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListRobotTaskCalls", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ListRobotTaskCallsResponse());
+        return TeaModel.toModel(this.doRequest("ListRobotTaskCalls", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ListRobotTaskCallsResponse());
     }
 
     public ListRobotTaskCallsResponse listRobotTaskCalls(ListRobotTaskCallsRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.listRobotTaskCallsEx(request, runtime);
+        return this.listRobotTaskCallsWithOptions(request, runtime);
     }
 
-    public DoRtcNumberAuthResponse doRtcNumberAuthEx(DoRtcNumberAuthRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public DoRtcNumberAuthResponse doRtcNumberAuthWithOptions(DoRtcNumberAuthRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DoRtcNumberAuth", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new DoRtcNumberAuthResponse());
+        return TeaModel.toModel(this.doRequest("DoRtcNumberAuth", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new DoRtcNumberAuthResponse());
     }
 
     public DoRtcNumberAuthResponse doRtcNumberAuth(DoRtcNumberAuthRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.doRtcNumberAuthEx(request, runtime);
+        return this.doRtcNumberAuthWithOptions(request, runtime);
     }
 
-    public UndoRtcNumberAuthResponse undoRtcNumberAuthEx(UndoRtcNumberAuthRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public UndoRtcNumberAuthResponse undoRtcNumberAuthWithOptions(UndoRtcNumberAuthRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("UndoRtcNumberAuth", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new UndoRtcNumberAuthResponse());
+        return TeaModel.toModel(this.doRequest("UndoRtcNumberAuth", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new UndoRtcNumberAuthResponse());
     }
 
     public UndoRtcNumberAuthResponse undoRtcNumberAuth(UndoRtcNumberAuthRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.undoRtcNumberAuthEx(request, runtime);
+        return this.undoRtcNumberAuthWithOptions(request, runtime);
     }
 
-    public QueryRtcNumberAuthStatusResponse queryRtcNumberAuthStatusEx(QueryRtcNumberAuthStatusRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRtcNumberAuthStatusResponse queryRtcNumberAuthStatusWithOptions(QueryRtcNumberAuthStatusRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRtcNumberAuthStatus", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRtcNumberAuthStatusResponse());
+        return TeaModel.toModel(this.doRequest("QueryRtcNumberAuthStatus", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRtcNumberAuthStatusResponse());
     }
 
     public QueryRtcNumberAuthStatusResponse queryRtcNumberAuthStatus(QueryRtcNumberAuthStatusRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRtcNumberAuthStatusEx(request, runtime);
+        return this.queryRtcNumberAuthStatusWithOptions(request, runtime);
     }
 
-    public ListOrderedNumbersResponse listOrderedNumbersEx(ListOrderedNumbersRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ListOrderedNumbersResponse listOrderedNumbersWithOptions(ListOrderedNumbersRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListOrderedNumbers", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ListOrderedNumbersResponse());
+        return TeaModel.toModel(this.doRequest("ListOrderedNumbers", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ListOrderedNumbersResponse());
     }
 
     public ListOrderedNumbersResponse listOrderedNumbers(ListOrderedNumbersRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.listOrderedNumbersEx(request, runtime);
+        return this.listOrderedNumbersWithOptions(request, runtime);
     }
 
-    public StartMicroOutboundResponse startMicroOutboundEx(StartMicroOutboundRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public StartMicroOutboundResponse startMicroOutboundWithOptions(StartMicroOutboundRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("StartMicroOutbound", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new StartMicroOutboundResponse());
+        return TeaModel.toModel(this.doRequest("StartMicroOutbound", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new StartMicroOutboundResponse());
     }
 
     public StartMicroOutboundResponse startMicroOutbound(StartMicroOutboundRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.startMicroOutboundEx(request, runtime);
+        return this.startMicroOutboundWithOptions(request, runtime);
     }
 
-    public ListOutboundStrategiesResponse listOutboundStrategiesEx(ListOutboundStrategiesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ListOutboundStrategiesResponse listOutboundStrategiesWithOptions(ListOutboundStrategiesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ListOutboundStrategies", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ListOutboundStrategiesResponse());
+        return TeaModel.toModel(this.doRequest("ListOutboundStrategies", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ListOutboundStrategiesResponse());
     }
 
     public ListOutboundStrategiesResponse listOutboundStrategies(ListOutboundStrategiesRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.listOutboundStrategiesEx(request, runtime);
+        return this.listOutboundStrategiesWithOptions(request, runtime);
     }
 
-    public DescribeRecordDataResponse describeRecordDataEx(DescribeRecordDataRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public DescribeRecordDataResponse describeRecordDataWithOptions(DescribeRecordDataRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeRecordData", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new DescribeRecordDataResponse());
+        return TeaModel.toModel(this.doRequest("DescribeRecordData", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new DescribeRecordDataResponse());
     }
 
     public DescribeRecordDataResponse describeRecordData(DescribeRecordDataRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.describeRecordDataEx(request, runtime);
+        return this.describeRecordDataWithOptions(request, runtime);
     }
 
-    public QueryVoipNumberBindInfosResponse queryVoipNumberBindInfosEx(QueryVoipNumberBindInfosRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryVoipNumberBindInfosResponse queryVoipNumberBindInfosWithOptions(QueryVoipNumberBindInfosRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryVoipNumberBindInfos", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryVoipNumberBindInfosResponse());
+        return TeaModel.toModel(this.doRequest("QueryVoipNumberBindInfos", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryVoipNumberBindInfosResponse());
     }
 
     public QueryVoipNumberBindInfosResponse queryVoipNumberBindInfos(QueryVoipNumberBindInfosRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryVoipNumberBindInfosEx(request, runtime);
+        return this.queryVoipNumberBindInfosWithOptions(request, runtime);
     }
 
-    public ReportVoipProblemsResponse reportVoipProblemsEx(ReportVoipProblemsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ReportVoipProblemsResponse reportVoipProblemsWithOptions(ReportVoipProblemsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ReportVoipProblems", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ReportVoipProblemsResponse());
+        return TeaModel.toModel(this.doRequest("ReportVoipProblems", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ReportVoipProblemsResponse());
     }
 
     public ReportVoipProblemsResponse reportVoipProblems(ReportVoipProblemsRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.reportVoipProblemsEx(request, runtime);
+        return this.reportVoipProblemsWithOptions(request, runtime);
     }
 
-    public UnbindNumberAndVoipIdResponse unbindNumberAndVoipIdEx(UnbindNumberAndVoipIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public UnbindNumberAndVoipIdResponse unbindNumberAndVoipIdWithOptions(UnbindNumberAndVoipIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("UnbindNumberAndVoipId", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new UnbindNumberAndVoipIdResponse());
+        return TeaModel.toModel(this.doRequest("UnbindNumberAndVoipId", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new UnbindNumberAndVoipIdResponse());
     }
 
     public UnbindNumberAndVoipIdResponse unbindNumberAndVoipId(UnbindNumberAndVoipIdRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.unbindNumberAndVoipIdEx(request, runtime);
+        return this.unbindNumberAndVoipIdWithOptions(request, runtime);
     }
 
-    public BindNumberAndVoipIdResponse bindNumberAndVoipIdEx(BindNumberAndVoipIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public BindNumberAndVoipIdResponse bindNumberAndVoipIdWithOptions(BindNumberAndVoipIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("BindNumberAndVoipId", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new BindNumberAndVoipIdResponse());
+        return TeaModel.toModel(this.doRequest("BindNumberAndVoipId", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new BindNumberAndVoipIdResponse());
     }
 
     public BindNumberAndVoipIdResponse bindNumberAndVoipId(BindNumberAndVoipIdRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.bindNumberAndVoipIdEx(request, runtime);
+        return this.bindNumberAndVoipIdWithOptions(request, runtime);
     }
 
-    public CancelRobotTaskResponse cancelRobotTaskEx(CancelRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public CancelRobotTaskResponse cancelRobotTaskWithOptions(CancelRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CancelRobotTask", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new CancelRobotTaskResponse());
+        return TeaModel.toModel(this.doRequest("CancelRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new CancelRobotTaskResponse());
     }
 
     public CancelRobotTaskResponse cancelRobotTask(CancelRobotTaskRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.cancelRobotTaskEx(request, runtime);
+        return this.cancelRobotTaskWithOptions(request, runtime);
     }
 
-    public UploadRobotTaskCalledFileResponse uploadRobotTaskCalledFileEx(UploadRobotTaskCalledFileRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public UploadRobotTaskCalledFileResponse uploadRobotTaskCalledFileWithOptions(UploadRobotTaskCalledFileRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("UploadRobotTaskCalledFile", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new UploadRobotTaskCalledFileResponse());
+        return TeaModel.toModel(this.doRequest("UploadRobotTaskCalledFile", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new UploadRobotTaskCalledFileResponse());
     }
 
     public UploadRobotTaskCalledFileResponse uploadRobotTaskCalledFile(UploadRobotTaskCalledFileRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.uploadRobotTaskCalledFileEx(request, runtime);
+        return this.uploadRobotTaskCalledFileWithOptions(request, runtime);
     }
 
-    public DeleteRobotTaskResponse deleteRobotTaskEx(DeleteRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public DeleteRobotTaskResponse deleteRobotTaskWithOptions(DeleteRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteRobotTask", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new DeleteRobotTaskResponse());
+        return TeaModel.toModel(this.doRequest("DeleteRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new DeleteRobotTaskResponse());
     }
 
     public DeleteRobotTaskResponse deleteRobotTask(DeleteRobotTaskRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.deleteRobotTaskEx(request, runtime);
+        return this.deleteRobotTaskWithOptions(request, runtime);
     }
 
-    public StopRobotTaskResponse stopRobotTaskEx(StopRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public StopRobotTaskResponse stopRobotTaskWithOptions(StopRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("StopRobotTask", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new StopRobotTaskResponse());
+        return TeaModel.toModel(this.doRequest("StopRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new StopRobotTaskResponse());
     }
 
     public StopRobotTaskResponse stopRobotTask(StopRobotTaskRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.stopRobotTaskEx(request, runtime);
+        return this.stopRobotTaskWithOptions(request, runtime);
     }
 
-    public QueryRobotTaskCallDetailResponse queryRobotTaskCallDetailEx(QueryRobotTaskCallDetailRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRobotTaskCallDetailResponse queryRobotTaskCallDetailWithOptions(QueryRobotTaskCallDetailRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRobotTaskCallDetail", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRobotTaskCallDetailResponse());
+        return TeaModel.toModel(this.doRequest("QueryRobotTaskCallDetail", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRobotTaskCallDetailResponse());
     }
 
     public QueryRobotTaskCallDetailResponse queryRobotTaskCallDetail(QueryRobotTaskCallDetailRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRobotTaskCallDetailEx(request, runtime);
+        return this.queryRobotTaskCallDetailWithOptions(request, runtime);
     }
 
-    public QueryRobotv2AllListResponse queryRobotv2AllListEx(QueryRobotv2AllListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRobotv2AllListResponse queryRobotv2AllListWithOptions(QueryRobotv2AllListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRobotv2AllList", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRobotv2AllListResponse());
+        return TeaModel.toModel(this.doRequest("QueryRobotv2AllList", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRobotv2AllListResponse());
     }
 
     public QueryRobotv2AllListResponse queryRobotv2AllList(QueryRobotv2AllListRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRobotv2AllListEx(request, runtime);
+        return this.queryRobotv2AllListWithOptions(request, runtime);
     }
 
-    public QueryRobotTaskDetailResponse queryRobotTaskDetailEx(QueryRobotTaskDetailRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRobotTaskDetailResponse queryRobotTaskDetailWithOptions(QueryRobotTaskDetailRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRobotTaskDetail", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRobotTaskDetailResponse());
+        return TeaModel.toModel(this.doRequest("QueryRobotTaskDetail", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRobotTaskDetailResponse());
     }
 
     public QueryRobotTaskDetailResponse queryRobotTaskDetail(QueryRobotTaskDetailRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRobotTaskDetailEx(request, runtime);
+        return this.queryRobotTaskDetailWithOptions(request, runtime);
     }
 
-    public QueryRobotTaskCallListResponse queryRobotTaskCallListEx(QueryRobotTaskCallListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRobotTaskCallListResponse queryRobotTaskCallListWithOptions(QueryRobotTaskCallListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRobotTaskCallList", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRobotTaskCallListResponse());
+        return TeaModel.toModel(this.doRequest("QueryRobotTaskCallList", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRobotTaskCallListResponse());
     }
 
     public QueryRobotTaskCallListResponse queryRobotTaskCallList(QueryRobotTaskCallListRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRobotTaskCallListEx(request, runtime);
+        return this.queryRobotTaskCallListWithOptions(request, runtime);
     }
 
-    public StartRobotTaskResponse startRobotTaskEx(StartRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public StartRobotTaskResponse startRobotTaskWithOptions(StartRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("StartRobotTask", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new StartRobotTaskResponse());
+        return TeaModel.toModel(this.doRequest("StartRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new StartRobotTaskResponse());
     }
 
     public StartRobotTaskResponse startRobotTask(StartRobotTaskRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.startRobotTaskEx(request, runtime);
+        return this.startRobotTaskWithOptions(request, runtime);
     }
 
-    public QueryRobotTaskListResponse queryRobotTaskListEx(QueryRobotTaskListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRobotTaskListResponse queryRobotTaskListWithOptions(QueryRobotTaskListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRobotTaskList", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRobotTaskListResponse());
+        return TeaModel.toModel(this.doRequest("QueryRobotTaskList", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRobotTaskListResponse());
     }
 
     public QueryRobotTaskListResponse queryRobotTaskList(QueryRobotTaskListRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRobotTaskListEx(request, runtime);
+        return this.queryRobotTaskListWithOptions(request, runtime);
     }
 
-    public CreateRobotTaskResponse createRobotTaskEx(CreateRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public CreateRobotTaskResponse createRobotTaskWithOptions(CreateRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateRobotTask", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new CreateRobotTaskResponse());
+        return TeaModel.toModel(this.doRequest("CreateRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new CreateRobotTaskResponse());
     }
 
     public CreateRobotTaskResponse createRobotTask(CreateRobotTaskRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.createRobotTaskEx(request, runtime);
+        return this.createRobotTaskWithOptions(request, runtime);
     }
 
-    public CancelOrderRobotTaskResponse cancelOrderRobotTaskEx(CancelOrderRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public CancelOrderRobotTaskResponse cancelOrderRobotTaskWithOptions(CancelOrderRobotTaskRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CancelOrderRobotTask", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new CancelOrderRobotTaskResponse());
+        return TeaModel.toModel(this.doRequest("CancelOrderRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new CancelOrderRobotTaskResponse());
     }
 
     public CancelOrderRobotTaskResponse cancelOrderRobotTask(CancelOrderRobotTaskRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.cancelOrderRobotTaskEx(request, runtime);
+        return this.cancelOrderRobotTaskWithOptions(request, runtime);
     }
 
-    public SmartCallOperateResponse smartCallOperateEx(SmartCallOperateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public SmartCallOperateResponse smartCallOperateWithOptions(SmartCallOperateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SmartCallOperate", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new SmartCallOperateResponse());
+        return TeaModel.toModel(this.doRequest("SmartCallOperate", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new SmartCallOperateResponse());
     }
 
     public SmartCallOperateResponse smartCallOperate(SmartCallOperateRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.smartCallOperateEx(request, runtime);
+        return this.smartCallOperateWithOptions(request, runtime);
     }
 
-    public QueryRobotInfoListResponse queryRobotInfoListEx(QueryRobotInfoListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryRobotInfoListResponse queryRobotInfoListWithOptions(QueryRobotInfoListRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryRobotInfoList", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryRobotInfoListResponse());
+        return TeaModel.toModel(this.doRequest("QueryRobotInfoList", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryRobotInfoListResponse());
     }
 
     public QueryRobotInfoListResponse queryRobotInfoList(QueryRobotInfoListRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryRobotInfoListEx(request, runtime);
+        return this.queryRobotInfoListWithOptions(request, runtime);
     }
 
-    public BatchRobotSmartCallResponse batchRobotSmartCallEx(BatchRobotSmartCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public BatchRobotSmartCallResponse batchRobotSmartCallWithOptions(BatchRobotSmartCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("BatchRobotSmartCall", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new BatchRobotSmartCallResponse());
+        return TeaModel.toModel(this.doRequest("BatchRobotSmartCall", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new BatchRobotSmartCallResponse());
     }
 
     public BatchRobotSmartCallResponse batchRobotSmartCall(BatchRobotSmartCallRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.batchRobotSmartCallEx(request, runtime);
+        return this.batchRobotSmartCallWithOptions(request, runtime);
     }
 
-    public QueryCallDetailByTaskIdResponse queryCallDetailByTaskIdEx(QueryCallDetailByTaskIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryCallDetailByTaskIdResponse queryCallDetailByTaskIdWithOptions(QueryCallDetailByTaskIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryCallDetailByTaskId", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryCallDetailByTaskIdResponse());
+        return TeaModel.toModel(this.doRequest("QueryCallDetailByTaskId", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryCallDetailByTaskIdResponse());
     }
 
     public QueryCallDetailByTaskIdResponse queryCallDetailByTaskId(QueryCallDetailByTaskIdRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryCallDetailByTaskIdEx(request, runtime);
+        return this.queryCallDetailByTaskIdWithOptions(request, runtime);
     }
 
-    public GetRtcTokenResponse getRtcTokenEx(GetRtcTokenRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public GetRtcTokenResponse getRtcTokenWithOptions(GetRtcTokenRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("GetRtcToken", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new GetRtcTokenResponse());
+        return TeaModel.toModel(this.doRequest("GetRtcToken", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new GetRtcTokenResponse());
     }
 
     public GetRtcTokenResponse getRtcToken(GetRtcTokenRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.getRtcTokenEx(request, runtime);
+        return this.getRtcTokenWithOptions(request, runtime);
     }
 
-    public AddRtcAccountResponse addRtcAccountEx(AddRtcAccountRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public AddRtcAccountResponse addRtcAccountWithOptions(AddRtcAccountRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddRtcAccount", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new AddRtcAccountResponse());
+        return TeaModel.toModel(this.doRequest("AddRtcAccount", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new AddRtcAccountResponse());
     }
 
     public AddRtcAccountResponse addRtcAccount(AddRtcAccountRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.addRtcAccountEx(request, runtime);
+        return this.addRtcAccountWithOptions(request, runtime);
     }
 
-    public VoipAddAccountResponse voipAddAccountEx(VoipAddAccountRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public VoipAddAccountResponse voipAddAccountWithOptions(VoipAddAccountRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("VoipAddAccount", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new VoipAddAccountResponse());
+        return TeaModel.toModel(this.doRequest("VoipAddAccount", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new VoipAddAccountResponse());
     }
 
     public VoipAddAccountResponse voipAddAccount(VoipAddAccountRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.voipAddAccountEx(request, runtime);
+        return this.voipAddAccountWithOptions(request, runtime);
     }
 
-    public VoipGetTokenResponse voipGetTokenEx(VoipGetTokenRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public VoipGetTokenResponse voipGetTokenWithOptions(VoipGetTokenRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("VoipGetToken", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new VoipGetTokenResponse());
+        return TeaModel.toModel(this.doRequest("VoipGetToken", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new VoipGetTokenResponse());
     }
 
     public VoipGetTokenResponse voipGetToken(VoipGetTokenRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.voipGetTokenEx(request, runtime);
+        return this.voipGetTokenWithOptions(request, runtime);
     }
 
-    public SmartCallResponse smartCallEx(SmartCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public SmartCallResponse smartCallWithOptions(SmartCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SmartCall", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new SmartCallResponse());
+        return TeaModel.toModel(this.doRequest("SmartCall", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new SmartCallResponse());
     }
 
     public SmartCallResponse smartCall(SmartCallRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.smartCallEx(request, runtime);
+        return this.smartCallWithOptions(request, runtime);
     }
 
-    public QueryCallDetailByCallIdResponse queryCallDetailByCallIdEx(QueryCallDetailByCallIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QueryCallDetailByCallIdResponse queryCallDetailByCallIdWithOptions(QueryCallDetailByCallIdRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QueryCallDetailByCallId", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QueryCallDetailByCallIdResponse());
+        return TeaModel.toModel(this.doRequest("QueryCallDetailByCallId", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QueryCallDetailByCallIdResponse());
     }
 
     public QueryCallDetailByCallIdResponse queryCallDetailByCallId(QueryCallDetailByCallIdRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.queryCallDetailByCallIdEx(request, runtime);
+        return this.queryCallDetailByCallIdWithOptions(request, runtime);
     }
 
-    public CancelCallResponse cancelCallEx(CancelCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public CancelCallResponse cancelCallWithOptions(CancelCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CancelCall", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new CancelCallResponse());
+        return TeaModel.toModel(this.doRequest("CancelCall", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new CancelCallResponse());
     }
 
     public CancelCallResponse cancelCall(CancelCallRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.cancelCallEx(request, runtime);
+        return this.cancelCallWithOptions(request, runtime);
     }
 
-    public ClickToDialResponse clickToDialEx(ClickToDialRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ClickToDialResponse clickToDialWithOptions(ClickToDialRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ClickToDial", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ClickToDialResponse());
+        return TeaModel.toModel(this.doRequest("ClickToDial", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ClickToDialResponse());
     }
 
     public ClickToDialResponse clickToDial(ClickToDialRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.clickToDialEx(request, runtime);
+        return this.clickToDialWithOptions(request, runtime);
     }
 
-    public IvrCallResponse ivrCallEx(IvrCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public IvrCallResponse ivrCallWithOptions(IvrCallRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("IvrCall", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new IvrCallResponse());
+        return TeaModel.toModel(this.doRequest("IvrCall", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new IvrCallResponse());
     }
 
     public IvrCallResponse ivrCall(IvrCallRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.ivrCallEx(request, runtime);
+        return this.ivrCallWithOptions(request, runtime);
     }
 
-    public SingleCallByVoiceResponse singleCallByVoiceEx(SingleCallByVoiceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public SingleCallByVoiceResponse singleCallByVoiceWithOptions(SingleCallByVoiceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SingleCallByVoice", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new SingleCallByVoiceResponse());
+        return TeaModel.toModel(this.doRequest("SingleCallByVoice", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new SingleCallByVoiceResponse());
     }
 
     public SingleCallByVoiceResponse singleCallByVoice(SingleCallByVoiceRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.singleCallByVoiceEx(request, runtime);
+        return this.singleCallByVoiceWithOptions(request, runtime);
     }
 
-    public SingleCallByTtsResponse singleCallByTtsEx(SingleCallByTtsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public SingleCallByTtsResponse singleCallByTtsWithOptions(SingleCallByTtsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SingleCallByTts", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new SingleCallByTtsResponse());
+        return TeaModel.toModel(this.doRequest("SingleCallByTts", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new SingleCallByTtsResponse());
     }
 
     public SingleCallByTtsResponse singleCallByTts(SingleCallByTtsRequest request) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.singleCallByTtsEx(request, runtime);
+        return this.singleCallByTtsWithOptions(request, runtime);
     }
 
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {

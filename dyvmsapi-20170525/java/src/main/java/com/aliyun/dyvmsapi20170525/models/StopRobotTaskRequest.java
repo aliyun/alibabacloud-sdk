@@ -17,6 +17,7 @@ public class StopRobotTaskRequest extends TeaModel {
     public Long resourceOwnerId;
 
     @NameInMap("TaskId")
+    @Validation(required = true)
     public Long taskId;
 
     public static StopRobotTaskRequest build(java.util.Map<String, ?> map) throws Exception {
