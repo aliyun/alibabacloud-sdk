@@ -2,7 +2,6 @@
 import Util, * as $Util from '@alicloud/tea-util';
 import RPC, * as $RPC from '@alicloud/rpc-client';
 import EndpointUtil from '@alicloud/endpoint-util';
-import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class ListRobotTaskCallsRequest extends $tea.Model {
@@ -882,8 +881,8 @@ export class UploadRobotTaskCalledFileRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  id?: number;
-  calledNumber?: string;
+  id: number;
+  calledNumber: string;
   ttsParam?: string;
   ttsParamHead?: string;
   static names(): { [key: string]: string } {
@@ -950,7 +949,7 @@ export class DeleteRobotTaskRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  taskId?: number;
+  taskId: number;
   static names(): { [key: string]: string } {
     return {
       accessKeyId: 'AccessKeyId',
@@ -1009,7 +1008,7 @@ export class StopRobotTaskRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  taskId?: number;
+  taskId: number;
   static names(): { [key: string]: string } {
     return {
       accessKeyId: 'AccessKeyId',
@@ -1068,9 +1067,9 @@ export class QueryRobotTaskCallDetailRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  taskId?: number;
-  callee?: string;
-  queryDate?: number;
+  taskId: number;
+  callee: string;
+  queryDate: number;
   static names(): { [key: string]: string } {
     return {
       accessKeyId: 'AccessKeyId',
@@ -1189,7 +1188,7 @@ export class QueryRobotTaskDetailRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  id?: number;
+  id: number;
   static names(): { [key: string]: string } {
     return {
       accessKeyId: 'AccessKeyId',
@@ -1250,7 +1249,7 @@ export class QueryRobotTaskCallListRequest extends $tea.Model {
   resourceOwnerId?: number;
   pageNo?: number;
   pageSize?: number;
-  taskId?: string;
+  taskId: string;
   durationFrom?: string;
   durationTo?: string;
   dialogCountFrom?: string;
@@ -1334,7 +1333,7 @@ export class StartRobotTaskRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  taskId?: number;
+  taskId: number;
   scheduleTime?: string;
   static names(): { [key: string]: string } {
     return {
@@ -1476,12 +1475,12 @@ export class CreateRobotTaskRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  taskName?: string;
-  dialogId?: number;
+  taskName: string;
+  dialogId: number;
   corpName?: string;
-  caller?: string;
-  numberStatusIdent?: boolean;
-  retryType?: number;
+  caller: string;
+  numberStatusIdent: boolean;
+  retryType: number;
   recallStateCodes?: string;
   recallTimes?: number;
   recallInterval?: number;
@@ -1562,7 +1561,7 @@ export class CancelOrderRobotTaskRequest extends $tea.Model {
   ownerId?: number;
   resourceOwnerAccount?: string;
   resourceOwnerId?: number;
-  taskId?: number;
+  taskId: number;
   static names(): { [key: string]: string } {
     return {
       accessKeyId: 'AccessKeyId',
@@ -2829,433 +2828,394 @@ export default class Client extends RPC {
   }
 
 
-  async listRobotTaskCallsEx(request: ListRobotTaskCallsRequest, runtime: $Util.RuntimeOptions): Promise<ListRobotTaskCallsResponse> {
+  async listRobotTaskCallsWithOptions(request: ListRobotTaskCallsRequest, runtime: $Util.RuntimeOptions): Promise<ListRobotTaskCallsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListRobotTaskCallsResponse>(await this.doRequest("ListRobotTaskCalls", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new ListRobotTaskCallsResponse({}));
+    return $tea.cast<ListRobotTaskCallsResponse>(await this.doRequest("ListRobotTaskCalls", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ListRobotTaskCallsResponse({}));
   }
 
   async listRobotTaskCalls(request: ListRobotTaskCallsRequest): Promise<ListRobotTaskCallsResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.listRobotTaskCallsEx(request, runtime);
+    return await this.listRobotTaskCallsWithOptions(request, runtime);
   }
 
-  async doRtcNumberAuthEx(request: DoRtcNumberAuthRequest, runtime: $Util.RuntimeOptions): Promise<DoRtcNumberAuthResponse> {
+  async doRtcNumberAuthWithOptions(request: DoRtcNumberAuthRequest, runtime: $Util.RuntimeOptions): Promise<DoRtcNumberAuthResponse> {
     Util.validateModel(request);
-    return $tea.cast<DoRtcNumberAuthResponse>(await this.doRequest("DoRtcNumberAuth", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new DoRtcNumberAuthResponse({}));
+    return $tea.cast<DoRtcNumberAuthResponse>(await this.doRequest("DoRtcNumberAuth", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new DoRtcNumberAuthResponse({}));
   }
 
   async doRtcNumberAuth(request: DoRtcNumberAuthRequest): Promise<DoRtcNumberAuthResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.doRtcNumberAuthEx(request, runtime);
+    return await this.doRtcNumberAuthWithOptions(request, runtime);
   }
 
-  async undoRtcNumberAuthEx(request: UndoRtcNumberAuthRequest, runtime: $Util.RuntimeOptions): Promise<UndoRtcNumberAuthResponse> {
+  async undoRtcNumberAuthWithOptions(request: UndoRtcNumberAuthRequest, runtime: $Util.RuntimeOptions): Promise<UndoRtcNumberAuthResponse> {
     Util.validateModel(request);
-    return $tea.cast<UndoRtcNumberAuthResponse>(await this.doRequest("UndoRtcNumberAuth", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new UndoRtcNumberAuthResponse({}));
+    return $tea.cast<UndoRtcNumberAuthResponse>(await this.doRequest("UndoRtcNumberAuth", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new UndoRtcNumberAuthResponse({}));
   }
 
   async undoRtcNumberAuth(request: UndoRtcNumberAuthRequest): Promise<UndoRtcNumberAuthResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.undoRtcNumberAuthEx(request, runtime);
+    return await this.undoRtcNumberAuthWithOptions(request, runtime);
   }
 
-  async queryRtcNumberAuthStatusEx(request: QueryRtcNumberAuthStatusRequest, runtime: $Util.RuntimeOptions): Promise<QueryRtcNumberAuthStatusResponse> {
+  async queryRtcNumberAuthStatusWithOptions(request: QueryRtcNumberAuthStatusRequest, runtime: $Util.RuntimeOptions): Promise<QueryRtcNumberAuthStatusResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRtcNumberAuthStatusResponse>(await this.doRequest("QueryRtcNumberAuthStatus", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRtcNumberAuthStatusResponse({}));
+    return $tea.cast<QueryRtcNumberAuthStatusResponse>(await this.doRequest("QueryRtcNumberAuthStatus", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRtcNumberAuthStatusResponse({}));
   }
 
   async queryRtcNumberAuthStatus(request: QueryRtcNumberAuthStatusRequest): Promise<QueryRtcNumberAuthStatusResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRtcNumberAuthStatusEx(request, runtime);
+    return await this.queryRtcNumberAuthStatusWithOptions(request, runtime);
   }
 
-  async listOrderedNumbersEx(request: ListOrderedNumbersRequest, runtime: $Util.RuntimeOptions): Promise<ListOrderedNumbersResponse> {
+  async listOrderedNumbersWithOptions(request: ListOrderedNumbersRequest, runtime: $Util.RuntimeOptions): Promise<ListOrderedNumbersResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListOrderedNumbersResponse>(await this.doRequest("ListOrderedNumbers", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new ListOrderedNumbersResponse({}));
+    return $tea.cast<ListOrderedNumbersResponse>(await this.doRequest("ListOrderedNumbers", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ListOrderedNumbersResponse({}));
   }
 
   async listOrderedNumbers(request: ListOrderedNumbersRequest): Promise<ListOrderedNumbersResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.listOrderedNumbersEx(request, runtime);
+    return await this.listOrderedNumbersWithOptions(request, runtime);
   }
 
-  async startMicroOutboundEx(request: StartMicroOutboundRequest, runtime: $Util.RuntimeOptions): Promise<StartMicroOutboundResponse> {
+  async startMicroOutboundWithOptions(request: StartMicroOutboundRequest, runtime: $Util.RuntimeOptions): Promise<StartMicroOutboundResponse> {
     Util.validateModel(request);
-    return $tea.cast<StartMicroOutboundResponse>(await this.doRequest("StartMicroOutbound", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new StartMicroOutboundResponse({}));
+    return $tea.cast<StartMicroOutboundResponse>(await this.doRequest("StartMicroOutbound", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new StartMicroOutboundResponse({}));
   }
 
   async startMicroOutbound(request: StartMicroOutboundRequest): Promise<StartMicroOutboundResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.startMicroOutboundEx(request, runtime);
+    return await this.startMicroOutboundWithOptions(request, runtime);
   }
 
-  async listOutboundStrategiesEx(request: ListOutboundStrategiesRequest, runtime: $Util.RuntimeOptions): Promise<ListOutboundStrategiesResponse> {
+  async listOutboundStrategiesWithOptions(request: ListOutboundStrategiesRequest, runtime: $Util.RuntimeOptions): Promise<ListOutboundStrategiesResponse> {
     Util.validateModel(request);
-    return $tea.cast<ListOutboundStrategiesResponse>(await this.doRequest("ListOutboundStrategies", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new ListOutboundStrategiesResponse({}));
+    return $tea.cast<ListOutboundStrategiesResponse>(await this.doRequest("ListOutboundStrategies", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ListOutboundStrategiesResponse({}));
   }
 
   async listOutboundStrategies(request: ListOutboundStrategiesRequest): Promise<ListOutboundStrategiesResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.listOutboundStrategiesEx(request, runtime);
+    return await this.listOutboundStrategiesWithOptions(request, runtime);
   }
 
-  async describeRecordDataEx(request: DescribeRecordDataRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRecordDataResponse> {
+  async describeRecordDataWithOptions(request: DescribeRecordDataRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRecordDataResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeRecordDataResponse>(await this.doRequest("DescribeRecordData", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new DescribeRecordDataResponse({}));
+    return $tea.cast<DescribeRecordDataResponse>(await this.doRequest("DescribeRecordData", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new DescribeRecordDataResponse({}));
   }
 
   async describeRecordData(request: DescribeRecordDataRequest): Promise<DescribeRecordDataResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.describeRecordDataEx(request, runtime);
+    return await this.describeRecordDataWithOptions(request, runtime);
   }
 
-  async queryVoipNumberBindInfosEx(request: QueryVoipNumberBindInfosRequest, runtime: $Util.RuntimeOptions): Promise<QueryVoipNumberBindInfosResponse> {
+  async queryVoipNumberBindInfosWithOptions(request: QueryVoipNumberBindInfosRequest, runtime: $Util.RuntimeOptions): Promise<QueryVoipNumberBindInfosResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryVoipNumberBindInfosResponse>(await this.doRequest("QueryVoipNumberBindInfos", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryVoipNumberBindInfosResponse({}));
+    return $tea.cast<QueryVoipNumberBindInfosResponse>(await this.doRequest("QueryVoipNumberBindInfos", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryVoipNumberBindInfosResponse({}));
   }
 
   async queryVoipNumberBindInfos(request: QueryVoipNumberBindInfosRequest): Promise<QueryVoipNumberBindInfosResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryVoipNumberBindInfosEx(request, runtime);
+    return await this.queryVoipNumberBindInfosWithOptions(request, runtime);
   }
 
-  async reportVoipProblemsEx(request: ReportVoipProblemsRequest, runtime: $Util.RuntimeOptions): Promise<ReportVoipProblemsResponse> {
+  async reportVoipProblemsWithOptions(request: ReportVoipProblemsRequest, runtime: $Util.RuntimeOptions): Promise<ReportVoipProblemsResponse> {
     Util.validateModel(request);
-    return $tea.cast<ReportVoipProblemsResponse>(await this.doRequest("ReportVoipProblems", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new ReportVoipProblemsResponse({}));
+    return $tea.cast<ReportVoipProblemsResponse>(await this.doRequest("ReportVoipProblems", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ReportVoipProblemsResponse({}));
   }
 
   async reportVoipProblems(request: ReportVoipProblemsRequest): Promise<ReportVoipProblemsResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.reportVoipProblemsEx(request, runtime);
+    return await this.reportVoipProblemsWithOptions(request, runtime);
   }
 
-  async unbindNumberAndVoipIdEx(request: UnbindNumberAndVoipIdRequest, runtime: $Util.RuntimeOptions): Promise<UnbindNumberAndVoipIdResponse> {
+  async unbindNumberAndVoipIdWithOptions(request: UnbindNumberAndVoipIdRequest, runtime: $Util.RuntimeOptions): Promise<UnbindNumberAndVoipIdResponse> {
     Util.validateModel(request);
-    return $tea.cast<UnbindNumberAndVoipIdResponse>(await this.doRequest("UnbindNumberAndVoipId", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new UnbindNumberAndVoipIdResponse({}));
+    return $tea.cast<UnbindNumberAndVoipIdResponse>(await this.doRequest("UnbindNumberAndVoipId", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new UnbindNumberAndVoipIdResponse({}));
   }
 
   async unbindNumberAndVoipId(request: UnbindNumberAndVoipIdRequest): Promise<UnbindNumberAndVoipIdResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.unbindNumberAndVoipIdEx(request, runtime);
+    return await this.unbindNumberAndVoipIdWithOptions(request, runtime);
   }
 
-  async bindNumberAndVoipIdEx(request: BindNumberAndVoipIdRequest, runtime: $Util.RuntimeOptions): Promise<BindNumberAndVoipIdResponse> {
+  async bindNumberAndVoipIdWithOptions(request: BindNumberAndVoipIdRequest, runtime: $Util.RuntimeOptions): Promise<BindNumberAndVoipIdResponse> {
     Util.validateModel(request);
-    return $tea.cast<BindNumberAndVoipIdResponse>(await this.doRequest("BindNumberAndVoipId", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new BindNumberAndVoipIdResponse({}));
+    return $tea.cast<BindNumberAndVoipIdResponse>(await this.doRequest("BindNumberAndVoipId", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new BindNumberAndVoipIdResponse({}));
   }
 
   async bindNumberAndVoipId(request: BindNumberAndVoipIdRequest): Promise<BindNumberAndVoipIdResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.bindNumberAndVoipIdEx(request, runtime);
+    return await this.bindNumberAndVoipIdWithOptions(request, runtime);
   }
 
-  async cancelRobotTaskEx(request: CancelRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<CancelRobotTaskResponse> {
+  async cancelRobotTaskWithOptions(request: CancelRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<CancelRobotTaskResponse> {
     Util.validateModel(request);
-    return $tea.cast<CancelRobotTaskResponse>(await this.doRequest("CancelRobotTask", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new CancelRobotTaskResponse({}));
+    return $tea.cast<CancelRobotTaskResponse>(await this.doRequest("CancelRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new CancelRobotTaskResponse({}));
   }
 
   async cancelRobotTask(request: CancelRobotTaskRequest): Promise<CancelRobotTaskResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.cancelRobotTaskEx(request, runtime);
+    return await this.cancelRobotTaskWithOptions(request, runtime);
   }
 
-  async uploadRobotTaskCalledFileEx(request: UploadRobotTaskCalledFileRequest, runtime: $Util.RuntimeOptions): Promise<UploadRobotTaskCalledFileResponse> {
+  async uploadRobotTaskCalledFileWithOptions(request: UploadRobotTaskCalledFileRequest, runtime: $Util.RuntimeOptions): Promise<UploadRobotTaskCalledFileResponse> {
     Util.validateModel(request);
-    return $tea.cast<UploadRobotTaskCalledFileResponse>(await this.doRequest("UploadRobotTaskCalledFile", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new UploadRobotTaskCalledFileResponse({}));
+    return $tea.cast<UploadRobotTaskCalledFileResponse>(await this.doRequest("UploadRobotTaskCalledFile", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new UploadRobotTaskCalledFileResponse({}));
   }
 
   async uploadRobotTaskCalledFile(request: UploadRobotTaskCalledFileRequest): Promise<UploadRobotTaskCalledFileResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.uploadRobotTaskCalledFileEx(request, runtime);
+    return await this.uploadRobotTaskCalledFileWithOptions(request, runtime);
   }
 
-  async deleteRobotTaskEx(request: DeleteRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<DeleteRobotTaskResponse> {
+  async deleteRobotTaskWithOptions(request: DeleteRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<DeleteRobotTaskResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteRobotTaskResponse>(await this.doRequest("DeleteRobotTask", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new DeleteRobotTaskResponse({}));
+    return $tea.cast<DeleteRobotTaskResponse>(await this.doRequest("DeleteRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new DeleteRobotTaskResponse({}));
   }
 
   async deleteRobotTask(request: DeleteRobotTaskRequest): Promise<DeleteRobotTaskResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.deleteRobotTaskEx(request, runtime);
+    return await this.deleteRobotTaskWithOptions(request, runtime);
   }
 
-  async stopRobotTaskEx(request: StopRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<StopRobotTaskResponse> {
+  async stopRobotTaskWithOptions(request: StopRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<StopRobotTaskResponse> {
     Util.validateModel(request);
-    return $tea.cast<StopRobotTaskResponse>(await this.doRequest("StopRobotTask", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new StopRobotTaskResponse({}));
+    return $tea.cast<StopRobotTaskResponse>(await this.doRequest("StopRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new StopRobotTaskResponse({}));
   }
 
   async stopRobotTask(request: StopRobotTaskRequest): Promise<StopRobotTaskResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.stopRobotTaskEx(request, runtime);
+    return await this.stopRobotTaskWithOptions(request, runtime);
   }
 
-  async queryRobotTaskCallDetailEx(request: QueryRobotTaskCallDetailRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskCallDetailResponse> {
+  async queryRobotTaskCallDetailWithOptions(request: QueryRobotTaskCallDetailRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskCallDetailResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRobotTaskCallDetailResponse>(await this.doRequest("QueryRobotTaskCallDetail", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRobotTaskCallDetailResponse({}));
+    return $tea.cast<QueryRobotTaskCallDetailResponse>(await this.doRequest("QueryRobotTaskCallDetail", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRobotTaskCallDetailResponse({}));
   }
 
   async queryRobotTaskCallDetail(request: QueryRobotTaskCallDetailRequest): Promise<QueryRobotTaskCallDetailResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRobotTaskCallDetailEx(request, runtime);
+    return await this.queryRobotTaskCallDetailWithOptions(request, runtime);
   }
 
-  async queryRobotv2AllListEx(request: QueryRobotv2AllListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotv2AllListResponse> {
+  async queryRobotv2AllListWithOptions(request: QueryRobotv2AllListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotv2AllListResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRobotv2AllListResponse>(await this.doRequest("QueryRobotv2AllList", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRobotv2AllListResponse({}));
+    return $tea.cast<QueryRobotv2AllListResponse>(await this.doRequest("QueryRobotv2AllList", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRobotv2AllListResponse({}));
   }
 
   async queryRobotv2AllList(request: QueryRobotv2AllListRequest): Promise<QueryRobotv2AllListResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRobotv2AllListEx(request, runtime);
+    return await this.queryRobotv2AllListWithOptions(request, runtime);
   }
 
-  async queryRobotTaskDetailEx(request: QueryRobotTaskDetailRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskDetailResponse> {
+  async queryRobotTaskDetailWithOptions(request: QueryRobotTaskDetailRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskDetailResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRobotTaskDetailResponse>(await this.doRequest("QueryRobotTaskDetail", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRobotTaskDetailResponse({}));
+    return $tea.cast<QueryRobotTaskDetailResponse>(await this.doRequest("QueryRobotTaskDetail", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRobotTaskDetailResponse({}));
   }
 
   async queryRobotTaskDetail(request: QueryRobotTaskDetailRequest): Promise<QueryRobotTaskDetailResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRobotTaskDetailEx(request, runtime);
+    return await this.queryRobotTaskDetailWithOptions(request, runtime);
   }
 
-  async queryRobotTaskCallListEx(request: QueryRobotTaskCallListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskCallListResponse> {
+  async queryRobotTaskCallListWithOptions(request: QueryRobotTaskCallListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskCallListResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRobotTaskCallListResponse>(await this.doRequest("QueryRobotTaskCallList", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRobotTaskCallListResponse({}));
+    return $tea.cast<QueryRobotTaskCallListResponse>(await this.doRequest("QueryRobotTaskCallList", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRobotTaskCallListResponse({}));
   }
 
   async queryRobotTaskCallList(request: QueryRobotTaskCallListRequest): Promise<QueryRobotTaskCallListResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRobotTaskCallListEx(request, runtime);
+    return await this.queryRobotTaskCallListWithOptions(request, runtime);
   }
 
-  async startRobotTaskEx(request: StartRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<StartRobotTaskResponse> {
+  async startRobotTaskWithOptions(request: StartRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<StartRobotTaskResponse> {
     Util.validateModel(request);
-    return $tea.cast<StartRobotTaskResponse>(await this.doRequest("StartRobotTask", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new StartRobotTaskResponse({}));
+    return $tea.cast<StartRobotTaskResponse>(await this.doRequest("StartRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new StartRobotTaskResponse({}));
   }
 
   async startRobotTask(request: StartRobotTaskRequest): Promise<StartRobotTaskResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.startRobotTaskEx(request, runtime);
+    return await this.startRobotTaskWithOptions(request, runtime);
   }
 
-  async queryRobotTaskListEx(request: QueryRobotTaskListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskListResponse> {
+  async queryRobotTaskListWithOptions(request: QueryRobotTaskListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotTaskListResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRobotTaskListResponse>(await this.doRequest("QueryRobotTaskList", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRobotTaskListResponse({}));
+    return $tea.cast<QueryRobotTaskListResponse>(await this.doRequest("QueryRobotTaskList", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRobotTaskListResponse({}));
   }
 
   async queryRobotTaskList(request: QueryRobotTaskListRequest): Promise<QueryRobotTaskListResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRobotTaskListEx(request, runtime);
+    return await this.queryRobotTaskListWithOptions(request, runtime);
   }
 
-  async createRobotTaskEx(request: CreateRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<CreateRobotTaskResponse> {
+  async createRobotTaskWithOptions(request: CreateRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<CreateRobotTaskResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateRobotTaskResponse>(await this.doRequest("CreateRobotTask", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new CreateRobotTaskResponse({}));
+    return $tea.cast<CreateRobotTaskResponse>(await this.doRequest("CreateRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new CreateRobotTaskResponse({}));
   }
 
   async createRobotTask(request: CreateRobotTaskRequest): Promise<CreateRobotTaskResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.createRobotTaskEx(request, runtime);
+    return await this.createRobotTaskWithOptions(request, runtime);
   }
 
-  async cancelOrderRobotTaskEx(request: CancelOrderRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<CancelOrderRobotTaskResponse> {
+  async cancelOrderRobotTaskWithOptions(request: CancelOrderRobotTaskRequest, runtime: $Util.RuntimeOptions): Promise<CancelOrderRobotTaskResponse> {
     Util.validateModel(request);
-    return $tea.cast<CancelOrderRobotTaskResponse>(await this.doRequest("CancelOrderRobotTask", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new CancelOrderRobotTaskResponse({}));
+    return $tea.cast<CancelOrderRobotTaskResponse>(await this.doRequest("CancelOrderRobotTask", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new CancelOrderRobotTaskResponse({}));
   }
 
   async cancelOrderRobotTask(request: CancelOrderRobotTaskRequest): Promise<CancelOrderRobotTaskResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.cancelOrderRobotTaskEx(request, runtime);
+    return await this.cancelOrderRobotTaskWithOptions(request, runtime);
   }
 
-  async smartCallOperateEx(request: SmartCallOperateRequest, runtime: $Util.RuntimeOptions): Promise<SmartCallOperateResponse> {
+  async smartCallOperateWithOptions(request: SmartCallOperateRequest, runtime: $Util.RuntimeOptions): Promise<SmartCallOperateResponse> {
     Util.validateModel(request);
-    return $tea.cast<SmartCallOperateResponse>(await this.doRequest("SmartCallOperate", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new SmartCallOperateResponse({}));
+    return $tea.cast<SmartCallOperateResponse>(await this.doRequest("SmartCallOperate", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new SmartCallOperateResponse({}));
   }
 
   async smartCallOperate(request: SmartCallOperateRequest): Promise<SmartCallOperateResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.smartCallOperateEx(request, runtime);
+    return await this.smartCallOperateWithOptions(request, runtime);
   }
 
-  async queryRobotInfoListEx(request: QueryRobotInfoListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotInfoListResponse> {
+  async queryRobotInfoListWithOptions(request: QueryRobotInfoListRequest, runtime: $Util.RuntimeOptions): Promise<QueryRobotInfoListResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryRobotInfoListResponse>(await this.doRequest("QueryRobotInfoList", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryRobotInfoListResponse({}));
+    return $tea.cast<QueryRobotInfoListResponse>(await this.doRequest("QueryRobotInfoList", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryRobotInfoListResponse({}));
   }
 
   async queryRobotInfoList(request: QueryRobotInfoListRequest): Promise<QueryRobotInfoListResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryRobotInfoListEx(request, runtime);
+    return await this.queryRobotInfoListWithOptions(request, runtime);
   }
 
-  async batchRobotSmartCallEx(request: BatchRobotSmartCallRequest, runtime: $Util.RuntimeOptions): Promise<BatchRobotSmartCallResponse> {
+  async batchRobotSmartCallWithOptions(request: BatchRobotSmartCallRequest, runtime: $Util.RuntimeOptions): Promise<BatchRobotSmartCallResponse> {
     Util.validateModel(request);
-    return $tea.cast<BatchRobotSmartCallResponse>(await this.doRequest("BatchRobotSmartCall", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new BatchRobotSmartCallResponse({}));
+    return $tea.cast<BatchRobotSmartCallResponse>(await this.doRequest("BatchRobotSmartCall", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new BatchRobotSmartCallResponse({}));
   }
 
   async batchRobotSmartCall(request: BatchRobotSmartCallRequest): Promise<BatchRobotSmartCallResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.batchRobotSmartCallEx(request, runtime);
+    return await this.batchRobotSmartCallWithOptions(request, runtime);
   }
 
-  async queryCallDetailByTaskIdEx(request: QueryCallDetailByTaskIdRequest, runtime: $Util.RuntimeOptions): Promise<QueryCallDetailByTaskIdResponse> {
+  async queryCallDetailByTaskIdWithOptions(request: QueryCallDetailByTaskIdRequest, runtime: $Util.RuntimeOptions): Promise<QueryCallDetailByTaskIdResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryCallDetailByTaskIdResponse>(await this.doRequest("QueryCallDetailByTaskId", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryCallDetailByTaskIdResponse({}));
+    return $tea.cast<QueryCallDetailByTaskIdResponse>(await this.doRequest("QueryCallDetailByTaskId", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryCallDetailByTaskIdResponse({}));
   }
 
   async queryCallDetailByTaskId(request: QueryCallDetailByTaskIdRequest): Promise<QueryCallDetailByTaskIdResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryCallDetailByTaskIdEx(request, runtime);
+    return await this.queryCallDetailByTaskIdWithOptions(request, runtime);
   }
 
-  async getRtcTokenEx(request: GetRtcTokenRequest, runtime: $Util.RuntimeOptions): Promise<GetRtcTokenResponse> {
+  async getRtcTokenWithOptions(request: GetRtcTokenRequest, runtime: $Util.RuntimeOptions): Promise<GetRtcTokenResponse> {
     Util.validateModel(request);
-    return $tea.cast<GetRtcTokenResponse>(await this.doRequest("GetRtcToken", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new GetRtcTokenResponse({}));
+    return $tea.cast<GetRtcTokenResponse>(await this.doRequest("GetRtcToken", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new GetRtcTokenResponse({}));
   }
 
   async getRtcToken(request: GetRtcTokenRequest): Promise<GetRtcTokenResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.getRtcTokenEx(request, runtime);
+    return await this.getRtcTokenWithOptions(request, runtime);
   }
 
-  async addRtcAccountEx(request: AddRtcAccountRequest, runtime: $Util.RuntimeOptions): Promise<AddRtcAccountResponse> {
+  async addRtcAccountWithOptions(request: AddRtcAccountRequest, runtime: $Util.RuntimeOptions): Promise<AddRtcAccountResponse> {
     Util.validateModel(request);
-    return $tea.cast<AddRtcAccountResponse>(await this.doRequest("AddRtcAccount", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new AddRtcAccountResponse({}));
+    return $tea.cast<AddRtcAccountResponse>(await this.doRequest("AddRtcAccount", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new AddRtcAccountResponse({}));
   }
 
   async addRtcAccount(request: AddRtcAccountRequest): Promise<AddRtcAccountResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.addRtcAccountEx(request, runtime);
+    return await this.addRtcAccountWithOptions(request, runtime);
   }
 
-  async voipAddAccountEx(request: VoipAddAccountRequest, runtime: $Util.RuntimeOptions): Promise<VoipAddAccountResponse> {
+  async voipAddAccountWithOptions(request: VoipAddAccountRequest, runtime: $Util.RuntimeOptions): Promise<VoipAddAccountResponse> {
     Util.validateModel(request);
-    return $tea.cast<VoipAddAccountResponse>(await this.doRequest("VoipAddAccount", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new VoipAddAccountResponse({}));
+    return $tea.cast<VoipAddAccountResponse>(await this.doRequest("VoipAddAccount", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new VoipAddAccountResponse({}));
   }
 
   async voipAddAccount(request: VoipAddAccountRequest): Promise<VoipAddAccountResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.voipAddAccountEx(request, runtime);
+    return await this.voipAddAccountWithOptions(request, runtime);
   }
 
-  async voipGetTokenEx(request: VoipGetTokenRequest, runtime: $Util.RuntimeOptions): Promise<VoipGetTokenResponse> {
+  async voipGetTokenWithOptions(request: VoipGetTokenRequest, runtime: $Util.RuntimeOptions): Promise<VoipGetTokenResponse> {
     Util.validateModel(request);
-    return $tea.cast<VoipGetTokenResponse>(await this.doRequest("VoipGetToken", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new VoipGetTokenResponse({}));
+    return $tea.cast<VoipGetTokenResponse>(await this.doRequest("VoipGetToken", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new VoipGetTokenResponse({}));
   }
 
   async voipGetToken(request: VoipGetTokenRequest): Promise<VoipGetTokenResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.voipGetTokenEx(request, runtime);
+    return await this.voipGetTokenWithOptions(request, runtime);
   }
 
-  async smartCallEx(request: SmartCallRequest, runtime: $Util.RuntimeOptions): Promise<SmartCallResponse> {
+  async smartCallWithOptions(request: SmartCallRequest, runtime: $Util.RuntimeOptions): Promise<SmartCallResponse> {
     Util.validateModel(request);
-    return $tea.cast<SmartCallResponse>(await this.doRequest("SmartCall", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new SmartCallResponse({}));
+    return $tea.cast<SmartCallResponse>(await this.doRequest("SmartCall", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new SmartCallResponse({}));
   }
 
   async smartCall(request: SmartCallRequest): Promise<SmartCallResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.smartCallEx(request, runtime);
+    return await this.smartCallWithOptions(request, runtime);
   }
 
-  async queryCallDetailByCallIdEx(request: QueryCallDetailByCallIdRequest, runtime: $Util.RuntimeOptions): Promise<QueryCallDetailByCallIdResponse> {
+  async queryCallDetailByCallIdWithOptions(request: QueryCallDetailByCallIdRequest, runtime: $Util.RuntimeOptions): Promise<QueryCallDetailByCallIdResponse> {
     Util.validateModel(request);
-    return $tea.cast<QueryCallDetailByCallIdResponse>(await this.doRequest("QueryCallDetailByCallId", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new QueryCallDetailByCallIdResponse({}));
+    return $tea.cast<QueryCallDetailByCallIdResponse>(await this.doRequest("QueryCallDetailByCallId", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QueryCallDetailByCallIdResponse({}));
   }
 
   async queryCallDetailByCallId(request: QueryCallDetailByCallIdRequest): Promise<QueryCallDetailByCallIdResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.queryCallDetailByCallIdEx(request, runtime);
+    return await this.queryCallDetailByCallIdWithOptions(request, runtime);
   }
 
-  async cancelCallEx(request: CancelCallRequest, runtime: $Util.RuntimeOptions): Promise<CancelCallResponse> {
+  async cancelCallWithOptions(request: CancelCallRequest, runtime: $Util.RuntimeOptions): Promise<CancelCallResponse> {
     Util.validateModel(request);
-    return $tea.cast<CancelCallResponse>(await this.doRequest("CancelCall", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new CancelCallResponse({}));
+    return $tea.cast<CancelCallResponse>(await this.doRequest("CancelCall", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new CancelCallResponse({}));
   }
 
   async cancelCall(request: CancelCallRequest): Promise<CancelCallResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.cancelCallEx(request, runtime);
+    return await this.cancelCallWithOptions(request, runtime);
   }
 
-  async clickToDialEx(request: ClickToDialRequest, runtime: $Util.RuntimeOptions): Promise<ClickToDialResponse> {
+  async clickToDialWithOptions(request: ClickToDialRequest, runtime: $Util.RuntimeOptions): Promise<ClickToDialResponse> {
     Util.validateModel(request);
-    return $tea.cast<ClickToDialResponse>(await this.doRequest("ClickToDial", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new ClickToDialResponse({}));
+    return $tea.cast<ClickToDialResponse>(await this.doRequest("ClickToDial", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ClickToDialResponse({}));
   }
 
   async clickToDial(request: ClickToDialRequest): Promise<ClickToDialResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.clickToDialEx(request, runtime);
+    return await this.clickToDialWithOptions(request, runtime);
   }
 
-  async ivrCallEx(request: IvrCallRequest, runtime: $Util.RuntimeOptions): Promise<IvrCallResponse> {
+  async ivrCallWithOptions(request: IvrCallRequest, runtime: $Util.RuntimeOptions): Promise<IvrCallResponse> {
     Util.validateModel(request);
-    return $tea.cast<IvrCallResponse>(await this.doRequest("IvrCall", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new IvrCallResponse({}));
+    return $tea.cast<IvrCallResponse>(await this.doRequest("IvrCall", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new IvrCallResponse({}));
   }
 
   async ivrCall(request: IvrCallRequest): Promise<IvrCallResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.ivrCallEx(request, runtime);
+    return await this.ivrCallWithOptions(request, runtime);
   }
 
-  async singleCallByVoiceEx(request: SingleCallByVoiceRequest, runtime: $Util.RuntimeOptions): Promise<SingleCallByVoiceResponse> {
+  async singleCallByVoiceWithOptions(request: SingleCallByVoiceRequest, runtime: $Util.RuntimeOptions): Promise<SingleCallByVoiceResponse> {
     Util.validateModel(request);
-    return $tea.cast<SingleCallByVoiceResponse>(await this.doRequest("SingleCallByVoice", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new SingleCallByVoiceResponse({}));
+    return $tea.cast<SingleCallByVoiceResponse>(await this.doRequest("SingleCallByVoice", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new SingleCallByVoiceResponse({}));
   }
 
   async singleCallByVoice(request: SingleCallByVoiceRequest): Promise<SingleCallByVoiceResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.singleCallByVoiceEx(request, runtime);
+    return await this.singleCallByVoiceWithOptions(request, runtime);
   }
 
-  async singleCallByTtsEx(request: SingleCallByTtsRequest, runtime: $Util.RuntimeOptions): Promise<SingleCallByTtsResponse> {
+  async singleCallByTtsWithOptions(request: SingleCallByTtsRequest, runtime: $Util.RuntimeOptions): Promise<SingleCallByTtsResponse> {
     Util.validateModel(request);
-    return $tea.cast<SingleCallByTtsResponse>(await this.doRequest("SingleCallByTts", "HTTPS", "GET", "2017-05-25", "AK", $tea.toMap(request), null, runtime), new SingleCallByTtsResponse({}));
+    return $tea.cast<SingleCallByTtsResponse>(await this.doRequest("SingleCallByTts", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new SingleCallByTtsResponse({}));
   }
 
   async singleCallByTts(request: SingleCallByTtsRequest): Promise<SingleCallByTtsResponse> {
-    Util.validateModel(request);
     let runtime = new $Util.RuntimeOptions({ });
-    return await this.singleCallByTtsEx(request, runtime);
+    return await this.singleCallByTtsWithOptions(request, runtime);
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
