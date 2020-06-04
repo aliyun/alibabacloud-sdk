@@ -115,7 +115,7 @@ class CS extends Roa {
             "rus-west-1-pop" => "cs.aliyuncs.com"
             ];
         $this->checkConfig($config);
-        $this->_endpointHost = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpointHost);
+        $this->_endpointHost = $this->getEndpoint("cs", $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpointHost);
     }
 
     /**
