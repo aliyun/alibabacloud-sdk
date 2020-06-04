@@ -1,47 +1,35 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
 namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ResumeComponentUpgradeRequest extends Model
-{
-    /**
-     * @description headers
-     *
-     * @var array
-     */
-    public $headers;
+class ResumeComponentUpgradeRequest extends Model {
     protected $_name = [
         'headers' => 'headers',
     ];
-
-    public function validate()
-    {
-    }
-
-    public function toMap()
-    {
-        $res            = [];
+    public function validate() {}
+    public function toMap() {
+        $res = [];
         $res['headers'] = $this->headers;
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return ResumeComponentUpgradeRequest
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['headers'])) {
+        if(isset($map['headers'])){
             $model->headers = $map['headers'];
         }
-
         return $model;
     }
+    /**
+     * @description headers
+     * @var array
+     */
+    public $headers;
+
 }

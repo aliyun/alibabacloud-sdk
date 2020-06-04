@@ -5,7 +5,9 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ModifyClusterResponse extends Model {
+use AlibabaCloud\SDK\CS\V20151215\Models\DescribeClusterResourcesResponseBody;
+
+class DescribeClusterResourcesResponse extends Model {
     protected $_name = [
         'headers' => 'headers',
         'body' => 'body',
@@ -17,12 +19,18 @@ class ModifyClusterResponse extends Model {
     public function toMap() {
         $res = [];
         $res['headers'] = $this->headers;
-        $res['body'] = null !== $this->body ? $this->body->toMap() : null;
+        $res['body'] = [];
+        if(null !== $this->body && is_array($this->body)){
+            $n = 0;
+            foreach($this->body as $item){
+                $res['body'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
         return $res;
     }
     /**
      * @param array $map
-     * @return ModifyClusterResponse
+     * @return DescribeClusterResourcesResponse
      */
     public static function fromMap($map = []) {
         $model = new self();
@@ -30,7 +38,13 @@ class ModifyClusterResponse extends Model {
             $model->headers = $map['headers'];
         }
         if(isset($map['body'])){
-            $model->body = ModifyClusterResponseBody::fromMap($map['body']);
+            if(!empty($map['body'])){
+                $model->body = [];
+                $n = 0;
+                foreach($map['body'] as $item) {
+                    $model->body[$n++] = null !== $item ? DescribeClusterResourcesResponseBody::fromMap($item) : $item;
+                }
+            }
         }
         return $model;
     }
@@ -42,7 +56,7 @@ class ModifyClusterResponse extends Model {
 
     /**
      * @description body
-     * @var ModifyClusterResponseBody
+     * @var array
      */
     public $body;
 

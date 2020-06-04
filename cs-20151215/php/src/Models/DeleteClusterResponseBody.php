@@ -1,48 +1,37 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
 namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DeleteClusterResponseBody extends Model
-{
-    /**
-     * @description RequestId
-     *
-     * @var string
-     */
-    public $requestId;
+class DeleteClusterResponseBody extends Model {
     protected $_name = [
         'requestId' => 'RequestId',
     ];
-
-    public function validate()
-    {
+    public function validate() {
         Model::validateRequired('requestId', $this->requestId, true);
     }
-
-    public function toMap()
-    {
-        $res              = [];
+    public function toMap() {
+        $res = [];
         $res['RequestId'] = $this->requestId;
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return DeleteClusterResponseBody
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['RequestId'])) {
+        if(isset($map['RequestId'])){
             $model->requestId = $map['RequestId'];
         }
-
         return $model;
     }
+    /**
+     * @description RequestId
+     * @var string
+     */
+    public $requestId;
+
 }
