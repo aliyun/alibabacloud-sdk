@@ -1,47 +1,35 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
-namespace AlibabaCloud\SDK\ECI\V20180808\Models\UpdateContainerGroupRequest\container\livenessProbe;
+namespace AlibabaCloud\SDK\Eci\V20180808\Models\UpdateContainerGroupRequest\container\livenessProbe;
 
 use AlibabaCloud\Tea\Model;
 
-class tcpSocket extends Model
-{
-    /**
-     * @description livenessProbeTcpSocketPort
-     *
-     * @var int
-     */
-    public $port;
+class tcpSocket extends Model {
     protected $_name = [
         'port' => 'Port',
     ];
-
-    public function validate()
-    {
-    }
-
-    public function toMap()
-    {
-        $res         = [];
+    public function validate() {}
+    public function toMap() {
+        $res = [];
         $res['Port'] = $this->port;
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return tcpSocket
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['Port'])) {
+        if(isset($map['Port'])){
             $model->port = $map['Port'];
         }
-
         return $model;
     }
+    /**
+     * @description livenessProbeTcpSocketPort
+     * @var integer
+     */
+    public $port;
+
 }

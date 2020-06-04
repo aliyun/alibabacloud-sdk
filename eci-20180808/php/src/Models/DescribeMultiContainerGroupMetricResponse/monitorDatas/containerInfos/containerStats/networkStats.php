@@ -1,134 +1,34 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+namespace AlibabaCloud\SDK\Eci\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats;
 
-namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats;
-
-use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\interfaceStats;
-use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\tcp;
-use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\tcp6;
-use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\udp;
-use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\udp6;
 use AlibabaCloud\Tea\Model;
 
-class networkStats extends Model
-{
-    /**
-     * @description name
-     *
-     * @var string
-     */
-    public $name;
+use AlibabaCloud\SDK\Eci\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\interfaceStats;
+use AlibabaCloud\SDK\Eci\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\tcp;
+use AlibabaCloud\SDK\Eci\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\tcp6;
+use AlibabaCloud\SDK\Eci\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\udp;
+use AlibabaCloud\SDK\Eci\V20180808\Models\DescribeMultiContainerGroupMetricResponse\monitorDatas\containerInfos\containerStats\networkStats\udp6;
 
-    /**
-     * @description rxBytes
-     *
-     * @var int
-     */
-    public $rxBytes;
-
-    /**
-     * @description rxPackets
-     *
-     * @var int
-     */
-    public $rxPackets;
-
-    /**
-     * @description rxErrors
-     *
-     * @var int
-     */
-    public $rxErrors;
-
-    /**
-     * @description rxDropped
-     *
-     * @var int
-     */
-    public $rxDropped;
-
-    /**
-     * @description txBytes
-     *
-     * @var int
-     */
-    public $txBytes;
-
-    /**
-     * @description txPackets
-     *
-     * @var int
-     */
-    public $txPackets;
-
-    /**
-     * @description txDropped
-     *
-     * @var int
-     */
-    public $txDropped;
-
-    /**
-     * @description txErrors
-     *
-     * @var int
-     */
-    public $txErrors;
-
-    /**
-     * @description interfaceStats
-     *
-     * @var array
-     */
-    public $interfaceStats;
-
-    /**
-     * @description tcp
-     *
-     * @var tcp
-     */
-    public $tcp;
-
-    /**
-     * @description tcp6
-     *
-     * @var tcp6
-     */
-    public $tcp6;
-
-    /**
-     * @description udp
-     *
-     * @var udp
-     */
-    public $udp;
-
-    /**
-     * @description udp6
-     *
-     * @var udp6
-     */
-    public $udp6;
+class networkStats extends Model {
     protected $_name = [
-        'name'           => 'Name',
-        'rxBytes'        => 'RxBytes',
-        'rxPackets'      => 'RxPackets',
-        'rxErrors'       => 'RxErrors',
-        'rxDropped'      => 'RxDropped',
-        'txBytes'        => 'TxBytes',
-        'txPackets'      => 'TxPackets',
-        'txDropped'      => 'TxDropped',
-        'txErrors'       => 'TxErrors',
+        'name' => 'Name',
+        'rxBytes' => 'RxBytes',
+        'rxPackets' => 'RxPackets',
+        'rxErrors' => 'RxErrors',
+        'rxDropped' => 'RxDropped',
+        'txBytes' => 'TxBytes',
+        'txPackets' => 'TxPackets',
+        'txDropped' => 'TxDropped',
+        'txErrors' => 'TxErrors',
         'interfaceStats' => 'InterfaceStats',
-        'tcp'            => 'Tcp',
-        'tcp6'           => 'Tcp6',
-        'udp'            => 'Udp',
-        'udp6'           => 'Udp6',
+        'tcp' => 'Tcp',
+        'tcp6' => 'Tcp6',
+        'udp' => 'Udp',
+        'udp6' => 'Udp6',
     ];
-
-    public function validate()
-    {
+    public function validate() {
         Model::validateRequired('name', $this->name, true);
         Model::validateRequired('rxBytes', $this->rxBytes, true);
         Model::validateRequired('rxPackets', $this->rxPackets, true);
@@ -144,91 +44,168 @@ class networkStats extends Model
         Model::validateRequired('udp', $this->udp, true);
         Model::validateRequired('udp6', $this->udp6, true);
     }
-
-    public function toMap()
-    {
-        $res                   = [];
-        $res['Name']           = $this->name;
-        $res['RxBytes']        = $this->rxBytes;
-        $res['RxPackets']      = $this->rxPackets;
-        $res['RxErrors']       = $this->rxErrors;
-        $res['RxDropped']      = $this->rxDropped;
-        $res['TxBytes']        = $this->txBytes;
-        $res['TxPackets']      = $this->txPackets;
-        $res['TxDropped']      = $this->txDropped;
-        $res['TxErrors']       = $this->txErrors;
+    public function toMap() {
+        $res = [];
+        $res['Name'] = $this->name;
+        $res['RxBytes'] = $this->rxBytes;
+        $res['RxPackets'] = $this->rxPackets;
+        $res['RxErrors'] = $this->rxErrors;
+        $res['RxDropped'] = $this->rxDropped;
+        $res['TxBytes'] = $this->txBytes;
+        $res['TxPackets'] = $this->txPackets;
+        $res['TxDropped'] = $this->txDropped;
+        $res['TxErrors'] = $this->txErrors;
         $res['InterfaceStats'] = [];
-        if (null !== $this->interfaceStats && \is_array($this->interfaceStats)) {
+        if(null !== $this->interfaceStats && is_array($this->interfaceStats)){
             $n = 0;
-            foreach ($this->interfaceStats as $item) {
+            foreach($this->interfaceStats as $item){
                 $res['InterfaceStats'][$n++] = null !== $item ? $item->toMap() : $item;
             }
         }
-        $res['Tcp']  = null !== $this->tcp ? $this->tcp->toMap() : null;
+        $res['Tcp'] = null !== $this->tcp ? $this->tcp->toMap() : null;
         $res['Tcp6'] = null !== $this->tcp6 ? $this->tcp6->toMap() : null;
-        $res['Udp']  = null !== $this->udp ? $this->udp->toMap() : null;
+        $res['Udp'] = null !== $this->udp ? $this->udp->toMap() : null;
         $res['Udp6'] = null !== $this->udp6 ? $this->udp6->toMap() : null;
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return networkStats
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['Name'])) {
+        if(isset($map['Name'])){
             $model->name = $map['Name'];
         }
-        if (isset($map['RxBytes'])) {
+        if(isset($map['RxBytes'])){
             $model->rxBytes = $map['RxBytes'];
         }
-        if (isset($map['RxPackets'])) {
+        if(isset($map['RxPackets'])){
             $model->rxPackets = $map['RxPackets'];
         }
-        if (isset($map['RxErrors'])) {
+        if(isset($map['RxErrors'])){
             $model->rxErrors = $map['RxErrors'];
         }
-        if (isset($map['RxDropped'])) {
+        if(isset($map['RxDropped'])){
             $model->rxDropped = $map['RxDropped'];
         }
-        if (isset($map['TxBytes'])) {
+        if(isset($map['TxBytes'])){
             $model->txBytes = $map['TxBytes'];
         }
-        if (isset($map['TxPackets'])) {
+        if(isset($map['TxPackets'])){
             $model->txPackets = $map['TxPackets'];
         }
-        if (isset($map['TxDropped'])) {
+        if(isset($map['TxDropped'])){
             $model->txDropped = $map['TxDropped'];
         }
-        if (isset($map['TxErrors'])) {
+        if(isset($map['TxErrors'])){
             $model->txErrors = $map['TxErrors'];
         }
-        if (isset($map['InterfaceStats'])) {
-            if (!empty($map['InterfaceStats'])) {
+        if(isset($map['InterfaceStats'])){
+            if(!empty($map['InterfaceStats'])){
                 $model->interfaceStats = [];
-                $n                     = 0;
-                foreach ($map['InterfaceStats'] as $item) {
+                $n = 0;
+                foreach($map['InterfaceStats'] as $item) {
                     $model->interfaceStats[$n++] = null !== $item ? interfaceStats::fromMap($item) : $item;
                 }
             }
         }
-        if (isset($map['Tcp'])) {
+        if(isset($map['Tcp'])){
             $model->tcp = tcp::fromMap($map['Tcp']);
         }
-        if (isset($map['Tcp6'])) {
+        if(isset($map['Tcp6'])){
             $model->tcp6 = tcp6::fromMap($map['Tcp6']);
         }
-        if (isset($map['Udp'])) {
+        if(isset($map['Udp'])){
             $model->udp = udp::fromMap($map['Udp']);
         }
-        if (isset($map['Udp6'])) {
+        if(isset($map['Udp6'])){
             $model->udp6 = udp6::fromMap($map['Udp6']);
         }
-
         return $model;
     }
+    /**
+     * @description name
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @description rxBytes
+     * @var integer
+     */
+    public $rxBytes;
+
+    /**
+     * @description rxPackets
+     * @var integer
+     */
+    public $rxPackets;
+
+    /**
+     * @description rxErrors
+     * @var integer
+     */
+    public $rxErrors;
+
+    /**
+     * @description rxDropped
+     * @var integer
+     */
+    public $rxDropped;
+
+    /**
+     * @description txBytes
+     * @var integer
+     */
+    public $txBytes;
+
+    /**
+     * @description txPackets
+     * @var integer
+     */
+    public $txPackets;
+
+    /**
+     * @description txDropped
+     * @var integer
+     */
+    public $txDropped;
+
+    /**
+     * @description txErrors
+     * @var integer
+     */
+    public $txErrors;
+
+    /**
+     * @description interfaceStats
+     * @var array
+     */
+    public $interfaceStats;
+
+    /**
+     * @description tcp
+     * @var tcp
+     */
+    public $tcp;
+
+    /**
+     * @description tcp6
+     * @var tcp6
+     */
+    public $tcp6;
+
+    /**
+     * @description udp
+     * @var udp
+     */
+    public $udp;
+
+    /**
+     * @description udp6
+     * @var udp6
+     */
+    public $udp6;
+
 }

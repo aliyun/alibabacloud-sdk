@@ -1,61 +1,51 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+namespace AlibabaCloud\SDK\Eci\V20180808\Models\DescribeContainerGroupsResponse\containerGroups;
 
-namespace AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups;
-
-use AlibabaCloud\SDK\ECI\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\eciSecurityContext\sysctls;
 use AlibabaCloud\Tea\Model;
 
-class eciSecurityContext extends Model
-{
-    /**
-     * @description sysctls
-     *
-     * @var array
-     */
-    public $sysctls;
+use AlibabaCloud\SDK\Eci\V20180808\Models\DescribeContainerGroupsResponse\containerGroups\eciSecurityContext\sysctls;
+
+class eciSecurityContext extends Model {
     protected $_name = [
         'sysctls' => 'Sysctls',
     ];
-
-    public function validate()
-    {
+    public function validate() {
         Model::validateRequired('sysctls', $this->sysctls, true);
     }
-
-    public function toMap()
-    {
-        $res            = [];
+    public function toMap() {
+        $res = [];
         $res['Sysctls'] = [];
-        if (null !== $this->sysctls && \is_array($this->sysctls)) {
+        if(null !== $this->sysctls && is_array($this->sysctls)){
             $n = 0;
-            foreach ($this->sysctls as $item) {
+            foreach($this->sysctls as $item){
                 $res['Sysctls'][$n++] = null !== $item ? $item->toMap() : $item;
             }
         }
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return eciSecurityContext
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['Sysctls'])) {
-            if (!empty($map['Sysctls'])) {
+        if(isset($map['Sysctls'])){
+            if(!empty($map['Sysctls'])){
                 $model->sysctls = [];
-                $n              = 0;
-                foreach ($map['Sysctls'] as $item) {
+                $n = 0;
+                foreach($map['Sysctls'] as $item) {
                     $model->sysctls[$n++] = null !== $item ? sysctls::fromMap($item) : $item;
                 }
             }
         }
-
         return $model;
     }
+    /**
+     * @description sysctls
+     * @var array
+     */
+    public $sysctls;
+
 }

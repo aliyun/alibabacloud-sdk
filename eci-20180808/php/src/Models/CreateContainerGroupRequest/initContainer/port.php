@@ -1,59 +1,46 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
-namespace AlibabaCloud\SDK\ECI\V20180808\Models\CreateContainerGroupRequest\initContainer;
+namespace AlibabaCloud\SDK\Eci\V20180808\Models\CreateContainerGroupRequest\initContainer;
 
 use AlibabaCloud\Tea\Model;
 
-class port extends Model
-{
+class port extends Model {
+    protected $_name = [
+        'protocol' => 'Protocol',
+        'port' => 'Port',
+    ];
+    public function validate() {}
+    public function toMap() {
+        $res = [];
+        $res['Protocol'] = $this->protocol;
+        $res['Port'] = $this->port;
+        return $res;
+    }
+    /**
+     * @param array $map
+     * @return port
+     */
+    public static function fromMap($map = []) {
+        $model = new self();
+        if(isset($map['Protocol'])){
+            $model->protocol = $map['Protocol'];
+        }
+        if(isset($map['Port'])){
+            $model->port = $map['Port'];
+        }
+        return $model;
+    }
     /**
      * @description protocol
-     *
      * @var string
      */
     public $protocol;
 
     /**
      * @description port
-     *
-     * @var int
+     * @var integer
      */
     public $port;
-    protected $_name = [
-        'protocol' => 'Protocol',
-        'port'     => 'Port',
-    ];
 
-    public function validate()
-    {
-    }
-
-    public function toMap()
-    {
-        $res             = [];
-        $res['Protocol'] = $this->protocol;
-        $res['Port']     = $this->port;
-
-        return $res;
-    }
-
-    /**
-     * @param array $map
-     *
-     * @return port
-     */
-    public static function fromMap($map = [])
-    {
-        $model = new self();
-        if (isset($map['Protocol'])) {
-            $model->protocol = $map['Protocol'];
-        }
-        if (isset($map['Port'])) {
-            $model->port = $map['Port'];
-        }
-
-        return $model;
-    }
 }

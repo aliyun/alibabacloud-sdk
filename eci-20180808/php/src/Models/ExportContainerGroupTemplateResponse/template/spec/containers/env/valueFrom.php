@@ -1,49 +1,39 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+namespace AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\env;
 
-namespace AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\env;
-
-use AlibabaCloud\SDK\ECI\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\env\valueFrom\fieldRef;
 use AlibabaCloud\Tea\Model;
 
-class valueFrom extends Model
-{
-    /**
-     * @description fieldRef
-     *
-     * @var fieldRef
-     */
-    public $fieldRef;
+use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\env\valueFrom\fieldRef;
+
+class valueFrom extends Model {
     protected $_name = [
         'fieldRef' => 'FieldRef',
     ];
-
-    public function validate()
-    {
+    public function validate() {
         Model::validateRequired('fieldRef', $this->fieldRef, true);
     }
-
-    public function toMap()
-    {
-        $res             = [];
+    public function toMap() {
+        $res = [];
         $res['FieldRef'] = null !== $this->fieldRef ? $this->fieldRef->toMap() : null;
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return valueFrom
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['FieldRef'])) {
+        if(isset($map['FieldRef'])){
             $model->fieldRef = fieldRef::fromMap($map['FieldRef']);
         }
-
         return $model;
     }
+    /**
+     * @description fieldRef
+     * @var fieldRef
+     */
+    public $fieldRef;
+
 }
