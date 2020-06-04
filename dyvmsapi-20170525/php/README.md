@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud Dyvmsapi SDK Library for PHP
+## Alibaba Cloud Dyvmsapi (20170525) SDK Library for PHP
 
 ## 安装
 
