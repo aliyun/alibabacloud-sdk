@@ -457,6 +457,273 @@ class UnInstallClusterAddonsResponse(TeaModel):
         return self
 
 
+class DescribeAddonsQuery(TeaModel):
+    def __init__(self, region=None, cluster_type=None):
+        self.region = region
+        self.cluster_type = cluster_type
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['region'] = self.region
+        result['cluster_type'] = self.cluster_type
+        return result
+
+    def from_map(self, map={}):
+        self.region = map.get('region')
+        self.cluster_type = map.get('cluster_type')
+        return self
+
+
+class DescribeAddonsRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
+        self.headers = {}
+        self.query = query
+
+    def validate(self):
+        if self.query:
+            self.query.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.query is not None:
+            result['query'] = self.query.to_map()
+        else:
+            result['query'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('query') is not None:
+            temp_model = DescribeAddonsQuery()
+            self.query = temp_model.from_map(map['query'])
+        else:
+            self.query = None
+        return self
+
+
+class DescribeAddonsResponseBody(TeaModel):
+    def __init__(self, component_groups=None, standard_components=None):
+        self.component_groups = []
+        self.standard_components = standard_components
+
+    def validate(self):
+        self.validate_required(self.component_groups, 'component_groups')
+        if self.component_groups:
+            for k in self.component_groups:
+                if k :
+                    k.validate()
+        self.validate_required(self.standard_components, 'standard_components')
+        if self.standard_components:
+            self.standard_components.validate()
+
+    def to_map(self):
+        result = {}
+        result['ComponentGroups'] = []
+        if self.component_groups is not None:
+            for k in self.component_groups:
+                result['ComponentGroups'].append(k.to_map() if k else None)
+        else:
+            result['ComponentGroups'] = None
+        if self.standard_components is not None:
+            result['StandardComponents'] = self.standard_components.to_map()
+        else:
+            result['StandardComponents'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.component_groups = []
+        if map.get('ComponentGroups') is not None:
+            for k in map.get('ComponentGroups'):
+                temp_model = DescribeAddonsResponseBodyComponentGroups()
+                temp_model = temp_model.from_map(k)
+                self.component_groups.append(temp_model)
+        else:
+            self.component_groups = None
+        if map.get('StandardComponents') is not None:
+            temp_model = DescribeAddonsResponseBodyStandardComponents()
+            self.standard_components = temp_model.from_map(map['StandardComponents'])
+        else:
+            self.standard_components = None
+        return self
+
+
+class DescribeAddonsResponseBodyComponentGroupsItems(TeaModel):
+    def __init__(self, name=None, config=None, required=None, disabled=None, version=None):
+        self.name = name
+        self.config = config
+        self.required = required
+        self.disabled = disabled
+        self.version = version
+
+    def validate(self):
+        self.validate_required(self.name, 'name')
+        self.validate_required(self.config, 'config')
+        self.validate_required(self.required, 'required')
+        self.validate_required(self.disabled, 'disabled')
+        self.validate_required(self.version, 'version')
+
+    def to_map(self):
+        result = {}
+        result['name'] = self.name
+        result['config'] = self.config
+        result['required'] = self.required
+        result['disabled'] = self.disabled
+        result['version'] = self.version
+        return result
+
+    def from_map(self, map={}):
+        self.name = map.get('name')
+        self.config = map.get('config')
+        self.required = map.get('required')
+        self.disabled = map.get('disabled')
+        self.version = map.get('version')
+        return self
+
+
+class DescribeAddonsResponseBodyComponentGroups(TeaModel):
+    def __init__(self, group_name=None, items=None, default_=None):
+        self.group_name = group_name
+        self.items = []
+        self.default_ = []
+
+    def validate(self):
+        self.validate_required(self.group_name, 'group_name')
+        self.validate_required(self.items, 'items')
+        if self.items:
+            for k in self.items:
+                if k :
+                    k.validate()
+        self.validate_required(self.default_, 'default_')
+
+    def to_map(self):
+        result = {}
+        result['group_name'] = self.group_name
+        result['items'] = []
+        if self.items is not None:
+            for k in self.items:
+                result['items'].append(k.to_map() if k else None)
+        else:
+            result['items'] = None
+        result['default'] = []
+        if self.default_ is not None:
+            for k in self.default_:
+                result['default'].append(k)
+        else:
+            result['default'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.group_name = map.get('group_name')
+        self.items = []
+        if map.get('items') is not None:
+            for k in map.get('items'):
+                temp_model = DescribeAddonsResponseBodyComponentGroupsItems()
+                temp_model = temp_model.from_map(k)
+                self.items.append(temp_model)
+        else:
+            self.items = None
+        self.default_ = []
+        if map.get('default') is not None:
+            for k in map.get('default'):
+                self.default_.append(k)
+        else:
+            self.default_ = None
+        return self
+
+
+class DescribeAddonsResponseBodyStandardComponentsAddonName(TeaModel):
+    def __init__(self, name=None, config=None, required=None, disabled=None, version=None):
+        self.name = name
+        self.config = config
+        self.required = required
+        self.disabled = disabled
+        self.version = version
+
+    def validate(self):
+        self.validate_required(self.name, 'name')
+        self.validate_required(self.config, 'config')
+        self.validate_required(self.required, 'required')
+        self.validate_required(self.disabled, 'disabled')
+        self.validate_required(self.version, 'version')
+
+    def to_map(self):
+        result = {}
+        result['name'] = self.name
+        result['config'] = self.config
+        result['required'] = self.required
+        result['disabled'] = self.disabled
+        result['version'] = self.version
+        return result
+
+    def from_map(self, map={}):
+        self.name = map.get('name')
+        self.config = map.get('config')
+        self.required = map.get('required')
+        self.disabled = map.get('disabled')
+        self.version = map.get('version')
+        return self
+
+
+class DescribeAddonsResponseBodyStandardComponents(TeaModel):
+    def __init__(self, addon_name=None):
+        self.addon_name = addon_name
+
+    def validate(self):
+        self.validate_required(self.addon_name, 'addon_name')
+        if self.addon_name:
+            self.addon_name.validate()
+
+    def to_map(self):
+        result = {}
+        if self.addon_name is not None:
+            result['addon_name'] = self.addon_name.to_map()
+        else:
+            result['addon_name'] = None
+        return result
+
+    def from_map(self, map={}):
+        if map.get('addon_name') is not None:
+            temp_model = DescribeAddonsResponseBodyStandardComponentsAddonName()
+            self.addon_name = temp_model.from_map(map['addon_name'])
+        else:
+            self.addon_name = None
+        return self
+
+
+class DescribeAddonsResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = DescribeAddonsResponseBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
 class UpdateK8sClusterUserConfigExpireRequest(TeaModel):
     def __init__(self, headers=None):
         self.headers = {}
@@ -488,6 +755,70 @@ class UpdateK8sClusterUserConfigExpireResponse(TeaModel):
 
     def from_map(self, map={}):
         self.headers = map.get('headers')
+        return self
+
+
+class CancelClusterUpgradeRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class CancelClusterUpgradeResponseBody(TeaModel):
+    def __init__(self, request_id=None):
+        self.request_id = request_id
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        return self
+
+
+class CancelClusterUpgradeResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = CancelClusterUpgradeResponseBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
         return self
 
 
@@ -1160,6 +1491,40 @@ class InstallClusterAddonsResponse(TeaModel):
         return self
 
 
+class DeleteTriggerHookRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DeleteTriggerHookResponse(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
 class ModifyClusterTagsBody(TeaModel):
     def __init__(self, key=None, value=None):
         self.key = key
@@ -1321,6 +1686,405 @@ class DescribeExternalAgentResponse(TeaModel):
         return self
 
 
+class DescribeClusterAttachScriptsBody(TeaModel):
+    def __init__(self, options=None):
+        self.options = options
+
+    def validate(self):
+        if self.options:
+            self.options.validate()
+
+    def to_map(self):
+        result = {}
+        if self.options is not None:
+            result['options'] = self.options.to_map()
+        else:
+            result['options'] = None
+        return result
+
+    def from_map(self, map={}):
+        if map.get('options') is not None:
+            temp_model = DescribeClusterAttachScriptsBodyOptions()
+            self.options = temp_model.from_map(map['options'])
+        else:
+            self.options = None
+        return self
+
+
+class DescribeClusterAttachScriptsBodyOptions(TeaModel):
+    def __init__(self, flannel_iface=None, enable_iptables=None, manage_runtime=None, node_name_strategy=None, node_name=None, node_name_prefix=None):
+        self.flannel_iface = flannel_iface
+        self.enable_iptables = enable_iptables
+        self.manage_runtime = manage_runtime
+        self.node_name_strategy = node_name_strategy
+        self.node_name = node_name
+        self.node_name_prefix = node_name_prefix
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['flannelIface'] = self.flannel_iface
+        result['enableIptables'] = self.enable_iptables
+        result['manageRuntime'] = self.manage_runtime
+        result['nodeNameStrategy'] = self.node_name_strategy
+        result['nodeName'] = self.node_name
+        result['nodeNamePrefix'] = self.node_name_prefix
+        return result
+
+    def from_map(self, map={}):
+        self.flannel_iface = map.get('flannelIface')
+        self.enable_iptables = map.get('enableIptables')
+        self.manage_runtime = map.get('manageRuntime')
+        self.node_name_strategy = map.get('nodeNameStrategy')
+        self.node_name = map.get('nodeName')
+        self.node_name_prefix = map.get('nodeNamePrefix')
+        return self
+
+
+class DescribeClusterAttachScriptsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = DescribeClusterAttachScriptsBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class DescribeClusterAttachScriptsResponse(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class ScaleOutClusterBody(TeaModel):
+    def __init__(self, count=None, worker_instance_charge_type=None, worker_period=None, worker_period_unit=None, worker_auto_renew=None, worker_auto_renew_period=None, worker_system_disk_category=None, worker_system_disk_size=None, worker_data_disk=None, key_pair=None, login_password=None, cloud_monitor_flags=None, cpu_policy=None, disable_rollback=None, worker_data_disks=None, tags=None, taints=None, vswitch_ids=None, worker_instance_types=None):
+        self.count = count
+        self.worker_instance_charge_type = worker_instance_charge_type
+        self.worker_period = worker_period
+        self.worker_period_unit = worker_period_unit
+        self.worker_auto_renew = worker_auto_renew
+        self.worker_auto_renew_period = worker_auto_renew_period
+        self.worker_system_disk_category = worker_system_disk_category
+        self.worker_system_disk_size = worker_system_disk_size
+        self.worker_data_disk = worker_data_disk
+        self.key_pair = key_pair
+        self.login_password = login_password
+        self.cloud_monitor_flags = cloud_monitor_flags
+        self.cpu_policy = cpu_policy
+        self.disable_rollback = disable_rollback
+        self.worker_data_disks = []
+        self.tags = []
+        self.taints = []
+        self.vswitch_ids = []
+        self.worker_instance_types = []
+
+    def validate(self):
+        self.validate_required(self.count, 'count')
+        self.validate_required(self.worker_data_disk, 'worker_data_disk')
+        self.validate_required(self.key_pair, 'key_pair')
+        self.validate_required(self.login_password, 'login_password')
+        if self.worker_data_disks:
+            for k in self.worker_data_disks:
+                if k :
+                    k.validate()
+        if self.tags:
+            for k in self.tags:
+                if k :
+                    k.validate()
+        if self.taints:
+            for k in self.taints:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['count'] = self.count
+        result['worker_instance_charge_type'] = self.worker_instance_charge_type
+        result['worker_period'] = self.worker_period
+        result['worker_period_unit'] = self.worker_period_unit
+        result['worker_auto_renew'] = self.worker_auto_renew
+        result['worker_auto_renew_period'] = self.worker_auto_renew_period
+        result['worker_system_disk_category'] = self.worker_system_disk_category
+        result['worker_system_disk_size'] = self.worker_system_disk_size
+        result['worker_data_disk'] = self.worker_data_disk
+        result['key_pair'] = self.key_pair
+        result['login_password'] = self.login_password
+        result['cloud_monitor_flags'] = self.cloud_monitor_flags
+        result['cpu_policy'] = self.cpu_policy
+        result['disable_rollback'] = self.disable_rollback
+        result['worker_data_disks'] = []
+        if self.worker_data_disks is not None:
+            for k in self.worker_data_disks:
+                result['worker_data_disks'].append(k.to_map() if k else None)
+        else:
+            result['worker_data_disks'] = None
+        result['tags'] = []
+        if self.tags is not None:
+            for k in self.tags:
+                result['tags'].append(k.to_map() if k else None)
+        else:
+            result['tags'] = None
+        result['taints'] = []
+        if self.taints is not None:
+            for k in self.taints:
+                result['taints'].append(k.to_map() if k else None)
+        else:
+            result['taints'] = None
+        result['vswitch_ids'] = []
+        if self.vswitch_ids is not None:
+            for k in self.vswitch_ids:
+                result['vswitch_ids'].append(k)
+        else:
+            result['vswitch_ids'] = None
+        result['worker_instance_types'] = []
+        if self.worker_instance_types is not None:
+            for k in self.worker_instance_types:
+                result['worker_instance_types'].append(k)
+        else:
+            result['worker_instance_types'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.count = map.get('count')
+        self.worker_instance_charge_type = map.get('worker_instance_charge_type')
+        self.worker_period = map.get('worker_period')
+        self.worker_period_unit = map.get('worker_period_unit')
+        self.worker_auto_renew = map.get('worker_auto_renew')
+        self.worker_auto_renew_period = map.get('worker_auto_renew_period')
+        self.worker_system_disk_category = map.get('worker_system_disk_category')
+        self.worker_system_disk_size = map.get('worker_system_disk_size')
+        self.worker_data_disk = map.get('worker_data_disk')
+        self.key_pair = map.get('key_pair')
+        self.login_password = map.get('login_password')
+        self.cloud_monitor_flags = map.get('cloud_monitor_flags')
+        self.cpu_policy = map.get('cpu_policy')
+        self.disable_rollback = map.get('disable_rollback')
+        self.worker_data_disks = []
+        if map.get('worker_data_disks') is not None:
+            for k in map.get('worker_data_disks'):
+                temp_model = ScaleOutClusterBodyWorkerDataDisks()
+                temp_model = temp_model.from_map(k)
+                self.worker_data_disks.append(temp_model)
+        else:
+            self.worker_data_disks = None
+        self.tags = []
+        if map.get('tags') is not None:
+            for k in map.get('tags'):
+                temp_model = ScaleOutClusterBodyTags()
+                temp_model = temp_model.from_map(k)
+                self.tags.append(temp_model)
+        else:
+            self.tags = None
+        self.taints = []
+        if map.get('taints') is not None:
+            for k in map.get('taints'):
+                temp_model = ScaleOutClusterBodyTaints()
+                temp_model = temp_model.from_map(k)
+                self.taints.append(temp_model)
+        else:
+            self.taints = None
+        self.vswitch_ids = []
+        if map.get('vswitch_ids') is not None:
+            for k in map.get('vswitch_ids'):
+                self.vswitch_ids.append(k)
+        else:
+            self.vswitch_ids = None
+        self.worker_instance_types = []
+        if map.get('worker_instance_types') is not None:
+            for k in map.get('worker_instance_types'):
+                self.worker_instance_types.append(k)
+        else:
+            self.worker_instance_types = None
+        return self
+
+
+class ScaleOutClusterBodyWorkerDataDisks(TeaModel):
+    def __init__(self, category=None, size=None, encrypted=None):
+        self.category = category
+        self.size = size
+        self.encrypted = encrypted
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['category'] = self.category
+        result['size'] = self.size
+        result['encrypted'] = self.encrypted
+        return result
+
+    def from_map(self, map={}):
+        self.category = map.get('category')
+        self.size = map.get('size')
+        self.encrypted = map.get('encrypted')
+        return self
+
+
+class ScaleOutClusterBodyTags(TeaModel):
+    def __init__(self, key=None, value=None):
+        self.key = key
+        self.value = value
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['key'] = self.key
+        result['value'] = self.value
+        return result
+
+    def from_map(self, map={}):
+        self.key = map.get('key')
+        self.value = map.get('value')
+        return self
+
+
+class ScaleOutClusterBodyTaints(TeaModel):
+    def __init__(self, key=None, value=None, effect=None):
+        self.key = key
+        self.value = value
+        self.effect = effect
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['key'] = self.key
+        result['value'] = self.value
+        result['effect'] = self.effect
+        return result
+
+    def from_map(self, map={}):
+        self.key = map.get('key')
+        self.value = map.get('value')
+        self.effect = map.get('effect')
+        return self
+
+
+class ScaleOutClusterRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = ScaleOutClusterBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class ScaleOutClusterResponseBody(TeaModel):
+    def __init__(self, cluster_id=None, request_id=None, task_id=None, instance_id=None):
+        self.cluster_id = cluster_id
+        self.request_id = request_id
+        self.task_id = task_id
+        self.instance_id = instance_id
+
+    def validate(self):
+        self.validate_required(self.cluster_id, 'cluster_id')
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.task_id, 'task_id')
+        self.validate_required(self.instance_id, 'instance_id')
+
+    def to_map(self):
+        result = {}
+        result['cluster_id'] = self.cluster_id
+        result['request_id'] = self.request_id
+        result['task_id'] = self.task_id
+        result['instanceId'] = self.instance_id
+        return result
+
+    def from_map(self, map={}):
+        self.cluster_id = map.get('cluster_id')
+        self.request_id = map.get('request_id')
+        self.task_id = map.get('task_id')
+        self.instance_id = map.get('instanceId')
+        return self
+
+
+class ScaleOutClusterResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = ScaleOutClusterResponseBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
 class DescribeClusterResourcesRequest(TeaModel):
     def __init__(self, headers=None):
         self.headers = {}
@@ -1399,6 +2163,351 @@ class DescribeClusterResourcesResponse(TeaModel):
                 temp_model = DescribeClusterResourcesResponseBody()
                 temp_model = temp_model.from_map(k)
                 self.body.append(temp_model)
+        else:
+            self.body = None
+        return self
+
+
+class CreateTriggerHookBody(TeaModel):
+    def __init__(self, region_id=None, cluster_id=None, project_id=None, action=None, trigger_url=None):
+        self.region_id = region_id
+        self.cluster_id = cluster_id
+        self.project_id = project_id
+        self.action = action
+        self.trigger_url = trigger_url
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['region_id'] = self.region_id
+        result['cluster_id'] = self.cluster_id
+        result['project_id'] = self.project_id
+        result['action'] = self.action
+        result['trigger_url'] = self.trigger_url
+        return result
+
+    def from_map(self, map={}):
+        self.region_id = map.get('region_id')
+        self.cluster_id = map.get('cluster_id')
+        self.project_id = map.get('project_id')
+        self.action = map.get('action')
+        self.trigger_url = map.get('trigger_url')
+        return self
+
+
+class CreateTriggerHookRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = CreateTriggerHookBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class CreateTriggerHookResponse(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class UpgradeClusterAddonsBody(TeaModel):
+    def __init__(self, component_name=None, version=None):
+        self.component_name = component_name
+        self.version = version
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['component_name'] = self.component_name
+        result['version'] = self.version
+        return result
+
+    def from_map(self, map={}):
+        self.component_name = map.get('component_name')
+        self.version = map.get('version')
+        return self
+
+
+class UpgradeClusterAddonsRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = UpgradeClusterAddonsBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class UpgradeClusterAddonsResponse(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DescribeClusterAddonsVersionRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DescribeClusterAddonsVersionResponseBody(TeaModel):
+    def __init__(self, template=None, next_version=None, can_upgrade=None, component_name=None, version=None, changed=None, message=None, required=None):
+        self.template = template
+        self.next_version = next_version
+        self.can_upgrade = can_upgrade
+        self.component_name = component_name
+        self.version = version
+        self.changed = changed
+        self.message = message
+        self.required = required
+
+    def validate(self):
+        self.validate_required(self.template, 'template')
+        self.validate_required(self.next_version, 'next_version')
+        self.validate_required(self.can_upgrade, 'can_upgrade')
+        self.validate_required(self.component_name, 'component_name')
+        self.validate_required(self.version, 'version')
+        self.validate_required(self.changed, 'changed')
+        self.validate_required(self.message, 'message')
+        self.validate_required(self.required, 'required')
+
+    def to_map(self):
+        result = {}
+        result['template'] = self.template
+        result['next_version'] = self.next_version
+        result['can_upgrade'] = self.can_upgrade
+        result['component_name'] = self.component_name
+        result['version'] = self.version
+        result['changed'] = self.changed
+        result['message'] = self.message
+        result['required'] = self.required
+        return result
+
+    def from_map(self, map={}):
+        self.template = map.get('template')
+        self.next_version = map.get('next_version')
+        self.can_upgrade = map.get('can_upgrade')
+        self.component_name = map.get('component_name')
+        self.version = map.get('version')
+        self.changed = map.get('changed')
+        self.message = map.get('message')
+        self.required = map.get('required')
+        return self
+
+
+class DescribeClusterAddonsVersionResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = DescribeClusterAddonsVersionResponseBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class DescribeClusterAddonUpgradeStatusRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DescribeClusterAddonUpgradeStatusResponseBody(TeaModel):
+    def __init__(self, template=None, can_upgrade=None, addon_info=None):
+        self.template = template
+        self.can_upgrade = can_upgrade
+        self.addon_info = addon_info
+
+    def validate(self):
+        self.validate_required(self.template, 'template')
+        self.validate_required(self.can_upgrade, 'can_upgrade')
+        self.validate_required(self.addon_info, 'addon_info')
+        if self.addon_info:
+            self.addon_info.validate()
+
+    def to_map(self):
+        result = {}
+        result['template'] = self.template
+        result['can_upgrade'] = self.can_upgrade
+        if self.addon_info is not None:
+            result['addon_info'] = self.addon_info.to_map()
+        else:
+            result['addon_info'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.template = map.get('template')
+        self.can_upgrade = map.get('can_upgrade')
+        if map.get('addon_info') is not None:
+            temp_model = DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo()
+            self.addon_info = temp_model.from_map(map['addon_info'])
+        else:
+            self.addon_info = None
+        return self
+
+
+class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo(TeaModel):
+    def __init__(self, message=None, category=None, yaml=None, component_name=None, version=None):
+        self.message = message
+        self.category = category
+        self.yaml = yaml
+        self.component_name = component_name
+        self.version = version
+
+    def validate(self):
+        self.validate_required(self.message, 'message')
+        self.validate_required(self.category, 'category')
+        self.validate_required(self.yaml, 'yaml')
+        self.validate_required(self.component_name, 'component_name')
+        self.validate_required(self.version, 'version')
+
+    def to_map(self):
+        result = {}
+        result['message'] = self.message
+        result['category'] = self.category
+        result['yaml'] = self.yaml
+        result['component_name'] = self.component_name
+        result['version'] = self.version
+        return result
+
+    def from_map(self, map={}):
+        self.message = map.get('message')
+        self.category = map.get('category')
+        self.yaml = map.get('yaml')
+        self.component_name = map.get('component_name')
+        self.version = map.get('version')
+        return self
+
+
+class DescribeClusterAddonUpgradeStatusResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = DescribeClusterAddonUpgradeStatusResponseBody()
+            self.body = temp_model.from_map(map['body'])
         else:
             self.body = None
         return self
@@ -1507,6 +2616,40 @@ class DeleteClusterNodesResponse(TeaModel):
             self.body = temp_model.from_map(map['body'])
         else:
             self.body = None
+        return self
+
+
+class DeleteTemplateRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DeleteTemplateResponse(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
         return self
 
 
@@ -1856,6 +2999,82 @@ class DescribeClusterNodesResponse(TeaModel):
         return self
 
 
+class DescribeClusterLogsRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DescribeClusterLogsResponseBody(TeaModel):
+    def __init__(self, cluster_id=None, cluster_log=None, log_level=None, created=None):
+        self.cluster_id = cluster_id
+        self.cluster_log = cluster_log
+        self.log_level = log_level
+        self.created = created
+
+    def validate(self):
+        self.validate_required(self.cluster_id, 'cluster_id')
+        self.validate_required(self.cluster_log, 'cluster_log')
+        self.validate_required(self.log_level, 'log_level')
+        self.validate_required(self.created, 'created')
+
+    def to_map(self):
+        result = {}
+        result['cluster_id'] = self.cluster_id
+        result['cluster_log'] = self.cluster_log
+        result['log_level'] = self.log_level
+        result['created'] = self.created
+        return result
+
+    def from_map(self, map={}):
+        self.cluster_id = map.get('cluster_id')
+        self.cluster_log = map.get('cluster_log')
+        self.log_level = map.get('log_level')
+        self.created = map.get('created')
+        return self
+
+
+class DescribeClusterLogsResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = DescribeClusterLogsResponseBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
 class AttachInstancesBody(TeaModel):
     def __init__(self, format_disk=None, keep_instance_name=None, cpu_policy=None, key_pair=None, password=None, tags=None, instances=None):
         self.format_disk = format_disk
@@ -2165,6 +3384,109 @@ class DescribeTemplatesResponse(TeaModel):
         self.headers = map.get('headers')
         if map.get('body') is not None:
             temp_model = DescribeTemplatesResponseBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class CreateTemplateBody(TeaModel):
+    def __init__(self, name=None, template=None, tags=None, template_type=None):
+        self.name = name
+        self.template = template
+        self.tags = tags
+        self.template_type = template_type
+
+    def validate(self):
+        self.validate_required(self.name, 'name')
+        self.validate_required(self.template, 'template')
+
+    def to_map(self):
+        result = {}
+        result['name'] = self.name
+        result['template'] = self.template
+        result['tags'] = self.tags
+        result['template_type'] = self.template_type
+        return result
+
+    def from_map(self, map={}):
+        self.name = map.get('name')
+        self.template = map.get('template')
+        self.tags = map.get('tags')
+        self.template_type = map.get('template_type')
+        return self
+
+
+class CreateTemplateRequest(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = CreateTemplateBody()
+            self.body = temp_model.from_map(map['body'])
+        else:
+            self.body = None
+        return self
+
+
+class CreateTemplateResponseBody(TeaModel):
+    def __init__(self, template_id=None):
+        self.template_id = template_id
+
+    def validate(self):
+        self.validate_required(self.template_id, 'template_id')
+
+    def to_map(self):
+        result = {}
+        result['template_id'] = self.template_id
+        return result
+
+    def from_map(self, map={}):
+        self.template_id = map.get('template_id')
+        return self
+
+
+class CreateTemplateResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = CreateTemplateResponseBody()
             self.body = temp_model.from_map(map['body'])
         else:
             self.body = None
@@ -2890,6 +4212,183 @@ class DescribeClustersResponse(TeaModel):
                 temp_model = DescribeClustersResponseBody()
                 temp_model = temp_model.from_map(k)
                 self.body.append(temp_model)
+        else:
+            self.body = None
+        return self
+
+
+class DescribeClusterDetailRequest(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
+class DescribeClusterDetailResponseBody(TeaModel):
+    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None, meta_data=None, resource_group_id=None, instance_type=None, vpc_id=None, vswitch_id=None, vswitch_cidr=None, data_disk_size=None, data_disk_category=None, security_group_id=None, zone_id=None, network_mode=None, docker_version=None, deletion_protection=None, tags=None):
+        self.name = name
+        self.cluster_id = cluster_id
+        self.region_id = region_id
+        self.state = state
+        self.cluster_type = cluster_type
+        self.current_version = current_version
+        self.meta_data = meta_data
+        self.resource_group_id = resource_group_id
+        self.instance_type = instance_type
+        self.vpc_id = vpc_id
+        self.vswitch_id = vswitch_id
+        self.vswitch_cidr = vswitch_cidr
+        self.data_disk_size = data_disk_size
+        self.data_disk_category = data_disk_category
+        self.security_group_id = security_group_id
+        self.zone_id = zone_id
+        self.network_mode = network_mode
+        self.docker_version = docker_version
+        self.deletion_protection = deletion_protection
+        self.tags = []
+
+    def validate(self):
+        self.validate_required(self.name, 'name')
+        self.validate_required(self.cluster_id, 'cluster_id')
+        self.validate_required(self.region_id, 'region_id')
+        self.validate_required(self.state, 'state')
+        self.validate_required(self.cluster_type, 'cluster_type')
+        self.validate_required(self.current_version, 'current_version')
+        self.validate_required(self.meta_data, 'meta_data')
+        self.validate_required(self.resource_group_id, 'resource_group_id')
+        self.validate_required(self.instance_type, 'instance_type')
+        self.validate_required(self.vpc_id, 'vpc_id')
+        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.vswitch_cidr, 'vswitch_cidr')
+        self.validate_required(self.data_disk_size, 'data_disk_size')
+        self.validate_required(self.data_disk_category, 'data_disk_category')
+        self.validate_required(self.security_group_id, 'security_group_id')
+        self.validate_required(self.zone_id, 'zone_id')
+        self.validate_required(self.network_mode, 'network_mode')
+        self.validate_required(self.docker_version, 'docker_version')
+        self.validate_required(self.deletion_protection, 'deletion_protection')
+        self.validate_required(self.tags, 'tags')
+        if self.tags:
+            for k in self.tags:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['name'] = self.name
+        result['cluster_id'] = self.cluster_id
+        result['region_id'] = self.region_id
+        result['state'] = self.state
+        result['cluster_type'] = self.cluster_type
+        result['current_version'] = self.current_version
+        result['meta_data'] = self.meta_data
+        result['resource_group_id'] = self.resource_group_id
+        result['instance_type'] = self.instance_type
+        result['vpc_id'] = self.vpc_id
+        result['vswitch_id'] = self.vswitch_id
+        result['vswitch_cidr'] = self.vswitch_cidr
+        result['data_disk_size'] = self.data_disk_size
+        result['data_disk_category'] = self.data_disk_category
+        result['security_group_id'] = self.security_group_id
+        result['zone_id'] = self.zone_id
+        result['network_mode'] = self.network_mode
+        result['docker_version'] = self.docker_version
+        result['deletion_protection'] = self.deletion_protection
+        result['tags'] = []
+        if self.tags is not None:
+            for k in self.tags:
+                result['tags'].append(k.to_map() if k else None)
+        else:
+            result['tags'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.name = map.get('name')
+        self.cluster_id = map.get('cluster_id')
+        self.region_id = map.get('region_id')
+        self.state = map.get('state')
+        self.cluster_type = map.get('cluster_type')
+        self.current_version = map.get('current_version')
+        self.meta_data = map.get('meta_data')
+        self.resource_group_id = map.get('resource_group_id')
+        self.instance_type = map.get('instance_type')
+        self.vpc_id = map.get('vpc_id')
+        self.vswitch_id = map.get('vswitch_id')
+        self.vswitch_cidr = map.get('vswitch_cidr')
+        self.data_disk_size = map.get('data_disk_size')
+        self.data_disk_category = map.get('data_disk_category')
+        self.security_group_id = map.get('security_group_id')
+        self.zone_id = map.get('zone_id')
+        self.network_mode = map.get('network_mode')
+        self.docker_version = map.get('docker_version')
+        self.deletion_protection = map.get('deletion_protection')
+        self.tags = []
+        if map.get('tags') is not None:
+            for k in map.get('tags'):
+                temp_model = DescribeClusterDetailResponseBodyTags()
+                temp_model = temp_model.from_map(k)
+                self.tags.append(temp_model)
+        else:
+            self.tags = None
+        return self
+
+
+class DescribeClusterDetailResponseBodyTags(TeaModel):
+    def __init__(self, key=None, value=None):
+        self.key = key
+        self.value = value
+
+    def validate(self):
+        self.validate_required(self.key, 'key')
+        self.validate_required(self.value, 'value')
+
+    def to_map(self):
+        result = {}
+        result['key'] = self.key
+        result['value'] = self.value
+        return result
+
+    def from_map(self, map={}):
+        self.key = map.get('key')
+        self.value = map.get('value')
+        return self
+
+
+class DescribeClusterDetailResponse(TeaModel):
+    def __init__(self, headers=None, body=None):
+        self.headers = {}
+        self.body = body
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+        self.validate_required(self.body, 'body')
+        if self.body:
+            self.body.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.body is not None:
+            result['body'] = self.body.to_map()
+        else:
+            result['body'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('body') is not None:
+            temp_model = DescribeClusterDetailResponseBody()
+            self.body = temp_model.from_map(map['body'])
         else:
             self.body = None
         return self

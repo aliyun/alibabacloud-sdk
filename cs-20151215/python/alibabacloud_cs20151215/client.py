@@ -149,6 +149,17 @@ class Client(ROAClient):
         )
         return self.un_install_cluster_addons_with_options(cluster_id, request, runtime)
 
+    def describe_addons_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DescribeAddonsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/components/metadata", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+
+
+    def describe_addons(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.describe_addons_with_options(request, runtime)
+
     def update_k8s_cluster_user_config_expire_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.UpdateK8sClusterUserConfigExpireResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/k8s/" + str(cluster_id) + "/user_config/expire", None, request.headers, None, runtime))
@@ -159,6 +170,17 @@ class Client(ROAClient):
 
         )
         return self.update_k8s_cluster_user_config_expire_with_options(cluster_id, request, runtime)
+
+    def cancel_cluster_upgrade_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.CancelClusterUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + str(cluster_id) + "/upgrade/cancel", None, request.headers, None, runtime))
+
+
+    def cancel_cluster_upgrade(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.cancel_cluster_upgrade_with_options(cluster_id, request, runtime)
 
     def describe_user_quota_with_options(self, request, runtime):
         UtilClient.validate_model(request)
@@ -259,6 +281,17 @@ class Client(ROAClient):
         )
         return self.install_cluster_addons_with_options(cluster_id, request, runtime)
 
+    def delete_trigger_hook_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DeleteTriggerHookResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/hook/trigger", None, request.headers, None, runtime))
+
+
+    def delete_trigger_hook(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.delete_trigger_hook_with_options(request, runtime)
+
     def modify_cluster_tags_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.ModifyClusterTagsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/tags", None, request.headers, request.body.to_map(), runtime))
@@ -281,6 +314,28 @@ class Client(ROAClient):
         )
         return self.describe_external_agent_with_options(cluster_id, request, runtime)
 
+    def describe_cluster_attach_scripts_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DescribeClusterAttachScriptsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/attachscript", None, request.headers, None, runtime))
+
+
+    def describe_cluster_attach_scripts(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.describe_cluster_attach_scripts_with_options(cluster_id, request, runtime)
+
+    def scale_out_cluster_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.ScaleOutClusterResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + str(cluster_id) + "", None, request.headers, request.body.to_map(), runtime))
+
+
+    def scale_out_cluster(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.scale_out_cluster_with_options(cluster_id, request, runtime)
+
     def describe_cluster_resources_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.DescribeClusterResourcesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "/resources", None, request.headers, None, runtime))
@@ -292,6 +347,50 @@ class Client(ROAClient):
         )
         return self.describe_cluster_resources_with_options(cluster_id, request, runtime)
 
+    def create_trigger_hook_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.CreateTriggerHookResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/hook/trigger", None, request.headers, request.body.to_map(), runtime))
+
+
+    def create_trigger_hook(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.create_trigger_hook_with_options(request, runtime)
+
+    def upgrade_cluster_addons_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.UpgradeClusterAddonsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/components/upgrade", None, request.headers, request.body.to_map(), runtime))
+
+
+    def upgrade_cluster_addons(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.upgrade_cluster_addons_with_options(cluster_id, request, runtime)
+
+    def describe_cluster_addons_version_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DescribeClusterAddonsVersionResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "/components/version", None, request.headers, None, runtime))
+
+
+    def describe_cluster_addons_version(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.describe_cluster_addons_version_with_options(cluster_id, request, runtime)
+
+    def describe_cluster_addon_upgrade_status_with_options(self, cluster_id, component_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DescribeClusterAddonUpgradeStatusResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "/components/" + str(component_id) + "/upgradestatus", None, request.headers, None, runtime))
+
+
+    def describe_cluster_addon_upgrade_status(self, cluster_id, component_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.describe_cluster_addon_upgrade_status_with_options(cluster_id, component_id, request, runtime)
+
     def delete_cluster_nodes_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.DeleteClusterNodesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/nodes", None, request.headers, request.body.to_map(), runtime))
@@ -302,6 +401,17 @@ class Client(ROAClient):
 
         )
         return self.delete_cluster_nodes_with_options(cluster_id, request, runtime)
+
+    def delete_template_with_options(self, template_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DeleteTemplateResponse().from_map(self.do_request("2015-12-15", "HTTPS", "DELETE", "AK", "/templates/" + str(template_id) + "", None, request.headers, None, runtime))
+
+
+    def delete_template(self, template_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.delete_template_with_options(template_id, request, runtime)
 
     def describe_cluster_user_kubeconfig_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
@@ -325,6 +435,17 @@ class Client(ROAClient):
         )
         return self.describe_cluster_nodes_with_options(cluster_id, request, runtime)
 
+    def describe_cluster_logs_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DescribeClusterLogsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "/logs", None, request.headers, None, runtime))
+
+
+    def describe_cluster_logs(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.describe_cluster_logs_with_options(cluster_id, request, runtime)
+
     def attach_instances_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.AttachInstancesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/attach", None, request.headers, request.body.to_map(), runtime))
@@ -346,6 +467,17 @@ class Client(ROAClient):
 
         )
         return self.describe_templates_with_options(request, runtime)
+
+    def create_template_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.CreateTemplateResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/templates", None, request.headers, request.body.to_map(), runtime))
+
+
+    def create_template(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.create_template_with_options(request, runtime)
 
     def create_cluster_with_options(self, request, runtime):
         UtilClient.validate_model(request)
@@ -379,6 +511,17 @@ class Client(ROAClient):
 
         )
         return self.describe_clusters_with_options(request, runtime)
+
+    def describe_cluster_detail_with_options(self, cluster_id, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.DescribeClusterDetailResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + str(cluster_id) + "", None, request.headers, None, runtime))
+
+
+    def describe_cluster_detail(self, cluster_id, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.describe_cluster_detail_with_options(cluster_id, request, runtime)
 
     def delete_cluster_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
