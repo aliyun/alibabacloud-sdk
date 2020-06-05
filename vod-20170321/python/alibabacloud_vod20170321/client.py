@@ -56,7 +56,7 @@ class Client(RPCClient):
             "us-east-1": "vod.ap-northeast-1.aliyuncs.com"
         }
         self.check_config(config)
-        self._endpoint = self.get_endpoint(self._product_id, self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
+        self._endpoint = self.get_endpoint("vod", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
     def submit_media_dnadelete_job_with_options(self, request, runtime):
         UtilClient.validate_model(request)
