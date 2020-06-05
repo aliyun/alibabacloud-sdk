@@ -2,7 +2,6 @@
 import Util, * as $Util from '@alicloud/tea-util';
 import RPC, * as $RPC from '@alicloud/rpc-client';
 import EndpointUtil from '@alicloud/endpoint-util';
-import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class QuerySmsTemplateRequest extends $tea.Model {
@@ -889,63 +888,118 @@ export default class Client extends RPC {
       'us-west-1': "dysmsapi.ap-southeast-1.aliyuncs.com",
     };
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("dysmsapi", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
 
-  async querySmsTemplate(request: QuerySmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<QuerySmsTemplateResponse> {
+  async querySmsTemplateWithOptions(request: QuerySmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<QuerySmsTemplateResponse> {
     Util.validateModel(request);
-    return $tea.cast<QuerySmsTemplateResponse>(await this.doRequest("QuerySmsTemplate", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new QuerySmsTemplateResponse({}));
+    return $tea.cast<QuerySmsTemplateResponse>(await this.doRequest("QuerySmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QuerySmsTemplateResponse({}));
   }
 
-  async querySmsSign(request: QuerySmsSignRequest, runtime: $Util.RuntimeOptions): Promise<QuerySmsSignResponse> {
-    Util.validateModel(request);
-    return $tea.cast<QuerySmsSignResponse>(await this.doRequest("QuerySmsSign", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new QuerySmsSignResponse({}));
+  async querySmsTemplate(request: QuerySmsTemplateRequest): Promise<QuerySmsTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.querySmsTemplateWithOptions(request, runtime);
   }
 
-  async modifySmsTemplate(request: ModifySmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<ModifySmsTemplateResponse> {
+  async querySmsSignWithOptions(request: QuerySmsSignRequest, runtime: $Util.RuntimeOptions): Promise<QuerySmsSignResponse> {
     Util.validateModel(request);
-    return $tea.cast<ModifySmsTemplateResponse>(await this.doRequest("ModifySmsTemplate", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new ModifySmsTemplateResponse({}));
+    return $tea.cast<QuerySmsSignResponse>(await this.doRequest("QuerySmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QuerySmsSignResponse({}));
   }
 
-  async modifySmsSign(request: ModifySmsSignRequest, runtime: $Util.RuntimeOptions): Promise<ModifySmsSignResponse> {
-    Util.validateModel(request);
-    return $tea.cast<ModifySmsSignResponse>(await this.doRequest("ModifySmsSign", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new ModifySmsSignResponse({}));
+  async querySmsSign(request: QuerySmsSignRequest): Promise<QuerySmsSignResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.querySmsSignWithOptions(request, runtime);
   }
 
-  async deleteSmsTemplate(request: DeleteSmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<DeleteSmsTemplateResponse> {
+  async modifySmsTemplateWithOptions(request: ModifySmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<ModifySmsTemplateResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteSmsTemplateResponse>(await this.doRequest("DeleteSmsTemplate", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DeleteSmsTemplateResponse({}));
+    return $tea.cast<ModifySmsTemplateResponse>(await this.doRequest("ModifySmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ModifySmsTemplateResponse({}));
   }
 
-  async deleteSmsSign(request: DeleteSmsSignRequest, runtime: $Util.RuntimeOptions): Promise<DeleteSmsSignResponse> {
-    Util.validateModel(request);
-    return $tea.cast<DeleteSmsSignResponse>(await this.doRequest("DeleteSmsSign", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new DeleteSmsSignResponse({}));
+  async modifySmsTemplate(request: ModifySmsTemplateRequest): Promise<ModifySmsTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.modifySmsTemplateWithOptions(request, runtime);
   }
 
-  async addSmsTemplate(request: AddSmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<AddSmsTemplateResponse> {
+  async modifySmsSignWithOptions(request: ModifySmsSignRequest, runtime: $Util.RuntimeOptions): Promise<ModifySmsSignResponse> {
     Util.validateModel(request);
-    return $tea.cast<AddSmsTemplateResponse>(await this.doRequest("AddSmsTemplate", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new AddSmsTemplateResponse({}));
+    return $tea.cast<ModifySmsSignResponse>(await this.doRequest("ModifySmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new ModifySmsSignResponse({}));
   }
 
-  async addSmsSign(request: AddSmsSignRequest, runtime: $Util.RuntimeOptions): Promise<AddSmsSignResponse> {
-    Util.validateModel(request);
-    return $tea.cast<AddSmsSignResponse>(await this.doRequest("AddSmsSign", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new AddSmsSignResponse({}));
+  async modifySmsSign(request: ModifySmsSignRequest): Promise<ModifySmsSignResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.modifySmsSignWithOptions(request, runtime);
   }
 
-  async sendBatchSms(request: SendBatchSmsRequest, runtime: $Util.RuntimeOptions): Promise<SendBatchSmsResponse> {
+  async deleteSmsTemplateWithOptions(request: DeleteSmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<DeleteSmsTemplateResponse> {
     Util.validateModel(request);
-    return $tea.cast<SendBatchSmsResponse>(await this.doRequest("SendBatchSms", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new SendBatchSmsResponse({}));
+    return $tea.cast<DeleteSmsTemplateResponse>(await this.doRequest("DeleteSmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new DeleteSmsTemplateResponse({}));
   }
 
-  async sendSms(request: SendSmsRequest, runtime: $Util.RuntimeOptions): Promise<SendSmsResponse> {
-    Util.validateModel(request);
-    return $tea.cast<SendSmsResponse>(await this.doRequest("SendSms", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new SendSmsResponse({}));
+  async deleteSmsTemplate(request: DeleteSmsTemplateRequest): Promise<DeleteSmsTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteSmsTemplateWithOptions(request, runtime);
   }
 
-  async querySendDetails(request: QuerySendDetailsRequest, runtime: $Util.RuntimeOptions): Promise<QuerySendDetailsResponse> {
+  async deleteSmsSignWithOptions(request: DeleteSmsSignRequest, runtime: $Util.RuntimeOptions): Promise<DeleteSmsSignResponse> {
     Util.validateModel(request);
-    return $tea.cast<QuerySendDetailsResponse>(await this.doRequest("QuerySendDetails", "HTTPS", "GET", "AK", $tea.toMap(request), null, runtime), new QuerySendDetailsResponse({}));
+    return $tea.cast<DeleteSmsSignResponse>(await this.doRequest("DeleteSmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new DeleteSmsSignResponse({}));
+  }
+
+  async deleteSmsSign(request: DeleteSmsSignRequest): Promise<DeleteSmsSignResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteSmsSignWithOptions(request, runtime);
+  }
+
+  async addSmsTemplateWithOptions(request: AddSmsTemplateRequest, runtime: $Util.RuntimeOptions): Promise<AddSmsTemplateResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AddSmsTemplateResponse>(await this.doRequest("AddSmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new AddSmsTemplateResponse({}));
+  }
+
+  async addSmsTemplate(request: AddSmsTemplateRequest): Promise<AddSmsTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.addSmsTemplateWithOptions(request, runtime);
+  }
+
+  async addSmsSignWithOptions(request: AddSmsSignRequest, runtime: $Util.RuntimeOptions): Promise<AddSmsSignResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AddSmsSignResponse>(await this.doRequest("AddSmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new AddSmsSignResponse({}));
+  }
+
+  async addSmsSign(request: AddSmsSignRequest): Promise<AddSmsSignResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.addSmsSignWithOptions(request, runtime);
+  }
+
+  async sendBatchSmsWithOptions(request: SendBatchSmsRequest, runtime: $Util.RuntimeOptions): Promise<SendBatchSmsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<SendBatchSmsResponse>(await this.doRequest("SendBatchSms", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new SendBatchSmsResponse({}));
+  }
+
+  async sendBatchSms(request: SendBatchSmsRequest): Promise<SendBatchSmsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.sendBatchSmsWithOptions(request, runtime);
+  }
+
+  async sendSmsWithOptions(request: SendSmsRequest, runtime: $Util.RuntimeOptions): Promise<SendSmsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<SendSmsResponse>(await this.doRequest("SendSms", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new SendSmsResponse({}));
+  }
+
+  async sendSms(request: SendSmsRequest): Promise<SendSmsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.sendSmsWithOptions(request, runtime);
+  }
+
+  async querySendDetailsWithOptions(request: QuerySendDetailsRequest, runtime: $Util.RuntimeOptions): Promise<QuerySendDetailsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<QuerySendDetailsResponse>(await this.doRequest("QuerySendDetails", "HTTPS", "POST", "2017-05-25", "AK", null, $tea.toMap(request), runtime), new QuerySendDetailsResponse({}));
+  }
+
+  async querySendDetails(request: QuerySendDetailsRequest): Promise<QuerySendDetailsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.querySendDetailsWithOptions(request, runtime);
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
@@ -953,7 +1007,7 @@ export default class Client extends RPC {
       return endpoint;
     }
 
-    if (!Util.empty(endpointMap[regionId])) {
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
       return endpointMap[regionId];
     }
 
