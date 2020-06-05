@@ -1,3 +1,6 @@
+2020-06-05 Version: 0.0.5
+- Generated csharp 2019-12-19 for OpenPlatform.
+
 ### 2020-04-23 Version 0.0.4
 * Recodegen
 
