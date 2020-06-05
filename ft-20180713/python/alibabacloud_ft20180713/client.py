@@ -59,7 +59,7 @@ class Client(RPCClient):
             "us-west-1": "ft.aliyuncs.com"
         }
         self.check_config(config)
-        self._endpoint = self.get_endpoint(self._product_id, self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
+        self._endpoint = self.get_endpoint("ft", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
     def test_flow_strategy_01with_options(self, request, runtime):
         UtilClient.validate_model(request)
