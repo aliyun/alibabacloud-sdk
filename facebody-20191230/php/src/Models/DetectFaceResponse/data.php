@@ -1,73 +1,21 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models\DetectFaceResponse;
 
 use AlibabaCloud\Tea\Model;
 
-class data extends Model
-{
-    /**
-     * @description faceCount
-     *
-     * @var int
-     */
-    public $faceCount;
-
-    /**
-     * @description landmarkCount
-     *
-     * @var int
-     */
-    public $landmarkCount;
-
-    /**
-     * @description faceRectangles
-     *
-     * @var array
-     */
-    public $faceRectangles;
-
-    /**
-     * @description faceProbabilityList
-     *
-     * @var array
-     */
-    public $faceProbabilityList;
-
-    /**
-     * @description poseList
-     *
-     * @var array
-     */
-    public $poseList;
-
-    /**
-     * @description landmarks
-     *
-     * @var array
-     */
-    public $landmarks;
-
-    /**
-     * @description pupils
-     *
-     * @var array
-     */
-    public $pupils;
+class data extends Model {
     protected $_name = [
-        'faceCount'           => 'FaceCount',
-        'landmarkCount'       => 'LandmarkCount',
-        'faceRectangles'      => 'FaceRectangles',
+        'faceCount' => 'FaceCount',
+        'landmarkCount' => 'LandmarkCount',
+        'faceRectangles' => 'FaceRectangles',
         'faceProbabilityList' => 'FaceProbabilityList',
-        'poseList'            => 'PoseList',
-        'landmarks'           => 'Landmarks',
-        'pupils'              => 'Pupils',
+        'poseList' => 'PoseList',
+        'landmarks' => 'Landmarks',
+        'pupils' => 'Pupils',
     ];
-
-    public function validate()
-    {
+    public function validate() {
         Model::validateRequired('faceCount', $this->faceCount, true);
         Model::validateRequired('landmarkCount', $this->landmarkCount, true);
         Model::validateRequired('faceRectangles', $this->faceRectangles, true);
@@ -76,81 +24,116 @@ class data extends Model
         Model::validateRequired('landmarks', $this->landmarks, true);
         Model::validateRequired('pupils', $this->pupils, true);
     }
-
-    public function toMap()
-    {
-        $res                   = [];
-        $res['FaceCount']      = $this->faceCount;
-        $res['LandmarkCount']  = $this->landmarkCount;
+    public function toMap() {
+        $res = [];
+        $res['FaceCount'] = $this->faceCount;
+        $res['LandmarkCount'] = $this->landmarkCount;
         $res['FaceRectangles'] = [];
-        if (null !== $this->faceRectangles) {
+        if(null !== $this->faceRectangles){
             $res['FaceRectangles'] = $this->faceRectangles;
         }
         $res['FaceProbabilityList'] = [];
-        if (null !== $this->faceProbabilityList) {
+        if(null !== $this->faceProbabilityList){
             $res['FaceProbabilityList'] = $this->faceProbabilityList;
         }
         $res['PoseList'] = [];
-        if (null !== $this->poseList) {
+        if(null !== $this->poseList){
             $res['PoseList'] = $this->poseList;
         }
         $res['Landmarks'] = [];
-        if (null !== $this->landmarks) {
+        if(null !== $this->landmarks){
             $res['Landmarks'] = $this->landmarks;
         }
         $res['Pupils'] = [];
-        if (null !== $this->pupils) {
+        if(null !== $this->pupils){
             $res['Pupils'] = $this->pupils;
         }
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return data
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['FaceCount'])) {
+        if(isset($map['FaceCount'])){
             $model->faceCount = $map['FaceCount'];
         }
-        if (isset($map['LandmarkCount'])) {
+        if(isset($map['LandmarkCount'])){
             $model->landmarkCount = $map['LandmarkCount'];
         }
-        if (isset($map['FaceRectangles'])) {
-            if (!empty($map['FaceRectangles'])) {
+        if(isset($map['FaceRectangles'])){
+            if(!empty($map['FaceRectangles'])){
                 $model->faceRectangles = [];
                 $model->faceRectangles = $map['FaceRectangles'];
             }
         }
-        if (isset($map['FaceProbabilityList'])) {
-            if (!empty($map['FaceProbabilityList'])) {
+        if(isset($map['FaceProbabilityList'])){
+            if(!empty($map['FaceProbabilityList'])){
                 $model->faceProbabilityList = [];
                 $model->faceProbabilityList = $map['FaceProbabilityList'];
             }
         }
-        if (isset($map['PoseList'])) {
-            if (!empty($map['PoseList'])) {
+        if(isset($map['PoseList'])){
+            if(!empty($map['PoseList'])){
                 $model->poseList = [];
                 $model->poseList = $map['PoseList'];
             }
         }
-        if (isset($map['Landmarks'])) {
-            if (!empty($map['Landmarks'])) {
+        if(isset($map['Landmarks'])){
+            if(!empty($map['Landmarks'])){
                 $model->landmarks = [];
                 $model->landmarks = $map['Landmarks'];
             }
         }
-        if (isset($map['Pupils'])) {
-            if (!empty($map['Pupils'])) {
+        if(isset($map['Pupils'])){
+            if(!empty($map['Pupils'])){
                 $model->pupils = [];
                 $model->pupils = $map['Pupils'];
             }
         }
-
         return $model;
     }
+    /**
+     * @description faceCount
+     * @var integer
+     */
+    public $faceCount;
+
+    /**
+     * @description landmarkCount
+     * @var integer
+     */
+    public $landmarkCount;
+
+    /**
+     * @description faceRectangles
+     * @var array
+     */
+    public $faceRectangles;
+
+    /**
+     * @description faceProbabilityList
+     * @var array
+     */
+    public $faceProbabilityList;
+
+    /**
+     * @description poseList
+     * @var array
+     */
+    public $poseList;
+
+    /**
+     * @description landmarks
+     * @var array
+     */
+    public $landmarks;
+
+    /**
+     * @description pupils
+     * @var array
+     */
+    public $pupils;
+
 }
