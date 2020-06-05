@@ -58,7 +58,7 @@ namespace AlibabaCloud.SDK.CS20151215
                 {"rus-west-1-pop", "cs.aliyuncs.com"},
             };
             CheckConfig(config);
-            this._endpointHost = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpointHost);
+            this._endpointHost = GetEndpoint("cs", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpointHost);
         }
 
 
@@ -278,6 +278,30 @@ namespace AlibabaCloud.SDK.CS20151215
             return await UnInstallClusterAddonsWithOptionsAsync(clusterId, request, runtime);
         }
 
+        public DescribeAddonsResponse DescribeAddonsWithOptions(DescribeAddonsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeAddonsResponse>(DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/components/metadata", AlibabaCloud.TeaUtil.Common.StringifyMapValue(request.Query.ToMap()), request.Headers, null, runtime));
+        }
+
+        public async Task<DescribeAddonsResponse> DescribeAddonsWithOptionsAsync(DescribeAddonsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeAddonsResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "GET", "AK", "/clusters/components/metadata", AlibabaCloud.TeaUtil.Common.StringifyMapValue(request.Query.ToMap()), request.Headers, null, runtime));
+        }
+
+        public DescribeAddonsResponse DescribeAddons(DescribeAddonsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DescribeAddonsWithOptions(request, runtime);
+        }
+
+        public async Task<DescribeAddonsResponse> DescribeAddonsAsync(DescribeAddonsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DescribeAddonsWithOptionsAsync(request, runtime);
+        }
+
         public UpdateK8sClusterUserConfigExpireResponse UpdateK8sClusterUserConfigExpireWithOptions(string clusterId, UpdateK8sClusterUserConfigExpireRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
@@ -300,6 +324,30 @@ namespace AlibabaCloud.SDK.CS20151215
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
             return await UpdateK8sClusterUserConfigExpireWithOptionsAsync(clusterId, request, runtime);
+        }
+
+        public CancelClusterUpgradeResponse CancelClusterUpgradeWithOptions(string clusterId, CancelClusterUpgradeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CancelClusterUpgradeResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + clusterId + "/upgrade/cancel", null, request.Headers, null, runtime));
+        }
+
+        public async Task<CancelClusterUpgradeResponse> CancelClusterUpgradeWithOptionsAsync(string clusterId, CancelClusterUpgradeRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CancelClusterUpgradeResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + clusterId + "/upgrade/cancel", null, request.Headers, null, runtime));
+        }
+
+        public CancelClusterUpgradeResponse CancelClusterUpgrade(string clusterId, CancelClusterUpgradeRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return CancelClusterUpgradeWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<CancelClusterUpgradeResponse> CancelClusterUpgradeAsync(string clusterId, CancelClusterUpgradeRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await CancelClusterUpgradeWithOptionsAsync(clusterId, request, runtime);
         }
 
         public DescribeUserQuotaResponse DescribeUserQuotaWithOptions(DescribeUserQuotaRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -518,6 +566,30 @@ namespace AlibabaCloud.SDK.CS20151215
             return await InstallClusterAddonsWithOptionsAsync(clusterId, request, runtime);
         }
 
+        public DeleteTriggerHookResponse DeleteTriggerHookWithOptions(DeleteTriggerHookRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DeleteTriggerHookResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/hook/trigger", null, request.Headers, null, runtime));
+        }
+
+        public async Task<DeleteTriggerHookResponse> DeleteTriggerHookWithOptionsAsync(DeleteTriggerHookRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DeleteTriggerHookResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/hook/trigger", null, request.Headers, null, runtime));
+        }
+
+        public DeleteTriggerHookResponse DeleteTriggerHook(DeleteTriggerHookRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DeleteTriggerHookWithOptions(request, runtime);
+        }
+
+        public async Task<DeleteTriggerHookResponse> DeleteTriggerHookAsync(DeleteTriggerHookRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DeleteTriggerHookWithOptionsAsync(request, runtime);
+        }
+
         public ModifyClusterTagsResponse ModifyClusterTagsWithOptions(string clusterId, ModifyClusterTagsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
@@ -566,6 +638,54 @@ namespace AlibabaCloud.SDK.CS20151215
             return await DescribeExternalAgentWithOptionsAsync(clusterId, request, runtime);
         }
 
+        public DescribeClusterAttachScriptsResponse DescribeClusterAttachScriptsWithOptions(string clusterId, DescribeClusterAttachScriptsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterAttachScriptsResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterId + "/attachscript", null, request.Headers, null, runtime));
+        }
+
+        public async Task<DescribeClusterAttachScriptsResponse> DescribeClusterAttachScriptsWithOptionsAsync(string clusterId, DescribeClusterAttachScriptsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterAttachScriptsResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterId + "/attachscript", null, request.Headers, null, runtime));
+        }
+
+        public DescribeClusterAttachScriptsResponse DescribeClusterAttachScripts(string clusterId, DescribeClusterAttachScriptsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DescribeClusterAttachScriptsWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<DescribeClusterAttachScriptsResponse> DescribeClusterAttachScriptsAsync(string clusterId, DescribeClusterAttachScriptsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DescribeClusterAttachScriptsWithOptionsAsync(clusterId, request, runtime);
+        }
+
+        public ScaleOutClusterResponse ScaleOutClusterWithOptions(string clusterId, ScaleOutClusterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ScaleOutClusterResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + clusterId, null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public async Task<ScaleOutClusterResponse> ScaleOutClusterWithOptionsAsync(string clusterId, ScaleOutClusterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<ScaleOutClusterResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/clusters/" + clusterId, null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public ScaleOutClusterResponse ScaleOutCluster(string clusterId, ScaleOutClusterRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return ScaleOutClusterWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<ScaleOutClusterResponse> ScaleOutClusterAsync(string clusterId, ScaleOutClusterRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await ScaleOutClusterWithOptionsAsync(clusterId, request, runtime);
+        }
+
         public DescribeClusterResourcesResponse DescribeClusterResourcesWithOptions(string clusterId, DescribeClusterResourcesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
@@ -590,6 +710,102 @@ namespace AlibabaCloud.SDK.CS20151215
             return await DescribeClusterResourcesWithOptionsAsync(clusterId, request, runtime);
         }
 
+        public CreateTriggerHookResponse CreateTriggerHookWithOptions(CreateTriggerHookRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CreateTriggerHookResponse>(DoRequest("2015-12-15", "HTTPS", "PUT", "AK", "/hook/trigger", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public async Task<CreateTriggerHookResponse> CreateTriggerHookWithOptionsAsync(CreateTriggerHookRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CreateTriggerHookResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "PUT", "AK", "/hook/trigger", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public CreateTriggerHookResponse CreateTriggerHook(CreateTriggerHookRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return CreateTriggerHookWithOptions(request, runtime);
+        }
+
+        public async Task<CreateTriggerHookResponse> CreateTriggerHookAsync(CreateTriggerHookRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await CreateTriggerHookWithOptionsAsync(request, runtime);
+        }
+
+        public UpgradeClusterAddonsResponse UpgradeClusterAddonsWithOptions(string clusterId, UpgradeClusterAddonsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<UpgradeClusterAddonsResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterId + "/components/upgrade", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public async Task<UpgradeClusterAddonsResponse> UpgradeClusterAddonsWithOptionsAsync(string clusterId, UpgradeClusterAddonsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<UpgradeClusterAddonsResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + clusterId + "/components/upgrade", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public UpgradeClusterAddonsResponse UpgradeClusterAddons(string clusterId, UpgradeClusterAddonsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return UpgradeClusterAddonsWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<UpgradeClusterAddonsResponse> UpgradeClusterAddonsAsync(string clusterId, UpgradeClusterAddonsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await UpgradeClusterAddonsWithOptionsAsync(clusterId, request, runtime);
+        }
+
+        public DescribeClusterAddonsVersionResponse DescribeClusterAddonsVersionWithOptions(string clusterId, DescribeClusterAddonsVersionRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterAddonsVersionResponse>(DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId + "/components/version", null, request.Headers, null, runtime));
+        }
+
+        public async Task<DescribeClusterAddonsVersionResponse> DescribeClusterAddonsVersionWithOptionsAsync(string clusterId, DescribeClusterAddonsVersionRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterAddonsVersionResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId + "/components/version", null, request.Headers, null, runtime));
+        }
+
+        public DescribeClusterAddonsVersionResponse DescribeClusterAddonsVersion(string clusterId, DescribeClusterAddonsVersionRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DescribeClusterAddonsVersionWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<DescribeClusterAddonsVersionResponse> DescribeClusterAddonsVersionAsync(string clusterId, DescribeClusterAddonsVersionRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DescribeClusterAddonsVersionWithOptionsAsync(clusterId, request, runtime);
+        }
+
+        public DescribeClusterAddonUpgradeStatusResponse DescribeClusterAddonUpgradeStatusWithOptions(string clusterId, string componentId, DescribeClusterAddonUpgradeStatusRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterAddonUpgradeStatusResponse>(DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId + "/components/" + componentId + "/upgradestatus", null, request.Headers, null, runtime));
+        }
+
+        public async Task<DescribeClusterAddonUpgradeStatusResponse> DescribeClusterAddonUpgradeStatusWithOptionsAsync(string clusterId, string componentId, DescribeClusterAddonUpgradeStatusRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterAddonUpgradeStatusResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId + "/components/" + componentId + "/upgradestatus", null, request.Headers, null, runtime));
+        }
+
+        public DescribeClusterAddonUpgradeStatusResponse DescribeClusterAddonUpgradeStatus(string clusterId, string componentId, DescribeClusterAddonUpgradeStatusRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DescribeClusterAddonUpgradeStatusWithOptions(clusterId, componentId, request, runtime);
+        }
+
+        public async Task<DescribeClusterAddonUpgradeStatusResponse> DescribeClusterAddonUpgradeStatusAsync(string clusterId, string componentId, DescribeClusterAddonUpgradeStatusRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DescribeClusterAddonUpgradeStatusWithOptionsAsync(clusterId, componentId, request, runtime);
+        }
+
         public DeleteClusterNodesResponse DeleteClusterNodesWithOptions(string clusterId, DeleteClusterNodesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
@@ -612,6 +828,30 @@ namespace AlibabaCloud.SDK.CS20151215
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
             return await DeleteClusterNodesWithOptionsAsync(clusterId, request, runtime);
+        }
+
+        public DeleteTemplateResponse DeleteTemplateWithOptions(string templateId, DeleteTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DeleteTemplateResponse>(DoRequest("2015-12-15", "HTTPS", "DELETE", "AK", "/templates/" + templateId, null, request.Headers, null, runtime));
+        }
+
+        public async Task<DeleteTemplateResponse> DeleteTemplateWithOptionsAsync(string templateId, DeleteTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DeleteTemplateResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "DELETE", "AK", "/templates/" + templateId, null, request.Headers, null, runtime));
+        }
+
+        public DeleteTemplateResponse DeleteTemplate(string templateId, DeleteTemplateRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DeleteTemplateWithOptions(templateId, request, runtime);
+        }
+
+        public async Task<DeleteTemplateResponse> DeleteTemplateAsync(string templateId, DeleteTemplateRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DeleteTemplateWithOptionsAsync(templateId, request, runtime);
         }
 
         public DescribeClusterUserKubeconfigResponse DescribeClusterUserKubeconfigWithOptions(string clusterId, DescribeClusterUserKubeconfigRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -662,6 +902,30 @@ namespace AlibabaCloud.SDK.CS20151215
             return await DescribeClusterNodesWithOptionsAsync(clusterId, request, runtime);
         }
 
+        public DescribeClusterLogsResponse DescribeClusterLogsWithOptions(string clusterId, DescribeClusterLogsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterLogsResponse>(DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId + "/logs", null, request.Headers, null, runtime));
+        }
+
+        public async Task<DescribeClusterLogsResponse> DescribeClusterLogsWithOptionsAsync(string clusterId, DescribeClusterLogsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterLogsResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId + "/logs", null, request.Headers, null, runtime));
+        }
+
+        public DescribeClusterLogsResponse DescribeClusterLogs(string clusterId, DescribeClusterLogsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DescribeClusterLogsWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<DescribeClusterLogsResponse> DescribeClusterLogsAsync(string clusterId, DescribeClusterLogsRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DescribeClusterLogsWithOptionsAsync(clusterId, request, runtime);
+        }
+
         public AttachInstancesResponse AttachInstancesWithOptions(string clusterId, AttachInstancesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
@@ -708,6 +972,30 @@ namespace AlibabaCloud.SDK.CS20151215
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
             return await DescribeTemplatesWithOptionsAsync(request, runtime);
+        }
+
+        public CreateTemplateResponse CreateTemplateWithOptions(CreateTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CreateTemplateResponse>(DoRequest("2015-12-15", "HTTPS", "POST", "AK", "/templates", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public async Task<CreateTemplateResponse> CreateTemplateWithOptionsAsync(CreateTemplateRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<CreateTemplateResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "POST", "AK", "/templates", null, request.Headers, request.Body.ToMap(), runtime));
+        }
+
+        public CreateTemplateResponse CreateTemplate(CreateTemplateRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return CreateTemplateWithOptions(request, runtime);
+        }
+
+        public async Task<CreateTemplateResponse> CreateTemplateAsync(CreateTemplateRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await CreateTemplateWithOptionsAsync(request, runtime);
         }
 
         public CreateClusterResponse CreateClusterWithOptions(CreateClusterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
@@ -780,6 +1068,30 @@ namespace AlibabaCloud.SDK.CS20151215
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
             return await DescribeClustersWithOptionsAsync(request, runtime);
+        }
+
+        public DescribeClusterDetailResponse DescribeClusterDetailWithOptions(string clusterId, DescribeClusterDetailRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterDetailResponse>(DoRequest("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId, null, request.Headers, null, runtime));
+        }
+
+        public async Task<DescribeClusterDetailResponse> DescribeClusterDetailWithOptionsAsync(string clusterId, DescribeClusterDetailRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        {
+            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
+            return TeaModel.ToObject<DescribeClusterDetailResponse>(await DoRequestAsync("2015-12-15", "HTTPS", "GET", "AK", "/clusters/" + clusterId, null, request.Headers, null, runtime));
+        }
+
+        public DescribeClusterDetailResponse DescribeClusterDetail(string clusterId, DescribeClusterDetailRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return DescribeClusterDetailWithOptions(clusterId, request, runtime);
+        }
+
+        public async Task<DescribeClusterDetailResponse> DescribeClusterDetailAsync(string clusterId, DescribeClusterDetailRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await DescribeClusterDetailWithOptionsAsync(clusterId, request, runtime);
         }
 
         public DeleteClusterResponse DeleteClusterWithOptions(string clusterId, DeleteClusterRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
