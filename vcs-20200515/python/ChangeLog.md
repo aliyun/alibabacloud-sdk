@@ -1,6 +1,3 @@
-2020-06-04 Version: 1.0.2
-- Update monitor related API.
-
-2020-06-04 Version: 1.0.0
-- Update monitor related API.
+2020-06-05 Version: 1.0.4
+- Generated Vcs-2020-05-15 for Python.
 
