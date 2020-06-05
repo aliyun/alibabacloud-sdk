@@ -2,7 +2,6 @@
 import Util, * as $Util from '@alicloud/tea-util';
 import RPC, * as $RPC from '@alicloud/rpc-client';
 import EndpointUtil from '@alicloud/endpoint-util';
-import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class AuthorizeFileUploadRequest extends $tea.Model {
@@ -74,13 +73,18 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("openplatform", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
 
-  async authorizeFileUpload(request: AuthorizeFileUploadRequest, runtime: $Util.RuntimeOptions): Promise<AuthorizeFileUploadResponse> {
+  async authorizeFileUploadWithOptions(request: AuthorizeFileUploadRequest, runtime: $Util.RuntimeOptions): Promise<AuthorizeFileUploadResponse> {
     Util.validateModel(request);
     return $tea.cast<AuthorizeFileUploadResponse>(await this.doRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", $tea.toMap(request), null, runtime), new AuthorizeFileUploadResponse({}));
+  }
+
+  async authorizeFileUpload(request: AuthorizeFileUploadRequest): Promise<AuthorizeFileUploadResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.authorizeFileUploadWithOptions(request, runtime);
   }
 
   getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
@@ -88,7 +92,7 @@ export default class Client extends RPC {
       return endpoint;
     }
 
-    if (!Util.empty(endpointMap[regionId])) {
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
       return endpointMap[regionId];
     }
 
