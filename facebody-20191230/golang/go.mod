@@ -2,7 +2,7 @@ module github.com/alibabacloud-go/Facebody-20191230
 
 require (
 	github.com/alibabacloud-go/tea-oss-sdk v1.1.0
-	github.com/alibabacloud-go/OpenPlatform-20191219 v0.0.1
+	github.com/alibabacloud-go/OpenPlatform-20191219 v1.1.3
 	github.com/alibabacloud-go/tea-rpc-utils v1.1.0
 	github.com/alibabacloud-go/tea-rpc v1.1.0
 	github.com/alibabacloud-go/tea-oss-utils v1.1.0
