@@ -20,7 +20,7 @@ namespace AlibabaCloud.SDK.Vcs20200515
         {
             this._endpointRule = "regional";
             CheckConfig(config);
-            this._endpoint = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+            this._endpoint = GetEndpoint("vcs", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
         }
 
 
