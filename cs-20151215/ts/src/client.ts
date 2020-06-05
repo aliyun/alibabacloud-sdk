@@ -456,6 +456,94 @@ export class UnInstallClusterAddonsResponse extends $tea.Model {
   }
 }
 
+export class DescribeAddonsQuery extends $tea.Model {
+  region?: string;
+  clusterType?: string;
+  static names(): { [key: string]: string } {
+    return {
+      region: 'region',
+      clusterType: 'cluster_type',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      region: 'string',
+      clusterType: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeAddonsRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  query?: DescribeAddonsQuery;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      query: 'query',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      query: DescribeAddonsQuery,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeAddonsResponseBody extends $tea.Model {
+  componentGroups: DescribeAddonsResponseBodyComponentGroups[];
+  standardComponents: DescribeAddonsResponseBodyStandardComponents;
+  static names(): { [key: string]: string } {
+    return {
+      componentGroups: 'ComponentGroups',
+      standardComponents: 'StandardComponents',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      componentGroups: { 'type': 'array', 'itemType': DescribeAddonsResponseBodyComponentGroups },
+      standardComponents: DescribeAddonsResponseBodyStandardComponents,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeAddonsResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: DescribeAddonsResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DescribeAddonsResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class UpdateK8sClusterUserConfigExpireRequest extends $tea.Model {
   headers?: { [key: string]: string };
   static names(): { [key: string]: string } {
@@ -486,6 +574,66 @@ export class UpdateK8sClusterUserConfigExpireResponse extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CancelClusterUpgradeRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CancelClusterUpgradeResponseBody extends $tea.Model {
+  requestId: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CancelClusterUpgradeResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: CancelClusterUpgradeResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: CancelClusterUpgradeResponseBody,
     };
   }
 
@@ -1091,6 +1239,44 @@ export class InstallClusterAddonsResponse extends $tea.Model {
   }
 }
 
+export class DeleteTriggerHookRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteTriggerHookResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ModifyClusterTagsBody extends $tea.Model {
   key: string;
   value: string;
@@ -1236,6 +1422,211 @@ export class DescribeExternalAgentResponse extends $tea.Model {
   }
 }
 
+export class DescribeClusterAttachScriptsBody extends $tea.Model {
+  options?: DescribeClusterAttachScriptsBodyOptions;
+  static names(): { [key: string]: string } {
+    return {
+      options: 'options',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      options: DescribeClusterAttachScriptsBodyOptions,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAttachScriptsRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  body: DescribeClusterAttachScriptsBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DescribeClusterAttachScriptsBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAttachScriptsResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterBody extends $tea.Model {
+  count: number;
+  workerInstanceChargeType?: string;
+  workerPeriod?: number;
+  workerPeriodUnit?: string;
+  workerAutoRenew?: boolean;
+  workerAutoRenewPeriod?: number;
+  workerSystemDiskCategory?: string;
+  workerSystemDiskSize?: number;
+  workerDataDisk: boolean;
+  keyPair: string;
+  loginPassword: string;
+  cloudMonitorFlags?: boolean;
+  cpuPolicy?: string;
+  disableRollback?: boolean;
+  workerDataDisks?: ScaleOutClusterBodyWorkerDataDisks[];
+  tags?: ScaleOutClusterBodyTags[];
+  taints?: ScaleOutClusterBodyTaints[];
+  vswitchIds?: string[];
+  workerInstanceTypes?: string[];
+  static names(): { [key: string]: string } {
+    return {
+      count: 'count',
+      workerInstanceChargeType: 'worker_instance_charge_type',
+      workerPeriod: 'worker_period',
+      workerPeriodUnit: 'worker_period_unit',
+      workerAutoRenew: 'worker_auto_renew',
+      workerAutoRenewPeriod: 'worker_auto_renew_period',
+      workerSystemDiskCategory: 'worker_system_disk_category',
+      workerSystemDiskSize: 'worker_system_disk_size',
+      workerDataDisk: 'worker_data_disk',
+      keyPair: 'key_pair',
+      loginPassword: 'login_password',
+      cloudMonitorFlags: 'cloud_monitor_flags',
+      cpuPolicy: 'cpu_policy',
+      disableRollback: 'disable_rollback',
+      workerDataDisks: 'worker_data_disks',
+      tags: 'tags',
+      taints: 'taints',
+      vswitchIds: 'vswitch_ids',
+      workerInstanceTypes: 'worker_instance_types',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      count: 'number',
+      workerInstanceChargeType: 'string',
+      workerPeriod: 'number',
+      workerPeriodUnit: 'string',
+      workerAutoRenew: 'boolean',
+      workerAutoRenewPeriod: 'number',
+      workerSystemDiskCategory: 'string',
+      workerSystemDiskSize: 'number',
+      workerDataDisk: 'boolean',
+      keyPair: 'string',
+      loginPassword: 'string',
+      cloudMonitorFlags: 'boolean',
+      cpuPolicy: 'string',
+      disableRollback: 'boolean',
+      workerDataDisks: { 'type': 'array', 'itemType': ScaleOutClusterBodyWorkerDataDisks },
+      tags: { 'type': 'array', 'itemType': ScaleOutClusterBodyTags },
+      taints: { 'type': 'array', 'itemType': ScaleOutClusterBodyTaints },
+      vswitchIds: { 'type': 'array', 'itemType': 'string' },
+      workerInstanceTypes: { 'type': 'array', 'itemType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  body: ScaleOutClusterBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: ScaleOutClusterBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterResponseBody extends $tea.Model {
+  clusterId: string;
+  requestId: string;
+  taskId: string;
+  instanceId: string;
+  static names(): { [key: string]: string } {
+    return {
+      clusterId: 'cluster_id',
+      requestId: 'request_id',
+      taskId: 'task_id',
+      instanceId: 'instanceId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      clusterId: 'string',
+      requestId: 'string',
+      taskId: 'string',
+      instanceId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: ScaleOutClusterResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: ScaleOutClusterResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DescribeClusterResourcesRequest extends $tea.Model {
   headers?: { [key: string]: string };
   static names(): { [key: string]: string } {
@@ -1297,6 +1688,288 @@ export class DescribeClusterResourcesResponse extends $tea.Model {
     return {
       headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
       body: { 'type': 'array', 'itemType': DescribeClusterResourcesResponseBody },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTriggerHookBody extends $tea.Model {
+  regionId?: string;
+  clusterId?: string;
+  projectId?: string;
+  action?: string;
+  triggerUrl?: string;
+  static names(): { [key: string]: string } {
+    return {
+      regionId: 'region_id',
+      clusterId: 'cluster_id',
+      projectId: 'project_id',
+      action: 'action',
+      triggerUrl: 'trigger_url',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      regionId: 'string',
+      clusterId: 'string',
+      projectId: 'string',
+      action: 'string',
+      triggerUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTriggerHookRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  body?: CreateTriggerHookBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: CreateTriggerHookBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTriggerHookResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class UpgradeClusterAddonsBody extends $tea.Model {
+  componentName?: string;
+  version?: string;
+  static names(): { [key: string]: string } {
+    return {
+      componentName: 'component_name',
+      version: 'version',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      componentName: 'string',
+      version: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class UpgradeClusterAddonsRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  body?: UpgradeClusterAddonsBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: UpgradeClusterAddonsBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class UpgradeClusterAddonsResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonsVersionRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonsVersionResponseBody extends $tea.Model {
+  template: string;
+  nextVersion: string;
+  canUpgrade: boolean;
+  componentName: string;
+  version: string;
+  changed: string;
+  message: string;
+  required: boolean;
+  static names(): { [key: string]: string } {
+    return {
+      template: 'template',
+      nextVersion: 'next_version',
+      canUpgrade: 'can_upgrade',
+      componentName: 'component_name',
+      version: 'version',
+      changed: 'changed',
+      message: 'message',
+      required: 'required',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      template: 'string',
+      nextVersion: 'string',
+      canUpgrade: 'boolean',
+      componentName: 'string',
+      version: 'string',
+      changed: 'string',
+      message: 'string',
+      required: 'boolean',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonsVersionResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: DescribeClusterAddonsVersionResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DescribeClusterAddonsVersionResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonUpgradeStatusRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonUpgradeStatusResponseBody extends $tea.Model {
+  template: string;
+  canUpgrade: boolean;
+  addonInfo: DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo;
+  static names(): { [key: string]: string } {
+    return {
+      template: 'template',
+      canUpgrade: 'can_upgrade',
+      addonInfo: 'addon_info',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      template: 'string',
+      canUpgrade: 'boolean',
+      addonInfo: DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonUpgradeStatusResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: DescribeClusterAddonUpgradeStatusResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DescribeClusterAddonUpgradeStatusResponseBody,
     };
   }
 
@@ -1382,6 +2055,44 @@ export class DeleteClusterNodesResponse extends $tea.Model {
     return {
       headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
       body: DeleteClusterNodesResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteTemplateRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DeleteTemplateResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
     };
   }
 
@@ -1558,6 +2269,75 @@ export class DescribeClusterNodesResponse extends $tea.Model {
     return {
       headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
       body: DescribeClusterNodesResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterLogsRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterLogsResponseBody extends $tea.Model {
+  clusterId: string;
+  clusterLog: string;
+  logLevel: string;
+  created: string;
+  static names(): { [key: string]: string } {
+    return {
+      clusterId: 'cluster_id',
+      clusterLog: 'cluster_log',
+      logLevel: 'log_level',
+      created: 'created',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      clusterId: 'string',
+      clusterLog: 'string',
+      logLevel: 'string',
+      created: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterLogsResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: DescribeClusterLogsResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DescribeClusterLogsResponseBody,
     };
   }
 
@@ -1758,6 +2538,97 @@ export class DescribeTemplatesResponse extends $tea.Model {
     return {
       headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
       body: DescribeTemplatesResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTemplateBody extends $tea.Model {
+  name: string;
+  template: string;
+  tags?: string;
+  templateType?: string;
+  static names(): { [key: string]: string } {
+    return {
+      name: 'name',
+      template: 'template',
+      tags: 'tags',
+      templateType: 'template_type',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+      template: 'string',
+      tags: 'string',
+      templateType: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTemplateRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  body: CreateTemplateBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: CreateTemplateBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTemplateResponseBody extends $tea.Model {
+  templateId: string;
+  static names(): { [key: string]: string } {
+    return {
+      templateId: 'template_id',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      templateId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class CreateTemplateResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: CreateTemplateResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: CreateTemplateResponseBody,
     };
   }
 
@@ -2200,6 +3071,123 @@ export class DescribeClustersResponse extends $tea.Model {
   }
 }
 
+export class DescribeClusterDetailRequest extends $tea.Model {
+  headers?: { [key: string]: string };
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterDetailResponseBody extends $tea.Model {
+  name: string;
+  clusterId: string;
+  regionId: string;
+  state: string;
+  clusterType: string;
+  currentVersion: string;
+  metaData: string;
+  resourceGroupId: string;
+  instanceType: string;
+  vpcId: string;
+  vswitchId: string;
+  vswitchCidr: string;
+  dataDiskSize: number;
+  dataDiskCategory: string;
+  securityGroupId: string;
+  zoneId: string;
+  networkMode: string;
+  dockerVersion: string;
+  deletionProtection: boolean;
+  tags: DescribeClusterDetailResponseBodyTags[];
+  static names(): { [key: string]: string } {
+    return {
+      name: 'name',
+      clusterId: 'cluster_id',
+      regionId: 'region_id',
+      state: 'state',
+      clusterType: 'cluster_type',
+      currentVersion: 'current_version',
+      metaData: 'meta_data',
+      resourceGroupId: 'resource_group_id',
+      instanceType: 'instance_type',
+      vpcId: 'vpc_id',
+      vswitchId: 'vswitch_id',
+      vswitchCidr: 'vswitch_cidr',
+      dataDiskSize: 'data_disk_size',
+      dataDiskCategory: 'data_disk_category',
+      securityGroupId: 'security_group_id',
+      zoneId: 'zone_id',
+      networkMode: 'network_mode',
+      dockerVersion: 'docker_version',
+      deletionProtection: 'deletion_protection',
+      tags: 'tags',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+      clusterId: 'string',
+      regionId: 'string',
+      state: 'string',
+      clusterType: 'string',
+      currentVersion: 'string',
+      metaData: 'string',
+      resourceGroupId: 'string',
+      instanceType: 'string',
+      vpcId: 'string',
+      vswitchId: 'string',
+      vswitchCidr: 'string',
+      dataDiskSize: 'number',
+      dataDiskCategory: 'string',
+      securityGroupId: 'string',
+      zoneId: 'string',
+      networkMode: 'string',
+      dockerVersion: 'string',
+      deletionProtection: 'boolean',
+      tags: { 'type': 'array', 'itemType': DescribeClusterDetailResponseBodyTags },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterDetailResponse extends $tea.Model {
+  headers: { [key: string]: string };
+  body: DescribeClusterDetailResponseBody;
+  static names(): { [key: string]: string } {
+    return {
+      headers: 'headers',
+      body: 'body',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
+      body: DescribeClusterDetailResponseBody,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DeleteClusterRequest extends $tea.Model {
   headers?: { [key: string]: string };
   static names(): { [key: string]: string } {
@@ -2329,6 +3317,112 @@ export class DescribeApiVersionResponse extends $tea.Model {
   }
 }
 
+export class DescribeAddonsResponseBodyComponentGroupsItems extends $tea.Model {
+  name: string;
+  config: string;
+  required: string;
+  disabled: boolean;
+  version: string;
+  static names(): { [key: string]: string } {
+    return {
+      name: 'name',
+      config: 'config',
+      required: 'required',
+      disabled: 'disabled',
+      version: 'version',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+      config: 'string',
+      required: 'string',
+      disabled: 'boolean',
+      version: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeAddonsResponseBodyComponentGroups extends $tea.Model {
+  groupName: string;
+  items: DescribeAddonsResponseBodyComponentGroupsItems[];
+  default: string[];
+  static names(): { [key: string]: string } {
+    return {
+      groupName: 'group_name',
+      items: 'items',
+      default: 'default',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      groupName: 'string',
+      items: { 'type': 'array', 'itemType': DescribeAddonsResponseBodyComponentGroupsItems },
+      default: { 'type': 'array', 'itemType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeAddonsResponseBodyStandardComponentsAddonName extends $tea.Model {
+  name: string;
+  config: string;
+  required: string;
+  disabled: boolean;
+  version: string;
+  static names(): { [key: string]: string } {
+    return {
+      name: 'name',
+      config: 'config',
+      required: 'required',
+      disabled: 'disabled',
+      version: 'version',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      name: 'string',
+      config: 'string',
+      required: 'string',
+      disabled: 'boolean',
+      version: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeAddonsResponseBodyStandardComponents extends $tea.Model {
+  addonName: DescribeAddonsResponseBodyStandardComponentsAddonName;
+  static names(): { [key: string]: string } {
+    return {
+      addonName: 'addon_name',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      addonName: DescribeAddonsResponseBodyStandardComponentsAddonName,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class RemoveClusterNodesBodyNodes extends $tea.Model {
   nodeName?: string;
   static names(): { [key: string]: string } {
@@ -2340,6 +3434,143 @@ export class RemoveClusterNodesBodyNodes extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       nodeName: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAttachScriptsBodyOptions extends $tea.Model {
+  flannelIface?: string;
+  enableIptables?: boolean;
+  manageRuntime?: boolean;
+  nodeNameStrategy?: string;
+  nodeName?: string;
+  nodeNamePrefix?: string;
+  static names(): { [key: string]: string } {
+    return {
+      flannelIface: 'flannelIface',
+      enableIptables: 'enableIptables',
+      manageRuntime: 'manageRuntime',
+      nodeNameStrategy: 'nodeNameStrategy',
+      nodeName: 'nodeName',
+      nodeNamePrefix: 'nodeNamePrefix',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      flannelIface: 'string',
+      enableIptables: 'boolean',
+      manageRuntime: 'boolean',
+      nodeNameStrategy: 'string',
+      nodeName: 'string',
+      nodeNamePrefix: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterBodyWorkerDataDisks extends $tea.Model {
+  category?: string;
+  size?: string;
+  encrypted?: string;
+  static names(): { [key: string]: string } {
+    return {
+      category: 'category',
+      size: 'size',
+      encrypted: 'encrypted',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      category: 'string',
+      size: 'string',
+      encrypted: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterBodyTags extends $tea.Model {
+  key?: string;
+  value?: string;
+  static names(): { [key: string]: string } {
+    return {
+      key: 'key',
+      value: 'value',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      key: 'string',
+      value: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ScaleOutClusterBodyTaints extends $tea.Model {
+  key?: string;
+  value?: string;
+  effect?: string;
+  static names(): { [key: string]: string } {
+    return {
+      key: 'key',
+      value: 'value',
+      effect: 'effect',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      key: 'string',
+      value: 'string',
+      effect: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo extends $tea.Model {
+  message: string;
+  category: string;
+  yaml: string;
+  componentName: string;
+  version: string;
+  static names(): { [key: string]: string } {
+    return {
+      message: 'message',
+      category: 'category',
+      yaml: 'yaml',
+      componentName: 'component_name',
+      version: 'version',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      message: 'string',
+      category: 'string',
+      yaml: 'string',
+      componentName: 'string',
+      version: 'string',
     };
   }
 
@@ -2609,6 +3840,28 @@ export class DescribeClustersResponseBodyTags extends $tea.Model {
   }
 }
 
+export class DescribeClusterDetailResponseBodyTags extends $tea.Model {
+  key: string;
+  value: string;
+  static names(): { [key: string]: string } {
+    return {
+      key: 'key',
+      value: 'value',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      key: 'string',
+      value: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 
 export default class Client extends ROA {
 
@@ -2747,6 +4000,16 @@ export default class Client extends ROA {
     return await this.unInstallClusterAddonsWithOptions(clusterId, request, runtime);
   }
 
+  async describeAddonsWithOptions(request: DescribeAddonsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeAddonsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeAddonsResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/clusters/components/metadata`, Util.stringifyMapValue($tea.toMap(request.query)), request.headers, null, runtime), new DescribeAddonsResponse({}));
+  }
+
+  async describeAddons(request: DescribeAddonsRequest): Promise<DescribeAddonsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeAddonsWithOptions(request, runtime);
+  }
+
   async updateK8sClusterUserConfigExpireWithOptions(clusterId: string, request: UpdateK8sClusterUserConfigExpireRequest, runtime: $Util.RuntimeOptions): Promise<UpdateK8sClusterUserConfigExpireResponse> {
     Util.validateModel(request);
     return $tea.cast<UpdateK8sClusterUserConfigExpireResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/k8s/${clusterId}/user_config/expire`, null, request.headers, null, runtime), new UpdateK8sClusterUserConfigExpireResponse({}));
@@ -2755,6 +4018,16 @@ export default class Client extends ROA {
   async updateK8sClusterUserConfigExpire(clusterId: string, request: UpdateK8sClusterUserConfigExpireRequest): Promise<UpdateK8sClusterUserConfigExpireResponse> {
     let runtime = new $Util.RuntimeOptions({ });
     return await this.updateK8sClusterUserConfigExpireWithOptions(clusterId, request, runtime);
+  }
+
+  async cancelClusterUpgradeWithOptions(clusterId: string, request: CancelClusterUpgradeRequest, runtime: $Util.RuntimeOptions): Promise<CancelClusterUpgradeResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CancelClusterUpgradeResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/api/v2/clusters/${clusterId}/upgrade/cancel`, null, request.headers, null, runtime), new CancelClusterUpgradeResponse({}));
+  }
+
+  async cancelClusterUpgrade(clusterId: string, request: CancelClusterUpgradeRequest): Promise<CancelClusterUpgradeResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.cancelClusterUpgradeWithOptions(clusterId, request, runtime);
   }
 
   async describeUserQuotaWithOptions(request: DescribeUserQuotaRequest, runtime: $Util.RuntimeOptions): Promise<DescribeUserQuotaResponse> {
@@ -2847,6 +4120,16 @@ export default class Client extends ROA {
     return await this.installClusterAddonsWithOptions(clusterId, request, runtime);
   }
 
+  async deleteTriggerHookWithOptions(request: DeleteTriggerHookRequest, runtime: $Util.RuntimeOptions): Promise<DeleteTriggerHookResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteTriggerHookResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/api/v2/hook/trigger`, null, request.headers, null, runtime), new DeleteTriggerHookResponse({}));
+  }
+
+  async deleteTriggerHook(request: DeleteTriggerHookRequest): Promise<DeleteTriggerHookResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteTriggerHookWithOptions(request, runtime);
+  }
+
   async modifyClusterTagsWithOptions(clusterId: string, request: ModifyClusterTagsRequest, runtime: $Util.RuntimeOptions): Promise<ModifyClusterTagsResponse> {
     Util.validateModel(request);
     return $tea.cast<ModifyClusterTagsResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/clusters/${clusterId}/tags`, null, request.headers, $tea.toMap(request.body), runtime), new ModifyClusterTagsResponse({}));
@@ -2867,6 +4150,26 @@ export default class Client extends ROA {
     return await this.describeExternalAgentWithOptions(clusterId, request, runtime);
   }
 
+  async describeClusterAttachScriptsWithOptions(clusterId: string, request: DescribeClusterAttachScriptsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterAttachScriptsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeClusterAttachScriptsResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/clusters/${clusterId}/attachscript`, null, request.headers, null, runtime), new DescribeClusterAttachScriptsResponse({}));
+  }
+
+  async describeClusterAttachScripts(clusterId: string, request: DescribeClusterAttachScriptsRequest): Promise<DescribeClusterAttachScriptsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeClusterAttachScriptsWithOptions(clusterId, request, runtime);
+  }
+
+  async scaleOutClusterWithOptions(clusterId: string, request: ScaleOutClusterRequest, runtime: $Util.RuntimeOptions): Promise<ScaleOutClusterResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ScaleOutClusterResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/api/v2/clusters/${clusterId}`, null, request.headers, $tea.toMap(request.body), runtime), new ScaleOutClusterResponse({}));
+  }
+
+  async scaleOutCluster(clusterId: string, request: ScaleOutClusterRequest): Promise<ScaleOutClusterResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.scaleOutClusterWithOptions(clusterId, request, runtime);
+  }
+
   async describeClusterResourcesWithOptions(clusterId: string, request: DescribeClusterResourcesRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterResourcesResponse> {
     Util.validateModel(request);
     return $tea.cast<DescribeClusterResourcesResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/clusters/${clusterId}/resources`, null, request.headers, null, runtime), new DescribeClusterResourcesResponse({}));
@@ -2877,6 +4180,46 @@ export default class Client extends ROA {
     return await this.describeClusterResourcesWithOptions(clusterId, request, runtime);
   }
 
+  async createTriggerHookWithOptions(request: CreateTriggerHookRequest, runtime: $Util.RuntimeOptions): Promise<CreateTriggerHookResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateTriggerHookResponse>(await this.doRequest("2015-12-15", "HTTPS", "PUT", "AK", `/hook/trigger`, null, request.headers, $tea.toMap(request.body), runtime), new CreateTriggerHookResponse({}));
+  }
+
+  async createTriggerHook(request: CreateTriggerHookRequest): Promise<CreateTriggerHookResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.createTriggerHookWithOptions(request, runtime);
+  }
+
+  async upgradeClusterAddonsWithOptions(clusterId: string, request: UpgradeClusterAddonsRequest, runtime: $Util.RuntimeOptions): Promise<UpgradeClusterAddonsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<UpgradeClusterAddonsResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/clusters/${clusterId}/components/upgrade`, null, request.headers, $tea.toMap(request.body), runtime), new UpgradeClusterAddonsResponse({}));
+  }
+
+  async upgradeClusterAddons(clusterId: string, request: UpgradeClusterAddonsRequest): Promise<UpgradeClusterAddonsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.upgradeClusterAddonsWithOptions(clusterId, request, runtime);
+  }
+
+  async describeClusterAddonsVersionWithOptions(clusterId: string, request: DescribeClusterAddonsVersionRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterAddonsVersionResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeClusterAddonsVersionResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/clusters/${clusterId}/components/version`, null, request.headers, null, runtime), new DescribeClusterAddonsVersionResponse({}));
+  }
+
+  async describeClusterAddonsVersion(clusterId: string, request: DescribeClusterAddonsVersionRequest): Promise<DescribeClusterAddonsVersionResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeClusterAddonsVersionWithOptions(clusterId, request, runtime);
+  }
+
+  async describeClusterAddonUpgradeStatusWithOptions(clusterId: string, componentId: string, request: DescribeClusterAddonUpgradeStatusRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterAddonUpgradeStatusResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeClusterAddonUpgradeStatusResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/clusters/${clusterId}/components/${componentId}/upgradestatus`, null, request.headers, null, runtime), new DescribeClusterAddonUpgradeStatusResponse({}));
+  }
+
+  async describeClusterAddonUpgradeStatus(clusterId: string, componentId: string, request: DescribeClusterAddonUpgradeStatusRequest): Promise<DescribeClusterAddonUpgradeStatusResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeClusterAddonUpgradeStatusWithOptions(clusterId, componentId, request, runtime);
+  }
+
   async deleteClusterNodesWithOptions(clusterId: string, request: DeleteClusterNodesRequest, runtime: $Util.RuntimeOptions): Promise<DeleteClusterNodesResponse> {
     Util.validateModel(request);
     return $tea.cast<DeleteClusterNodesResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/clusters/${clusterId}/nodes`, null, request.headers, $tea.toMap(request.body), runtime), new DeleteClusterNodesResponse({}));
@@ -2885,6 +4228,16 @@ export default class Client extends ROA {
   async deleteClusterNodes(clusterId: string, request: DeleteClusterNodesRequest): Promise<DeleteClusterNodesResponse> {
     let runtime = new $Util.RuntimeOptions({ });
     return await this.deleteClusterNodesWithOptions(clusterId, request, runtime);
+  }
+
+  async deleteTemplateWithOptions(templateId: string, request: DeleteTemplateRequest, runtime: $Util.RuntimeOptions): Promise<DeleteTemplateResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DeleteTemplateResponse>(await this.doRequest("2015-12-15", "HTTPS", "DELETE", "AK", `/templates/${templateId}`, null, request.headers, null, runtime), new DeleteTemplateResponse({}));
+  }
+
+  async deleteTemplate(templateId: string, request: DeleteTemplateRequest): Promise<DeleteTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.deleteTemplateWithOptions(templateId, request, runtime);
   }
 
   async describeClusterUserKubeconfigWithOptions(clusterId: string, request: DescribeClusterUserKubeconfigRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterUserKubeconfigResponse> {
@@ -2907,6 +4260,16 @@ export default class Client extends ROA {
     return await this.describeClusterNodesWithOptions(clusterId, request, runtime);
   }
 
+  async describeClusterLogsWithOptions(clusterId: string, request: DescribeClusterLogsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterLogsResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeClusterLogsResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/clusters/${clusterId}/logs`, null, request.headers, null, runtime), new DescribeClusterLogsResponse({}));
+  }
+
+  async describeClusterLogs(clusterId: string, request: DescribeClusterLogsRequest): Promise<DescribeClusterLogsResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeClusterLogsWithOptions(clusterId, request, runtime);
+  }
+
   async attachInstancesWithOptions(clusterId: string, request: AttachInstancesRequest, runtime: $Util.RuntimeOptions): Promise<AttachInstancesResponse> {
     Util.validateModel(request);
     return $tea.cast<AttachInstancesResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/clusters/${clusterId}/attach`, null, request.headers, $tea.toMap(request.body), runtime), new AttachInstancesResponse({}));
@@ -2925,6 +4288,16 @@ export default class Client extends ROA {
   async describeTemplates(request: DescribeTemplatesRequest): Promise<DescribeTemplatesResponse> {
     let runtime = new $Util.RuntimeOptions({ });
     return await this.describeTemplatesWithOptions(request, runtime);
+  }
+
+  async createTemplateWithOptions(request: CreateTemplateRequest, runtime: $Util.RuntimeOptions): Promise<CreateTemplateResponse> {
+    Util.validateModel(request);
+    return $tea.cast<CreateTemplateResponse>(await this.doRequest("2015-12-15", "HTTPS", "POST", "AK", `/templates`, null, request.headers, $tea.toMap(request.body), runtime), new CreateTemplateResponse({}));
+  }
+
+  async createTemplate(request: CreateTemplateRequest): Promise<CreateTemplateResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.createTemplateWithOptions(request, runtime);
   }
 
   async createClusterWithOptions(request: CreateClusterRequest, runtime: $Util.RuntimeOptions): Promise<CreateClusterResponse> {
@@ -2955,6 +4328,16 @@ export default class Client extends ROA {
   async describeClusters(request: DescribeClustersRequest): Promise<DescribeClustersResponse> {
     let runtime = new $Util.RuntimeOptions({ });
     return await this.describeClustersWithOptions(request, runtime);
+  }
+
+  async describeClusterDetailWithOptions(clusterId: string, request: DescribeClusterDetailRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterDetailResponse> {
+    Util.validateModel(request);
+    return $tea.cast<DescribeClusterDetailResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/clusters/${clusterId}`, null, request.headers, null, runtime), new DescribeClusterDetailResponse({}));
+  }
+
+  async describeClusterDetail(clusterId: string, request: DescribeClusterDetailRequest): Promise<DescribeClusterDetailResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.describeClusterDetailWithOptions(clusterId, request, runtime);
   }
 
   async deleteClusterWithOptions(clusterId: string, request: DeleteClusterRequest, runtime: $Util.RuntimeOptions): Promise<DeleteClusterResponse> {
