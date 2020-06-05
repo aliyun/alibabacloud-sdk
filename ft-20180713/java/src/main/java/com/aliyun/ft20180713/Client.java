@@ -57,7 +57,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("us-west-1", "ft.aliyuncs.com")
         );
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("ft", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
