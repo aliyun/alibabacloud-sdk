@@ -69,7 +69,7 @@ namespace AlibabaCloud.SDK.Ft20180713
                 {"us-west-1", "ft.aliyuncs.com"},
             };
             CheckConfig(config);
-            this._endpoint = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+            this._endpoint = GetEndpoint("ft", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
         }
 
 
