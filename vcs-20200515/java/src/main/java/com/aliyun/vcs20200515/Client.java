@@ -9,7 +9,7 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "regional";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("vcs", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
