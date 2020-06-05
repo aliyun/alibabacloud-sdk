@@ -1,7 +1,7 @@
 English | [简体中文](README-CN.md)
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud ${productId} SDK for Python
+## Alibaba Cloud OpenPlatform SDK for Python
 
 ## Installation
 
@@ -10,8 +10,8 @@ English | [简体中文](README-CN.md)
 Python SDK uses a common package management tool named `pip`. If pip is not installed, see the [pip user guide](https://pip.pypa.io/en/stable/installing/ "pip User Guide") to install pip.
 
 ```bash
-# Install the alibabacloud_sdk_openplatform20191219
-pip install alibabacloud_sdk_openplatform20191219
+# Install the alibabacloud_openplatform20191219
+pip install alibabacloud_openplatform20191219
 ```
 
 ## Issues

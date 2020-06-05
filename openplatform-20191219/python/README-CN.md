@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud ${productId} SDK for Python
+## Alibaba Cloud OpenPlatform SDK for Python
 
 ## 安装
 
@@ -11,8 +11,8 @@
 如未安装 `pip`, 请先至pip官网 [pip user guide](https://pip.pypa.io/en/stable/installing/ "pip User Guide") 安装pip .
 
 ```bash
-# 安装 alibabacloud_sdk_openplatform20191219
-pip install alibabacloud_sdk_openplatform20191219
+# 安装 alibabacloud_openplatform20191219
+pip install alibabacloud_openplatform20191219
 ```
 
 ## 问题

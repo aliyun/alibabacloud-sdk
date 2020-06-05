@@ -3,7 +3,7 @@ from Tea.model import TeaModel
 
 
 class AuthorizeFileUploadRequest(TeaModel):
-    def __init__(self, product="", region_id=""):
+    def __init__(self, product=None, region_id=None):
         self.product = product
         self.region_id = region_id
 
@@ -23,7 +23,7 @@ class AuthorizeFileUploadRequest(TeaModel):
 
 
 class AuthorizeFileUploadResponse(TeaModel):
-    def __init__(self, access_key_id="", bucket="", encoded_policy="", endpoint="", object_key="", request_id="", signature="", use_accelerate=False):
+    def __init__(self, access_key_id=None, bucket=None, encoded_policy=None, endpoint=None, object_key=None, request_id=None, signature=None, use_accelerate=None):
         self.access_key_id = access_key_id
         self.bucket = bucket
         self.encoded_policy = encoded_policy
