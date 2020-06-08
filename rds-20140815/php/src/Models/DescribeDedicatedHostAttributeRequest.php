@@ -1,0 +1,104 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+namespace AlibabaCloud\SDK\Rds\V20140815\Models;
+
+use AlibabaCloud\Tea\Model;
+
+class DescribeDedicatedHostAttributeRequest extends Model {
+    protected $_name = [
+        'accessKeyId' => 'AccessKeyId',
+        'ownerId' => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId' => 'ResourceOwnerId',
+        'regionId' => 'RegionId',
+        'dedicatedHostId' => 'DedicatedHostId',
+        'dedicatedHostGroupId' => 'DedicatedHostGroupId',
+    ];
+    public function validate() {
+        Model::validateRequired('dedicatedHostId', $this->dedicatedHostId, true);
+        Model::validateRequired('dedicatedHostGroupId', $this->dedicatedHostGroupId, true);
+    }
+    public function toMap() {
+        $res = [];
+        $res['AccessKeyId'] = $this->accessKeyId;
+        $res['OwnerId'] = $this->ownerId;
+        $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
+        $res['ResourceOwnerId'] = $this->resourceOwnerId;
+        $res['RegionId'] = $this->regionId;
+        $res['DedicatedHostId'] = $this->dedicatedHostId;
+        $res['DedicatedHostGroupId'] = $this->dedicatedHostGroupId;
+        return $res;
+    }
+    /**
+     * @param array $map
+     * @return DescribeDedicatedHostAttributeRequest
+     */
+    public static function fromMap($map = []) {
+        $model = new self();
+        if(isset($map['AccessKeyId'])){
+            $model->accessKeyId = $map['AccessKeyId'];
+        }
+        if(isset($map['OwnerId'])){
+            $model->ownerId = $map['OwnerId'];
+        }
+        if(isset($map['ResourceOwnerAccount'])){
+            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
+        }
+        if(isset($map['ResourceOwnerId'])){
+            $model->resourceOwnerId = $map['ResourceOwnerId'];
+        }
+        if(isset($map['RegionId'])){
+            $model->regionId = $map['RegionId'];
+        }
+        if(isset($map['DedicatedHostId'])){
+            $model->dedicatedHostId = $map['DedicatedHostId'];
+        }
+        if(isset($map['DedicatedHostGroupId'])){
+            $model->dedicatedHostGroupId = $map['DedicatedHostGroupId'];
+        }
+        return $model;
+    }
+    /**
+     * @description appKey
+     * @var string
+     */
+    public $accessKeyId;
+
+    /**
+     * @description ownerId
+     * @var integer
+     */
+    public $ownerId;
+
+    /**
+     * @description resourceOwnerAccount
+     * @var string
+     */
+    public $resourceOwnerAccount;
+
+    /**
+     * @description resourceOwnerId
+     * @var integer
+     */
+    public $resourceOwnerId;
+
+    /**
+     * @description regionId
+     * @var string
+     */
+    public $regionId;
+
+    /**
+     * @description dedicatedHostId
+     * @var string
+     */
+    public $dedicatedHostId;
+
+    /**
+     * @description dedicatedHostGroupId
+     * @var string
+     */
+    public $dedicatedHostGroupId;
+
+}
