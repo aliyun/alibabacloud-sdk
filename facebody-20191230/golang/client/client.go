@@ -3138,7 +3138,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("facebody"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -3189,7 +3189,7 @@ func (client *Client) DetectVideoLivingFaceAdvance(request *DetectVideoLivingFac
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3287,7 +3287,7 @@ func (client *Client) SwapFacialFeaturesAdvance(request *SwapFacialFeaturesAdvan
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3455,7 +3455,7 @@ func (client *Client) FaceMakeupAdvance(request *FaceMakeupAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3553,7 +3553,7 @@ func (client *Client) HandPostureAdvance(request *HandPostureAdvanceRequest, run
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3651,7 +3651,7 @@ func (client *Client) BodyPostureAdvance(request *BodyPostureAdvanceRequest, run
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3749,7 +3749,7 @@ func (client *Client) DetectPedestrianAdvance(request *DetectPedestrianAdvanceRe
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3847,7 +3847,7 @@ func (client *Client) FaceBeautyAdvance(request *FaceBeautyAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3945,7 +3945,7 @@ func (client *Client) FaceFilterAdvance(request *FaceFilterAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4043,7 +4043,7 @@ func (client *Client) EnhanceFaceAdvance(request *EnhanceFaceAdvanceRequest, run
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4141,7 +4141,7 @@ func (client *Client) FaceTidyupAdvance(request *FaceTidyupAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4239,7 +4239,7 @@ func (client *Client) SearchFaceAdvance(request *SearchFaceAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4393,7 +4393,7 @@ func (client *Client) AddFaceAdvance(request *AddFaceAdvanceRequest, runtime *ut
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4491,7 +4491,7 @@ func (client *Client) RecognizeExpressionAdvance(request *RecognizeExpressionAdv
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4617,7 +4617,7 @@ func (client *Client) DetectBodyCountAdvance(request *DetectBodyCountAdvanceRequ
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4715,7 +4715,7 @@ func (client *Client) DetectMaskAdvance(request *DetectMaskAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4813,7 +4813,7 @@ func (client *Client) RecognizeFaceAdvance(request *RecognizeFaceAdvanceRequest,
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4925,7 +4925,7 @@ func (client *Client) DetectFaceAdvance(request *DetectFaceAdvanceRequest, runti
 		Product:  tea.String("facebody"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

@@ -2,7 +2,7 @@ English | [简体中文](README-CN.md)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud OpenPlatform SDK Library for PHP
+## Alibaba Cloud OpenPlatform (20191219) SDK Library for PHP
 
 ## Installation
 

@@ -1,36 +1,43 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
 namespace AlibabaCloud\SDK\OpenPlatform\V20191219;
 
-use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadResponse;
 use AlibabaCloud\Tea\Rpc\Rpc;
 use AlibabaCloud\Tea\Utils\Utils;
-use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
+use AlibabaCloud\Endpoint\Endpoint;
 
-class OpenPlatform extends Rpc
-{
-    public function __construct($config)
-    {
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
+use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadResponse;
+
+class OpenPlatform extends Rpc {
+    public function __construct($config){
         parent::__construct($config);
-        $this->_endpointRule = '';
+        $this->_endpointRule = "";
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint("openplatform", $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
-     * @throws \Exception
-     *
+     * @param AuthorizeFileUploadRequest $request
+     * @param RuntimeOptions $runtime
      * @return AuthorizeFileUploadResponse
+     * @throws \Exception
      */
-    public function authorizeFileUpload(AuthorizeFileUploadRequest $request, RuntimeOptions $runtime)
-    {
+    public function authorizeFileUploadWithOptions(AuthorizeFileUploadRequest $request, RuntimeOptions $runtime){
         Utils::validateModel($request);
+        return AuthorizeFileUploadResponse::fromMap($this->doRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", $request, null, $runtime));
+    }
 
-        return AuthorizeFileUploadResponse::fromMap($this->doRequest('AuthorizeFileUpload', 'HTTPS', 'GET', '2019-12-19', 'AK', $request, null, $runtime));
+    /**
+     * @param AuthorizeFileUploadRequest $request
+     * @return AuthorizeFileUploadResponse
+     * @throws \Exception
+     */
+    public function authorizeFileUpload(AuthorizeFileUploadRequest $request){
+        $runtime = new RuntimeOptions([]);
+        return $this->authorizeFileUploadWithOptions($request, $runtime);
     }
 
     /**
@@ -39,22 +46,18 @@ class OpenPlatform extends Rpc
      * @param string $endpointRule
      * @param string $network
      * @param string $suffix
-     * @param array  $endpointMap
+     * @param array $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
-     *
      * @return string
+     * @throws \Exception
      */
-    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
-    {
+    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint){
         if (!Utils::empty_($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::empty_($endpointMap['regionId'])) {
-            return $endpointMap['regionId'];
+        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap["regionId"])) {
+            return $endpointMap["regionId"];
         }
-
         return Endpoint::getEndpointRules($productId, $regionId, $endpointRule, $network, $suffix);
     }
 }

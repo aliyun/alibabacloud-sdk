@@ -26,63 +26,118 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("us-west-1", "dysmsapi.ap-southeast-1.aliyuncs.com")
         );
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("dysmsapi", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
-    public QuerySmsTemplateResponse querySmsTemplate(QuerySmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QuerySmsTemplateResponse querySmsTemplateWithOptions(QuerySmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QuerySmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QuerySmsTemplateResponse());
+        return TeaModel.toModel(this.doRequest("QuerySmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QuerySmsTemplateResponse());
     }
 
-    public QuerySmsSignResponse querySmsSign(QuerySmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QuerySmsSign", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QuerySmsSignResponse());
+    public QuerySmsTemplateResponse querySmsTemplate(QuerySmsTemplateRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.querySmsTemplateWithOptions(request, runtime);
     }
 
-    public ModifySmsTemplateResponse modifySmsTemplate(ModifySmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public QuerySmsSignResponse querySmsSignWithOptions(QuerySmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ModifySmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ModifySmsTemplateResponse());
+        return TeaModel.toModel(this.doRequest("QuerySmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QuerySmsSignResponse());
     }
 
-    public ModifySmsSignResponse modifySmsSign(ModifySmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ModifySmsSign", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new ModifySmsSignResponse());
+    public QuerySmsSignResponse querySmsSign(QuerySmsSignRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.querySmsSignWithOptions(request, runtime);
     }
 
-    public DeleteSmsTemplateResponse deleteSmsTemplate(DeleteSmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ModifySmsTemplateResponse modifySmsTemplateWithOptions(ModifySmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteSmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new DeleteSmsTemplateResponse());
+        return TeaModel.toModel(this.doRequest("ModifySmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ModifySmsTemplateResponse());
     }
 
-    public DeleteSmsSignResponse deleteSmsSign(DeleteSmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteSmsSign", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new DeleteSmsSignResponse());
+    public ModifySmsTemplateResponse modifySmsTemplate(ModifySmsTemplateRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.modifySmsTemplateWithOptions(request, runtime);
     }
 
-    public AddSmsTemplateResponse addSmsTemplate(AddSmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public ModifySmsSignResponse modifySmsSignWithOptions(ModifySmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddSmsTemplate", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new AddSmsTemplateResponse());
+        return TeaModel.toModel(this.doRequest("ModifySmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new ModifySmsSignResponse());
     }
 
-    public AddSmsSignResponse addSmsSign(AddSmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("AddSmsSign", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new AddSmsSignResponse());
+    public ModifySmsSignResponse modifySmsSign(ModifySmsSignRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.modifySmsSignWithOptions(request, runtime);
     }
 
-    public SendBatchSmsResponse sendBatchSms(SendBatchSmsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public DeleteSmsTemplateResponse deleteSmsTemplateWithOptions(DeleteSmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SendBatchSms", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new SendBatchSmsResponse());
+        return TeaModel.toModel(this.doRequest("DeleteSmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new DeleteSmsTemplateResponse());
     }
 
-    public SendSmsResponse sendSms(SendSmsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("SendSms", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new SendSmsResponse());
+    public DeleteSmsTemplateResponse deleteSmsTemplate(DeleteSmsTemplateRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.deleteSmsTemplateWithOptions(request, runtime);
     }
 
-    public QuerySendDetailsResponse querySendDetails(QuerySendDetailsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public DeleteSmsSignResponse deleteSmsSignWithOptions(DeleteSmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("QuerySendDetails", "HTTPS", "GET", "2017-05-25", "AK", TeaModel.buildMap(request), null, runtime), new QuerySendDetailsResponse());
+        return TeaModel.toModel(this.doRequest("DeleteSmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new DeleteSmsSignResponse());
+    }
+
+    public DeleteSmsSignResponse deleteSmsSign(DeleteSmsSignRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.deleteSmsSignWithOptions(request, runtime);
+    }
+
+    public AddSmsTemplateResponse addSmsTemplateWithOptions(AddSmsTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("AddSmsTemplate", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new AddSmsTemplateResponse());
+    }
+
+    public AddSmsTemplateResponse addSmsTemplate(AddSmsTemplateRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.addSmsTemplateWithOptions(request, runtime);
+    }
+
+    public AddSmsSignResponse addSmsSignWithOptions(AddSmsSignRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("AddSmsSign", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new AddSmsSignResponse());
+    }
+
+    public AddSmsSignResponse addSmsSign(AddSmsSignRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.addSmsSignWithOptions(request, runtime);
+    }
+
+    public SendBatchSmsResponse sendBatchSmsWithOptions(SendBatchSmsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("SendBatchSms", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new SendBatchSmsResponse());
+    }
+
+    public SendBatchSmsResponse sendBatchSms(SendBatchSmsRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.sendBatchSmsWithOptions(request, runtime);
+    }
+
+    public SendSmsResponse sendSmsWithOptions(SendSmsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("SendSms", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new SendSmsResponse());
+    }
+
+    public SendSmsResponse sendSms(SendSmsRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.sendSmsWithOptions(request, runtime);
+    }
+
+    public QuerySendDetailsResponse querySendDetailsWithOptions(QuerySendDetailsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+        com.aliyun.teautil.Common.validateModel(request);
+        return TeaModel.toModel(this.doRequest("QuerySendDetails", "HTTPS", "POST", "2017-05-25", "AK", null, TeaModel.buildMap(request), runtime), new QuerySendDetailsResponse());
+    }
+
+    public QuerySendDetailsResponse querySendDetails(QuerySendDetailsRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.querySendDetailsWithOptions(request, runtime);
     }
 
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {
@@ -90,7 +145,7 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
             return endpointMap.get("regionId");
         }
 

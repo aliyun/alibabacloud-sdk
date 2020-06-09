@@ -23,7 +23,7 @@ import os
 """
 setup module for alibabacloud_ft20180713.
 
-Created on 05/06/2020
+Created on 08/06/2020
 
 @author: Alibaba Cloud SDK
 """

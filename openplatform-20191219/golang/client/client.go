@@ -110,7 +110,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("openplatform"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -118,7 +118,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest, runtime *util.RuntimeOptions) (_result *AuthorizeFileUploadResponse, _err error) {
+func (client *Client) AuthorizeFileUploadWithOptions(request *AuthorizeFileUploadRequest, runtime *util.RuntimeOptions) (_result *AuthorizeFileUploadResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -132,13 +132,24 @@ func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest, r
 	return _result, _err
 }
 
+func (client *Client) AuthorizeFileUpload(request *AuthorizeFileUploadRequest) (_result *AuthorizeFileUploadResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &AuthorizeFileUploadResponse{}
+	_body, _err := client.AuthorizeFileUploadWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
 func (client *Client) GetEndpoint(productId *string, regionId *string, endpointRule *string, network *string, suffix *string, endpointMap map[string]*string, endpoint *string) (_result *string, _err error) {
 	if !tea.BoolValue(util.Empty(endpoint)) {
 		_result = endpoint
 		return _result, _err
 	}
 
-	if !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
+	if !tea.BoolValue(util.IsUnset(endpointMap)) && !tea.BoolValue(util.Empty(endpointMap[tea.StringValue(regionId)])) {
 		_result = endpointMap[tea.StringValue(regionId)]
 		return _result, _err
 	}

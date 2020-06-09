@@ -9,13 +9,18 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("openplatform", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
-    public AuthorizeFileUploadResponse authorizeFileUpload(AuthorizeFileUploadRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
+    public AuthorizeFileUploadResponse authorizeFileUploadWithOptions(AuthorizeFileUploadRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", TeaModel.buildMap(request), null, runtime), new AuthorizeFileUploadResponse());
+    }
+
+    public AuthorizeFileUploadResponse authorizeFileUpload(AuthorizeFileUploadRequest request) throws Exception {
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        return this.authorizeFileUploadWithOptions(request, runtime);
     }
 
     public String getEndpoint(String productId, String regionId, String endpointRule, String network, String suffix, java.util.Map<String, String> endpointMap, String endpoint) throws Exception {
@@ -23,7 +28,7 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
             return endpointMap.get("regionId");
         }
 

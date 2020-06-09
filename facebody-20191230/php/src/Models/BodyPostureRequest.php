@@ -1,48 +1,37 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
-
 namespace AlibabaCloud\SDK\Facebody\V20191230\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class BodyPostureRequest extends Model
-{
-    /**
-     * @description imageUrl
-     *
-     * @var string
-     */
-    public $imageURL;
+class BodyPostureRequest extends Model {
     protected $_name = [
         'imageURL' => 'ImageURL',
     ];
-
-    public function validate()
-    {
+    public function validate() {
         Model::validateRequired('imageURL', $this->imageURL, true);
     }
-
-    public function toMap()
-    {
-        $res             = [];
+    public function toMap() {
+        $res = [];
         $res['ImageURL'] = $this->imageURL;
-
         return $res;
     }
-
     /**
      * @param array $map
-     *
      * @return BodyPostureRequest
      */
-    public static function fromMap($map = [])
-    {
+    public static function fromMap($map = []) {
         $model = new self();
-        if (isset($map['ImageURL'])) {
+        if(isset($map['ImageURL'])){
             $model->imageURL = $map['ImageURL'];
         }
-
         return $model;
     }
+    /**
+     * @description imageUrl
+     * @var string
+     */
+    public $imageURL;
+
 }

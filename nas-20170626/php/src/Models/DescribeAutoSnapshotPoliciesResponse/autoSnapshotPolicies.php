@@ -1,0 +1,51 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+namespace AlibabaCloud\SDK\NAS\V20170626\Models\DescribeAutoSnapshotPoliciesResponse;
+
+use AlibabaCloud\Tea\Model;
+
+use AlibabaCloud\SDK\NAS\V20170626\Models\DescribeAutoSnapshotPoliciesResponse\autoSnapshotPolicies\autoSnapshotPolicy;
+
+class autoSnapshotPolicies extends Model {
+    protected $_name = [
+        'autoSnapshotPolicy' => 'AutoSnapshotPolicy',
+    ];
+    public function validate() {
+        Model::validateRequired('autoSnapshotPolicy', $this->autoSnapshotPolicy, true);
+    }
+    public function toMap() {
+        $res = [];
+        $res['AutoSnapshotPolicy'] = [];
+        if(null !== $this->autoSnapshotPolicy && is_array($this->autoSnapshotPolicy)){
+            $n = 0;
+            foreach($this->autoSnapshotPolicy as $item){
+                $res['AutoSnapshotPolicy'][$n++] = null !== $item ? $item->toMap() : $item;
+            }
+        }
+        return $res;
+    }
+    /**
+     * @param array $map
+     * @return autoSnapshotPolicies
+     */
+    public static function fromMap($map = []) {
+        $model = new self();
+        if(isset($map['AutoSnapshotPolicy'])){
+            if(!empty($map['AutoSnapshotPolicy'])){
+                $model->autoSnapshotPolicy = [];
+                $n = 0;
+                foreach($map['AutoSnapshotPolicy'] as $item) {
+                    $model->autoSnapshotPolicy[$n++] = null !== $item ? autoSnapshotPolicy::fromMap($item) : $item;
+                }
+            }
+        }
+        return $model;
+    }
+    /**
+     * @description AutoSnapshotPolicy
+     * @var array
+     */
+    public $autoSnapshotPolicy;
+
+}
