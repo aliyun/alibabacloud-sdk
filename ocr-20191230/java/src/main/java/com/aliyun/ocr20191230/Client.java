@@ -9,7 +9,7 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "regional";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("ocr", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
@@ -40,7 +40,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -101,7 +101,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -162,7 +162,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -223,7 +223,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -284,7 +284,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -350,7 +350,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -411,7 +411,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -472,7 +472,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -533,7 +533,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -594,7 +594,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -655,7 +655,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -716,7 +716,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -777,7 +777,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -838,7 +838,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -899,7 +899,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -960,7 +960,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -1021,7 +1021,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -1082,7 +1082,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -1123,7 +1123,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public RecognizeVINCodeResponse recognizeVINCode(RecognizeVINCodeRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", TeaModel.buildMap(request), null, runtime), new RecognizeVINCodeResponse());
+        return TeaModel.toModel(this.doRequest("RecognizeVINCode", "HTTPS", "POST", "2019-12-30", "AK", null, TeaModel.buildMap(request), runtime), new RecognizeVINCodeResponse());
     }
 
     public RecognizeVINCodeResponse recognizeVINCodeAdvance(RecognizeVINCodeAdvanceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
@@ -1143,7 +1143,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
@@ -1204,7 +1204,7 @@ public class Client extends com.aliyun.tearpc.Client {
             new TeaPair("product", "ocr"),
             new TeaPair("regionId", _regionId)
         ));
-        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUpload(authRequest, runtime);
+        com.aliyun.openplatform20191219.models.AuthorizeFileUploadResponse authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
         // Step 1: request OSS api to upload file
         com.aliyun.oss.models.Config ossConfig = com.aliyun.oss.models.Config.build(TeaConverter.buildMap(
             new TeaPair("accessKeyId", authResponse.accessKeyId),
