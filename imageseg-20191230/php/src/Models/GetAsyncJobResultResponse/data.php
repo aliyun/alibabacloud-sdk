@@ -61,12 +61,22 @@ class data extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['ErrorCode']    = $this->errorCode;
-        $res['ErrorMessage'] = $this->errorMessage;
-        $res['JobId']        = $this->jobId;
-        $res['Result']       = $this->result;
-        $res['Status']       = $this->status;
+        $res = [];
+        if (null !== $this->errorCode) {
+            $res['ErrorCode'] = $this->errorCode;
+        }
+        if (null !== $this->errorMessage) {
+            $res['ErrorMessage'] = $this->errorMessage;
+        }
+        if (null !== $this->jobId) {
+            $res['JobId'] = $this->jobId;
+        }
+        if (null !== $this->result) {
+            $res['Result'] = $this->result;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
 
         return $res;
     }

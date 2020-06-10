@@ -34,9 +34,13 @@ class DescribeKeyVersionRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['KeyId']        = $this->keyId;
-        $res['KeyVersionId'] = $this->keyVersionId;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
 
         return $res;
     }

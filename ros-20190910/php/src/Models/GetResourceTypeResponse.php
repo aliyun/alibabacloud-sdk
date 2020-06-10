@@ -61,12 +61,22 @@ class GetResourceTypeResponse extends Model
 
     public function toMap()
     {
-        $res                          = [];
-        $res['Attributes']            = $this->attributes;
-        $res['Properties']            = $this->properties;
-        $res['RequestId']             = $this->requestId;
-        $res['ResourceType']          = $this->resourceType;
-        $res['SupportDriftDetection'] = $this->supportDriftDetection;
+        $res = [];
+        if (null !== $this->attributes) {
+            $res['Attributes'] = $this->attributes;
+        }
+        if (null !== $this->properties) {
+            $res['Properties'] = $this->properties;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->supportDriftDetection) {
+            $res['SupportDriftDetection'] = $this->supportDriftDetection;
+        }
 
         return $res;
     }

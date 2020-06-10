@@ -52,11 +52,19 @@ class AsymmetricVerifyResponse extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['Value']        = $this->value;
-        $res['KeyId']        = $this->keyId;
-        $res['RequestId']    = $this->requestId;
-        $res['KeyVersionId'] = $this->keyVersionId;
+        $res = [];
+        if (null !== $this->value) {
+            $res['Value'] = $this->value;
+        }
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
 
         return $res;
     }

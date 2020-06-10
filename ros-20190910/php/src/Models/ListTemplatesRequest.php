@@ -49,15 +49,23 @@ class ListTemplatesRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['PageNumber']   = $this->pageNumber;
-        $res['PageSize']     = $this->pageSize;
-        $res['TemplateName'] = $this->templateName;
-        $res['Tag']          = [];
-        if (null !== $this->tag && \is_array($this->tag)) {
-            $n = 0;
-            foreach ($this->tag as $item) {
-                $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->templateName) {
+            $res['TemplateName'] = $this->templateName;
+        }
+        if (null !== $this->tag) {
+            $res['Tag'] = [];
+            if (null !== $this->tag && \is_array($this->tag)) {
+                $n = 0;
+                foreach ($this->tag as $item) {
+                    $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

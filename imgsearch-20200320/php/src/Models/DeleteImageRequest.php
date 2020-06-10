@@ -34,9 +34,13 @@ class DeleteImageRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['DbName']   = $this->dbName;
-        $res['EntityId'] = $this->entityId;
+        $res = [];
+        if (null !== $this->dbName) {
+            $res['DbName'] = $this->dbName;
+        }
+        if (null !== $this->entityId) {
+            $res['EntityId'] = $this->entityId;
+        }
 
         return $res;
     }

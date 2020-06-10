@@ -34,9 +34,13 @@ class RecognizeVATInvoiceRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['FileURL']  = $this->fileURL;
-        $res['FileType'] = $this->fileType;
+        $res = [];
+        if (null !== $this->fileURL) {
+            $res['FileURL'] = $this->fileURL;
+        }
+        if (null !== $this->fileType) {
+            $res['FileType'] = $this->fileType;
+        }
 
         return $res;
     }

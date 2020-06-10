@@ -88,35 +88,51 @@ class data extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['Name']      = $this->name;
-        $res['Companies'] = [];
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
         if (null !== $this->companies) {
-            $res['Companies'] = $this->companies;
+            $res['Companies'] = [];
+            if (null !== $this->companies) {
+                $res['Companies'] = $this->companies;
+            }
         }
-        $res['Departments'] = [];
         if (null !== $this->departments) {
-            $res['Departments'] = $this->departments;
+            $res['Departments'] = [];
+            if (null !== $this->departments) {
+                $res['Departments'] = $this->departments;
+            }
         }
-        $res['Titles'] = [];
         if (null !== $this->titles) {
-            $res['Titles'] = $this->titles;
+            $res['Titles'] = [];
+            if (null !== $this->titles) {
+                $res['Titles'] = $this->titles;
+            }
         }
-        $res['CellPhoneNumbers'] = [];
         if (null !== $this->cellPhoneNumbers) {
-            $res['CellPhoneNumbers'] = $this->cellPhoneNumbers;
+            $res['CellPhoneNumbers'] = [];
+            if (null !== $this->cellPhoneNumbers) {
+                $res['CellPhoneNumbers'] = $this->cellPhoneNumbers;
+            }
         }
-        $res['OfficePhoneNumbers'] = [];
         if (null !== $this->officePhoneNumbers) {
-            $res['OfficePhoneNumbers'] = $this->officePhoneNumbers;
+            $res['OfficePhoneNumbers'] = [];
+            if (null !== $this->officePhoneNumbers) {
+                $res['OfficePhoneNumbers'] = $this->officePhoneNumbers;
+            }
         }
-        $res['Addresses'] = [];
         if (null !== $this->addresses) {
-            $res['Addresses'] = $this->addresses;
+            $res['Addresses'] = [];
+            if (null !== $this->addresses) {
+                $res['Addresses'] = $this->addresses;
+            }
         }
-        $res['Emails'] = [];
         if (null !== $this->emails) {
-            $res['Emails'] = $this->emails;
+            $res['Emails'] = [];
+            if (null !== $this->emails) {
+                $res['Emails'] = $this->emails;
+            }
         }
 
         return $res;

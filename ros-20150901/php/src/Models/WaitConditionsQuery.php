@@ -61,12 +61,22 @@ class WaitConditionsQuery extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['stackname'] = $this->stackname;
-        $res['stackid']   = $this->stackid;
-        $res['resource']  = $this->resource;
-        $res['expire']    = $this->expire;
-        $res['signature'] = $this->signature;
+        $res = [];
+        if (null !== $this->stackname) {
+            $res['stackname'] = $this->stackname;
+        }
+        if (null !== $this->stackid) {
+            $res['stackid'] = $this->stackid;
+        }
+        if (null !== $this->resource) {
+            $res['resource'] = $this->resource;
+        }
+        if (null !== $this->expire) {
+            $res['expire'] = $this->expire;
+        }
+        if (null !== $this->signature) {
+            $res['signature'] = $this->signature;
+        }
 
         return $res;
     }

@@ -1,137 +1,177 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Rds\V20140815\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class ModifyInstanceAutoRenewalAttributeRequest extends Model {
-    protected $_name = [
-        'accessKeyId' => 'AccessKeyId',
-        'ownerId' => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId' => 'ResourceOwnerId',
-        'regionId' => 'RegionId',
-        'clientToken' => 'ClientToken',
-        'ownerAccount' => 'OwnerAccount',
-        'DBInstanceId' => 'DBInstanceId',
-        'duration' => 'Duration',
-        'autoRenew' => 'AutoRenew',
-    ];
-    public function validate() {
-        Model::validateRequired('regionId', $this->regionId, true);
-        Model::validateRequired('DBInstanceId', $this->DBInstanceId, true);
-    }
-    public function toMap() {
-        $res = [];
-        $res['AccessKeyId'] = $this->accessKeyId;
-        $res['OwnerId'] = $this->ownerId;
-        $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        $res['RegionId'] = $this->regionId;
-        $res['ClientToken'] = $this->clientToken;
-        $res['OwnerAccount'] = $this->ownerAccount;
-        $res['DBInstanceId'] = $this->DBInstanceId;
-        $res['Duration'] = $this->duration;
-        $res['AutoRenew'] = $this->autoRenew;
-        return $res;
-    }
-    /**
-     * @param array $map
-     * @return ModifyInstanceAutoRenewalAttributeRequest
-     */
-    public static function fromMap($map = []) {
-        $model = new self();
-        if(isset($map['AccessKeyId'])){
-            $model->accessKeyId = $map['AccessKeyId'];
-        }
-        if(isset($map['OwnerId'])){
-            $model->ownerId = $map['OwnerId'];
-        }
-        if(isset($map['ResourceOwnerAccount'])){
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if(isset($map['ResourceOwnerId'])){
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if(isset($map['RegionId'])){
-            $model->regionId = $map['RegionId'];
-        }
-        if(isset($map['ClientToken'])){
-            $model->clientToken = $map['ClientToken'];
-        }
-        if(isset($map['OwnerAccount'])){
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
-        if(isset($map['DBInstanceId'])){
-            $model->DBInstanceId = $map['DBInstanceId'];
-        }
-        if(isset($map['Duration'])){
-            $model->duration = $map['Duration'];
-        }
-        if(isset($map['AutoRenew'])){
-            $model->autoRenew = $map['AutoRenew'];
-        }
-        return $model;
-    }
+class ModifyInstanceAutoRenewalAttributeRequest extends Model
+{
     /**
      * @description appKey
+     *
      * @var string
      */
     public $accessKeyId;
 
     /**
      * @description ownerId
-     * @var integer
+     *
+     * @var int
      */
     public $ownerId;
 
     /**
      * @description resourceOwnerAccount
+     *
      * @var string
      */
     public $resourceOwnerAccount;
 
     /**
      * @description resourceOwnerId
-     * @var integer
+     *
+     * @var int
      */
     public $resourceOwnerId;
 
     /**
      * @description regionId
+     *
      * @var string
      */
     public $regionId;
 
     /**
      * @description token
+     *
      * @var string
      */
     public $clientToken;
 
     /**
      * @description ownerAccount
+     *
      * @var string
      */
     public $ownerAccount;
 
     /**
      * @description dbInstanceId
+     *
      * @var string
      */
     public $DBInstanceId;
 
     /**
      * @description duration
+     *
      * @var string
      */
     public $duration;
 
     /**
      * @description autoRenew
+     *
      * @var string
      */
     public $autoRenew;
+    protected $_name = [
+        'accessKeyId'          => 'AccessKeyId',
+        'ownerId'              => 'OwnerId',
+        'resourceOwnerAccount' => 'ResourceOwnerAccount',
+        'resourceOwnerId'      => 'ResourceOwnerId',
+        'regionId'             => 'RegionId',
+        'clientToken'          => 'ClientToken',
+        'ownerAccount'         => 'OwnerAccount',
+        'DBInstanceId'         => 'DBInstanceId',
+        'duration'             => 'Duration',
+        'autoRenew'            => 'AutoRenew',
+    ];
 
+    public function validate()
+    {
+        Model::validateRequired('regionId', $this->regionId, true);
+        Model::validateRequired('DBInstanceId', $this->DBInstanceId, true);
+    }
+
+    public function toMap()
+    {
+        $res = [];
+        if (null !== $this->accessKeyId) {
+            $res['AccessKeyId'] = $this->accessKeyId;
+        }
+        if (null !== $this->ownerId) {
+            $res['OwnerId'] = $this->ownerId;
+        }
+        if (null !== $this->resourceOwnerAccount) {
+            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
+        }
+        if (null !== $this->resourceOwnerId) {
+            $res['ResourceOwnerId'] = $this->resourceOwnerId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->ownerAccount) {
+            $res['OwnerAccount'] = $this->ownerAccount;
+        }
+        if (null !== $this->DBInstanceId) {
+            $res['DBInstanceId'] = $this->DBInstanceId;
+        }
+        if (null !== $this->duration) {
+            $res['Duration'] = $this->duration;
+        }
+        if (null !== $this->autoRenew) {
+            $res['AutoRenew'] = $this->autoRenew;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return ModifyInstanceAutoRenewalAttributeRequest
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['AccessKeyId'])) {
+            $model->accessKeyId = $map['AccessKeyId'];
+        }
+        if (isset($map['OwnerId'])) {
+            $model->ownerId = $map['OwnerId'];
+        }
+        if (isset($map['ResourceOwnerAccount'])) {
+            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
+        }
+        if (isset($map['ResourceOwnerId'])) {
+            $model->resourceOwnerId = $map['ResourceOwnerId'];
+        }
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
+        }
+        if (isset($map['ClientToken'])) {
+            $model->clientToken = $map['ClientToken'];
+        }
+        if (isset($map['OwnerAccount'])) {
+            $model->ownerAccount = $map['OwnerAccount'];
+        }
+        if (isset($map['DBInstanceId'])) {
+            $model->DBInstanceId = $map['DBInstanceId'];
+        }
+        if (isset($map['Duration'])) {
+            $model->duration = $map['Duration'];
+        }
+        if (isset($map['AutoRenew'])) {
+            $model->autoRenew = $map['AutoRenew'];
+        }
+
+        return $model;
+    }
 }

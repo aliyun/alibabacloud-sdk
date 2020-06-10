@@ -34,9 +34,13 @@ class RecognizeDriverLicenseRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['ImageURL'] = $this->imageURL;
-        $res['Side']     = $this->side;
+        $res = [];
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->side) {
+            $res['Side'] = $this->side;
+        }
 
         return $res;
     }

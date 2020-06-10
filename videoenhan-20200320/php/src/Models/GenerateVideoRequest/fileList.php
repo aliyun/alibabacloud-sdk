@@ -43,10 +43,16 @@ class fileList extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['FileUrl']  = $this->fileUrl;
-        $res['FileName'] = $this->fileName;
-        $res['Type']     = $this->type;
+        $res = [];
+        if (null !== $this->fileUrl) {
+            $res['FileUrl'] = $this->fileUrl;
+        }
+        if (null !== $this->fileName) {
+            $res['FileName'] = $this->fileName;
+        }
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
 
         return $res;
     }

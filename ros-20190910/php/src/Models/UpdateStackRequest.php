@@ -106,6 +106,13 @@ class UpdateStackRequest extends Model
      * @var string
      */
     public $ramRoleName;
+
+    /**
+     * @description ReplacementOption
+     *
+     * @var string
+     */
+    public $replacementOption;
     protected $_name = [
         'stackId'                     => 'StackId',
         'clientToken'                 => 'ClientToken',
@@ -121,6 +128,7 @@ class UpdateStackRequest extends Model
         'disableRollback'             => 'DisableRollback',
         'templateURL'                 => 'TemplateURL',
         'ramRoleName'                 => 'RamRoleName',
+        'replacementOption'           => 'ReplacementOption',
     ];
 
     public function validate()
@@ -131,27 +139,58 @@ class UpdateStackRequest extends Model
 
     public function toMap()
     {
-        $res                                = [];
-        $res['StackId']                     = $this->stackId;
-        $res['ClientToken']                 = $this->clientToken;
-        $res['StackPolicyDuringUpdateBody'] = $this->stackPolicyDuringUpdateBody;
-        $res['TimeoutInMinutes']            = $this->timeoutInMinutes;
-        $res['TemplateBody']                = $this->templateBody;
-        $res['Parameters']                  = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->stackPolicyDuringUpdateBody) {
+            $res['StackPolicyDuringUpdateBody'] = $this->stackPolicyDuringUpdateBody;
+        }
+        if (null !== $this->timeoutInMinutes) {
+            $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['StackPolicyURL']             = $this->stackPolicyURL;
-        $res['StackPolicyDuringUpdateURL'] = $this->stackPolicyDuringUpdateURL;
-        $res['StackPolicyBody']            = $this->stackPolicyBody;
-        $res['UsePreviousParameters']      = $this->usePreviousParameters;
-        $res['RegionId']                   = $this->regionId;
-        $res['DisableRollback']            = $this->disableRollback;
-        $res['TemplateURL']                = $this->templateURL;
-        $res['RamRoleName']                = $this->ramRoleName;
+        if (null !== $this->stackPolicyURL) {
+            $res['StackPolicyURL'] = $this->stackPolicyURL;
+        }
+        if (null !== $this->stackPolicyDuringUpdateURL) {
+            $res['StackPolicyDuringUpdateURL'] = $this->stackPolicyDuringUpdateURL;
+        }
+        if (null !== $this->stackPolicyBody) {
+            $res['StackPolicyBody'] = $this->stackPolicyBody;
+        }
+        if (null !== $this->usePreviousParameters) {
+            $res['UsePreviousParameters'] = $this->usePreviousParameters;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->disableRollback) {
+            $res['DisableRollback'] = $this->disableRollback;
+        }
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->ramRoleName) {
+            $res['RamRoleName'] = $this->ramRoleName;
+        }
+        if (null !== $this->replacementOption) {
+            $res['ReplacementOption'] = $this->replacementOption;
+        }
 
         return $res;
     }
@@ -211,6 +250,9 @@ class UpdateStackRequest extends Model
         }
         if (isset($map['RamRoleName'])) {
             $model->ramRoleName = $map['RamRoleName'];
+        }
+        if (isset($map['ReplacementOption'])) {
+            $model->replacementOption = $map['ReplacementOption'];
         }
 
         return $model;

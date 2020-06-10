@@ -25,8 +25,10 @@ class RecognizeImageStyleAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['UrlObject'] = $this->urlObject;
+        $res = [];
+        if (null !== $this->urlObject) {
+            $res['UrlObject'] = $this->urlObject;
+        }
 
         return $res;
     }

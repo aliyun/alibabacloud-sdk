@@ -43,10 +43,16 @@ class faces extends Model
 
     public function toMap()
     {
-        $res         = [];
-        $res['Name'] = $this->name;
-        $res['Rate'] = $this->rate;
-        $res['Id']   = $this->id;
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->rate) {
+            $res['Rate'] = $this->rate;
+        }
+        if (null !== $this->id) {
+            $res['Id'] = $this->id;
+        }
 
         return $res;
     }

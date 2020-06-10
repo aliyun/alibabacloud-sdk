@@ -72,14 +72,28 @@ class CreateKeyRequest extends Model
 
     public function toMap()
     {
-        $res                            = [];
-        $res['Description']             = $this->description;
-        $res['KeyUsage']                = $this->keyUsage;
-        $res['Origin']                  = $this->origin;
-        $res['ProtectionLevel']         = $this->protectionLevel;
-        $res['EnableAutomaticRotation'] = $this->enableAutomaticRotation;
-        $res['RotationInterval']        = $this->rotationInterval;
-        $res['KeySpec']                 = $this->keySpec;
+        $res = [];
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->keyUsage) {
+            $res['KeyUsage'] = $this->keyUsage;
+        }
+        if (null !== $this->origin) {
+            $res['Origin'] = $this->origin;
+        }
+        if (null !== $this->protectionLevel) {
+            $res['ProtectionLevel'] = $this->protectionLevel;
+        }
+        if (null !== $this->enableAutomaticRotation) {
+            $res['EnableAutomaticRotation'] = $this->enableAutomaticRotation;
+        }
+        if (null !== $this->rotationInterval) {
+            $res['RotationInterval'] = $this->rotationInterval;
+        }
+        if (null !== $this->keySpec) {
+            $res['KeySpec'] = $this->keySpec;
+        }
 
         return $res;
     }

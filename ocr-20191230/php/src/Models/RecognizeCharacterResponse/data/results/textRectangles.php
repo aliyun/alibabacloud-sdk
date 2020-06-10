@@ -61,12 +61,22 @@ class textRectangles extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Angle']  = $this->angle;
-        $res['Left']   = $this->left;
-        $res['Top']    = $this->top;
-        $res['Width']  = $this->width;
-        $res['Height'] = $this->height;
+        $res = [];
+        if (null !== $this->angle) {
+            $res['Angle'] = $this->angle;
+        }
+        if (null !== $this->left) {
+            $res['Left'] = $this->left;
+        }
+        if (null !== $this->top) {
+            $res['Top'] = $this->top;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
 
         return $res;
     }

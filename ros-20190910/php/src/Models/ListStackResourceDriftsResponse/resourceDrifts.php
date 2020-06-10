@@ -98,20 +98,38 @@ class resourceDrifts extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['DriftDetectionTime']  = $this->driftDetectionTime;
-        $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
-        $res['StackId']             = $this->stackId;
-        $res['ResourceType']        = $this->resourceType;
-        $res['PhysicalResourceId']  = $this->physicalResourceId;
-        $res['LogicalResourceId']   = $this->logicalResourceId;
-        $res['ActualProperties']    = $this->actualProperties;
-        $res['ExpectedProperties']  = $this->expectedProperties;
-        $res['PropertyDifferences'] = [];
-        if (null !== $this->propertyDifferences && \is_array($this->propertyDifferences)) {
-            $n = 0;
-            foreach ($this->propertyDifferences as $item) {
-                $res['PropertyDifferences'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
+        if (null !== $this->resourceDriftStatus) {
+            $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->physicalResourceId) {
+            $res['PhysicalResourceId'] = $this->physicalResourceId;
+        }
+        if (null !== $this->logicalResourceId) {
+            $res['LogicalResourceId'] = $this->logicalResourceId;
+        }
+        if (null !== $this->actualProperties) {
+            $res['ActualProperties'] = $this->actualProperties;
+        }
+        if (null !== $this->expectedProperties) {
+            $res['ExpectedProperties'] = $this->expectedProperties;
+        }
+        if (null !== $this->propertyDifferences) {
+            $res['PropertyDifferences'] = [];
+            if (null !== $this->propertyDifferences && \is_array($this->propertyDifferences)) {
+                $n = 0;
+                foreach ($this->propertyDifferences as $item) {
+                    $res['PropertyDifferences'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

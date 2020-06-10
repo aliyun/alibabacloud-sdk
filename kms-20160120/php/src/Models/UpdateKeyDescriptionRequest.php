@@ -34,9 +34,13 @@ class UpdateKeyDescriptionRequest extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['KeyId']       = $this->keyId;
-        $res['Description'] = $this->description;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
 
         return $res;
     }

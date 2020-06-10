@@ -44,14 +44,20 @@ class ListTagResourcesResponse extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['RequestId']    = $this->requestId;
-        $res['NextToken']    = $this->nextToken;
-        $res['TagResources'] = [];
-        if (null !== $this->tagResources && \is_array($this->tagResources)) {
-            $n = 0;
-            foreach ($this->tagResources as $item) {
-                $res['TagResources'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->nextToken) {
+            $res['NextToken'] = $this->nextToken;
+        }
+        if (null !== $this->tagResources) {
+            $res['TagResources'] = [];
+            if (null !== $this->tagResources && \is_array($this->tagResources)) {
+                $n = 0;
+                foreach ($this->tagResources as $item) {
+                    $res['TagResources'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

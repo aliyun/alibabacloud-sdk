@@ -59,18 +59,28 @@ class UntagResourcesRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['RegionId']   = $this->regionId;
-        $res['ResourceId'] = [];
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
         if (null !== $this->resourceId) {
-            $res['ResourceId'] = $this->resourceId;
+            $res['ResourceId'] = [];
+            if (null !== $this->resourceId) {
+                $res['ResourceId'] = $this->resourceId;
+            }
         }
-        $res['ResourceType'] = $this->resourceType;
-        $res['TagKey']       = [];
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
         if (null !== $this->tagKey) {
-            $res['TagKey'] = $this->tagKey;
+            $res['TagKey'] = [];
+            if (null !== $this->tagKey) {
+                $res['TagKey'] = $this->tagKey;
+            }
         }
-        $res['All'] = $this->all;
+        if (null !== $this->all) {
+            $res['All'] = $this->all;
+        }
 
         return $res;
     }

@@ -34,9 +34,13 @@ class GetRandomPasswordResponse extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['RequestId']      = $this->requestId;
-        $res['RandomPassword'] = $this->randomPassword;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->randomPassword) {
+            $res['RandomPassword'] = $this->randomPassword;
+        }
 
         return $res;
     }

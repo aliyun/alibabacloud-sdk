@@ -99,22 +99,40 @@ class stackGroup extends Model
 
     public function toMap()
     {
-        $res                           = [];
-        $res['StackGroupName']         = $this->stackGroupName;
-        $res['StackGroupId']           = $this->stackGroupId;
-        $res['Status']                 = $this->status;
-        $res['Description']            = $this->description;
-        $res['TemplateBody']           = $this->templateBody;
-        $res['ExecutionRoleName']      = $this->executionRoleName;
-        $res['AdministrationRoleName'] = $this->administrationRoleName;
-        $res['Parameters']             = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->stackGroupId) {
+            $res['StackGroupId'] = $this->stackGroupId;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->executionRoleName) {
+            $res['ExecutionRoleName'] = $this->executionRoleName;
+        }
+        if (null !== $this->administrationRoleName) {
+            $res['AdministrationRoleName'] = $this->administrationRoleName;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['StackGroupDriftDetectionDetail'] = null !== $this->stackGroupDriftDetectionDetail ? $this->stackGroupDriftDetectionDetail->toMap() : null;
+        if (null !== $this->stackGroupDriftDetectionDetail) {
+            $res['StackGroupDriftDetectionDetail'] = null !== $this->stackGroupDriftDetectionDetail ? $this->stackGroupDriftDetectionDetail->toMap() : null;
+        }
 
         return $res;
     }

@@ -34,9 +34,13 @@ class GenerateVideoCoverAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VideoUrlObject'] = $this->videoUrlObject;
-        $res['IsGif']          = $this->isGif;
+        $res = [];
+        if (null !== $this->videoUrlObject) {
+            $res['VideoUrlObject'] = $this->videoUrlObject;
+        }
+        if (null !== $this->isGif) {
+            $res['IsGif'] = $this->isGif;
+        }
 
         return $res;
     }

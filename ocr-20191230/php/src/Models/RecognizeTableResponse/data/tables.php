@@ -44,14 +44,20 @@ class tables extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['Head']      = $this->head;
-        $res['Tail']      = $this->tail;
-        $res['TableRows'] = [];
-        if (null !== $this->tableRows && \is_array($this->tableRows)) {
-            $n = 0;
-            foreach ($this->tableRows as $item) {
-                $res['TableRows'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->head) {
+            $res['Head'] = $this->head;
+        }
+        if (null !== $this->tail) {
+            $res['Tail'] = $this->tail;
+        }
+        if (null !== $this->tableRows) {
+            $res['TableRows'] = [];
+            if (null !== $this->tableRows && \is_array($this->tableRows)) {
+                $n = 0;
+                foreach ($this->tableRows as $item) {
+                    $res['TableRows'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

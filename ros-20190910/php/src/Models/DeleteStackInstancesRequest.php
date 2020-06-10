@@ -85,15 +85,31 @@ class DeleteStackInstancesRequest extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['RegionId']             = $this->regionId;
-        $res['StackGroupName']       = $this->stackGroupName;
-        $res['AccountIds']           = $this->accountIds;
-        $res['RegionIds']            = $this->regionIds;
-        $res['RetainStacks']         = $this->retainStacks;
-        $res['ClientToken']          = $this->clientToken;
-        $res['OperationDescription'] = $this->operationDescription;
-        $res['OperationPreferences'] = $this->operationPreferences;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->accountIds) {
+            $res['AccountIds'] = $this->accountIds;
+        }
+        if (null !== $this->regionIds) {
+            $res['RegionIds'] = $this->regionIds;
+        }
+        if (null !== $this->retainStacks) {
+            $res['RetainStacks'] = $this->retainStacks;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->operationDescription) {
+            $res['OperationDescription'] = $this->operationDescription;
+        }
+        if (null !== $this->operationPreferences) {
+            $res['OperationPreferences'] = $this->operationPreferences;
+        }
 
         return $res;
     }

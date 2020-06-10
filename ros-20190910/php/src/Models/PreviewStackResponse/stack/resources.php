@@ -70,15 +70,27 @@ class resources extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['Description']       = $this->description;
-        $res['LogicalResourceId'] = $this->logicalResourceId;
-        $res['Properties']        = $this->properties;
-        $res['ResourceType']      = $this->resourceType;
-        $res['Stack']             = $this->stack;
-        $res['RequiredBy']        = [];
+        $res = [];
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->logicalResourceId) {
+            $res['LogicalResourceId'] = $this->logicalResourceId;
+        }
+        if (null !== $this->properties) {
+            $res['Properties'] = $this->properties;
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->stack) {
+            $res['Stack'] = $this->stack;
+        }
         if (null !== $this->requiredBy) {
-            $res['RequiredBy'] = $this->requiredBy;
+            $res['RequiredBy'] = [];
+            if (null !== $this->requiredBy) {
+                $res['RequiredBy'] = $this->requiredBy;
+            }
         }
 
         return $res;

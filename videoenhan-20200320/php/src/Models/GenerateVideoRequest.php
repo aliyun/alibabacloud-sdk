@@ -106,24 +106,46 @@ class GenerateVideoRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['FileList'] = [];
-        if (null !== $this->fileList && \is_array($this->fileList)) {
-            $n = 0;
-            foreach ($this->fileList as $item) {
-                $res['FileList'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->fileList) {
+            $res['FileList'] = [];
+            if (null !== $this->fileList && \is_array($this->fileList)) {
+                $n = 0;
+                foreach ($this->fileList as $item) {
+                    $res['FileList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Scene']            = $this->scene;
-        $res['Width']            = $this->width;
-        $res['Height']           = $this->height;
-        $res['Style']            = $this->style;
-        $res['Duration']         = $this->duration;
-        $res['DurationAdaption'] = $this->durationAdaption;
-        $res['TransitionStyle']  = $this->transitionStyle;
-        $res['SmartEffect']      = $this->smartEffect;
-        $res['PuzzleEffect']     = $this->puzzleEffect;
-        $res['Mute']             = $this->mute;
+        if (null !== $this->scene) {
+            $res['Scene'] = $this->scene;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
+        if (null !== $this->style) {
+            $res['Style'] = $this->style;
+        }
+        if (null !== $this->duration) {
+            $res['Duration'] = $this->duration;
+        }
+        if (null !== $this->durationAdaption) {
+            $res['DurationAdaption'] = $this->durationAdaption;
+        }
+        if (null !== $this->transitionStyle) {
+            $res['TransitionStyle'] = $this->transitionStyle;
+        }
+        if (null !== $this->smartEffect) {
+            $res['SmartEffect'] = $this->smartEffect;
+        }
+        if (null !== $this->puzzleEffect) {
+            $res['PuzzleEffect'] = $this->puzzleEffect;
+        }
+        if (null !== $this->mute) {
+            $res['Mute'] = $this->mute;
+        }
 
         return $res;
     }

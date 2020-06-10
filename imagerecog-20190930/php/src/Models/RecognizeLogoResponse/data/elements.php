@@ -44,14 +44,20 @@ class elements extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['TaskId']   = $this->taskId;
-        $res['ImageURL'] = $this->imageURL;
-        $res['Results']  = [];
-        if (null !== $this->results && \is_array($this->results)) {
-            $n = 0;
-            foreach ($this->results as $item) {
-                $res['Results'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->taskId) {
+            $res['TaskId'] = $this->taskId;
+        }
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->results) {
+            $res['Results'] = [];
+            if (null !== $this->results && \is_array($this->results)) {
+                $n = 0;
+                foreach ($this->results as $item) {
+                    $res['Results'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

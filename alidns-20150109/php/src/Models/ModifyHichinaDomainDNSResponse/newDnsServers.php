@@ -1,43 +1,56 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Alidns\V20150109\Models\ModifyHichinaDomainDNSResponse;
 
 use AlibabaCloud\Tea\Model;
 
-class newDnsServers extends Model {
+class newDnsServers extends Model
+{
+    /**
+     * @description DnsServer
+     *
+     * @var array
+     */
+    public $dnsServer;
     protected $_name = [
         'dnsServer' => 'DnsServer',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('dnsServer', $this->dnsServer, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['DnsServer'] = [];
-        if(null !== $this->dnsServer){
-            $res['DnsServer'] = $this->dnsServer;
+        if (null !== $this->dnsServer) {
+            $res['DnsServer'] = [];
+            if (null !== $this->dnsServer) {
+                $res['DnsServer'] = $this->dnsServer;
+            }
         }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return newDnsServers
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['DnsServer'])){
-            if(!empty($map['DnsServer'])){
+        if (isset($map['DnsServer'])) {
+            if (!empty($map['DnsServer'])) {
                 $model->dnsServer = [];
                 $model->dnsServer = $map['DnsServer'];
             }
         }
+
         return $model;
     }
-    /**
-     * @description DnsServer
-     * @var array
-     */
-    public $dnsServer;
-
 }

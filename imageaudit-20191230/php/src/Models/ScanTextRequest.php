@@ -36,19 +36,23 @@ class ScanTextRequest extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Tasks'] = [];
-        if (null !== $this->tasks && \is_array($this->tasks)) {
-            $n = 0;
-            foreach ($this->tasks as $item) {
-                $res['Tasks'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->tasks) {
+            $res['Tasks'] = [];
+            if (null !== $this->tasks && \is_array($this->tasks)) {
+                $n = 0;
+                foreach ($this->tasks as $item) {
+                    $res['Tasks'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Labels'] = [];
-        if (null !== $this->labels && \is_array($this->labels)) {
-            $n = 0;
-            foreach ($this->labels as $item) {
-                $res['Labels'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->labels) {
+            $res['Labels'] = [];
+            if (null !== $this->labels && \is_array($this->labels)) {
+                $n = 0;
+                foreach ($this->labels as $item) {
+                    $res['Labels'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

@@ -91,22 +91,40 @@ class CreateStackGroupRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['RegionId']       = $this->regionId;
-        $res['StackGroupName'] = $this->stackGroupName;
-        $res['Description']    = $this->description;
-        $res['Parameters']     = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['TemplateBody']           = $this->templateBody;
-        $res['TemplateURL']            = $this->templateURL;
-        $res['ClientToken']            = $this->clientToken;
-        $res['AdministrationRoleName'] = $this->administrationRoleName;
-        $res['ExecutionRoleName']      = $this->executionRoleName;
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->administrationRoleName) {
+            $res['AdministrationRoleName'] = $this->administrationRoleName;
+        }
+        if (null !== $this->executionRoleName) {
+            $res['ExecutionRoleName'] = $this->executionRoleName;
+        }
 
         return $res;
     }

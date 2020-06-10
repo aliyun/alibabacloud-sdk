@@ -49,11 +49,19 @@ class GenerateDataKeyRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['KeyId']             = $this->keyId;
-        $res['KeySpec']           = $this->keySpec;
-        $res['NumberOfBytes']     = $this->numberOfBytes;
-        $res['EncryptionContext'] = $this->encryptionContext;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keySpec) {
+            $res['KeySpec'] = $this->keySpec;
+        }
+        if (null !== $this->numberOfBytes) {
+            $res['NumberOfBytes'] = $this->numberOfBytes;
+        }
+        if (null !== $this->encryptionContext) {
+            $res['EncryptionContext'] = $this->encryptionContext;
+        }
 
         return $res;
     }

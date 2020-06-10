@@ -34,9 +34,13 @@ class ContinueCreateStackResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
-        $res['StackId']   = $this->stackId;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
 
         return $res;
     }

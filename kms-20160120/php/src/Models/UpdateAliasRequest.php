@@ -34,9 +34,13 @@ class UpdateAliasRequest extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['KeyId']     = $this->keyId;
-        $res['AliasName'] = $this->aliasName;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->aliasName) {
+            $res['AliasName'] = $this->aliasName;
+        }
 
         return $res;
     }

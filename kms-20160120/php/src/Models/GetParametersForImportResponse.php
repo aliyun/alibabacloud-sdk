@@ -61,12 +61,22 @@ class GetParametersForImportResponse extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['KeyId']           = $this->keyId;
-        $res['RequestId']       = $this->requestId;
-        $res['ImportToken']     = $this->importToken;
-        $res['PublicKey']       = $this->publicKey;
-        $res['TokenExpireTime'] = $this->tokenExpireTime;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->importToken) {
+            $res['ImportToken'] = $this->importToken;
+        }
+        if (null !== $this->publicKey) {
+            $res['PublicKey'] = $this->publicKey;
+        }
+        if (null !== $this->tokenExpireTime) {
+            $res['TokenExpireTime'] = $this->tokenExpireTime;
+        }
 
         return $res;
     }

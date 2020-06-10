@@ -1,22 +1,29 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Ram\V20150501\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class GetAccountAliasRequest extends Model {
-    public function validate() {}
-    public function toMap() {
-        $res = [];
-        return $res;
+class GetAccountAliasRequest extends Model
+{
+    public function validate()
+    {
     }
+
+    public function toMap()
+    {
+        return [];
+    }
+
     /**
      * @param array $map
+     *
      * @return GetAccountAliasRequest
      */
-    public static function fromMap($map = []) {
-        $model = new self();
-        return $model;
+    public static function fromMap($map = [])
+    {
+        return new self();
     }
 }

@@ -34,9 +34,13 @@ class data extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['VideoUrl']      = $this->videoUrl;
-        $res['VideoCoverUrl'] = $this->videoCoverUrl;
+        $res = [];
+        if (null !== $this->videoUrl) {
+            $res['VideoUrl'] = $this->videoUrl;
+        }
+        if (null !== $this->videoCoverUrl) {
+            $res['VideoCoverUrl'] = $this->videoCoverUrl;
+        }
 
         return $res;
     }

@@ -25,8 +25,10 @@ class data extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['DataId'] = $this->dataId;
+        $res = [];
+        if (null !== $this->dataId) {
+            $res['DataId'] = $this->dataId;
+        }
 
         return $res;
     }

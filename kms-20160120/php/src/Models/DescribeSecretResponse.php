@@ -98,16 +98,34 @@ class DescribeSecretResponse extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['RequestId']         = $this->requestId;
-        $res['Arn']               = $this->arn;
-        $res['SecretName']        = $this->secretName;
-        $res['EncryptionKeyId']   = $this->encryptionKeyId;
-        $res['Description']       = $this->description;
-        $res['CreateTime']        = $this->createTime;
-        $res['UpdateTime']        = $this->updateTime;
-        $res['PlannedDeleteTime'] = $this->plannedDeleteTime;
-        $res['Tags']              = null !== $this->tags ? $this->tags->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->arn) {
+            $res['Arn'] = $this->arn;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->encryptionKeyId) {
+            $res['EncryptionKeyId'] = $this->encryptionKeyId;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->updateTime) {
+            $res['UpdateTime'] = $this->updateTime;
+        }
+        if (null !== $this->plannedDeleteTime) {
+            $res['PlannedDeleteTime'] = $this->plannedDeleteTime;
+        }
+        if (null !== $this->tags) {
+            $res['Tags'] = null !== $this->tags ? $this->tags->toMap() : null;
+        }
 
         return $res;
     }

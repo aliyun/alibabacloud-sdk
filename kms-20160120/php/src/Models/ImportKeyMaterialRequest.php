@@ -52,11 +52,19 @@ class ImportKeyMaterialRequest extends Model
 
     public function toMap()
     {
-        $res                          = [];
-        $res['KeyId']                 = $this->keyId;
-        $res['EncryptedKeyMaterial']  = $this->encryptedKeyMaterial;
-        $res['ImportToken']           = $this->importToken;
-        $res['KeyMaterialExpireUnix'] = $this->keyMaterialExpireUnix;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->encryptedKeyMaterial) {
+            $res['EncryptedKeyMaterial'] = $this->encryptedKeyMaterial;
+        }
+        if (null !== $this->importToken) {
+            $res['ImportToken'] = $this->importToken;
+        }
+        if (null !== $this->keyMaterialExpireUnix) {
+            $res['KeyMaterialExpireUnix'] = $this->keyMaterialExpireUnix;
+        }
 
         return $res;
     }

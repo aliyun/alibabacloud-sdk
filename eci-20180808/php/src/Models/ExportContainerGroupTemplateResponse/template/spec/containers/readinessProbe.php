@@ -1,26 +1,84 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers;
 
+use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\exec;
+use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\httpGet;
+use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\tcpSocket;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\exec;
-use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\tcpSocket;
-use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\containers\readinessProbe\httpGet;
+class readinessProbe extends Model
+{
+    /**
+     * @description initialDelaySeconds
+     *
+     * @var int
+     */
+    public $initialDelaySeconds;
 
-class readinessProbe extends Model {
+    /**
+     * @description periodSeconds
+     *
+     * @var int
+     */
+    public $periodSeconds;
+
+    /**
+     * @description successThreshold
+     *
+     * @var int
+     */
+    public $successThreshold;
+
+    /**
+     * @description failureThreshold
+     *
+     * @var int
+     */
+    public $failureThreshold;
+
+    /**
+     * @description timeoutSeconds
+     *
+     * @var int
+     */
+    public $timeoutSeconds;
+
+    /**
+     * @description exec
+     *
+     * @var exec
+     */
+    public $exec;
+
+    /**
+     * @description tcpSocket
+     *
+     * @var tcpSocket
+     */
+    public $tcpSocket;
+
+    /**
+     * @description httpGet
+     *
+     * @var httpGet
+     */
+    public $httpGet;
     protected $_name = [
         'initialDelaySeconds' => 'InitialDelaySeconds',
-        'periodSeconds' => 'PeriodSeconds',
-        'successThreshold' => 'SuccessThreshold',
-        'failureThreshold' => 'FailureThreshold',
-        'timeoutSeconds' => 'TimeoutSeconds',
-        'exec' => 'Exec',
-        'tcpSocket' => 'TcpSocket',
-        'httpGet' => 'HttpGet',
+        'periodSeconds'       => 'PeriodSeconds',
+        'successThreshold'    => 'SuccessThreshold',
+        'failureThreshold'    => 'FailureThreshold',
+        'timeoutSeconds'      => 'TimeoutSeconds',
+        'exec'                => 'Exec',
+        'tcpSocket'           => 'TcpSocket',
+        'httpGet'             => 'HttpGet',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('initialDelaySeconds', $this->initialDelaySeconds, true);
         Model::validateRequired('periodSeconds', $this->periodSeconds, true);
         Model::validateRequired('successThreshold', $this->successThreshold, true);
@@ -30,96 +88,71 @@ class readinessProbe extends Model {
         Model::validateRequired('tcpSocket', $this->tcpSocket, true);
         Model::validateRequired('httpGet', $this->httpGet, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['InitialDelaySeconds'] = $this->initialDelaySeconds;
-        $res['PeriodSeconds'] = $this->periodSeconds;
-        $res['SuccessThreshold'] = $this->successThreshold;
-        $res['FailureThreshold'] = $this->failureThreshold;
-        $res['TimeoutSeconds'] = $this->timeoutSeconds;
-        $res['Exec'] = null !== $this->exec ? $this->exec->toMap() : null;
-        $res['TcpSocket'] = null !== $this->tcpSocket ? $this->tcpSocket->toMap() : null;
-        $res['HttpGet'] = null !== $this->httpGet ? $this->httpGet->toMap() : null;
+        if (null !== $this->initialDelaySeconds) {
+            $res['InitialDelaySeconds'] = $this->initialDelaySeconds;
+        }
+        if (null !== $this->periodSeconds) {
+            $res['PeriodSeconds'] = $this->periodSeconds;
+        }
+        if (null !== $this->successThreshold) {
+            $res['SuccessThreshold'] = $this->successThreshold;
+        }
+        if (null !== $this->failureThreshold) {
+            $res['FailureThreshold'] = $this->failureThreshold;
+        }
+        if (null !== $this->timeoutSeconds) {
+            $res['TimeoutSeconds'] = $this->timeoutSeconds;
+        }
+        if (null !== $this->exec) {
+            $res['Exec'] = null !== $this->exec ? $this->exec->toMap() : null;
+        }
+        if (null !== $this->tcpSocket) {
+            $res['TcpSocket'] = null !== $this->tcpSocket ? $this->tcpSocket->toMap() : null;
+        }
+        if (null !== $this->httpGet) {
+            $res['HttpGet'] = null !== $this->httpGet ? $this->httpGet->toMap() : null;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return readinessProbe
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['InitialDelaySeconds'])){
+        if (isset($map['InitialDelaySeconds'])) {
             $model->initialDelaySeconds = $map['InitialDelaySeconds'];
         }
-        if(isset($map['PeriodSeconds'])){
+        if (isset($map['PeriodSeconds'])) {
             $model->periodSeconds = $map['PeriodSeconds'];
         }
-        if(isset($map['SuccessThreshold'])){
+        if (isset($map['SuccessThreshold'])) {
             $model->successThreshold = $map['SuccessThreshold'];
         }
-        if(isset($map['FailureThreshold'])){
+        if (isset($map['FailureThreshold'])) {
             $model->failureThreshold = $map['FailureThreshold'];
         }
-        if(isset($map['TimeoutSeconds'])){
+        if (isset($map['TimeoutSeconds'])) {
             $model->timeoutSeconds = $map['TimeoutSeconds'];
         }
-        if(isset($map['Exec'])){
+        if (isset($map['Exec'])) {
             $model->exec = exec::fromMap($map['Exec']);
         }
-        if(isset($map['TcpSocket'])){
+        if (isset($map['TcpSocket'])) {
             $model->tcpSocket = tcpSocket::fromMap($map['TcpSocket']);
         }
-        if(isset($map['HttpGet'])){
+        if (isset($map['HttpGet'])) {
             $model->httpGet = httpGet::fromMap($map['HttpGet']);
         }
+
         return $model;
     }
-    /**
-     * @description initialDelaySeconds
-     * @var integer
-     */
-    public $initialDelaySeconds;
-
-    /**
-     * @description periodSeconds
-     * @var integer
-     */
-    public $periodSeconds;
-
-    /**
-     * @description successThreshold
-     * @var integer
-     */
-    public $successThreshold;
-
-    /**
-     * @description failureThreshold
-     * @var integer
-     */
-    public $failureThreshold;
-
-    /**
-     * @description timeoutSeconds
-     * @var integer
-     */
-    public $timeoutSeconds;
-
-    /**
-     * @description exec
-     * @var exec
-     */
-    public $exec;
-
-    /**
-     * @description tcpSocket
-     * @var tcpSocket
-     */
-    public $tcpSocket;
-
-    /**
-     * @description httpGet
-     * @var httpGet
-     */
-    public $httpGet;
-
 }

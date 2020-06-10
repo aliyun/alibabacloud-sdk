@@ -187,26 +187,64 @@ class content extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['InvoiceCode']      = $this->invoiceCode;
-        $res['InvoiceNo']        = $this->invoiceNo;
-        $res['InvoiceDate']      = $this->invoiceDate;
-        $res['AntiFakeCode']     = $this->antiFakeCode;
-        $res['PayerName']        = $this->payerName;
-        $res['PayerRegisterNo']  = $this->payerRegisterNo;
-        $res['PayerAddress']     = $this->payerAddress;
-        $res['PayerBankName']    = $this->payerBankName;
-        $res['WithoutTaxAmount'] = $this->withoutTaxAmount;
-        $res['TaxAmount']        = $this->taxAmount;
-        $res['SumAmount']        = $this->sumAmount;
-        $res['InvoiceAmount']    = $this->invoiceAmount;
-        $res['PayeeName']        = $this->payeeName;
-        $res['PayeeRegisterNo']  = $this->payeeRegisterNo;
-        $res['PayeeAddress']     = $this->payeeAddress;
-        $res['PayeeBankName']    = $this->payeeBankName;
-        $res['Payee']            = $this->payee;
-        $res['Checker']          = $this->checker;
-        $res['Clerk']            = $this->clerk;
+        $res = [];
+        if (null !== $this->invoiceCode) {
+            $res['InvoiceCode'] = $this->invoiceCode;
+        }
+        if (null !== $this->invoiceNo) {
+            $res['InvoiceNo'] = $this->invoiceNo;
+        }
+        if (null !== $this->invoiceDate) {
+            $res['InvoiceDate'] = $this->invoiceDate;
+        }
+        if (null !== $this->antiFakeCode) {
+            $res['AntiFakeCode'] = $this->antiFakeCode;
+        }
+        if (null !== $this->payerName) {
+            $res['PayerName'] = $this->payerName;
+        }
+        if (null !== $this->payerRegisterNo) {
+            $res['PayerRegisterNo'] = $this->payerRegisterNo;
+        }
+        if (null !== $this->payerAddress) {
+            $res['PayerAddress'] = $this->payerAddress;
+        }
+        if (null !== $this->payerBankName) {
+            $res['PayerBankName'] = $this->payerBankName;
+        }
+        if (null !== $this->withoutTaxAmount) {
+            $res['WithoutTaxAmount'] = $this->withoutTaxAmount;
+        }
+        if (null !== $this->taxAmount) {
+            $res['TaxAmount'] = $this->taxAmount;
+        }
+        if (null !== $this->sumAmount) {
+            $res['SumAmount'] = $this->sumAmount;
+        }
+        if (null !== $this->invoiceAmount) {
+            $res['InvoiceAmount'] = $this->invoiceAmount;
+        }
+        if (null !== $this->payeeName) {
+            $res['PayeeName'] = $this->payeeName;
+        }
+        if (null !== $this->payeeRegisterNo) {
+            $res['PayeeRegisterNo'] = $this->payeeRegisterNo;
+        }
+        if (null !== $this->payeeAddress) {
+            $res['PayeeAddress'] = $this->payeeAddress;
+        }
+        if (null !== $this->payeeBankName) {
+            $res['PayeeBankName'] = $this->payeeBankName;
+        }
+        if (null !== $this->payee) {
+            $res['Payee'] = $this->payee;
+        }
+        if (null !== $this->checker) {
+            $res['Checker'] = $this->checker;
+        }
+        if (null !== $this->clerk) {
+            $res['Clerk'] = $this->clerk;
+        }
 
         return $res;
     }

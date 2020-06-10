@@ -52,11 +52,19 @@ class propertyDifferences extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['PropertyPath']   = $this->propertyPath;
-        $res['ActualValue']    = $this->actualValue;
-        $res['ExpectedValue']  = $this->expectedValue;
-        $res['DifferenceType'] = $this->differenceType;
+        $res = [];
+        if (null !== $this->propertyPath) {
+            $res['PropertyPath'] = $this->propertyPath;
+        }
+        if (null !== $this->actualValue) {
+            $res['ActualValue'] = $this->actualValue;
+        }
+        if (null !== $this->expectedValue) {
+            $res['ExpectedValue'] = $this->expectedValue;
+        }
+        if (null !== $this->differenceType) {
+            $res['DifferenceType'] = $this->differenceType;
+        }
 
         return $res;
     }

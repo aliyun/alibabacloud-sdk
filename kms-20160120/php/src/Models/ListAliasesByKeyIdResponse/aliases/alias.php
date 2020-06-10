@@ -43,10 +43,16 @@ class alias extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['KeyId']     = $this->keyId;
-        $res['AliasName'] = $this->aliasName;
-        $res['AliasArn']  = $this->aliasArn;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->aliasName) {
+            $res['AliasName'] = $this->aliasName;
+        }
+        if (null !== $this->aliasArn) {
+            $res['AliasArn'] = $this->aliasArn;
+        }
 
         return $res;
     }

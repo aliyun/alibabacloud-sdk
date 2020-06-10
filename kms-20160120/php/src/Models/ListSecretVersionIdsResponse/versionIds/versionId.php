@@ -44,10 +44,16 @@ class versionId extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['CreateTime']    = $this->createTime;
-        $res['VersionId']     = $this->versionId;
-        $res['VersionStages'] = null !== $this->versionStages ? $this->versionStages->toMap() : null;
+        $res = [];
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->versionId) {
+            $res['VersionId'] = $this->versionId;
+        }
+        if (null !== $this->versionStages) {
+            $res['VersionStages'] = null !== $this->versionStages ? $this->versionStages->toMap() : null;
+        }
 
         return $res;
     }

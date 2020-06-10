@@ -62,16 +62,26 @@ class ListStackGroupsResponse extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['RequestId']   = $this->requestId;
-        $res['PageNumber']  = $this->pageNumber;
-        $res['PageSize']    = $this->pageSize;
-        $res['TotalCount']  = $this->totalCount;
-        $res['StackGroups'] = [];
-        if (null !== $this->stackGroups && \is_array($this->stackGroups)) {
-            $n = 0;
-            foreach ($this->stackGroups as $item) {
-                $res['StackGroups'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->stackGroups) {
+            $res['StackGroups'] = [];
+            if (null !== $this->stackGroups && \is_array($this->stackGroups)) {
+                $n = 0;
+                foreach ($this->stackGroups as $item) {
+                    $res['StackGroups'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

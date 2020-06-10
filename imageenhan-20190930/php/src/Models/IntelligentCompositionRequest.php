@@ -33,9 +33,13 @@ class IntelligentCompositionRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['NumBoxes'] = $this->numBoxes;
-        $res['ImageURL'] = $this->imageURL;
+        $res = [];
+        if (null !== $this->numBoxes) {
+            $res['NumBoxes'] = $this->numBoxes;
+        }
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
 
         return $res;
     }

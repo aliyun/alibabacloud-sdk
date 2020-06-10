@@ -50,11 +50,19 @@ class AbstractEcommerceVideoAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VideoUrlObject'] = $this->videoUrlObject;
-        $res['Duration']       = $this->duration;
-        $res['Width']          = $this->width;
-        $res['Height']         = $this->height;
+        $res = [];
+        if (null !== $this->videoUrlObject) {
+            $res['VideoUrlObject'] = $this->videoUrlObject;
+        }
+        if (null !== $this->duration) {
+            $res['Duration'] = $this->duration;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
 
         return $res;
     }

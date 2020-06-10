@@ -85,21 +85,37 @@ class UpdateStackInstancesRequest extends Model
 
     public function toMap()
     {
-        $res                       = [];
-        $res['RegionId']           = $this->regionId;
-        $res['StackGroupName']     = $this->stackGroupName;
-        $res['ParameterOverrides'] = [];
-        if (null !== $this->parameterOverrides && \is_array($this->parameterOverrides)) {
-            $n = 0;
-            foreach ($this->parameterOverrides as $item) {
-                $res['ParameterOverrides'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->parameterOverrides) {
+            $res['ParameterOverrides'] = [];
+            if (null !== $this->parameterOverrides && \is_array($this->parameterOverrides)) {
+                $n = 0;
+                foreach ($this->parameterOverrides as $item) {
+                    $res['ParameterOverrides'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['AccountIds']           = $this->accountIds;
-        $res['RegionIds']            = $this->regionIds;
-        $res['ClientToken']          = $this->clientToken;
-        $res['OperationDescription'] = $this->operationDescription;
-        $res['OperationPreferences'] = $this->operationPreferences;
+        if (null !== $this->accountIds) {
+            $res['AccountIds'] = $this->accountIds;
+        }
+        if (null !== $this->regionIds) {
+            $res['RegionIds'] = $this->regionIds;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->operationDescription) {
+            $res['OperationDescription'] = $this->operationDescription;
+        }
+        if (null !== $this->operationPreferences) {
+            $res['OperationPreferences'] = $this->operationPreferences;
+        }
 
         return $res;
     }

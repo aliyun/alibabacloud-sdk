@@ -36,9 +36,13 @@ class data extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['Content'] = null !== $this->content ? $this->content->toMap() : null;
-        $res['Box']     = null !== $this->box ? $this->box->toMap() : null;
+        $res = [];
+        if (null !== $this->content) {
+            $res['Content'] = null !== $this->content ? $this->content->toMap() : null;
+        }
+        if (null !== $this->box) {
+            $res['Box'] = null !== $this->box ? $this->box->toMap() : null;
+        }
 
         return $res;
     }

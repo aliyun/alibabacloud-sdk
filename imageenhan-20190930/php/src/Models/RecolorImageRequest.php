@@ -58,16 +58,26 @@ class RecolorImageRequest extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['Url']           = $this->url;
-        $res['Mode']          = $this->mode;
-        $res['RefUrl']        = $this->refUrl;
-        $res['ColorCount']    = $this->colorCount;
-        $res['ColorTemplate'] = [];
-        if (null !== $this->colorTemplate && \is_array($this->colorTemplate)) {
-            $n = 0;
-            foreach ($this->colorTemplate as $item) {
-                $res['ColorTemplate'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->url) {
+            $res['Url'] = $this->url;
+        }
+        if (null !== $this->mode) {
+            $res['Mode'] = $this->mode;
+        }
+        if (null !== $this->refUrl) {
+            $res['RefUrl'] = $this->refUrl;
+        }
+        if (null !== $this->colorCount) {
+            $res['ColorCount'] = $this->colorCount;
+        }
+        if (null !== $this->colorTemplate) {
+            $res['ColorTemplate'] = [];
+            if (null !== $this->colorTemplate && \is_array($this->colorTemplate)) {
+                $n = 0;
+                foreach ($this->colorTemplate as $item) {
+                    $res['ColorTemplate'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

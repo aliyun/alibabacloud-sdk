@@ -33,9 +33,13 @@ class DescribeSecretRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['SecretName'] = $this->secretName;
-        $res['FetchTags']  = $this->fetchTags;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->fetchTags) {
+            $res['FetchTags'] = $this->fetchTags;
+        }
 
         return $res;
     }

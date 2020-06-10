@@ -71,13 +71,25 @@ class ListSecretVersionIdsResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
-        $res['RequestId']  = $this->requestId;
-        $res['SecretName'] = $this->secretName;
-        $res['TotalCount'] = $this->totalCount;
-        $res['VersionIds'] = null !== $this->versionIds ? $this->versionIds->toMap() : null;
+        $res = [];
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->versionIds) {
+            $res['VersionIds'] = null !== $this->versionIds ? $this->versionIds->toMap() : null;
+        }
 
         return $res;
     }

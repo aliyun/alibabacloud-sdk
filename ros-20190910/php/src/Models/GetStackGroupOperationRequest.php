@@ -34,9 +34,13 @@ class GetStackGroupOperationRequest extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['RegionId']    = $this->regionId;
-        $res['OperationId'] = $this->operationId;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->operationId) {
+            $res['OperationId'] = $this->operationId;
+        }
 
         return $res;
     }

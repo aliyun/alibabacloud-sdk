@@ -25,10 +25,12 @@ class usages extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Usage'] = [];
+        $res = [];
         if (null !== $this->usage) {
-            $res['Usage'] = $this->usage;
+            $res['Usage'] = [];
+            if (null !== $this->usage) {
+                $res['Usage'] = $this->usage;
+            }
         }
 
         return $res;

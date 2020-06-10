@@ -52,11 +52,19 @@ class stackGroupOperationResults extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['AccountId']    = $this->accountId;
-        $res['RegionId']     = $this->regionId;
-        $res['Status']       = $this->status;
-        $res['StatusReason'] = $this->statusReason;
+        $res = [];
+        if (null !== $this->accountId) {
+            $res['AccountId'] = $this->accountId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
+        }
 
         return $res;
     }

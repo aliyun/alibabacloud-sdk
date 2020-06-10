@@ -36,9 +36,13 @@ class data extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['FaceResult'] = null !== $this->faceResult ? $this->faceResult->toMap() : null;
-        $res['BackResult'] = null !== $this->backResult ? $this->backResult->toMap() : null;
+        $res = [];
+        if (null !== $this->faceResult) {
+            $res['FaceResult'] = null !== $this->faceResult ? $this->faceResult->toMap() : null;
+        }
+        if (null !== $this->backResult) {
+            $res['BackResult'] = null !== $this->backResult ? $this->backResult->toMap() : null;
+        }
 
         return $res;
     }

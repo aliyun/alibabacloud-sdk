@@ -26,12 +26,14 @@ class versionIds extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['VersionId'] = [];
-        if (null !== $this->versionId && \is_array($this->versionId)) {
-            $n = 0;
-            foreach ($this->versionId as $item) {
-                $res['VersionId'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->versionId) {
+            $res['VersionId'] = [];
+            if (null !== $this->versionId && \is_array($this->versionId)) {
+                $n = 0;
+                foreach ($this->versionId as $item) {
+                    $res['VersionId'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

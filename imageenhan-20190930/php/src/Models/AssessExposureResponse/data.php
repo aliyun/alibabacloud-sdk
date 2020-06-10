@@ -25,8 +25,10 @@ class data extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['Exposure'] = $this->exposure;
+        $res = [];
+        if (null !== $this->exposure) {
+            $res['Exposure'] = $this->exposure;
+        }
 
         return $res;
     }

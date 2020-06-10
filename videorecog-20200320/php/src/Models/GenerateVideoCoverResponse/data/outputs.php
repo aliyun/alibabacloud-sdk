@@ -34,9 +34,13 @@ class outputs extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['ImageURL']   = $this->imageURL;
-        $res['Confidence'] = $this->confidence;
+        $res = [];
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->confidence) {
+            $res['Confidence'] = $this->confidence;
+        }
 
         return $res;
     }

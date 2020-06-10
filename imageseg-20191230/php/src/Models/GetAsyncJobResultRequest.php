@@ -25,8 +25,10 @@ class GetAsyncJobResultRequest extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['JobId'] = $this->jobId;
+        $res = [];
+        if (null !== $this->jobId) {
+            $res['JobId'] = $this->jobId;
+        }
 
         return $res;
     }

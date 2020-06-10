@@ -70,13 +70,25 @@ class elements extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Type']   = $this->type;
-        $res['X']      = $this->x;
-        $res['Y']      = $this->y;
-        $res['Width']  = $this->width;
-        $res['Height'] = $this->height;
-        $res['Score']  = $this->score;
+        $res = [];
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
+        if (null !== $this->x) {
+            $res['X'] = $this->x;
+        }
+        if (null !== $this->y) {
+            $res['Y'] = $this->y;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
+        }
 
         return $res;
     }

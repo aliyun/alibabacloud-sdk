@@ -25,10 +25,12 @@ class data extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Styles'] = [];
+        $res = [];
         if (null !== $this->styles) {
-            $res['Styles'] = $this->styles;
+            $res['Styles'] = [];
+            if (null !== $this->styles) {
+                $res['Styles'] = $this->styles;
+            }
         }
 
         return $res;

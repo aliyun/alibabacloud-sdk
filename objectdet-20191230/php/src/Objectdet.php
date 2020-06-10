@@ -23,6 +23,10 @@ use AlibabaCloud\SDK\Objectdet\V20191230\Models\DetectVehicleResponse;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\DetectWhiteBaseImageAdvanceRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\DetectWhiteBaseImageRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\DetectWhiteBaseImageResponse;
+use AlibabaCloud\SDK\Objectdet\V20191230\Models\GenerateVehicleRepairPlanRequest;
+use AlibabaCloud\SDK\Objectdet\V20191230\Models\GenerateVehicleRepairPlanResponse;
+use AlibabaCloud\SDK\Objectdet\V20191230\Models\GetVehicleRepairPlanRequest;
+use AlibabaCloud\SDK\Objectdet\V20191230\Models\GetVehicleRepairPlanResponse;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehicleDamageAdvanceRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehicleDamageRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehicleDamageResponse;
@@ -32,8 +36,8 @@ use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehicleDashboardRespons
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehiclePartsAdvanceRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehiclePartsRequest;
 use AlibabaCloud\SDK\Objectdet\V20191230\Models\RecognizeVehiclePartsResponse;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
@@ -51,7 +55,31 @@ class Objectdet extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('objectdet', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return GenerateVehicleRepairPlanResponse
+     */
+    public function generateVehicleRepairPlan(GenerateVehicleRepairPlanRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GenerateVehicleRepairPlanResponse::fromMap($this->doRequest('GenerateVehicleRepairPlan', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return GetVehicleRepairPlanResponse
+     */
+    public function getVehicleRepairPlan(GetVehicleRepairPlanRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return GetVehicleRepairPlanResponse::fromMap($this->doRequest('GetVehicleRepairPlan', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -89,7 +117,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -163,7 +191,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -237,7 +265,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -311,7 +339,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -385,7 +413,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -459,7 +487,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -533,7 +561,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -607,7 +635,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -655,7 +683,7 @@ class Objectdet extends Rpc
     {
         Utils::validateModel($request);
 
-        return DetectMainBodyResponse::fromMap($this->doRequest('DetectMainBody', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return DetectMainBodyResponse::fromMap($this->doRequest('DetectMainBody', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -681,7 +709,7 @@ class Objectdet extends Rpc
             'product'  => 'objectdet',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,

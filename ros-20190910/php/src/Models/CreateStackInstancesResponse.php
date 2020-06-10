@@ -34,9 +34,13 @@ class CreateStackInstancesResponse extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['RequestId']   = $this->requestId;
-        $res['OperationId'] = $this->operationId;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->operationId) {
+            $res['OperationId'] = $this->operationId;
+        }
 
         return $res;
     }

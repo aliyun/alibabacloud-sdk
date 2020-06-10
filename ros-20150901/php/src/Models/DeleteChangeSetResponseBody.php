@@ -25,8 +25,10 @@ class DeleteChangeSetResponseBody extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Dummy'] = $this->dummy;
+        $res = [];
+        if (null !== $this->dummy) {
+            $res['Dummy'] = $this->dummy;
+        }
 
         return $res;
     }

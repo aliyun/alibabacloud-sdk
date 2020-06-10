@@ -24,8 +24,10 @@ class DescribeResourceTypesQuery extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['SupportStatus'] = $this->supportStatus;
+        $res = [];
+        if (null !== $this->supportStatus) {
+            $res['SupportStatus'] = $this->supportStatus;
+        }
 
         return $res;
     }

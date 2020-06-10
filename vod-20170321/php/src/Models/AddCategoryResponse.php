@@ -1,51 +1,66 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Vod\V20170321\Models;
 
+use AlibabaCloud\SDK\Vod\V20170321\Models\AddCategoryResponse\category;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Vod\V20170321\Models\AddCategoryResponse\category;
-
-class AddCategoryResponse extends Model {
-    protected $_name = [
-        'requestId' => 'RequestId',
-        'category' => 'Category',
-    ];
-    public function validate() {
-        Model::validateRequired('requestId', $this->requestId, true);
-        Model::validateRequired('category', $this->category, true);
-    }
-    public function toMap() {
-        $res = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Category'] = null !== $this->category ? $this->category->toMap() : null;
-        return $res;
-    }
-    /**
-     * @param array $map
-     * @return AddCategoryResponse
-     */
-    public static function fromMap($map = []) {
-        $model = new self();
-        if(isset($map['RequestId'])){
-            $model->requestId = $map['RequestId'];
-        }
-        if(isset($map['Category'])){
-            $model->category = category::fromMap($map['Category']);
-        }
-        return $model;
-    }
+class AddCategoryResponse extends Model
+{
     /**
      * @description requestId
+     *
      * @var string
      */
     public $requestId;
 
     /**
      * @description data.category
+     *
      * @var category
      */
     public $category;
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'category'  => 'Category',
+    ];
 
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('category', $this->category, true);
+    }
+
+    public function toMap()
+    {
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->category) {
+            $res['Category'] = null !== $this->category ? $this->category->toMap() : null;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return AddCategoryResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['Category'])) {
+            $model->category = category::fromMap($map['Category']);
+        }
+
+        return $model;
+    }
 }

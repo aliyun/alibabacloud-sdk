@@ -147,45 +147,73 @@ class data extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['Angle']             = $this->angle;
-        $res['Name']              = $this->name;
-        $res['Gender']            = $this->gender;
-        $res['Relation']          = $this->relation;
-        $res['BirthPlace']        = $this->birthPlace;
-        $res['Nationality']       = $this->nationality;
-        $res['NativePlace']       = $this->nativePlace;
-        $res['BirthDate']         = $this->birthDate;
-        $res['IDNumber']          = $this->IDNumber;
-        $res['InvalidStampAreas'] = [];
-        if (null !== $this->invalidStampAreas && \is_array($this->invalidStampAreas)) {
-            $n = 0;
-            foreach ($this->invalidStampAreas as $item) {
-                $res['InvalidStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->angle) {
+            $res['Angle'] = $this->angle;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->gender) {
+            $res['Gender'] = $this->gender;
+        }
+        if (null !== $this->relation) {
+            $res['Relation'] = $this->relation;
+        }
+        if (null !== $this->birthPlace) {
+            $res['BirthPlace'] = $this->birthPlace;
+        }
+        if (null !== $this->nationality) {
+            $res['Nationality'] = $this->nationality;
+        }
+        if (null !== $this->nativePlace) {
+            $res['NativePlace'] = $this->nativePlace;
+        }
+        if (null !== $this->birthDate) {
+            $res['BirthDate'] = $this->birthDate;
+        }
+        if (null !== $this->IDNumber) {
+            $res['IDNumber'] = $this->IDNumber;
+        }
+        if (null !== $this->invalidStampAreas) {
+            $res['InvalidStampAreas'] = [];
+            if (null !== $this->invalidStampAreas && \is_array($this->invalidStampAreas)) {
+                $n = 0;
+                foreach ($this->invalidStampAreas as $item) {
+                    $res['InvalidStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['UndertakeStampAreas'] = [];
-        if (null !== $this->undertakeStampAreas && \is_array($this->undertakeStampAreas)) {
-            $n = 0;
-            foreach ($this->undertakeStampAreas as $item) {
-                $res['UndertakeStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->undertakeStampAreas) {
+            $res['UndertakeStampAreas'] = [];
+            if (null !== $this->undertakeStampAreas && \is_array($this->undertakeStampAreas)) {
+                $n = 0;
+                foreach ($this->undertakeStampAreas as $item) {
+                    $res['UndertakeStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['RegisterStampAreas'] = [];
-        if (null !== $this->registerStampAreas && \is_array($this->registerStampAreas)) {
-            $n = 0;
-            foreach ($this->registerStampAreas as $item) {
-                $res['RegisterStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->registerStampAreas) {
+            $res['RegisterStampAreas'] = [];
+            if (null !== $this->registerStampAreas && \is_array($this->registerStampAreas)) {
+                $n = 0;
+                foreach ($this->registerStampAreas as $item) {
+                    $res['RegisterStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['OtherStampAreas'] = [];
-        if (null !== $this->otherStampAreas && \is_array($this->otherStampAreas)) {
-            $n = 0;
-            foreach ($this->otherStampAreas as $item) {
-                $res['OtherStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->otherStampAreas) {
+            $res['OtherStampAreas'] = [];
+            if (null !== $this->otherStampAreas && \is_array($this->otherStampAreas)) {
+                $n = 0;
+                foreach ($this->otherStampAreas as $item) {
+                    $res['OtherStampAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['TitleArea'] = null !== $this->titleArea ? $this->titleArea->toMap() : null;
+        if (null !== $this->titleArea) {
+            $res['TitleArea'] = null !== $this->titleArea ? $this->titleArea->toMap() : null;
+        }
 
         return $res;
     }

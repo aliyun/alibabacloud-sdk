@@ -88,15 +88,31 @@ class GetStackDriftDetectionStatusResponse extends Model
 
     public function toMap()
     {
-        $res                               = [];
-        $res['RequestId']                  = $this->requestId;
-        $res['DriftDetectionId']           = $this->driftDetectionId;
-        $res['DriftDetectionTime']         = $this->driftDetectionTime;
-        $res['DriftDetectionStatus']       = $this->driftDetectionStatus;
-        $res['DriftDetectionStatusReason'] = $this->driftDetectionStatusReason;
-        $res['StackDriftStatus']           = $this->stackDriftStatus;
-        $res['StackId']                    = $this->stackId;
-        $res['DriftedStackResourceCount']  = $this->driftedStackResourceCount;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->driftDetectionId) {
+            $res['DriftDetectionId'] = $this->driftDetectionId;
+        }
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
+        if (null !== $this->driftDetectionStatus) {
+            $res['DriftDetectionStatus'] = $this->driftDetectionStatus;
+        }
+        if (null !== $this->driftDetectionStatusReason) {
+            $res['DriftDetectionStatusReason'] = $this->driftDetectionStatusReason;
+        }
+        if (null !== $this->stackDriftStatus) {
+            $res['StackDriftStatus'] = $this->stackDriftStatus;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->driftedStackResourceCount) {
+            $res['DriftedStackResourceCount'] = $this->driftedStackResourceCount;
+        }
 
         return $res;
     }

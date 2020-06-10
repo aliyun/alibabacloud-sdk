@@ -124,19 +124,43 @@ class stacks extends Model
 
     public function toMap()
     {
-        $res                       = [];
-        $res['CreateTime']         = $this->createTime;
-        $res['DisableRollback']    = $this->disableRollback;
-        $res['RegionId']           = $this->regionId;
-        $res['StackId']            = $this->stackId;
-        $res['StackName']          = $this->stackName;
-        $res['Status']             = $this->status;
-        $res['StatusReason']       = $this->statusReason;
-        $res['TimeoutInMinutes']   = $this->timeoutInMinutes;
-        $res['ParentStackId']      = $this->parentStackId;
-        $res['UpdateTime']         = $this->updateTime;
-        $res['StackDriftStatus']   = $this->stackDriftStatus;
-        $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        $res = [];
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->disableRollback) {
+            $res['DisableRollback'] = $this->disableRollback;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
+        }
+        if (null !== $this->timeoutInMinutes) {
+            $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
+        }
+        if (null !== $this->parentStackId) {
+            $res['ParentStackId'] = $this->parentStackId;
+        }
+        if (null !== $this->updateTime) {
+            $res['UpdateTime'] = $this->updateTime;
+        }
+        if (null !== $this->stackDriftStatus) {
+            $res['StackDriftStatus'] = $this->stackDriftStatus;
+        }
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
 
         return $res;
     }

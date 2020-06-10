@@ -61,12 +61,22 @@ class templates extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['CreateTime']   = $this->createTime;
-        $res['Description']  = $this->description;
-        $res['TemplateId']   = $this->templateId;
-        $res['TemplateName'] = $this->templateName;
-        $res['UpdateTime']   = $this->updateTime;
+        $res = [];
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->templateId) {
+            $res['TemplateId'] = $this->templateId;
+        }
+        if (null !== $this->templateName) {
+            $res['TemplateName'] = $this->templateName;
+        }
+        if (null !== $this->updateTime) {
+            $res['UpdateTime'] = $this->updateTime;
+        }
 
         return $res;
     }

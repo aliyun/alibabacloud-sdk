@@ -43,10 +43,16 @@ class keyVersion extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['KeyId']        = $this->keyId;
-        $res['KeyVersionId'] = $this->keyVersionId;
-        $res['CreationDate'] = $this->creationDate;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
+        if (null !== $this->creationDate) {
+            $res['CreationDate'] = $this->creationDate;
+        }
 
         return $res;
     }

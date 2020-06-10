@@ -34,9 +34,13 @@ class AbstractFilmVideoRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['VideoUrl'] = $this->videoUrl;
-        $res['Length']   = $this->length;
+        $res = [];
+        if (null !== $this->videoUrl) {
+            $res['VideoUrl'] = $this->videoUrl;
+        }
+        if (null !== $this->length) {
+            $res['Length'] = $this->length;
+        }
 
         return $res;
     }

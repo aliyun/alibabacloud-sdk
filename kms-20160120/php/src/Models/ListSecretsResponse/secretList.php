@@ -26,12 +26,14 @@ class secretList extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Secret'] = [];
-        if (null !== $this->secret && \is_array($this->secret)) {
-            $n = 0;
-            foreach ($this->secret as $item) {
-                $res['Secret'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->secret) {
+            $res['Secret'] = [];
+            if (null !== $this->secret && \is_array($this->secret)) {
+                $n = 0;
+                foreach ($this->secret as $item) {
+                    $res['Secret'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

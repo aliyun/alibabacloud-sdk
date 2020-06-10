@@ -34,9 +34,13 @@ class RefineMaskAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ImageURLObject'] = $this->imageURLObject;
-        $res['MaskImageURL']   = $this->maskImageURL;
+        $res = [];
+        if (null !== $this->imageURLObject) {
+            $res['ImageURLObject'] = $this->imageURLObject;
+        }
+        if (null !== $this->maskImageURL) {
+            $res['MaskImageURL'] = $this->maskImageURL;
+        }
 
         return $res;
     }

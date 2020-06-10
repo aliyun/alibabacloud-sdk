@@ -35,9 +35,13 @@ class PreviewStackResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Stack']     = null !== $this->stack ? $this->stack->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stack) {
+            $res['Stack'] = null !== $this->stack ? $this->stack->toMap() : null;
+        }
 
         return $res;
     }

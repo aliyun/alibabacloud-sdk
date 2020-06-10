@@ -52,16 +52,24 @@ class elements extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Score']  = $this->score;
-        $res['Type']   = $this->type;
-        $res['Scores'] = [];
-        if (null !== $this->scores) {
-            $res['Scores'] = $this->scores;
+        $res = [];
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
         }
-        $res['Boxes'] = [];
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
+        if (null !== $this->scores) {
+            $res['Scores'] = [];
+            if (null !== $this->scores) {
+                $res['Scores'] = $this->scores;
+            }
+        }
         if (null !== $this->boxes) {
-            $res['Boxes'] = $this->boxes;
+            $res['Boxes'] = [];
+            if (null !== $this->boxes) {
+                $res['Boxes'] = $this->boxes;
+            }
         }
 
         return $res;

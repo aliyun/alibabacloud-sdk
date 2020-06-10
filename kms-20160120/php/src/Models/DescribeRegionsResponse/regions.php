@@ -26,12 +26,14 @@ class regions extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Region'] = [];
-        if (null !== $this->region && \is_array($this->region)) {
-            $n = 0;
-            foreach ($this->region as $item) {
-                $res['Region'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->region) {
+            $res['Region'] = [];
+            if (null !== $this->region && \is_array($this->region)) {
+                $n = 0;
+                foreach ($this->region as $item) {
+                    $res['Region'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

@@ -43,10 +43,16 @@ class regions extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['RegionId']       = $this->regionId;
-        $res['LocalName']      = $this->localName;
-        $res['RegionEndpoint'] = $this->regionEndpoint;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->localName) {
+            $res['LocalName'] = $this->localName;
+        }
+        if (null !== $this->regionEndpoint) {
+            $res['RegionEndpoint'] = $this->regionEndpoint;
+        }
 
         return $res;
     }

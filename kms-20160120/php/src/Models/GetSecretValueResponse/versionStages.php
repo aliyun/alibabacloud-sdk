@@ -25,10 +25,12 @@ class versionStages extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['VersionStage'] = [];
+        $res = [];
         if (null !== $this->versionStage) {
-            $res['VersionStage'] = $this->versionStage;
+            $res['VersionStage'] = [];
+            if (null !== $this->versionStage) {
+                $res['VersionStage'] = $this->versionStage;
+            }
         }
 
         return $res;

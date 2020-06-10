@@ -25,10 +25,12 @@ class supportedProtectionLevels extends Model
 
     public function toMap()
     {
-        $res                             = [];
-        $res['SupportedProtectionLevel'] = [];
+        $res = [];
         if (null !== $this->supportedProtectionLevel) {
-            $res['SupportedProtectionLevel'] = $this->supportedProtectionLevel;
+            $res['SupportedProtectionLevel'] = [];
+            if (null !== $this->supportedProtectionLevel) {
+                $res['SupportedProtectionLevel'] = $this->supportedProtectionLevel;
+            }
         }
 
         return $res;

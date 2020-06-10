@@ -33,9 +33,13 @@ class RecognizeImageColorRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Url']        = $this->url;
-        $res['ColorCount'] = $this->colorCount;
+        $res = [];
+        if (null !== $this->url) {
+            $res['Url'] = $this->url;
+        }
+        if (null !== $this->colorCount) {
+            $res['ColorCount'] = $this->colorCount;
+        }
 
         return $res;
     }

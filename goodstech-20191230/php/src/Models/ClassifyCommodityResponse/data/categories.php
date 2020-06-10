@@ -43,10 +43,16 @@ class categories extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['Score']        = $this->score;
-        $res['CategoryName'] = $this->categoryName;
-        $res['CategoryId']   = $this->categoryId;
+        $res = [];
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
+        }
+        if (null !== $this->categoryName) {
+            $res['CategoryName'] = $this->categoryName;
+        }
+        if (null !== $this->categoryId) {
+            $res['CategoryId'] = $this->categoryId;
+        }
 
         return $res;
     }

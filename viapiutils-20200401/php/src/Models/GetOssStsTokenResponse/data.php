@@ -52,11 +52,19 @@ class data extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['AccessKeyId']     = $this->accessKeyId;
-        $res['AccessKeySecret'] = $this->accessKeySecret;
-        $res['SecurityToken']   = $this->securityToken;
-        $res['Script']          = $this->script;
+        $res = [];
+        if (null !== $this->accessKeyId) {
+            $res['AccessKeyId'] = $this->accessKeyId;
+        }
+        if (null !== $this->accessKeySecret) {
+            $res['AccessKeySecret'] = $this->accessKeySecret;
+        }
+        if (null !== $this->securityToken) {
+            $res['SecurityToken'] = $this->securityToken;
+        }
+        if (null !== $this->script) {
+            $res['Script'] = $this->script;
+        }
 
         return $res;
     }

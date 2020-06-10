@@ -43,10 +43,16 @@ class SearchImageRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['DbName']   = $this->dbName;
-        $res['ImageUrl'] = $this->imageUrl;
-        $res['Limit']    = $this->limit;
+        $res = [];
+        if (null !== $this->dbName) {
+            $res['DbName'] = $this->dbName;
+        }
+        if (null !== $this->imageUrl) {
+            $res['ImageUrl'] = $this->imageUrl;
+        }
+        if (null !== $this->limit) {
+            $res['Limit'] = $this->limit;
+        }
 
         return $res;
     }

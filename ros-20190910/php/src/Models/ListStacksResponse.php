@@ -62,16 +62,26 @@ class ListStacksResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
-        $res['RequestId']  = $this->requestId;
-        $res['TotalCount'] = $this->totalCount;
-        $res['Stacks']     = [];
-        if (null !== $this->stacks && \is_array($this->stacks)) {
-            $n = 0;
-            foreach ($this->stacks as $item) {
-                $res['Stacks'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->stacks) {
+            $res['Stacks'] = [];
+            if (null !== $this->stacks && \is_array($this->stacks)) {
+                $n = 0;
+                foreach ($this->stacks as $item) {
+                    $res['Stacks'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

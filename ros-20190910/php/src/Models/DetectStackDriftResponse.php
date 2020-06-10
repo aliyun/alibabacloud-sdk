@@ -34,9 +34,13 @@ class DetectStackDriftResponse extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['RequestId']        = $this->requestId;
-        $res['DriftDetectionId'] = $this->driftDetectionId;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->driftDetectionId) {
+            $res['DriftDetectionId'] = $this->driftDetectionId;
+        }
 
         return $res;
     }

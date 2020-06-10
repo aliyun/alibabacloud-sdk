@@ -34,9 +34,13 @@ class RecognizeIdentityCardAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ImageURLObject'] = $this->imageURLObject;
-        $res['Side']           = $this->side;
+        $res = [];
+        if (null !== $this->imageURLObject) {
+            $res['ImageURLObject'] = $this->imageURLObject;
+        }
+        if (null !== $this->side) {
+            $res['Side'] = $this->side;
+        }
 
         return $res;
     }

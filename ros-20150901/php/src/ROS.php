@@ -72,7 +72,7 @@ class ROS extends Roa
         parent::__construct($config);
         $this->_endpointRule = 'central';
         $this->checkConfig($config);
-        $this->_endpointHost = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpointHost);
+        $this->_endpointHost = $this->getEndpoint('ros', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpointHost);
     }
 
     /**

@@ -52,11 +52,19 @@ class retainLocation extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['X']      = $this->x;
-        $res['Y']      = $this->y;
-        $res['Width']  = $this->width;
-        $res['Height'] = $this->height;
+        $res = [];
+        if (null !== $this->x) {
+            $res['X'] = $this->x;
+        }
+        if (null !== $this->y) {
+            $res['Y'] = $this->y;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
 
         return $res;
     }

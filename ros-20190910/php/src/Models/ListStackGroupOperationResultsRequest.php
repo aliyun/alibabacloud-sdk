@@ -50,11 +50,19 @@ class ListStackGroupOperationResultsRequest extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['RegionId']    = $this->regionId;
-        $res['OperationId'] = $this->operationId;
-        $res['PageSize']    = $this->pageSize;
-        $res['PageNumber']  = $this->pageNumber;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->operationId) {
+            $res['OperationId'] = $this->operationId;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
 
         return $res;
     }

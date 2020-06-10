@@ -52,11 +52,19 @@ class AsymmetricEncryptResponse extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['CiphertextBlob'] = $this->ciphertextBlob;
-        $res['KeyId']          = $this->keyId;
-        $res['RequestId']      = $this->requestId;
-        $res['KeyVersionId']   = $this->keyVersionId;
+        $res = [];
+        if (null !== $this->ciphertextBlob) {
+            $res['CiphertextBlob'] = $this->ciphertextBlob;
+        }
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
 
         return $res;
     }

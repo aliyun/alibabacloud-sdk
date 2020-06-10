@@ -1,21 +1,73 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Vod\V20170321\Models\DescribeVodDomainTrafficDataResponse\trafficDataPerInterval;
 
 use AlibabaCloud\Tea\Model;
 
-class dataModule extends Model {
+class dataModule extends Model
+{
+    /**
+     * @description time_stp
+     *
+     * @var string
+     */
+    public $timeStamp;
+
+    /**
+     * @description l1_vod_all_all_all_traf
+     *
+     * @var string
+     */
+    public $value;
+
+    /**
+     * @description l1_vod_all_inner_all_traf
+     *
+     * @var string
+     */
+    public $domesticValue;
+
+    /**
+     * @description l1_vod_all_out_all_traf
+     *
+     * @var string
+     */
+    public $overseasValue;
+
+    /**
+     * @description l1_vod_all_all_https_traf
+     *
+     * @var string
+     */
+    public $httpsValue;
+
+    /**
+     * @description l1_vod_all_inner_https_traf
+     *
+     * @var string
+     */
+    public $httpsDomesticValue;
+
+    /**
+     * @description l1_vod_all_out_https_traf
+     *
+     * @var string
+     */
+    public $httpsOverseasValue;
     protected $_name = [
-        'timeStamp' => 'TimeStamp',
-        'value' => 'Value',
-        'domesticValue' => 'DomesticValue',
-        'overseasValue' => 'OverseasValue',
-        'httpsValue' => 'HttpsValue',
+        'timeStamp'          => 'TimeStamp',
+        'value'              => 'Value',
+        'domesticValue'      => 'DomesticValue',
+        'overseasValue'      => 'OverseasValue',
+        'httpsValue'         => 'HttpsValue',
         'httpsDomesticValue' => 'HttpsDomesticValue',
         'httpsOverseasValue' => 'HttpsOverseasValue',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('timeStamp', $this->timeStamp, true);
         Model::validateRequired('value', $this->value, true);
         Model::validateRequired('domesticValue', $this->domesticValue, true);
@@ -24,86 +76,65 @@ class dataModule extends Model {
         Model::validateRequired('httpsDomesticValue', $this->httpsDomesticValue, true);
         Model::validateRequired('httpsOverseasValue', $this->httpsOverseasValue, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['TimeStamp'] = $this->timeStamp;
-        $res['Value'] = $this->value;
-        $res['DomesticValue'] = $this->domesticValue;
-        $res['OverseasValue'] = $this->overseasValue;
-        $res['HttpsValue'] = $this->httpsValue;
-        $res['HttpsDomesticValue'] = $this->httpsDomesticValue;
-        $res['HttpsOverseasValue'] = $this->httpsOverseasValue;
+        if (null !== $this->timeStamp) {
+            $res['TimeStamp'] = $this->timeStamp;
+        }
+        if (null !== $this->value) {
+            $res['Value'] = $this->value;
+        }
+        if (null !== $this->domesticValue) {
+            $res['DomesticValue'] = $this->domesticValue;
+        }
+        if (null !== $this->overseasValue) {
+            $res['OverseasValue'] = $this->overseasValue;
+        }
+        if (null !== $this->httpsValue) {
+            $res['HttpsValue'] = $this->httpsValue;
+        }
+        if (null !== $this->httpsDomesticValue) {
+            $res['HttpsDomesticValue'] = $this->httpsDomesticValue;
+        }
+        if (null !== $this->httpsOverseasValue) {
+            $res['HttpsOverseasValue'] = $this->httpsOverseasValue;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return dataModule
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['TimeStamp'])){
+        if (isset($map['TimeStamp'])) {
             $model->timeStamp = $map['TimeStamp'];
         }
-        if(isset($map['Value'])){
+        if (isset($map['Value'])) {
             $model->value = $map['Value'];
         }
-        if(isset($map['DomesticValue'])){
+        if (isset($map['DomesticValue'])) {
             $model->domesticValue = $map['DomesticValue'];
         }
-        if(isset($map['OverseasValue'])){
+        if (isset($map['OverseasValue'])) {
             $model->overseasValue = $map['OverseasValue'];
         }
-        if(isset($map['HttpsValue'])){
+        if (isset($map['HttpsValue'])) {
             $model->httpsValue = $map['HttpsValue'];
         }
-        if(isset($map['HttpsDomesticValue'])){
+        if (isset($map['HttpsDomesticValue'])) {
             $model->httpsDomesticValue = $map['HttpsDomesticValue'];
         }
-        if(isset($map['HttpsOverseasValue'])){
+        if (isset($map['HttpsOverseasValue'])) {
             $model->httpsOverseasValue = $map['HttpsOverseasValue'];
         }
+
         return $model;
     }
-    /**
-     * @description time_stp
-     * @var string
-     */
-    public $timeStamp;
-
-    /**
-     * @description l1_vod_all_all_all_traf
-     * @var string
-     */
-    public $value;
-
-    /**
-     * @description l1_vod_all_inner_all_traf
-     * @var string
-     */
-    public $domesticValue;
-
-    /**
-     * @description l1_vod_all_out_all_traf
-     * @var string
-     */
-    public $overseasValue;
-
-    /**
-     * @description l1_vod_all_all_https_traf
-     * @var string
-     */
-    public $httpsValue;
-
-    /**
-     * @description l1_vod_all_inner_https_traf
-     * @var string
-     */
-    public $httpsDomesticValue;
-
-    /**
-     * @description l1_vod_all_out_https_traf
-     * @var string
-     */
-    public $httpsOverseasValue;
-
 }

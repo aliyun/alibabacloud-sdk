@@ -123,26 +123,52 @@ class UpdateStackGroupRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['RegionId']       = $this->regionId;
-        $res['StackGroupName'] = $this->stackGroupName;
-        $res['Description']    = $this->description;
-        $res['Parameters']     = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['AccountIds']             = $this->accountIds;
-        $res['RegionIds']              = $this->regionIds;
-        $res['TemplateBody']           = $this->templateBody;
-        $res['TemplateURL']            = $this->templateURL;
-        $res['ClientToken']            = $this->clientToken;
-        $res['OperationDescription']   = $this->operationDescription;
-        $res['OperationPreferences']   = $this->operationPreferences;
-        $res['AdministrationRoleName'] = $this->administrationRoleName;
-        $res['ExecutionRoleName']      = $this->executionRoleName;
+        if (null !== $this->accountIds) {
+            $res['AccountIds'] = $this->accountIds;
+        }
+        if (null !== $this->regionIds) {
+            $res['RegionIds'] = $this->regionIds;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->operationDescription) {
+            $res['OperationDescription'] = $this->operationDescription;
+        }
+        if (null !== $this->operationPreferences) {
+            $res['OperationPreferences'] = $this->operationPreferences;
+        }
+        if (null !== $this->administrationRoleName) {
+            $res['AdministrationRoleName'] = $this->administrationRoleName;
+        }
+        if (null !== $this->executionRoleName) {
+            $res['ExecutionRoleName'] = $this->executionRoleName;
+        }
 
         return $res;
     }

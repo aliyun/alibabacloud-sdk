@@ -50,11 +50,19 @@ class SetStackPolicyRequest extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['StackId']         = $this->stackId;
-        $res['RegionId']        = $this->regionId;
-        $res['StackPolicyBody'] = $this->stackPolicyBody;
-        $res['StackPolicyURL']  = $this->stackPolicyURL;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackPolicyBody) {
+            $res['StackPolicyBody'] = $this->stackPolicyBody;
+        }
+        if (null !== $this->stackPolicyURL) {
+            $res['StackPolicyURL'] = $this->stackPolicyURL;
+        }
 
         return $res;
     }

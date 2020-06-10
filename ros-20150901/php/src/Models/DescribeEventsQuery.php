@@ -56,12 +56,22 @@ class DescribeEventsQuery extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ResourceStatus'] = $this->resourceStatus;
-        $res['ResourceName']   = $this->resourceName;
-        $res['ResourceType']   = $this->resourceType;
-        $res['PageSize']       = $this->pageSize;
-        $res['PageNumber']     = $this->pageNumber;
+        $res = [];
+        if (null !== $this->resourceStatus) {
+            $res['ResourceStatus'] = $this->resourceStatus;
+        }
+        if (null !== $this->resourceName) {
+            $res['ResourceName'] = $this->resourceName;
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
 
         return $res;
     }

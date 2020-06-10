@@ -62,16 +62,26 @@ class ListTemplatesResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
-        $res['RequestId']  = $this->requestId;
-        $res['TotalCount'] = $this->totalCount;
-        $res['Templates']  = [];
-        if (null !== $this->templates && \is_array($this->templates)) {
-            $n = 0;
-            foreach ($this->templates as $item) {
-                $res['Templates'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->templates) {
+            $res['Templates'] = [];
+            if (null !== $this->templates && \is_array($this->templates)) {
+                $n = 0;
+                foreach ($this->templates as $item) {
+                    $res['Templates'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

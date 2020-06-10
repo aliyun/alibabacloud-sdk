@@ -43,10 +43,16 @@ class DeleteSecretResponse extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['RequestId']         = $this->requestId;
-        $res['SecretName']        = $this->secretName;
-        $res['PlannedDeleteTime'] = $this->plannedDeleteTime;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->plannedDeleteTime) {
+            $res['PlannedDeleteTime'] = $this->plannedDeleteTime;
+        }
 
         return $res;
     }

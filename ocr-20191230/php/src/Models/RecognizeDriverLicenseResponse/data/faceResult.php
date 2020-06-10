@@ -88,15 +88,31 @@ class faceResult extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['Name']          = $this->name;
-        $res['LicenseNumber'] = $this->licenseNumber;
-        $res['VehicleType']   = $this->vehicleType;
-        $res['StartDate']     = $this->startDate;
-        $res['EndDate']       = $this->endDate;
-        $res['IssueDate']     = $this->issueDate;
-        $res['Address']       = $this->address;
-        $res['Gender']        = $this->gender;
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->licenseNumber) {
+            $res['LicenseNumber'] = $this->licenseNumber;
+        }
+        if (null !== $this->vehicleType) {
+            $res['VehicleType'] = $this->vehicleType;
+        }
+        if (null !== $this->startDate) {
+            $res['StartDate'] = $this->startDate;
+        }
+        if (null !== $this->endDate) {
+            $res['EndDate'] = $this->endDate;
+        }
+        if (null !== $this->issueDate) {
+            $res['IssueDate'] = $this->issueDate;
+        }
+        if (null !== $this->address) {
+            $res['Address'] = $this->address;
+        }
+        if (null !== $this->gender) {
+            $res['Gender'] = $this->gender;
+        }
 
         return $res;
     }

@@ -52,11 +52,19 @@ class AsymmetricEncryptRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['Plaintext']    = $this->plaintext;
-        $res['KeyId']        = $this->keyId;
-        $res['KeyVersionId'] = $this->keyVersionId;
-        $res['Algorithm']    = $this->algorithm;
+        $res = [];
+        if (null !== $this->plaintext) {
+            $res['Plaintext'] = $this->plaintext;
+        }
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
+        if (null !== $this->algorithm) {
+            $res['Algorithm'] = $this->algorithm;
+        }
 
         return $res;
     }

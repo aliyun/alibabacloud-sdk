@@ -53,18 +53,26 @@ class TagResourcesRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['RegionId']   = $this->regionId;
-        $res['ResourceId'] = [];
-        if (null !== $this->resourceId) {
-            $res['ResourceId'] = $this->resourceId;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
         }
-        $res['ResourceType'] = $this->resourceType;
-        $res['Tag']          = [];
-        if (null !== $this->tag && \is_array($this->tag)) {
-            $n = 0;
-            foreach ($this->tag as $item) {
-                $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->resourceId) {
+            $res['ResourceId'] = [];
+            if (null !== $this->resourceId) {
+                $res['ResourceId'] = $this->resourceId;
+            }
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->tag) {
+            $res['Tag'] = [];
+            if (null !== $this->tag && \is_array($this->tag)) {
+                $n = 0;
+                foreach ($this->tag as $item) {
+                    $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

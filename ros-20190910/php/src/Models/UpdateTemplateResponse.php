@@ -34,9 +34,13 @@ class UpdateTemplateResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['RequestId']  = $this->requestId;
-        $res['TemplateId'] = $this->templateId;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->templateId) {
+            $res['TemplateId'] = $this->templateId;
+        }
 
         return $res;
     }

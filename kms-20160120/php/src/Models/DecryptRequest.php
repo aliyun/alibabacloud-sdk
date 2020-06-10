@@ -33,9 +33,13 @@ class DecryptRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['CiphertextBlob']    = $this->ciphertextBlob;
-        $res['EncryptionContext'] = $this->encryptionContext;
+        $res = [];
+        if (null !== $this->ciphertextBlob) {
+            $res['CiphertextBlob'] = $this->ciphertextBlob;
+        }
+        if (null !== $this->encryptionContext) {
+            $res['EncryptionContext'] = $this->encryptionContext;
+        }
 
         return $res;
     }

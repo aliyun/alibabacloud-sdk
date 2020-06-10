@@ -43,10 +43,16 @@ class GetParametersForImportRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['KeyId']             = $this->keyId;
-        $res['WrappingAlgorithm'] = $this->wrappingAlgorithm;
-        $res['WrappingKeySpec']   = $this->wrappingKeySpec;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->wrappingAlgorithm) {
+            $res['WrappingAlgorithm'] = $this->wrappingAlgorithm;
+        }
+        if (null !== $this->wrappingKeySpec) {
+            $res['WrappingKeySpec'] = $this->wrappingKeySpec;
+        }
 
         return $res;
     }

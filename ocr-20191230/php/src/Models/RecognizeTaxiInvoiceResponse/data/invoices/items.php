@@ -35,9 +35,13 @@ class items extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['Text']    = $this->text;
-        $res['ItemRoi'] = null !== $this->itemRoi ? $this->itemRoi->toMap() : null;
+        $res = [];
+        if (null !== $this->text) {
+            $res['Text'] = $this->text;
+        }
+        if (null !== $this->itemRoi) {
+            $res['ItemRoi'] = null !== $this->itemRoi ? $this->itemRoi->toMap() : null;
+        }
 
         return $res;
     }

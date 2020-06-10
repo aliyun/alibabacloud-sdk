@@ -34,9 +34,13 @@ class UpdateSecretVersionStageResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['SecretName'] = $this->secretName;
-        $res['RequestId']  = $this->requestId;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
 
         return $res;
     }

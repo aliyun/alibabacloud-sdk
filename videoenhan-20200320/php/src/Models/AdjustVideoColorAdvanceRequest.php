@@ -58,12 +58,22 @@ class AdjustVideoColorAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VideoUrlObject'] = $this->videoUrlObject;
-        $res['VideoBitrate']   = $this->videoBitrate;
-        $res['VideoCodec']     = $this->videoCodec;
-        $res['VideoFormat']    = $this->videoFormat;
-        $res['Mode']           = $this->mode;
+        $res = [];
+        if (null !== $this->videoUrlObject) {
+            $res['VideoUrlObject'] = $this->videoUrlObject;
+        }
+        if (null !== $this->videoBitrate) {
+            $res['VideoBitrate'] = $this->videoBitrate;
+        }
+        if (null !== $this->videoCodec) {
+            $res['VideoCodec'] = $this->videoCodec;
+        }
+        if (null !== $this->videoFormat) {
+            $res['VideoFormat'] = $this->videoFormat;
+        }
+        if (null !== $this->mode) {
+            $res['Mode'] = $this->mode;
+        }
 
         return $res;
     }

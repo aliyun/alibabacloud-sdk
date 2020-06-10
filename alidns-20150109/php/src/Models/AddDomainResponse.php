@@ -1,23 +1,74 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Alidns\V20150109\Models;
 
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainResponse\dnsServers;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainResponse\dnsServers;
+class AddDomainResponse extends Model
+{
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
+    public $requestId;
 
-class AddDomainResponse extends Model {
+    /**
+     * @description module.domainId
+     *
+     * @var string
+     */
+    public $domainId;
+
+    /**
+     * @description module.domainName
+     *
+     * @var string
+     */
+    public $domainName;
+
+    /**
+     * @description module.punyCode
+     *
+     * @var string
+     */
+    public $punyCode;
+
+    /**
+     * @description module.groupId
+     *
+     * @var string
+     */
+    public $groupId;
+
+    /**
+     * @description module.groupName
+     *
+     * @var string
+     */
+    public $groupName;
+
+    /**
+     * @description module.dnsList
+     *
+     * @var dnsServers
+     */
+    public $dnsServers;
     protected $_name = [
-        'requestId' => 'RequestId',
-        'domainId' => 'DomainId',
+        'requestId'  => 'RequestId',
+        'domainId'   => 'DomainId',
         'domainName' => 'DomainName',
-        'punyCode' => 'PunyCode',
-        'groupId' => 'GroupId',
-        'groupName' => 'GroupName',
+        'punyCode'   => 'PunyCode',
+        'groupId'    => 'GroupId',
+        'groupName'  => 'GroupName',
         'dnsServers' => 'DnsServers',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('requestId', $this->requestId, true);
         Model::validateRequired('domainId', $this->domainId, true);
         Model::validateRequired('domainName', $this->domainName, true);
@@ -26,86 +77,65 @@ class AddDomainResponse extends Model {
         Model::validateRequired('groupName', $this->groupName, true);
         Model::validateRequired('dnsServers', $this->dnsServers, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['RequestId'] = $this->requestId;
-        $res['DomainId'] = $this->domainId;
-        $res['DomainName'] = $this->domainName;
-        $res['PunyCode'] = $this->punyCode;
-        $res['GroupId'] = $this->groupId;
-        $res['GroupName'] = $this->groupName;
-        $res['DnsServers'] = null !== $this->dnsServers ? $this->dnsServers->toMap() : null;
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->domainId) {
+            $res['DomainId'] = $this->domainId;
+        }
+        if (null !== $this->domainName) {
+            $res['DomainName'] = $this->domainName;
+        }
+        if (null !== $this->punyCode) {
+            $res['PunyCode'] = $this->punyCode;
+        }
+        if (null !== $this->groupId) {
+            $res['GroupId'] = $this->groupId;
+        }
+        if (null !== $this->groupName) {
+            $res['GroupName'] = $this->groupName;
+        }
+        if (null !== $this->dnsServers) {
+            $res['DnsServers'] = null !== $this->dnsServers ? $this->dnsServers->toMap() : null;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return AddDomainResponse
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['RequestId'])){
+        if (isset($map['RequestId'])) {
             $model->requestId = $map['RequestId'];
         }
-        if(isset($map['DomainId'])){
+        if (isset($map['DomainId'])) {
             $model->domainId = $map['DomainId'];
         }
-        if(isset($map['DomainName'])){
+        if (isset($map['DomainName'])) {
             $model->domainName = $map['DomainName'];
         }
-        if(isset($map['PunyCode'])){
+        if (isset($map['PunyCode'])) {
             $model->punyCode = $map['PunyCode'];
         }
-        if(isset($map['GroupId'])){
+        if (isset($map['GroupId'])) {
             $model->groupId = $map['GroupId'];
         }
-        if(isset($map['GroupName'])){
+        if (isset($map['GroupName'])) {
             $model->groupName = $map['GroupName'];
         }
-        if(isset($map['DnsServers'])){
+        if (isset($map['DnsServers'])) {
             $model->dnsServers = dnsServers::fromMap($map['DnsServers']);
         }
+
         return $model;
     }
-    /**
-     * @description requestId
-     * @var string
-     */
-    public $requestId;
-
-    /**
-     * @description module.domainId
-     * @var string
-     */
-    public $domainId;
-
-    /**
-     * @description module.domainName
-     * @var string
-     */
-    public $domainName;
-
-    /**
-     * @description module.punyCode
-     * @var string
-     */
-    public $punyCode;
-
-    /**
-     * @description module.groupId
-     * @var string
-     */
-    public $groupId;
-
-    /**
-     * @description module.groupName
-     * @var string
-     */
-    public $groupName;
-
-    /**
-     * @description module.dnsList
-     * @var dnsServers
-     */
-    public $dnsServers;
-
 }

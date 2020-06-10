@@ -34,9 +34,13 @@ class data extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['WatermarkImageURL'] = $this->watermarkImageURL;
-        $res['TextImageURL']      = $this->textImageURL;
+        $res = [];
+        if (null !== $this->watermarkImageURL) {
+            $res['WatermarkImageURL'] = $this->watermarkImageURL;
+        }
+        if (null !== $this->textImageURL) {
+            $res['TextImageURL'] = $this->textImageURL;
+        }
 
         return $res;
     }

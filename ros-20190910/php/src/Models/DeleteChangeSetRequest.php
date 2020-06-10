@@ -34,9 +34,13 @@ class DeleteChangeSetRequest extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['RegionId']    = $this->regionId;
-        $res['ChangeSetId'] = $this->changeSetId;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->changeSetId) {
+            $res['ChangeSetId'] = $this->changeSetId;
+        }
 
         return $res;
     }

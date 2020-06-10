@@ -52,11 +52,19 @@ class invalidStampAreas extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Left']   = $this->left;
-        $res['Top']    = $this->top;
-        $res['Height'] = $this->height;
-        $res['Width']  = $this->width;
+        $res = [];
+        if (null !== $this->left) {
+            $res['Left'] = $this->left;
+        }
+        if (null !== $this->top) {
+            $res['Top'] = $this->top;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
 
         return $res;
     }

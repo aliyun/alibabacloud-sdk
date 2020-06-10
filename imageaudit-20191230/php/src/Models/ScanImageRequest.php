@@ -35,17 +35,21 @@ class ScanImageRequest extends Model
 
     public function toMap()
     {
-        $res         = [];
-        $res['Task'] = [];
-        if (null !== $this->task && \is_array($this->task)) {
-            $n = 0;
-            foreach ($this->task as $item) {
-                $res['Task'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->task) {
+            $res['Task'] = [];
+            if (null !== $this->task && \is_array($this->task)) {
+                $n = 0;
+                foreach ($this->task as $item) {
+                    $res['Task'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Scene'] = [];
         if (null !== $this->scene) {
-            $res['Scene'] = $this->scene;
+            $res['Scene'] = [];
+            if (null !== $this->scene) {
+                $res['Scene'] = $this->scene;
+            }
         }
 
         return $res;

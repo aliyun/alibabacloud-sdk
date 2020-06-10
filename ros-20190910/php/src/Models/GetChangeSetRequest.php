@@ -42,10 +42,16 @@ class GetChangeSetRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['ShowTemplate'] = $this->showTemplate;
-        $res['RegionId']     = $this->regionId;
-        $res['ChangeSetId']  = $this->changeSetId;
+        $res = [];
+        if (null !== $this->showTemplate) {
+            $res['ShowTemplate'] = $this->showTemplate;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->changeSetId) {
+            $res['ChangeSetId'] = $this->changeSetId;
+        }
 
         return $res;
     }

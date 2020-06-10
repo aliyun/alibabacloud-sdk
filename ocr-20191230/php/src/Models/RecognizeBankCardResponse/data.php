@@ -43,10 +43,16 @@ class data extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['BankName']   = $this->bankName;
-        $res['CardNumber'] = $this->cardNumber;
-        $res['ValidDate']  = $this->validDate;
+        $res = [];
+        if (null !== $this->bankName) {
+            $res['BankName'] = $this->bankName;
+        }
+        if (null !== $this->cardNumber) {
+            $res['CardNumber'] = $this->cardNumber;
+        }
+        if (null !== $this->validDate) {
+            $res['ValidDate'] = $this->validDate;
+        }
 
         return $res;
     }

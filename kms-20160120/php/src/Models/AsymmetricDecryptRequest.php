@@ -52,11 +52,19 @@ class AsymmetricDecryptRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['CiphertextBlob'] = $this->ciphertextBlob;
-        $res['KeyId']          = $this->keyId;
-        $res['KeyVersionId']   = $this->keyVersionId;
-        $res['Algorithm']      = $this->algorithm;
+        $res = [];
+        if (null !== $this->ciphertextBlob) {
+            $res['CiphertextBlob'] = $this->ciphertextBlob;
+        }
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
+        if (null !== $this->algorithm) {
+            $res['Algorithm'] = $this->algorithm;
+        }
 
         return $res;
     }

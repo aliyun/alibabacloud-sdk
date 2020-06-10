@@ -33,9 +33,13 @@ class SuperResolveVideoAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VideoUrlObject'] = $this->videoUrlObject;
-        $res['BitRate']        = $this->bitRate;
+        $res = [];
+        if (null !== $this->videoUrlObject) {
+            $res['VideoUrlObject'] = $this->videoUrlObject;
+        }
+        if (null !== $this->bitRate) {
+            $res['BitRate'] = $this->bitRate;
+        }
 
         return $res;
     }

@@ -26,12 +26,14 @@ class protectionLevels extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['ProtectionLevel'] = [];
-        if (null !== $this->protectionLevel && \is_array($this->protectionLevel)) {
-            $n = 0;
-            foreach ($this->protectionLevel as $item) {
-                $res['ProtectionLevel'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->protectionLevel) {
+            $res['ProtectionLevel'] = [];
+            if (null !== $this->protectionLevel && \is_array($this->protectionLevel)) {
+                $n = 0;
+                foreach ($this->protectionLevel as $item) {
+                    $res['ProtectionLevel'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

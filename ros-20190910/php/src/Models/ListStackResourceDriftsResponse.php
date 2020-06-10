@@ -44,14 +44,20 @@ class ListStackResourceDriftsResponse extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['RequestId']      = $this->requestId;
-        $res['NextToken']      = $this->nextToken;
-        $res['ResourceDrifts'] = [];
-        if (null !== $this->resourceDrifts && \is_array($this->resourceDrifts)) {
-            $n = 0;
-            foreach ($this->resourceDrifts as $item) {
-                $res['ResourceDrifts'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->nextToken) {
+            $res['NextToken'] = $this->nextToken;
+        }
+        if (null !== $this->resourceDrifts) {
+            $res['ResourceDrifts'] = [];
+            if (null !== $this->resourceDrifts && \is_array($this->resourceDrifts)) {
+                $n = 0;
+                foreach ($this->resourceDrifts as $item) {
+                    $res['ResourceDrifts'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

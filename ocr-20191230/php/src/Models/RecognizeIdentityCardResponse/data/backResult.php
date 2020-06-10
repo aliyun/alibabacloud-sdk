@@ -43,10 +43,16 @@ class backResult extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['StartDate'] = $this->startDate;
-        $res['EndDate']   = $this->endDate;
-        $res['Issue']     = $this->issue;
+        $res = [];
+        if (null !== $this->startDate) {
+            $res['StartDate'] = $this->startDate;
+        }
+        if (null !== $this->endDate) {
+            $res['EndDate'] = $this->endDate;
+        }
+        if (null !== $this->issue) {
+            $res['Issue'] = $this->issue;
+        }
 
         return $res;
     }

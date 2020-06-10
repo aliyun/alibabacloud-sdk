@@ -35,9 +35,13 @@ class ListResourceTagsResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Tags']      = null !== $this->tags ? $this->tags->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->tags) {
+            $res['Tags'] = null !== $this->tags ? $this->tags->toMap() : null;
+        }
 
         return $res;
     }

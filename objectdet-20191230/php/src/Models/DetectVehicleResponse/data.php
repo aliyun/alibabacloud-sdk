@@ -44,14 +44,20 @@ class data extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['Width']                = $this->width;
-        $res['Height']               = $this->height;
-        $res['DetectObjectInfoList'] = [];
-        if (null !== $this->detectObjectInfoList && \is_array($this->detectObjectInfoList)) {
-            $n = 0;
-            foreach ($this->detectObjectInfoList as $item) {
-                $res['DetectObjectInfoList'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
+        if (null !== $this->detectObjectInfoList) {
+            $res['DetectObjectInfoList'] = [];
+            if (null !== $this->detectObjectInfoList && \is_array($this->detectObjectInfoList)) {
+                $n = 0;
+                foreach ($this->detectObjectInfoList as $item) {
+                    $res['DetectObjectInfoList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

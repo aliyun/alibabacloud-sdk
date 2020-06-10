@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud Imagerecog SDK Library for PHP
+## Alibaba Cloud imagerecog (20190930) SDK Library for PHP
 
 ## 安装
 

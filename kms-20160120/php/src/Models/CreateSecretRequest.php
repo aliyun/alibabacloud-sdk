@@ -75,14 +75,28 @@ class CreateSecretRequest extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['SecretName']      = $this->secretName;
-        $res['VersionId']       = $this->versionId;
-        $res['EncryptionKeyId'] = $this->encryptionKeyId;
-        $res['SecretData']      = $this->secretData;
-        $res['SecretDataType']  = $this->secretDataType;
-        $res['Description']     = $this->description;
-        $res['Tags']            = $this->tags;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->versionId) {
+            $res['VersionId'] = $this->versionId;
+        }
+        if (null !== $this->encryptionKeyId) {
+            $res['EncryptionKeyId'] = $this->encryptionKeyId;
+        }
+        if (null !== $this->secretData) {
+            $res['SecretData'] = $this->secretData;
+        }
+        if (null !== $this->secretDataType) {
+            $res['SecretDataType'] = $this->secretDataType;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->tags) {
+            $res['Tags'] = $this->tags;
+        }
 
         return $res;
     }

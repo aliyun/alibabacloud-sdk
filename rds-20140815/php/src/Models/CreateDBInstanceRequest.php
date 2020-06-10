@@ -54,40 +54,108 @@ class CreateDBInstanceRequest extends Model {
     }
     public function toMap() {
         $res = [];
-        $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        $res['RegionId'] = $this->regionId;
-        $res['Engine'] = $this->engine;
-        $res['EngineVersion'] = $this->engineVersion;
-        $res['DBInstanceClass'] = $this->DBInstanceClass;
-        $res['DBInstanceStorage'] = $this->DBInstanceStorage;
-        $res['SystemDBCharset'] = $this->systemDBCharset;
-        $res['DBInstanceNetType'] = $this->DBInstanceNetType;
-        $res['DBInstanceDescription'] = $this->DBInstanceDescription;
-        $res['SecurityIPList'] = $this->securityIPList;
-        $res['ClientToken'] = $this->clientToken;
-        $res['PayType'] = $this->payType;
-        $res['ZoneId'] = $this->zoneId;
-        $res['InstanceNetworkType'] = $this->instanceNetworkType;
-        $res['ConnectionMode'] = $this->connectionMode;
-        $res['VPCId'] = $this->VPCId;
-        $res['VSwitchId'] = $this->VSwitchId;
-        $res['PrivateIpAddress'] = $this->privateIpAddress;
-        $res['UsedTime'] = $this->usedTime;
-        $res['Period'] = $this->period;
-        $res['ResourceGroupId'] = $this->resourceGroupId;
-        $res['DBInstanceStorageType'] = $this->DBInstanceStorageType;
-        $res['BusinessInfo'] = $this->businessInfo;
-        $res['EncryptionKey'] = $this->encryptionKey;
-        $res['RoleARN'] = $this->roleARN;
-        $res['AutoRenew'] = $this->autoRenew;
-        $res['Category'] = $this->category;
-        $res['DedicatedHostGroupId'] = $this->dedicatedHostGroupId;
-        $res['TargetDedicatedHostIdForMaster'] = $this->targetDedicatedHostIdForMaster;
-        $res['TargetDedicatedHostIdForSlave'] = $this->targetDedicatedHostIdForSlave;
-        $res['TargetDedicatedHostIdForLog'] = $this->targetDedicatedHostIdForLog;
-        $res['DBParamGroupId'] = $this->DBParamGroupId;
-        $res['DBTimeZone'] = $this->DBTimeZone;
-        $res['DBIsIgnoreCase'] = $this->DBIsIgnoreCase;
+        if (null !== $this->resourceOwnerId) {
+            $res['ResourceOwnerId'] = $this->resourceOwnerId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->engine) {
+            $res['Engine'] = $this->engine;
+        }
+        if (null !== $this->engineVersion) {
+            $res['EngineVersion'] = $this->engineVersion;
+        }
+        if (null !== $this->DBInstanceClass) {
+            $res['DBInstanceClass'] = $this->DBInstanceClass;
+        }
+        if (null !== $this->DBInstanceStorage) {
+            $res['DBInstanceStorage'] = $this->DBInstanceStorage;
+        }
+        if (null !== $this->systemDBCharset) {
+            $res['SystemDBCharset'] = $this->systemDBCharset;
+        }
+        if (null !== $this->DBInstanceNetType) {
+            $res['DBInstanceNetType'] = $this->DBInstanceNetType;
+        }
+        if (null !== $this->DBInstanceDescription) {
+            $res['DBInstanceDescription'] = $this->DBInstanceDescription;
+        }
+        if (null !== $this->securityIPList) {
+            $res['SecurityIPList'] = $this->securityIPList;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->payType) {
+            $res['PayType'] = $this->payType;
+        }
+        if (null !== $this->zoneId) {
+            $res['ZoneId'] = $this->zoneId;
+        }
+        if (null !== $this->instanceNetworkType) {
+            $res['InstanceNetworkType'] = $this->instanceNetworkType;
+        }
+        if (null !== $this->connectionMode) {
+            $res['ConnectionMode'] = $this->connectionMode;
+        }
+        if (null !== $this->VPCId) {
+            $res['VPCId'] = $this->VPCId;
+        }
+        if (null !== $this->VSwitchId) {
+            $res['VSwitchId'] = $this->VSwitchId;
+        }
+        if (null !== $this->privateIpAddress) {
+            $res['PrivateIpAddress'] = $this->privateIpAddress;
+        }
+        if (null !== $this->usedTime) {
+            $res['UsedTime'] = $this->usedTime;
+        }
+        if (null !== $this->period) {
+            $res['Period'] = $this->period;
+        }
+        if (null !== $this->resourceGroupId) {
+            $res['ResourceGroupId'] = $this->resourceGroupId;
+        }
+        if (null !== $this->DBInstanceStorageType) {
+            $res['DBInstanceStorageType'] = $this->DBInstanceStorageType;
+        }
+        if (null !== $this->businessInfo) {
+            $res['BusinessInfo'] = $this->businessInfo;
+        }
+        if (null !== $this->encryptionKey) {
+            $res['EncryptionKey'] = $this->encryptionKey;
+        }
+        if (null !== $this->roleARN) {
+            $res['RoleARN'] = $this->roleARN;
+        }
+        if (null !== $this->autoRenew) {
+            $res['AutoRenew'] = $this->autoRenew;
+        }
+        if (null !== $this->category) {
+            $res['Category'] = $this->category;
+        }
+        if (null !== $this->dedicatedHostGroupId) {
+            $res['DedicatedHostGroupId'] = $this->dedicatedHostGroupId;
+        }
+        if (null !== $this->targetDedicatedHostIdForMaster) {
+            $res['TargetDedicatedHostIdForMaster'] = $this->targetDedicatedHostIdForMaster;
+        }
+        if (null !== $this->targetDedicatedHostIdForSlave) {
+            $res['TargetDedicatedHostIdForSlave'] = $this->targetDedicatedHostIdForSlave;
+        }
+        if (null !== $this->targetDedicatedHostIdForLog) {
+            $res['TargetDedicatedHostIdForLog'] = $this->targetDedicatedHostIdForLog;
+        }
+        if (null !== $this->DBParamGroupId) {
+            $res['DBParamGroupId'] = $this->DBParamGroupId;
+        }
+        if (null !== $this->DBTimeZone) {
+            $res['DBTimeZone'] = $this->DBTimeZone;
+        }
+        if (null !== $this->DBIsIgnoreCase) {
+            $res['DBIsIgnoreCase'] = $this->DBIsIgnoreCase;
+        }
         return $res;
     }
     /**

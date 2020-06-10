@@ -42,10 +42,16 @@ class EncryptRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['KeyId']             = $this->keyId;
-        $res['Plaintext']         = $this->plaintext;
-        $res['EncryptionContext'] = $this->encryptionContext;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->plaintext) {
+            $res['Plaintext'] = $this->plaintext;
+        }
+        if (null !== $this->encryptionContext) {
+            $res['EncryptionContext'] = $this->encryptionContext;
+        }
 
         return $res;
     }

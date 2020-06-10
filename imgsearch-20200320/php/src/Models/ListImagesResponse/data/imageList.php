@@ -61,12 +61,22 @@ class imageList extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['DataId']    = $this->dataId;
-        $res['ExtraData'] = $this->extraData;
-        $res['EntityId']  = $this->entityId;
-        $res['UpdatedAt'] = $this->updatedAt;
-        $res['CreatedAt'] = $this->createdAt;
+        $res = [];
+        if (null !== $this->dataId) {
+            $res['DataId'] = $this->dataId;
+        }
+        if (null !== $this->extraData) {
+            $res['ExtraData'] = $this->extraData;
+        }
+        if (null !== $this->entityId) {
+            $res['EntityId'] = $this->entityId;
+        }
+        if (null !== $this->updatedAt) {
+            $res['UpdatedAt'] = $this->updatedAt;
+        }
+        if (null !== $this->createdAt) {
+            $res['CreatedAt'] = $this->createdAt;
+        }
 
         return $res;
     }

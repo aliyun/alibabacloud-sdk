@@ -35,9 +35,13 @@ class CreateKeyResponse extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['RequestId']   = $this->requestId;
-        $res['KeyMetadata'] = null !== $this->keyMetadata ? $this->keyMetadata->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->keyMetadata) {
+            $res['KeyMetadata'] = null !== $this->keyMetadata ? $this->keyMetadata->toMap() : null;
+        }
 
         return $res;
     }

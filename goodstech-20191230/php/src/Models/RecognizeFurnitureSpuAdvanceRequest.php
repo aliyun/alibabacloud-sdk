@@ -52,11 +52,19 @@ class RecognizeFurnitureSpuAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ImageURLObject'] = $this->imageURLObject;
-        $res['XLength']        = $this->XLength;
-        $res['YLength']        = $this->YLength;
-        $res['ZLength']        = $this->ZLength;
+        $res = [];
+        if (null !== $this->imageURLObject) {
+            $res['ImageURLObject'] = $this->imageURLObject;
+        }
+        if (null !== $this->XLength) {
+            $res['XLength'] = $this->XLength;
+        }
+        if (null !== $this->YLength) {
+            $res['YLength'] = $this->YLength;
+        }
+        if (null !== $this->ZLength) {
+            $res['ZLength'] = $this->ZLength;
+        }
 
         return $res;
     }

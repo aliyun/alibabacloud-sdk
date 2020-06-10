@@ -35,9 +35,13 @@ class GetStackGroupOperationResponse extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['RequestId']           = $this->requestId;
-        $res['StackGroupOperation'] = null !== $this->stackGroupOperation ? $this->stackGroupOperation->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackGroupOperation) {
+            $res['StackGroupOperation'] = null !== $this->stackGroupOperation ? $this->stackGroupOperation->toMap() : null;
+        }
 
         return $res;
     }

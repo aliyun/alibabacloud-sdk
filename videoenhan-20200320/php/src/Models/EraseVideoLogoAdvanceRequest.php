@@ -34,13 +34,17 @@ class EraseVideoLogoAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VideoUrlObject'] = $this->videoUrlObject;
-        $res['Boxes']          = [];
-        if (null !== $this->boxes && \is_array($this->boxes)) {
-            $n = 0;
-            foreach ($this->boxes as $item) {
-                $res['Boxes'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->videoUrlObject) {
+            $res['VideoUrlObject'] = $this->videoUrlObject;
+        }
+        if (null !== $this->boxes) {
+            $res['Boxes'] = [];
+            if (null !== $this->boxes && \is_array($this->boxes)) {
+                $n = 0;
+                foreach ($this->boxes as $item) {
+                    $res['Boxes'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

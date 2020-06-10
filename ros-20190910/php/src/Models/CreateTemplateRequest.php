@@ -49,11 +49,19 @@ class CreateTemplateRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['TemplateURL']  = $this->templateURL;
-        $res['Description']  = $this->description;
-        $res['TemplateBody'] = $this->templateBody;
-        $res['TemplateName'] = $this->templateName;
+        $res = [];
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->templateName) {
+            $res['TemplateName'] = $this->templateName;
+        }
 
         return $res;
     }

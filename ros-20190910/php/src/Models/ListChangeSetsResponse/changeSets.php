@@ -106,17 +106,37 @@ class changeSets extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['ChangeSetId']     = $this->changeSetId;
-        $res['ChangeSetName']   = $this->changeSetName;
-        $res['ChangeSetType']   = $this->changeSetType;
-        $res['CreateTime']      = $this->createTime;
-        $res['Description']     = $this->description;
-        $res['ExecutionStatus'] = $this->executionStatus;
-        $res['RegionId']        = $this->regionId;
-        $res['StackId']         = $this->stackId;
-        $res['StackName']       = $this->stackName;
-        $res['Status']          = $this->status;
+        $res = [];
+        if (null !== $this->changeSetId) {
+            $res['ChangeSetId'] = $this->changeSetId;
+        }
+        if (null !== $this->changeSetName) {
+            $res['ChangeSetName'] = $this->changeSetName;
+        }
+        if (null !== $this->changeSetType) {
+            $res['ChangeSetType'] = $this->changeSetType;
+        }
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->executionStatus) {
+            $res['ExecutionStatus'] = $this->executionStatus;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
 
         return $res;
     }

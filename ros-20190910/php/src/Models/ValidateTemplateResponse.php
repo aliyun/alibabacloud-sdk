@@ -43,12 +43,18 @@ class ValidateTemplateResponse extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['Description'] = $this->description;
-        $res['RequestId']   = $this->requestId;
-        $res['Parameters']  = [];
+        $res = [];
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
         if (null !== $this->parameters) {
-            $res['Parameters'] = $this->parameters;
+            $res['Parameters'] = [];
+            if (null !== $this->parameters) {
+                $res['Parameters'] = $this->parameters;
+            }
         }
 
         return $res;

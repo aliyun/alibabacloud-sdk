@@ -45,10 +45,16 @@ class DescribeServiceResponse extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['RequestId']        = $this->requestId;
-        $res['ProtectionLevels'] = null !== $this->protectionLevels ? $this->protectionLevels->toMap() : null;
-        $res['KeySpecs']         = null !== $this->keySpecs ? $this->keySpecs->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->protectionLevels) {
+            $res['ProtectionLevels'] = null !== $this->protectionLevels ? $this->protectionLevels->toMap() : null;
+        }
+        if (null !== $this->keySpecs) {
+            $res['KeySpecs'] = null !== $this->keySpecs ? $this->keySpecs->toMap() : null;
+        }
 
         return $res;
     }

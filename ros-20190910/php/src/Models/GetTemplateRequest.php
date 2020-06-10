@@ -48,11 +48,19 @@ class GetTemplateRequest extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['StackId']     = $this->stackId;
-        $res['RegionId']    = $this->regionId;
-        $res['ChangeSetId'] = $this->changeSetId;
-        $res['TemplateId']  = $this->templateId;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->changeSetId) {
+            $res['ChangeSetId'] = $this->changeSetId;
+        }
+        if (null !== $this->templateId) {
+            $res['TemplateId'] = $this->templateId;
+        }
 
         return $res;
     }

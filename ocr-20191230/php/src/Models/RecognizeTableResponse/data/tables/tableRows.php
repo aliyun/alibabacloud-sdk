@@ -26,12 +26,14 @@ class tableRows extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['TableColumns'] = [];
-        if (null !== $this->tableColumns && \is_array($this->tableColumns)) {
-            $n = 0;
-            foreach ($this->tableColumns as $item) {
-                $res['TableColumns'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->tableColumns) {
+            $res['TableColumns'] = [];
+            if (null !== $this->tableColumns && \is_array($this->tableColumns)) {
+                $n = 0;
+                foreach ($this->tableColumns as $item) {
+                    $res['TableColumns'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

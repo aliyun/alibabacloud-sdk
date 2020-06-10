@@ -151,24 +151,54 @@ class GetStackResourceResponse extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['CreateTime']          = $this->createTime;
-        $res['Description']         = $this->description;
-        $res['LogicalResourceId']   = $this->logicalResourceId;
-        $res['Metadata']            = $this->metadata;
-        $res['PhysicalResourceId']  = $this->physicalResourceId;
-        $res['RequestId']           = $this->requestId;
-        $res['ResourceType']        = $this->resourceType;
-        $res['StackId']             = $this->stackId;
-        $res['StackName']           = $this->stackName;
-        $res['Status']              = $this->status;
-        $res['StatusReason']        = $this->statusReason;
-        $res['UpdateTime']          = $this->updateTime;
-        $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
-        $res['DriftDetectionTime']  = $this->driftDetectionTime;
-        $res['ResourceAttributes']  = [];
+        $res = [];
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->logicalResourceId) {
+            $res['LogicalResourceId'] = $this->logicalResourceId;
+        }
+        if (null !== $this->metadata) {
+            $res['Metadata'] = $this->metadata;
+        }
+        if (null !== $this->physicalResourceId) {
+            $res['PhysicalResourceId'] = $this->physicalResourceId;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
+        }
+        if (null !== $this->updateTime) {
+            $res['UpdateTime'] = $this->updateTime;
+        }
+        if (null !== $this->resourceDriftStatus) {
+            $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
+        }
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
         if (null !== $this->resourceAttributes) {
-            $res['ResourceAttributes'] = $this->resourceAttributes;
+            $res['ResourceAttributes'] = [];
+            if (null !== $this->resourceAttributes) {
+                $res['ResourceAttributes'] = $this->resourceAttributes;
+            }
         }
 
         return $res;

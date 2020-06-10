@@ -35,9 +35,13 @@ class GetStackInstanceResponse extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['RequestId']     = $this->requestId;
-        $res['StackInstance'] = null !== $this->stackInstance ? $this->stackInstance->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackInstance) {
+            $res['StackInstance'] = null !== $this->stackInstance ? $this->stackInstance->toMap() : null;
+        }
 
         return $res;
     }

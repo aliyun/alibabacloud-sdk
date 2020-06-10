@@ -1,22 +1,81 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeBackupLogsResponse\items;
 
 use AlibabaCloud\Tea\Model;
 
-class backupLog extends Model {
+class backupLog extends Model
+{
+    /**
+     * @description backupLogId
+     *
+     * @var string
+     */
+    public $backupLogId;
+
+    /**
+     * @description logName
+     *
+     * @var string
+     */
+    public $backupLogName;
+
+    /**
+     * @description logStartTime
+     *
+     * @var string
+     */
+    public $backupLogStartTime;
+
+    /**
+     * @description logEndTime
+     *
+     * @var string
+     */
+    public $backupLogEndTime;
+
+    /**
+     * @description backupLogSize
+     *
+     * @var string
+     */
+    public $backupLogSize;
+
+    /**
+     * @description logDownloadURL
+     *
+     * @var string
+     */
+    public $downloadLink;
+
+    /**
+     * @description logIntranetDownloadURL
+     *
+     * @var string
+     */
+    public $intranetDownloadLink;
+
+    /**
+     * @description urlExpireTime
+     *
+     * @var string
+     */
+    public $linkExpiredTime;
     protected $_name = [
-        'backupLogId' => 'BackupLogId',
-        'backupLogName' => 'BackupLogName',
-        'backupLogStartTime' => 'BackupLogStartTime',
-        'backupLogEndTime' => 'BackupLogEndTime',
-        'backupLogSize' => 'BackupLogSize',
-        'downloadLink' => 'DownloadLink',
+        'backupLogId'          => 'BackupLogId',
+        'backupLogName'        => 'BackupLogName',
+        'backupLogStartTime'   => 'BackupLogStartTime',
+        'backupLogEndTime'     => 'BackupLogEndTime',
+        'backupLogSize'        => 'BackupLogSize',
+        'downloadLink'         => 'DownloadLink',
         'intranetDownloadLink' => 'IntranetDownloadLink',
-        'linkExpiredTime' => 'LinkExpiredTime',
+        'linkExpiredTime'      => 'LinkExpiredTime',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('backupLogId', $this->backupLogId, true);
         Model::validateRequired('backupLogName', $this->backupLogName, true);
         Model::validateRequired('backupLogStartTime', $this->backupLogStartTime, true);
@@ -26,96 +85,71 @@ class backupLog extends Model {
         Model::validateRequired('intranetDownloadLink', $this->intranetDownloadLink, true);
         Model::validateRequired('linkExpiredTime', $this->linkExpiredTime, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['BackupLogId'] = $this->backupLogId;
-        $res['BackupLogName'] = $this->backupLogName;
-        $res['BackupLogStartTime'] = $this->backupLogStartTime;
-        $res['BackupLogEndTime'] = $this->backupLogEndTime;
-        $res['BackupLogSize'] = $this->backupLogSize;
-        $res['DownloadLink'] = $this->downloadLink;
-        $res['IntranetDownloadLink'] = $this->intranetDownloadLink;
-        $res['LinkExpiredTime'] = $this->linkExpiredTime;
+        if (null !== $this->backupLogId) {
+            $res['BackupLogId'] = $this->backupLogId;
+        }
+        if (null !== $this->backupLogName) {
+            $res['BackupLogName'] = $this->backupLogName;
+        }
+        if (null !== $this->backupLogStartTime) {
+            $res['BackupLogStartTime'] = $this->backupLogStartTime;
+        }
+        if (null !== $this->backupLogEndTime) {
+            $res['BackupLogEndTime'] = $this->backupLogEndTime;
+        }
+        if (null !== $this->backupLogSize) {
+            $res['BackupLogSize'] = $this->backupLogSize;
+        }
+        if (null !== $this->downloadLink) {
+            $res['DownloadLink'] = $this->downloadLink;
+        }
+        if (null !== $this->intranetDownloadLink) {
+            $res['IntranetDownloadLink'] = $this->intranetDownloadLink;
+        }
+        if (null !== $this->linkExpiredTime) {
+            $res['LinkExpiredTime'] = $this->linkExpiredTime;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return backupLog
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['BackupLogId'])){
+        if (isset($map['BackupLogId'])) {
             $model->backupLogId = $map['BackupLogId'];
         }
-        if(isset($map['BackupLogName'])){
+        if (isset($map['BackupLogName'])) {
             $model->backupLogName = $map['BackupLogName'];
         }
-        if(isset($map['BackupLogStartTime'])){
+        if (isset($map['BackupLogStartTime'])) {
             $model->backupLogStartTime = $map['BackupLogStartTime'];
         }
-        if(isset($map['BackupLogEndTime'])){
+        if (isset($map['BackupLogEndTime'])) {
             $model->backupLogEndTime = $map['BackupLogEndTime'];
         }
-        if(isset($map['BackupLogSize'])){
+        if (isset($map['BackupLogSize'])) {
             $model->backupLogSize = $map['BackupLogSize'];
         }
-        if(isset($map['DownloadLink'])){
+        if (isset($map['DownloadLink'])) {
             $model->downloadLink = $map['DownloadLink'];
         }
-        if(isset($map['IntranetDownloadLink'])){
+        if (isset($map['IntranetDownloadLink'])) {
             $model->intranetDownloadLink = $map['IntranetDownloadLink'];
         }
-        if(isset($map['LinkExpiredTime'])){
+        if (isset($map['LinkExpiredTime'])) {
             $model->linkExpiredTime = $map['LinkExpiredTime'];
         }
+
         return $model;
     }
-    /**
-     * @description backupLogId
-     * @var string
-     */
-    public $backupLogId;
-
-    /**
-     * @description logName
-     * @var string
-     */
-    public $backupLogName;
-
-    /**
-     * @description logStartTime
-     * @var string
-     */
-    public $backupLogStartTime;
-
-    /**
-     * @description logEndTime
-     * @var string
-     */
-    public $backupLogEndTime;
-
-    /**
-     * @description backupLogSize
-     * @var string
-     */
-    public $backupLogSize;
-
-    /**
-     * @description logDownloadURL
-     * @var string
-     */
-    public $downloadLink;
-
-    /**
-     * @description logIntranetDownloadURL
-     * @var string
-     */
-    public $intranetDownloadLink;
-
-    /**
-     * @description urlExpireTime
-     * @var string
-     */
-    public $linkExpiredTime;
-
 }

@@ -70,13 +70,25 @@ class stackGroups extends Model
 
     public function toMap()
     {
-        $res                          = [];
-        $res['StackGroupName']        = $this->stackGroupName;
-        $res['StackGroupId']          = $this->stackGroupId;
-        $res['Status']                = $this->status;
-        $res['Description']           = $this->description;
-        $res['DriftDetectionTime']    = $this->driftDetectionTime;
-        $res['StackGroupDriftStatus'] = $this->stackGroupDriftStatus;
+        $res = [];
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->stackGroupId) {
+            $res['StackGroupId'] = $this->stackGroupId;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
+        if (null !== $this->stackGroupDriftStatus) {
+            $res['StackGroupDriftStatus'] = $this->stackGroupDriftStatus;
+        }
 
         return $res;
     }

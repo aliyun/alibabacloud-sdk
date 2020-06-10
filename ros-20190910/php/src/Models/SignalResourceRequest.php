@@ -69,13 +69,25 @@ class SignalResourceRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['StackId']           = $this->stackId;
-        $res['Status']            = $this->status;
-        $res['RegionId']          = $this->regionId;
-        $res['UniqueId']          = $this->uniqueId;
-        $res['ClientToken']       = $this->clientToken;
-        $res['LogicalResourceId'] = $this->logicalResourceId;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->uniqueId) {
+            $res['UniqueId'] = $this->uniqueId;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->logicalResourceId) {
+            $res['LogicalResourceId'] = $this->logicalResourceId;
+        }
 
         return $res;
     }
