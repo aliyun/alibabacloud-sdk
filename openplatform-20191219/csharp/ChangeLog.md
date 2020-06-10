@@ -1,3 +1,6 @@
+2020-06-10 Version: 1.0.0
+- Generated csharp 2019-12-19 for OpenPlatform.
+
 2020-06-05 Version: 0.0.5
 - Generated csharp 2019-12-19 for OpenPlatform.
 

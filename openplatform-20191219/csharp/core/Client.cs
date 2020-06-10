@@ -20,20 +20,32 @@ namespace AlibabaCloud.SDK.OpenPlatform20191219
         {
             this._endpointRule = "";
             CheckConfig(config);
-            this._endpoint = GetEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+            this._endpoint = GetEndpoint("openplatform", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
         }
 
 
-        public AuthorizeFileUploadResponse AuthorizeFileUpload(AuthorizeFileUploadRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public AuthorizeFileUploadResponse AuthorizeFileUploadWithOptions(AuthorizeFileUploadRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<AuthorizeFileUploadResponse>(DoRequest("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", request.ToMap(), null, runtime));
         }
 
-        public async Task<AuthorizeFileUploadResponse> AuthorizeFileUploadAsync(AuthorizeFileUploadRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
+        public async Task<AuthorizeFileUploadResponse> AuthorizeFileUploadWithOptionsAsync(AuthorizeFileUploadRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
             return TeaModel.ToObject<AuthorizeFileUploadResponse>(await DoRequestAsync("AuthorizeFileUpload", "HTTPS", "GET", "2019-12-19", "AK", request.ToMap(), null, runtime));
+        }
+
+        public AuthorizeFileUploadResponse AuthorizeFileUpload(AuthorizeFileUploadRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return AuthorizeFileUploadWithOptions(request, runtime);
+        }
+
+        public async Task<AuthorizeFileUploadResponse> AuthorizeFileUploadAsync(AuthorizeFileUploadRequest request)
+        {
+            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
+            return await AuthorizeFileUploadWithOptionsAsync(request, runtime);
         }
 
         public string GetEndpoint(string productId, string regionId, string endpointRule, string network, string suffix, Dictionary<string, string> endpointMap, string endpoint)
@@ -42,7 +54,7 @@ namespace AlibabaCloud.SDK.OpenPlatform20191219
             {
                 return endpoint;
             }
-            if (!AlibabaCloud.TeaUtil.Common.Empty(endpointMap.Get(regionId)))
+            if (!AlibabaCloud.TeaUtil.Common.IsUnset(endpointMap) && !AlibabaCloud.TeaUtil.Common.Empty(endpointMap.Get(regionId)))
             {
                 return endpointMap.Get(regionId);
             }
