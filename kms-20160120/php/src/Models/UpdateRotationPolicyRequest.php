@@ -42,10 +42,16 @@ class UpdateRotationPolicyRequest extends Model
 
     public function toMap()
     {
-        $res                            = [];
-        $res['KeyId']                   = $this->keyId;
-        $res['EnableAutomaticRotation'] = $this->enableAutomaticRotation;
-        $res['RotationInterval']        = $this->rotationInterval;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->enableAutomaticRotation) {
+            $res['EnableAutomaticRotation'] = $this->enableAutomaticRotation;
+        }
+        if (null !== $this->rotationInterval) {
+            $res['RotationInterval'] = $this->rotationInterval;
+        }
 
         return $res;
     }

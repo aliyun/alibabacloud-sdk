@@ -25,8 +25,10 @@ class elements extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['WhiteBase'] = $this->whiteBase;
+        $res = [];
+        if (null !== $this->whiteBase) {
+            $res['WhiteBase'] = $this->whiteBase;
+        }
 
         return $res;
     }

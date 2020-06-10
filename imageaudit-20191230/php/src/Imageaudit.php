@@ -20,7 +20,7 @@ class Imageaudit extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('imageaudit', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -28,7 +28,7 @@ class Imageaudit extends Rpc
      *
      * @return ScanTextResponse
      */
-    public function scanTextEx(ScanTextRequest $request, RuntimeOptions $runtime)
+    public function scanTextWithOptions(ScanTextRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
@@ -44,7 +44,7 @@ class Imageaudit extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->scanTextEx($request, $runtime);
+        return $this->scanTextWithOptions($request, $runtime);
     }
 
     /**
@@ -52,7 +52,7 @@ class Imageaudit extends Rpc
      *
      * @return ScanImageResponse
      */
-    public function scanImageEx(ScanImageRequest $request, RuntimeOptions $runtime)
+    public function scanImageWithOptions(ScanImageRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
@@ -68,7 +68,7 @@ class Imageaudit extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->scanImageEx($request, $runtime);
+        return $this->scanImageWithOptions($request, $runtime);
     }
 
     /**

@@ -25,8 +25,10 @@ class backResult extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['ArchiveNumber'] = $this->archiveNumber;
+        $res = [];
+        if (null !== $this->archiveNumber) {
+            $res['ArchiveNumber'] = $this->archiveNumber;
+        }
 
         return $res;
     }

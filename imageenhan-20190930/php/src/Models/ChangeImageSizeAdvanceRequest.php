@@ -43,10 +43,16 @@ class ChangeImageSizeAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['UrlObject'] = $this->urlObject;
-        $res['Width']     = $this->width;
-        $res['Height']    = $this->height;
+        $res = [];
+        if (null !== $this->urlObject) {
+            $res['UrlObject'] = $this->urlObject;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
 
         return $res;
     }

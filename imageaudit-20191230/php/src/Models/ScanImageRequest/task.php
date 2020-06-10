@@ -57,12 +57,22 @@ class task extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['DataId']               = $this->dataId;
-        $res['ImageURL']             = $this->imageURL;
-        $res['ImageTimeMillisecond'] = $this->imageTimeMillisecond;
-        $res['Interval']             = $this->interval;
-        $res['MaxFrames']            = $this->maxFrames;
+        $res = [];
+        if (null !== $this->dataId) {
+            $res['DataId'] = $this->dataId;
+        }
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->imageTimeMillisecond) {
+            $res['ImageTimeMillisecond'] = $this->imageTimeMillisecond;
+        }
+        if (null !== $this->interval) {
+            $res['Interval'] = $this->interval;
+        }
+        if (null !== $this->maxFrames) {
+            $res['MaxFrames'] = $this->maxFrames;
+        }
 
         return $res;
     }

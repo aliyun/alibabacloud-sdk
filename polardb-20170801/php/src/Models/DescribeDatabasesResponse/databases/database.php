@@ -1,22 +1,66 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeDatabasesResponse\databases;
 
+use AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeDatabasesResponse\databases\database\accounts;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeDatabasesResponse\databases\database\accounts;
+class database extends Model
+{
+    /**
+     * @description dbName
+     *
+     * @var string
+     */
+    public $DBName;
 
-class database extends Model {
+    /**
+     * @description dbStatus
+     *
+     * @var string
+     */
+    public $DBStatus;
+
+    /**
+     * @description dbDescription
+     *
+     * @var string
+     */
+    public $DBDescription;
+
+    /**
+     * @description characterSetName
+     *
+     * @var string
+     */
+    public $characterSetName;
+
+    /**
+     * @description engine
+     *
+     * @var string
+     */
+    public $engine;
+
+    /**
+     * @description accounts
+     *
+     * @var accounts
+     */
+    public $accounts;
     protected $_name = [
-        'DBName' => 'DBName',
-        'DBStatus' => 'DBStatus',
-        'DBDescription' => 'DBDescription',
+        'DBName'           => 'DBName',
+        'DBStatus'         => 'DBStatus',
+        'DBDescription'    => 'DBDescription',
         'characterSetName' => 'CharacterSetName',
-        'engine' => 'Engine',
-        'accounts' => 'Accounts',
+        'engine'           => 'Engine',
+        'accounts'         => 'Accounts',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('DBName', $this->DBName, true);
         Model::validateRequired('DBStatus', $this->DBStatus, true);
         Model::validateRequired('DBDescription', $this->DBDescription, true);
@@ -24,76 +68,59 @@ class database extends Model {
         Model::validateRequired('engine', $this->engine, true);
         Model::validateRequired('accounts', $this->accounts, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['DBName'] = $this->DBName;
-        $res['DBStatus'] = $this->DBStatus;
-        $res['DBDescription'] = $this->DBDescription;
-        $res['CharacterSetName'] = $this->characterSetName;
-        $res['Engine'] = $this->engine;
-        $res['Accounts'] = null !== $this->accounts ? $this->accounts->toMap() : null;
+        if (null !== $this->DBName) {
+            $res['DBName'] = $this->DBName;
+        }
+        if (null !== $this->DBStatus) {
+            $res['DBStatus'] = $this->DBStatus;
+        }
+        if (null !== $this->DBDescription) {
+            $res['DBDescription'] = $this->DBDescription;
+        }
+        if (null !== $this->characterSetName) {
+            $res['CharacterSetName'] = $this->characterSetName;
+        }
+        if (null !== $this->engine) {
+            $res['Engine'] = $this->engine;
+        }
+        if (null !== $this->accounts) {
+            $res['Accounts'] = null !== $this->accounts ? $this->accounts->toMap() : null;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return database
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['DBName'])){
+        if (isset($map['DBName'])) {
             $model->DBName = $map['DBName'];
         }
-        if(isset($map['DBStatus'])){
+        if (isset($map['DBStatus'])) {
             $model->DBStatus = $map['DBStatus'];
         }
-        if(isset($map['DBDescription'])){
+        if (isset($map['DBDescription'])) {
             $model->DBDescription = $map['DBDescription'];
         }
-        if(isset($map['CharacterSetName'])){
+        if (isset($map['CharacterSetName'])) {
             $model->characterSetName = $map['CharacterSetName'];
         }
-        if(isset($map['Engine'])){
+        if (isset($map['Engine'])) {
             $model->engine = $map['Engine'];
         }
-        if(isset($map['Accounts'])){
+        if (isset($map['Accounts'])) {
             $model->accounts = accounts::fromMap($map['Accounts']);
         }
+
         return $model;
     }
-    /**
-     * @description dbName
-     * @var string
-     */
-    public $DBName;
-
-    /**
-     * @description dbStatus
-     * @var string
-     */
-    public $DBStatus;
-
-    /**
-     * @description dbDescription
-     * @var string
-     */
-    public $DBDescription;
-
-    /**
-     * @description characterSetName
-     * @var string
-     */
-    public $characterSetName;
-
-    /**
-     * @description engine
-     * @var string
-     */
-    public $engine;
-
-    /**
-     * @description accounts
-     * @var accounts
-     */
-    public $accounts;
-
 }

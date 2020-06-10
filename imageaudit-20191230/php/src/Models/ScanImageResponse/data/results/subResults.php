@@ -111,49 +111,69 @@ class subResults extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Label']      = $this->label;
-        $res['Suggestion'] = $this->suggestion;
-        $res['Rate']       = $this->rate;
-        $res['Scene']      = $this->scene;
-        $res['Frames']     = [];
-        if (null !== $this->frames && \is_array($this->frames)) {
-            $n = 0;
-            foreach ($this->frames as $item) {
-                $res['Frames'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->label) {
+            $res['Label'] = $this->label;
+        }
+        if (null !== $this->suggestion) {
+            $res['Suggestion'] = $this->suggestion;
+        }
+        if (null !== $this->rate) {
+            $res['Rate'] = $this->rate;
+        }
+        if (null !== $this->scene) {
+            $res['Scene'] = $this->scene;
+        }
+        if (null !== $this->frames) {
+            $res['Frames'] = [];
+            if (null !== $this->frames && \is_array($this->frames)) {
+                $n = 0;
+                foreach ($this->frames as $item) {
+                    $res['Frames'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['HintWordsInfoList'] = [];
-        if (null !== $this->hintWordsInfoList && \is_array($this->hintWordsInfoList)) {
-            $n = 0;
-            foreach ($this->hintWordsInfoList as $item) {
-                $res['HintWordsInfoList'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->hintWordsInfoList) {
+            $res['HintWordsInfoList'] = [];
+            if (null !== $this->hintWordsInfoList && \is_array($this->hintWordsInfoList)) {
+                $n = 0;
+                foreach ($this->hintWordsInfoList as $item) {
+                    $res['HintWordsInfoList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['ProgramCodeDataList'] = [];
-        if (null !== $this->programCodeDataList && \is_array($this->programCodeDataList)) {
-            $n = 0;
-            foreach ($this->programCodeDataList as $item) {
-                $res['ProgramCodeDataList'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->programCodeDataList) {
+            $res['ProgramCodeDataList'] = [];
+            if (null !== $this->programCodeDataList && \is_array($this->programCodeDataList)) {
+                $n = 0;
+                foreach ($this->programCodeDataList as $item) {
+                    $res['ProgramCodeDataList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['LogoDataList'] = [];
-        if (null !== $this->logoDataList && \is_array($this->logoDataList)) {
-            $n = 0;
-            foreach ($this->logoDataList as $item) {
-                $res['LogoDataList'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->logoDataList) {
+            $res['LogoDataList'] = [];
+            if (null !== $this->logoDataList && \is_array($this->logoDataList)) {
+                $n = 0;
+                foreach ($this->logoDataList as $item) {
+                    $res['LogoDataList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['SfaceDataList'] = [];
-        if (null !== $this->sfaceDataList && \is_array($this->sfaceDataList)) {
-            $n = 0;
-            foreach ($this->sfaceDataList as $item) {
-                $res['SfaceDataList'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->sfaceDataList) {
+            $res['SfaceDataList'] = [];
+            if (null !== $this->sfaceDataList && \is_array($this->sfaceDataList)) {
+                $n = 0;
+                foreach ($this->sfaceDataList as $item) {
+                    $res['SfaceDataList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['OCRDataList'] = [];
         if (null !== $this->OCRDataList) {
-            $res['OCRDataList'] = $this->OCRDataList;
+            $res['OCRDataList'] = [];
+            if (null !== $this->OCRDataList) {
+                $res['OCRDataList'] = $this->OCRDataList;
+            }
         }
 
         return $res;

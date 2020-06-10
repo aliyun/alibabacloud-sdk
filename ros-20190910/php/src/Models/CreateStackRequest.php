@@ -123,29 +123,55 @@ class CreateStackRequest extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['DisableRollback'] = $this->disableRollback;
-        $res['TemplateBody']    = $this->templateBody;
-        $res['Parameters']      = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->disableRollback) {
+            $res['DisableRollback'] = $this->disableRollback;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['StackPolicyURL']   = $this->stackPolicyURL;
-        $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
-        $res['StackPolicyBody']  = $this->stackPolicyBody;
-        $res['StackName']        = $this->stackName;
-        $res['RegionId']         = $this->regionId;
-        $res['ClientToken']      = $this->clientToken;
-        $res['TemplateURL']      = $this->templateURL;
-        $res['NotificationURLs'] = [];
-        if (null !== $this->notificationURLs) {
-            $res['NotificationURLs'] = $this->notificationURLs;
+        if (null !== $this->stackPolicyURL) {
+            $res['StackPolicyURL'] = $this->stackPolicyURL;
         }
-        $res['RamRoleName']        = $this->ramRoleName;
-        $res['DeletionProtection'] = $this->deletionProtection;
+        if (null !== $this->timeoutInMinutes) {
+            $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
+        }
+        if (null !== $this->stackPolicyBody) {
+            $res['StackPolicyBody'] = $this->stackPolicyBody;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->notificationURLs) {
+            $res['NotificationURLs'] = [];
+            if (null !== $this->notificationURLs) {
+                $res['NotificationURLs'] = $this->notificationURLs;
+            }
+        }
+        if (null !== $this->ramRoleName) {
+            $res['RamRoleName'] = $this->ramRoleName;
+        }
+        if (null !== $this->deletionProtection) {
+            $res['DeletionProtection'] = $this->deletionProtection;
+        }
 
         return $res;
     }

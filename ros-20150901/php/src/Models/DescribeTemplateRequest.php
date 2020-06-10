@@ -24,8 +24,10 @@ class DescribeTemplateRequest extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['headers'] = $this->headers;
+        $res = [];
+        if (null !== $this->headers) {
+            $res['headers'] = $this->headers;
+        }
 
         return $res;
     }

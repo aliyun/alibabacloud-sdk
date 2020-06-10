@@ -26,12 +26,14 @@ class data extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['ColorTemplateList'] = [];
-        if (null !== $this->colorTemplateList && \is_array($this->colorTemplateList)) {
-            $n = 0;
-            foreach ($this->colorTemplateList as $item) {
-                $res['ColorTemplateList'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->colorTemplateList) {
+            $res['ColorTemplateList'] = [];
+            if (null !== $this->colorTemplateList && \is_array($this->colorTemplateList)) {
+                $n = 0;
+                foreach ($this->colorTemplateList as $item) {
+                    $res['ColorTemplateList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

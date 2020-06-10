@@ -26,12 +26,14 @@ class aliases extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Alias'] = [];
-        if (null !== $this->alias && \is_array($this->alias)) {
-            $n = 0;
-            foreach ($this->alias as $item) {
-                $res['Alias'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->alias) {
+            $res['Alias'] = [];
+            if (null !== $this->alias && \is_array($this->alias)) {
+                $n = 0;
+                foreach ($this->alias as $item) {
+                    $res['Alias'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

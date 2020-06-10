@@ -1,31 +1,108 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse;
 
-use AlibabaCloud\Tea\Model;
-
-use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\tags;
 use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\resources;
 use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec;
-use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\dnsConfig;
-use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\spec\securityContext;
+use AlibabaCloud\SDK\Eci\V20180808\Models\ExportContainerGroupTemplateResponse\template\tags;
+use AlibabaCloud\Tea\Model;
 
-class template extends Model {
+class template extends Model
+{
+    /**
+     * @description regionId
+     *
+     * @var string
+     */
+    public $regionId;
+
+    /**
+     * @description zoneId
+     *
+     * @var string
+     */
+    public $zoneId;
+
+    /**
+     * @description securityGroupId
+     *
+     * @var string
+     */
+    public $securityGroupId;
+
+    /**
+     * @description vSwitchId
+     *
+     * @var string
+     */
+    public $VSwitchId;
+
+    /**
+     * @description resourceGroupId
+     *
+     * @var string
+     */
+    public $resourceGroupId;
+
+    /**
+     * @description eipInstanceId
+     *
+     * @var string
+     */
+    public $eipInstanceId;
+
+    /**
+     * @description containerGroupName
+     *
+     * @var string
+     */
+    public $containerGroupName;
+
+    /**
+     * @description instanceType
+     *
+     * @var string
+     */
+    public $instanceType;
+
+    /**
+     * @description tags
+     *
+     * @var array
+     */
+    public $tags;
+
+    /**
+     * @description resources
+     *
+     * @var resources
+     */
+    public $resources;
+
+    /**
+     * @description spec
+     *
+     * @var spec
+     */
+    public $spec;
     protected $_name = [
-        'regionId' => 'RegionId',
-        'zoneId' => 'ZoneId',
-        'securityGroupId' => 'SecurityGroupId',
-        'VSwitchId' => 'VSwitchId',
-        'resourceGroupId' => 'ResourceGroupId',
-        'eipInstanceId' => 'EipInstanceId',
+        'regionId'           => 'RegionId',
+        'zoneId'             => 'ZoneId',
+        'securityGroupId'    => 'SecurityGroupId',
+        'VSwitchId'          => 'VSwitchId',
+        'resourceGroupId'    => 'ResourceGroupId',
+        'eipInstanceId'      => 'EipInstanceId',
         'containerGroupName' => 'ContainerGroupName',
-        'instanceType' => 'InstanceType',
-        'tags' => 'Tags',
-        'resources' => 'Resources',
-        'spec' => 'Spec',
+        'instanceType'       => 'InstanceType',
+        'tags'               => 'Tags',
+        'resources'          => 'Resources',
+        'spec'               => 'Spec',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('regionId', $this->regionId, true);
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
@@ -38,138 +115,101 @@ class template extends Model {
         Model::validateRequired('resources', $this->resources, true);
         Model::validateRequired('spec', $this->spec, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['RegionId'] = $this->regionId;
-        $res['ZoneId'] = $this->zoneId;
-        $res['SecurityGroupId'] = $this->securityGroupId;
-        $res['VSwitchId'] = $this->VSwitchId;
-        $res['ResourceGroupId'] = $this->resourceGroupId;
-        $res['EipInstanceId'] = $this->eipInstanceId;
-        $res['ContainerGroupName'] = $this->containerGroupName;
-        $res['InstanceType'] = $this->instanceType;
-        $res['Tags'] = [];
-        if(null !== $this->tags && is_array($this->tags)){
-            $n = 0;
-            foreach($this->tags as $item){
-                $res['Tags'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->zoneId) {
+            $res['ZoneId'] = $this->zoneId;
+        }
+        if (null !== $this->securityGroupId) {
+            $res['SecurityGroupId'] = $this->securityGroupId;
+        }
+        if (null !== $this->VSwitchId) {
+            $res['VSwitchId'] = $this->VSwitchId;
+        }
+        if (null !== $this->resourceGroupId) {
+            $res['ResourceGroupId'] = $this->resourceGroupId;
+        }
+        if (null !== $this->eipInstanceId) {
+            $res['EipInstanceId'] = $this->eipInstanceId;
+        }
+        if (null !== $this->containerGroupName) {
+            $res['ContainerGroupName'] = $this->containerGroupName;
+        }
+        if (null !== $this->instanceType) {
+            $res['InstanceType'] = $this->instanceType;
+        }
+        if (null !== $this->tags) {
+            $res['Tags'] = [];
+            if (null !== $this->tags && \is_array($this->tags)) {
+                $n = 0;
+                foreach ($this->tags as $item) {
+                    $res['Tags'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Resources'] = null !== $this->resources ? $this->resources->toMap() : null;
-        $res['Spec'] = null !== $this->spec ? $this->spec->toMap() : null;
+        if (null !== $this->resources) {
+            $res['Resources'] = null !== $this->resources ? $this->resources->toMap() : null;
+        }
+        if (null !== $this->spec) {
+            $res['Spec'] = null !== $this->spec ? $this->spec->toMap() : null;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return template
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['RegionId'])){
+        if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
-        if(isset($map['ZoneId'])){
+        if (isset($map['ZoneId'])) {
             $model->zoneId = $map['ZoneId'];
         }
-        if(isset($map['SecurityGroupId'])){
+        if (isset($map['SecurityGroupId'])) {
             $model->securityGroupId = $map['SecurityGroupId'];
         }
-        if(isset($map['VSwitchId'])){
+        if (isset($map['VSwitchId'])) {
             $model->VSwitchId = $map['VSwitchId'];
         }
-        if(isset($map['ResourceGroupId'])){
+        if (isset($map['ResourceGroupId'])) {
             $model->resourceGroupId = $map['ResourceGroupId'];
         }
-        if(isset($map['EipInstanceId'])){
+        if (isset($map['EipInstanceId'])) {
             $model->eipInstanceId = $map['EipInstanceId'];
         }
-        if(isset($map['ContainerGroupName'])){
+        if (isset($map['ContainerGroupName'])) {
             $model->containerGroupName = $map['ContainerGroupName'];
         }
-        if(isset($map['InstanceType'])){
+        if (isset($map['InstanceType'])) {
             $model->instanceType = $map['InstanceType'];
         }
-        if(isset($map['Tags'])){
-            if(!empty($map['Tags'])){
+        if (isset($map['Tags'])) {
+            if (!empty($map['Tags'])) {
                 $model->tags = [];
-                $n = 0;
-                foreach($map['Tags'] as $item) {
+                $n           = 0;
+                foreach ($map['Tags'] as $item) {
                     $model->tags[$n++] = null !== $item ? tags::fromMap($item) : $item;
                 }
             }
         }
-        if(isset($map['Resources'])){
+        if (isset($map['Resources'])) {
             $model->resources = resources::fromMap($map['Resources']);
         }
-        if(isset($map['Spec'])){
+        if (isset($map['Spec'])) {
             $model->spec = spec::fromMap($map['Spec']);
         }
+
         return $model;
     }
-    /**
-     * @description regionId
-     * @var string
-     */
-    public $regionId;
-
-    /**
-     * @description zoneId
-     * @var string
-     */
-    public $zoneId;
-
-    /**
-     * @description securityGroupId
-     * @var string
-     */
-    public $securityGroupId;
-
-    /**
-     * @description vSwitchId
-     * @var string
-     */
-    public $VSwitchId;
-
-    /**
-     * @description resourceGroupId
-     * @var string
-     */
-    public $resourceGroupId;
-
-    /**
-     * @description eipInstanceId
-     * @var string
-     */
-    public $eipInstanceId;
-
-    /**
-     * @description containerGroupName
-     * @var string
-     */
-    public $containerGroupName;
-
-    /**
-     * @description instanceType
-     * @var string
-     */
-    public $instanceType;
-
-    /**
-     * @description tags
-     * @var array
-     */
-    public $tags;
-
-    /**
-     * @description resources
-     * @var resources
-     */
-    public $resources;
-
-    /**
-     * @description spec
-     * @var spec
-     */
-    public $spec;
-
 }

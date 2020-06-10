@@ -41,10 +41,16 @@ class UntagResourceRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['KeyId']      = $this->keyId;
-        $res['TagKeys']    = $this->tagKeys;
-        $res['SecretName'] = $this->secretName;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->tagKeys) {
+            $res['TagKeys'] = $this->tagKeys;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
 
         return $res;
     }

@@ -35,13 +35,17 @@ class details extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['Label']    = $this->label;
-        $res['Contexts'] = [];
-        if (null !== $this->contexts && \is_array($this->contexts)) {
-            $n = 0;
-            foreach ($this->contexts as $item) {
-                $res['Contexts'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->label) {
+            $res['Label'] = $this->label;
+        }
+        if (null !== $this->contexts) {
+            $res['Contexts'] = [];
+            if (null !== $this->contexts && \is_array($this->contexts)) {
+                $n = 0;
+                foreach ($this->contexts as $item) {
+                    $res['Contexts'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

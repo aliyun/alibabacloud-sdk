@@ -32,9 +32,13 @@ class ListKeysRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
+        $res = [];
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
 
         return $res;
     }

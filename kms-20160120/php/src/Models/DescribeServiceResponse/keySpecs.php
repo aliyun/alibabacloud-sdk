@@ -26,12 +26,14 @@ class keySpecs extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['KeySpec'] = [];
-        if (null !== $this->keySpec && \is_array($this->keySpec)) {
-            $n = 0;
-            foreach ($this->keySpec as $item) {
-                $res['KeySpec'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->keySpec) {
+            $res['KeySpec'] = [];
+            if (null !== $this->keySpec && \is_array($this->keySpec)) {
+                $n = 0;
+                foreach ($this->keySpec as $item) {
+                    $res['KeySpec'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

@@ -34,9 +34,13 @@ class data extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['Url']      = $this->url;
-        $res['MajorUrl'] = $this->majorUrl;
+        $res = [];
+        if (null !== $this->url) {
+            $res['Url'] = $this->url;
+        }
+        if (null !== $this->majorUrl) {
+            $res['MajorUrl'] = $this->majorUrl;
+        }
 
         return $res;
     }

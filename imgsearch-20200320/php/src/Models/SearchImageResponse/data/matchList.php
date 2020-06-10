@@ -43,10 +43,16 @@ class matchList extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['DataId']    = $this->dataId;
-        $res['ExtraData'] = $this->extraData;
-        $res['EntityId']  = $this->entityId;
+        $res = [];
+        if (null !== $this->dataId) {
+            $res['DataId'] = $this->dataId;
+        }
+        if (null !== $this->extraData) {
+            $res['ExtraData'] = $this->extraData;
+        }
+        if (null !== $this->entityId) {
+            $res['EntityId'] = $this->entityId;
+        }
 
         return $res;
     }

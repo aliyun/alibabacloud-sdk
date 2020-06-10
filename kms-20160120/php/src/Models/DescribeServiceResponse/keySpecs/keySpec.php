@@ -45,10 +45,16 @@ class keySpec extends Model
 
     public function toMap()
     {
-        $res                              = [];
-        $res['Name']                      = $this->name;
-        $res['SupportedProtectionLevels'] = null !== $this->supportedProtectionLevels ? $this->supportedProtectionLevels->toMap() : null;
-        $res['Usages']                    = null !== $this->usages ? $this->usages->toMap() : null;
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->supportedProtectionLevels) {
+            $res['SupportedProtectionLevels'] = null !== $this->supportedProtectionLevels ? $this->supportedProtectionLevels->toMap() : null;
+        }
+        if (null !== $this->usages) {
+            $res['Usages'] = null !== $this->usages ? $this->usages->toMap() : null;
+        }
 
         return $res;
     }

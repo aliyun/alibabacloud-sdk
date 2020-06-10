@@ -1,61 +1,80 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Rds\V20140815\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class StartDBInstanceResponse extends Model {
-    protected $_name = [
-        'requestId' => 'RequestId',
-        'taskId' => 'TaskId',
-        'migrationId' => 'MigrationId',
-    ];
-    public function validate() {
-        Model::validateRequired('requestId', $this->requestId, true);
-        Model::validateRequired('taskId', $this->taskId, true);
-        Model::validateRequired('migrationId', $this->migrationId, true);
-    }
-    public function toMap() {
-        $res = [];
-        $res['RequestId'] = $this->requestId;
-        $res['TaskId'] = $this->taskId;
-        $res['MigrationId'] = $this->migrationId;
-        return $res;
-    }
-    /**
-     * @param array $map
-     * @return StartDBInstanceResponse
-     */
-    public static function fromMap($map = []) {
-        $model = new self();
-        if(isset($map['RequestId'])){
-            $model->requestId = $map['RequestId'];
-        }
-        if(isset($map['TaskId'])){
-            $model->taskId = $map['TaskId'];
-        }
-        if(isset($map['MigrationId'])){
-            $model->migrationId = $map['MigrationId'];
-        }
-        return $model;
-    }
+class StartDBInstanceResponse extends Model
+{
     /**
      * @description requestId
+     *
      * @var string
      */
     public $requestId;
 
     /**
      * @description data.taskId
-     * @var integer
+     *
+     * @var int
      */
     public $taskId;
 
     /**
      * @description data.migrationId
-     * @var integer
+     *
+     * @var int
      */
     public $migrationId;
+    protected $_name = [
+        'requestId'   => 'RequestId',
+        'taskId'      => 'TaskId',
+        'migrationId' => 'MigrationId',
+    ];
 
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('taskId', $this->taskId, true);
+        Model::validateRequired('migrationId', $this->migrationId, true);
+    }
+
+    public function toMap()
+    {
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->taskId) {
+            $res['TaskId'] = $this->taskId;
+        }
+        if (null !== $this->migrationId) {
+            $res['MigrationId'] = $this->migrationId;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return StartDBInstanceResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['TaskId'])) {
+            $model->taskId = $map['TaskId'];
+        }
+        if (isset($map['MigrationId'])) {
+            $model->migrationId = $map['MigrationId'];
+        }
+
+        return $model;
+    }
 }

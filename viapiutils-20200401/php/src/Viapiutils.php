@@ -18,7 +18,7 @@ class Viapiutils extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('viapiutils', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -26,7 +26,7 @@ class Viapiutils extends Rpc
      *
      * @return GetOssStsTokenResponse
      */
-    public function getOssStsTokenEx(GetOssStsTokenRequest $request, RuntimeOptions $runtime)
+    public function getOssStsTokenWithOptions(GetOssStsTokenRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
@@ -42,7 +42,7 @@ class Viapiutils extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->getOssStsTokenEx($request, $runtime);
+        return $this->getOssStsTokenWithOptions($request, $runtime);
     }
 
     /**

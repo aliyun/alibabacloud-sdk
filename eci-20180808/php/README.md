@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud ECI SDK Library for PHP
+## Alibaba Cloud Elastic Container Instance (20180808) SDK Library for PHP
 
 ## 安装
 

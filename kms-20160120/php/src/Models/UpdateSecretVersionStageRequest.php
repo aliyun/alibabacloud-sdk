@@ -50,11 +50,19 @@ class UpdateSecretVersionStageRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['SecretName']        = $this->secretName;
-        $res['VersionStage']      = $this->versionStage;
-        $res['RemoveFromVersion'] = $this->removeFromVersion;
-        $res['MoveToVersion']     = $this->moveToVersion;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->versionStage) {
+            $res['VersionStage'] = $this->versionStage;
+        }
+        if (null !== $this->removeFromVersion) {
+            $res['RemoveFromVersion'] = $this->removeFromVersion;
+        }
+        if (null !== $this->moveToVersion) {
+            $res['MoveToVersion'] = $this->moveToVersion;
+        }
 
         return $res;
     }

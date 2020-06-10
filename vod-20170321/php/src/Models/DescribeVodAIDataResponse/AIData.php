@@ -1,51 +1,63 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Vod\V20170321\Models\DescribeVodAIDataResponse;
 
+use AlibabaCloud\SDK\Vod\V20170321\Models\DescribeVodAIDataResponse\AIData\AIDataItem;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Vod\V20170321\Models\DescribeVodAIDataResponse\AIData\AIDataItem;
-
-class AIData extends Model {
+class AIData extends Model
+{
+    /**
+     * @description AIDataItem
+     *
+     * @var array
+     */
+    public $AIDataItem;
     protected $_name = [
         'AIDataItem' => 'AIDataItem',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('AIDataItem', $this->AIDataItem, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['AIDataItem'] = [];
-        if(null !== $this->AIDataItem && is_array($this->AIDataItem)){
-            $n = 0;
-            foreach($this->AIDataItem as $item){
-                $res['AIDataItem'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->AIDataItem) {
+            $res['AIDataItem'] = [];
+            if (null !== $this->AIDataItem && \is_array($this->AIDataItem)) {
+                $n = 0;
+                foreach ($this->AIDataItem as $item) {
+                    $res['AIDataItem'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return AIData
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['AIDataItem'])){
-            if(!empty($map['AIDataItem'])){
+        if (isset($map['AIDataItem'])) {
+            if (!empty($map['AIDataItem'])) {
                 $model->AIDataItem = [];
-                $n = 0;
-                foreach($map['AIDataItem'] as $item) {
+                $n                 = 0;
+                foreach ($map['AIDataItem'] as $item) {
                     $model->AIDataItem[$n++] = null !== $item ? AIDataItem::fromMap($item) : $item;
                 }
             }
         }
+
         return $model;
     }
-    /**
-     * @description AIDataItem
-     * @var array
-     */
-    public $AIDataItem;
-
 }

@@ -14,8 +14,8 @@ use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureAttributeRespo
 use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureSpuAdvanceRequest;
 use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureSpuRequest;
 use AlibabaCloud\SDK\Goodstech\V20191230\Models\RecognizeFurnitureSpuResponse;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
@@ -33,7 +33,7 @@ class Goodstech extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('goodstech', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -71,7 +71,7 @@ class Goodstech extends Rpc
             'product'  => 'goodstech',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -145,7 +145,7 @@ class Goodstech extends Rpc
             'product'  => 'goodstech',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -193,7 +193,7 @@ class Goodstech extends Rpc
     {
         Utils::validateModel($request);
 
-        return ClassifyCommodityResponse::fromMap($this->doRequest('ClassifyCommodity', 'HTTPS', 'GET', '2019-12-30', 'AK', $request, null, $runtime));
+        return ClassifyCommodityResponse::fromMap($this->doRequest('ClassifyCommodity', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -219,7 +219,7 @@ class Goodstech extends Rpc
             'product'  => 'goodstech',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,

@@ -107,21 +107,41 @@ class stackInstance extends Model
 
     public function toMap()
     {
-        $res                       = [];
-        $res['StackGroupName']     = $this->stackGroupName;
-        $res['StackGroupId']       = $this->stackGroupId;
-        $res['StackId']            = $this->stackId;
-        $res['AccountId']          = $this->accountId;
-        $res['RegionId']           = $this->regionId;
-        $res['Status']             = $this->status;
-        $res['StatusReason']       = $this->statusReason;
-        $res['StackDriftStatus']   = $this->stackDriftStatus;
-        $res['DriftDetectionTime'] = $this->driftDetectionTime;
-        $res['ParameterOverrides'] = [];
-        if (null !== $this->parameterOverrides && \is_array($this->parameterOverrides)) {
-            $n = 0;
-            foreach ($this->parameterOverrides as $item) {
-                $res['ParameterOverrides'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->stackGroupId) {
+            $res['StackGroupId'] = $this->stackGroupId;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->accountId) {
+            $res['AccountId'] = $this->accountId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
+        }
+        if (null !== $this->stackDriftStatus) {
+            $res['StackDriftStatus'] = $this->stackDriftStatus;
+        }
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
+        if (null !== $this->parameterOverrides) {
+            $res['ParameterOverrides'] = [];
+            if (null !== $this->parameterOverrides && \is_array($this->parameterOverrides)) {
+                $n = 0;
+                foreach ($this->parameterOverrides as $item) {
+                    $res['ParameterOverrides'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

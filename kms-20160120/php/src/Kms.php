@@ -106,7 +106,7 @@ class Kms extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('kms', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -114,11 +114,11 @@ class Kms extends Rpc
      *
      * @return ListSecretsResponse
      */
-    public function listSecretsEx(ListSecretsRequest $request, RuntimeOptions $runtime)
+    public function listSecretsWithOptions(ListSecretsRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListSecretsResponse::fromMap($this->doRequest('ListSecrets', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListSecretsResponse::fromMap($this->doRequest('ListSecrets', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -130,7 +130,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listSecretsEx($request, $runtime);
+        return $this->listSecretsWithOptions($request, $runtime);
     }
 
     /**
@@ -138,11 +138,11 @@ class Kms extends Rpc
      *
      * @return ListSecretVersionIdsResponse
      */
-    public function listSecretVersionIdsEx(ListSecretVersionIdsRequest $request, RuntimeOptions $runtime)
+    public function listSecretVersionIdsWithOptions(ListSecretVersionIdsRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListSecretVersionIdsResponse::fromMap($this->doRequest('ListSecretVersionIds', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListSecretVersionIdsResponse::fromMap($this->doRequest('ListSecretVersionIds', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -154,7 +154,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listSecretVersionIdsEx($request, $runtime);
+        return $this->listSecretVersionIdsWithOptions($request, $runtime);
     }
 
     /**
@@ -162,11 +162,11 @@ class Kms extends Rpc
      *
      * @return DescribeSecretResponse
      */
-    public function describeSecretEx(DescribeSecretRequest $request, RuntimeOptions $runtime)
+    public function describeSecretWithOptions(DescribeSecretRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeSecretResponse::fromMap($this->doRequest('DescribeSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DescribeSecretResponse::fromMap($this->doRequest('DescribeSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -178,7 +178,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->describeSecretEx($request, $runtime);
+        return $this->describeSecretWithOptions($request, $runtime);
     }
 
     /**
@@ -186,11 +186,11 @@ class Kms extends Rpc
      *
      * @return UpdateSecretResponse
      */
-    public function updateSecretEx(UpdateSecretRequest $request, RuntimeOptions $runtime)
+    public function updateSecretWithOptions(UpdateSecretRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UpdateSecretResponse::fromMap($this->doRequest('UpdateSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return UpdateSecretResponse::fromMap($this->doRequest('UpdateSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -202,7 +202,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->updateSecretEx($request, $runtime);
+        return $this->updateSecretWithOptions($request, $runtime);
     }
 
     /**
@@ -210,11 +210,11 @@ class Kms extends Rpc
      *
      * @return GetSecretValueResponse
      */
-    public function getSecretValueEx(GetSecretValueRequest $request, RuntimeOptions $runtime)
+    public function getSecretValueWithOptions(GetSecretValueRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GetSecretValueResponse::fromMap($this->doRequest('GetSecretValue', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return GetSecretValueResponse::fromMap($this->doRequest('GetSecretValue', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -226,7 +226,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->getSecretValueEx($request, $runtime);
+        return $this->getSecretValueWithOptions($request, $runtime);
     }
 
     /**
@@ -234,11 +234,11 @@ class Kms extends Rpc
      *
      * @return GetRandomPasswordResponse
      */
-    public function getRandomPasswordEx(GetRandomPasswordRequest $request, RuntimeOptions $runtime)
+    public function getRandomPasswordWithOptions(GetRandomPasswordRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GetRandomPasswordResponse::fromMap($this->doRequest('GetRandomPassword', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return GetRandomPasswordResponse::fromMap($this->doRequest('GetRandomPassword', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -250,7 +250,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->getRandomPasswordEx($request, $runtime);
+        return $this->getRandomPasswordWithOptions($request, $runtime);
     }
 
     /**
@@ -258,11 +258,11 @@ class Kms extends Rpc
      *
      * @return RestoreSecretResponse
      */
-    public function restoreSecretEx(RestoreSecretRequest $request, RuntimeOptions $runtime)
+    public function restoreSecretWithOptions(RestoreSecretRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return RestoreSecretResponse::fromMap($this->doRequest('RestoreSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return RestoreSecretResponse::fromMap($this->doRequest('RestoreSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -274,7 +274,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->restoreSecretEx($request, $runtime);
+        return $this->restoreSecretWithOptions($request, $runtime);
     }
 
     /**
@@ -282,11 +282,11 @@ class Kms extends Rpc
      *
      * @return CreateSecretResponse
      */
-    public function createSecretEx(CreateSecretRequest $request, RuntimeOptions $runtime)
+    public function createSecretWithOptions(CreateSecretRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateSecretResponse::fromMap($this->doRequest('CreateSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return CreateSecretResponse::fromMap($this->doRequest('CreateSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -298,7 +298,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->createSecretEx($request, $runtime);
+        return $this->createSecretWithOptions($request, $runtime);
     }
 
     /**
@@ -306,11 +306,11 @@ class Kms extends Rpc
      *
      * @return PutSecretValueResponse
      */
-    public function putSecretValueEx(PutSecretValueRequest $request, RuntimeOptions $runtime)
+    public function putSecretValueWithOptions(PutSecretValueRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return PutSecretValueResponse::fromMap($this->doRequest('PutSecretValue', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return PutSecretValueResponse::fromMap($this->doRequest('PutSecretValue', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -322,7 +322,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->putSecretValueEx($request, $runtime);
+        return $this->putSecretValueWithOptions($request, $runtime);
     }
 
     /**
@@ -330,11 +330,11 @@ class Kms extends Rpc
      *
      * @return DeleteSecretResponse
      */
-    public function deleteSecretEx(DeleteSecretRequest $request, RuntimeOptions $runtime)
+    public function deleteSecretWithOptions(DeleteSecretRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteSecretResponse::fromMap($this->doRequest('DeleteSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DeleteSecretResponse::fromMap($this->doRequest('DeleteSecret', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -346,7 +346,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->deleteSecretEx($request, $runtime);
+        return $this->deleteSecretWithOptions($request, $runtime);
     }
 
     /**
@@ -354,11 +354,11 @@ class Kms extends Rpc
      *
      * @return UpdateSecretVersionStageResponse
      */
-    public function updateSecretVersionStageEx(UpdateSecretVersionStageRequest $request, RuntimeOptions $runtime)
+    public function updateSecretVersionStageWithOptions(UpdateSecretVersionStageRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UpdateSecretVersionStageResponse::fromMap($this->doRequest('UpdateSecretVersionStage', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return UpdateSecretVersionStageResponse::fromMap($this->doRequest('UpdateSecretVersionStage', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -370,7 +370,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->updateSecretVersionStageEx($request, $runtime);
+        return $this->updateSecretVersionStageWithOptions($request, $runtime);
     }
 
     /**
@@ -378,11 +378,11 @@ class Kms extends Rpc
      *
      * @return AsymmetricDecryptResponse
      */
-    public function asymmetricDecryptEx(AsymmetricDecryptRequest $request, RuntimeOptions $runtime)
+    public function asymmetricDecryptWithOptions(AsymmetricDecryptRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return AsymmetricDecryptResponse::fromMap($this->doRequest('AsymmetricDecrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return AsymmetricDecryptResponse::fromMap($this->doRequest('AsymmetricDecrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -394,7 +394,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->asymmetricDecryptEx($request, $runtime);
+        return $this->asymmetricDecryptWithOptions($request, $runtime);
     }
 
     /**
@@ -402,11 +402,11 @@ class Kms extends Rpc
      *
      * @return AsymmetricVerifyResponse
      */
-    public function asymmetricVerifyEx(AsymmetricVerifyRequest $request, RuntimeOptions $runtime)
+    public function asymmetricVerifyWithOptions(AsymmetricVerifyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return AsymmetricVerifyResponse::fromMap($this->doRequest('AsymmetricVerify', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return AsymmetricVerifyResponse::fromMap($this->doRequest('AsymmetricVerify', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -418,7 +418,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->asymmetricVerifyEx($request, $runtime);
+        return $this->asymmetricVerifyWithOptions($request, $runtime);
     }
 
     /**
@@ -426,11 +426,11 @@ class Kms extends Rpc
      *
      * @return AsymmetricSignResponse
      */
-    public function asymmetricSignEx(AsymmetricSignRequest $request, RuntimeOptions $runtime)
+    public function asymmetricSignWithOptions(AsymmetricSignRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return AsymmetricSignResponse::fromMap($this->doRequest('AsymmetricSign', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return AsymmetricSignResponse::fromMap($this->doRequest('AsymmetricSign', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -442,7 +442,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->asymmetricSignEx($request, $runtime);
+        return $this->asymmetricSignWithOptions($request, $runtime);
     }
 
     /**
@@ -450,11 +450,11 @@ class Kms extends Rpc
      *
      * @return AsymmetricEncryptResponse
      */
-    public function asymmetricEncryptEx(AsymmetricEncryptRequest $request, RuntimeOptions $runtime)
+    public function asymmetricEncryptWithOptions(AsymmetricEncryptRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return AsymmetricEncryptResponse::fromMap($this->doRequest('AsymmetricEncrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return AsymmetricEncryptResponse::fromMap($this->doRequest('AsymmetricEncrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -466,7 +466,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->asymmetricEncryptEx($request, $runtime);
+        return $this->asymmetricEncryptWithOptions($request, $runtime);
     }
 
     /**
@@ -474,11 +474,11 @@ class Kms extends Rpc
      *
      * @return GetPublicKeyResponse
      */
-    public function getPublicKeyEx(GetPublicKeyRequest $request, RuntimeOptions $runtime)
+    public function getPublicKeyWithOptions(GetPublicKeyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GetPublicKeyResponse::fromMap($this->doRequest('GetPublicKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return GetPublicKeyResponse::fromMap($this->doRequest('GetPublicKey', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -490,7 +490,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->getPublicKeyEx($request, $runtime);
+        return $this->getPublicKeyWithOptions($request, $runtime);
     }
 
     /**
@@ -498,11 +498,11 @@ class Kms extends Rpc
      *
      * @return GenerateDataKeyWithoutPlaintextResponse
      */
-    public function generateDataKeyWithoutPlaintextEx(GenerateDataKeyWithoutPlaintextRequest $request, RuntimeOptions $runtime)
+    public function generateDataKeyWithoutPlaintextWithOptions(GenerateDataKeyWithoutPlaintextRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GenerateDataKeyWithoutPlaintextResponse::fromMap($this->doRequest('GenerateDataKeyWithoutPlaintext', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return GenerateDataKeyWithoutPlaintextResponse::fromMap($this->doRequest('GenerateDataKeyWithoutPlaintext', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -514,7 +514,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->generateDataKeyWithoutPlaintextEx($request, $runtime);
+        return $this->generateDataKeyWithoutPlaintextWithOptions($request, $runtime);
     }
 
     /**
@@ -522,11 +522,11 @@ class Kms extends Rpc
      *
      * @return UpdateKeyDescriptionResponse
      */
-    public function updateKeyDescriptionEx(UpdateKeyDescriptionRequest $request, RuntimeOptions $runtime)
+    public function updateKeyDescriptionWithOptions(UpdateKeyDescriptionRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UpdateKeyDescriptionResponse::fromMap($this->doRequest('UpdateKeyDescription', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return UpdateKeyDescriptionResponse::fromMap($this->doRequest('UpdateKeyDescription', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -538,7 +538,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->updateKeyDescriptionEx($request, $runtime);
+        return $this->updateKeyDescriptionWithOptions($request, $runtime);
     }
 
     /**
@@ -546,11 +546,11 @@ class Kms extends Rpc
      *
      * @return DescribeKeyVersionResponse
      */
-    public function describeKeyVersionEx(DescribeKeyVersionRequest $request, RuntimeOptions $runtime)
+    public function describeKeyVersionWithOptions(DescribeKeyVersionRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeKeyVersionResponse::fromMap($this->doRequest('DescribeKeyVersion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DescribeKeyVersionResponse::fromMap($this->doRequest('DescribeKeyVersion', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -562,7 +562,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->describeKeyVersionEx($request, $runtime);
+        return $this->describeKeyVersionWithOptions($request, $runtime);
     }
 
     /**
@@ -570,11 +570,11 @@ class Kms extends Rpc
      *
      * @return UpdateRotationPolicyResponse
      */
-    public function updateRotationPolicyEx(UpdateRotationPolicyRequest $request, RuntimeOptions $runtime)
+    public function updateRotationPolicyWithOptions(UpdateRotationPolicyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UpdateRotationPolicyResponse::fromMap($this->doRequest('UpdateRotationPolicy', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return UpdateRotationPolicyResponse::fromMap($this->doRequest('UpdateRotationPolicy', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -586,7 +586,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->updateRotationPolicyEx($request, $runtime);
+        return $this->updateRotationPolicyWithOptions($request, $runtime);
     }
 
     /**
@@ -594,11 +594,11 @@ class Kms extends Rpc
      *
      * @return ListKeyVersionsResponse
      */
-    public function listKeyVersionsEx(ListKeyVersionsRequest $request, RuntimeOptions $runtime)
+    public function listKeyVersionsWithOptions(ListKeyVersionsRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListKeyVersionsResponse::fromMap($this->doRequest('ListKeyVersions', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListKeyVersionsResponse::fromMap($this->doRequest('ListKeyVersions', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -610,7 +610,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listKeyVersionsEx($request, $runtime);
+        return $this->listKeyVersionsWithOptions($request, $runtime);
     }
 
     /**
@@ -618,11 +618,11 @@ class Kms extends Rpc
      *
      * @return CreateKeyVersionResponse
      */
-    public function createKeyVersionEx(CreateKeyVersionRequest $request, RuntimeOptions $runtime)
+    public function createKeyVersionWithOptions(CreateKeyVersionRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateKeyVersionResponse::fromMap($this->doRequest('CreateKeyVersion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return CreateKeyVersionResponse::fromMap($this->doRequest('CreateKeyVersion', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -634,7 +634,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->createKeyVersionEx($request, $runtime);
+        return $this->createKeyVersionWithOptions($request, $runtime);
     }
 
     /**
@@ -642,7 +642,7 @@ class Kms extends Rpc
      *
      * @return DescribeServiceResponse
      */
-    public function describeServiceEx(DescribeServiceRequest $request, RuntimeOptions $runtime)
+    public function describeServiceWithOptions(DescribeServiceRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
@@ -658,7 +658,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->describeServiceEx($request, $runtime);
+        return $this->describeServiceWithOptions($request, $runtime);
     }
 
     /**
@@ -666,11 +666,11 @@ class Kms extends Rpc
      *
      * @return UpdateAliasResponse
      */
-    public function updateAliasEx(UpdateAliasRequest $request, RuntimeOptions $runtime)
+    public function updateAliasWithOptions(UpdateAliasRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UpdateAliasResponse::fromMap($this->doRequest('UpdateAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return UpdateAliasResponse::fromMap($this->doRequest('UpdateAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -682,7 +682,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->updateAliasEx($request, $runtime);
+        return $this->updateAliasWithOptions($request, $runtime);
     }
 
     /**
@@ -690,11 +690,11 @@ class Kms extends Rpc
      *
      * @return UntagResourceResponse
      */
-    public function untagResourceEx(UntagResourceRequest $request, RuntimeOptions $runtime)
+    public function untagResourceWithOptions(UntagResourceRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return UntagResourceResponse::fromMap($this->doRequest('UntagResource', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return UntagResourceResponse::fromMap($this->doRequest('UntagResource', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -706,7 +706,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->untagResourceEx($request, $runtime);
+        return $this->untagResourceWithOptions($request, $runtime);
     }
 
     /**
@@ -714,11 +714,11 @@ class Kms extends Rpc
      *
      * @return TagResourceResponse
      */
-    public function tagResourceEx(TagResourceRequest $request, RuntimeOptions $runtime)
+    public function tagResourceWithOptions(TagResourceRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return TagResourceResponse::fromMap($this->doRequest('TagResource', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return TagResourceResponse::fromMap($this->doRequest('TagResource', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -730,7 +730,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->tagResourceEx($request, $runtime);
+        return $this->tagResourceWithOptions($request, $runtime);
     }
 
     /**
@@ -738,11 +738,11 @@ class Kms extends Rpc
      *
      * @return ScheduleKeyDeletionResponse
      */
-    public function scheduleKeyDeletionEx(ScheduleKeyDeletionRequest $request, RuntimeOptions $runtime)
+    public function scheduleKeyDeletionWithOptions(ScheduleKeyDeletionRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ScheduleKeyDeletionResponse::fromMap($this->doRequest('ScheduleKeyDeletion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ScheduleKeyDeletionResponse::fromMap($this->doRequest('ScheduleKeyDeletion', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -754,7 +754,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->scheduleKeyDeletionEx($request, $runtime);
+        return $this->scheduleKeyDeletionWithOptions($request, $runtime);
     }
 
     /**
@@ -762,11 +762,11 @@ class Kms extends Rpc
      *
      * @return ListResourceTagsResponse
      */
-    public function listResourceTagsEx(ListResourceTagsRequest $request, RuntimeOptions $runtime)
+    public function listResourceTagsWithOptions(ListResourceTagsRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListResourceTagsResponse::fromMap($this->doRequest('ListResourceTags', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListResourceTagsResponse::fromMap($this->doRequest('ListResourceTags', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -778,7 +778,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listResourceTagsEx($request, $runtime);
+        return $this->listResourceTagsWithOptions($request, $runtime);
     }
 
     /**
@@ -786,11 +786,11 @@ class Kms extends Rpc
      *
      * @return ListKeysResponse
      */
-    public function listKeysEx(ListKeysRequest $request, RuntimeOptions $runtime)
+    public function listKeysWithOptions(ListKeysRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListKeysResponse::fromMap($this->doRequest('ListKeys', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListKeysResponse::fromMap($this->doRequest('ListKeys', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -802,7 +802,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listKeysEx($request, $runtime);
+        return $this->listKeysWithOptions($request, $runtime);
     }
 
     /**
@@ -810,11 +810,11 @@ class Kms extends Rpc
      *
      * @return ListAliasesByKeyIdResponse
      */
-    public function listAliasesByKeyIdEx(ListAliasesByKeyIdRequest $request, RuntimeOptions $runtime)
+    public function listAliasesByKeyIdWithOptions(ListAliasesByKeyIdRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListAliasesByKeyIdResponse::fromMap($this->doRequest('ListAliasesByKeyId', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListAliasesByKeyIdResponse::fromMap($this->doRequest('ListAliasesByKeyId', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -826,7 +826,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listAliasesByKeyIdEx($request, $runtime);
+        return $this->listAliasesByKeyIdWithOptions($request, $runtime);
     }
 
     /**
@@ -834,11 +834,11 @@ class Kms extends Rpc
      *
      * @return ListAliasesResponse
      */
-    public function listAliasesEx(ListAliasesRequest $request, RuntimeOptions $runtime)
+    public function listAliasesWithOptions(ListAliasesRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ListAliasesResponse::fromMap($this->doRequest('ListAliases', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ListAliasesResponse::fromMap($this->doRequest('ListAliases', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -850,7 +850,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->listAliasesEx($request, $runtime);
+        return $this->listAliasesWithOptions($request, $runtime);
     }
 
     /**
@@ -858,11 +858,11 @@ class Kms extends Rpc
      *
      * @return ImportKeyMaterialResponse
      */
-    public function importKeyMaterialEx(ImportKeyMaterialRequest $request, RuntimeOptions $runtime)
+    public function importKeyMaterialWithOptions(ImportKeyMaterialRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return ImportKeyMaterialResponse::fromMap($this->doRequest('ImportKeyMaterial', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return ImportKeyMaterialResponse::fromMap($this->doRequest('ImportKeyMaterial', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -874,7 +874,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->importKeyMaterialEx($request, $runtime);
+        return $this->importKeyMaterialWithOptions($request, $runtime);
     }
 
     /**
@@ -882,11 +882,11 @@ class Kms extends Rpc
      *
      * @return GetParametersForImportResponse
      */
-    public function getParametersForImportEx(GetParametersForImportRequest $request, RuntimeOptions $runtime)
+    public function getParametersForImportWithOptions(GetParametersForImportRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GetParametersForImportResponse::fromMap($this->doRequest('GetParametersForImport', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return GetParametersForImportResponse::fromMap($this->doRequest('GetParametersForImport', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -898,7 +898,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->getParametersForImportEx($request, $runtime);
+        return $this->getParametersForImportWithOptions($request, $runtime);
     }
 
     /**
@@ -906,11 +906,11 @@ class Kms extends Rpc
      *
      * @return GenerateDataKeyResponse
      */
-    public function generateDataKeyEx(GenerateDataKeyRequest $request, RuntimeOptions $runtime)
+    public function generateDataKeyWithOptions(GenerateDataKeyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return GenerateDataKeyResponse::fromMap($this->doRequest('GenerateDataKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return GenerateDataKeyResponse::fromMap($this->doRequest('GenerateDataKey', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -922,7 +922,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->generateDataKeyEx($request, $runtime);
+        return $this->generateDataKeyWithOptions($request, $runtime);
     }
 
     /**
@@ -930,11 +930,11 @@ class Kms extends Rpc
      *
      * @return EncryptResponse
      */
-    public function encryptEx(EncryptRequest $request, RuntimeOptions $runtime)
+    public function encryptWithOptions(EncryptRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return EncryptResponse::fromMap($this->doRequest('Encrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return EncryptResponse::fromMap($this->doRequest('Encrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -946,7 +946,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->encryptEx($request, $runtime);
+        return $this->encryptWithOptions($request, $runtime);
     }
 
     /**
@@ -954,11 +954,11 @@ class Kms extends Rpc
      *
      * @return EnableKeyResponse
      */
-    public function enableKeyEx(EnableKeyRequest $request, RuntimeOptions $runtime)
+    public function enableKeyWithOptions(EnableKeyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return EnableKeyResponse::fromMap($this->doRequest('EnableKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return EnableKeyResponse::fromMap($this->doRequest('EnableKey', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -970,7 +970,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->enableKeyEx($request, $runtime);
+        return $this->enableKeyWithOptions($request, $runtime);
     }
 
     /**
@@ -978,11 +978,11 @@ class Kms extends Rpc
      *
      * @return DisableKeyResponse
      */
-    public function disableKeyEx(DisableKeyRequest $request, RuntimeOptions $runtime)
+    public function disableKeyWithOptions(DisableKeyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DisableKeyResponse::fromMap($this->doRequest('DisableKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DisableKeyResponse::fromMap($this->doRequest('DisableKey', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -994,7 +994,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->disableKeyEx($request, $runtime);
+        return $this->disableKeyWithOptions($request, $runtime);
     }
 
     /**
@@ -1002,7 +1002,7 @@ class Kms extends Rpc
      *
      * @return DescribeRegionsResponse
      */
-    public function describeRegionsEx(DescribeRegionsRequest $request, RuntimeOptions $runtime)
+    public function describeRegionsWithOptions(DescribeRegionsRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
@@ -1018,7 +1018,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->describeRegionsEx($request, $runtime);
+        return $this->describeRegionsWithOptions($request, $runtime);
     }
 
     /**
@@ -1026,11 +1026,11 @@ class Kms extends Rpc
      *
      * @return DescribeKeyResponse
      */
-    public function describeKeyEx(DescribeKeyRequest $request, RuntimeOptions $runtime)
+    public function describeKeyWithOptions(DescribeKeyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DescribeKeyResponse::fromMap($this->doRequest('DescribeKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DescribeKeyResponse::fromMap($this->doRequest('DescribeKey', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1042,7 +1042,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->describeKeyEx($request, $runtime);
+        return $this->describeKeyWithOptions($request, $runtime);
     }
 
     /**
@@ -1050,11 +1050,11 @@ class Kms extends Rpc
      *
      * @return DeleteKeyMaterialResponse
      */
-    public function deleteKeyMaterialEx(DeleteKeyMaterialRequest $request, RuntimeOptions $runtime)
+    public function deleteKeyMaterialWithOptions(DeleteKeyMaterialRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteKeyMaterialResponse::fromMap($this->doRequest('DeleteKeyMaterial', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DeleteKeyMaterialResponse::fromMap($this->doRequest('DeleteKeyMaterial', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1066,7 +1066,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->deleteKeyMaterialEx($request, $runtime);
+        return $this->deleteKeyMaterialWithOptions($request, $runtime);
     }
 
     /**
@@ -1074,11 +1074,11 @@ class Kms extends Rpc
      *
      * @return DeleteAliasResponse
      */
-    public function deleteAliasEx(DeleteAliasRequest $request, RuntimeOptions $runtime)
+    public function deleteAliasWithOptions(DeleteAliasRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DeleteAliasResponse::fromMap($this->doRequest('DeleteAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DeleteAliasResponse::fromMap($this->doRequest('DeleteAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1090,7 +1090,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->deleteAliasEx($request, $runtime);
+        return $this->deleteAliasWithOptions($request, $runtime);
     }
 
     /**
@@ -1098,11 +1098,11 @@ class Kms extends Rpc
      *
      * @return DecryptResponse
      */
-    public function decryptEx(DecryptRequest $request, RuntimeOptions $runtime)
+    public function decryptWithOptions(DecryptRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return DecryptResponse::fromMap($this->doRequest('Decrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return DecryptResponse::fromMap($this->doRequest('Decrypt', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1114,7 +1114,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->decryptEx($request, $runtime);
+        return $this->decryptWithOptions($request, $runtime);
     }
 
     /**
@@ -1122,11 +1122,11 @@ class Kms extends Rpc
      *
      * @return CreateKeyResponse
      */
-    public function createKeyEx(CreateKeyRequest $request, RuntimeOptions $runtime)
+    public function createKeyWithOptions(CreateKeyRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateKeyResponse::fromMap($this->doRequest('CreateKey', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return CreateKeyResponse::fromMap($this->doRequest('CreateKey', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1138,7 +1138,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->createKeyEx($request, $runtime);
+        return $this->createKeyWithOptions($request, $runtime);
     }
 
     /**
@@ -1146,11 +1146,11 @@ class Kms extends Rpc
      *
      * @return CreateAliasResponse
      */
-    public function createAliasEx(CreateAliasRequest $request, RuntimeOptions $runtime)
+    public function createAliasWithOptions(CreateAliasRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return CreateAliasResponse::fromMap($this->doRequest('CreateAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return CreateAliasResponse::fromMap($this->doRequest('CreateAlias', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1162,7 +1162,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->createAliasEx($request, $runtime);
+        return $this->createAliasWithOptions($request, $runtime);
     }
 
     /**
@@ -1170,11 +1170,11 @@ class Kms extends Rpc
      *
      * @return CancelKeyDeletionResponse
      */
-    public function cancelKeyDeletionEx(CancelKeyDeletionRequest $request, RuntimeOptions $runtime)
+    public function cancelKeyDeletionWithOptions(CancelKeyDeletionRequest $request, RuntimeOptions $runtime)
     {
         Utils::validateModel($request);
 
-        return CancelKeyDeletionResponse::fromMap($this->doRequest('CancelKeyDeletion', 'HTTPS', 'POST', '2016-01-20', 'AK', $request, null, $runtime));
+        return CancelKeyDeletionResponse::fromMap($this->doRequest('CancelKeyDeletion', 'HTTPS', 'POST', '2016-01-20', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1186,7 +1186,7 @@ class Kms extends Rpc
     {
         $runtime = new RuntimeOptions([]);
 
-        return $this->cancelKeyDeletionEx($request, $runtime);
+        return $this->cancelKeyDeletionWithOptions($request, $runtime);
     }
 
     /**

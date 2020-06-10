@@ -25,8 +25,10 @@ class DeleteChangeSetResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
 
         return $res;
     }

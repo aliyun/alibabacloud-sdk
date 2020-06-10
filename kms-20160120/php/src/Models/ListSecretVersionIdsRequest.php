@@ -49,11 +49,19 @@ class ListSecretVersionIdsRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['SecretName']        = $this->secretName;
-        $res['IncludeDeprecated'] = $this->includeDeprecated;
-        $res['PageNumber']        = $this->pageNumber;
-        $res['PageSize']          = $this->pageSize;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->includeDeprecated) {
+            $res['IncludeDeprecated'] = $this->includeDeprecated;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
 
         return $res;
     }

@@ -34,9 +34,13 @@ class GetStackPolicyRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['StackId']  = $this->stackId;
-        $res['RegionId'] = $this->regionId;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
 
         return $res;
     }

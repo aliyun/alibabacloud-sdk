@@ -106,17 +106,37 @@ class backResult extends Model
 
     public function toMap()
     {
-        $res                              = [];
-        $res['ApprovedPassengerCapacity'] = $this->approvedPassengerCapacity;
-        $res['ApprovedLoad']              = $this->approvedLoad;
-        $res['FileNumber']                = $this->fileNumber;
-        $res['GrossMass']                 = $this->grossMass;
-        $res['EnergyType']                = $this->energyType;
-        $res['InspectionRecord']          = $this->inspectionRecord;
-        $res['OverallDimension']          = $this->overallDimension;
-        $res['TractionMass']              = $this->tractionMass;
-        $res['UnladenMass']               = $this->unladenMass;
-        $res['PlateNumber']               = $this->plateNumber;
+        $res = [];
+        if (null !== $this->approvedPassengerCapacity) {
+            $res['ApprovedPassengerCapacity'] = $this->approvedPassengerCapacity;
+        }
+        if (null !== $this->approvedLoad) {
+            $res['ApprovedLoad'] = $this->approvedLoad;
+        }
+        if (null !== $this->fileNumber) {
+            $res['FileNumber'] = $this->fileNumber;
+        }
+        if (null !== $this->grossMass) {
+            $res['GrossMass'] = $this->grossMass;
+        }
+        if (null !== $this->energyType) {
+            $res['EnergyType'] = $this->energyType;
+        }
+        if (null !== $this->inspectionRecord) {
+            $res['InspectionRecord'] = $this->inspectionRecord;
+        }
+        if (null !== $this->overallDimension) {
+            $res['OverallDimension'] = $this->overallDimension;
+        }
+        if (null !== $this->tractionMass) {
+            $res['TractionMass'] = $this->tractionMass;
+        }
+        if (null !== $this->unladenMass) {
+            $res['UnladenMass'] = $this->unladenMass;
+        }
+        if (null !== $this->plateNumber) {
+            $res['PlateNumber'] = $this->plateNumber;
+        }
 
         return $res;
     }

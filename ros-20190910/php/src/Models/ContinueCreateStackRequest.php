@@ -91,25 +91,43 @@ class ContinueCreateStackRequest extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['StackId']             = $this->stackId;
-        $res['RecreatingResources'] = [];
-        if (null !== $this->recreatingResources) {
-            $res['RecreatingResources'] = $this->recreatingResources;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
         }
-        $res['RegionId']     = $this->regionId;
-        $res['RamRoleName']  = $this->ramRoleName;
-        $res['Mode']         = $this->mode;
-        $res['TemplateBody'] = $this->templateBody;
-        $res['TemplateURL']  = $this->templateURL;
-        $res['Parameters']   = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->recreatingResources) {
+            $res['RecreatingResources'] = [];
+            if (null !== $this->recreatingResources) {
+                $res['RecreatingResources'] = $this->recreatingResources;
             }
         }
-        $res['DryRun'] = $this->dryRun;
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->ramRoleName) {
+            $res['RamRoleName'] = $this->ramRoleName;
+        }
+        if (null !== $this->mode) {
+            $res['Mode'] = $this->mode;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
+        }
+        if (null !== $this->dryRun) {
+            $res['DryRun'] = $this->dryRun;
+        }
 
         return $res;
     }

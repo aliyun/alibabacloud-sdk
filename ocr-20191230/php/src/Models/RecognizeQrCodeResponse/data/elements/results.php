@@ -52,13 +52,21 @@ class results extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['Label']       = $this->label;
-        $res['Suggestion']  = $this->suggestion;
-        $res['Rate']        = $this->rate;
-        $res['QrCodesData'] = [];
+        $res = [];
+        if (null !== $this->label) {
+            $res['Label'] = $this->label;
+        }
+        if (null !== $this->suggestion) {
+            $res['Suggestion'] = $this->suggestion;
+        }
+        if (null !== $this->rate) {
+            $res['Rate'] = $this->rate;
+        }
         if (null !== $this->qrCodesData) {
-            $res['QrCodesData'] = $this->qrCodesData;
+            $res['QrCodesData'] = [];
+            if (null !== $this->qrCodesData) {
+                $res['QrCodesData'] = $this->qrCodesData;
+            }
         }
 
         return $res;

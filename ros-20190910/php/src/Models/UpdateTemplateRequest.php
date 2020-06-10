@@ -57,12 +57,22 @@ class UpdateTemplateRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['TemplateURL']  = $this->templateURL;
-        $res['TemplateName'] = $this->templateName;
-        $res['Description']  = $this->description;
-        $res['TemplateBody'] = $this->templateBody;
-        $res['TemplateId']   = $this->templateId;
+        $res = [];
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->templateName) {
+            $res['TemplateName'] = $this->templateName;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->templateId) {
+            $res['TemplateId'] = $this->templateId;
+        }
 
         return $res;
     }

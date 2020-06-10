@@ -46,16 +46,22 @@ class results extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['GeneralText'] = [];
-        if (null !== $this->generalText && \is_array($this->generalText)) {
-            $n = 0;
-            foreach ($this->generalText as $item) {
-                $res['GeneralText'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->generalText) {
+            $res['GeneralText'] = [];
+            if (null !== $this->generalText && \is_array($this->generalText)) {
+                $n = 0;
+                foreach ($this->generalText as $item) {
+                    $res['GeneralText'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Roi']  = null !== $this->roi ? $this->roi->toMap() : null;
-        $res['Text'] = null !== $this->text ? $this->text->toMap() : null;
+        if (null !== $this->roi) {
+            $res['Roi'] = null !== $this->roi ? $this->roi->toMap() : null;
+        }
+        if (null !== $this->text) {
+            $res['Text'] = null !== $this->text ? $this->text->toMap() : null;
+        }
 
         return $res;
     }

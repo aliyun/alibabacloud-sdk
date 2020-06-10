@@ -25,8 +25,10 @@ class CreateImageDbRequest extends Model
 
     public function toMap()
     {
-        $res         = [];
-        $res['Name'] = $this->name;
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
 
         return $res;
     }

@@ -59,12 +59,22 @@ class PutSecretValueRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VersionId']      = $this->versionId;
-        $res['SecretName']     = $this->secretName;
-        $res['SecretData']     = $this->secretData;
-        $res['SecretDataType'] = $this->secretDataType;
-        $res['VersionStages']  = $this->versionStages;
+        $res = [];
+        if (null !== $this->versionId) {
+            $res['VersionId'] = $this->versionId;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->secretData) {
+            $res['SecretData'] = $this->secretData;
+        }
+        if (null !== $this->secretDataType) {
+            $res['SecretDataType'] = $this->secretDataType;
+        }
+        if (null !== $this->versionStages) {
+            $res['VersionStages'] = $this->versionStages;
+        }
 
         return $res;
     }

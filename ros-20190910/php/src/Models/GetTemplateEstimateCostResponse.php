@@ -34,9 +34,13 @@ class GetTemplateEstimateCostResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Resources'] = $this->resources;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->resources) {
+            $res['Resources'] = $this->resources;
+        }
 
         return $res;
     }

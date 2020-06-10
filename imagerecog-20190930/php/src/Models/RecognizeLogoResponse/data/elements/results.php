@@ -53,15 +53,23 @@ class results extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Label']      = $this->label;
-        $res['Suggestion'] = $this->suggestion;
-        $res['Rate']       = $this->rate;
-        $res['LogosData']  = [];
-        if (null !== $this->logosData && \is_array($this->logosData)) {
-            $n = 0;
-            foreach ($this->logosData as $item) {
-                $res['LogosData'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->label) {
+            $res['Label'] = $this->label;
+        }
+        if (null !== $this->suggestion) {
+            $res['Suggestion'] = $this->suggestion;
+        }
+        if (null !== $this->rate) {
+            $res['Rate'] = $this->rate;
+        }
+        if (null !== $this->logosData) {
+            $res['LogosData'] = [];
+            if (null !== $this->logosData && \is_array($this->logosData)) {
+                $n = 0;
+                foreach ($this->logosData as $item) {
+                    $res['LogosData'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

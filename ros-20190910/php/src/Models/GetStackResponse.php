@@ -206,39 +206,81 @@ class GetStackResponse extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['CreateTime']          = $this->createTime;
-        $res['Description']         = $this->description;
-        $res['DisableRollback']     = $this->disableRollback;
-        $res['RegionId']            = $this->regionId;
-        $res['RequestId']           = $this->requestId;
-        $res['StackId']             = $this->stackId;
-        $res['StackName']           = $this->stackName;
-        $res['Status']              = $this->status;
-        $res['StatusReason']        = $this->statusReason;
-        $res['TemplateDescription'] = $this->templateDescription;
-        $res['TimeoutInMinutes']    = $this->timeoutInMinutes;
-        $res['UpdateTime']          = $this->updateTime;
-        $res['ParentStackId']       = $this->parentStackId;
-        $res['StackDriftStatus']    = $this->stackDriftStatus;
-        $res['DriftDetectionTime']  = $this->driftDetectionTime;
-        $res['RamRoleName']         = $this->ramRoleName;
-        $res['DeletionProtection']  = $this->deletionProtection;
-        $res['RootStackId']         = $this->rootStackId;
-        $res['Parameters']          = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->disableRollback) {
+            $res['DisableRollback'] = $this->disableRollback;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->statusReason) {
+            $res['StatusReason'] = $this->statusReason;
+        }
+        if (null !== $this->templateDescription) {
+            $res['TemplateDescription'] = $this->templateDescription;
+        }
+        if (null !== $this->timeoutInMinutes) {
+            $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
+        }
+        if (null !== $this->updateTime) {
+            $res['UpdateTime'] = $this->updateTime;
+        }
+        if (null !== $this->parentStackId) {
+            $res['ParentStackId'] = $this->parentStackId;
+        }
+        if (null !== $this->stackDriftStatus) {
+            $res['StackDriftStatus'] = $this->stackDriftStatus;
+        }
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
+        if (null !== $this->ramRoleName) {
+            $res['RamRoleName'] = $this->ramRoleName;
+        }
+        if (null !== $this->deletionProtection) {
+            $res['DeletionProtection'] = $this->deletionProtection;
+        }
+        if (null !== $this->rootStackId) {
+            $res['RootStackId'] = $this->rootStackId;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Outputs'] = [];
         if (null !== $this->outputs) {
-            $res['Outputs'] = $this->outputs;
+            $res['Outputs'] = [];
+            if (null !== $this->outputs) {
+                $res['Outputs'] = $this->outputs;
+            }
         }
-        $res['NotificationURLs'] = [];
         if (null !== $this->notificationURLs) {
-            $res['NotificationURLs'] = $this->notificationURLs;
+            $res['NotificationURLs'] = [];
+            if (null !== $this->notificationURLs) {
+                $res['NotificationURLs'] = $this->notificationURLs;
+            }
         }
 
         return $res;

@@ -34,9 +34,13 @@ class GetStackPolicyResponse extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['RequestId']       = $this->requestId;
-        $res['StackPolicyBody'] = $this->stackPolicyBody;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackPolicyBody) {
+            $res['StackPolicyBody'] = $this->stackPolicyBody;
+        }
 
         return $res;
     }

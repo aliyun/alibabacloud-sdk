@@ -1,24 +1,97 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Vod\V20170321\Models\ListVodTemplateResponse;
 
 use AlibabaCloud\Tea\Model;
 
-class vodTemplateInfoList extends Model {
+class vodTemplateInfoList extends Model
+{
+    /**
+     * @description name
+     *
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @description vodTemplateId
+     *
+     * @var string
+     */
+    public $vodTemplateId;
+
+    /**
+     * @description templateType
+     *
+     * @var string
+     */
+    public $templateType;
+
+    /**
+     * @description subTemplateType
+     *
+     * @var string
+     */
+    public $subTemplateType;
+
+    /**
+     * @description source
+     *
+     * @var string
+     */
+    public $source;
+
+    /**
+     * @description isDefault
+     *
+     * @var string
+     */
+    public $isDefault;
+
+    /**
+     * @description templateConfig
+     *
+     * @var string
+     */
+    public $templateConfig;
+
+    /**
+     * @description creationTime
+     *
+     * @var string
+     */
+    public $creationTime;
+
+    /**
+     * @description modifyTime
+     *
+     * @var string
+     */
+    public $modifyTime;
+
+    /**
+     * @description appId
+     *
+     * @var string
+     */
+    public $appId;
     protected $_name = [
-        'name' => 'Name',
-        'vodTemplateId' => 'VodTemplateId',
-        'templateType' => 'TemplateType',
+        'name'            => 'Name',
+        'vodTemplateId'   => 'VodTemplateId',
+        'templateType'    => 'TemplateType',
         'subTemplateType' => 'SubTemplateType',
-        'source' => 'Source',
-        'isDefault' => 'IsDefault',
-        'templateConfig' => 'TemplateConfig',
-        'creationTime' => 'CreationTime',
-        'modifyTime' => 'ModifyTime',
-        'appId' => 'AppId',
+        'source'          => 'Source',
+        'isDefault'       => 'IsDefault',
+        'templateConfig'  => 'TemplateConfig',
+        'creationTime'    => 'CreationTime',
+        'modifyTime'      => 'ModifyTime',
+        'appId'           => 'AppId',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('name', $this->name, true);
         Model::validateRequired('vodTemplateId', $this->vodTemplateId, true);
         Model::validateRequired('templateType', $this->templateType, true);
@@ -30,116 +103,83 @@ class vodTemplateInfoList extends Model {
         Model::validateRequired('modifyTime', $this->modifyTime, true);
         Model::validateRequired('appId', $this->appId, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['Name'] = $this->name;
-        $res['VodTemplateId'] = $this->vodTemplateId;
-        $res['TemplateType'] = $this->templateType;
-        $res['SubTemplateType'] = $this->subTemplateType;
-        $res['Source'] = $this->source;
-        $res['IsDefault'] = $this->isDefault;
-        $res['TemplateConfig'] = $this->templateConfig;
-        $res['CreationTime'] = $this->creationTime;
-        $res['ModifyTime'] = $this->modifyTime;
-        $res['AppId'] = $this->appId;
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->vodTemplateId) {
+            $res['VodTemplateId'] = $this->vodTemplateId;
+        }
+        if (null !== $this->templateType) {
+            $res['TemplateType'] = $this->templateType;
+        }
+        if (null !== $this->subTemplateType) {
+            $res['SubTemplateType'] = $this->subTemplateType;
+        }
+        if (null !== $this->source) {
+            $res['Source'] = $this->source;
+        }
+        if (null !== $this->isDefault) {
+            $res['IsDefault'] = $this->isDefault;
+        }
+        if (null !== $this->templateConfig) {
+            $res['TemplateConfig'] = $this->templateConfig;
+        }
+        if (null !== $this->creationTime) {
+            $res['CreationTime'] = $this->creationTime;
+        }
+        if (null !== $this->modifyTime) {
+            $res['ModifyTime'] = $this->modifyTime;
+        }
+        if (null !== $this->appId) {
+            $res['AppId'] = $this->appId;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return vodTemplateInfoList
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['Name'])){
+        if (isset($map['Name'])) {
             $model->name = $map['Name'];
         }
-        if(isset($map['VodTemplateId'])){
+        if (isset($map['VodTemplateId'])) {
             $model->vodTemplateId = $map['VodTemplateId'];
         }
-        if(isset($map['TemplateType'])){
+        if (isset($map['TemplateType'])) {
             $model->templateType = $map['TemplateType'];
         }
-        if(isset($map['SubTemplateType'])){
+        if (isset($map['SubTemplateType'])) {
             $model->subTemplateType = $map['SubTemplateType'];
         }
-        if(isset($map['Source'])){
+        if (isset($map['Source'])) {
             $model->source = $map['Source'];
         }
-        if(isset($map['IsDefault'])){
+        if (isset($map['IsDefault'])) {
             $model->isDefault = $map['IsDefault'];
         }
-        if(isset($map['TemplateConfig'])){
+        if (isset($map['TemplateConfig'])) {
             $model->templateConfig = $map['TemplateConfig'];
         }
-        if(isset($map['CreationTime'])){
+        if (isset($map['CreationTime'])) {
             $model->creationTime = $map['CreationTime'];
         }
-        if(isset($map['ModifyTime'])){
+        if (isset($map['ModifyTime'])) {
             $model->modifyTime = $map['ModifyTime'];
         }
-        if(isset($map['AppId'])){
+        if (isset($map['AppId'])) {
             $model->appId = $map['AppId'];
         }
+
         return $model;
     }
-    /**
-     * @description name
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @description vodTemplateId
-     * @var string
-     */
-    public $vodTemplateId;
-
-    /**
-     * @description templateType
-     * @var string
-     */
-    public $templateType;
-
-    /**
-     * @description subTemplateType
-     * @var string
-     */
-    public $subTemplateType;
-
-    /**
-     * @description source
-     * @var string
-     */
-    public $source;
-
-    /**
-     * @description isDefault
-     * @var string
-     */
-    public $isDefault;
-
-    /**
-     * @description templateConfig
-     * @var string
-     */
-    public $templateConfig;
-
-    /**
-     * @description creationTime
-     * @var string
-     */
-    public $creationTime;
-
-    /**
-     * @description modifyTime
-     * @var string
-     */
-    public $modifyTime;
-
-    /**
-     * @description appId
-     * @var string
-     */
-    public $appId;
-
 }

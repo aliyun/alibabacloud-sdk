@@ -34,9 +34,13 @@ class size extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Height'] = $this->height;
-        $res['Width']  = $this->width;
+        $res = [];
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
 
         return $res;
     }

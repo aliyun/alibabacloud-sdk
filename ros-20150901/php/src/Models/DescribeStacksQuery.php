@@ -56,12 +56,22 @@ class DescribeStacksQuery extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Status']     = $this->status;
-        $res['Name']       = $this->name;
-        $res['StackId']    = $this->stackId;
-        $res['PageSize']   = $this->pageSize;
-        $res['PageNumber'] = $this->pageNumber;
+        $res = [];
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
 
         return $res;
     }

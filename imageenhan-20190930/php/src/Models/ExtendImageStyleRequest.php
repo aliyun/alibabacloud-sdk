@@ -34,9 +34,13 @@ class ExtendImageStyleRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['StyleUrl'] = $this->styleUrl;
-        $res['MajorUrl'] = $this->majorUrl;
+        $res = [];
+        if (null !== $this->styleUrl) {
+            $res['StyleUrl'] = $this->styleUrl;
+        }
+        if (null !== $this->majorUrl) {
+            $res['MajorUrl'] = $this->majorUrl;
+        }
 
         return $res;
     }

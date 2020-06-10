@@ -62,16 +62,26 @@ class ListChangeSetsResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
-        $res['RequestId']  = $this->requestId;
-        $res['TotalCount'] = $this->totalCount;
-        $res['ChangeSets'] = [];
-        if (null !== $this->changeSets && \is_array($this->changeSets)) {
-            $n = 0;
-            foreach ($this->changeSets as $item) {
-                $res['ChangeSets'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->changeSets) {
+            $res['ChangeSets'] = [];
+            if (null !== $this->changeSets && \is_array($this->changeSets)) {
+                $n = 0;
+                foreach ($this->changeSets as $item) {
+                    $res['ChangeSets'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

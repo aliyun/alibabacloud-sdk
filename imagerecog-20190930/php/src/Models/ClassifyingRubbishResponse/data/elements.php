@@ -52,11 +52,19 @@ class elements extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['Category']      = $this->category;
-        $res['CategoryScore'] = $this->categoryScore;
-        $res['Rubbish']       = $this->rubbish;
-        $res['RubbishScore']  = $this->rubbishScore;
+        $res = [];
+        if (null !== $this->category) {
+            $res['Category'] = $this->category;
+        }
+        if (null !== $this->categoryScore) {
+            $res['CategoryScore'] = $this->categoryScore;
+        }
+        if (null !== $this->rubbish) {
+            $res['Rubbish'] = $this->rubbish;
+        }
+        if (null !== $this->rubbishScore) {
+            $res['RubbishScore'] = $this->rubbishScore;
+        }
 
         return $res;
     }

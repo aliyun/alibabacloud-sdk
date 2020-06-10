@@ -25,8 +25,10 @@ class RestoreSecretRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['SecretName'] = $this->secretName;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
 
         return $res;
     }

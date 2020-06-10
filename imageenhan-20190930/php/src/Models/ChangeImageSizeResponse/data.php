@@ -35,9 +35,13 @@ class data extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['Url']            = $this->url;
-        $res['RetainLocation'] = null !== $this->retainLocation ? $this->retainLocation->toMap() : null;
+        $res = [];
+        if (null !== $this->url) {
+            $res['Url'] = $this->url;
+        }
+        if (null !== $this->retainLocation) {
+            $res['RetainLocation'] = null !== $this->retainLocation ? $this->retainLocation->toMap() : null;
+        }
 
         return $res;
     }

@@ -25,8 +25,10 @@ class elements extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['TransparentImage'] = $this->transparentImage;
+        $res = [];
+        if (null !== $this->transparentImage) {
+            $res['TransparentImage'] = $this->transparentImage;
+        }
 
         return $res;
     }

@@ -51,11 +51,19 @@ class AddImageRequest extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['DbName']    = $this->dbName;
-        $res['ImageUrl']  = $this->imageUrl;
-        $res['ExtraData'] = $this->extraData;
-        $res['EntityId']  = $this->entityId;
+        $res = [];
+        if (null !== $this->dbName) {
+            $res['DbName'] = $this->dbName;
+        }
+        if (null !== $this->imageUrl) {
+            $res['ImageUrl'] = $this->imageUrl;
+        }
+        if (null !== $this->extraData) {
+            $res['ExtraData'] = $this->extraData;
+        }
+        if (null !== $this->entityId) {
+            $res['EntityId'] = $this->entityId;
+        }
 
         return $res;
     }

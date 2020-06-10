@@ -25,10 +25,12 @@ class data extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['ShotFrameIds'] = [];
+        $res = [];
         if (null !== $this->shotFrameIds) {
-            $res['ShotFrameIds'] = $this->shotFrameIds;
+            $res['ShotFrameIds'] = [];
+            if (null !== $this->shotFrameIds) {
+                $res['ShotFrameIds'] = $this->shotFrameIds;
+            }
         }
 
         return $res;

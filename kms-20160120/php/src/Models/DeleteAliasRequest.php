@@ -25,8 +25,10 @@ class DeleteAliasRequest extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['AliasName'] = $this->aliasName;
+        $res = [];
+        if (null !== $this->aliasName) {
+            $res['AliasName'] = $this->aliasName;
+        }
 
         return $res;
     }

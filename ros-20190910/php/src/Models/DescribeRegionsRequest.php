@@ -24,8 +24,10 @@ class DescribeRegionsRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['AcceptLanguage'] = $this->acceptLanguage;
+        $res = [];
+        if (null !== $this->acceptLanguage) {
+            $res['AcceptLanguage'] = $this->acceptLanguage;
+        }
 
         return $res;
     }

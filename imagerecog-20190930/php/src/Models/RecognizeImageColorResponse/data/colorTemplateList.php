@@ -43,10 +43,16 @@ class colorTemplateList extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Color']      = $this->color;
-        $res['Label']      = $this->label;
-        $res['Percentage'] = $this->percentage;
+        $res = [];
+        if (null !== $this->color) {
+            $res['Color'] = $this->color;
+        }
+        if (null !== $this->label) {
+            $res['Label'] = $this->label;
+        }
+        if (null !== $this->percentage) {
+            $res['Percentage'] = $this->percentage;
+        }
 
         return $res;
     }

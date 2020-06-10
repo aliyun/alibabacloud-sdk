@@ -35,13 +35,17 @@ class data extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['Threshold'] = $this->threshold;
-        $res['Elements']  = [];
-        if (null !== $this->elements && \is_array($this->elements)) {
-            $n = 0;
-            foreach ($this->elements as $item) {
-                $res['Elements'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->threshold) {
+            $res['Threshold'] = $this->threshold;
+        }
+        if (null !== $this->elements) {
+            $res['Elements'] = [];
+            if (null !== $this->elements && \is_array($this->elements)) {
+                $n = 0;
+                foreach ($this->elements as $item) {
+                    $res['Elements'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

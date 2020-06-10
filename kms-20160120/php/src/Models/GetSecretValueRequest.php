@@ -41,10 +41,16 @@ class GetSecretValueRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['SecretName']   = $this->secretName;
-        $res['VersionStage'] = $this->versionStage;
-        $res['VersionId']    = $this->versionId;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->versionStage) {
+            $res['VersionStage'] = $this->versionStage;
+        }
+        if (null !== $this->versionId) {
+            $res['VersionId'] = $this->versionId;
+        }
 
         return $res;
     }

@@ -26,12 +26,14 @@ class data extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['MatchList'] = [];
-        if (null !== $this->matchList && \is_array($this->matchList)) {
-            $n = 0;
-            foreach ($this->matchList as $item) {
-                $res['MatchList'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->matchList) {
+            $res['MatchList'] = [];
+            if (null !== $this->matchList && \is_array($this->matchList)) {
+                $n = 0;
+                foreach ($this->matchList as $item) {
+                    $res['MatchList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

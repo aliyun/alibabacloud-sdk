@@ -41,10 +41,16 @@ class DeleteSecretRequest extends Model
 
     public function toMap()
     {
-        $res                               = [];
-        $res['SecretName']                 = $this->secretName;
-        $res['ForceDeleteWithoutRecovery'] = $this->forceDeleteWithoutRecovery;
-        $res['RecoveryWindowInDays']       = $this->recoveryWindowInDays;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->forceDeleteWithoutRecovery) {
+            $res['ForceDeleteWithoutRecovery'] = $this->forceDeleteWithoutRecovery;
+        }
+        if (null !== $this->recoveryWindowInDays) {
+            $res['RecoveryWindowInDays'] = $this->recoveryWindowInDays;
+        }
 
         return $res;
     }

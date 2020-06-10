@@ -40,10 +40,16 @@ class ListSecretsRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['FetchTags']  = $this->fetchTags;
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
+        $res = [];
+        if (null !== $this->fetchTags) {
+            $res['FetchTags'] = $this->fetchTags;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
 
         return $res;
     }

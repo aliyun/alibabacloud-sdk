@@ -66,13 +66,25 @@ class ListStackInstancesRequest extends Model
 
     public function toMap()
     {
-        $res                           = [];
-        $res['RegionId']               = $this->regionId;
-        $res['StackGroupName']         = $this->stackGroupName;
-        $res['StackInstanceAccountId'] = $this->stackInstanceAccountId;
-        $res['StackInstanceRegionId']  = $this->stackInstanceRegionId;
-        $res['PageSize']               = $this->pageSize;
-        $res['PageNumber']             = $this->pageNumber;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->stackInstanceAccountId) {
+            $res['StackInstanceAccountId'] = $this->stackInstanceAccountId;
+        }
+        if (null !== $this->stackInstanceRegionId) {
+            $res['StackInstanceRegionId'] = $this->stackInstanceRegionId;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
 
         return $res;
     }

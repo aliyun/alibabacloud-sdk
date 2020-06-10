@@ -88,15 +88,31 @@ class stackGroupOperations extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['StackGroupName']       = $this->stackGroupName;
-        $res['StackGroupId']         = $this->stackGroupId;
-        $res['OperationId']          = $this->operationId;
-        $res['OperationDescription'] = $this->operationDescription;
-        $res['CreateTime']           = $this->createTime;
-        $res['EndTime']              = $this->endTime;
-        $res['Action']               = $this->action;
-        $res['Status']               = $this->status;
+        $res = [];
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->stackGroupId) {
+            $res['StackGroupId'] = $this->stackGroupId;
+        }
+        if (null !== $this->operationId) {
+            $res['OperationId'] = $this->operationId;
+        }
+        if (null !== $this->operationDescription) {
+            $res['OperationDescription'] = $this->operationDescription;
+        }
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->endTime) {
+            $res['EndTime'] = $this->endTime;
+        }
+        if (null !== $this->action) {
+            $res['Action'] = $this->action;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
 
         return $res;
     }

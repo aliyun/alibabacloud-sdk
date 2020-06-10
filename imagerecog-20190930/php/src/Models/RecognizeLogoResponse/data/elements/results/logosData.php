@@ -70,13 +70,25 @@ class logosData extends Model
 
     public function toMap()
     {
-        $res         = [];
-        $res['Name'] = $this->name;
-        $res['Type'] = $this->type;
-        $res['X']    = $this->x;
-        $res['Y']    = $this->y;
-        $res['H']    = $this->h;
-        $res['W']    = $this->w;
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
+        if (null !== $this->x) {
+            $res['X'] = $this->x;
+        }
+        if (null !== $this->y) {
+            $res['Y'] = $this->y;
+        }
+        if (null !== $this->h) {
+            $res['H'] = $this->h;
+        }
+        if (null !== $this->w) {
+            $res['W'] = $this->w;
+        }
 
         return $res;
     }

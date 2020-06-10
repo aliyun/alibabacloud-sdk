@@ -34,9 +34,13 @@ class tag extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Key']   = $this->key;
-        $res['Value'] = $this->value;
+        $res = [];
+        if (null !== $this->key) {
+            $res['Key'] = $this->key;
+        }
+        if (null !== $this->value) {
+            $res['Value'] = $this->value;
+        }
 
         return $res;
     }

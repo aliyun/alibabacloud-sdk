@@ -1,22 +1,66 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Rds\V20140815\Models;
 
+use AlibabaCloud\SDK\Rds\V20140815\Models\DescribeLogBackupFilesResponse\items;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Rds\V20140815\Models\DescribeLogBackupFilesResponse\items;
+class DescribeLogBackupFilesResponse extends Model
+{
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
+    public $requestId;
 
-class DescribeLogBackupFilesResponse extends Model {
+    /**
+     * @description data.totalRecords
+     *
+     * @var int
+     */
+    public $totalRecordCount;
+
+    /**
+     * @description data.pageNumbers
+     *
+     * @var int
+     */
+    public $pageNumber;
+
+    /**
+     * @description data.itemsNumbers
+     *
+     * @var int
+     */
+    public $pageRecordCount;
+
+    /**
+     * @description data.totalFileSize
+     *
+     * @var int
+     */
+    public $totalFileSize;
+
+    /**
+     * @description data.items
+     *
+     * @var items
+     */
+    public $items;
     protected $_name = [
-        'requestId' => 'RequestId',
+        'requestId'        => 'RequestId',
         'totalRecordCount' => 'TotalRecordCount',
-        'pageNumber' => 'PageNumber',
-        'pageRecordCount' => 'PageRecordCount',
-        'totalFileSize' => 'TotalFileSize',
-        'items' => 'Items',
+        'pageNumber'       => 'PageNumber',
+        'pageRecordCount'  => 'PageRecordCount',
+        'totalFileSize'    => 'TotalFileSize',
+        'items'            => 'Items',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('requestId', $this->requestId, true);
         Model::validateRequired('totalRecordCount', $this->totalRecordCount, true);
         Model::validateRequired('pageNumber', $this->pageNumber, true);
@@ -24,76 +68,59 @@ class DescribeLogBackupFilesResponse extends Model {
         Model::validateRequired('totalFileSize', $this->totalFileSize, true);
         Model::validateRequired('items', $this->items, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['RequestId'] = $this->requestId;
-        $res['TotalRecordCount'] = $this->totalRecordCount;
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageRecordCount'] = $this->pageRecordCount;
-        $res['TotalFileSize'] = $this->totalFileSize;
-        $res['Items'] = null !== $this->items ? $this->items->toMap() : null;
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->totalRecordCount) {
+            $res['TotalRecordCount'] = $this->totalRecordCount;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageRecordCount) {
+            $res['PageRecordCount'] = $this->pageRecordCount;
+        }
+        if (null !== $this->totalFileSize) {
+            $res['TotalFileSize'] = $this->totalFileSize;
+        }
+        if (null !== $this->items) {
+            $res['Items'] = null !== $this->items ? $this->items->toMap() : null;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return DescribeLogBackupFilesResponse
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['RequestId'])){
+        if (isset($map['RequestId'])) {
             $model->requestId = $map['RequestId'];
         }
-        if(isset($map['TotalRecordCount'])){
+        if (isset($map['TotalRecordCount'])) {
             $model->totalRecordCount = $map['TotalRecordCount'];
         }
-        if(isset($map['PageNumber'])){
+        if (isset($map['PageNumber'])) {
             $model->pageNumber = $map['PageNumber'];
         }
-        if(isset($map['PageRecordCount'])){
+        if (isset($map['PageRecordCount'])) {
             $model->pageRecordCount = $map['PageRecordCount'];
         }
-        if(isset($map['TotalFileSize'])){
+        if (isset($map['TotalFileSize'])) {
             $model->totalFileSize = $map['TotalFileSize'];
         }
-        if(isset($map['Items'])){
+        if (isset($map['Items'])) {
             $model->items = items::fromMap($map['Items']);
         }
+
         return $model;
     }
-    /**
-     * @description requestId
-     * @var string
-     */
-    public $requestId;
-
-    /**
-     * @description data.totalRecords
-     * @var integer
-     */
-    public $totalRecordCount;
-
-    /**
-     * @description data.pageNumbers
-     * @var integer
-     */
-    public $pageNumber;
-
-    /**
-     * @description data.itemsNumbers
-     * @var integer
-     */
-    public $pageRecordCount;
-
-    /**
-     * @description data.totalFileSize
-     * @var integer
-     */
-    public $totalFileSize;
-
-    /**
-     * @description data.items
-     * @var items
-     */
-    public $items;
-
 }

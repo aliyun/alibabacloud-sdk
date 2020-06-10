@@ -26,12 +26,14 @@ class keyVersions extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['KeyVersion'] = [];
-        if (null !== $this->keyVersion && \is_array($this->keyVersion)) {
-            $n = 0;
-            foreach ($this->keyVersion as $item) {
-                $res['KeyVersion'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->keyVersion) {
+            $res['KeyVersion'] = [];
+            if (null !== $this->keyVersion && \is_array($this->keyVersion)) {
+                $n = 0;
+                foreach ($this->keyVersion as $item) {
+                    $res['KeyVersion'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

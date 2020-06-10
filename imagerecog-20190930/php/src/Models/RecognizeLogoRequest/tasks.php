@@ -25,8 +25,10 @@ class tasks extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['ImageURL'] = $this->imageURL;
+        $res = [];
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
 
         return $res;
     }

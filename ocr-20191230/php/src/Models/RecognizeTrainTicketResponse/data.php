@@ -88,15 +88,31 @@ class data extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['Date']             = $this->date;
-        $res['Destination']      = $this->destination;
-        $res['Level']            = $this->level;
-        $res['Number']           = $this->number;
-        $res['Name']             = $this->name;
-        $res['DepartureStation'] = $this->departureStation;
-        $res['Seat']             = $this->seat;
-        $res['Price']            = $this->price;
+        $res = [];
+        if (null !== $this->date) {
+            $res['Date'] = $this->date;
+        }
+        if (null !== $this->destination) {
+            $res['Destination'] = $this->destination;
+        }
+        if (null !== $this->level) {
+            $res['Level'] = $this->level;
+        }
+        if (null !== $this->number) {
+            $res['Number'] = $this->number;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->departureStation) {
+            $res['DepartureStation'] = $this->departureStation;
+        }
+        if (null !== $this->seat) {
+            $res['Seat'] = $this->seat;
+        }
+        if (null !== $this->price) {
+            $res['Price'] = $this->price;
+        }
 
         return $res;
     }

@@ -43,10 +43,16 @@ class data extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['PredStyleId']     = $this->predStyleId;
-        $res['PredStyle']       = $this->predStyle;
-        $res['PredProbability'] = $this->predProbability;
+        $res = [];
+        if (null !== $this->predStyleId) {
+            $res['PredStyleId'] = $this->predStyleId;
+        }
+        if (null !== $this->predStyle) {
+            $res['PredStyle'] = $this->predStyle;
+        }
+        if (null !== $this->predProbability) {
+            $res['PredProbability'] = $this->predProbability;
+        }
 
         return $res;
     }

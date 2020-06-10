@@ -33,9 +33,13 @@ class SuperResolveVideoRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['VideoUrl'] = $this->videoUrl;
-        $res['BitRate']  = $this->bitRate;
+        $res = [];
+        if (null !== $this->videoUrl) {
+            $res['VideoUrl'] = $this->videoUrl;
+        }
+        if (null !== $this->bitRate) {
+            $res['BitRate'] = $this->bitRate;
+        }
 
         return $res;
     }

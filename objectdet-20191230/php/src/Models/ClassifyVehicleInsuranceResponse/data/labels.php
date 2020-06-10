@@ -34,9 +34,13 @@ class labels extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Score'] = $this->score;
-        $res['Name']  = $this->name;
+        $res = [];
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
 
         return $res;
     }

@@ -52,11 +52,19 @@ class RecognizeFurnitureSpuRequest extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['ImageURL'] = $this->imageURL;
-        $res['XLength']  = $this->XLength;
-        $res['YLength']  = $this->YLength;
-        $res['ZLength']  = $this->ZLength;
+        $res = [];
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->XLength) {
+            $res['XLength'] = $this->XLength;
+        }
+        if (null !== $this->YLength) {
+            $res['YLength'] = $this->YLength;
+        }
+        if (null !== $this->ZLength) {
+            $res['ZLength'] = $this->ZLength;
+        }
 
         return $res;
     }

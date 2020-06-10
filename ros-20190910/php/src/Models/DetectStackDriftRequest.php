@@ -50,14 +50,22 @@ class DetectStackDriftRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['StackId']           = $this->stackId;
-        $res['RegionId']          = $this->regionId;
-        $res['LogicalResourceId'] = [];
-        if (null !== $this->logicalResourceId) {
-            $res['LogicalResourceId'] = $this->logicalResourceId;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
         }
-        $res['ClientToken'] = $this->clientToken;
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->logicalResourceId) {
+            $res['LogicalResourceId'] = [];
+            if (null !== $this->logicalResourceId) {
+                $res['LogicalResourceId'] = $this->logicalResourceId;
+            }
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
 
         return $res;
     }

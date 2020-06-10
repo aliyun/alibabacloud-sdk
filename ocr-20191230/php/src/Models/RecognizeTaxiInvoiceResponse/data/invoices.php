@@ -45,16 +45,22 @@ class invoices extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['RotateType'] = $this->rotateType;
-        $res['Items']      = [];
-        if (null !== $this->items && \is_array($this->items)) {
-            $n = 0;
-            foreach ($this->items as $item) {
-                $res['Items'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->rotateType) {
+            $res['RotateType'] = $this->rotateType;
+        }
+        if (null !== $this->items) {
+            $res['Items'] = [];
+            if (null !== $this->items && \is_array($this->items)) {
+                $n = 0;
+                foreach ($this->items as $item) {
+                    $res['Items'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['InvoiceRoi'] = null !== $this->invoiceRoi ? $this->invoiceRoi->toMap() : null;
+        if (null !== $this->invoiceRoi) {
+            $res['InvoiceRoi'] = null !== $this->invoiceRoi ? $this->invoiceRoi->toMap() : null;
+        }
 
         return $res;
     }

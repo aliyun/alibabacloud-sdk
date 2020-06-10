@@ -25,8 +25,10 @@ class labels extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Label'] = $this->label;
+        $res = [];
+        if (null !== $this->label) {
+            $res['Label'] = $this->label;
+        }
 
         return $res;
     }

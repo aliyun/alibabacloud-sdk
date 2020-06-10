@@ -34,9 +34,13 @@ class parameterOverrides extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ParameterValue'] = $this->parameterValue;
-        $res['ParameterKey']   = $this->parameterKey;
+        $res = [];
+        if (null !== $this->parameterValue) {
+            $res['ParameterValue'] = $this->parameterValue;
+        }
+        if (null !== $this->parameterKey) {
+            $res['ParameterKey'] = $this->parameterKey;
+        }
 
         return $res;
     }

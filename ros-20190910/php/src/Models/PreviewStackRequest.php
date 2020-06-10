@@ -99,23 +99,43 @@ class PreviewStackRequest extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['DisableRollback']  = $this->disableRollback;
-        $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
-        $res['Parameters']       = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->disableRollback) {
+            $res['DisableRollback'] = $this->disableRollback;
+        }
+        if (null !== $this->timeoutInMinutes) {
+            $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['TemplateBody']    = $this->templateBody;
-        $res['StackPolicyURL']  = $this->stackPolicyURL;
-        $res['RegionId']        = $this->regionId;
-        $res['StackPolicyBody'] = $this->stackPolicyBody;
-        $res['StackName']       = $this->stackName;
-        $res['ClientToken']     = $this->clientToken;
-        $res['TemplateURL']     = $this->templateURL;
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
+        if (null !== $this->stackPolicyURL) {
+            $res['StackPolicyURL'] = $this->stackPolicyURL;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackPolicyBody) {
+            $res['StackPolicyBody'] = $this->stackPolicyBody;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
 
         return $res;
     }

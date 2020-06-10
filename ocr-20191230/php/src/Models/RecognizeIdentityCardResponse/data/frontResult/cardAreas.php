@@ -34,9 +34,13 @@ class cardAreas extends Model
 
     public function toMap()
     {
-        $res      = [];
-        $res['X'] = $this->x;
-        $res['Y'] = $this->y;
+        $res = [];
+        if (null !== $this->x) {
+            $res['X'] = $this->x;
+        }
+        if (null !== $this->y) {
+            $res['Y'] = $this->y;
+        }
 
         return $res;
     }

@@ -34,9 +34,13 @@ class GetResourceTypeTemplateResponse extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['RequestId']    = $this->requestId;
-        $res['TemplateBody'] = $this->templateBody;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
 
         return $res;
     }

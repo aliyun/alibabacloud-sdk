@@ -34,9 +34,13 @@ class CreateChangeSetResponse extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['headers'] = $this->headers;
-        $res['body']    = null !== $this->body ? $this->body->toMap() : null;
+        $res = [];
+        if (null !== $this->headers) {
+            $res['headers'] = $this->headers;
+        }
+        if (null !== $this->body) {
+            $res['body'] = null !== $this->body ? $this->body->toMap() : null;
+        }
 
         return $res;
     }

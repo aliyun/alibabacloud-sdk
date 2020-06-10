@@ -34,9 +34,13 @@ class CreateStackGroupResponse extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['RequestId']    = $this->requestId;
-        $res['StackGroupId'] = $this->stackGroupId;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackGroupId) {
+            $res['StackGroupId'] = $this->stackGroupId;
+        }
 
         return $res;
     }

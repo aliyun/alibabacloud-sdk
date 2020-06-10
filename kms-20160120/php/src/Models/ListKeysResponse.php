@@ -4,7 +4,6 @@
 
 namespace AlibabaCloud\SDK\Kms\V20160120\Models;
 
-use AlibabaCloud\SDK\Kms\V20160120\Models\ListKeysResponse\keys;
 use AlibabaCloud\Tea\Model;
 
 class ListKeysResponse extends Model
@@ -36,19 +35,11 @@ class ListKeysResponse extends Model
      * @var string
      */
     public $requestId;
-
-    /**
-     * @description data.keys
-     *
-     * @var keys
-     */
-    public $keys;
     protected $_name = [
         'totalCount' => 'TotalCount',
         'pageNumber' => 'PageNumber',
         'pageSize'   => 'PageSize',
         'requestId'  => 'RequestId',
-        'keys'       => 'Keys',
     ];
 
     public function validate()
@@ -57,17 +48,23 @@ class ListKeysResponse extends Model
         Model::validateRequired('pageNumber', $this->pageNumber, true);
         Model::validateRequired('pageSize', $this->pageSize, true);
         Model::validateRequired('requestId', $this->requestId, true);
-        Model::validateRequired('keys', $this->keys, true);
     }
 
     public function toMap()
     {
-        $res               = [];
-        $res['TotalCount'] = $this->totalCount;
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
-        $res['RequestId']  = $this->requestId;
-        $res['Keys']       = null !== $this->keys ? $this->keys->toMap() : null;
+        $res = [];
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
 
         return $res;
     }
@@ -91,9 +88,6 @@ class ListKeysResponse extends Model
         }
         if (isset($map['RequestId'])) {
             $model->requestId = $map['RequestId'];
-        }
-        if (isset($map['Keys'])) {
-            $model->keys = keys::fromMap($map['Keys']);
         }
 
         return $model;

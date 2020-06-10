@@ -2,7 +2,7 @@ English | [简体中文](README-CN.md)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud Imgsearch SDK Library for PHP
+## Alibaba Cloud imgsearch (20200320) SDK Library for PHP
 
 ## Installation
 

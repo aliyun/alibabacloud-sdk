@@ -62,12 +62,22 @@ class plates extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['Confidence']          = $this->confidence;
-        $res['PlateNumber']         = $this->plateNumber;
-        $res['PlateType']           = $this->plateType;
-        $res['PlateTypeConfidence'] = $this->plateTypeConfidence;
-        $res['Roi']                 = null !== $this->roi ? $this->roi->toMap() : null;
+        $res = [];
+        if (null !== $this->confidence) {
+            $res['Confidence'] = $this->confidence;
+        }
+        if (null !== $this->plateNumber) {
+            $res['PlateNumber'] = $this->plateNumber;
+        }
+        if (null !== $this->plateType) {
+            $res['PlateType'] = $this->plateType;
+        }
+        if (null !== $this->plateTypeConfidence) {
+            $res['PlateTypeConfidence'] = $this->plateTypeConfidence;
+        }
+        if (null !== $this->roi) {
+            $res['Roi'] = null !== $this->roi ? $this->roi->toMap() : null;
+        }
 
         return $res;
     }

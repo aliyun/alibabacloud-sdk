@@ -41,10 +41,16 @@ class TagResourceRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['KeyId']      = $this->keyId;
-        $res['Tags']       = $this->tags;
-        $res['SecretName'] = $this->secretName;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->tags) {
+            $res['Tags'] = $this->tags;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
 
         return $res;
     }

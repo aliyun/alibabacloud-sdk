@@ -146,21 +146,49 @@ class data extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['Angle']          = $this->angle;
-        $res['RegisterNumber'] = $this->registerNumber;
-        $res['Name']           = $this->name;
-        $res['Type']           = $this->type;
-        $res['LegalPerson']    = $this->legalPerson;
-        $res['EstablishDate']  = $this->establishDate;
-        $res['ValidPeriod']    = $this->validPeriod;
-        $res['Address']        = $this->address;
-        $res['Capital']        = $this->capital;
-        $res['Business']       = $this->business;
-        $res['Emblem']         = null !== $this->emblem ? $this->emblem->toMap() : null;
-        $res['Title']          = null !== $this->title ? $this->title->toMap() : null;
-        $res['Stamp']          = null !== $this->stamp ? $this->stamp->toMap() : null;
-        $res['QRCode']         = null !== $this->QRCode ? $this->QRCode->toMap() : null;
+        $res = [];
+        if (null !== $this->angle) {
+            $res['Angle'] = $this->angle;
+        }
+        if (null !== $this->registerNumber) {
+            $res['RegisterNumber'] = $this->registerNumber;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
+        if (null !== $this->legalPerson) {
+            $res['LegalPerson'] = $this->legalPerson;
+        }
+        if (null !== $this->establishDate) {
+            $res['EstablishDate'] = $this->establishDate;
+        }
+        if (null !== $this->validPeriod) {
+            $res['ValidPeriod'] = $this->validPeriod;
+        }
+        if (null !== $this->address) {
+            $res['Address'] = $this->address;
+        }
+        if (null !== $this->capital) {
+            $res['Capital'] = $this->capital;
+        }
+        if (null !== $this->business) {
+            $res['Business'] = $this->business;
+        }
+        if (null !== $this->emblem) {
+            $res['Emblem'] = null !== $this->emblem ? $this->emblem->toMap() : null;
+        }
+        if (null !== $this->title) {
+            $res['Title'] = null !== $this->title ? $this->title->toMap() : null;
+        }
+        if (null !== $this->stamp) {
+            $res['Stamp'] = null !== $this->stamp ? $this->stamp->toMap() : null;
+        }
+        if (null !== $this->QRCode) {
+            $res['QRCode'] = null !== $this->QRCode ? $this->QRCode->toMap() : null;
+        }
 
         return $res;
     }

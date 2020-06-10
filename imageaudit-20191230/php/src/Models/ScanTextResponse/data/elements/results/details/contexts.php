@@ -25,8 +25,10 @@ class contexts extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['Context'] = $this->context;
+        $res = [];
+        if (null !== $this->context) {
+            $res['Context'] = $this->context;
+        }
 
         return $res;
     }

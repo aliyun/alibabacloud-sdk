@@ -2,7 +2,7 @@ English | [简体中文](README-CN.md)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud Ocr SDK Library for PHP
+## Alibaba Cloud OCR (20191230) SDK Library for PHP
 
 ## Installation
 

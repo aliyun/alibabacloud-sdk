@@ -34,9 +34,13 @@ class elements extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['Name']     = $this->name;
-        $res['ImageURL'] = $this->imageURL;
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
 
         return $res;
     }

@@ -34,9 +34,13 @@ class parameters extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ParameterKey']   = $this->parameterKey;
-        $res['ParameterValue'] = $this->parameterValue;
+        $res = [];
+        if (null !== $this->parameterKey) {
+            $res['ParameterKey'] = $this->parameterKey;
+        }
+        if (null !== $this->parameterValue) {
+            $res['ParameterValue'] = $this->parameterValue;
+        }
 
         return $res;
     }

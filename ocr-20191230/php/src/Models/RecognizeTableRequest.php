@@ -70,13 +70,25 @@ class RecognizeTableRequest extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['ImageURL']        = $this->imageURL;
-        $res['OutputFormat']    = $this->outputFormat;
-        $res['UseFinanceModel'] = $this->useFinanceModel;
-        $res['AssureDirection'] = $this->assureDirection;
-        $res['HasLine']         = $this->hasLine;
-        $res['SkipDetection']   = $this->skipDetection;
+        $res = [];
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->outputFormat) {
+            $res['OutputFormat'] = $this->outputFormat;
+        }
+        if (null !== $this->useFinanceModel) {
+            $res['UseFinanceModel'] = $this->useFinanceModel;
+        }
+        if (null !== $this->assureDirection) {
+            $res['AssureDirection'] = $this->assureDirection;
+        }
+        if (null !== $this->hasLine) {
+            $res['HasLine'] = $this->hasLine;
+        }
+        if (null !== $this->skipDetection) {
+            $res['SkipDetection'] = $this->skipDetection;
+        }
 
         return $res;
     }

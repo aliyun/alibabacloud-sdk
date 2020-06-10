@@ -62,12 +62,22 @@ class secret extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['SecretName']        = $this->secretName;
-        $res['CreateTime']        = $this->createTime;
-        $res['UpdateTime']        = $this->updateTime;
-        $res['PlannedDeleteTime'] = $this->plannedDeleteTime;
-        $res['Tags']              = null !== $this->tags ? $this->tags->toMap() : null;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->updateTime) {
+            $res['UpdateTime'] = $this->updateTime;
+        }
+        if (null !== $this->plannedDeleteTime) {
+            $res['PlannedDeleteTime'] = $this->plannedDeleteTime;
+        }
+        if (null !== $this->tags) {
+            $res['Tags'] = null !== $this->tags ? $this->tags->toMap() : null;
+        }
 
         return $res;
     }

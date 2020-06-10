@@ -74,22 +74,36 @@ class ListStackEventsRequest extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['StackId'] = $this->stackId;
-        $res['Status']  = [];
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
         if (null !== $this->status) {
-            $res['Status'] = $this->status;
+            $res['Status'] = [];
+            if (null !== $this->status) {
+                $res['Status'] = $this->status;
+            }
         }
-        $res['PageSize']     = $this->pageSize;
-        $res['ResourceType'] = [];
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
         if (null !== $this->resourceType) {
-            $res['ResourceType'] = $this->resourceType;
+            $res['ResourceType'] = [];
+            if (null !== $this->resourceType) {
+                $res['ResourceType'] = $this->resourceType;
+            }
         }
-        $res['RegionId']          = $this->regionId;
-        $res['PageNumber']        = $this->pageNumber;
-        $res['LogicalResourceId'] = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
         if (null !== $this->logicalResourceId) {
-            $res['LogicalResourceId'] = $this->logicalResourceId;
+            $res['LogicalResourceId'] = [];
+            if (null !== $this->logicalResourceId) {
+                $res['LogicalResourceId'] = $this->logicalResourceId;
+            }
         }
 
         return $res;

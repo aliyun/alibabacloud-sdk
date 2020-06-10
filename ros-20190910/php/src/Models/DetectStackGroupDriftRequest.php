@@ -50,11 +50,19 @@ class DetectStackGroupDriftRequest extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['ClientToken']          = $this->clientToken;
-        $res['RegionId']             = $this->regionId;
-        $res['StackGroupName']       = $this->stackGroupName;
-        $res['OperationPreferences'] = $this->operationPreferences;
+        $res = [];
+        if (null !== $this->clientToken) {
+            $res['ClientToken'] = $this->clientToken;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackGroupName) {
+            $res['StackGroupName'] = $this->stackGroupName;
+        }
+        if (null !== $this->operationPreferences) {
+            $res['OperationPreferences'] = $this->operationPreferences;
+        }
 
         return $res;
     }

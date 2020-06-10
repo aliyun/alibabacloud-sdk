@@ -44,14 +44,20 @@ class data extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Token']      = $this->token;
-        $res['TotalCount'] = $this->totalCount;
-        $res['ImageList']  = [];
-        if (null !== $this->imageList && \is_array($this->imageList)) {
-            $n = 0;
-            foreach ($this->imageList as $item) {
-                $res['ImageList'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->token) {
+            $res['Token'] = $this->token;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->imageList) {
+            $res['ImageList'] = [];
+            if (null !== $this->imageList && \is_array($this->imageList)) {
+                $n = 0;
+                foreach ($this->imageList as $item) {
+                    $res['ImageList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

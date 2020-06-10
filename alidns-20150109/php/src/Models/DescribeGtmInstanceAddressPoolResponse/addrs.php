@@ -1,51 +1,63 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolResponse;
 
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolResponse\addrs\addr;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolResponse\addrs\addr;
-
-class addrs extends Model {
+class addrs extends Model
+{
+    /**
+     * @description Addr
+     *
+     * @var array
+     */
+    public $addr;
     protected $_name = [
         'addr' => 'Addr',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('addr', $this->addr, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['Addr'] = [];
-        if(null !== $this->addr && is_array($this->addr)){
-            $n = 0;
-            foreach($this->addr as $item){
-                $res['Addr'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->addr) {
+            $res['Addr'] = [];
+            if (null !== $this->addr && \is_array($this->addr)) {
+                $n = 0;
+                foreach ($this->addr as $item) {
+                    $res['Addr'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return addrs
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['Addr'])){
-            if(!empty($map['Addr'])){
+        if (isset($map['Addr'])) {
+            if (!empty($map['Addr'])) {
                 $model->addr = [];
-                $n = 0;
-                foreach($map['Addr'] as $item) {
+                $n           = 0;
+                foreach ($map['Addr'] as $item) {
                     $model->addr[$n++] = null !== $item ? addr::fromMap($item) : $item;
                 }
             }
         }
+
         return $model;
     }
-    /**
-     * @description Addr
-     * @var array
-     */
-    public $addr;
-
 }

@@ -44,10 +44,16 @@ class results extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['Probability']    = $this->probability;
-        $res['Text']           = $this->text;
-        $res['TextRectangles'] = null !== $this->textRectangles ? $this->textRectangles->toMap() : null;
+        $res = [];
+        if (null !== $this->probability) {
+            $res['Probability'] = $this->probability;
+        }
+        if (null !== $this->text) {
+            $res['Text'] = $this->text;
+        }
+        if (null !== $this->textRectangles) {
+            $res['TextRectangles'] = null !== $this->textRectangles ? $this->textRectangles->toMap() : null;
+        }
 
         return $res;
     }

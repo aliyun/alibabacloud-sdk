@@ -61,14 +61,24 @@ class regions extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['Name']             = $this->name;
-        $res['RecognitionScore'] = $this->recognitionScore;
-        $res['Content']          = $this->content;
-        $res['DetectionScore']   = $this->detectionScore;
-        $res['BandBoxes']        = [];
+        $res = [];
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->recognitionScore) {
+            $res['RecognitionScore'] = $this->recognitionScore;
+        }
+        if (null !== $this->content) {
+            $res['Content'] = $this->content;
+        }
+        if (null !== $this->detectionScore) {
+            $res['DetectionScore'] = $this->detectionScore;
+        }
         if (null !== $this->bandBoxes) {
-            $res['BandBoxes'] = $this->bandBoxes;
+            $res['BandBoxes'] = [];
+            if (null !== $this->bandBoxes) {
+                $res['BandBoxes'] = $this->bandBoxes;
+            }
         }
 
         return $res;

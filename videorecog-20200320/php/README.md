@@ -2,7 +2,7 @@
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
-## Alibaba Cloud Videorecog SDK Library for PHP
+## Alibaba Cloud videorecog (20200320) SDK Library for PHP
 
 ## 安装
 

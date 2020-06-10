@@ -25,8 +25,10 @@ class DescribeKeyRequest extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['KeyId'] = $this->keyId;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
 
         return $res;
     }

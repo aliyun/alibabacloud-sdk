@@ -67,13 +67,25 @@ class ImageBlindPicWatermarkAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['OriginImageURLObject'] = $this->originImageURLObject;
-        $res['FunctionType']         = $this->functionType;
-        $res['LogoURL']              = $this->logoURL;
-        $res['WatermarkImageURL']    = $this->watermarkImageURL;
-        $res['OutputFileType']       = $this->outputFileType;
-        $res['QualityFactor']        = $this->qualityFactor;
+        $res = [];
+        if (null !== $this->originImageURLObject) {
+            $res['OriginImageURLObject'] = $this->originImageURLObject;
+        }
+        if (null !== $this->functionType) {
+            $res['FunctionType'] = $this->functionType;
+        }
+        if (null !== $this->logoURL) {
+            $res['LogoURL'] = $this->logoURL;
+        }
+        if (null !== $this->watermarkImageURL) {
+            $res['WatermarkImageURL'] = $this->watermarkImageURL;
+        }
+        if (null !== $this->outputFileType) {
+            $res['OutputFileType'] = $this->outputFileType;
+        }
+        if (null !== $this->qualityFactor) {
+            $res['QualityFactor'] = $this->qualityFactor;
+        }
 
         return $res;
     }

@@ -33,9 +33,13 @@ class WaitConditionsRequest extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['headers'] = $this->headers;
-        $res['query']   = null !== $this->query ? $this->query->toMap() : null;
+        $res = [];
+        if (null !== $this->headers) {
+            $res['headers'] = $this->headers;
+        }
+        if (null !== $this->query) {
+            $res['query'] = null !== $this->query ? $this->query->toMap() : null;
+        }
 
         return $res;
     }

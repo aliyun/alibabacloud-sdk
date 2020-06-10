@@ -69,8 +69,8 @@ use AlibabaCloud\SDK\Ocr\V20191230\Models\RecognizeVINCodeResponse;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\TrimDocumentAdvanceRequest;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\TrimDocumentRequest;
 use AlibabaCloud\SDK\Ocr\V20191230\Models\TrimDocumentResponse;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
@@ -88,7 +88,7 @@ class Ocr extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('ocr', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -138,7 +138,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -212,7 +212,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -286,7 +286,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -360,7 +360,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -434,7 +434,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -520,7 +520,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -594,7 +594,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -668,7 +668,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -742,7 +742,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -816,7 +816,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -890,7 +890,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -964,7 +964,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1038,7 +1038,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1112,7 +1112,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1186,7 +1186,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1260,7 +1260,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1334,7 +1334,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1408,7 +1408,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1456,7 +1456,7 @@ class Ocr extends Rpc
     {
         Utils::validateModel($request);
 
-        return RecognizeVINCodeResponse::fromMap($this->doRequest('RecognizeVINCode', 'HTTPS', 'POST', '2019-12-30', 'AK', $request, null, $runtime));
+        return RecognizeVINCodeResponse::fromMap($this->doRequest('RecognizeVINCode', 'HTTPS', 'POST', '2019-12-30', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -1482,7 +1482,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -1556,7 +1556,7 @@ class Ocr extends Rpc
             'product'  => 'ocr',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,

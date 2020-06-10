@@ -33,9 +33,13 @@ class SegmentBodyAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['ImageURLObject'] = $this->imageURLObject;
-        $res['Async']          = $this->async;
+        $res = [];
+        if (null !== $this->imageURLObject) {
+            $res['ImageURLObject'] = $this->imageURLObject;
+        }
+        if (null !== $this->async) {
+            $res['Async'] = $this->async;
+        }
 
         return $res;
     }

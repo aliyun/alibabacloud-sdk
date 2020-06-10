@@ -1,85 +1,110 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Eci\V20180808\Models\DescribeContainerGroupMetricResponse\records\network;
 
 use AlibabaCloud\Tea\Model;
 
-class interfaces extends Model {
+class interfaces extends Model
+{
+    /**
+     * @description txBytes
+     *
+     * @var int
+     */
+    public $txBytes;
+
+    /**
+     * @description rxBytes
+     *
+     * @var int
+     */
+    public $rxBytes;
+
+    /**
+     * @description txErrors
+     *
+     * @var int
+     */
+    public $txErrors;
+
+    /**
+     * @description rxErrors
+     *
+     * @var int
+     */
+    public $rxErrors;
+
+    /**
+     * @description name
+     *
+     * @var string
+     */
+    public $name;
     protected $_name = [
-        'txBytes' => 'TxBytes',
-        'rxBytes' => 'RxBytes',
+        'txBytes'  => 'TxBytes',
+        'rxBytes'  => 'RxBytes',
         'txErrors' => 'TxErrors',
         'rxErrors' => 'RxErrors',
-        'name' => 'Name',
+        'name'     => 'Name',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('txBytes', $this->txBytes, true);
         Model::validateRequired('rxBytes', $this->rxBytes, true);
         Model::validateRequired('txErrors', $this->txErrors, true);
         Model::validateRequired('rxErrors', $this->rxErrors, true);
         Model::validateRequired('name', $this->name, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['TxBytes'] = $this->txBytes;
-        $res['RxBytes'] = $this->rxBytes;
-        $res['TxErrors'] = $this->txErrors;
-        $res['RxErrors'] = $this->rxErrors;
-        $res['Name'] = $this->name;
+        if (null !== $this->txBytes) {
+            $res['TxBytes'] = $this->txBytes;
+        }
+        if (null !== $this->rxBytes) {
+            $res['RxBytes'] = $this->rxBytes;
+        }
+        if (null !== $this->txErrors) {
+            $res['TxErrors'] = $this->txErrors;
+        }
+        if (null !== $this->rxErrors) {
+            $res['RxErrors'] = $this->rxErrors;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return interfaces
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['TxBytes'])){
+        if (isset($map['TxBytes'])) {
             $model->txBytes = $map['TxBytes'];
         }
-        if(isset($map['RxBytes'])){
+        if (isset($map['RxBytes'])) {
             $model->rxBytes = $map['RxBytes'];
         }
-        if(isset($map['TxErrors'])){
+        if (isset($map['TxErrors'])) {
             $model->txErrors = $map['TxErrors'];
         }
-        if(isset($map['RxErrors'])){
+        if (isset($map['RxErrors'])) {
             $model->rxErrors = $map['RxErrors'];
         }
-        if(isset($map['Name'])){
+        if (isset($map['Name'])) {
             $model->name = $map['Name'];
         }
+
         return $model;
     }
-    /**
-     * @description txBytes
-     * @var integer
-     */
-    public $txBytes;
-
-    /**
-     * @description rxBytes
-     * @var integer
-     */
-    public $rxBytes;
-
-    /**
-     * @description txErrors
-     * @var integer
-     */
-    public $txErrors;
-
-    /**
-     * @description rxErrors
-     * @var integer
-     */
-    public $rxErrors;
-
-    /**
-     * @description name
-     * @var string
-     */
-    public $name;
-
 }

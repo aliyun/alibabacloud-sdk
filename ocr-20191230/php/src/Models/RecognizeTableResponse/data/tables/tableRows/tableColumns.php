@@ -79,16 +79,30 @@ class tableColumns extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['StartColumn'] = $this->startColumn;
-        $res['StartRow']    = $this->startRow;
-        $res['EndColumn']   = $this->endColumn;
-        $res['EndRow']      = $this->endRow;
-        $res['Height']      = $this->height;
-        $res['Width']       = $this->width;
-        $res['Texts']       = [];
+        $res = [];
+        if (null !== $this->startColumn) {
+            $res['StartColumn'] = $this->startColumn;
+        }
+        if (null !== $this->startRow) {
+            $res['StartRow'] = $this->startRow;
+        }
+        if (null !== $this->endColumn) {
+            $res['EndColumn'] = $this->endColumn;
+        }
+        if (null !== $this->endRow) {
+            $res['EndRow'] = $this->endRow;
+        }
+        if (null !== $this->height) {
+            $res['Height'] = $this->height;
+        }
+        if (null !== $this->width) {
+            $res['Width'] = $this->width;
+        }
         if (null !== $this->texts) {
-            $res['Texts'] = $this->texts;
+            $res['Texts'] = [];
+            if (null !== $this->texts) {
+                $res['Texts'] = $this->texts;
+            }
         }
 
         return $res;

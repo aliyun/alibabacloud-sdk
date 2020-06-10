@@ -90,28 +90,46 @@ class ListStacksRequest extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Status'] = [];
+        $res = [];
         if (null !== $this->status) {
-            $res['Status'] = $this->status;
-        }
-        $res['PageSize']      = $this->pageSize;
-        $res['ParentStackId'] = $this->parentStackId;
-        $res['RegionId']      = $this->regionId;
-        $res['StackName']     = [];
-        if (null !== $this->stackName) {
-            $res['StackName'] = $this->stackName;
-        }
-        $res['PageNumber']      = $this->pageNumber;
-        $res['ShowNestedStack'] = $this->showNestedStack;
-        $res['Tag']             = [];
-        if (null !== $this->tag && \is_array($this->tag)) {
-            $n = 0;
-            foreach ($this->tag as $item) {
-                $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+            $res['Status'] = [];
+            if (null !== $this->status) {
+                $res['Status'] = $this->status;
             }
         }
-        $res['StackId'] = $this->stackId;
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->parentStackId) {
+            $res['ParentStackId'] = $this->parentStackId;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = [];
+            if (null !== $this->stackName) {
+                $res['StackName'] = $this->stackName;
+            }
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->showNestedStack) {
+            $res['ShowNestedStack'] = $this->showNestedStack;
+        }
+        if (null !== $this->tag) {
+            $res['Tag'] = [];
+            if (null !== $this->tag && \is_array($this->tag)) {
+                $n = 0;
+                foreach ($this->tag as $item) {
+                    $res['Tag'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
+            }
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
 
         return $res;
     }

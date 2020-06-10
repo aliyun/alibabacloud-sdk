@@ -35,13 +35,17 @@ class data extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['FileContent'] = $this->fileContent;
-        $res['Tables']      = [];
-        if (null !== $this->tables && \is_array($this->tables)) {
-            $n = 0;
-            foreach ($this->tables as $item) {
-                $res['Tables'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->fileContent) {
+            $res['FileContent'] = $this->fileContent;
+        }
+        if (null !== $this->tables) {
+            $res['Tables'] = [];
+            if (null !== $this->tables && \is_array($this->tables)) {
+                $n = 0;
+                foreach ($this->tables as $item) {
+                    $res['Tables'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

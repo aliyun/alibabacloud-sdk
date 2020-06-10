@@ -43,10 +43,16 @@ class CreateChangeSetResponse extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['ChangeSetId'] = $this->changeSetId;
-        $res['RequestId']   = $this->requestId;
-        $res['StackId']     = $this->stackId;
+        $res = [];
+        if (null !== $this->changeSetId) {
+            $res['ChangeSetId'] = $this->changeSetId;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
 
         return $res;
     }

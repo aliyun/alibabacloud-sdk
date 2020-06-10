@@ -43,10 +43,16 @@ class SetDeletionProtectionRequest extends Model
 
     public function toMap()
     {
-        $res                       = [];
-        $res['StackId']            = $this->stackId;
-        $res['DeletionProtection'] = $this->deletionProtection;
-        $res['RegionId']           = $this->regionId;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
+        if (null !== $this->deletionProtection) {
+            $res['DeletionProtection'] = $this->deletionProtection;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
 
         return $res;
     }

@@ -65,13 +65,25 @@ class ListImagesRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['DbName']         = $this->dbName;
-        $res['Token']          = $this->token;
-        $res['Offset']         = $this->offset;
-        $res['Limit']          = $this->limit;
-        $res['Order']          = $this->order;
-        $res['EntityIdPrefix'] = $this->entityIdPrefix;
+        $res = [];
+        if (null !== $this->dbName) {
+            $res['DbName'] = $this->dbName;
+        }
+        if (null !== $this->token) {
+            $res['Token'] = $this->token;
+        }
+        if (null !== $this->offset) {
+            $res['Offset'] = $this->offset;
+        }
+        if (null !== $this->limit) {
+            $res['Limit'] = $this->limit;
+        }
+        if (null !== $this->order) {
+            $res['Order'] = $this->order;
+        }
+        if (null !== $this->entityIdPrefix) {
+            $res['EntityIdPrefix'] = $this->entityIdPrefix;
+        }
 
         return $res;
     }

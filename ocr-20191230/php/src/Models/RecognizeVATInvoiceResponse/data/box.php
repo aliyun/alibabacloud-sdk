@@ -187,82 +187,120 @@ class box extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['InvoiceCodes'] = [];
+        $res = [];
         if (null !== $this->invoiceCodes) {
-            $res['InvoiceCodes'] = $this->invoiceCodes;
+            $res['InvoiceCodes'] = [];
+            if (null !== $this->invoiceCodes) {
+                $res['InvoiceCodes'] = $this->invoiceCodes;
+            }
         }
-        $res['InvoiceNoes'] = [];
         if (null !== $this->invoiceNoes) {
-            $res['InvoiceNoes'] = $this->invoiceNoes;
+            $res['InvoiceNoes'] = [];
+            if (null !== $this->invoiceNoes) {
+                $res['InvoiceNoes'] = $this->invoiceNoes;
+            }
         }
-        $res['InvoiceDates'] = [];
         if (null !== $this->invoiceDates) {
-            $res['InvoiceDates'] = $this->invoiceDates;
+            $res['InvoiceDates'] = [];
+            if (null !== $this->invoiceDates) {
+                $res['InvoiceDates'] = $this->invoiceDates;
+            }
         }
-        $res['InvoiceFakeCodes'] = [];
         if (null !== $this->invoiceFakeCodes) {
-            $res['InvoiceFakeCodes'] = $this->invoiceFakeCodes;
+            $res['InvoiceFakeCodes'] = [];
+            if (null !== $this->invoiceFakeCodes) {
+                $res['InvoiceFakeCodes'] = $this->invoiceFakeCodes;
+            }
         }
-        $res['PayerNames'] = [];
         if (null !== $this->payerNames) {
-            $res['PayerNames'] = $this->payerNames;
+            $res['PayerNames'] = [];
+            if (null !== $this->payerNames) {
+                $res['PayerNames'] = $this->payerNames;
+            }
         }
-        $res['PayerRegisterNoes'] = [];
         if (null !== $this->payerRegisterNoes) {
-            $res['PayerRegisterNoes'] = $this->payerRegisterNoes;
+            $res['PayerRegisterNoes'] = [];
+            if (null !== $this->payerRegisterNoes) {
+                $res['PayerRegisterNoes'] = $this->payerRegisterNoes;
+            }
         }
-        $res['PayerAddresses'] = [];
         if (null !== $this->payerAddresses) {
-            $res['PayerAddresses'] = $this->payerAddresses;
+            $res['PayerAddresses'] = [];
+            if (null !== $this->payerAddresses) {
+                $res['PayerAddresses'] = $this->payerAddresses;
+            }
         }
-        $res['PayerBankNames'] = [];
         if (null !== $this->payerBankNames) {
-            $res['PayerBankNames'] = $this->payerBankNames;
+            $res['PayerBankNames'] = [];
+            if (null !== $this->payerBankNames) {
+                $res['PayerBankNames'] = $this->payerBankNames;
+            }
         }
-        $res['WithoutTaxAmounts'] = [];
         if (null !== $this->withoutTaxAmounts) {
-            $res['WithoutTaxAmounts'] = $this->withoutTaxAmounts;
+            $res['WithoutTaxAmounts'] = [];
+            if (null !== $this->withoutTaxAmounts) {
+                $res['WithoutTaxAmounts'] = $this->withoutTaxAmounts;
+            }
         }
-        $res['TaxAmounts'] = [];
         if (null !== $this->taxAmounts) {
-            $res['TaxAmounts'] = $this->taxAmounts;
+            $res['TaxAmounts'] = [];
+            if (null !== $this->taxAmounts) {
+                $res['TaxAmounts'] = $this->taxAmounts;
+            }
         }
-        $res['SumAmounts'] = [];
         if (null !== $this->sumAmounts) {
-            $res['SumAmounts'] = $this->sumAmounts;
+            $res['SumAmounts'] = [];
+            if (null !== $this->sumAmounts) {
+                $res['SumAmounts'] = $this->sumAmounts;
+            }
         }
-        $res['InvoiceAmounts'] = [];
         if (null !== $this->invoiceAmounts) {
-            $res['InvoiceAmounts'] = $this->invoiceAmounts;
+            $res['InvoiceAmounts'] = [];
+            if (null !== $this->invoiceAmounts) {
+                $res['InvoiceAmounts'] = $this->invoiceAmounts;
+            }
         }
-        $res['PayeeNames'] = [];
         if (null !== $this->payeeNames) {
-            $res['PayeeNames'] = $this->payeeNames;
+            $res['PayeeNames'] = [];
+            if (null !== $this->payeeNames) {
+                $res['PayeeNames'] = $this->payeeNames;
+            }
         }
-        $res['PayeeRegisterNoes'] = [];
         if (null !== $this->payeeRegisterNoes) {
-            $res['PayeeRegisterNoes'] = $this->payeeRegisterNoes;
+            $res['PayeeRegisterNoes'] = [];
+            if (null !== $this->payeeRegisterNoes) {
+                $res['PayeeRegisterNoes'] = $this->payeeRegisterNoes;
+            }
         }
-        $res['PayeeAddresses'] = [];
         if (null !== $this->payeeAddresses) {
-            $res['PayeeAddresses'] = $this->payeeAddresses;
+            $res['PayeeAddresses'] = [];
+            if (null !== $this->payeeAddresses) {
+                $res['PayeeAddresses'] = $this->payeeAddresses;
+            }
         }
-        $res['PayeeBankNames'] = [];
         if (null !== $this->payeeBankNames) {
-            $res['PayeeBankNames'] = $this->payeeBankNames;
+            $res['PayeeBankNames'] = [];
+            if (null !== $this->payeeBankNames) {
+                $res['PayeeBankNames'] = $this->payeeBankNames;
+            }
         }
-        $res['Payees'] = [];
         if (null !== $this->payees) {
-            $res['Payees'] = $this->payees;
+            $res['Payees'] = [];
+            if (null !== $this->payees) {
+                $res['Payees'] = $this->payees;
+            }
         }
-        $res['Checkers'] = [];
         if (null !== $this->checkers) {
-            $res['Checkers'] = $this->checkers;
+            $res['Checkers'] = [];
+            if (null !== $this->checkers) {
+                $res['Checkers'] = $this->checkers;
+            }
         }
-        $res['Clerks'] = [];
         if (null !== $this->clerks) {
-            $res['Clerks'] = $this->clerks;
+            $res['Clerks'] = [];
+            if (null !== $this->clerks) {
+                $res['Clerks'] = $this->clerks;
+            }
         }
 
         return $res;

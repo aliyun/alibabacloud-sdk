@@ -45,10 +45,16 @@ class itemRoi extends Model
 
     public function toMap()
     {
-        $res           = [];
-        $res['Angle']  = $this->angle;
-        $res['Center'] = null !== $this->center ? $this->center->toMap() : null;
-        $res['Size']   = null !== $this->size ? $this->size->toMap() : null;
+        $res = [];
+        if (null !== $this->angle) {
+            $res['Angle'] = $this->angle;
+        }
+        if (null !== $this->center) {
+            $res['Center'] = null !== $this->center ? $this->center->toMap() : null;
+        }
+        if (null !== $this->size) {
+            $res['Size'] = null !== $this->size ? $this->size->toMap() : null;
+        }
 
         return $res;
     }

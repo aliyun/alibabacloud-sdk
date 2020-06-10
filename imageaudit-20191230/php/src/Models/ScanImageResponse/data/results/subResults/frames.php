@@ -34,9 +34,13 @@ class frames extends Model
 
     public function toMap()
     {
-        $res         = [];
-        $res['Rate'] = $this->rate;
-        $res['URL']  = $this->URL;
+        $res = [];
+        if (null !== $this->rate) {
+            $res['Rate'] = $this->rate;
+        }
+        if (null !== $this->URL) {
+            $res['URL'] = $this->URL;
+        }
 
         return $res;
     }

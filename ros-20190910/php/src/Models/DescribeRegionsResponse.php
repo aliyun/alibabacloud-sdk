@@ -35,13 +35,17 @@ class DescribeRegionsResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Regions']   = [];
-        if (null !== $this->regions && \is_array($this->regions)) {
-            $n = 0;
-            foreach ($this->regions as $item) {
-                $res['Regions'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->regions) {
+            $res['Regions'] = [];
+            if (null !== $this->regions && \is_array($this->regions)) {
+                $n = 0;
+                foreach ($this->regions as $item) {
+                    $res['Regions'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

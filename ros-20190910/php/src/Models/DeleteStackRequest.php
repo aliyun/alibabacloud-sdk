@@ -58,15 +58,25 @@ class DeleteStackRequest extends Model
 
     public function toMap()
     {
-        $res                       = [];
-        $res['StackId']            = $this->stackId;
-        $res['RetainAllResources'] = $this->retainAllResources;
-        $res['RegionId']           = $this->regionId;
-        $res['RetainResources']    = [];
-        if (null !== $this->retainResources) {
-            $res['RetainResources'] = $this->retainResources;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
         }
-        $res['RamRoleName'] = $this->ramRoleName;
+        if (null !== $this->retainAllResources) {
+            $res['RetainAllResources'] = $this->retainAllResources;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->retainResources) {
+            $res['RetainResources'] = [];
+            if (null !== $this->retainResources) {
+                $res['RetainResources'] = $this->retainResources;
+            }
+        }
+        if (null !== $this->ramRoleName) {
+            $res['RamRoleName'] = $this->ramRoleName;
+        }
 
         return $res;
     }

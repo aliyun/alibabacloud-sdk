@@ -61,14 +61,24 @@ class operationPreferences extends Model
 
     public function toMap()
     {
-        $res                               = [];
-        $res['FailureToleranceCount']      = $this->failureToleranceCount;
-        $res['FailureTolerancePercentage'] = $this->failureTolerancePercentage;
-        $res['MaxConcurrentCount']         = $this->maxConcurrentCount;
-        $res['MaxConcurrentPercentage']    = $this->maxConcurrentPercentage;
-        $res['RegionIdsOrder']             = [];
+        $res = [];
+        if (null !== $this->failureToleranceCount) {
+            $res['FailureToleranceCount'] = $this->failureToleranceCount;
+        }
+        if (null !== $this->failureTolerancePercentage) {
+            $res['FailureTolerancePercentage'] = $this->failureTolerancePercentage;
+        }
+        if (null !== $this->maxConcurrentCount) {
+            $res['MaxConcurrentCount'] = $this->maxConcurrentCount;
+        }
+        if (null !== $this->maxConcurrentPercentage) {
+            $res['MaxConcurrentPercentage'] = $this->maxConcurrentPercentage;
+        }
         if (null !== $this->regionIdsOrder) {
-            $res['RegionIdsOrder'] = $this->regionIdsOrder;
+            $res['RegionIdsOrder'] = [];
+            if (null !== $this->regionIdsOrder) {
+                $res['RegionIdsOrder'] = $this->regionIdsOrder;
+            }
         }
 
         return $res;

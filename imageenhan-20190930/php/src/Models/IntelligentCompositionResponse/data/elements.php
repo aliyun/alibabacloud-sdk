@@ -61,12 +61,22 @@ class elements extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['MinX']  = $this->minX;
-        $res['MinY']  = $this->minY;
-        $res['MaxX']  = $this->maxX;
-        $res['MaxY']  = $this->maxY;
-        $res['Score'] = $this->score;
+        $res = [];
+        if (null !== $this->minX) {
+            $res['MinX'] = $this->minX;
+        }
+        if (null !== $this->minY) {
+            $res['MinY'] = $this->minY;
+        }
+        if (null !== $this->maxX) {
+            $res['MaxX'] = $this->maxX;
+        }
+        if (null !== $this->maxY) {
+            $res['MaxY'] = $this->maxY;
+        }
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
+        }
 
         return $res;
     }

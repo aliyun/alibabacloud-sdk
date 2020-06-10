@@ -25,8 +25,10 @@ class protectionLevel extends Model
 
     public function toMap()
     {
-        $res         = [];
-        $res['Type'] = $this->type;
+        $res = [];
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
 
         return $res;
     }

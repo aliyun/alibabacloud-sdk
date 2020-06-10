@@ -214,29 +214,73 @@ class data extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['Authority']      = $this->authority;
-        $res['BirthDate']      = $this->birthDate;
-        $res['BirthDay']       = $this->birthDay;
-        $res['BirthPlace']     = $this->birthPlace;
-        $res['BirthPlaceRaw']  = $this->birthPlaceRaw;
-        $res['Country']        = $this->country;
-        $res['ExpiryDate']     = $this->expiryDate;
-        $res['ExpiryDay']      = $this->expiryDay;
-        $res['IssueDate']      = $this->issueDate;
-        $res['IssuePlace']     = $this->issuePlace;
-        $res['IssuePlaceRaw']  = $this->issuePlaceRaw;
-        $res['LineZero']       = $this->lineZero;
-        $res['LineOne']        = $this->lineOne;
-        $res['Name']           = $this->name;
-        $res['NameChinese']    = $this->nameChinese;
-        $res['NameChineseRaw'] = $this->nameChineseRaw;
-        $res['PassportNo']     = $this->passportNo;
-        $res['PersonId']       = $this->personId;
-        $res['Sex']            = $this->sex;
-        $res['SourceCountry']  = $this->sourceCountry;
-        $res['Success']        = $this->success;
-        $res['Type']           = $this->type;
+        $res = [];
+        if (null !== $this->authority) {
+            $res['Authority'] = $this->authority;
+        }
+        if (null !== $this->birthDate) {
+            $res['BirthDate'] = $this->birthDate;
+        }
+        if (null !== $this->birthDay) {
+            $res['BirthDay'] = $this->birthDay;
+        }
+        if (null !== $this->birthPlace) {
+            $res['BirthPlace'] = $this->birthPlace;
+        }
+        if (null !== $this->birthPlaceRaw) {
+            $res['BirthPlaceRaw'] = $this->birthPlaceRaw;
+        }
+        if (null !== $this->country) {
+            $res['Country'] = $this->country;
+        }
+        if (null !== $this->expiryDate) {
+            $res['ExpiryDate'] = $this->expiryDate;
+        }
+        if (null !== $this->expiryDay) {
+            $res['ExpiryDay'] = $this->expiryDay;
+        }
+        if (null !== $this->issueDate) {
+            $res['IssueDate'] = $this->issueDate;
+        }
+        if (null !== $this->issuePlace) {
+            $res['IssuePlace'] = $this->issuePlace;
+        }
+        if (null !== $this->issuePlaceRaw) {
+            $res['IssuePlaceRaw'] = $this->issuePlaceRaw;
+        }
+        if (null !== $this->lineZero) {
+            $res['LineZero'] = $this->lineZero;
+        }
+        if (null !== $this->lineOne) {
+            $res['LineOne'] = $this->lineOne;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->nameChinese) {
+            $res['NameChinese'] = $this->nameChinese;
+        }
+        if (null !== $this->nameChineseRaw) {
+            $res['NameChineseRaw'] = $this->nameChineseRaw;
+        }
+        if (null !== $this->passportNo) {
+            $res['PassportNo'] = $this->passportNo;
+        }
+        if (null !== $this->personId) {
+            $res['PersonId'] = $this->personId;
+        }
+        if (null !== $this->sex) {
+            $res['Sex'] = $this->sex;
+        }
+        if (null !== $this->sourceCountry) {
+            $res['SourceCountry'] = $this->sourceCountry;
+        }
+        if (null !== $this->success) {
+            $res['Success'] = $this->success;
+        }
+        if (null !== $this->type) {
+            $res['Type'] = $this->type;
+        }
 
         return $res;
     }

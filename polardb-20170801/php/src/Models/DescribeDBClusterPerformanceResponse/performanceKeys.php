@@ -1,51 +1,63 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeDBClusterPerformanceResponse;
 
+use AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeDBClusterPerformanceResponse\performanceKeys\performanceItem;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Polardb\V20170801\Models\DescribeDBClusterPerformanceResponse\performanceKeys\performanceItem;
-
-class performanceKeys extends Model {
+class performanceKeys extends Model
+{
+    /**
+     * @description PerformanceItem
+     *
+     * @var array
+     */
+    public $performanceItem;
     protected $_name = [
         'performanceItem' => 'PerformanceItem',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('performanceItem', $this->performanceItem, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['PerformanceItem'] = [];
-        if(null !== $this->performanceItem && is_array($this->performanceItem)){
-            $n = 0;
-            foreach($this->performanceItem as $item){
-                $res['PerformanceItem'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->performanceItem) {
+            $res['PerformanceItem'] = [];
+            if (null !== $this->performanceItem && \is_array($this->performanceItem)) {
+                $n = 0;
+                foreach ($this->performanceItem as $item) {
+                    $res['PerformanceItem'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return performanceKeys
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['PerformanceItem'])){
-            if(!empty($map['PerformanceItem'])){
+        if (isset($map['PerformanceItem'])) {
+            if (!empty($map['PerformanceItem'])) {
                 $model->performanceItem = [];
-                $n = 0;
-                foreach($map['PerformanceItem'] as $item) {
+                $n                      = 0;
+                foreach ($map['PerformanceItem'] as $item) {
                     $model->performanceItem[$n++] = null !== $item ? performanceItem::fromMap($item) : $item;
                 }
             }
         }
+
         return $model;
     }
-    /**
-     * @description PerformanceItem
-     * @var array
-     */
-    public $performanceItem;
-
 }

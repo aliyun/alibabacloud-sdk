@@ -58,15 +58,25 @@ class ListStackResourceDriftsRequest extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['StackId']             = $this->stackId;
-        $res['RegionId']            = $this->regionId;
-        $res['MaxResults']          = $this->maxResults;
-        $res['ResourceDriftStatus'] = [];
-        if (null !== $this->resourceDriftStatus) {
-            $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
         }
-        $res['NextToken'] = $this->nextToken;
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->maxResults) {
+            $res['MaxResults'] = $this->maxResults;
+        }
+        if (null !== $this->resourceDriftStatus) {
+            $res['ResourceDriftStatus'] = [];
+            if (null !== $this->resourceDriftStatus) {
+                $res['ResourceDriftStatus'] = $this->resourceDriftStatus;
+            }
+        }
+        if (null !== $this->nextToken) {
+            $res['NextToken'] = $this->nextToken;
+        }
 
         return $res;
     }

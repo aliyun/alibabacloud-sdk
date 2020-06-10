@@ -169,24 +169,58 @@ class keyMetadata extends Model
 
     public function toMap()
     {
-        $res                       = [];
-        $res['CreationDate']       = $this->creationDate;
-        $res['Description']        = $this->description;
-        $res['KeyId']              = $this->keyId;
-        $res['KeyState']           = $this->keyState;
-        $res['KeyUsage']           = $this->keyUsage;
-        $res['DeleteDate']         = $this->deleteDate;
-        $res['Creator']            = $this->creator;
-        $res['Arn']                = $this->arn;
-        $res['Origin']             = $this->origin;
-        $res['MaterialExpireTime'] = $this->materialExpireTime;
-        $res['ProtectionLevel']    = $this->protectionLevel;
-        $res['PrimaryKeyVersion']  = $this->primaryKeyVersion;
-        $res['LastRotationDate']   = $this->lastRotationDate;
-        $res['AutomaticRotation']  = $this->automaticRotation;
-        $res['RotationInterval']   = $this->rotationInterval;
-        $res['NextRotationDate']   = $this->nextRotationDate;
-        $res['KeySpec']            = $this->keySpec;
+        $res = [];
+        if (null !== $this->creationDate) {
+            $res['CreationDate'] = $this->creationDate;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keyState) {
+            $res['KeyState'] = $this->keyState;
+        }
+        if (null !== $this->keyUsage) {
+            $res['KeyUsage'] = $this->keyUsage;
+        }
+        if (null !== $this->deleteDate) {
+            $res['DeleteDate'] = $this->deleteDate;
+        }
+        if (null !== $this->creator) {
+            $res['Creator'] = $this->creator;
+        }
+        if (null !== $this->arn) {
+            $res['Arn'] = $this->arn;
+        }
+        if (null !== $this->origin) {
+            $res['Origin'] = $this->origin;
+        }
+        if (null !== $this->materialExpireTime) {
+            $res['MaterialExpireTime'] = $this->materialExpireTime;
+        }
+        if (null !== $this->protectionLevel) {
+            $res['ProtectionLevel'] = $this->protectionLevel;
+        }
+        if (null !== $this->primaryKeyVersion) {
+            $res['PrimaryKeyVersion'] = $this->primaryKeyVersion;
+        }
+        if (null !== $this->lastRotationDate) {
+            $res['LastRotationDate'] = $this->lastRotationDate;
+        }
+        if (null !== $this->automaticRotation) {
+            $res['AutomaticRotation'] = $this->automaticRotation;
+        }
+        if (null !== $this->rotationInterval) {
+            $res['RotationInterval'] = $this->rotationInterval;
+        }
+        if (null !== $this->nextRotationDate) {
+            $res['NextRotationDate'] = $this->nextRotationDate;
+        }
+        if (null !== $this->keySpec) {
+            $res['KeySpec'] = $this->keySpec;
+        }
 
         return $res;
     }

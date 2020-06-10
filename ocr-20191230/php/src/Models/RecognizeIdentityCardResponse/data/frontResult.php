@@ -100,28 +100,46 @@ class frontResult extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['Address']     = $this->address;
-        $res['Name']        = $this->name;
-        $res['Nationality'] = $this->nationality;
-        $res['IDNumber']    = $this->IDNumber;
-        $res['Gender']      = $this->gender;
-        $res['BirthDate']   = $this->birthDate;
-        $res['CardAreas']   = [];
-        if (null !== $this->cardAreas && \is_array($this->cardAreas)) {
-            $n = 0;
-            foreach ($this->cardAreas as $item) {
-                $res['CardAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->address) {
+            $res['Address'] = $this->address;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->nationality) {
+            $res['Nationality'] = $this->nationality;
+        }
+        if (null !== $this->IDNumber) {
+            $res['IDNumber'] = $this->IDNumber;
+        }
+        if (null !== $this->gender) {
+            $res['Gender'] = $this->gender;
+        }
+        if (null !== $this->birthDate) {
+            $res['BirthDate'] = $this->birthDate;
+        }
+        if (null !== $this->cardAreas) {
+            $res['CardAreas'] = [];
+            if (null !== $this->cardAreas && \is_array($this->cardAreas)) {
+                $n = 0;
+                foreach ($this->cardAreas as $item) {
+                    $res['CardAreas'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['FaceRectVertices'] = [];
-        if (null !== $this->faceRectVertices && \is_array($this->faceRectVertices)) {
-            $n = 0;
-            foreach ($this->faceRectVertices as $item) {
-                $res['FaceRectVertices'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->faceRectVertices) {
+            $res['FaceRectVertices'] = [];
+            if (null !== $this->faceRectVertices && \is_array($this->faceRectVertices)) {
+                $n = 0;
+                foreach ($this->faceRectVertices as $item) {
+                    $res['FaceRectVertices'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['FaceRectangle'] = null !== $this->faceRectangle ? $this->faceRectangle->toMap() : null;
+        if (null !== $this->faceRectangle) {
+            $res['FaceRectangle'] = null !== $this->faceRectangle ? $this->faceRectangle->toMap() : null;
+        }
 
         return $res;
     }

@@ -34,9 +34,13 @@ class generalText extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['Content']    = $this->content;
-        $res['Confidence'] = $this->confidence;
+        $res = [];
+        if (null !== $this->content) {
+            $res['Content'] = $this->content;
+        }
+        if (null !== $this->confidence) {
+            $res['Confidence'] = $this->confidence;
+        }
 
         return $res;
     }

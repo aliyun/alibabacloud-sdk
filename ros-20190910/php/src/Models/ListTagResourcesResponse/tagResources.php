@@ -52,11 +52,19 @@ class tagResources extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['ResourceId']   = $this->resourceId;
-        $res['ResourceType'] = $this->resourceType;
-        $res['TagKey']       = $this->tagKey;
-        $res['TagValue']     = $this->tagValue;
+        $res = [];
+        if (null !== $this->resourceId) {
+            $res['ResourceId'] = $this->resourceId;
+        }
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
+        if (null !== $this->tagKey) {
+            $res['TagKey'] = $this->tagKey;
+        }
+        if (null !== $this->tagValue) {
+            $res['TagValue'] = $this->tagValue;
+        }
 
         return $res;
     }

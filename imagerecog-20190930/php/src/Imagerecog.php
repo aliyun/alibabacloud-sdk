@@ -28,8 +28,8 @@ use AlibabaCloud\SDK\Imagerecog\V20190930\Models\RecognizeVehicleTypeResponse;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\TaggingImageAdvanceRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\TaggingImageRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\TaggingImageResponse;
+use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
-use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OSS\OSS;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest;
 use AlibabaCloud\SDK\OSS\OSS\PostObjectRequest\header;
@@ -47,7 +47,7 @@ class Imagerecog extends Rpc
         parent::__construct($config);
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('imagerecog', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -85,7 +85,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -159,7 +159,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -245,7 +245,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -319,7 +319,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -393,7 +393,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -467,7 +467,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,
@@ -541,7 +541,7 @@ class Imagerecog extends Rpc
             'product'  => 'imagerecog',
             'regionId' => $this->_regionId,
         ]);
-        $authResponse = $authClient->authorizeFileUpload($authRequest, $runtime);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
         // Step 1: request OSS api to upload file
         $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
             'accessKeyId'     => $authResponse->accessKeyId,

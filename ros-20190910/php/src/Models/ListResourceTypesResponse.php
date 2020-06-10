@@ -34,11 +34,15 @@ class ListResourceTypesResponse extends Model
 
     public function toMap()
     {
-        $res                  = [];
-        $res['RequestId']     = $this->requestId;
-        $res['ResourceTypes'] = [];
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
         if (null !== $this->resourceTypes) {
-            $res['ResourceTypes'] = $this->resourceTypes;
+            $res['ResourceTypes'] = [];
+            if (null !== $this->resourceTypes) {
+                $res['ResourceTypes'] = $this->resourceTypes;
+            }
         }
 
         return $res;

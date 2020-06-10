@@ -1,25 +1,90 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Alidns\V20150109\Models;
 
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeCustomLineResponse\ipSegmentList;
 use AlibabaCloud\Tea\Model;
 
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeCustomLineResponse\ipSegmentList;
+class DescribeCustomLineResponse extends Model
+{
+    /**
+     * @description requestId
+     *
+     * @var string
+     */
+    public $requestId;
 
-class DescribeCustomLineResponse extends Model {
+    /**
+     * @description module.id
+     *
+     * @var int
+     */
+    public $id;
+
+    /**
+     * @description module.name
+     *
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @description module.domainName
+     *
+     * @var string
+     */
+    public $domainName;
+
+    /**
+     * @description module.createTime
+     *
+     * @var string
+     */
+    public $createTime;
+
+    /**
+     * @description module.createTimestamp
+     *
+     * @var int
+     */
+    public $createTimestamp;
+
+    /**
+     * @description module.ipSegments
+     *
+     * @var string
+     */
+    public $ipSegments;
+
+    /**
+     * @description module.code
+     *
+     * @var string
+     */
+    public $code;
+
+    /**
+     * @description module.ipSegmentList
+     *
+     * @var array
+     */
+    public $ipSegmentList;
     protected $_name = [
-        'requestId' => 'RequestId',
-        'id' => 'Id',
-        'name' => 'Name',
-        'domainName' => 'DomainName',
-        'createTime' => 'CreateTime',
+        'requestId'       => 'RequestId',
+        'id'              => 'Id',
+        'name'            => 'Name',
+        'domainName'      => 'DomainName',
+        'createTime'      => 'CreateTime',
         'createTimestamp' => 'CreateTimestamp',
-        'ipSegments' => 'IpSegments',
-        'code' => 'Code',
-        'ipSegmentList' => 'IpSegmentList',
+        'ipSegments'      => 'IpSegments',
+        'code'            => 'Code',
+        'ipSegmentList'   => 'IpSegmentList',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('requestId', $this->requestId, true);
         Model::validateRequired('id', $this->id, true);
         Model::validateRequired('name', $this->name, true);
@@ -30,118 +95,89 @@ class DescribeCustomLineResponse extends Model {
         Model::validateRequired('code', $this->code, true);
         Model::validateRequired('ipSegmentList', $this->ipSegmentList, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Id'] = $this->id;
-        $res['Name'] = $this->name;
-        $res['DomainName'] = $this->domainName;
-        $res['CreateTime'] = $this->createTime;
-        $res['CreateTimestamp'] = $this->createTimestamp;
-        $res['IpSegments'] = $this->ipSegments;
-        $res['Code'] = $this->code;
-        $res['IpSegmentList'] = [];
-        if(null !== $this->ipSegmentList && is_array($this->ipSegmentList)){
-            $n = 0;
-            foreach($this->ipSegmentList as $item){
-                $res['IpSegmentList'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->id) {
+            $res['Id'] = $this->id;
+        }
+        if (null !== $this->name) {
+            $res['Name'] = $this->name;
+        }
+        if (null !== $this->domainName) {
+            $res['DomainName'] = $this->domainName;
+        }
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->createTimestamp) {
+            $res['CreateTimestamp'] = $this->createTimestamp;
+        }
+        if (null !== $this->ipSegments) {
+            $res['IpSegments'] = $this->ipSegments;
+        }
+        if (null !== $this->code) {
+            $res['Code'] = $this->code;
+        }
+        if (null !== $this->ipSegmentList) {
+            $res['IpSegmentList'] = [];
+            if (null !== $this->ipSegmentList && \is_array($this->ipSegmentList)) {
+                $n = 0;
+                foreach ($this->ipSegmentList as $item) {
+                    $res['IpSegmentList'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return DescribeCustomLineResponse
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['RequestId'])){
+        if (isset($map['RequestId'])) {
             $model->requestId = $map['RequestId'];
         }
-        if(isset($map['Id'])){
+        if (isset($map['Id'])) {
             $model->id = $map['Id'];
         }
-        if(isset($map['Name'])){
+        if (isset($map['Name'])) {
             $model->name = $map['Name'];
         }
-        if(isset($map['DomainName'])){
+        if (isset($map['DomainName'])) {
             $model->domainName = $map['DomainName'];
         }
-        if(isset($map['CreateTime'])){
+        if (isset($map['CreateTime'])) {
             $model->createTime = $map['CreateTime'];
         }
-        if(isset($map['CreateTimestamp'])){
+        if (isset($map['CreateTimestamp'])) {
             $model->createTimestamp = $map['CreateTimestamp'];
         }
-        if(isset($map['IpSegments'])){
+        if (isset($map['IpSegments'])) {
             $model->ipSegments = $map['IpSegments'];
         }
-        if(isset($map['Code'])){
+        if (isset($map['Code'])) {
             $model->code = $map['Code'];
         }
-        if(isset($map['IpSegmentList'])){
-            if(!empty($map['IpSegmentList'])){
+        if (isset($map['IpSegmentList'])) {
+            if (!empty($map['IpSegmentList'])) {
                 $model->ipSegmentList = [];
-                $n = 0;
-                foreach($map['IpSegmentList'] as $item) {
+                $n                    = 0;
+                foreach ($map['IpSegmentList'] as $item) {
                     $model->ipSegmentList[$n++] = null !== $item ? ipSegmentList::fromMap($item) : $item;
                 }
             }
         }
+
         return $model;
     }
-    /**
-     * @description requestId
-     * @var string
-     */
-    public $requestId;
-
-    /**
-     * @description module.id
-     * @var integer
-     */
-    public $id;
-
-    /**
-     * @description module.name
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @description module.domainName
-     * @var string
-     */
-    public $domainName;
-
-    /**
-     * @description module.createTime
-     * @var string
-     */
-    public $createTime;
-
-    /**
-     * @description module.createTimestamp
-     * @var integer
-     */
-    public $createTimestamp;
-
-    /**
-     * @description module.ipSegments
-     * @var string
-     */
-    public $ipSegments;
-
-    /**
-     * @description module.code
-     * @var string
-     */
-    public $code;
-
-    /**
-     * @description module.ipSegmentList
-     * @var array
-     */
-    public $ipSegmentList;
-
 }

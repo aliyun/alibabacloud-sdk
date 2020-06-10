@@ -97,16 +97,34 @@ class stackGroupDriftDetectionDetail extends Model
 
     public function toMap()
     {
-        $res                                  = [];
-        $res['DriftDetectionTime']            = $this->driftDetectionTime;
-        $res['StackGroupDriftStatus']         = $this->stackGroupDriftStatus;
-        $res['DriftDetectionStatus']          = $this->driftDetectionStatus;
-        $res['DriftedStackInstancesCount']    = $this->driftedStackInstancesCount;
-        $res['FailedStackInstancesCount']     = $this->failedStackInstancesCount;
-        $res['CancelledStackInstancesCount']  = $this->cancelledStackInstancesCount;
-        $res['InProgressStackInstancesCount'] = $this->inProgressStackInstancesCount;
-        $res['InSyncStackInstancesCount']     = $this->inSyncStackInstancesCount;
-        $res['TotalStackInstancesCount']      = $this->totalStackInstancesCount;
+        $res = [];
+        if (null !== $this->driftDetectionTime) {
+            $res['DriftDetectionTime'] = $this->driftDetectionTime;
+        }
+        if (null !== $this->stackGroupDriftStatus) {
+            $res['StackGroupDriftStatus'] = $this->stackGroupDriftStatus;
+        }
+        if (null !== $this->driftDetectionStatus) {
+            $res['DriftDetectionStatus'] = $this->driftDetectionStatus;
+        }
+        if (null !== $this->driftedStackInstancesCount) {
+            $res['DriftedStackInstancesCount'] = $this->driftedStackInstancesCount;
+        }
+        if (null !== $this->failedStackInstancesCount) {
+            $res['FailedStackInstancesCount'] = $this->failedStackInstancesCount;
+        }
+        if (null !== $this->cancelledStackInstancesCount) {
+            $res['CancelledStackInstancesCount'] = $this->cancelledStackInstancesCount;
+        }
+        if (null !== $this->inProgressStackInstancesCount) {
+            $res['InProgressStackInstancesCount'] = $this->inProgressStackInstancesCount;
+        }
+        if (null !== $this->inSyncStackInstancesCount) {
+            $res['InSyncStackInstancesCount'] = $this->inSyncStackInstancesCount;
+        }
+        if (null !== $this->totalStackInstancesCount) {
+            $res['TotalStackInstancesCount'] = $this->totalStackInstancesCount;
+        }
 
         return $res;
     }

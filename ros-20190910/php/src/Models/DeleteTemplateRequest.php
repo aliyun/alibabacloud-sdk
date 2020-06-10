@@ -25,8 +25,10 @@ class DeleteTemplateRequest extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['TemplateId'] = $this->templateId;
+        $res = [];
+        if (null !== $this->templateId) {
+            $res['TemplateId'] = $this->templateId;
+        }
 
         return $res;
     }

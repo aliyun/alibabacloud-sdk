@@ -24,8 +24,10 @@ class DeleteStackQuery extends Model
 
     public function toMap()
     {
-        $res             = [];
-        $res['RegionId'] = $this->regionId;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
 
         return $res;
     }

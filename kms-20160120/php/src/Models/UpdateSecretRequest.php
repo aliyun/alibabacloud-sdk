@@ -33,9 +33,13 @@ class UpdateSecretRequest extends Model
 
     public function toMap()
     {
-        $res                = [];
-        $res['SecretName']  = $this->secretName;
-        $res['Description'] = $this->description;
+        $res = [];
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
 
         return $res;
     }

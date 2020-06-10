@@ -48,11 +48,19 @@ class boxes extends Model
 
     public function toMap()
     {
-        $res      = [];
-        $res['H'] = $this->h;
-        $res['W'] = $this->w;
-        $res['X'] = $this->x;
-        $res['Y'] = $this->y;
+        $res = [];
+        if (null !== $this->h) {
+            $res['H'] = $this->h;
+        }
+        if (null !== $this->w) {
+            $res['W'] = $this->w;
+        }
+        if (null !== $this->x) {
+            $res['X'] = $this->x;
+        }
+        if (null !== $this->y) {
+            $res['Y'] = $this->y;
+        }
 
         return $res;
     }

@@ -72,14 +72,28 @@ class GetRandomPasswordRequest extends Model
 
     public function toMap()
     {
-        $res                            = [];
-        $res['PasswordLength']          = $this->passwordLength;
-        $res['ExcludeCharacters']       = $this->excludeCharacters;
-        $res['ExcludeLowercase']        = $this->excludeLowercase;
-        $res['ExcludeUppercase']        = $this->excludeUppercase;
-        $res['ExcludeNumbers']          = $this->excludeNumbers;
-        $res['ExcludePunctuation']      = $this->excludePunctuation;
-        $res['RequireEachIncludedType'] = $this->requireEachIncludedType;
+        $res = [];
+        if (null !== $this->passwordLength) {
+            $res['PasswordLength'] = $this->passwordLength;
+        }
+        if (null !== $this->excludeCharacters) {
+            $res['ExcludeCharacters'] = $this->excludeCharacters;
+        }
+        if (null !== $this->excludeLowercase) {
+            $res['ExcludeLowercase'] = $this->excludeLowercase;
+        }
+        if (null !== $this->excludeUppercase) {
+            $res['ExcludeUppercase'] = $this->excludeUppercase;
+        }
+        if (null !== $this->excludeNumbers) {
+            $res['ExcludeNumbers'] = $this->excludeNumbers;
+        }
+        if (null !== $this->excludePunctuation) {
+            $res['ExcludePunctuation'] = $this->excludePunctuation;
+        }
+        if (null !== $this->requireEachIncludedType) {
+            $res['RequireEachIncludedType'] = $this->requireEachIncludedType;
+        }
 
         return $res;
     }

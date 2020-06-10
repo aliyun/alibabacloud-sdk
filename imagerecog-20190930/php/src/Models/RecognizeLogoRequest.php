@@ -26,12 +26,14 @@ class RecognizeLogoRequest extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Tasks'] = [];
-        if (null !== $this->tasks && \is_array($this->tasks)) {
-            $n = 0;
-            foreach ($this->tasks as $item) {
-                $res['Tasks'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->tasks) {
+            $res['Tasks'] = [];
+            if (null !== $this->tasks && \is_array($this->tasks)) {
+                $n = 0;
+                foreach ($this->tasks as $item) {
+                    $res['Tasks'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

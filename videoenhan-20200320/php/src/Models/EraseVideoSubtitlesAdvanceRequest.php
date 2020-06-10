@@ -57,12 +57,22 @@ class EraseVideoSubtitlesAdvanceRequest extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['VideoUrlObject'] = $this->videoUrlObject;
-        $res['BX']             = $this->BX;
-        $res['BY']             = $this->BY;
-        $res['BW']             = $this->BW;
-        $res['BH']             = $this->BH;
+        $res = [];
+        if (null !== $this->videoUrlObject) {
+            $res['VideoUrlObject'] = $this->videoUrlObject;
+        }
+        if (null !== $this->BX) {
+            $res['BX'] = $this->BX;
+        }
+        if (null !== $this->BY) {
+            $res['BY'] = $this->BY;
+        }
+        if (null !== $this->BW) {
+            $res['BW'] = $this->BW;
+        }
+        if (null !== $this->BH) {
+            $res['BH'] = $this->BH;
+        }
 
         return $res;
     }

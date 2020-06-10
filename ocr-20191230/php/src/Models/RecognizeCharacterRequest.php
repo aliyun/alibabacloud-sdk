@@ -43,10 +43,16 @@ class RecognizeCharacterRequest extends Model
 
     public function toMap()
     {
-        $res                      = [];
-        $res['ImageURL']          = $this->imageURL;
-        $res['MinHeight']         = $this->minHeight;
-        $res['OutputProbability'] = $this->outputProbability;
+        $res = [];
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->minHeight) {
+            $res['MinHeight'] = $this->minHeight;
+        }
+        if (null !== $this->outputProbability) {
+            $res['OutputProbability'] = $this->outputProbability;
+        }
 
         return $res;
     }

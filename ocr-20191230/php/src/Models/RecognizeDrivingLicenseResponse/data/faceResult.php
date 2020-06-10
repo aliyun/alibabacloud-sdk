@@ -106,17 +106,37 @@ class faceResult extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['PlateNumber']  = $this->plateNumber;
-        $res['VehicleType']  = $this->vehicleType;
-        $res['Owner']        = $this->owner;
-        $res['UseCharacter'] = $this->useCharacter;
-        $res['Address']      = $this->address;
-        $res['Model']        = $this->model;
-        $res['Vin']          = $this->vin;
-        $res['EngineNumber'] = $this->engineNumber;
-        $res['RegisterDate'] = $this->registerDate;
-        $res['IssueDate']    = $this->issueDate;
+        $res = [];
+        if (null !== $this->plateNumber) {
+            $res['PlateNumber'] = $this->plateNumber;
+        }
+        if (null !== $this->vehicleType) {
+            $res['VehicleType'] = $this->vehicleType;
+        }
+        if (null !== $this->owner) {
+            $res['Owner'] = $this->owner;
+        }
+        if (null !== $this->useCharacter) {
+            $res['UseCharacter'] = $this->useCharacter;
+        }
+        if (null !== $this->address) {
+            $res['Address'] = $this->address;
+        }
+        if (null !== $this->model) {
+            $res['Model'] = $this->model;
+        }
+        if (null !== $this->vin) {
+            $res['Vin'] = $this->vin;
+        }
+        if (null !== $this->engineNumber) {
+            $res['EngineNumber'] = $this->engineNumber;
+        }
+        if (null !== $this->registerDate) {
+            $res['RegisterDate'] = $this->registerDate;
+        }
+        if (null !== $this->issueDate) {
+            $res['IssueDate'] = $this->issueDate;
+        }
 
         return $res;
     }

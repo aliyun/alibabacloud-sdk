@@ -24,8 +24,10 @@ class colorTemplate extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Color'] = $this->color;
+        $res = [];
+        if (null !== $this->color) {
+            $res['Color'] = $this->color;
+        }
 
         return $res;
     }

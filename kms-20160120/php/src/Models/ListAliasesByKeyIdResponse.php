@@ -62,12 +62,22 @@ class ListAliasesByKeyIdResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['TotalCount'] = $this->totalCount;
-        $res['PageNumber'] = $this->pageNumber;
-        $res['PageSize']   = $this->pageSize;
-        $res['RequestId']  = $this->requestId;
-        $res['Aliases']    = null !== $this->aliases ? $this->aliases->toMap() : null;
+        $res = [];
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->aliases) {
+            $res['Aliases'] = null !== $this->aliases ? $this->aliases->toMap() : null;
+        }
 
         return $res;
     }

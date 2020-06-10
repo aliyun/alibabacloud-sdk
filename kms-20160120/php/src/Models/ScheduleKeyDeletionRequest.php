@@ -33,9 +33,13 @@ class ScheduleKeyDeletionRequest extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['KeyId']               = $this->keyId;
-        $res['PendingWindowInDays'] = $this->pendingWindowInDays;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->pendingWindowInDays) {
+            $res['PendingWindowInDays'] = $this->pendingWindowInDays;
+        }
 
         return $res;
     }

@@ -43,10 +43,16 @@ class UpdateStackTemplateByResourcesResponse extends Model
 
     public function toMap()
     {
-        $res                    = [];
-        $res['RequestId']       = $this->requestId;
-        $res['OldTemplateBody'] = $this->oldTemplateBody;
-        $res['NewTemplateBody'] = $this->newTemplateBody;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->oldTemplateBody) {
+            $res['OldTemplateBody'] = $this->oldTemplateBody;
+        }
+        if (null !== $this->newTemplateBody) {
+            $res['NewTemplateBody'] = $this->newTemplateBody;
+        }
 
         return $res;
     }

@@ -80,14 +80,28 @@ class GetSecretValueResponse extends Model
 
     public function toMap()
     {
-        $res                   = [];
-        $res['RequestId']      = $this->requestId;
-        $res['SecretName']     = $this->secretName;
-        $res['VersionId']      = $this->versionId;
-        $res['CreateTime']     = $this->createTime;
-        $res['SecretData']     = $this->secretData;
-        $res['SecretDataType'] = $this->secretDataType;
-        $res['VersionStages']  = null !== $this->versionStages ? $this->versionStages->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
+        if (null !== $this->versionId) {
+            $res['VersionId'] = $this->versionId;
+        }
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->secretData) {
+            $res['SecretData'] = $this->secretData;
+        }
+        if (null !== $this->secretDataType) {
+            $res['SecretDataType'] = $this->secretDataType;
+        }
+        if (null !== $this->versionStages) {
+            $res['VersionStages'] = null !== $this->versionStages ? $this->versionStages->toMap() : null;
+        }
 
         return $res;
     }

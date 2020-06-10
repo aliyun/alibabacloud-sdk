@@ -1,2112 +1,2387 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\Alidns\V20150109;
 
-use AlibabaCloud\Tea\Rpc\Rpc;
-use AlibabaCloud\Tea\Utils\Utils;
 use AlibabaCloud\Endpoint\Endpoint;
-
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ListTagResourcesRequest;
-use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ListTagResourcesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\TagResourcesRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\TagResourcesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UntagResourcesRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UntagResourcesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTagsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTagsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\CopyGtmConfigRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\CopyGtmConfigResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainDnssecInfoRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainDnssecInfoResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainDnssecStatusRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainDnssecStatusResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\TransferDomainRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\TransferDomainResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTransferDomainsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTransferDomainsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainBackupRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainBackupResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\RetrieveDomainRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\RetrieveDomainResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlansRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlansResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanAvailableConfigRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanAvailableConfigResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ExecuteGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ExecuteGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\RollbackGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\RollbackGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\PreviewGtmRecoveryPlanRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\PreviewGtmRecoveryPlanResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\GetTxtRecordForVerifyRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\GetTxtRecordForVerifyResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainStatisticsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainStatisticsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceSystemCnameRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceSystemCnameResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeInstanceDomainsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeInstanceDomainsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\BindInstanceDomainsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\BindInstanceDomainsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UnbindInstanceDomainsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UnbindInstanceDomainsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateCustomLineRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateCustomLineResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\AddCustomLineRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\AddCustomLineResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainBackupRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainBackupResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainGroupRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainGroupResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainRecordRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainRecordResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAccessStrategyRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAccessStrategyResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAddressPoolRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAddressPoolResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmMonitorRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmMonitorResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmRecoveryPlanResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\BindInstanceDomainsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\BindInstanceDomainsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainGroupRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainGroupResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainOfDnsProductRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainOfDnsProductResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\CopyGtmConfigRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\CopyGtmConfigResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteCustomLinesRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteCustomLinesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainGroupRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainGroupResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainRecordRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainRecordResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAccessStrategyRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAccessStrategyResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAddressPoolRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAddressPoolResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmRecoveryPlanResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteSubDomainRecordsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteSubDomainRecordsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultCountRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultCountResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultDetailRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultDetailResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeCustomLineRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeCustomLineResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeCustomLinesRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeCustomLinesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstanceRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstanceResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstancesRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstancesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDNSSLBSubDomainsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDNSSLBSubDomainsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainDnssecInfoRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainDnssecInfoResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainGroupsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainGroupsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainInfoRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainInfoResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainLogsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainLogsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainNsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainNsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordInfoRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordInfoResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainStatisticsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainStatisticsResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainStatisticsSummaryRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainStatisticsSummaryResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsSummaryRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsSummaryResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\OperateBatchDomainRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\OperateBatchDomainResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultDetailRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultDetailResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultCountRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeBatchResultCountResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmAccessModeRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmAccessModeResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmMonitorStatusRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmMonitorStatusResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmInstanceGlobalConfigRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmInstanceGlobalConfigResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmLogsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmLogsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAccessStrategyRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAccessStrategyResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmMonitorRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmMonitorResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAddressPoolRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAddressPoolResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAccessStrategyRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddGtmAccessStrategyResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstancesRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstancesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAddressPoolRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteGtmAddressPoolResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategiesRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategiesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategyRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategyResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategyAvailableConfigRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategyAvailableConfigResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategyRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAccessStrategyResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAvailableAlertGroupRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmAvailableAlertGroupResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolsRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceAddressPoolsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstancesRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstancesResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceStatusRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceStatusResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceSystemCnameRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmInstanceSystemCnameResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmLogsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmLogsResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmMonitorAvailableConfigRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmMonitorAvailableConfigResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmMonitorConfigRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmMonitorConfigResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanAvailableConfigRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanAvailableConfigResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlanResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlansRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeGtmRecoveryPlansResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeInstanceDomainsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeInstanceDomainsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordLogsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordLogsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsSummaryRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordStatisticsSummaryResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSubDomainRecordsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSubDomainRecordsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSupportLinesRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSupportLinesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTagsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTagsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTransferDomainsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeTransferDomainsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ExecuteGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ExecuteGtmRecoveryPlanResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\GetMainDomainNameRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\GetMainDomainNameResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\GetTxtRecordForVerifyRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\GetTxtRecordForVerifyResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ListTagResourcesRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ListTagResourcesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ModifyHichinaDomainDNSRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\ModifyHichinaDomainDNSResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\OperateBatchDomainRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\OperateBatchDomainResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\PreviewGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\PreviewGtmRecoveryPlanResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\RetrieveDomainRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\RetrieveDomainResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\RollbackGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\RollbackGtmRecoveryPlanResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDNSSLBStatusRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDNSSLBStatusResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainDnssecStatusRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainDnssecStatusResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainRecordStatusRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainRecordStatusResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmAccessModeRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmAccessModeResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmMonitorStatusRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\SetGtmMonitorStatusResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\TagResourcesRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\TagResourcesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\TransferDomainRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\TransferDomainResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UnbindInstanceDomainsRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UnbindInstanceDomainsResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UntagResourcesRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UntagResourcesResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateCustomLineRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateCustomLineResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDNSSLBWeightRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDNSSLBWeightResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainGroupRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainGroupResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordRemarkRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordRemarkResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRemarkRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRemarkResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmAccessStrategyRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmAccessStrategyResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmAddressPoolRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmAddressPoolResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmInstanceGlobalConfigRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmInstanceGlobalConfigResponse;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmMonitorRequest;
 use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmMonitorResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRemarkRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRemarkResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordRemarkRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordRemarkResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSupportLinesRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSupportLinesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainNsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainNsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstanceRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstanceResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainRecordResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainGroupRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDomainGroupResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDNSSLBWeightRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateDNSSLBWeightResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainRecordStatusRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDomainRecordStatusResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDNSSLBStatusRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\SetDNSSLBStatusResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ModifyHichinaDomainDNSRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ModifyHichinaDomainDNSResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\GetMainDomainNameRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\GetMainDomainNameResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSubDomainRecordsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeSubDomainRecordsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordLogsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeRecordLogsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordInfoRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainRecordInfoResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainLogsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainLogsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainInfoRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainInfoResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainGroupsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDomainGroupsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDNSSLBSubDomainsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDNSSLBSubDomainsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstancesRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DescribeDnsProductInstancesResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteSubDomainRecordsRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteSubDomainRecordsResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainRecordRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainRecordResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainGroupRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainGroupResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\DeleteDomainResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainOfDnsProductRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainOfDnsProductResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainGroupRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\ChangeDomainGroupResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainRecordRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainRecordResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainGroupRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainGroupResponse;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainRequest;
-use AlibabaCloud\SDK\Alidns\V20150109\Models\AddDomainResponse;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmRecoveryPlanRequest;
+use AlibabaCloud\SDK\Alidns\V20150109\Models\UpdateGtmRecoveryPlanResponse;
+use AlibabaCloud\Tea\Rpc\Rpc;
+use AlibabaCloud\Tea\Utils\Utils;
+use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
-class Alidns extends Rpc {
-    public function __construct($config){
+class Alidns extends Rpc
+{
+    public function __construct($config)
+    {
         parent::__construct($config);
-        $this->_endpointRule = "central";
+        $this->_endpointRule = 'central';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint("alidns", $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('alidns', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
-     * @param ListTagResourcesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return ListTagResourcesResponse
      * @throws \Exception
+     *
+     * @return ListTagResourcesResponse
      */
-    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime){
+    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return ListTagResourcesResponse::fromMap($this->doRequest("ListTagResources", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return ListTagResourcesResponse::fromMap($this->doRequest('ListTagResources', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param ListTagResourcesRequest $request
-     * @return ListTagResourcesResponse
      * @throws \Exception
+     *
+     * @return ListTagResourcesResponse
      */
-    public function listTagResources(ListTagResourcesRequest $request){
+    public function listTagResources(ListTagResourcesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->listTagResourcesWithOptions($request, $runtime);
     }
 
     /**
-     * @param TagResourcesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return TagResourcesResponse
      * @throws \Exception
+     *
+     * @return TagResourcesResponse
      */
-    public function tagResourcesWithOptions(TagResourcesRequest $request, RuntimeOptions $runtime){
+    public function tagResourcesWithOptions(TagResourcesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return TagResourcesResponse::fromMap($this->doRequest("TagResources", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return TagResourcesResponse::fromMap($this->doRequest('TagResources', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param TagResourcesRequest $request
-     * @return TagResourcesResponse
      * @throws \Exception
+     *
+     * @return TagResourcesResponse
      */
-    public function tagResources(TagResourcesRequest $request){
+    public function tagResources(TagResourcesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->tagResourcesWithOptions($request, $runtime);
     }
 
     /**
-     * @param UntagResourcesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UntagResourcesResponse
      * @throws \Exception
+     *
+     * @return UntagResourcesResponse
      */
-    public function untagResourcesWithOptions(UntagResourcesRequest $request, RuntimeOptions $runtime){
+    public function untagResourcesWithOptions(UntagResourcesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UntagResourcesResponse::fromMap($this->doRequest("UntagResources", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UntagResourcesResponse::fromMap($this->doRequest('UntagResources', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UntagResourcesRequest $request
-     * @return UntagResourcesResponse
      * @throws \Exception
+     *
+     * @return UntagResourcesResponse
      */
-    public function untagResources(UntagResourcesRequest $request){
+    public function untagResources(UntagResourcesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->untagResourcesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeTagsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeTagsResponse
      * @throws \Exception
+     *
+     * @return DescribeTagsResponse
      */
-    public function describeTagsWithOptions(DescribeTagsRequest $request, RuntimeOptions $runtime){
+    public function describeTagsWithOptions(DescribeTagsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeTagsResponse::fromMap($this->doRequest("DescribeTags", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeTagsResponse::fromMap($this->doRequest('DescribeTags', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeTagsRequest $request
-     * @return DescribeTagsResponse
      * @throws \Exception
+     *
+     * @return DescribeTagsResponse
      */
-    public function describeTags(DescribeTagsRequest $request){
+    public function describeTags(DescribeTagsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeTagsWithOptions($request, $runtime);
     }
 
     /**
-     * @param CopyGtmConfigRequest $request
-     * @param RuntimeOptions $runtime
-     * @return CopyGtmConfigResponse
      * @throws \Exception
+     *
+     * @return CopyGtmConfigResponse
      */
-    public function copyGtmConfigWithOptions(CopyGtmConfigRequest $request, RuntimeOptions $runtime){
+    public function copyGtmConfigWithOptions(CopyGtmConfigRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return CopyGtmConfigResponse::fromMap($this->doRequest("CopyGtmConfig", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return CopyGtmConfigResponse::fromMap($this->doRequest('CopyGtmConfig', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param CopyGtmConfigRequest $request
-     * @return CopyGtmConfigResponse
      * @throws \Exception
+     *
+     * @return CopyGtmConfigResponse
      */
-    public function copyGtmConfig(CopyGtmConfigRequest $request){
+    public function copyGtmConfig(CopyGtmConfigRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->copyGtmConfigWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainDnssecInfoRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainDnssecInfoResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainDnssecInfoResponse
      */
-    public function describeDomainDnssecInfoWithOptions(DescribeDomainDnssecInfoRequest $request, RuntimeOptions $runtime){
+    public function describeDomainDnssecInfoWithOptions(DescribeDomainDnssecInfoRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainDnssecInfoResponse::fromMap($this->doRequest("DescribeDomainDnssecInfo", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainDnssecInfoResponse::fromMap($this->doRequest('DescribeDomainDnssecInfo', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainDnssecInfoRequest $request
-     * @return DescribeDomainDnssecInfoResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainDnssecInfoResponse
      */
-    public function describeDomainDnssecInfo(DescribeDomainDnssecInfoRequest $request){
+    public function describeDomainDnssecInfo(DescribeDomainDnssecInfoRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainDnssecInfoWithOptions($request, $runtime);
     }
 
     /**
-     * @param SetDomainDnssecStatusRequest $request
-     * @param RuntimeOptions $runtime
-     * @return SetDomainDnssecStatusResponse
      * @throws \Exception
+     *
+     * @return SetDomainDnssecStatusResponse
      */
-    public function setDomainDnssecStatusWithOptions(SetDomainDnssecStatusRequest $request, RuntimeOptions $runtime){
+    public function setDomainDnssecStatusWithOptions(SetDomainDnssecStatusRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return SetDomainDnssecStatusResponse::fromMap($this->doRequest("SetDomainDnssecStatus", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return SetDomainDnssecStatusResponse::fromMap($this->doRequest('SetDomainDnssecStatus', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param SetDomainDnssecStatusRequest $request
-     * @return SetDomainDnssecStatusResponse
      * @throws \Exception
+     *
+     * @return SetDomainDnssecStatusResponse
      */
-    public function setDomainDnssecStatus(SetDomainDnssecStatusRequest $request){
+    public function setDomainDnssecStatus(SetDomainDnssecStatusRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->setDomainDnssecStatusWithOptions($request, $runtime);
     }
 
     /**
-     * @param TransferDomainRequest $request
-     * @param RuntimeOptions $runtime
-     * @return TransferDomainResponse
      * @throws \Exception
+     *
+     * @return TransferDomainResponse
      */
-    public function transferDomainWithOptions(TransferDomainRequest $request, RuntimeOptions $runtime){
+    public function transferDomainWithOptions(TransferDomainRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return TransferDomainResponse::fromMap($this->doRequest("TransferDomain", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return TransferDomainResponse::fromMap($this->doRequest('TransferDomain', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param TransferDomainRequest $request
-     * @return TransferDomainResponse
      * @throws \Exception
+     *
+     * @return TransferDomainResponse
      */
-    public function transferDomain(TransferDomainRequest $request){
+    public function transferDomain(TransferDomainRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->transferDomainWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeTransferDomainsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeTransferDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeTransferDomainsResponse
      */
-    public function describeTransferDomainsWithOptions(DescribeTransferDomainsRequest $request, RuntimeOptions $runtime){
+    public function describeTransferDomainsWithOptions(DescribeTransferDomainsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeTransferDomainsResponse::fromMap($this->doRequest("DescribeTransferDomains", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeTransferDomainsResponse::fromMap($this->doRequest('DescribeTransferDomains', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeTransferDomainsRequest $request
-     * @return DescribeTransferDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeTransferDomainsResponse
      */
-    public function describeTransferDomains(DescribeTransferDomainsRequest $request){
+    public function describeTransferDomains(DescribeTransferDomainsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeTransferDomainsWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddDomainBackupRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddDomainBackupResponse
      * @throws \Exception
+     *
+     * @return AddDomainBackupResponse
      */
-    public function addDomainBackupWithOptions(AddDomainBackupRequest $request, RuntimeOptions $runtime){
+    public function addDomainBackupWithOptions(AddDomainBackupRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddDomainBackupResponse::fromMap($this->doRequest("AddDomainBackup", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddDomainBackupResponse::fromMap($this->doRequest('AddDomainBackup', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddDomainBackupRequest $request
-     * @return AddDomainBackupResponse
      * @throws \Exception
+     *
+     * @return AddDomainBackupResponse
      */
-    public function addDomainBackup(AddDomainBackupRequest $request){
+    public function addDomainBackup(AddDomainBackupRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addDomainBackupWithOptions($request, $runtime);
     }
 
     /**
-     * @param RetrieveDomainRequest $request
-     * @param RuntimeOptions $runtime
-     * @return RetrieveDomainResponse
      * @throws \Exception
+     *
+     * @return RetrieveDomainResponse
      */
-    public function retrieveDomainWithOptions(RetrieveDomainRequest $request, RuntimeOptions $runtime){
+    public function retrieveDomainWithOptions(RetrieveDomainRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return RetrieveDomainResponse::fromMap($this->doRequest("RetrieveDomain", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return RetrieveDomainResponse::fromMap($this->doRequest('RetrieveDomain', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param RetrieveDomainRequest $request
-     * @return RetrieveDomainResponse
      * @throws \Exception
+     *
+     * @return RetrieveDomainResponse
      */
-    public function retrieveDomain(RetrieveDomainRequest $request){
+    public function retrieveDomain(RetrieveDomainRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->retrieveDomainWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmRecoveryPlanResponse
      */
-    public function describeGtmRecoveryPlanWithOptions(DescribeGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function describeGtmRecoveryPlanWithOptions(DescribeGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmRecoveryPlanResponse::fromMap($this->doRequest("DescribeGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmRecoveryPlanResponse::fromMap($this->doRequest('DescribeGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmRecoveryPlanRequest $request
-     * @return DescribeGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmRecoveryPlanResponse
      */
-    public function describeGtmRecoveryPlan(DescribeGtmRecoveryPlanRequest $request){
+    public function describeGtmRecoveryPlan(DescribeGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return AddGtmRecoveryPlanResponse
      */
-    public function addGtmRecoveryPlanWithOptions(AddGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function addGtmRecoveryPlanWithOptions(AddGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddGtmRecoveryPlanResponse::fromMap($this->doRequest("AddGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddGtmRecoveryPlanResponse::fromMap($this->doRequest('AddGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddGtmRecoveryPlanRequest $request
-     * @return AddGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return AddGtmRecoveryPlanResponse
      */
-    public function addGtmRecoveryPlan(AddGtmRecoveryPlanRequest $request){
+    public function addGtmRecoveryPlan(AddGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmRecoveryPlanResponse
      */
-    public function updateGtmRecoveryPlanWithOptions(UpdateGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function updateGtmRecoveryPlanWithOptions(UpdateGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateGtmRecoveryPlanResponse::fromMap($this->doRequest("UpdateGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateGtmRecoveryPlanResponse::fromMap($this->doRequest('UpdateGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateGtmRecoveryPlanRequest $request
-     * @return UpdateGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmRecoveryPlanResponse
      */
-    public function updateGtmRecoveryPlan(UpdateGtmRecoveryPlanRequest $request){
+    public function updateGtmRecoveryPlan(UpdateGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return DeleteGtmRecoveryPlanResponse
      */
-    public function deleteGtmRecoveryPlanWithOptions(DeleteGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function deleteGtmRecoveryPlanWithOptions(DeleteGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteGtmRecoveryPlanResponse::fromMap($this->doRequest("DeleteGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DeleteGtmRecoveryPlanResponse::fromMap($this->doRequest('DeleteGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteGtmRecoveryPlanRequest $request
-     * @return DeleteGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return DeleteGtmRecoveryPlanResponse
      */
-    public function deleteGtmRecoveryPlan(DeleteGtmRecoveryPlanRequest $request){
+    public function deleteGtmRecoveryPlan(DeleteGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmRecoveryPlansRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmRecoveryPlansResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmRecoveryPlansResponse
      */
-    public function describeGtmRecoveryPlansWithOptions(DescribeGtmRecoveryPlansRequest $request, RuntimeOptions $runtime){
+    public function describeGtmRecoveryPlansWithOptions(DescribeGtmRecoveryPlansRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmRecoveryPlansResponse::fromMap($this->doRequest("DescribeGtmRecoveryPlans", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmRecoveryPlansResponse::fromMap($this->doRequest('DescribeGtmRecoveryPlans', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmRecoveryPlansRequest $request
-     * @return DescribeGtmRecoveryPlansResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmRecoveryPlansResponse
      */
-    public function describeGtmRecoveryPlans(DescribeGtmRecoveryPlansRequest $request){
+    public function describeGtmRecoveryPlans(DescribeGtmRecoveryPlansRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmRecoveryPlansWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmRecoveryPlanAvailableConfigRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmRecoveryPlanAvailableConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmRecoveryPlanAvailableConfigResponse
      */
-    public function describeGtmRecoveryPlanAvailableConfigWithOptions(DescribeGtmRecoveryPlanAvailableConfigRequest $request, RuntimeOptions $runtime){
+    public function describeGtmRecoveryPlanAvailableConfigWithOptions(DescribeGtmRecoveryPlanAvailableConfigRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmRecoveryPlanAvailableConfigResponse::fromMap($this->doRequest("DescribeGtmRecoveryPlanAvailableConfig", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmRecoveryPlanAvailableConfigResponse::fromMap($this->doRequest('DescribeGtmRecoveryPlanAvailableConfig', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmRecoveryPlanAvailableConfigRequest $request
-     * @return DescribeGtmRecoveryPlanAvailableConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmRecoveryPlanAvailableConfigResponse
      */
-    public function describeGtmRecoveryPlanAvailableConfig(DescribeGtmRecoveryPlanAvailableConfigRequest $request){
+    public function describeGtmRecoveryPlanAvailableConfig(DescribeGtmRecoveryPlanAvailableConfigRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmRecoveryPlanAvailableConfigWithOptions($request, $runtime);
     }
 
     /**
-     * @param ExecuteGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return ExecuteGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return ExecuteGtmRecoveryPlanResponse
      */
-    public function executeGtmRecoveryPlanWithOptions(ExecuteGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function executeGtmRecoveryPlanWithOptions(ExecuteGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return ExecuteGtmRecoveryPlanResponse::fromMap($this->doRequest("ExecuteGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return ExecuteGtmRecoveryPlanResponse::fromMap($this->doRequest('ExecuteGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param ExecuteGtmRecoveryPlanRequest $request
-     * @return ExecuteGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return ExecuteGtmRecoveryPlanResponse
      */
-    public function executeGtmRecoveryPlan(ExecuteGtmRecoveryPlanRequest $request){
+    public function executeGtmRecoveryPlan(ExecuteGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->executeGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param RollbackGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return RollbackGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return RollbackGtmRecoveryPlanResponse
      */
-    public function rollbackGtmRecoveryPlanWithOptions(RollbackGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function rollbackGtmRecoveryPlanWithOptions(RollbackGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return RollbackGtmRecoveryPlanResponse::fromMap($this->doRequest("RollbackGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return RollbackGtmRecoveryPlanResponse::fromMap($this->doRequest('RollbackGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param RollbackGtmRecoveryPlanRequest $request
-     * @return RollbackGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return RollbackGtmRecoveryPlanResponse
      */
-    public function rollbackGtmRecoveryPlan(RollbackGtmRecoveryPlanRequest $request){
+    public function rollbackGtmRecoveryPlan(RollbackGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->rollbackGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param PreviewGtmRecoveryPlanRequest $request
-     * @param RuntimeOptions $runtime
-     * @return PreviewGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return PreviewGtmRecoveryPlanResponse
      */
-    public function previewGtmRecoveryPlanWithOptions(PreviewGtmRecoveryPlanRequest $request, RuntimeOptions $runtime){
+    public function previewGtmRecoveryPlanWithOptions(PreviewGtmRecoveryPlanRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return PreviewGtmRecoveryPlanResponse::fromMap($this->doRequest("PreviewGtmRecoveryPlan", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return PreviewGtmRecoveryPlanResponse::fromMap($this->doRequest('PreviewGtmRecoveryPlan', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param PreviewGtmRecoveryPlanRequest $request
-     * @return PreviewGtmRecoveryPlanResponse
      * @throws \Exception
+     *
+     * @return PreviewGtmRecoveryPlanResponse
      */
-    public function previewGtmRecoveryPlan(PreviewGtmRecoveryPlanRequest $request){
+    public function previewGtmRecoveryPlan(PreviewGtmRecoveryPlanRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->previewGtmRecoveryPlanWithOptions($request, $runtime);
     }
 
     /**
-     * @param GetTxtRecordForVerifyRequest $request
-     * @param RuntimeOptions $runtime
-     * @return GetTxtRecordForVerifyResponse
      * @throws \Exception
+     *
+     * @return GetTxtRecordForVerifyResponse
      */
-    public function getTxtRecordForVerifyWithOptions(GetTxtRecordForVerifyRequest $request, RuntimeOptions $runtime){
+    public function getTxtRecordForVerifyWithOptions(GetTxtRecordForVerifyRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return GetTxtRecordForVerifyResponse::fromMap($this->doRequest("GetTxtRecordForVerify", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return GetTxtRecordForVerifyResponse::fromMap($this->doRequest('GetTxtRecordForVerify', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param GetTxtRecordForVerifyRequest $request
-     * @return GetTxtRecordForVerifyResponse
      * @throws \Exception
+     *
+     * @return GetTxtRecordForVerifyResponse
      */
-    public function getTxtRecordForVerify(GetTxtRecordForVerifyRequest $request){
+    public function getTxtRecordForVerify(GetTxtRecordForVerifyRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->getTxtRecordForVerifyWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainStatisticsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainStatisticsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainStatisticsResponse
      */
-    public function describeDomainStatisticsWithOptions(DescribeDomainStatisticsRequest $request, RuntimeOptions $runtime){
+    public function describeDomainStatisticsWithOptions(DescribeDomainStatisticsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainStatisticsResponse::fromMap($this->doRequest("DescribeDomainStatistics", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainStatisticsResponse::fromMap($this->doRequest('DescribeDomainStatistics', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainStatisticsRequest $request
-     * @return DescribeDomainStatisticsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainStatisticsResponse
      */
-    public function describeDomainStatistics(DescribeDomainStatisticsRequest $request){
+    public function describeDomainStatistics(DescribeDomainStatisticsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainStatisticsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeRecordStatisticsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeRecordStatisticsResponse
      * @throws \Exception
+     *
+     * @return DescribeRecordStatisticsResponse
      */
-    public function describeRecordStatisticsWithOptions(DescribeRecordStatisticsRequest $request, RuntimeOptions $runtime){
+    public function describeRecordStatisticsWithOptions(DescribeRecordStatisticsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeRecordStatisticsResponse::fromMap($this->doRequest("DescribeRecordStatistics", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeRecordStatisticsResponse::fromMap($this->doRequest('DescribeRecordStatistics', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeRecordStatisticsRequest $request
-     * @return DescribeRecordStatisticsResponse
      * @throws \Exception
+     *
+     * @return DescribeRecordStatisticsResponse
      */
-    public function describeRecordStatistics(DescribeRecordStatisticsRequest $request){
+    public function describeRecordStatistics(DescribeRecordStatisticsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeRecordStatisticsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmInstanceSystemCnameRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmInstanceSystemCnameResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceSystemCnameResponse
      */
-    public function describeGtmInstanceSystemCnameWithOptions(DescribeGtmInstanceSystemCnameRequest $request, RuntimeOptions $runtime){
+    public function describeGtmInstanceSystemCnameWithOptions(DescribeGtmInstanceSystemCnameRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmInstanceSystemCnameResponse::fromMap($this->doRequest("DescribeGtmInstanceSystemCname", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmInstanceSystemCnameResponse::fromMap($this->doRequest('DescribeGtmInstanceSystemCname', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmInstanceSystemCnameRequest $request
-     * @return DescribeGtmInstanceSystemCnameResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceSystemCnameResponse
      */
-    public function describeGtmInstanceSystemCname(DescribeGtmInstanceSystemCnameRequest $request){
+    public function describeGtmInstanceSystemCname(DescribeGtmInstanceSystemCnameRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmInstanceSystemCnameWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeInstanceDomainsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeInstanceDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeInstanceDomainsResponse
      */
-    public function describeInstanceDomainsWithOptions(DescribeInstanceDomainsRequest $request, RuntimeOptions $runtime){
+    public function describeInstanceDomainsWithOptions(DescribeInstanceDomainsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeInstanceDomainsResponse::fromMap($this->doRequest("DescribeInstanceDomains", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeInstanceDomainsResponse::fromMap($this->doRequest('DescribeInstanceDomains', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeInstanceDomainsRequest $request
-     * @return DescribeInstanceDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeInstanceDomainsResponse
      */
-    public function describeInstanceDomains(DescribeInstanceDomainsRequest $request){
+    public function describeInstanceDomains(DescribeInstanceDomainsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeInstanceDomainsWithOptions($request, $runtime);
     }
 
     /**
-     * @param BindInstanceDomainsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return BindInstanceDomainsResponse
      * @throws \Exception
+     *
+     * @return BindInstanceDomainsResponse
      */
-    public function bindInstanceDomainsWithOptions(BindInstanceDomainsRequest $request, RuntimeOptions $runtime){
+    public function bindInstanceDomainsWithOptions(BindInstanceDomainsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return BindInstanceDomainsResponse::fromMap($this->doRequest("BindInstanceDomains", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return BindInstanceDomainsResponse::fromMap($this->doRequest('BindInstanceDomains', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param BindInstanceDomainsRequest $request
-     * @return BindInstanceDomainsResponse
      * @throws \Exception
+     *
+     * @return BindInstanceDomainsResponse
      */
-    public function bindInstanceDomains(BindInstanceDomainsRequest $request){
+    public function bindInstanceDomains(BindInstanceDomainsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->bindInstanceDomainsWithOptions($request, $runtime);
     }
 
     /**
-     * @param UnbindInstanceDomainsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UnbindInstanceDomainsResponse
      * @throws \Exception
+     *
+     * @return UnbindInstanceDomainsResponse
      */
-    public function unbindInstanceDomainsWithOptions(UnbindInstanceDomainsRequest $request, RuntimeOptions $runtime){
+    public function unbindInstanceDomainsWithOptions(UnbindInstanceDomainsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UnbindInstanceDomainsResponse::fromMap($this->doRequest("UnbindInstanceDomains", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UnbindInstanceDomainsResponse::fromMap($this->doRequest('UnbindInstanceDomains', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UnbindInstanceDomainsRequest $request
-     * @return UnbindInstanceDomainsResponse
      * @throws \Exception
+     *
+     * @return UnbindInstanceDomainsResponse
      */
-    public function unbindInstanceDomains(UnbindInstanceDomainsRequest $request){
+    public function unbindInstanceDomains(UnbindInstanceDomainsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->unbindInstanceDomainsWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateCustomLineRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateCustomLineResponse
      * @throws \Exception
+     *
+     * @return UpdateCustomLineResponse
      */
-    public function updateCustomLineWithOptions(UpdateCustomLineRequest $request, RuntimeOptions $runtime){
+    public function updateCustomLineWithOptions(UpdateCustomLineRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateCustomLineResponse::fromMap($this->doRequest("UpdateCustomLine", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateCustomLineResponse::fromMap($this->doRequest('UpdateCustomLine', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateCustomLineRequest $request
-     * @return UpdateCustomLineResponse
      * @throws \Exception
+     *
+     * @return UpdateCustomLineResponse
      */
-    public function updateCustomLine(UpdateCustomLineRequest $request){
+    public function updateCustomLine(UpdateCustomLineRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateCustomLineWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddCustomLineRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddCustomLineResponse
      * @throws \Exception
+     *
+     * @return AddCustomLineResponse
      */
-    public function addCustomLineWithOptions(AddCustomLineRequest $request, RuntimeOptions $runtime){
+    public function addCustomLineWithOptions(AddCustomLineRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddCustomLineResponse::fromMap($this->doRequest("AddCustomLine", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddCustomLineResponse::fromMap($this->doRequest('AddCustomLine', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddCustomLineRequest $request
-     * @return AddCustomLineResponse
      * @throws \Exception
+     *
+     * @return AddCustomLineResponse
      */
-    public function addCustomLine(AddCustomLineRequest $request){
+    public function addCustomLine(AddCustomLineRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addCustomLineWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteCustomLinesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteCustomLinesResponse
      * @throws \Exception
+     *
+     * @return DeleteCustomLinesResponse
      */
-    public function deleteCustomLinesWithOptions(DeleteCustomLinesRequest $request, RuntimeOptions $runtime){
+    public function deleteCustomLinesWithOptions(DeleteCustomLinesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteCustomLinesResponse::fromMap($this->doRequest("DeleteCustomLines", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DeleteCustomLinesResponse::fromMap($this->doRequest('DeleteCustomLines', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteCustomLinesRequest $request
-     * @return DeleteCustomLinesResponse
      * @throws \Exception
+     *
+     * @return DeleteCustomLinesResponse
      */
-    public function deleteCustomLines(DeleteCustomLinesRequest $request){
+    public function deleteCustomLines(DeleteCustomLinesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteCustomLinesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeCustomLineRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeCustomLineResponse
      * @throws \Exception
+     *
+     * @return DescribeCustomLineResponse
      */
-    public function describeCustomLineWithOptions(DescribeCustomLineRequest $request, RuntimeOptions $runtime){
+    public function describeCustomLineWithOptions(DescribeCustomLineRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeCustomLineResponse::fromMap($this->doRequest("DescribeCustomLine", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeCustomLineResponse::fromMap($this->doRequest('DescribeCustomLine', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeCustomLineRequest $request
-     * @return DescribeCustomLineResponse
      * @throws \Exception
+     *
+     * @return DescribeCustomLineResponse
      */
-    public function describeCustomLine(DescribeCustomLineRequest $request){
+    public function describeCustomLine(DescribeCustomLineRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeCustomLineWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeCustomLinesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeCustomLinesResponse
      * @throws \Exception
+     *
+     * @return DescribeCustomLinesResponse
      */
-    public function describeCustomLinesWithOptions(DescribeCustomLinesRequest $request, RuntimeOptions $runtime){
+    public function describeCustomLinesWithOptions(DescribeCustomLinesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeCustomLinesResponse::fromMap($this->doRequest("DescribeCustomLines", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeCustomLinesResponse::fromMap($this->doRequest('DescribeCustomLines', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeCustomLinesRequest $request
-     * @return DescribeCustomLinesResponse
      * @throws \Exception
+     *
+     * @return DescribeCustomLinesResponse
      */
-    public function describeCustomLines(DescribeCustomLinesRequest $request){
+    public function describeCustomLines(DescribeCustomLinesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeCustomLinesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainStatisticsSummaryRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainStatisticsSummaryResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainStatisticsSummaryResponse
      */
-    public function describeDomainStatisticsSummaryWithOptions(DescribeDomainStatisticsSummaryRequest $request, RuntimeOptions $runtime){
+    public function describeDomainStatisticsSummaryWithOptions(DescribeDomainStatisticsSummaryRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainStatisticsSummaryResponse::fromMap($this->doRequest("DescribeDomainStatisticsSummary", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainStatisticsSummaryResponse::fromMap($this->doRequest('DescribeDomainStatisticsSummary', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainStatisticsSummaryRequest $request
-     * @return DescribeDomainStatisticsSummaryResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainStatisticsSummaryResponse
      */
-    public function describeDomainStatisticsSummary(DescribeDomainStatisticsSummaryRequest $request){
+    public function describeDomainStatisticsSummary(DescribeDomainStatisticsSummaryRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainStatisticsSummaryWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeRecordStatisticsSummaryRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeRecordStatisticsSummaryResponse
      * @throws \Exception
+     *
+     * @return DescribeRecordStatisticsSummaryResponse
      */
-    public function describeRecordStatisticsSummaryWithOptions(DescribeRecordStatisticsSummaryRequest $request, RuntimeOptions $runtime){
+    public function describeRecordStatisticsSummaryWithOptions(DescribeRecordStatisticsSummaryRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeRecordStatisticsSummaryResponse::fromMap($this->doRequest("DescribeRecordStatisticsSummary", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeRecordStatisticsSummaryResponse::fromMap($this->doRequest('DescribeRecordStatisticsSummary', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeRecordStatisticsSummaryRequest $request
-     * @return DescribeRecordStatisticsSummaryResponse
      * @throws \Exception
+     *
+     * @return DescribeRecordStatisticsSummaryResponse
      */
-    public function describeRecordStatisticsSummary(DescribeRecordStatisticsSummaryRequest $request){
+    public function describeRecordStatisticsSummary(DescribeRecordStatisticsSummaryRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeRecordStatisticsSummaryWithOptions($request, $runtime);
     }
 
     /**
-     * @param OperateBatchDomainRequest $request
-     * @param RuntimeOptions $runtime
-     * @return OperateBatchDomainResponse
      * @throws \Exception
+     *
+     * @return OperateBatchDomainResponse
      */
-    public function operateBatchDomainWithOptions(OperateBatchDomainRequest $request, RuntimeOptions $runtime){
+    public function operateBatchDomainWithOptions(OperateBatchDomainRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return OperateBatchDomainResponse::fromMap($this->doRequest("OperateBatchDomain", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return OperateBatchDomainResponse::fromMap($this->doRequest('OperateBatchDomain', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param OperateBatchDomainRequest $request
-     * @return OperateBatchDomainResponse
      * @throws \Exception
+     *
+     * @return OperateBatchDomainResponse
      */
-    public function operateBatchDomain(OperateBatchDomainRequest $request){
+    public function operateBatchDomain(OperateBatchDomainRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->operateBatchDomainWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeBatchResultDetailRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeBatchResultDetailResponse
      * @throws \Exception
+     *
+     * @return DescribeBatchResultDetailResponse
      */
-    public function describeBatchResultDetailWithOptions(DescribeBatchResultDetailRequest $request, RuntimeOptions $runtime){
+    public function describeBatchResultDetailWithOptions(DescribeBatchResultDetailRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeBatchResultDetailResponse::fromMap($this->doRequest("DescribeBatchResultDetail", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeBatchResultDetailResponse::fromMap($this->doRequest('DescribeBatchResultDetail', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeBatchResultDetailRequest $request
-     * @return DescribeBatchResultDetailResponse
      * @throws \Exception
+     *
+     * @return DescribeBatchResultDetailResponse
      */
-    public function describeBatchResultDetail(DescribeBatchResultDetailRequest $request){
+    public function describeBatchResultDetail(DescribeBatchResultDetailRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeBatchResultDetailWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeBatchResultCountRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeBatchResultCountResponse
      * @throws \Exception
+     *
+     * @return DescribeBatchResultCountResponse
      */
-    public function describeBatchResultCountWithOptions(DescribeBatchResultCountRequest $request, RuntimeOptions $runtime){
+    public function describeBatchResultCountWithOptions(DescribeBatchResultCountRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeBatchResultCountResponse::fromMap($this->doRequest("DescribeBatchResultCount", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeBatchResultCountResponse::fromMap($this->doRequest('DescribeBatchResultCount', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeBatchResultCountRequest $request
-     * @return DescribeBatchResultCountResponse
      * @throws \Exception
+     *
+     * @return DescribeBatchResultCountResponse
      */
-    public function describeBatchResultCount(DescribeBatchResultCountRequest $request){
+    public function describeBatchResultCount(DescribeBatchResultCountRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeBatchResultCountWithOptions($request, $runtime);
     }
 
     /**
-     * @param SetGtmAccessModeRequest $request
-     * @param RuntimeOptions $runtime
-     * @return SetGtmAccessModeResponse
      * @throws \Exception
+     *
+     * @return SetGtmAccessModeResponse
      */
-    public function setGtmAccessModeWithOptions(SetGtmAccessModeRequest $request, RuntimeOptions $runtime){
+    public function setGtmAccessModeWithOptions(SetGtmAccessModeRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return SetGtmAccessModeResponse::fromMap($this->doRequest("SetGtmAccessMode", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return SetGtmAccessModeResponse::fromMap($this->doRequest('SetGtmAccessMode', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param SetGtmAccessModeRequest $request
-     * @return SetGtmAccessModeResponse
      * @throws \Exception
+     *
+     * @return SetGtmAccessModeResponse
      */
-    public function setGtmAccessMode(SetGtmAccessModeRequest $request){
+    public function setGtmAccessMode(SetGtmAccessModeRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->setGtmAccessModeWithOptions($request, $runtime);
     }
 
     /**
-     * @param SetGtmMonitorStatusRequest $request
-     * @param RuntimeOptions $runtime
-     * @return SetGtmMonitorStatusResponse
      * @throws \Exception
+     *
+     * @return SetGtmMonitorStatusResponse
      */
-    public function setGtmMonitorStatusWithOptions(SetGtmMonitorStatusRequest $request, RuntimeOptions $runtime){
+    public function setGtmMonitorStatusWithOptions(SetGtmMonitorStatusRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return SetGtmMonitorStatusResponse::fromMap($this->doRequest("SetGtmMonitorStatus", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return SetGtmMonitorStatusResponse::fromMap($this->doRequest('SetGtmMonitorStatus', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param SetGtmMonitorStatusRequest $request
-     * @return SetGtmMonitorStatusResponse
      * @throws \Exception
+     *
+     * @return SetGtmMonitorStatusResponse
      */
-    public function setGtmMonitorStatus(SetGtmMonitorStatusRequest $request){
+    public function setGtmMonitorStatus(SetGtmMonitorStatusRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->setGtmMonitorStatusWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateGtmInstanceGlobalConfigRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateGtmInstanceGlobalConfigResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmInstanceGlobalConfigResponse
      */
-    public function updateGtmInstanceGlobalConfigWithOptions(UpdateGtmInstanceGlobalConfigRequest $request, RuntimeOptions $runtime){
+    public function updateGtmInstanceGlobalConfigWithOptions(UpdateGtmInstanceGlobalConfigRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateGtmInstanceGlobalConfigResponse::fromMap($this->doRequest("UpdateGtmInstanceGlobalConfig", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateGtmInstanceGlobalConfigResponse::fromMap($this->doRequest('UpdateGtmInstanceGlobalConfig', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateGtmInstanceGlobalConfigRequest $request
-     * @return UpdateGtmInstanceGlobalConfigResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmInstanceGlobalConfigResponse
      */
-    public function updateGtmInstanceGlobalConfig(UpdateGtmInstanceGlobalConfigRequest $request){
+    public function updateGtmInstanceGlobalConfig(UpdateGtmInstanceGlobalConfigRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateGtmInstanceGlobalConfigWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmLogsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmLogsResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmLogsResponse
      */
-    public function describeGtmLogsWithOptions(DescribeGtmLogsRequest $request, RuntimeOptions $runtime){
+    public function describeGtmLogsWithOptions(DescribeGtmLogsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmLogsResponse::fromMap($this->doRequest("DescribeGtmLogs", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmLogsResponse::fromMap($this->doRequest('DescribeGtmLogs', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmLogsRequest $request
-     * @return DescribeGtmLogsResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmLogsResponse
      */
-    public function describeGtmLogs(DescribeGtmLogsRequest $request){
+    public function describeGtmLogs(DescribeGtmLogsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmLogsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteGtmAccessStrategyRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return DeleteGtmAccessStrategyResponse
      */
-    public function deleteGtmAccessStrategyWithOptions(DeleteGtmAccessStrategyRequest $request, RuntimeOptions $runtime){
+    public function deleteGtmAccessStrategyWithOptions(DeleteGtmAccessStrategyRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteGtmAccessStrategyResponse::fromMap($this->doRequest("DeleteGtmAccessStrategy", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DeleteGtmAccessStrategyResponse::fromMap($this->doRequest('DeleteGtmAccessStrategy', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteGtmAccessStrategyRequest $request
-     * @return DeleteGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return DeleteGtmAccessStrategyResponse
      */
-    public function deleteGtmAccessStrategy(DeleteGtmAccessStrategyRequest $request){
+    public function deleteGtmAccessStrategy(DeleteGtmAccessStrategyRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteGtmAccessStrategyWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddGtmMonitorRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddGtmMonitorResponse
      * @throws \Exception
+     *
+     * @return AddGtmMonitorResponse
      */
-    public function addGtmMonitorWithOptions(AddGtmMonitorRequest $request, RuntimeOptions $runtime){
+    public function addGtmMonitorWithOptions(AddGtmMonitorRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddGtmMonitorResponse::fromMap($this->doRequest("AddGtmMonitor", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddGtmMonitorResponse::fromMap($this->doRequest('AddGtmMonitor', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddGtmMonitorRequest $request
-     * @return AddGtmMonitorResponse
      * @throws \Exception
+     *
+     * @return AddGtmMonitorResponse
      */
-    public function addGtmMonitor(AddGtmMonitorRequest $request){
+    public function addGtmMonitor(AddGtmMonitorRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addGtmMonitorWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddGtmAddressPoolRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddGtmAddressPoolResponse
      * @throws \Exception
+     *
+     * @return AddGtmAddressPoolResponse
      */
-    public function addGtmAddressPoolWithOptions(AddGtmAddressPoolRequest $request, RuntimeOptions $runtime){
+    public function addGtmAddressPoolWithOptions(AddGtmAddressPoolRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddGtmAddressPoolResponse::fromMap($this->doRequest("AddGtmAddressPool", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddGtmAddressPoolResponse::fromMap($this->doRequest('AddGtmAddressPool', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddGtmAddressPoolRequest $request
-     * @return AddGtmAddressPoolResponse
      * @throws \Exception
+     *
+     * @return AddGtmAddressPoolResponse
      */
-    public function addGtmAddressPool(AddGtmAddressPoolRequest $request){
+    public function addGtmAddressPool(AddGtmAddressPoolRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addGtmAddressPoolWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddGtmAccessStrategyRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return AddGtmAccessStrategyResponse
      */
-    public function addGtmAccessStrategyWithOptions(AddGtmAccessStrategyRequest $request, RuntimeOptions $runtime){
+    public function addGtmAccessStrategyWithOptions(AddGtmAccessStrategyRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddGtmAccessStrategyResponse::fromMap($this->doRequest("AddGtmAccessStrategy", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddGtmAccessStrategyResponse::fromMap($this->doRequest('AddGtmAccessStrategy', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddGtmAccessStrategyRequest $request
-     * @return AddGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return AddGtmAccessStrategyResponse
      */
-    public function addGtmAccessStrategy(AddGtmAccessStrategyRequest $request){
+    public function addGtmAccessStrategy(AddGtmAccessStrategyRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addGtmAccessStrategyWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmInstancesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmInstancesResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstancesResponse
      */
-    public function describeGtmInstancesWithOptions(DescribeGtmInstancesRequest $request, RuntimeOptions $runtime){
+    public function describeGtmInstancesWithOptions(DescribeGtmInstancesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmInstancesResponse::fromMap($this->doRequest("DescribeGtmInstances", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmInstancesResponse::fromMap($this->doRequest('DescribeGtmInstances', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmInstancesRequest $request
-     * @return DescribeGtmInstancesResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstancesResponse
      */
-    public function describeGtmInstances(DescribeGtmInstancesRequest $request){
+    public function describeGtmInstances(DescribeGtmInstancesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmInstancesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteGtmAddressPoolRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteGtmAddressPoolResponse
      * @throws \Exception
+     *
+     * @return DeleteGtmAddressPoolResponse
      */
-    public function deleteGtmAddressPoolWithOptions(DeleteGtmAddressPoolRequest $request, RuntimeOptions $runtime){
+    public function deleteGtmAddressPoolWithOptions(DeleteGtmAddressPoolRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteGtmAddressPoolResponse::fromMap($this->doRequest("DeleteGtmAddressPool", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DeleteGtmAddressPoolResponse::fromMap($this->doRequest('DeleteGtmAddressPool', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteGtmAddressPoolRequest $request
-     * @return DeleteGtmAddressPoolResponse
      * @throws \Exception
+     *
+     * @return DeleteGtmAddressPoolResponse
      */
-    public function deleteGtmAddressPool(DeleteGtmAddressPoolRequest $request){
+    public function deleteGtmAddressPool(DeleteGtmAddressPoolRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteGtmAddressPoolWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmAccessStrategiesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmAccessStrategiesResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAccessStrategiesResponse
      */
-    public function describeGtmAccessStrategiesWithOptions(DescribeGtmAccessStrategiesRequest $request, RuntimeOptions $runtime){
+    public function describeGtmAccessStrategiesWithOptions(DescribeGtmAccessStrategiesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmAccessStrategiesResponse::fromMap($this->doRequest("DescribeGtmAccessStrategies", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmAccessStrategiesResponse::fromMap($this->doRequest('DescribeGtmAccessStrategies', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmAccessStrategiesRequest $request
-     * @return DescribeGtmAccessStrategiesResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAccessStrategiesResponse
      */
-    public function describeGtmAccessStrategies(DescribeGtmAccessStrategiesRequest $request){
+    public function describeGtmAccessStrategies(DescribeGtmAccessStrategiesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmAccessStrategiesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmAccessStrategyRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAccessStrategyResponse
      */
-    public function describeGtmAccessStrategyWithOptions(DescribeGtmAccessStrategyRequest $request, RuntimeOptions $runtime){
+    public function describeGtmAccessStrategyWithOptions(DescribeGtmAccessStrategyRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmAccessStrategyResponse::fromMap($this->doRequest("DescribeGtmAccessStrategy", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmAccessStrategyResponse::fromMap($this->doRequest('DescribeGtmAccessStrategy', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmAccessStrategyRequest $request
-     * @return DescribeGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAccessStrategyResponse
      */
-    public function describeGtmAccessStrategy(DescribeGtmAccessStrategyRequest $request){
+    public function describeGtmAccessStrategy(DescribeGtmAccessStrategyRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmAccessStrategyWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmAccessStrategyAvailableConfigRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmAccessStrategyAvailableConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAccessStrategyAvailableConfigResponse
      */
-    public function describeGtmAccessStrategyAvailableConfigWithOptions(DescribeGtmAccessStrategyAvailableConfigRequest $request, RuntimeOptions $runtime){
+    public function describeGtmAccessStrategyAvailableConfigWithOptions(DescribeGtmAccessStrategyAvailableConfigRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmAccessStrategyAvailableConfigResponse::fromMap($this->doRequest("DescribeGtmAccessStrategyAvailableConfig", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmAccessStrategyAvailableConfigResponse::fromMap($this->doRequest('DescribeGtmAccessStrategyAvailableConfig', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmAccessStrategyAvailableConfigRequest $request
-     * @return DescribeGtmAccessStrategyAvailableConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAccessStrategyAvailableConfigResponse
      */
-    public function describeGtmAccessStrategyAvailableConfig(DescribeGtmAccessStrategyAvailableConfigRequest $request){
+    public function describeGtmAccessStrategyAvailableConfig(DescribeGtmAccessStrategyAvailableConfigRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmAccessStrategyAvailableConfigWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmAvailableAlertGroupRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmAvailableAlertGroupResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAvailableAlertGroupResponse
      */
-    public function describeGtmAvailableAlertGroupWithOptions(DescribeGtmAvailableAlertGroupRequest $request, RuntimeOptions $runtime){
+    public function describeGtmAvailableAlertGroupWithOptions(DescribeGtmAvailableAlertGroupRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmAvailableAlertGroupResponse::fromMap($this->doRequest("DescribeGtmAvailableAlertGroup", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmAvailableAlertGroupResponse::fromMap($this->doRequest('DescribeGtmAvailableAlertGroup', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmAvailableAlertGroupRequest $request
-     * @return DescribeGtmAvailableAlertGroupResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmAvailableAlertGroupResponse
      */
-    public function describeGtmAvailableAlertGroup(DescribeGtmAvailableAlertGroupRequest $request){
+    public function describeGtmAvailableAlertGroup(DescribeGtmAvailableAlertGroupRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmAvailableAlertGroupWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmInstanceRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmInstanceResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceResponse
      */
-    public function describeGtmInstanceWithOptions(DescribeGtmInstanceRequest $request, RuntimeOptions $runtime){
+    public function describeGtmInstanceWithOptions(DescribeGtmInstanceRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmInstanceResponse::fromMap($this->doRequest("DescribeGtmInstance", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmInstanceResponse::fromMap($this->doRequest('DescribeGtmInstance', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmInstanceRequest $request
-     * @return DescribeGtmInstanceResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceResponse
      */
-    public function describeGtmInstance(DescribeGtmInstanceRequest $request){
+    public function describeGtmInstance(DescribeGtmInstanceRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmInstanceWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmInstanceAddressPoolRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmInstanceAddressPoolResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceAddressPoolResponse
      */
-    public function describeGtmInstanceAddressPoolWithOptions(DescribeGtmInstanceAddressPoolRequest $request, RuntimeOptions $runtime){
+    public function describeGtmInstanceAddressPoolWithOptions(DescribeGtmInstanceAddressPoolRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmInstanceAddressPoolResponse::fromMap($this->doRequest("DescribeGtmInstanceAddressPool", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmInstanceAddressPoolResponse::fromMap($this->doRequest('DescribeGtmInstanceAddressPool', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmInstanceAddressPoolRequest $request
-     * @return DescribeGtmInstanceAddressPoolResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceAddressPoolResponse
      */
-    public function describeGtmInstanceAddressPool(DescribeGtmInstanceAddressPoolRequest $request){
+    public function describeGtmInstanceAddressPool(DescribeGtmInstanceAddressPoolRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmInstanceAddressPoolWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmInstanceAddressPoolsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmInstanceAddressPoolsResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceAddressPoolsResponse
      */
-    public function describeGtmInstanceAddressPoolsWithOptions(DescribeGtmInstanceAddressPoolsRequest $request, RuntimeOptions $runtime){
+    public function describeGtmInstanceAddressPoolsWithOptions(DescribeGtmInstanceAddressPoolsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmInstanceAddressPoolsResponse::fromMap($this->doRequest("DescribeGtmInstanceAddressPools", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmInstanceAddressPoolsResponse::fromMap($this->doRequest('DescribeGtmInstanceAddressPools', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmInstanceAddressPoolsRequest $request
-     * @return DescribeGtmInstanceAddressPoolsResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceAddressPoolsResponse
      */
-    public function describeGtmInstanceAddressPools(DescribeGtmInstanceAddressPoolsRequest $request){
+    public function describeGtmInstanceAddressPools(DescribeGtmInstanceAddressPoolsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmInstanceAddressPoolsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmInstanceStatusRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmInstanceStatusResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceStatusResponse
      */
-    public function describeGtmInstanceStatusWithOptions(DescribeGtmInstanceStatusRequest $request, RuntimeOptions $runtime){
+    public function describeGtmInstanceStatusWithOptions(DescribeGtmInstanceStatusRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmInstanceStatusResponse::fromMap($this->doRequest("DescribeGtmInstanceStatus", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmInstanceStatusResponse::fromMap($this->doRequest('DescribeGtmInstanceStatus', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmInstanceStatusRequest $request
-     * @return DescribeGtmInstanceStatusResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmInstanceStatusResponse
      */
-    public function describeGtmInstanceStatus(DescribeGtmInstanceStatusRequest $request){
+    public function describeGtmInstanceStatus(DescribeGtmInstanceStatusRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmInstanceStatusWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmMonitorAvailableConfigRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmMonitorAvailableConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmMonitorAvailableConfigResponse
      */
-    public function describeGtmMonitorAvailableConfigWithOptions(DescribeGtmMonitorAvailableConfigRequest $request, RuntimeOptions $runtime){
+    public function describeGtmMonitorAvailableConfigWithOptions(DescribeGtmMonitorAvailableConfigRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmMonitorAvailableConfigResponse::fromMap($this->doRequest("DescribeGtmMonitorAvailableConfig", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmMonitorAvailableConfigResponse::fromMap($this->doRequest('DescribeGtmMonitorAvailableConfig', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmMonitorAvailableConfigRequest $request
-     * @return DescribeGtmMonitorAvailableConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmMonitorAvailableConfigResponse
      */
-    public function describeGtmMonitorAvailableConfig(DescribeGtmMonitorAvailableConfigRequest $request){
+    public function describeGtmMonitorAvailableConfig(DescribeGtmMonitorAvailableConfigRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmMonitorAvailableConfigWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeGtmMonitorConfigRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeGtmMonitorConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmMonitorConfigResponse
      */
-    public function describeGtmMonitorConfigWithOptions(DescribeGtmMonitorConfigRequest $request, RuntimeOptions $runtime){
+    public function describeGtmMonitorConfigWithOptions(DescribeGtmMonitorConfigRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeGtmMonitorConfigResponse::fromMap($this->doRequest("DescribeGtmMonitorConfig", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeGtmMonitorConfigResponse::fromMap($this->doRequest('DescribeGtmMonitorConfig', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeGtmMonitorConfigRequest $request
-     * @return DescribeGtmMonitorConfigResponse
      * @throws \Exception
+     *
+     * @return DescribeGtmMonitorConfigResponse
      */
-    public function describeGtmMonitorConfig(DescribeGtmMonitorConfigRequest $request){
+    public function describeGtmMonitorConfig(DescribeGtmMonitorConfigRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeGtmMonitorConfigWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateGtmAccessStrategyRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmAccessStrategyResponse
      */
-    public function updateGtmAccessStrategyWithOptions(UpdateGtmAccessStrategyRequest $request, RuntimeOptions $runtime){
+    public function updateGtmAccessStrategyWithOptions(UpdateGtmAccessStrategyRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateGtmAccessStrategyResponse::fromMap($this->doRequest("UpdateGtmAccessStrategy", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateGtmAccessStrategyResponse::fromMap($this->doRequest('UpdateGtmAccessStrategy', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateGtmAccessStrategyRequest $request
-     * @return UpdateGtmAccessStrategyResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmAccessStrategyResponse
      */
-    public function updateGtmAccessStrategy(UpdateGtmAccessStrategyRequest $request){
+    public function updateGtmAccessStrategy(UpdateGtmAccessStrategyRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateGtmAccessStrategyWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateGtmAddressPoolRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateGtmAddressPoolResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmAddressPoolResponse
      */
-    public function updateGtmAddressPoolWithOptions(UpdateGtmAddressPoolRequest $request, RuntimeOptions $runtime){
+    public function updateGtmAddressPoolWithOptions(UpdateGtmAddressPoolRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateGtmAddressPoolResponse::fromMap($this->doRequest("UpdateGtmAddressPool", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateGtmAddressPoolResponse::fromMap($this->doRequest('UpdateGtmAddressPool', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateGtmAddressPoolRequest $request
-     * @return UpdateGtmAddressPoolResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmAddressPoolResponse
      */
-    public function updateGtmAddressPool(UpdateGtmAddressPoolRequest $request){
+    public function updateGtmAddressPool(UpdateGtmAddressPoolRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateGtmAddressPoolWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateGtmMonitorRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateGtmMonitorResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmMonitorResponse
      */
-    public function updateGtmMonitorWithOptions(UpdateGtmMonitorRequest $request, RuntimeOptions $runtime){
+    public function updateGtmMonitorWithOptions(UpdateGtmMonitorRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateGtmMonitorResponse::fromMap($this->doRequest("UpdateGtmMonitor", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateGtmMonitorResponse::fromMap($this->doRequest('UpdateGtmMonitor', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateGtmMonitorRequest $request
-     * @return UpdateGtmMonitorResponse
      * @throws \Exception
+     *
+     * @return UpdateGtmMonitorResponse
      */
-    public function updateGtmMonitor(UpdateGtmMonitorRequest $request){
+    public function updateGtmMonitor(UpdateGtmMonitorRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateGtmMonitorWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateDomainRemarkRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateDomainRemarkResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainRemarkResponse
      */
-    public function updateDomainRemarkWithOptions(UpdateDomainRemarkRequest $request, RuntimeOptions $runtime){
+    public function updateDomainRemarkWithOptions(UpdateDomainRemarkRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateDomainRemarkResponse::fromMap($this->doRequest("UpdateDomainRemark", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateDomainRemarkResponse::fromMap($this->doRequest('UpdateDomainRemark', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateDomainRemarkRequest $request
-     * @return UpdateDomainRemarkResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainRemarkResponse
      */
-    public function updateDomainRemark(UpdateDomainRemarkRequest $request){
+    public function updateDomainRemark(UpdateDomainRemarkRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateDomainRemarkWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateDomainRecordRemarkRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateDomainRecordRemarkResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainRecordRemarkResponse
      */
-    public function updateDomainRecordRemarkWithOptions(UpdateDomainRecordRemarkRequest $request, RuntimeOptions $runtime){
+    public function updateDomainRecordRemarkWithOptions(UpdateDomainRecordRemarkRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateDomainRecordRemarkResponse::fromMap($this->doRequest("UpdateDomainRecordRemark", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateDomainRecordRemarkResponse::fromMap($this->doRequest('UpdateDomainRecordRemark', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateDomainRecordRemarkRequest $request
-     * @return UpdateDomainRecordRemarkResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainRecordRemarkResponse
      */
-    public function updateDomainRecordRemark(UpdateDomainRecordRemarkRequest $request){
+    public function updateDomainRecordRemark(UpdateDomainRecordRemarkRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateDomainRecordRemarkWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeSupportLinesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeSupportLinesResponse
      * @throws \Exception
+     *
+     * @return DescribeSupportLinesResponse
      */
-    public function describeSupportLinesWithOptions(DescribeSupportLinesRequest $request, RuntimeOptions $runtime){
+    public function describeSupportLinesWithOptions(DescribeSupportLinesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeSupportLinesResponse::fromMap($this->doRequest("DescribeSupportLines", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeSupportLinesResponse::fromMap($this->doRequest('DescribeSupportLines', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeSupportLinesRequest $request
-     * @return DescribeSupportLinesResponse
      * @throws \Exception
+     *
+     * @return DescribeSupportLinesResponse
      */
-    public function describeSupportLines(DescribeSupportLinesRequest $request){
+    public function describeSupportLines(DescribeSupportLinesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeSupportLinesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainNsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainNsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainNsResponse
      */
-    public function describeDomainNsWithOptions(DescribeDomainNsRequest $request, RuntimeOptions $runtime){
+    public function describeDomainNsWithOptions(DescribeDomainNsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainNsResponse::fromMap($this->doRequest("DescribeDomainNs", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainNsResponse::fromMap($this->doRequest('DescribeDomainNs', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainNsRequest $request
-     * @return DescribeDomainNsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainNsResponse
      */
-    public function describeDomainNs(DescribeDomainNsRequest $request){
+    public function describeDomainNs(DescribeDomainNsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainNsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDnsProductInstanceRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDnsProductInstanceResponse
      * @throws \Exception
+     *
+     * @return DescribeDnsProductInstanceResponse
      */
-    public function describeDnsProductInstanceWithOptions(DescribeDnsProductInstanceRequest $request, RuntimeOptions $runtime){
+    public function describeDnsProductInstanceWithOptions(DescribeDnsProductInstanceRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDnsProductInstanceResponse::fromMap($this->doRequest("DescribeDnsProductInstance", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDnsProductInstanceResponse::fromMap($this->doRequest('DescribeDnsProductInstance', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDnsProductInstanceRequest $request
-     * @return DescribeDnsProductInstanceResponse
      * @throws \Exception
+     *
+     * @return DescribeDnsProductInstanceResponse
      */
-    public function describeDnsProductInstance(DescribeDnsProductInstanceRequest $request){
+    public function describeDnsProductInstance(DescribeDnsProductInstanceRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDnsProductInstanceWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateDomainRecordRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateDomainRecordResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainRecordResponse
      */
-    public function updateDomainRecordWithOptions(UpdateDomainRecordRequest $request, RuntimeOptions $runtime){
+    public function updateDomainRecordWithOptions(UpdateDomainRecordRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateDomainRecordResponse::fromMap($this->doRequest("UpdateDomainRecord", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return UpdateDomainRecordResponse::fromMap($this->doRequest('UpdateDomainRecord', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateDomainRecordRequest $request
-     * @return UpdateDomainRecordResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainRecordResponse
      */
-    public function updateDomainRecord(UpdateDomainRecordRequest $request){
+    public function updateDomainRecord(UpdateDomainRecordRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateDomainRecordWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateDomainGroupRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateDomainGroupResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainGroupResponse
      */
-    public function updateDomainGroupWithOptions(UpdateDomainGroupRequest $request, RuntimeOptions $runtime){
+    public function updateDomainGroupWithOptions(UpdateDomainGroupRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateDomainGroupResponse::fromMap($this->doRequest("UpdateDomainGroup", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateDomainGroupResponse::fromMap($this->doRequest('UpdateDomainGroup', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateDomainGroupRequest $request
-     * @return UpdateDomainGroupResponse
      * @throws \Exception
+     *
+     * @return UpdateDomainGroupResponse
      */
-    public function updateDomainGroup(UpdateDomainGroupRequest $request){
+    public function updateDomainGroup(UpdateDomainGroupRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateDomainGroupWithOptions($request, $runtime);
     }
 
     /**
-     * @param UpdateDNSSLBWeightRequest $request
-     * @param RuntimeOptions $runtime
-     * @return UpdateDNSSLBWeightResponse
      * @throws \Exception
+     *
+     * @return UpdateDNSSLBWeightResponse
      */
-    public function updateDNSSLBWeightWithOptions(UpdateDNSSLBWeightRequest $request, RuntimeOptions $runtime){
+    public function updateDNSSLBWeightWithOptions(UpdateDNSSLBWeightRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return UpdateDNSSLBWeightResponse::fromMap($this->doRequest("UpdateDNSSLBWeight", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return UpdateDNSSLBWeightResponse::fromMap($this->doRequest('UpdateDNSSLBWeight', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param UpdateDNSSLBWeightRequest $request
-     * @return UpdateDNSSLBWeightResponse
      * @throws \Exception
+     *
+     * @return UpdateDNSSLBWeightResponse
      */
-    public function updateDNSSLBWeight(UpdateDNSSLBWeightRequest $request){
+    public function updateDNSSLBWeight(UpdateDNSSLBWeightRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->updateDNSSLBWeightWithOptions($request, $runtime);
     }
 
     /**
-     * @param SetDomainRecordStatusRequest $request
-     * @param RuntimeOptions $runtime
-     * @return SetDomainRecordStatusResponse
      * @throws \Exception
+     *
+     * @return SetDomainRecordStatusResponse
      */
-    public function setDomainRecordStatusWithOptions(SetDomainRecordStatusRequest $request, RuntimeOptions $runtime){
+    public function setDomainRecordStatusWithOptions(SetDomainRecordStatusRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return SetDomainRecordStatusResponse::fromMap($this->doRequest("SetDomainRecordStatus", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return SetDomainRecordStatusResponse::fromMap($this->doRequest('SetDomainRecordStatus', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param SetDomainRecordStatusRequest $request
-     * @return SetDomainRecordStatusResponse
      * @throws \Exception
+     *
+     * @return SetDomainRecordStatusResponse
      */
-    public function setDomainRecordStatus(SetDomainRecordStatusRequest $request){
+    public function setDomainRecordStatus(SetDomainRecordStatusRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->setDomainRecordStatusWithOptions($request, $runtime);
     }
 
     /**
-     * @param SetDNSSLBStatusRequest $request
-     * @param RuntimeOptions $runtime
-     * @return SetDNSSLBStatusResponse
      * @throws \Exception
+     *
+     * @return SetDNSSLBStatusResponse
      */
-    public function setDNSSLBStatusWithOptions(SetDNSSLBStatusRequest $request, RuntimeOptions $runtime){
+    public function setDNSSLBStatusWithOptions(SetDNSSLBStatusRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return SetDNSSLBStatusResponse::fromMap($this->doRequest("SetDNSSLBStatus", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return SetDNSSLBStatusResponse::fromMap($this->doRequest('SetDNSSLBStatus', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param SetDNSSLBStatusRequest $request
-     * @return SetDNSSLBStatusResponse
      * @throws \Exception
+     *
+     * @return SetDNSSLBStatusResponse
      */
-    public function setDNSSLBStatus(SetDNSSLBStatusRequest $request){
+    public function setDNSSLBStatus(SetDNSSLBStatusRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->setDNSSLBStatusWithOptions($request, $runtime);
     }
 
     /**
-     * @param ModifyHichinaDomainDNSRequest $request
-     * @param RuntimeOptions $runtime
-     * @return ModifyHichinaDomainDNSResponse
      * @throws \Exception
+     *
+     * @return ModifyHichinaDomainDNSResponse
      */
-    public function modifyHichinaDomainDNSWithOptions(ModifyHichinaDomainDNSRequest $request, RuntimeOptions $runtime){
+    public function modifyHichinaDomainDNSWithOptions(ModifyHichinaDomainDNSRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return ModifyHichinaDomainDNSResponse::fromMap($this->doRequest("ModifyHichinaDomainDNS", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return ModifyHichinaDomainDNSResponse::fromMap($this->doRequest('ModifyHichinaDomainDNS', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param ModifyHichinaDomainDNSRequest $request
-     * @return ModifyHichinaDomainDNSResponse
      * @throws \Exception
+     *
+     * @return ModifyHichinaDomainDNSResponse
      */
-    public function modifyHichinaDomainDNS(ModifyHichinaDomainDNSRequest $request){
+    public function modifyHichinaDomainDNS(ModifyHichinaDomainDNSRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->modifyHichinaDomainDNSWithOptions($request, $runtime);
     }
 
     /**
-     * @param GetMainDomainNameRequest $request
-     * @param RuntimeOptions $runtime
-     * @return GetMainDomainNameResponse
      * @throws \Exception
+     *
+     * @return GetMainDomainNameResponse
      */
-    public function getMainDomainNameWithOptions(GetMainDomainNameRequest $request, RuntimeOptions $runtime){
+    public function getMainDomainNameWithOptions(GetMainDomainNameRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return GetMainDomainNameResponse::fromMap($this->doRequest("GetMainDomainName", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return GetMainDomainNameResponse::fromMap($this->doRequest('GetMainDomainName', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param GetMainDomainNameRequest $request
-     * @return GetMainDomainNameResponse
      * @throws \Exception
+     *
+     * @return GetMainDomainNameResponse
      */
-    public function getMainDomainName(GetMainDomainNameRequest $request){
+    public function getMainDomainName(GetMainDomainNameRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->getMainDomainNameWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeSubDomainRecordsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeSubDomainRecordsResponse
      * @throws \Exception
+     *
+     * @return DescribeSubDomainRecordsResponse
      */
-    public function describeSubDomainRecordsWithOptions(DescribeSubDomainRecordsRequest $request, RuntimeOptions $runtime){
+    public function describeSubDomainRecordsWithOptions(DescribeSubDomainRecordsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeSubDomainRecordsResponse::fromMap($this->doRequest("DescribeSubDomainRecords", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeSubDomainRecordsResponse::fromMap($this->doRequest('DescribeSubDomainRecords', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeSubDomainRecordsRequest $request
-     * @return DescribeSubDomainRecordsResponse
      * @throws \Exception
+     *
+     * @return DescribeSubDomainRecordsResponse
      */
-    public function describeSubDomainRecords(DescribeSubDomainRecordsRequest $request){
+    public function describeSubDomainRecords(DescribeSubDomainRecordsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeSubDomainRecordsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeRecordLogsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeRecordLogsResponse
      * @throws \Exception
+     *
+     * @return DescribeRecordLogsResponse
      */
-    public function describeRecordLogsWithOptions(DescribeRecordLogsRequest $request, RuntimeOptions $runtime){
+    public function describeRecordLogsWithOptions(DescribeRecordLogsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeRecordLogsResponse::fromMap($this->doRequest("DescribeRecordLogs", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeRecordLogsResponse::fromMap($this->doRequest('DescribeRecordLogs', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeRecordLogsRequest $request
-     * @return DescribeRecordLogsResponse
      * @throws \Exception
+     *
+     * @return DescribeRecordLogsResponse
      */
-    public function describeRecordLogs(DescribeRecordLogsRequest $request){
+    public function describeRecordLogs(DescribeRecordLogsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeRecordLogsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainsResponse
      */
-    public function describeDomainsWithOptions(DescribeDomainsRequest $request, RuntimeOptions $runtime){
+    public function describeDomainsWithOptions(DescribeDomainsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainsResponse::fromMap($this->doRequest("DescribeDomains", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return DescribeDomainsResponse::fromMap($this->doRequest('DescribeDomains', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainsRequest $request
-     * @return DescribeDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainsResponse
      */
-    public function describeDomains(DescribeDomainsRequest $request){
+    public function describeDomains(DescribeDomainsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainRecordsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainRecordsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainRecordsResponse
      */
-    public function describeDomainRecordsWithOptions(DescribeDomainRecordsRequest $request, RuntimeOptions $runtime){
+    public function describeDomainRecordsWithOptions(DescribeDomainRecordsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainRecordsResponse::fromMap($this->doRequest("DescribeDomainRecords", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return DescribeDomainRecordsResponse::fromMap($this->doRequest('DescribeDomainRecords', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainRecordsRequest $request
-     * @return DescribeDomainRecordsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainRecordsResponse
      */
-    public function describeDomainRecords(DescribeDomainRecordsRequest $request){
+    public function describeDomainRecords(DescribeDomainRecordsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainRecordsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainRecordInfoRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainRecordInfoResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainRecordInfoResponse
      */
-    public function describeDomainRecordInfoWithOptions(DescribeDomainRecordInfoRequest $request, RuntimeOptions $runtime){
+    public function describeDomainRecordInfoWithOptions(DescribeDomainRecordInfoRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainRecordInfoResponse::fromMap($this->doRequest("DescribeDomainRecordInfo", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return DescribeDomainRecordInfoResponse::fromMap($this->doRequest('DescribeDomainRecordInfo', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainRecordInfoRequest $request
-     * @return DescribeDomainRecordInfoResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainRecordInfoResponse
      */
-    public function describeDomainRecordInfo(DescribeDomainRecordInfoRequest $request){
+    public function describeDomainRecordInfo(DescribeDomainRecordInfoRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainRecordInfoWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainLogsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainLogsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainLogsResponse
      */
-    public function describeDomainLogsWithOptions(DescribeDomainLogsRequest $request, RuntimeOptions $runtime){
+    public function describeDomainLogsWithOptions(DescribeDomainLogsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainLogsResponse::fromMap($this->doRequest("DescribeDomainLogs", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainLogsResponse::fromMap($this->doRequest('DescribeDomainLogs', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainLogsRequest $request
-     * @return DescribeDomainLogsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainLogsResponse
      */
-    public function describeDomainLogs(DescribeDomainLogsRequest $request){
+    public function describeDomainLogs(DescribeDomainLogsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainLogsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainInfoRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainInfoResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainInfoResponse
      */
-    public function describeDomainInfoWithOptions(DescribeDomainInfoRequest $request, RuntimeOptions $runtime){
+    public function describeDomainInfoWithOptions(DescribeDomainInfoRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainInfoResponse::fromMap($this->doRequest("DescribeDomainInfo", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainInfoResponse::fromMap($this->doRequest('DescribeDomainInfo', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainInfoRequest $request
-     * @return DescribeDomainInfoResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainInfoResponse
      */
-    public function describeDomainInfo(DescribeDomainInfoRequest $request){
+    public function describeDomainInfo(DescribeDomainInfoRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainInfoWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDomainGroupsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDomainGroupsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainGroupsResponse
      */
-    public function describeDomainGroupsWithOptions(DescribeDomainGroupsRequest $request, RuntimeOptions $runtime){
+    public function describeDomainGroupsWithOptions(DescribeDomainGroupsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDomainGroupsResponse::fromMap($this->doRequest("DescribeDomainGroups", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDomainGroupsResponse::fromMap($this->doRequest('DescribeDomainGroups', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDomainGroupsRequest $request
-     * @return DescribeDomainGroupsResponse
      * @throws \Exception
+     *
+     * @return DescribeDomainGroupsResponse
      */
-    public function describeDomainGroups(DescribeDomainGroupsRequest $request){
+    public function describeDomainGroups(DescribeDomainGroupsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDomainGroupsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDNSSLBSubDomainsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDNSSLBSubDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeDNSSLBSubDomainsResponse
      */
-    public function describeDNSSLBSubDomainsWithOptions(DescribeDNSSLBSubDomainsRequest $request, RuntimeOptions $runtime){
+    public function describeDNSSLBSubDomainsWithOptions(DescribeDNSSLBSubDomainsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDNSSLBSubDomainsResponse::fromMap($this->doRequest("DescribeDNSSLBSubDomains", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDNSSLBSubDomainsResponse::fromMap($this->doRequest('DescribeDNSSLBSubDomains', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDNSSLBSubDomainsRequest $request
-     * @return DescribeDNSSLBSubDomainsResponse
      * @throws \Exception
+     *
+     * @return DescribeDNSSLBSubDomainsResponse
      */
-    public function describeDNSSLBSubDomains(DescribeDNSSLBSubDomainsRequest $request){
+    public function describeDNSSLBSubDomains(DescribeDNSSLBSubDomainsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDNSSLBSubDomainsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DescribeDnsProductInstancesRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DescribeDnsProductInstancesResponse
      * @throws \Exception
+     *
+     * @return DescribeDnsProductInstancesResponse
      */
-    public function describeDnsProductInstancesWithOptions(DescribeDnsProductInstancesRequest $request, RuntimeOptions $runtime){
+    public function describeDnsProductInstancesWithOptions(DescribeDnsProductInstancesRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DescribeDnsProductInstancesResponse::fromMap($this->doRequest("DescribeDnsProductInstances", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DescribeDnsProductInstancesResponse::fromMap($this->doRequest('DescribeDnsProductInstances', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DescribeDnsProductInstancesRequest $request
-     * @return DescribeDnsProductInstancesResponse
      * @throws \Exception
+     *
+     * @return DescribeDnsProductInstancesResponse
      */
-    public function describeDnsProductInstances(DescribeDnsProductInstancesRequest $request){
+    public function describeDnsProductInstances(DescribeDnsProductInstancesRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->describeDnsProductInstancesWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteSubDomainRecordsRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteSubDomainRecordsResponse
      * @throws \Exception
+     *
+     * @return DeleteSubDomainRecordsResponse
      */
-    public function deleteSubDomainRecordsWithOptions(DeleteSubDomainRecordsRequest $request, RuntimeOptions $runtime){
+    public function deleteSubDomainRecordsWithOptions(DeleteSubDomainRecordsRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteSubDomainRecordsResponse::fromMap($this->doRequest("DeleteSubDomainRecords", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DeleteSubDomainRecordsResponse::fromMap($this->doRequest('DeleteSubDomainRecords', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteSubDomainRecordsRequest $request
-     * @return DeleteSubDomainRecordsResponse
      * @throws \Exception
+     *
+     * @return DeleteSubDomainRecordsResponse
      */
-    public function deleteSubDomainRecords(DeleteSubDomainRecordsRequest $request){
+    public function deleteSubDomainRecords(DeleteSubDomainRecordsRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteSubDomainRecordsWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteDomainRecordRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteDomainRecordResponse
      * @throws \Exception
+     *
+     * @return DeleteDomainRecordResponse
      */
-    public function deleteDomainRecordWithOptions(DeleteDomainRecordRequest $request, RuntimeOptions $runtime){
+    public function deleteDomainRecordWithOptions(DeleteDomainRecordRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteDomainRecordResponse::fromMap($this->doRequest("DeleteDomainRecord", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return DeleteDomainRecordResponse::fromMap($this->doRequest('DeleteDomainRecord', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteDomainRecordRequest $request
-     * @return DeleteDomainRecordResponse
      * @throws \Exception
+     *
+     * @return DeleteDomainRecordResponse
      */
-    public function deleteDomainRecord(DeleteDomainRecordRequest $request){
+    public function deleteDomainRecord(DeleteDomainRecordRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteDomainRecordWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteDomainGroupRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteDomainGroupResponse
      * @throws \Exception
+     *
+     * @return DeleteDomainGroupResponse
      */
-    public function deleteDomainGroupWithOptions(DeleteDomainGroupRequest $request, RuntimeOptions $runtime){
+    public function deleteDomainGroupWithOptions(DeleteDomainGroupRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteDomainGroupResponse::fromMap($this->doRequest("DeleteDomainGroup", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return DeleteDomainGroupResponse::fromMap($this->doRequest('DeleteDomainGroup', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteDomainGroupRequest $request
-     * @return DeleteDomainGroupResponse
      * @throws \Exception
+     *
+     * @return DeleteDomainGroupResponse
      */
-    public function deleteDomainGroup(DeleteDomainGroupRequest $request){
+    public function deleteDomainGroup(DeleteDomainGroupRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteDomainGroupWithOptions($request, $runtime);
     }
 
     /**
-     * @param DeleteDomainRequest $request
-     * @param RuntimeOptions $runtime
-     * @return DeleteDomainResponse
      * @throws \Exception
+     *
+     * @return DeleteDomainResponse
      */
-    public function deleteDomainWithOptions(DeleteDomainRequest $request, RuntimeOptions $runtime){
+    public function deleteDomainWithOptions(DeleteDomainRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return DeleteDomainResponse::fromMap($this->doRequest("DeleteDomain", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return DeleteDomainResponse::fromMap($this->doRequest('DeleteDomain', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param DeleteDomainRequest $request
-     * @return DeleteDomainResponse
      * @throws \Exception
+     *
+     * @return DeleteDomainResponse
      */
-    public function deleteDomain(DeleteDomainRequest $request){
+    public function deleteDomain(DeleteDomainRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->deleteDomainWithOptions($request, $runtime);
     }
 
     /**
-     * @param ChangeDomainOfDnsProductRequest $request
-     * @param RuntimeOptions $runtime
-     * @return ChangeDomainOfDnsProductResponse
      * @throws \Exception
+     *
+     * @return ChangeDomainOfDnsProductResponse
      */
-    public function changeDomainOfDnsProductWithOptions(ChangeDomainOfDnsProductRequest $request, RuntimeOptions $runtime){
+    public function changeDomainOfDnsProductWithOptions(ChangeDomainOfDnsProductRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return ChangeDomainOfDnsProductResponse::fromMap($this->doRequest("ChangeDomainOfDnsProduct", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return ChangeDomainOfDnsProductResponse::fromMap($this->doRequest('ChangeDomainOfDnsProduct', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param ChangeDomainOfDnsProductRequest $request
-     * @return ChangeDomainOfDnsProductResponse
      * @throws \Exception
+     *
+     * @return ChangeDomainOfDnsProductResponse
      */
-    public function changeDomainOfDnsProduct(ChangeDomainOfDnsProductRequest $request){
+    public function changeDomainOfDnsProduct(ChangeDomainOfDnsProductRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->changeDomainOfDnsProductWithOptions($request, $runtime);
     }
 
     /**
-     * @param ChangeDomainGroupRequest $request
-     * @param RuntimeOptions $runtime
-     * @return ChangeDomainGroupResponse
      * @throws \Exception
+     *
+     * @return ChangeDomainGroupResponse
      */
-    public function changeDomainGroupWithOptions(ChangeDomainGroupRequest $request, RuntimeOptions $runtime){
+    public function changeDomainGroupWithOptions(ChangeDomainGroupRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return ChangeDomainGroupResponse::fromMap($this->doRequest("ChangeDomainGroup", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return ChangeDomainGroupResponse::fromMap($this->doRequest('ChangeDomainGroup', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param ChangeDomainGroupRequest $request
-     * @return ChangeDomainGroupResponse
      * @throws \Exception
+     *
+     * @return ChangeDomainGroupResponse
      */
-    public function changeDomainGroup(ChangeDomainGroupRequest $request){
+    public function changeDomainGroup(ChangeDomainGroupRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->changeDomainGroupWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddDomainRecordRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddDomainRecordResponse
      * @throws \Exception
+     *
+     * @return AddDomainRecordResponse
      */
-    public function addDomainRecordWithOptions(AddDomainRecordRequest $request, RuntimeOptions $runtime){
+    public function addDomainRecordWithOptions(AddDomainRecordRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddDomainRecordResponse::fromMap($this->doRequest("AddDomainRecord", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return AddDomainRecordResponse::fromMap($this->doRequest('AddDomainRecord', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param AddDomainRecordRequest $request
-     * @return AddDomainRecordResponse
      * @throws \Exception
+     *
+     * @return AddDomainRecordResponse
      */
-    public function addDomainRecord(AddDomainRecordRequest $request){
+    public function addDomainRecord(AddDomainRecordRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addDomainRecordWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddDomainGroupRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddDomainGroupResponse
      * @throws \Exception
+     *
+     * @return AddDomainGroupResponse
      */
-    public function addDomainGroupWithOptions(AddDomainGroupRequest $request, RuntimeOptions $runtime){
+    public function addDomainGroupWithOptions(AddDomainGroupRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddDomainGroupResponse::fromMap($this->doRequest("AddDomainGroup", "HTTPS", "POST", "2015-01-09", "AK", null, $request, $runtime));
+
+        return AddDomainGroupResponse::fromMap($this->doRequest('AddDomainGroup', 'HTTPS', 'POST', '2015-01-09', 'AK', null, $request, $runtime));
     }
 
     /**
-     * @param AddDomainGroupRequest $request
-     * @return AddDomainGroupResponse
      * @throws \Exception
+     *
+     * @return AddDomainGroupResponse
      */
-    public function addDomainGroup(AddDomainGroupRequest $request){
+    public function addDomainGroup(AddDomainGroupRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addDomainGroupWithOptions($request, $runtime);
     }
 
     /**
-     * @param AddDomainRequest $request
-     * @param RuntimeOptions $runtime
-     * @return AddDomainResponse
      * @throws \Exception
+     *
+     * @return AddDomainResponse
      */
-    public function addDomainWithOptions(AddDomainRequest $request, RuntimeOptions $runtime){
+    public function addDomainWithOptions(AddDomainRequest $request, RuntimeOptions $runtime)
+    {
         Utils::validateModel($request);
-        return AddDomainResponse::fromMap($this->doRequest("AddDomain", "HTTPS", "POST", "2015-01-09", "AK,BearerToken", null, $request, $runtime));
+
+        return AddDomainResponse::fromMap($this->doRequest('AddDomain', 'HTTPS', 'POST', '2015-01-09', 'AK,BearerToken', null, $request, $runtime));
     }
 
     /**
-     * @param AddDomainRequest $request
-     * @return AddDomainResponse
      * @throws \Exception
+     *
+     * @return AddDomainResponse
      */
-    public function addDomain(AddDomainRequest $request){
+    public function addDomain(AddDomainRequest $request)
+    {
         $runtime = new RuntimeOptions([]);
+
         return $this->addDomainWithOptions($request, $runtime);
     }
 
@@ -2116,18 +2391,22 @@ class Alidns extends Rpc {
      * @param string $endpointRule
      * @param string $network
      * @param string $suffix
-     * @param array $endpointMap
+     * @param array  $endpointMap
      * @param string $endpoint
-     * @return string
+     *
      * @throws \Exception
+     *
+     * @return string
      */
-    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint){
+    public function getEndpoint($productId, $regionId, $endpointRule, $network, $suffix, $endpointMap, $endpoint)
+    {
         if (!Utils::empty_($endpoint)) {
             return $endpoint;
         }
-        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap["regionId"])) {
-            return $endpointMap["regionId"];
+        if (!Utils::isUnset($endpointMap) && !Utils::empty_($endpointMap['regionId'])) {
+            return $endpointMap['regionId'];
         }
+
         return Endpoint::getEndpointRules($productId, $regionId, $endpointRule, $network, $suffix);
     }
 }

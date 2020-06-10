@@ -53,15 +53,23 @@ class results extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['DataId']     = $this->dataId;
-        $res['TaskId']     = $this->taskId;
-        $res['ImageURL']   = $this->imageURL;
-        $res['SubResults'] = [];
-        if (null !== $this->subResults && \is_array($this->subResults)) {
-            $n = 0;
-            foreach ($this->subResults as $item) {
-                $res['SubResults'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->dataId) {
+            $res['DataId'] = $this->dataId;
+        }
+        if (null !== $this->taskId) {
+            $res['TaskId'] = $this->taskId;
+        }
+        if (null !== $this->imageURL) {
+            $res['ImageURL'] = $this->imageURL;
+        }
+        if (null !== $this->subResults) {
+            $res['SubResults'] = [];
+            if (null !== $this->subResults && \is_array($this->subResults)) {
+                $n = 0;
+                foreach ($this->subResults as $item) {
+                    $res['SubResults'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

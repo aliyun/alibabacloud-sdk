@@ -61,12 +61,22 @@ class AsymmetricVerifyRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['KeyId']        = $this->keyId;
-        $res['KeyVersionId'] = $this->keyVersionId;
-        $res['Algorithm']    = $this->algorithm;
-        $res['Digest']       = $this->digest;
-        $res['Value']        = $this->value;
+        $res = [];
+        if (null !== $this->keyId) {
+            $res['KeyId'] = $this->keyId;
+        }
+        if (null !== $this->keyVersionId) {
+            $res['KeyVersionId'] = $this->keyVersionId;
+        }
+        if (null !== $this->algorithm) {
+            $res['Algorithm'] = $this->algorithm;
+        }
+        if (null !== $this->digest) {
+            $res['Digest'] = $this->digest;
+        }
+        if (null !== $this->value) {
+            $res['Value'] = $this->value;
+        }
 
         return $res;
     }

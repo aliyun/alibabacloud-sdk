@@ -82,24 +82,40 @@ class ListChangeSetsRequest extends Model
 
     public function toMap()
     {
-        $res            = [];
-        $res['StackId'] = $this->stackId;
-        $res['Status']  = [];
+        $res = [];
+        if (null !== $this->stackId) {
+            $res['StackId'] = $this->stackId;
+        }
         if (null !== $this->status) {
-            $res['Status'] = $this->status;
+            $res['Status'] = [];
+            if (null !== $this->status) {
+                $res['Status'] = $this->status;
+            }
         }
-        $res['ChangeSetName'] = [];
         if (null !== $this->changeSetName) {
-            $res['ChangeSetName'] = $this->changeSetName;
+            $res['ChangeSetName'] = [];
+            if (null !== $this->changeSetName) {
+                $res['ChangeSetName'] = $this->changeSetName;
+            }
         }
-        $res['PageSize']        = $this->pageSize;
-        $res['RegionId']        = $this->regionId;
-        $res['PageNumber']      = $this->pageNumber;
-        $res['ExecutionStatus'] = [];
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
         if (null !== $this->executionStatus) {
-            $res['ExecutionStatus'] = $this->executionStatus;
+            $res['ExecutionStatus'] = [];
+            if (null !== $this->executionStatus) {
+                $res['ExecutionStatus'] = $this->executionStatus;
+            }
         }
-        $res['ChangeSetId'] = $this->changeSetId;
+        if (null !== $this->changeSetId) {
+            $res['ChangeSetId'] = $this->changeSetId;
+        }
 
         return $res;
     }

@@ -40,10 +40,16 @@ class ValidateTemplateRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['TemplateURL']  = $this->templateURL;
-        $res['RegionId']     = $this->regionId;
-        $res['TemplateBody'] = $this->templateBody;
+        $res = [];
+        if (null !== $this->templateURL) {
+            $res['TemplateURL'] = $this->templateURL;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->templateBody) {
+            $res['TemplateBody'] = $this->templateBody;
+        }
 
         return $res;
     }

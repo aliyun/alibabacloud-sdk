@@ -35,9 +35,13 @@ class GetStackGroupResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['RequestId']  = $this->requestId;
-        $res['StackGroup'] = null !== $this->stackGroup ? $this->stackGroup->toMap() : null;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->stackGroup) {
+            $res['StackGroup'] = null !== $this->stackGroup ? $this->stackGroup->toMap() : null;
+        }
 
         return $res;
     }

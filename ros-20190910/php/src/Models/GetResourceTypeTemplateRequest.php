@@ -25,8 +25,10 @@ class GetResourceTypeTemplateRequest extends Model
 
     public function toMap()
     {
-        $res                 = [];
-        $res['ResourceType'] = $this->resourceType;
+        $res = [];
+        if (null !== $this->resourceType) {
+            $res['ResourceType'] = $this->resourceType;
+        }
 
         return $res;
     }

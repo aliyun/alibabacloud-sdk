@@ -34,9 +34,13 @@ class GetStackDriftDetectionStatusRequest extends Model
 
     public function toMap()
     {
-        $res                     = [];
-        $res['RegionId']         = $this->regionId;
-        $res['DriftDetectionId'] = $this->driftDetectionId;
+        $res = [];
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->driftDetectionId) {
+            $res['DriftDetectionId'] = $this->driftDetectionId;
+        }
 
         return $res;
     }

@@ -62,16 +62,26 @@ class ListStackGroupOperationsResponse extends Model
 
     public function toMap()
     {
-        $res                         = [];
-        $res['RequestId']            = $this->requestId;
-        $res['PageNumber']           = $this->pageNumber;
-        $res['PageSize']             = $this->pageSize;
-        $res['TotalCount']           = $this->totalCount;
-        $res['StackGroupOperations'] = [];
-        if (null !== $this->stackGroupOperations && \is_array($this->stackGroupOperations)) {
-            $n = 0;
-            foreach ($this->stackGroupOperations as $item) {
-                $res['StackGroupOperations'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->pageNumber) {
+            $res['PageNumber'] = $this->pageNumber;
+        }
+        if (null !== $this->pageSize) {
+            $res['PageSize'] = $this->pageSize;
+        }
+        if (null !== $this->totalCount) {
+            $res['TotalCount'] = $this->totalCount;
+        }
+        if (null !== $this->stackGroupOperations) {
+            $res['StackGroupOperations'] = [];
+            if (null !== $this->stackGroupOperations && \is_array($this->stackGroupOperations)) {
+                $n = 0;
+                foreach ($this->stackGroupOperations as $item) {
+                    $res['StackGroupOperations'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

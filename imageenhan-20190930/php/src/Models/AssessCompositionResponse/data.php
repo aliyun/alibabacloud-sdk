@@ -25,8 +25,10 @@ class data extends Model
 
     public function toMap()
     {
-        $res          = [];
-        $res['Score'] = $this->score;
+        $res = [];
+        if (null !== $this->score) {
+            $res['Score'] = $this->score;
+        }
 
         return $res;
     }

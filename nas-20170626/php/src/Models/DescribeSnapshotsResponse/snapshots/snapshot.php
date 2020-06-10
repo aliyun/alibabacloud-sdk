@@ -1,26 +1,113 @@
 <?php
 
 // This file is auto-generated, don't edit it. Thanks.
+
 namespace AlibabaCloud\SDK\NAS\V20170626\Models\DescribeSnapshotsResponse\snapshots;
 
 use AlibabaCloud\Tea\Model;
 
-class snapshot extends Model {
+class snapshot extends Model
+{
+    /**
+     * @description createTime
+     *
+     * @var string
+     */
+    public $createTime;
+
+    /**
+     * @description description
+     *
+     * @var string
+     */
+    public $description;
+
+    /**
+     * @description progress
+     *
+     * @var string
+     */
+    public $progress;
+
+    /**
+     * @description remainTime
+     *
+     * @var int
+     */
+    public $remainTime;
+
+    /**
+     * @description retentionDays
+     *
+     * @var int
+     */
+    public $retentionDays;
+
+    /**
+     * @description snapshotId
+     *
+     * @var string
+     */
+    public $snapshotId;
+
+    /**
+     * @description snapshotName
+     *
+     * @var string
+     */
+    public $snapshotName;
+
+    /**
+     * @description sourceFileSystemId
+     *
+     * @var string
+     */
+    public $sourceFileSystemId;
+
+    /**
+     * @description sourceFileSystemSize
+     *
+     * @var int
+     */
+    public $sourceFileSystemSize;
+
+    /**
+     * @description status
+     *
+     * @var string
+     */
+    public $status;
+
+    /**
+     * @description encryptType
+     *
+     * @var int
+     */
+    public $encryptType;
+
+    /**
+     * @description sourceFileSystemVersion
+     *
+     * @var string
+     */
+    public $sourceFileSystemVersion;
     protected $_name = [
-        'createTime' => 'CreateTime',
-        'description' => 'Description',
-        'progress' => 'Progress',
-        'remainTime' => 'RemainTime',
-        'retentionDays' => 'RetentionDays',
-        'snapshotId' => 'SnapshotId',
-        'snapshotName' => 'SnapshotName',
-        'sourceFileSystemId' => 'SourceFileSystemId',
-        'sourceFileSystemSize' => 'SourceFileSystemSize',
-        'status' => 'Status',
-        'encryptType' => 'EncryptType',
+        'createTime'              => 'CreateTime',
+        'description'             => 'Description',
+        'progress'                => 'Progress',
+        'remainTime'              => 'RemainTime',
+        'retentionDays'           => 'RetentionDays',
+        'snapshotId'              => 'SnapshotId',
+        'snapshotName'            => 'SnapshotName',
+        'sourceFileSystemId'      => 'SourceFileSystemId',
+        'sourceFileSystemSize'    => 'SourceFileSystemSize',
+        'status'                  => 'Status',
+        'encryptType'             => 'EncryptType',
         'sourceFileSystemVersion' => 'SourceFileSystemVersion',
     ];
-    public function validate() {
+
+    public function validate()
+    {
         Model::validateRequired('createTime', $this->createTime, true);
         Model::validateRequired('description', $this->description, true);
         Model::validateRequired('progress', $this->progress, true);
@@ -34,136 +121,95 @@ class snapshot extends Model {
         Model::validateRequired('encryptType', $this->encryptType, true);
         Model::validateRequired('sourceFileSystemVersion', $this->sourceFileSystemVersion, true);
     }
-    public function toMap() {
+
+    public function toMap()
+    {
         $res = [];
-        $res['CreateTime'] = $this->createTime;
-        $res['Description'] = $this->description;
-        $res['Progress'] = $this->progress;
-        $res['RemainTime'] = $this->remainTime;
-        $res['RetentionDays'] = $this->retentionDays;
-        $res['SnapshotId'] = $this->snapshotId;
-        $res['SnapshotName'] = $this->snapshotName;
-        $res['SourceFileSystemId'] = $this->sourceFileSystemId;
-        $res['SourceFileSystemSize'] = $this->sourceFileSystemSize;
-        $res['Status'] = $this->status;
-        $res['EncryptType'] = $this->encryptType;
-        $res['SourceFileSystemVersion'] = $this->sourceFileSystemVersion;
+        if (null !== $this->createTime) {
+            $res['CreateTime'] = $this->createTime;
+        }
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->progress) {
+            $res['Progress'] = $this->progress;
+        }
+        if (null !== $this->remainTime) {
+            $res['RemainTime'] = $this->remainTime;
+        }
+        if (null !== $this->retentionDays) {
+            $res['RetentionDays'] = $this->retentionDays;
+        }
+        if (null !== $this->snapshotId) {
+            $res['SnapshotId'] = $this->snapshotId;
+        }
+        if (null !== $this->snapshotName) {
+            $res['SnapshotName'] = $this->snapshotName;
+        }
+        if (null !== $this->sourceFileSystemId) {
+            $res['SourceFileSystemId'] = $this->sourceFileSystemId;
+        }
+        if (null !== $this->sourceFileSystemSize) {
+            $res['SourceFileSystemSize'] = $this->sourceFileSystemSize;
+        }
+        if (null !== $this->status) {
+            $res['Status'] = $this->status;
+        }
+        if (null !== $this->encryptType) {
+            $res['EncryptType'] = $this->encryptType;
+        }
+        if (null !== $this->sourceFileSystemVersion) {
+            $res['SourceFileSystemVersion'] = $this->sourceFileSystemVersion;
+        }
+
         return $res;
     }
+
     /**
      * @param array $map
+     *
      * @return snapshot
      */
-    public static function fromMap($map = []) {
+    public static function fromMap($map = [])
+    {
         $model = new self();
-        if(isset($map['CreateTime'])){
+        if (isset($map['CreateTime'])) {
             $model->createTime = $map['CreateTime'];
         }
-        if(isset($map['Description'])){
+        if (isset($map['Description'])) {
             $model->description = $map['Description'];
         }
-        if(isset($map['Progress'])){
+        if (isset($map['Progress'])) {
             $model->progress = $map['Progress'];
         }
-        if(isset($map['RemainTime'])){
+        if (isset($map['RemainTime'])) {
             $model->remainTime = $map['RemainTime'];
         }
-        if(isset($map['RetentionDays'])){
+        if (isset($map['RetentionDays'])) {
             $model->retentionDays = $map['RetentionDays'];
         }
-        if(isset($map['SnapshotId'])){
+        if (isset($map['SnapshotId'])) {
             $model->snapshotId = $map['SnapshotId'];
         }
-        if(isset($map['SnapshotName'])){
+        if (isset($map['SnapshotName'])) {
             $model->snapshotName = $map['SnapshotName'];
         }
-        if(isset($map['SourceFileSystemId'])){
+        if (isset($map['SourceFileSystemId'])) {
             $model->sourceFileSystemId = $map['SourceFileSystemId'];
         }
-        if(isset($map['SourceFileSystemSize'])){
+        if (isset($map['SourceFileSystemSize'])) {
             $model->sourceFileSystemSize = $map['SourceFileSystemSize'];
         }
-        if(isset($map['Status'])){
+        if (isset($map['Status'])) {
             $model->status = $map['Status'];
         }
-        if(isset($map['EncryptType'])){
+        if (isset($map['EncryptType'])) {
             $model->encryptType = $map['EncryptType'];
         }
-        if(isset($map['SourceFileSystemVersion'])){
+        if (isset($map['SourceFileSystemVersion'])) {
             $model->sourceFileSystemVersion = $map['SourceFileSystemVersion'];
         }
+
         return $model;
     }
-    /**
-     * @description createTime
-     * @var string
-     */
-    public $createTime;
-
-    /**
-     * @description description
-     * @var string
-     */
-    public $description;
-
-    /**
-     * @description progress
-     * @var string
-     */
-    public $progress;
-
-    /**
-     * @description remainTime
-     * @var integer
-     */
-    public $remainTime;
-
-    /**
-     * @description retentionDays
-     * @var integer
-     */
-    public $retentionDays;
-
-    /**
-     * @description snapshotId
-     * @var string
-     */
-    public $snapshotId;
-
-    /**
-     * @description snapshotName
-     * @var string
-     */
-    public $snapshotName;
-
-    /**
-     * @description sourceFileSystemId
-     * @var string
-     */
-    public $sourceFileSystemId;
-
-    /**
-     * @description sourceFileSystemSize
-     * @var integer
-     */
-    public $sourceFileSystemSize;
-
-    /**
-     * @description status
-     * @var string
-     */
-    public $status;
-
-    /**
-     * @description encryptType
-     * @var integer
-     */
-    public $encryptType;
-
-    /**
-     * @description sourceFileSystemVersion
-     * @var string
-     */
-    public $sourceFileSystemVersion;
-
 }

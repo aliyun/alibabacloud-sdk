@@ -35,13 +35,17 @@ class ListStackResourcesResponse extends Model
 
     public function toMap()
     {
-        $res              = [];
-        $res['RequestId'] = $this->requestId;
-        $res['Resources'] = [];
-        if (null !== $this->resources && \is_array($this->resources)) {
-            $n = 0;
-            foreach ($this->resources as $item) {
-                $res['Resources'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->resources) {
+            $res['Resources'] = [];
+            if (null !== $this->resources && \is_array($this->resources)) {
+                $n = 0;
+                foreach ($this->resources as $item) {
+                    $res['Resources'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

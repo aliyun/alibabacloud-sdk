@@ -99,26 +99,44 @@ class stack extends Model
 
     public function toMap()
     {
-        $res                        = [];
-        $res['Description']         = $this->description;
-        $res['DisableRollback']     = $this->disableRollback;
-        $res['RegionId']            = $this->regionId;
-        $res['StackName']           = $this->stackName;
-        $res['StackPolicyBody']     = $this->stackPolicyBody;
-        $res['TemplateDescription'] = $this->templateDescription;
-        $res['TimeoutInMinutes']    = $this->timeoutInMinutes;
-        $res['Parameters']          = [];
-        if (null !== $this->parameters && \is_array($this->parameters)) {
-            $n = 0;
-            foreach ($this->parameters as $item) {
-                $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+        $res = [];
+        if (null !== $this->description) {
+            $res['Description'] = $this->description;
+        }
+        if (null !== $this->disableRollback) {
+            $res['DisableRollback'] = $this->disableRollback;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
+        }
+        if (null !== $this->stackName) {
+            $res['StackName'] = $this->stackName;
+        }
+        if (null !== $this->stackPolicyBody) {
+            $res['StackPolicyBody'] = $this->stackPolicyBody;
+        }
+        if (null !== $this->templateDescription) {
+            $res['TemplateDescription'] = $this->templateDescription;
+        }
+        if (null !== $this->timeoutInMinutes) {
+            $res['TimeoutInMinutes'] = $this->timeoutInMinutes;
+        }
+        if (null !== $this->parameters) {
+            $res['Parameters'] = [];
+            if (null !== $this->parameters && \is_array($this->parameters)) {
+                $n = 0;
+                foreach ($this->parameters as $item) {
+                    $res['Parameters'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
-        $res['Resources'] = [];
-        if (null !== $this->resources && \is_array($this->resources)) {
-            $n = 0;
-            foreach ($this->resources as $item) {
-                $res['Resources'][$n++] = null !== $item ? $item->toMap() : $item;
+        if (null !== $this->resources) {
+            $res['Resources'] = [];
+            if (null !== $this->resources && \is_array($this->resources)) {
+                $n = 0;
+                foreach ($this->resources as $item) {
+                    $res['Resources'][$n++] = null !== $item ? $item->toMap() : $item;
+                }
             }
         }
 

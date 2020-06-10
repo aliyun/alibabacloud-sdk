@@ -52,11 +52,19 @@ class CreateSecretResponse extends Model
 
     public function toMap()
     {
-        $res               = [];
-        $res['RequestId']  = $this->requestId;
-        $res['Arn']        = $this->arn;
-        $res['VersionId']  = $this->versionId;
-        $res['SecretName'] = $this->secretName;
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->arn) {
+            $res['Arn'] = $this->arn;
+        }
+        if (null !== $this->versionId) {
+            $res['VersionId'] = $this->versionId;
+        }
+        if (null !== $this->secretName) {
+            $res['SecretName'] = $this->secretName;
+        }
 
         return $res;
     }
