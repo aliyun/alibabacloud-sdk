@@ -1,0 +1,101 @@
+<?php
+
+// This file is auto-generated, don't edit it. Thanks.
+
+namespace AlibabaCloud\SDK\Servicemesh\V20200111\Models;
+
+use AlibabaCloud\Tea\Model;
+
+class RemoveClusterFromServiceMeshResponse extends Model
+{
+    /**
+     * @description RequestId
+     *
+     * @var string
+     */
+    public $requestId;
+
+    /**
+     * @description code
+     *
+     * @var string
+     */
+    public $code;
+
+    /**
+     * @description success
+     *
+     * @var string
+     */
+    public $success;
+
+    /**
+     * @description message
+     *
+     * @var array
+     */
+    public $message;
+    protected $_name = [
+        'requestId' => 'RequestId',
+        'code'      => 'Code',
+        'success'   => 'Success',
+        'message'   => 'Message',
+    ];
+
+    public function validate()
+    {
+        Model::validateRequired('requestId', $this->requestId, true);
+        Model::validateRequired('code', $this->code, true);
+        Model::validateRequired('success', $this->success, true);
+        Model::validateRequired('message', $this->message, true);
+    }
+
+    public function toMap()
+    {
+        $res = [];
+        if (null !== $this->requestId) {
+            $res['RequestId'] = $this->requestId;
+        }
+        if (null !== $this->code) {
+            $res['Code'] = $this->code;
+        }
+        if (null !== $this->success) {
+            $res['Success'] = $this->success;
+        }
+        if (null !== $this->message) {
+            $res['Message'] = [];
+            if (null !== $this->message) {
+                $res['Message'] = $this->message;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param array $map
+     *
+     * @return RemoveClusterFromServiceMeshResponse
+     */
+    public static function fromMap($map = [])
+    {
+        $model = new self();
+        if (isset($map['RequestId'])) {
+            $model->requestId = $map['RequestId'];
+        }
+        if (isset($map['Code'])) {
+            $model->code = $map['Code'];
+        }
+        if (isset($map['Success'])) {
+            $model->success = $map['Success'];
+        }
+        if (isset($map['Message'])) {
+            if (!empty($map['Message'])) {
+                $model->message = [];
+                $model->message = $map['Message'];
+            }
+        }
+
+        return $model;
+    }
+}
