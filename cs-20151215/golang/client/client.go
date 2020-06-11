@@ -8,81 +8,6 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
-type ListTagResourcesQuery struct {
-	NextToken    *string `json:"next_token" xml:"next_token"`
-	ResourceIds  *string `json:"resource_ids" xml:"resource_ids"`
-	Tags         *string `json:"tags" xml:"tags"`
-	ResourceType *string `json:"resource_type" xml:"resource_type" require:"true"`
-}
-
-func (s ListTagResourcesQuery) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ListTagResourcesQuery) GoString() string {
-	return s.String()
-}
-
-func (s *ListTagResourcesQuery) SetNextToken(v string) *ListTagResourcesQuery {
-	s.NextToken = &v
-	return s
-}
-
-func (s *ListTagResourcesQuery) SetResourceIds(v string) *ListTagResourcesQuery {
-	s.ResourceIds = &v
-	return s
-}
-
-func (s *ListTagResourcesQuery) SetTags(v string) *ListTagResourcesQuery {
-	s.Tags = &v
-	return s
-}
-
-func (s *ListTagResourcesQuery) SetResourceType(v string) *ListTagResourcesQuery {
-	s.ResourceType = &v
-	return s
-}
-
-type ListTagResourcesRequest struct {
-	Headers map[string]*string     `json:"headers" xml:"headers"`
-	Query   *ListTagResourcesQuery `json:"query" xml:"query" require:"true"`
-}
-
-func (s ListTagResourcesRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ListTagResourcesRequest) GoString() string {
-	return s.String()
-}
-
-func (s *ListTagResourcesRequest) SetHeaders(v map[string]*string) *ListTagResourcesRequest {
-	s.Headers = v
-	return s
-}
-
-func (s *ListTagResourcesRequest) SetQuery(v *ListTagResourcesQuery) *ListTagResourcesRequest {
-	s.Query = v
-	return s
-}
-
-type ListTagResourcesResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
-}
-
-func (s ListTagResourcesResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ListTagResourcesResponse) GoString() string {
-	return s.String()
-}
-
-func (s *ListTagResourcesResponse) SetHeaders(v map[string]*string) *ListTagResourcesResponse {
-	s.Headers = v
-	return s
-}
-
 type ResumeComponentUpgradeRequest struct {
 	Headers map[string]*string `json:"headers" xml:"headers"`
 }
@@ -1257,12 +1182,11 @@ func (s *GetUpgradeStatusResponse) SetBody(v *GetUpgradeStatusResponseBody) *Get
 }
 
 type ModifyClusterBody struct {
-	DeletionProtection     *bool   `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	IngressLoadbalancerId  *string `json:"ingress_loadbalancer_id" xml:"ingress_loadbalancer_id" require:"true"`
-	ApiServerEip           *bool   `json:"api_server_eip" xml:"api_server_eip" require:"true"`
-	ApiServerEipId         *string `json:"api_server_eip_id" xml:"api_server_eip_id" require:"true"`
-	ResourceGroupId        *string `json:"resource_group_id" xml:"resource_group_id" require:"true"`
-	IngressDomainRebinding *string `json:"ingress_domain_rebinding" xml:"ingress_domain_rebinding" require:"true"`
+	DeletionProtection    *bool   `json:"deletion_protection" xml:"deletion_protection" require:"true"`
+	IngressLoadbalancerId *string `json:"ingress_loadbalancer_id" xml:"ingress_loadbalancer_id" require:"true"`
+	ApiServerEip          *bool   `json:"api_server_eip" xml:"api_server_eip" require:"true"`
+	ApiServerEipId        *string `json:"api_server_eip_id" xml:"api_server_eip_id" require:"true"`
+	ResourceGroupId       *string `json:"resource_group_id" xml:"resource_group_id" require:"true"`
 }
 
 func (s ModifyClusterBody) String() string {
@@ -1295,11 +1219,6 @@ func (s *ModifyClusterBody) SetApiServerEipId(v string) *ModifyClusterBody {
 
 func (s *ModifyClusterBody) SetResourceGroupId(v string) *ModifyClusterBody {
 	s.ResourceGroupId = &v
-	return s
-}
-
-func (s *ModifyClusterBody) SetIngressDomainRebinding(v string) *ModifyClusterBody {
-	s.IngressDomainRebinding = &v
 	return s
 }
 
@@ -4529,31 +4448,6 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	}
 
 	return nil
-}
-
-func (client *Client) ListTagResourcesWithOptions(request *ListTagResourcesRequest, runtime *util.RuntimeOptions) (_result *ListTagResourcesResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &ListTagResourcesResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/tags"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) ListTagResources(request *ListTagResourcesRequest) (_result *ListTagResourcesResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &ListTagResourcesResponse{}
-	_body, _err := client.ListTagResourcesWithOptions(request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
 }
 
 func (client *Client) ResumeComponentUpgradeWithOptions(clusterid *string, componentid *string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
