@@ -65,6 +65,8 @@ use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ListTagResourcesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ListTagResourcesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterTagsRequest;
@@ -144,6 +146,30 @@ class CS extends Roa
         ];
         $this->checkConfig($config);
         $this->_endpointHost = $this->getEndpoint('cs', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpointHost);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return ListTagResourcesResponse
+     */
+    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ListTagResourcesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/tags', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return ListTagResourcesResponse
+     */
+    public function listTagResources(ListTagResourcesRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->listTagResourcesWithOptions($request, $runtime);
     }
 
     /**
