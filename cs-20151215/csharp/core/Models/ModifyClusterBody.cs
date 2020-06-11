@@ -29,10 +29,6 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public string ResourceGroupId { get; set; }
 
-        [NameInMap("ingress_domain_rebinding")]
-        [Validation(Required=true)]
-        public string IngressDomainRebinding { get; set; }
-
     }
 
 }
