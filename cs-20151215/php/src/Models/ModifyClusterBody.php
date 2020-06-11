@@ -42,20 +42,12 @@ class ModifyClusterBody extends Model
      * @var string
      */
     public $resourceGroupId;
-
-    /**
-     * @description ingress_domain_rebinding
-     *
-     * @var string
-     */
-    public $ingressDomainRebinding;
     protected $_name = [
-        'deletionProtection'     => 'deletion_protection',
-        'ingressLoadbalancerId'  => 'ingress_loadbalancer_id',
-        'apiServerEip'           => 'api_server_eip',
-        'apiServerEipId'         => 'api_server_eip_id',
-        'resourceGroupId'        => 'resource_group_id',
-        'ingressDomainRebinding' => 'ingress_domain_rebinding',
+        'deletionProtection'    => 'deletion_protection',
+        'ingressLoadbalancerId' => 'ingress_loadbalancer_id',
+        'apiServerEip'          => 'api_server_eip',
+        'apiServerEipId'        => 'api_server_eip_id',
+        'resourceGroupId'       => 'resource_group_id',
     ];
 
     public function validate()
@@ -65,7 +57,6 @@ class ModifyClusterBody extends Model
         Model::validateRequired('apiServerEip', $this->apiServerEip, true);
         Model::validateRequired('apiServerEipId', $this->apiServerEipId, true);
         Model::validateRequired('resourceGroupId', $this->resourceGroupId, true);
-        Model::validateRequired('ingressDomainRebinding', $this->ingressDomainRebinding, true);
     }
 
     public function toMap()
@@ -85,9 +76,6 @@ class ModifyClusterBody extends Model
         }
         if (null !== $this->resourceGroupId) {
             $res['resource_group_id'] = $this->resourceGroupId;
-        }
-        if (null !== $this->ingressDomainRebinding) {
-            $res['ingress_domain_rebinding'] = $this->ingressDomainRebinding;
         }
 
         return $res;
@@ -115,9 +103,6 @@ class ModifyClusterBody extends Model
         }
         if (isset($map['resource_group_id'])) {
             $model->resourceGroupId = $map['resource_group_id'];
-        }
-        if (isset($map['ingress_domain_rebinding'])) {
-            $model->ingressDomainRebinding = $map['ingress_domain_rebinding'];
         }
 
         return $model;
