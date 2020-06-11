@@ -4,75 +4,6 @@ import ROA, * as $ROA from '@alicloud/roa-client';
 import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
-export class ListTagResourcesQuery extends $tea.Model {
-  nextToken?: string;
-  resourceIds?: string;
-  tags?: string;
-  resourceType: string;
-  static names(): { [key: string]: string } {
-    return {
-      nextToken: 'next_token',
-      resourceIds: 'resource_ids',
-      tags: 'tags',
-      resourceType: 'resource_type',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      nextToken: 'string',
-      resourceIds: 'string',
-      tags: 'string',
-      resourceType: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class ListTagResourcesRequest extends $tea.Model {
-  headers?: { [key: string]: string };
-  query: ListTagResourcesQuery;
-  static names(): { [key: string]: string } {
-    return {
-      headers: 'headers',
-      query: 'query',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
-      query: ListTagResourcesQuery,
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class ListTagResourcesResponse extends $tea.Model {
-  headers: { [key: string]: string };
-  static names(): { [key: string]: string } {
-    return {
-      headers: 'headers',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      headers: { 'type': 'map', 'keyType': 'string', 'valueType': 'string' },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
 export class ResumeComponentUpgradeRequest extends $tea.Model {
   headers?: { [key: string]: string };
   static names(): { [key: string]: string } {
@@ -1139,7 +1070,6 @@ export class ModifyClusterBody extends $tea.Model {
   apiServerEip: boolean;
   apiServerEipId: string;
   resourceGroupId: string;
-  ingressDomainRebinding: string;
   static names(): { [key: string]: string } {
     return {
       deletionProtection: 'deletion_protection',
@@ -1147,7 +1077,6 @@ export class ModifyClusterBody extends $tea.Model {
       apiServerEip: 'api_server_eip',
       apiServerEipId: 'api_server_eip_id',
       resourceGroupId: 'resource_group_id',
-      ingressDomainRebinding: 'ingress_domain_rebinding',
     };
   }
 
@@ -1158,7 +1087,6 @@ export class ModifyClusterBody extends $tea.Model {
       apiServerEip: 'boolean',
       apiServerEipId: 'string',
       resourceGroupId: 'string',
-      ingressDomainRebinding: 'string',
     };
   }
 
@@ -3981,16 +3909,6 @@ export default class Client extends ROA {
     this._endpointHost = this.getEndpoint("cs", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpointHost);
   }
 
-
-  async listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: $Util.RuntimeOptions): Promise<ListTagResourcesResponse> {
-    Util.validateModel(request);
-    return $tea.cast<ListTagResourcesResponse>(await this.doRequest("2015-12-15", "HTTPS", "GET", "AK", `/tags`, Util.stringifyMapValue($tea.toMap(request.query)), request.headers, null, runtime), new ListTagResourcesResponse({}));
-  }
-
-  async listTagResources(request: ListTagResourcesRequest): Promise<ListTagResourcesResponse> {
-    let runtime = new $Util.RuntimeOptions({ });
-    return await this.listTagResourcesWithOptions(request, runtime);
-  }
 
   async resumeComponentUpgradeWithOptions(clusterid: string, componentid: string, request: ResumeComponentUpgradeRequest, runtime: $Util.RuntimeOptions): Promise<ResumeComponentUpgradeResponse> {
     Util.validateModel(request);
