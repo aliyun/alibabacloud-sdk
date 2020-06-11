@@ -6,7 +6,7 @@ English | [简体中文](0-Usage-CN.md)
 
 ## Requirements
 
-- Python >= 8.x
+- Python >= 3.x
 
 ## Installation
 
