@@ -2,78 +2,6 @@
 from Tea.model import TeaModel
 
 
-class ListTagResourcesQuery(TeaModel):
-    def __init__(self, next_token=None, resource_ids=None, tags=None, resource_type=None):
-        self.next_token = next_token
-        self.resource_ids = resource_ids
-        self.tags = tags
-        self.resource_type = resource_type
-
-    def validate(self):
-        self.validate_required(self.resource_type, 'resource_type')
-
-    def to_map(self):
-        result = {}
-        result['next_token'] = self.next_token
-        result['resource_ids'] = self.resource_ids
-        result['tags'] = self.tags
-        result['resource_type'] = self.resource_type
-        return result
-
-    def from_map(self, map={}):
-        self.next_token = map.get('next_token')
-        self.resource_ids = map.get('resource_ids')
-        self.tags = map.get('tags')
-        self.resource_type = map.get('resource_type')
-        return self
-
-
-class ListTagResourcesRequest(TeaModel):
-    def __init__(self, headers=None, query=None):
-        self.headers = {}
-        self.query = query
-
-    def validate(self):
-        self.validate_required(self.query, 'query')
-        if self.query:
-            self.query.validate()
-
-    def to_map(self):
-        result = {}
-        result['headers'] = self.headers
-        if self.query is not None:
-            result['query'] = self.query.to_map()
-        else:
-            result['query'] = None
-        return result
-
-    def from_map(self, map={}):
-        self.headers = map.get('headers')
-        if map.get('query') is not None:
-            temp_model = ListTagResourcesQuery()
-            self.query = temp_model.from_map(map['query'])
-        else:
-            self.query = None
-        return self
-
-
-class ListTagResourcesResponse(TeaModel):
-    def __init__(self, headers=None):
-        self.headers = {}
-
-    def validate(self):
-        self.validate_required(self.headers, 'headers')
-
-    def to_map(self):
-        result = {}
-        result['headers'] = self.headers
-        return result
-
-    def from_map(self, map={}):
-        self.headers = map.get('headers')
-        return self
-
-
 class ResumeComponentUpgradeRequest(TeaModel):
     def __init__(self, headers=None):
         self.headers = {}
@@ -1369,13 +1297,12 @@ class GetUpgradeStatusResponse(TeaModel):
 
 
 class ModifyClusterBody(TeaModel):
-    def __init__(self, deletion_protection=None, ingress_loadbalancer_id=None, api_server_eip=None, api_server_eip_id=None, resource_group_id=None, ingress_domain_rebinding=None):
+    def __init__(self, deletion_protection=None, ingress_loadbalancer_id=None, api_server_eip=None, api_server_eip_id=None, resource_group_id=None):
         self.deletion_protection = deletion_protection
         self.ingress_loadbalancer_id = ingress_loadbalancer_id
         self.api_server_eip = api_server_eip
         self.api_server_eip_id = api_server_eip_id
         self.resource_group_id = resource_group_id
-        self.ingress_domain_rebinding = ingress_domain_rebinding
 
     def validate(self):
         self.validate_required(self.deletion_protection, 'deletion_protection')
@@ -1383,7 +1310,6 @@ class ModifyClusterBody(TeaModel):
         self.validate_required(self.api_server_eip, 'api_server_eip')
         self.validate_required(self.api_server_eip_id, 'api_server_eip_id')
         self.validate_required(self.resource_group_id, 'resource_group_id')
-        self.validate_required(self.ingress_domain_rebinding, 'ingress_domain_rebinding')
 
     def to_map(self):
         result = {}
@@ -1392,7 +1318,6 @@ class ModifyClusterBody(TeaModel):
         result['api_server_eip'] = self.api_server_eip
         result['api_server_eip_id'] = self.api_server_eip_id
         result['resource_group_id'] = self.resource_group_id
-        result['ingress_domain_rebinding'] = self.ingress_domain_rebinding
         return result
 
     def from_map(self, map={}):
@@ -1401,7 +1326,6 @@ class ModifyClusterBody(TeaModel):
         self.api_server_eip = map.get('api_server_eip')
         self.api_server_eip_id = map.get('api_server_eip_id')
         self.resource_group_id = map.get('resource_group_id')
-        self.ingress_domain_rebinding = map.get('ingress_domain_rebinding')
         return self
 
 
