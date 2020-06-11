@@ -50,6 +50,17 @@ class Client(ROAClient):
         self.check_config(config)
         self._endpoint_host = self.get_endpoint("cs", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint_host)
 
+    def list_tag_resources_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.ListTagResourcesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/tags", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+
+
+    def list_tag_resources(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.list_tag_resources_with_options(request, runtime)
+
     def resume_component_upgrade_with_options(self, clusterid, componentid, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.ResumeComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(clusterid) + "/components/" + str(componentid) + "/resume", None, request.headers, None, runtime))
