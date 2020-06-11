@@ -24,10 +24,6 @@ public class ModifyClusterBody extends TeaModel {
     @Validation(required = true)
     public String resourceGroupId;
 
-    @NameInMap("ingress_domain_rebinding")
-    @Validation(required = true)
-    public String ingressDomainRebinding;
-
     public static ModifyClusterBody build(java.util.Map<String, ?> map) throws Exception {
         ModifyClusterBody self = new ModifyClusterBody();
         return TeaModel.build(map, self);
