@@ -23,23 +23,21 @@ import os
 """
 setup module for alibabacloud_imagesearch20200212.
 
-Created on 27/05/2020
+Created on 12/06/2020
 
-@author: Alibaba Cloud
+@author: Alibaba Cloud SDK
 """
 
 PACKAGE = "alibabacloud_imagesearch20200212"
 NAME = "alibabacloud_imagesearch20200212"
-DESCRIPTION = "Aliyun ImageSearch SDK Library for Python"
-AUTHOR = "Alibaba Cloud"
-AUTHOR_EMAIL = "alibaba-cloud-sdk-dev-team@list.alibaba-inc.com"
-URL = "https://github.com/aliyun/alibabacloud-sdk/tree/master/imagesearch-20200212/python"
+DESCRIPTION = "Alibaba Cloud image search (20200212) SDK Library for Python"
+AUTHOR = "Alibaba Cloud SDK"
+AUTHOR_EMAIL = "sdk-team@alibabacloud.com"
+URL = "https://github.com/aliyun/alibabacloud-sdk"
 
 TOPDIR = os.path.dirname(__file__) or "."
 VERSION = __import__(PACKAGE).__version__
-REQUIRES = ["alibabacloud_rpc_util>=0.0.2", "alibabacloud_tea_rpc>=0.0.2", "alibabacloud_oss_util>=0.0.1",
-            "alibabacloud_tea_util>=0.0.2", "alibabacloud_tea_fileform>=0.0.1", "alibabacloud_endpoint_util>=0.0.2",
-            'alibabacloud_oss_sdk>=0.0.2', 'alibabacloud_openplatform20191219>=0.0.1']
+REQUIRES = ["alibabacloud_oss_sdk>=0.0.2","alibabacloud_openplatform20191219>=1.0.2","alibabacloud_rpc_util>=0.0.2","alibabacloud_tea_rpc>=0.0.1","alibabacloud_oss_util>=0.0.1","alibabacloud_tea_util>=0.0.2","alibabacloud_tea_fileform>=0.0.1","alibabacloud_endpoint_util>=0.0.2"]
 
 desc_file = open("README.md", encoding='utf-8')
 try:

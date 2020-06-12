@@ -3,15 +3,13 @@ from Tea.model import TeaModel
 
 
 class SearchImageByNameRequest(TeaModel):
-    def __init__(self, category_id=None, instance_name=None, product_id=None, pic_name=None, num=None, start=None,
-                 filter=None):
+    def __init__(self, category_id=None, instance_name=None, product_id=None, pic_name=None, num=None, start=None):
         self.category_id = category_id
         self.instance_name = instance_name
         self.product_id = product_id
         self.pic_name = pic_name
         self.num = num
         self.start = start
-        self.filter = filter
 
     def validate(self):
         self.validate_required(self.instance_name, 'instance_name')
@@ -26,7 +24,6 @@ class SearchImageByNameRequest(TeaModel):
         result['PicName'] = self.pic_name
         result['Num'] = self.num
         result['Start'] = self.start
-        result['Filter'] = self.filter
         return result
 
     def from_map(self, map={}):
@@ -36,7 +33,6 @@ class SearchImageByNameRequest(TeaModel):
         self.pic_name = map.get('PicName')
         self.num = map.get('Num')
         self.start = map.get('Start')
-        self.filter = map.get('Filter')
         return self
 
 
@@ -58,7 +54,7 @@ class SearchImageByNameResponse(TeaModel):
         self.validate_required(self.auctions, 'auctions')
         if self.auctions:
             for k in self.auctions:
-                if k:
+                if k :
                     k.validate()
         self.validate_required(self.head, 'head')
         if self.head:
@@ -116,8 +112,7 @@ class SearchImageByNameResponse(TeaModel):
 
 
 class SearchImageByNameResponseAuctions(TeaModel):
-    def __init__(self, category_id=None, product_id=None, pic_name=None, custom_content=None, sort_expr_values=None,
-                 int_attr=None, str_attr=None):
+    def __init__(self, category_id=None, product_id=None, pic_name=None, custom_content=None, sort_expr_values=None, int_attr=None, str_attr=None):
         self.category_id = category_id
         self.product_id = product_id
         self.pic_name = pic_name
@@ -215,7 +210,7 @@ class SearchImageByNameResponsePicInfo(TeaModel):
         self.validate_required(self.all_categories, 'all_categories')
         if self.all_categories:
             for k in self.all_categories:
-                if k:
+                if k :
                     k.validate()
 
     def to_map(self):
@@ -245,8 +240,7 @@ class SearchImageByNameResponsePicInfo(TeaModel):
 
 
 class SearchImageByPicRequest(TeaModel):
-    def __init__(self, category_id=None, instance_name=None, pic_content=None, crop=None, region=None, num=None,
-                 start=None, filter=None):
+    def __init__(self, category_id=None, instance_name=None, pic_content=None, crop=None, region=None, num=None, start=None):
         self.category_id = category_id
         self.instance_name = instance_name
         self.pic_content = pic_content
@@ -254,7 +248,6 @@ class SearchImageByPicRequest(TeaModel):
         self.region = region
         self.num = num
         self.start = start
-        self.filter = filter
 
     def validate(self):
         self.validate_required(self.instance_name, 'instance_name')
@@ -269,7 +262,6 @@ class SearchImageByPicRequest(TeaModel):
         result['Region'] = self.region
         result['Num'] = self.num
         result['Start'] = self.start
-        result['Filter'] = self.filter
         return result
 
     def from_map(self, map={}):
@@ -280,7 +272,6 @@ class SearchImageByPicRequest(TeaModel):
         self.region = map.get('Region')
         self.num = map.get('Num')
         self.start = map.get('Start')
-        self.filter = map.get('Filter')
         return self
 
 
@@ -302,7 +293,7 @@ class SearchImageByPicResponse(TeaModel):
         self.validate_required(self.auctions, 'auctions')
         if self.auctions:
             for k in self.auctions:
-                if k:
+                if k :
                     k.validate()
         self.validate_required(self.head, 'head')
         if self.head:
@@ -360,8 +351,7 @@ class SearchImageByPicResponse(TeaModel):
 
 
 class SearchImageByPicResponseAuctions(TeaModel):
-    def __init__(self, category_id=None, product_id=None, pic_name=None, custom_content=None, sort_expr_values=None,
-                 int_attr=None, str_attr=None):
+    def __init__(self, category_id=None, product_id=None, pic_name=None, custom_content=None, sort_expr_values=None, int_attr=None, str_attr=None):
         self.category_id = category_id
         self.product_id = product_id
         self.pic_name = pic_name
@@ -459,7 +449,7 @@ class SearchImageByPicResponsePicInfo(TeaModel):
         self.validate_required(self.all_categories, 'all_categories')
         if self.all_categories:
             for k in self.all_categories:
-                if k:
+                if k :
                     k.validate()
 
     def to_map(self):
@@ -489,8 +479,7 @@ class SearchImageByPicResponsePicInfo(TeaModel):
 
 
 class SearchImageByPicAdvanceRequest(TeaModel):
-    def __init__(self, pic_content_object=None, category_id=None, instance_name=None, crop=None, region=None, num=None,
-                 start=None, filter=None):
+    def __init__(self, pic_content_object=None, category_id=None, instance_name=None, crop=None, region=None, num=None, start=None):
         self.pic_content_object = pic_content_object
         self.category_id = category_id
         self.instance_name = instance_name
@@ -498,7 +487,6 @@ class SearchImageByPicAdvanceRequest(TeaModel):
         self.region = region
         self.num = num
         self.start = start
-        self.filter = filter
 
     def validate(self):
         self.validate_required(self.pic_content_object, 'pic_content_object')
@@ -513,7 +501,6 @@ class SearchImageByPicAdvanceRequest(TeaModel):
         result['Region'] = self.region
         result['Num'] = self.num
         result['Start'] = self.start
-        result['Filter'] = self.filter
         return result
 
     def from_map(self, map={}):
@@ -524,7 +511,6 @@ class SearchImageByPicAdvanceRequest(TeaModel):
         self.region = map.get('Region')
         self.num = map.get('Num')
         self.start = map.get('Start')
-        self.filter = map.get('Filter')
         return self
 
 
@@ -582,8 +568,7 @@ class DeleteImageResponse(TeaModel):
 
 
 class AddImageRequest(TeaModel):
-    def __init__(self, instance_name=None, category_id=None, product_id=None, pic_name=None, pic_content=None,
-                 crop=None, region=None, custom_content=None, int_attr=None, str_attr=None):
+    def __init__(self, instance_name=None, category_id=None, product_id=None, pic_name=None, pic_content=None, crop=None, region=None, custom_content=None, int_attr=None, str_attr=None):
         self.instance_name = instance_name
         self.category_id = category_id
         self.product_id = product_id
@@ -693,8 +678,7 @@ class AddImageResponsePicInfo(TeaModel):
 
 
 class AddImageAdvanceRequest(TeaModel):
-    def __init__(self, pic_content_object=None, instance_name=None, category_id=None, product_id=None, pic_name=None,
-                 crop=None, region=None, custom_content=None, int_attr=None, str_attr=None):
+    def __init__(self, pic_content_object=None, instance_name=None, category_id=None, product_id=None, pic_name=None, crop=None, region=None, custom_content=None, int_attr=None, str_attr=None):
         self.pic_content_object = pic_content_object
         self.instance_name = instance_name
         self.category_id = category_id

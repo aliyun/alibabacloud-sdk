@@ -19,18 +19,17 @@ class Client(RPCClient):
         super().__init__(config)
         self._endpoint_rule = ""
         self.check_config(config)
-        self._endpoint = self.get_endpoint(self._product_id, self._region_id, self._endpoint_rule, self._network,
-                                           self._suffix, self._endpoint_map, self._endpoint)
+        self._endpoint = self.get_endpoint("imagesearch", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
     def search_image_by_name(self, request, runtime):
         UtilClient.validate_model(request)
-        return image_search_20200212_models.SearchImageByNameResponse().from_map(
-            self.do_request("SearchImageByName", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+        return image_search_20200212_models.SearchImageByNameResponse().from_map(self.do_request("SearchImageByName", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+
 
     def search_image_by_pic(self, request, runtime):
         UtilClient.validate_model(request)
-        return image_search_20200212_models.SearchImageByPicResponse().from_map(
-            self.do_request("SearchImageByPic", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+        return image_search_20200212_models.SearchImageByPicResponse().from_map(self.do_request("SearchImageByPic", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+
 
     def search_image_by_pic_advance(self, request, runtime):
         # Step 0: init client
@@ -49,14 +48,13 @@ class Client(RPCClient):
             product="ImageSearch",
             region_id=self._region_id
         )
-        auth_response = auth_client.authorize_file_upload(auth_request, runtime)
+        auth_response = auth_client.authorize_file_upload_with_options(auth_request, runtime)
         # Step 1: request OSS api to upload file
         oss_config = _oss_models.Config(
             access_key_id=auth_response.access_key_id,
             access_key_secret=access_key_secret,
             type="access_key",
-            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate,
-                                                self._endpoint_type),
+            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate, self._endpoint_type),
             protocol=self._protocol,
             region_id=self._region_id
         )
@@ -88,19 +86,19 @@ class Client(RPCClient):
 
         )
         RPCUtilClient.convert(request, search_image_by_picreq)
-        search_image_by_picreq.pic_content = "http://" + auth_response.bucket + "." + auth_response.endpoint + "/" + auth_response.object_key + ""
+        search_image_by_picreq.pic_content = "http://" + str(auth_response.bucket) + "." + str(auth_response.endpoint) + "/" + str(auth_response.object_key) + ""
         search_image_by_pic_resp = self.search_image_by_pic(search_image_by_picreq, runtime)
         return search_image_by_pic_resp
 
     def delete_image(self, request, runtime):
         UtilClient.validate_model(request)
-        return image_search_20200212_models.DeleteImageResponse().from_map(
-            self.do_request("DeleteImage", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+        return image_search_20200212_models.DeleteImageResponse().from_map(self.do_request("DeleteImage", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+
 
     def add_image(self, request, runtime):
         UtilClient.validate_model(request)
-        return image_search_20200212_models.AddImageResponse().from_map(
-            self.do_request("AddImage", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+        return image_search_20200212_models.AddImageResponse().from_map(self.do_request("AddImage", "HTTPS", "POST", "2020-02-12", "AK", None, request.to_map(), runtime))
+
 
     def add_image_advance(self, request, runtime):
         # Step 0: init client
@@ -119,14 +117,13 @@ class Client(RPCClient):
             product="ImageSearch",
             region_id=self._region_id
         )
-        auth_response = auth_client.authorize_file_upload(auth_request, runtime)
+        auth_response = auth_client.authorize_file_upload_with_options(auth_request, runtime)
         # Step 1: request OSS api to upload file
         oss_config = _oss_models.Config(
             access_key_id=auth_response.access_key_id,
             access_key_secret=access_key_secret,
             type="access_key",
-            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate,
-                                                self._endpoint_type),
+            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate, self._endpoint_type),
             protocol=self._protocol,
             region_id=self._region_id
         )
@@ -158,13 +155,13 @@ class Client(RPCClient):
 
         )
         RPCUtilClient.convert(request, add_imagereq)
-        add_imagereq.pic_content = "http://" + auth_response.bucket + "." + auth_response.endpoint + "/" + auth_response.object_key + ""
+        add_imagereq.pic_content = "http://" + str(auth_response.bucket) + "." + str(auth_response.endpoint) + "/" + str(auth_response.object_key) + ""
         add_image_resp = self.add_image(add_imagereq, runtime)
         return add_image_resp
 
     def get_endpoint(self, product_id, region_id, endpoint_rule, network, suffix, endpoint_map, endpoint):
         if not UtilClient.empty(endpoint):
             return endpoint
-        if not UtilClient.is_unset(endpoint_map) and not UtilClient.empty(endpoint_map["regionId"]):
-            return endpoint_map["regionId"]
+        if not UtilClient.is_unset(endpoint_map) and not UtilClient.empty(endpoint_map.get('regionId')):
+            return endpoint_map.get('regionId')
         return EndpointUtilClient.get_endpoint_rules(product_id, region_id, endpoint_rule, network, suffix)

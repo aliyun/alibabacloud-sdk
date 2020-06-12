@@ -4,7 +4,6 @@
 
 ## Alibaba Cloud ImageSearch SDK for Python
 
-
 ## 安装
 
 - **使用 pip 安装(推荐)**
@@ -17,15 +16,19 @@ pip install alibabacloud_imagesearch20200212
 ```
 
 ## 问题
+
 [提交 Issue](https://github.com/aliyun/alibabacloud-sdk/issues/new)，不符合指南的问题可能会立即关闭。
 
 ## 发行说明
+
 每个版本的详细更改记录在[发行说明](./ChangeLog.md)中。
 
 ## 相关
-* [最新源码](https://github.com/aliyun/alibabacloud-sdk/tree/master/imagesearch-20200212/python)
+
+- [最新源码](https://github.com/aliyun/alibabacloud-sdk/tree/master/python)
 
 ## 许可证
+
 [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 Copyright (c) 2009-present, Alibaba Cloud All rights reserved.
