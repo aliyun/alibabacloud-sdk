@@ -29,13 +29,11 @@ export class RemoveClusterFromServiceMeshRequest extends $tea.Model {
 export class RemoveClusterFromServiceMeshResponse extends $tea.Model {
   requestId: string;
   code: string;
-  success: string;
   message: string;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
       code: 'Code',
-      success: 'Success',
       message: 'Message',
     };
   }
@@ -44,7 +42,6 @@ export class RemoveClusterFromServiceMeshResponse extends $tea.Model {
     return {
       requestId: 'string',
       code: 'string',
-      success: 'string',
       message: 'string',
     };
   }
@@ -79,13 +76,11 @@ export class AddClusterIntoServiceMeshRequest extends $tea.Model {
 export class AddClusterIntoServiceMeshResponse extends $tea.Model {
   requestId: string;
   code: string;
-  success: string;
   message: string;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
       code: 'Code',
-      success: 'Success',
       message: 'Message',
     };
   }
@@ -94,7 +89,6 @@ export class AddClusterIntoServiceMeshResponse extends $tea.Model {
     return {
       requestId: 'string',
       code: 'string',
-      success: 'string',
       message: 'string',
     };
   }
@@ -819,7 +813,7 @@ export class CreateServiceMeshRequest extends $tea.Model {
   pilotPublicEip?: boolean;
   tracing?: boolean;
   name?: string;
-  VSwitches?: string;
+  vSwitches?: string;
   traceSampling?: number;
   localityLoadBalancing?: boolean;
   telemetry?: boolean;
@@ -840,7 +834,7 @@ export class CreateServiceMeshRequest extends $tea.Model {
       pilotPublicEip: 'PilotPublicEip',
       tracing: 'Tracing',
       name: 'Name',
-      VSwitches: 'VSwitches',
+      vSwitches: 'VSwitches',
       traceSampling: 'TraceSampling',
       localityLoadBalancing: 'LocalityLoadBalancing',
       telemetry: 'Telemetry',
@@ -864,7 +858,7 @@ export class CreateServiceMeshRequest extends $tea.Model {
       pilotPublicEip: 'boolean',
       tracing: 'boolean',
       name: 'string',
-      VSwitches: 'string',
+      vSwitches: 'string',
       traceSampling: 'number',
       localityLoadBalancing: 'boolean',
       telemetry: 'boolean',
@@ -1223,12 +1217,12 @@ export class DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig extends $t
 export class DescribeServiceMeshesResponseServiceMeshesSpecNetwork extends $tea.Model {
   securityGroupId: string;
   vpcId: string;
-  VSwitches: string[];
+  vSwitches: string[];
   static names(): { [key: string]: string } {
     return {
       securityGroupId: 'SecurityGroupId',
       vpcId: 'VpcId',
-      VSwitches: 'VSwitches',
+      vSwitches: 'VSwitches',
     };
   }
 
@@ -1236,7 +1230,7 @@ export class DescribeServiceMeshesResponseServiceMeshesSpecNetwork extends $tea.
     return {
       securityGroupId: 'string',
       vpcId: 'string',
-      VSwitches: { 'type': 'array', 'itemType': 'string' },
+      vSwitches: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -1506,12 +1500,12 @@ export class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig extends 
 export class DescribeServiceMeshDetailResponseServiceMeshSpecNetwork extends $tea.Model {
   securityGroupId: string;
   vpcId: string;
-  VSwitches: string[];
+  vSwitches: string[];
   static names(): { [key: string]: string } {
     return {
       securityGroupId: 'SecurityGroupId',
       vpcId: 'VpcId',
-      VSwitches: 'VSwitches',
+      vSwitches: 'VSwitches',
     };
   }
 
@@ -1519,7 +1513,7 @@ export class DescribeServiceMeshDetailResponseServiceMeshSpecNetwork extends $te
     return {
       securityGroupId: 'string',
       vpcId: 'string',
-      VSwitches: { 'type': 'array', 'itemType': 'string' },
+      vSwitches: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -1704,7 +1698,7 @@ export default class Client extends RPC {
 
   async describeIngressGatewaysWithOptions(request: DescribeIngressGatewaysRequest, runtime: $Util.RuntimeOptions): Promise<DescribeIngressGatewaysResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeIngressGatewaysResponse>(await this.doRequest("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new DescribeIngressGatewaysResponse({}));
+    return $tea.cast<DescribeIngressGatewaysResponse>(await this.doRequest("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", $tea.toMap(request), null, runtime), new DescribeIngressGatewaysResponse({}));
   }
 
   async describeIngressGateways(request: DescribeIngressGatewaysRequest): Promise<DescribeIngressGatewaysResponse> {
@@ -1744,7 +1738,7 @@ export default class Client extends RPC {
 
   async describeServiceMeshesWithOptions(request: DescribeServiceMeshesRequest, runtime: $Util.RuntimeOptions): Promise<DescribeServiceMeshesResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeServiceMeshesResponse>(await this.doRequest("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new DescribeServiceMeshesResponse({}));
+    return $tea.cast<DescribeServiceMeshesResponse>(await this.doRequest("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", $tea.toMap(request), null, runtime), new DescribeServiceMeshesResponse({}));
   }
 
   async describeServiceMeshes(request: DescribeServiceMeshesRequest): Promise<DescribeServiceMeshesResponse> {
