@@ -18,7 +18,7 @@ public class RemoveClusterFromServiceMeshResponse extends TeaModel {
 
     @NameInMap("Message")
     @Validation(required = true)
-    public java.util.List<String> message;
+    public String message;
 
     public static RemoveClusterFromServiceMeshResponse build(java.util.Map<String, ?> map) throws Exception {
         RemoveClusterFromServiceMeshResponse self = new RemoveClusterFromServiceMeshResponse();
