@@ -32,10 +32,10 @@ func (s *RemoveClusterFromServiceMeshRequest) SetClusterId(v string) *RemoveClus
 }
 
 type RemoveClusterFromServiceMeshResponse struct {
-	RequestId *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string   `json:"Code" xml:"Code" require:"true"`
-	Success   *string   `json:"Success" xml:"Success" require:"true"`
-	Message   []*string `json:"Message" xml:"Message" require:"true" type:"Repeated"`
+	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Code      *string `json:"Code" xml:"Code" require:"true"`
+	Success   *string `json:"Success" xml:"Success" require:"true"`
+	Message   *string `json:"Message" xml:"Message" require:"true"`
 }
 
 func (s RemoveClusterFromServiceMeshResponse) String() string {
@@ -61,8 +61,8 @@ func (s *RemoveClusterFromServiceMeshResponse) SetSuccess(v string) *RemoveClust
 	return s
 }
 
-func (s *RemoveClusterFromServiceMeshResponse) SetMessage(v []*string) *RemoveClusterFromServiceMeshResponse {
-	s.Message = v
+func (s *RemoveClusterFromServiceMeshResponse) SetMessage(v string) *RemoveClusterFromServiceMeshResponse {
+	s.Message = &v
 	return s
 }
 
@@ -90,10 +90,10 @@ func (s *AddClusterIntoServiceMeshRequest) SetClusterId(v string) *AddClusterInt
 }
 
 type AddClusterIntoServiceMeshResponse struct {
-	RequestId *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string   `json:"Code" xml:"Code" require:"true"`
-	Success   *string   `json:"Success" xml:"Success" require:"true"`
-	Message   []*string `json:"Message" xml:"Message" require:"true" type:"Repeated"`
+	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Code      *string `json:"Code" xml:"Code" require:"true"`
+	Success   *string `json:"Success" xml:"Success" require:"true"`
+	Message   *string `json:"Message" xml:"Message" require:"true"`
 }
 
 func (s AddClusterIntoServiceMeshResponse) String() string {
@@ -119,8 +119,8 @@ func (s *AddClusterIntoServiceMeshResponse) SetSuccess(v string) *AddClusterInto
 	return s
 }
 
-func (s *AddClusterIntoServiceMeshResponse) SetMessage(v []*string) *AddClusterIntoServiceMeshResponse {
-	s.Message = v
+func (s *AddClusterIntoServiceMeshResponse) SetMessage(v string) *AddClusterIntoServiceMeshResponse {
+	s.Message = &v
 	return s
 }
 
@@ -1430,8 +1430,8 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpec) SetNetwork(v *Describ
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer struct {
 	ApiServerLoadbalancerId   *string `json:"ApiServerLoadbalancerId" xml:"ApiServerLoadbalancerId" require:"true"`
-	ApiServerPublicEip        *string `json:"ApiServerPublicEip" xml:"ApiServerPublicEip" require:"true"`
-	PilotPublicEip            *string `json:"PilotPublicEip" xml:"PilotPublicEip" require:"true"`
+	ApiServerPublicEip        *bool   `json:"ApiServerPublicEip" xml:"ApiServerPublicEip" require:"true"`
+	PilotPublicEip            *bool   `json:"PilotPublicEip" xml:"PilotPublicEip" require:"true"`
 	PilotPublicLoadbalancerId *string `json:"PilotPublicLoadbalancerId" xml:"PilotPublicLoadbalancerId" require:"true"`
 }
 
@@ -1448,12 +1448,12 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) SetApiSer
 	return s
 }
 
-func (s *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) SetApiServerPublicEip(v string) *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer {
+func (s *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) SetApiServerPublicEip(v bool) *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer {
 	s.ApiServerPublicEip = &v
 	return s
 }
 
-func (s *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) SetPilotPublicEip(v string) *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer {
+func (s *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) SetPilotPublicEip(v bool) *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer {
 	s.PilotPublicEip = &v
 	return s
 }
