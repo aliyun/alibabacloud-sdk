@@ -32,7 +32,7 @@ class RemoveClusterFromServiceMeshResponse extends Model
     /**
      * @description message
      *
-     * @var array
+     * @var string
      */
     public $message;
     protected $_name = [
@@ -63,10 +63,7 @@ class RemoveClusterFromServiceMeshResponse extends Model
             $res['Success'] = $this->success;
         }
         if (null !== $this->message) {
-            $res['Message'] = [];
-            if (null !== $this->message) {
-                $res['Message'] = $this->message;
-            }
+            $res['Message'] = $this->message;
         }
 
         return $res;
@@ -90,10 +87,7 @@ class RemoveClusterFromServiceMeshResponse extends Model
             $model->success = $map['Success'];
         }
         if (isset($map['Message'])) {
-            if (!empty($map['Message'])) {
-                $model->message = [];
-                $model->message = $map['Message'];
-            }
+            $model->message = $map['Message'];
         }
 
         return $model;

@@ -18,14 +18,14 @@ class loadBalancer extends Model
     /**
      * @description api_server_public_eip
      *
-     * @var string
+     * @var bool
      */
     public $apiServerPublicEip;
 
     /**
      * @description pilot_public_eip
      *
-     * @var string
+     * @var bool
      */
     public $pilotPublicEip;
 
