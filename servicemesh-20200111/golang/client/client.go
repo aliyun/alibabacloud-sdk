@@ -34,7 +34,6 @@ func (s *RemoveClusterFromServiceMeshRequest) SetClusterId(v string) *RemoveClus
 type RemoveClusterFromServiceMeshResponse struct {
 	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
 	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Success   *string `json:"Success" xml:"Success" require:"true"`
 	Message   *string `json:"Message" xml:"Message" require:"true"`
 }
 
@@ -53,11 +52,6 @@ func (s *RemoveClusterFromServiceMeshResponse) SetRequestId(v string) *RemoveClu
 
 func (s *RemoveClusterFromServiceMeshResponse) SetCode(v string) *RemoveClusterFromServiceMeshResponse {
 	s.Code = &v
-	return s
-}
-
-func (s *RemoveClusterFromServiceMeshResponse) SetSuccess(v string) *RemoveClusterFromServiceMeshResponse {
-	s.Success = &v
 	return s
 }
 
@@ -92,7 +86,6 @@ func (s *AddClusterIntoServiceMeshRequest) SetClusterId(v string) *AddClusterInt
 type AddClusterIntoServiceMeshResponse struct {
 	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
 	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Success   *string `json:"Success" xml:"Success" require:"true"`
 	Message   *string `json:"Message" xml:"Message" require:"true"`
 }
 
@@ -111,11 +104,6 @@ func (s *AddClusterIntoServiceMeshResponse) SetRequestId(v string) *AddClusterIn
 
 func (s *AddClusterIntoServiceMeshResponse) SetCode(v string) *AddClusterIntoServiceMeshResponse {
 	s.Code = &v
-	return s
-}
-
-func (s *AddClusterIntoServiceMeshResponse) SetSuccess(v string) *AddClusterIntoServiceMeshResponse {
-	s.Success = &v
 	return s
 }
 
@@ -2169,7 +2157,7 @@ func (client *Client) DescribeIngressGatewaysWithOptions(request *DescribeIngres
 		return _result, _err
 	}
 	_result = &DescribeIngressGatewaysResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeIngressGateways"), tea.String("HTTPS"), tea.String("GET"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeIngressGateways"), tea.String("HTTPS"), tea.String("GET"), tea.String("2020-01-11"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2269,7 +2257,7 @@ func (client *Client) DescribeServiceMeshesWithOptions(request *DescribeServiceM
 		return _result, _err
 	}
 	_result = &DescribeServiceMeshesResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeServiceMeshes"), tea.String("HTTPS"), tea.String("GET"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeServiceMeshes"), tea.String("HTTPS"), tea.String("GET"), tea.String("2020-01-11"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return _result, _err
 	}
