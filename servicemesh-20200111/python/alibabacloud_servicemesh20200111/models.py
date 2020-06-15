@@ -28,7 +28,7 @@ class RemoveClusterFromServiceMeshResponse(TeaModel):
         self.request_id = request_id
         self.code = code
         self.success = success
-        self.message = []
+        self.message = message
 
     def validate(self):
         self.validate_required(self.request_id, 'request_id')
@@ -41,24 +41,14 @@ class RemoveClusterFromServiceMeshResponse(TeaModel):
         result['RequestId'] = self.request_id
         result['Code'] = self.code
         result['Success'] = self.success
-        result['Message'] = []
-        if self.message is not None:
-            for k in self.message:
-                result['Message'].append(k)
-        else:
-            result['Message'] = None
+        result['Message'] = self.message
         return result
 
     def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         self.code = map.get('Code')
         self.success = map.get('Success')
-        self.message = []
-        if map.get('Message') is not None:
-            for k in map.get('Message'):
-                self.message.append(k)
-        else:
-            self.message = None
+        self.message = map.get('Message')
         return self
 
 
@@ -88,7 +78,7 @@ class AddClusterIntoServiceMeshResponse(TeaModel):
         self.request_id = request_id
         self.code = code
         self.success = success
-        self.message = []
+        self.message = message
 
     def validate(self):
         self.validate_required(self.request_id, 'request_id')
@@ -101,24 +91,14 @@ class AddClusterIntoServiceMeshResponse(TeaModel):
         result['RequestId'] = self.request_id
         result['Code'] = self.code
         result['Success'] = self.success
-        result['Message'] = []
-        if self.message is not None:
-            for k in self.message:
-                result['Message'].append(k)
-        else:
-            result['Message'] = None
+        result['Message'] = self.message
         return result
 
     def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         self.code = map.get('Code')
         self.success = map.get('Success')
-        self.message = []
-        if map.get('Message') is not None:
-            for k in map.get('Message'):
-                self.message.append(k)
-        else:
-            self.message = None
+        self.message = map.get('Message')
         return self
 
 
