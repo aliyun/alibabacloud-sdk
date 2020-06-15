@@ -88,10 +88,10 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
                     public string ApiServerLoadbalancerId { get; set; }
                     [NameInMap("ApiServerPublicEip")]
                     [Validation(Required=true)]
-                    public string ApiServerPublicEip { get; set; }
+                    public bool? ApiServerPublicEip { get; set; }
                     [NameInMap("PilotPublicEip")]
                     [Validation(Required=true)]
-                    public string PilotPublicEip { get; set; }
+                    public bool? PilotPublicEip { get; set; }
                     [NameInMap("PilotPublicLoadbalancerId")]
                     [Validation(Required=true)]
                     public string PilotPublicLoadbalancerId { get; set; }

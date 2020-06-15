@@ -23,7 +23,7 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
 
         [NameInMap("Message")]
         [Validation(Required=true)]
-        public List<string> Message { get; set; }
+        public string Message { get; set; }
 
     }
 
