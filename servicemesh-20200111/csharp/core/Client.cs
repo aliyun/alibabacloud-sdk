@@ -291,13 +291,13 @@ namespace AlibabaCloud.SDK.Servicemesh20200111
         public DescribeIngressGatewaysResponse DescribeIngressGatewaysWithOptions(DescribeIngressGatewaysRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeIngressGatewaysResponse>(DoRequest("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DescribeIngressGatewaysResponse>(DoRequest("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
         }
 
         public async Task<DescribeIngressGatewaysResponse> DescribeIngressGatewaysWithOptionsAsync(DescribeIngressGatewaysRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeIngressGatewaysResponse>(await DoRequestAsync("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DescribeIngressGatewaysResponse>(await DoRequestAsync("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
         }
 
         public DescribeIngressGatewaysResponse DescribeIngressGateways(DescribeIngressGatewaysRequest request)
@@ -387,13 +387,13 @@ namespace AlibabaCloud.SDK.Servicemesh20200111
         public DescribeServiceMeshesResponse DescribeServiceMeshesWithOptions(DescribeServiceMeshesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeServiceMeshesResponse>(DoRequest("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DescribeServiceMeshesResponse>(DoRequest("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
         }
 
         public async Task<DescribeServiceMeshesResponse> DescribeServiceMeshesWithOptionsAsync(DescribeServiceMeshesRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeServiceMeshesResponse>(await DoRequestAsync("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", null, request.ToMap(), runtime));
+            return TeaModel.ToObject<DescribeServiceMeshesResponse>(await DoRequestAsync("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", request.ToMap(), null, runtime));
         }
 
         public DescribeServiceMeshesResponse DescribeServiceMeshes(DescribeServiceMeshesRequest request)

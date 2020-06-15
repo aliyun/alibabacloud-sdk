@@ -17,10 +17,6 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
         [Validation(Required=true)]
         public string Code { get; set; }
 
-        [NameInMap("Success")]
-        [Validation(Required=true)]
-        public string Success { get; set; }
-
         [NameInMap("Message")]
         [Validation(Required=true)]
         public string Message { get; set; }
