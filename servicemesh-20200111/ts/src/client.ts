@@ -30,7 +30,7 @@ export class RemoveClusterFromServiceMeshResponse extends $tea.Model {
   requestId: string;
   code: string;
   success: string;
-  message: string[];
+  message: string;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
@@ -45,7 +45,7 @@ export class RemoveClusterFromServiceMeshResponse extends $tea.Model {
       requestId: 'string',
       code: 'string',
       success: 'string',
-      message: { 'type': 'array', 'itemType': 'string' },
+      message: 'string',
     };
   }
 
@@ -80,7 +80,7 @@ export class AddClusterIntoServiceMeshResponse extends $tea.Model {
   requestId: string;
   code: string;
   success: string;
-  message: string[];
+  message: string;
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
@@ -95,7 +95,7 @@ export class AddClusterIntoServiceMeshResponse extends $tea.Model {
       requestId: 'string',
       code: 'string',
       success: 'string',
-      message: { 'type': 'array', 'itemType': 'string' },
+      message: 'string',
     };
   }
 
@@ -1368,8 +1368,8 @@ export class DescribeServiceMeshDetailResponseServiceMeshServiceMeshInfo extends
 
 export class DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer extends $tea.Model {
   apiServerLoadbalancerId: string;
-  apiServerPublicEip: string;
-  pilotPublicEip: string;
+  apiServerPublicEip: boolean;
+  pilotPublicEip: boolean;
   pilotPublicLoadbalancerId: string;
   static names(): { [key: string]: string } {
     return {
@@ -1383,8 +1383,8 @@ export class DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer extend
   static types(): { [key: string]: any } {
     return {
       apiServerLoadbalancerId: 'string',
-      apiServerPublicEip: 'string',
-      pilotPublicEip: 'string',
+      apiServerPublicEip: 'boolean',
+      pilotPublicEip: 'boolean',
       pilotPublicLoadbalancerId: 'string',
     };
   }
