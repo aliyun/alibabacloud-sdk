@@ -23,13 +23,6 @@ class AddClusterIntoServiceMeshResponse extends Model
     public $code;
 
     /**
-     * @description success
-     *
-     * @var string
-     */
-    public $success;
-
-    /**
      * @description message
      *
      * @var string
@@ -38,7 +31,6 @@ class AddClusterIntoServiceMeshResponse extends Model
     protected $_name = [
         'requestId' => 'RequestId',
         'code'      => 'Code',
-        'success'   => 'Success',
         'message'   => 'Message',
     ];
 
@@ -46,7 +38,6 @@ class AddClusterIntoServiceMeshResponse extends Model
     {
         Model::validateRequired('requestId', $this->requestId, true);
         Model::validateRequired('code', $this->code, true);
-        Model::validateRequired('success', $this->success, true);
         Model::validateRequired('message', $this->message, true);
     }
 
@@ -58,9 +49,6 @@ class AddClusterIntoServiceMeshResponse extends Model
         }
         if (null !== $this->code) {
             $res['Code'] = $this->code;
-        }
-        if (null !== $this->success) {
-            $res['Success'] = $this->success;
         }
         if (null !== $this->message) {
             $res['Message'] = $this->message;
@@ -82,9 +70,6 @@ class AddClusterIntoServiceMeshResponse extends Model
         }
         if (isset($map['Code'])) {
             $model->code = $map['Code'];
-        }
-        if (isset($map['Success'])) {
-            $model->success = $map['Success'];
         }
         if (isset($map['Message'])) {
             $model->message = $map['Message'];

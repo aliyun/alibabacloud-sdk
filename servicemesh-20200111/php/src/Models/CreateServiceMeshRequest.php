@@ -62,7 +62,7 @@ class CreateServiceMeshRequest extends Model
      *
      * @var string
      */
-    public $VSwitches;
+    public $vSwitches;
 
     /**
      * @description traceSampling
@@ -148,7 +148,7 @@ class CreateServiceMeshRequest extends Model
         'pilotPublicEip'        => 'PilotPublicEip',
         'tracing'               => 'Tracing',
         'name'                  => 'Name',
-        'VSwitches'             => 'VSwitches',
+        'vSwitches'             => 'VSwitches',
         'traceSampling'         => 'TraceSampling',
         'localityLoadBalancing' => 'LocalityLoadBalancing',
         'telemetry'             => 'Telemetry',
@@ -192,8 +192,8 @@ class CreateServiceMeshRequest extends Model
         if (null !== $this->name) {
             $res['Name'] = $this->name;
         }
-        if (null !== $this->VSwitches) {
-            $res['VSwitches'] = $this->VSwitches;
+        if (null !== $this->vSwitches) {
+            $res['VSwitches'] = $this->vSwitches;
         }
         if (null !== $this->traceSampling) {
             $res['TraceSampling'] = $this->traceSampling;
@@ -262,7 +262,7 @@ class CreateServiceMeshRequest extends Model
             $model->name = $map['Name'];
         }
         if (isset($map['VSwitches'])) {
-            $model->VSwitches = $map['VSwitches'];
+            $model->vSwitches = $map['VSwitches'];
         }
         if (isset($map['TraceSampling'])) {
             $model->traceSampling = $map['TraceSampling'];

@@ -332,7 +332,7 @@ class Servicemesh extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeIngressGatewaysResponse::fromMap($this->doRequest('DescribeIngressGateways', 'HTTPS', 'GET', '2020-01-11', 'AK', null, $request, $runtime));
+        return DescribeIngressGatewaysResponse::fromMap($this->doRequest('DescribeIngressGateways', 'HTTPS', 'GET', '2020-01-11', 'AK', $request, null, $runtime));
     }
 
     /**
@@ -428,7 +428,7 @@ class Servicemesh extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeServiceMeshesResponse::fromMap($this->doRequest('DescribeServiceMeshes', 'HTTPS', 'GET', '2020-01-11', 'AK', null, $request, $runtime));
+        return DescribeServiceMeshesResponse::fromMap($this->doRequest('DescribeServiceMeshes', 'HTTPS', 'GET', '2020-01-11', 'AK', $request, null, $runtime));
     }
 
     /**

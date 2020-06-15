@@ -27,18 +27,18 @@ class network extends Model
      *
      * @var array
      */
-    public $VSwitches;
+    public $vSwitches;
     protected $_name = [
         'securityGroupId' => 'SecurityGroupId',
         'vpcId'           => 'VpcId',
-        'VSwitches'       => 'VSwitches',
+        'vSwitches'       => 'VSwitches',
     ];
 
     public function validate()
     {
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
         Model::validateRequired('vpcId', $this->vpcId, true);
-        Model::validateRequired('VSwitches', $this->VSwitches, true);
+        Model::validateRequired('vSwitches', $this->vSwitches, true);
     }
 
     public function toMap()
@@ -50,10 +50,10 @@ class network extends Model
         if (null !== $this->vpcId) {
             $res['VpcId'] = $this->vpcId;
         }
-        if (null !== $this->VSwitches) {
+        if (null !== $this->vSwitches) {
             $res['VSwitches'] = [];
-            if (null !== $this->VSwitches) {
-                $res['VSwitches'] = $this->VSwitches;
+            if (null !== $this->vSwitches) {
+                $res['VSwitches'] = $this->vSwitches;
             }
         }
 
@@ -76,8 +76,8 @@ class network extends Model
         }
         if (isset($map['VSwitches'])) {
             if (!empty($map['VSwitches'])) {
-                $model->VSwitches = [];
-                $model->VSwitches = $map['VSwitches'];
+                $model->vSwitches = [];
+                $model->vSwitches = $map['VSwitches'];
             }
         }
 
