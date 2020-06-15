@@ -208,7 +208,7 @@ public class DescribeServiceMeshDetailResponse extends TeaModel {
 
         @NameInMap("VSwitches")
         @Validation(required = true)
-        public java.util.List<String> VSwitches;
+        public java.util.List<String> vSwitches;
 
         public static DescribeServiceMeshDetailResponseServiceMeshSpecNetwork build(java.util.Map<String, ?> map) throws Exception {
             DescribeServiceMeshDetailResponseServiceMeshSpecNetwork self = new DescribeServiceMeshDetailResponseServiceMeshSpecNetwork();

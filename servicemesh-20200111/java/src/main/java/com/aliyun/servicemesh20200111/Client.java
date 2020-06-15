@@ -125,7 +125,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeIngressGatewaysResponse describeIngressGatewaysWithOptions(DescribeIngressGatewaysRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new DescribeIngressGatewaysResponse());
+        return TeaModel.toModel(this.doRequest("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", TeaModel.buildMap(request), null, runtime), new DescribeIngressGatewaysResponse());
     }
 
     public DescribeIngressGatewaysResponse describeIngressGateways(DescribeIngressGatewaysRequest request) throws Exception {
@@ -165,7 +165,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeServiceMeshesResponse describeServiceMeshesWithOptions(DescribeServiceMeshesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new DescribeServiceMeshesResponse());
+        return TeaModel.toModel(this.doRequest("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", TeaModel.buildMap(request), null, runtime), new DescribeServiceMeshesResponse());
     }
 
     public DescribeServiceMeshesResponse describeServiceMeshes(DescribeServiceMeshesRequest request) throws Exception {

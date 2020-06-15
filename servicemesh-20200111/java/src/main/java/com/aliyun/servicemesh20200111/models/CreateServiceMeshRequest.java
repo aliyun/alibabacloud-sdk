@@ -28,7 +28,7 @@ public class CreateServiceMeshRequest extends TeaModel {
     public String name;
 
     @NameInMap("VSwitches")
-    public String VSwitches;
+    public String vSwitches;
 
     @NameInMap("TraceSampling")
     public Double traceSampling;

@@ -12,10 +12,6 @@ public class AddClusterIntoServiceMeshResponse extends TeaModel {
     @Validation(required = true)
     public String code;
 
-    @NameInMap("Success")
-    @Validation(required = true)
-    public String success;
-
     @NameInMap("Message")
     @Validation(required = true)
     public String message;
