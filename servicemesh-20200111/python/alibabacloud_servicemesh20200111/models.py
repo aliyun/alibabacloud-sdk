@@ -24,30 +24,26 @@ class RemoveClusterFromServiceMeshRequest(TeaModel):
 
 
 class RemoveClusterFromServiceMeshResponse(TeaModel):
-    def __init__(self, request_id=None, code=None, success=None, message=None):
+    def __init__(self, request_id=None, code=None, message=None):
         self.request_id = request_id
         self.code = code
-        self.success = success
         self.message = message
 
     def validate(self):
         self.validate_required(self.request_id, 'request_id')
         self.validate_required(self.code, 'code')
-        self.validate_required(self.success, 'success')
         self.validate_required(self.message, 'message')
 
     def to_map(self):
         result = {}
         result['RequestId'] = self.request_id
         result['Code'] = self.code
-        result['Success'] = self.success
         result['Message'] = self.message
         return result
 
     def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         self.code = map.get('Code')
-        self.success = map.get('Success')
         self.message = map.get('Message')
         return self
 
@@ -74,30 +70,26 @@ class AddClusterIntoServiceMeshRequest(TeaModel):
 
 
 class AddClusterIntoServiceMeshResponse(TeaModel):
-    def __init__(self, request_id=None, code=None, success=None, message=None):
+    def __init__(self, request_id=None, code=None, message=None):
         self.request_id = request_id
         self.code = code
-        self.success = success
         self.message = message
 
     def validate(self):
         self.validate_required(self.request_id, 'request_id')
         self.validate_required(self.code, 'code')
-        self.validate_required(self.success, 'success')
         self.validate_required(self.message, 'message')
 
     def to_map(self):
         result = {}
         result['RequestId'] = self.request_id
         result['Code'] = self.code
-        result['Success'] = self.success
         result['Message'] = self.message
         return result
 
     def from_map(self, map={}):
         self.request_id = map.get('RequestId')
         self.code = map.get('Code')
-        self.success = map.get('Success')
         self.message = map.get('Message')
         return self
 
@@ -1095,23 +1087,23 @@ class DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig(TeaModel):
 
 
 class DescribeServiceMeshesResponseServiceMeshesSpecNetwork(TeaModel):
-    def __init__(self, security_group_id=None, vpc_id=None, vswitches=None):
+    def __init__(self, security_group_id=None, vpc_id=None, v_switches=None):
         self.security_group_id = security_group_id
         self.vpc_id = vpc_id
-        self.vswitches = []
+        self.v_switches = []
 
     def validate(self):
         self.validate_required(self.security_group_id, 'security_group_id')
         self.validate_required(self.vpc_id, 'vpc_id')
-        self.validate_required(self.vswitches, 'vswitches')
+        self.validate_required(self.v_switches, 'v_switches')
 
     def to_map(self):
         result = {}
         result['SecurityGroupId'] = self.security_group_id
         result['VpcId'] = self.vpc_id
         result['VSwitches'] = []
-        if self.vswitches is not None:
-            for k in self.vswitches:
+        if self.v_switches is not None:
+            for k in self.v_switches:
                 result['VSwitches'].append(k)
         else:
             result['VSwitches'] = None
@@ -1120,12 +1112,12 @@ class DescribeServiceMeshesResponseServiceMeshesSpecNetwork(TeaModel):
     def from_map(self, map={}):
         self.security_group_id = map.get('SecurityGroupId')
         self.vpc_id = map.get('VpcId')
-        self.vswitches = []
+        self.v_switches = []
         if map.get('VSwitches') is not None:
             for k in map.get('VSwitches'):
-                self.vswitches.append(k)
+                self.v_switches.append(k)
         else:
-            self.vswitches = None
+            self.v_switches = None
         return self
 
 
@@ -1537,23 +1529,23 @@ class DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig(TeaModel):
 
 
 class DescribeServiceMeshDetailResponseServiceMeshSpecNetwork(TeaModel):
-    def __init__(self, security_group_id=None, vpc_id=None, vswitches=None):
+    def __init__(self, security_group_id=None, vpc_id=None, v_switches=None):
         self.security_group_id = security_group_id
         self.vpc_id = vpc_id
-        self.vswitches = []
+        self.v_switches = []
 
     def validate(self):
         self.validate_required(self.security_group_id, 'security_group_id')
         self.validate_required(self.vpc_id, 'vpc_id')
-        self.validate_required(self.vswitches, 'vswitches')
+        self.validate_required(self.v_switches, 'v_switches')
 
     def to_map(self):
         result = {}
         result['SecurityGroupId'] = self.security_group_id
         result['VpcId'] = self.vpc_id
         result['VSwitches'] = []
-        if self.vswitches is not None:
-            for k in self.vswitches:
+        if self.v_switches is not None:
+            for k in self.v_switches:
                 result['VSwitches'].append(k)
         else:
             result['VSwitches'] = None
@@ -1562,12 +1554,12 @@ class DescribeServiceMeshDetailResponseServiceMeshSpecNetwork(TeaModel):
     def from_map(self, map={}):
         self.security_group_id = map.get('SecurityGroupId')
         self.vpc_id = map.get('VpcId')
-        self.vswitches = []
+        self.v_switches = []
         if map.get('VSwitches') is not None:
             for k in map.get('VSwitches'):
-                self.vswitches.append(k)
+                self.v_switches.append(k)
         else:
-            self.vswitches = None
+            self.v_switches = None
         return self
 
 
@@ -1731,7 +1723,7 @@ class DescribeServiceMeshKubeconfigResponse(TeaModel):
 
 
 class CreateServiceMeshRequest(TeaModel):
-    def __init__(self, region_id=None, istio_version=None, vpc_id=None, api_server_public_eip=None, pilot_public_eip=None, tracing=None, name=None, vswitches=None, trace_sampling=None, locality_load_balancing=None, telemetry=None, open_agent_policy=None, opalog_level=None, oparequest_cpu=None, oparequest_memory=None, opalimit_cpu=None, opalimit_memory=None, enable_audit=None, audit_project=None):
+    def __init__(self, region_id=None, istio_version=None, vpc_id=None, api_server_public_eip=None, pilot_public_eip=None, tracing=None, name=None, v_switches=None, trace_sampling=None, locality_load_balancing=None, telemetry=None, open_agent_policy=None, opalog_level=None, oparequest_cpu=None, oparequest_memory=None, opalimit_cpu=None, opalimit_memory=None, enable_audit=None, audit_project=None):
         self.region_id = region_id
         self.istio_version = istio_version
         self.vpc_id = vpc_id
@@ -1739,7 +1731,7 @@ class CreateServiceMeshRequest(TeaModel):
         self.pilot_public_eip = pilot_public_eip
         self.tracing = tracing
         self.name = name
-        self.vswitches = vswitches
+        self.v_switches = v_switches
         self.trace_sampling = trace_sampling
         self.locality_load_balancing = locality_load_balancing
         self.telemetry = telemetry
@@ -1765,7 +1757,7 @@ class CreateServiceMeshRequest(TeaModel):
         result['PilotPublicEip'] = self.pilot_public_eip
         result['Tracing'] = self.tracing
         result['Name'] = self.name
-        result['VSwitches'] = self.vswitches
+        result['VSwitches'] = self.v_switches
         result['TraceSampling'] = self.trace_sampling
         result['LocalityLoadBalancing'] = self.locality_load_balancing
         result['Telemetry'] = self.telemetry
@@ -1787,7 +1779,7 @@ class CreateServiceMeshRequest(TeaModel):
         self.pilot_public_eip = map.get('PilotPublicEip')
         self.tracing = map.get('Tracing')
         self.name = map.get('Name')
-        self.vswitches = map.get('VSwitches')
+        self.v_switches = map.get('VSwitches')
         self.trace_sampling = map.get('TraceSampling')
         self.locality_load_balancing = map.get('LocalityLoadBalancing')
         self.telemetry = map.get('Telemetry')

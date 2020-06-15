@@ -136,7 +136,7 @@ class Client(RPCClient):
 
     def describe_ingress_gateways_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return servicemesh_20200111_models.DescribeIngressGatewaysResponse().from_map(self.do_request("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", None, request.to_map(), runtime))
+        return servicemesh_20200111_models.DescribeIngressGatewaysResponse().from_map(self.do_request("DescribeIngressGateways", "HTTPS", "GET", "2020-01-11", "AK", request.to_map(), None, runtime))
 
 
     def describe_ingress_gateways(self, request):
@@ -180,7 +180,7 @@ class Client(RPCClient):
 
     def describe_service_meshes_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return servicemesh_20200111_models.DescribeServiceMeshesResponse().from_map(self.do_request("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", None, request.to_map(), runtime))
+        return servicemesh_20200111_models.DescribeServiceMeshesResponse().from_map(self.do_request("DescribeServiceMeshes", "HTTPS", "GET", "2020-01-11", "AK", request.to_map(), None, runtime))
 
 
     def describe_service_meshes(self, request):
