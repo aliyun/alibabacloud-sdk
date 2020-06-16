@@ -19,15 +19,30 @@ import (
 	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	util "github.com/alibabacloud-go/tea-utils/service"
+	credential "github.com/aliyun/credentials-go/credentials"
 )
 
 func main() {
-	// init config
-	var config = new(rpc.Config).SetAccessKeyId("ACCESS_KEY_ID").
+	config := new(rpc.Config)
+
+	// init config with ak
+	config.SetAccessKeyId("ACCESS_KEY_ID").
 		SetAccessKeySecret("ACCESS_KEY_SECRET").
 		SetRegionId("cn-hangzhou").
 		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com").
 		SetType("access_key")
+
+	// init config with credential
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	// If you have any questions, please refer to it https://github.com/aliyun/credentials-go/blob/master/README-CN.md
+	credential := credential.NewCredential(credentialConfig)
+	config.SetCredential(credential).
+		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com")
 
 	// init client
 	client, err := facebody.NewClient(config)
@@ -64,25 +79,28 @@ func main() {
 ## Parameter Specification
 ```go
 type Config struct {
-	AccessKeyId          *string // AccessKey Id
-	AccessKeySecret      *string // AccessKey Secret
-	Type                 *string // credential type，If you have any questions, please refer to it https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
-	SecurityToken        *string // Security Token
-	Endpoint             *string // endpoint
-	Protocol             *string // http or https
-	RegionId             *string // region
-    UserAgent            *string // UserAgent
-	ReadTimeout          *int    // read timeout
-	ConnectTimeout       *int    // connect tiemout
-	LocalAddr            *string // the local network adapter ip
-	HttpProxy            *string // http proxy
-	HttpsProxy           *string // https proxy
-	NoProxy              *string // agent whitelist
-	Socks5Proxy          *string // socks5 proxy
-	Socks5NetWork        *string // socks5 agency agreement
-	MaxIdleConns         *int    // maximum number of connections
-	EndpointType         *string // ednpoint type：internal，accelerate or null
-	OpenPlatformEndpoint *string // endpoint used when the file is uploaded(Not at the moment)
+	AccessKeyId          *string                // AccessKey Id
+	AccessKeySecret      *string                // AccessKey Secret
+	Type                 *string                // credential type，If you have any questions, please refer to it https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
+	Credential           credential.Credential  // credential，If you have any questions, please refer to it https://github.com/aliyun/credentials-go/blob/master/README-CN.md
+	SecurityToken        *string                // Security Token
+	Network              *string                // network, such as inner
+	Suffix               *string                // endpoint suffix
+	Endpoint             *string                // endpoint
+	Protocol             *string                // http or https
+	RegionId             *string                // region
+	UserAgent            *string                // UserAgent
+	ReadTimeout          *int                   // read timeout
+	ConnectTimeout       *int                   // connect tiemout
+	LocalAddr            *string                // the local network adapter ip
+	HttpProxy            *string                // http proxy
+	HttpsProxy           *string                // https proxy
+	NoProxy              *string                // agent whitelist
+	Socks5Proxy          *string                // socks5 proxy
+	Socks5NetWork        *string                // socks5 agency agreement
+	MaxIdleConns         *int                   // maximum number of connections
+	EndpointType         *string                // ednpoint type：internal，accelerate or null
+	OpenPlatformEndpoint *string                // endpoint used when the file is uploaded(Not at the moment)
 }
 
 type RuntimeOptions struct {
