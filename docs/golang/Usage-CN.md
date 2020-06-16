@@ -20,15 +20,30 @@ import (
 	facebody "github.com/alibabacloud-go/Facebody-20191230/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	util "github.com/alibabacloud-go/tea-utils/service"
+	credential "github.com/aliyun/credentials-go/credentials"
 )
 
 func main() {
-	// 初始化 config
-	var config = new(rpc.Config).SetAccessKeyId("ACCESS_KEY_ID").
+	config := new(rpc.Config)
+
+	// 使用 ak 初始化 config
+	config.SetAccessKeyId("ACCESS_KEY_ID").
 		SetAccessKeySecret("ACCESS_KEY_SECRET").
 		SetRegionId("cn-hangzhou").
 		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com").
 		SetType("access_key")
+
+	// 使用 credential 初始化 config
+	credentialConfig := &credential.Config{
+		AccessKeyId:     config.AccessKeyId,
+		Type:            config.Type,
+		AccessKeySecret: config.AccessKeySecret,
+		SecurityToken:   config.SecurityToken,
+	}
+	// 关于 credenial 的创建可以参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md
+	credential := credential.NewCredential(credentialConfig)
+	config.SetCredential(credential).
+		SetEndpoint("facebody.cn-hangzhou.aliyuncs.com")
 
 	// 创建客户端
 	client, err := facebody.NewClient(config)
@@ -65,25 +80,28 @@ func main() {
 ## 参数说明
 ```go
 type Config struct {
-	AccessKeyId          *string // AccessKey Id
-	AccessKeySecret      *string // AccessKey Secret
-	Type                 *string // 凭证类型，如有疑问请参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
-	SecurityToken        *string // Security Token
-	Endpoint             *string // endpoint
-	Protocol             *string // 请求协议
-	RegionId             *string // 区域
-    UserAgent            *string // UserAgent
-	ReadTimeout          *int    // 读超时
-	ConnectTimeout       *int    // 连接超时
-	LocalAddr            *string // 本地网卡 ip
-	HttpProxy            *string // http 的代理
-	HttpsProxy           *string // https 的代理
-	NoProxy              *string // 代理白名单
-	Socks5Proxy          *string // socks5 代理
-	Socks5NetWork        *string // socks5 代理协议
-	MaxIdleConns         *int    // 最大连接数
-	EndpointType         *string // 域名类型：internal，accelerate 或不填
-	OpenPlatformEndpoint *string // 文件上传时授权使用的域名(目前暂不需要填写)
+	AccessKeyId          *string                // AccessKey Id
+	AccessKeySecret      *string                // AccessKey Secret
+	Type                 *string                // 凭证类型，如有疑问请参考 https://github.com/aliyun/credentials-go/blob/master/README-CN.md#%E5%87%AD%E8%AF%81%E7%B1%BB%E5%9E%8B
+	SecurityToken        *string                // Security Token
+	Endpoint             *string                // endpoint
+	Protocol             *string                // 请求协议
+	Credential           credential.Credential  // 凭证，如有疑问请参考：https://github.com/aliyun/credentials-go/blob/master/README-CN.md
+	RegionId             *string                // 区域
+	Network              *string                // 网络类型。例：inner
+	Suffix               *string                // endpoint 后缀
+	UserAgent            *string                // UserAgent
+	ReadTimeout          *int                   // 读超时
+	ConnectTimeout       *int                   // 连接超时
+	LocalAddr            *string                // 本地网卡 ip
+	HttpProxy            *string                // http 的代理
+	HttpsProxy           *string                // https 的代理
+	NoProxy              *string                // 代理白名单
+	Socks5Proxy          *string                // socks5 代理
+	Socks5NetWork        *string                // socks5 代理协议
+	MaxIdleConns         *int                   // 最大连接数
+	EndpointType         *string                // 域名类型：internal，accelerate 或不填
+	OpenPlatformEndpoint *string                // 文件上传时授权使用的域名(目前暂不需要填写)
 }
 
 type RuntimeOptions struct {
