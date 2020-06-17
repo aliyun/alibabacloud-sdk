@@ -1,4 +1,4 @@
-[← Home](../../README.md) | Examples[(中文)](0-Examples-CN.md) 
+[← Home](../../README.md) | Examples[(中文)](0-Examples-CN.md) | [Client & Credentials →](1-Client-EN.md)
 ***
 
 ## Requirements
@@ -62,4 +62,4 @@ public class TeaDemo {
 ```
 
 ***
-[← Home](../../README.md) | Examples[(中文)](0-Examples-CN.md) 
+[← Home](../../README.md) | Examples[(中文)](0-Examples-CN.md) | [Client & Credentials →](1-Client-EN.md)
