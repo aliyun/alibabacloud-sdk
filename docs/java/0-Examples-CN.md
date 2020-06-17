@@ -1,4 +1,4 @@
-[← 首页](../../README.md) | 快速使用[(English)](0-Examples-EN.md) 
+[← 首页](../../README-CN.md) | 快速使用[(English)](0-Examples-EN.md) | [客户端与凭证 →](1-Client-CN.md)
 
 ***
 
@@ -58,4 +58,4 @@ public class TeaDemo {
 }
 ```
 ***
-[← 首页](../../README.md) | 快速使用[(English)](0-Examples-EN.md) 
+[← 首页](../../README-CN.md) | 快速使用[(English)](0-Examples-EN.md) | [客户端与凭证 →](1-Client-CN.md)
