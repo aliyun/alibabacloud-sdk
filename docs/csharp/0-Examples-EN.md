@@ -40,6 +40,7 @@ namespace Demo
     {
         static void Main(string[] args)
         {
+            
             // 1 Create and initialize a Client instance.
             Config config = new Config();
             config.AccessKeyId = "your accessKeyId";
@@ -51,6 +52,7 @@ namespace Demo
 
             // 2 Create and set up parameters RuntimeObject instance.
             RuntimeOptions runtimeObject = new RuntimeOptions();
+
             // 3 Create an API request and set parameters.
             AddImageAdvanceRequest request = new AddImageAdvanceRequest();
             request.PicName = "picName";
@@ -58,6 +60,7 @@ namespace Demo
             request.InstanceName = "instanceName";
             FileStream fs = File.OpenRead("your fileName");
             request.PicContentObject = fs;
+
             // 4 Initiate the request and handle the response or exceptions.
             AddImageResponse response = client.AddImageAdvance(request, runtimeObject);
             
