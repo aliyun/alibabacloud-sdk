@@ -21,18 +21,24 @@ import com.aliyun.ocr20191230.models.GetAsyncJobResultRequest;
 import com.aliyun.ocr20191230.models.GetAsyncJobResultResponse;
 import com.aliyun.tearpc.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
+
 public class Main {
+
     public static void main(String[] args) {
+
         Config config = new Config();
         // 你的accessKeyId
         config.accessKeyId = "######";
         // 你的accessKeySecret
         config.accessKeySecret = "#######";
         config.endpoint = "ocr.cn-shanghai.aliyuncs.com";
+
         // 创建DefaultAcsClient实例并初始化
         Client client = new Client(config);
+
         GetAsyncJobResultRequest resultRequest = new GetAsyncJobResultRequest();
         resultRequest.jobId = "test";
+
         GetAsyncJobResultResponse resultResponse = client.getAsyncJobResult(resultRequest, new RuntimeOptions());
     }
 }
@@ -90,16 +96,22 @@ import com.aliyun.ocr20191230.models.GetAsyncJobResultRequest;
 import com.aliyun.ocr20191230.models.GetAsyncJobResultResponse;
 import com.aliyun.tearpc.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
+
 public class Main {
+
     public static void main(String[] args) {
+
         Config config = new Config();
         // 启用默认凭证链
         config.credential = new com.aliyun.credentials.Client(null);
         config.endpoint = "ocr.cn-shanghai.aliyuncs.com";
+
         // 创建DefaultAcsClient实例并初始化
         Client client = new Client(config);
+
         GetAsyncJobResultRequest resultRequest = new GetAsyncJobResultRequest();
         resultRequest.jobId = "test";
+
         GetAsyncJobResultResponse resultResponse = client.getAsyncJobResult(resultRequest, new RuntimeOptions());
     }
 }
