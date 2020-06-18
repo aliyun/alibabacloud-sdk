@@ -1,4 +1,4 @@
-[English](0-Usage-EN.md) | 简体中文
+[← 首页](../../README-CN.md) | 快速使用[(English)](0-Usage-EN.md) | [客户端与凭证 →](1-Client-CN.md)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
