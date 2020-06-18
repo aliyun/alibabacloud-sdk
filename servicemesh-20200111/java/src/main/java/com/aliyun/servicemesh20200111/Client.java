@@ -53,16 +53,6 @@ public class Client extends com.aliyun.tearpc.Client {
         return this.describeGuestClusterAccessLogDashboardsWithOptions(request, runtime);
     }
 
-    public DescribeReusableSlbResponse describeReusableSlbWithOptions(DescribeReusableSlbRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeReusableSlb", "HTTPS", "POST", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new DescribeReusableSlbResponse());
-    }
-
-    public DescribeReusableSlbResponse describeReusableSlb(DescribeReusableSlbRequest request) throws Exception {
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.describeReusableSlbWithOptions(request, runtime);
-    }
-
     public DescribeClusterPrometheusResponse describeClusterPrometheusWithOptions(DescribeClusterPrometheusRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
         return TeaModel.toModel(this.doRequest("DescribeClusterPrometheus", "HTTPS", "POST", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new DescribeClusterPrometheusResponse());
@@ -81,16 +71,6 @@ public class Client extends com.aliyun.tearpc.Client {
     public DescribeClusterGrafanaResponse describeClusterGrafana(DescribeClusterGrafanaRequest request) throws Exception {
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         return this.describeClusterGrafanaWithOptions(request, runtime);
-    }
-
-    public DescribeRelatedResourcesReuseResponse describeRelatedResourcesReuseWithOptions(DescribeRelatedResourcesReuseRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
-        com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeRelatedResourcesReuse", "HTTPS", "POST", "2020-01-11", "AK", null, TeaModel.buildMap(request), runtime), new DescribeRelatedResourcesReuseResponse());
-    }
-
-    public DescribeRelatedResourcesReuseResponse describeRelatedResourcesReuse(DescribeRelatedResourcesReuseRequest request) throws Exception {
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        return this.describeRelatedResourcesReuseWithOptions(request, runtime);
     }
 
     public DescribeRegionsResponse describeRegionsWithOptions(DescribeRegionsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
