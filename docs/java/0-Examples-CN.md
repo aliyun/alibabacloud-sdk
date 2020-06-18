@@ -37,7 +37,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class TeaDemo {
+
     public static void main(String[] args) throws Exception{
+
         // 1 创建Config实例并初始化。
         Config authConfig = new Config();
         authConfig.accessKeyId = "your accessKeyId";
@@ -45,13 +47,17 @@ public class TeaDemo {
         authConfig.type = "access_key";
         authConfig.endpoint = "your endpoint";
         authConfig.regionId = "cn-hangzhou";
+
         Client authClient = new Client(authConfig);
+
         // 2 创建RuntimeObject实例并设置运行参数
         RuntimeOptions runtime = new RuntimeOptions();
+
         // 3 创建API请求并设置参数。
         RecognizeBankCardAdvanceRequest request = new RecognizeBankCardAdvanceRequest();
         InputStream inputStream = new FileInputStream("your file");
         request.imageURLObject = inputStream;
+
         // 4 发起请求并处理应答或异常。
         RecognizeBankCardResponse authResponse = authClient.recognizeBankCardAdvance(request, runtime);
     }
