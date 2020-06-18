@@ -40,7 +40,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class TeaDemo {
-    public static void main(String[] args) throws Exception{
+
+    public static void main(String[] args) throws Exception {
+
         // 1 Create and initialize a Config instance.
         Config authConfig = new Config();
         authConfig.accessKeyId = "your accessKeyId";
@@ -48,13 +50,17 @@ public class TeaDemo {
         authConfig.type = "access_key";
         authConfig.endpoint = "your endpoint";
         authConfig.regionId = "cn-beijing";
+
         Client authClient = new Client(authConfig);
+
         // 2 Create and set up parameters RuntimeObject instance.
         RuntimeOptions runtime = new RuntimeOptions();
+
         // 3 Create an API request and set parameters.
         RecognizeBankCardAdvanceRequest request = new RecognizeBankCardAdvanceRequest();
         InputStream inputStream = new FileInputStream("your file");
         request.imageURLObject = inputStream;
+
         // 4 Initiate the request and handle the response or exceptions.
         RecognizeBankCardResponse authResponse = authClient.recognizeBankCardAdvance(request, runtime);
     }
