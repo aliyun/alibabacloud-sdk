@@ -227,75 +227,6 @@ func (s *DescribeGuestClusterAccessLogDashboardsResponseDashboards) SetUrl(v str
 	return s
 }
 
-type DescribeReusableSlbRequest struct {
-	K8sClusterId *string `json:"K8sClusterId" xml:"K8sClusterId" require:"true"`
-	NetworkType  *string `json:"NetworkType" xml:"NetworkType" require:"true"`
-}
-
-func (s DescribeReusableSlbRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeReusableSlbRequest) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeReusableSlbRequest) SetK8sClusterId(v string) *DescribeReusableSlbRequest {
-	s.K8sClusterId = &v
-	return s
-}
-
-func (s *DescribeReusableSlbRequest) SetNetworkType(v string) *DescribeReusableSlbRequest {
-	s.NetworkType = &v
-	return s
-}
-
-type DescribeReusableSlbResponse struct {
-	RequestId       *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	ReusableSlbList []*DescribeReusableSlbResponseReusableSlbList `json:"ReusableSlbList" xml:"ReusableSlbList" require:"true" type:"Repeated"`
-}
-
-func (s DescribeReusableSlbResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeReusableSlbResponse) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeReusableSlbResponse) SetRequestId(v string) *DescribeReusableSlbResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *DescribeReusableSlbResponse) SetReusableSlbList(v []*DescribeReusableSlbResponseReusableSlbList) *DescribeReusableSlbResponse {
-	s.ReusableSlbList = v
-	return s
-}
-
-type DescribeReusableSlbResponseReusableSlbList struct {
-	LoadBalancerId   *string `json:"LoadBalancerId" xml:"LoadBalancerId" require:"true"`
-	LoadBalancerName *string `json:"LoadBalancerName" xml:"LoadBalancerName" require:"true"`
-}
-
-func (s DescribeReusableSlbResponseReusableSlbList) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeReusableSlbResponseReusableSlbList) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeReusableSlbResponseReusableSlbList) SetLoadBalancerId(v string) *DescribeReusableSlbResponseReusableSlbList {
-	s.LoadBalancerId = &v
-	return s
-}
-
-func (s *DescribeReusableSlbResponseReusableSlbList) SetLoadBalancerName(v string) *DescribeReusableSlbResponseReusableSlbList {
-	s.LoadBalancerName = &v
-	return s
-}
-
 type DescribeClusterPrometheusRequest struct {
 	ServiceMeshId      *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
 	K8sClusterId       *string `json:"K8sClusterId" xml:"K8sClusterId"`
@@ -417,46 +348,6 @@ func (s *DescribeClusterGrafanaResponseDashboards) SetTitle(v string) *DescribeC
 	return s
 }
 
-type DescribeRelatedResourcesReuseRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-}
-
-func (s DescribeRelatedResourcesReuseRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeRelatedResourcesReuseRequest) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeRelatedResourcesReuseRequest) SetServiceMeshId(v string) *DescribeRelatedResourcesReuseRequest {
-	s.ServiceMeshId = &v
-	return s
-}
-
-type DescribeRelatedResourcesReuseResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	ReuseInfo []map[string]interface{} `json:"ReuseInfo" xml:"ReuseInfo" require:"true" type:"Repeated"`
-}
-
-func (s DescribeRelatedResourcesReuseResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DescribeRelatedResourcesReuseResponse) GoString() string {
-	return s.String()
-}
-
-func (s *DescribeRelatedResourcesReuseResponse) SetRequestId(v string) *DescribeRelatedResourcesReuseResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *DescribeRelatedResourcesReuseResponse) SetReuseInfo(v []map[string]interface{}) *DescribeRelatedResourcesReuseResponse {
-	s.ReuseInfo = v
-	return s
-}
-
 type DescribeRegionsRequest struct {
 	AcceptLanguage *string `json:"AcceptLanguage" xml:"AcceptLanguage"`
 }
@@ -515,8 +406,8 @@ func (s *DescribeCensRequest) SetServiceMeshId(v string) *DescribeCensRequest {
 }
 
 type DescribeCensResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Clusters  *string `json:"Clusters" xml:"Clusters" require:"true"`
+	RequestId *string   `json:"RequestId" xml:"RequestId" require:"true"`
+	Clusters  []*string `json:"Clusters" xml:"Clusters" require:"true" type:"Repeated"`
 }
 
 func (s DescribeCensResponse) String() string {
@@ -532,8 +423,8 @@ func (s *DescribeCensResponse) SetRequestId(v string) *DescribeCensResponse {
 	return s
 }
 
-func (s *DescribeCensResponse) SetClusters(v string) *DescribeCensResponse {
-	s.Clusters = &v
+func (s *DescribeCensResponse) SetClusters(v []*string) *DescribeCensResponse {
+	s.Clusters = v
 	return s
 }
 
@@ -1115,8 +1006,8 @@ func (s *DescribeServiceMeshesResponseServiceMeshesSpec) SetNetwork(v *DescribeS
 
 type DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer struct {
 	ApiServerLoadbalancerId   *string `json:"ApiServerLoadbalancerId" xml:"ApiServerLoadbalancerId" require:"true"`
-	ApiServerPublicEip        *string `json:"ApiServerPublicEip" xml:"ApiServerPublicEip" require:"true"`
-	PilotPublicEip            *string `json:"PilotPublicEip" xml:"PilotPublicEip" require:"true"`
+	ApiServerPublicEip        *bool   `json:"ApiServerPublicEip" xml:"ApiServerPublicEip" require:"true"`
+	PilotPublicEip            *bool   `json:"PilotPublicEip" xml:"PilotPublicEip" require:"true"`
 	PilotPublicLoadbalancerId *string `json:"PilotPublicLoadbalancerId" xml:"PilotPublicLoadbalancerId" require:"true"`
 }
 
@@ -1133,12 +1024,12 @@ func (s *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) SetApiServe
 	return s
 }
 
-func (s *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) SetApiServerPublicEip(v string) *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer {
+func (s *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) SetApiServerPublicEip(v bool) *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer {
 	s.ApiServerPublicEip = &v
 	return s
 }
 
-func (s *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) SetPilotPublicEip(v string) *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer {
+func (s *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) SetPilotPublicEip(v bool) *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer {
 	s.PilotPublicEip = &v
 	return s
 }
@@ -1976,31 +1867,6 @@ func (client *Client) DescribeGuestClusterAccessLogDashboards(request *DescribeG
 	return _result, _err
 }
 
-func (client *Client) DescribeReusableSlbWithOptions(request *DescribeReusableSlbRequest, runtime *util.RuntimeOptions) (_result *DescribeReusableSlbResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &DescribeReusableSlbResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeReusableSlb"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) DescribeReusableSlb(request *DescribeReusableSlbRequest) (_result *DescribeReusableSlbResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &DescribeReusableSlbResponse{}
-	_body, _err := client.DescribeReusableSlbWithOptions(request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
 func (client *Client) DescribeClusterPrometheusWithOptions(request *DescribeClusterPrometheusRequest, runtime *util.RuntimeOptions) (_result *DescribeClusterPrometheusResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
@@ -2044,31 +1910,6 @@ func (client *Client) DescribeClusterGrafana(request *DescribeClusterGrafanaRequ
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterGrafanaResponse{}
 	_body, _err := client.DescribeClusterGrafanaWithOptions(request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
-func (client *Client) DescribeRelatedResourcesReuseWithOptions(request *DescribeRelatedResourcesReuseRequest, runtime *util.RuntimeOptions) (_result *DescribeRelatedResourcesReuseResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &DescribeRelatedResourcesReuseResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeRelatedResourcesReuse"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) DescribeRelatedResourcesReuse(request *DescribeRelatedResourcesReuseRequest) (_result *DescribeRelatedResourcesReuseResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &DescribeRelatedResourcesReuseResponse{}
-	_body, _err := client.DescribeRelatedResourcesReuseWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
