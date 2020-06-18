@@ -92,11 +92,11 @@ public class DescribeServiceMeshesResponse extends TeaModel {
 
         @NameInMap("ApiServerPublicEip")
         @Validation(required = true)
-        public String apiServerPublicEip;
+        public Boolean apiServerPublicEip;
 
         @NameInMap("PilotPublicEip")
         @Validation(required = true)
-        public String pilotPublicEip;
+        public Boolean pilotPublicEip;
 
         @NameInMap("PilotPublicLoadbalancerId")
         @Validation(required = true)

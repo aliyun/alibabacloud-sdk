@@ -25,10 +25,6 @@ use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeIngressGatewaysRequest
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeIngressGatewaysResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeRegionsRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeRegionsResponse;
-use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeRelatedResourcesReuseRequest;
-use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeRelatedResourcesReuseResponse;
-use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeReusableSlbRequest;
-use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeReusableSlbResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeServiceMeshDetailRequest;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeServiceMeshDetailResponse;
 use AlibabaCloud\SDK\Servicemesh\V20200111\Models\DescribeServiceMeshesRequest;
@@ -158,30 +154,6 @@ class Servicemesh extends Rpc
     /**
      * @throws \Exception
      *
-     * @return DescribeReusableSlbResponse
-     */
-    public function describeReusableSlbWithOptions(DescribeReusableSlbRequest $request, RuntimeOptions $runtime)
-    {
-        Utils::validateModel($request);
-
-        return DescribeReusableSlbResponse::fromMap($this->doRequest('DescribeReusableSlb', 'HTTPS', 'POST', '2020-01-11', 'AK', null, $request, $runtime));
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return DescribeReusableSlbResponse
-     */
-    public function describeReusableSlb(DescribeReusableSlbRequest $request)
-    {
-        $runtime = new RuntimeOptions([]);
-
-        return $this->describeReusableSlbWithOptions($request, $runtime);
-    }
-
-    /**
-     * @throws \Exception
-     *
      * @return DescribeClusterPrometheusResponse
      */
     public function describeClusterPrometheusWithOptions(DescribeClusterPrometheusRequest $request, RuntimeOptions $runtime)
@@ -225,30 +197,6 @@ class Servicemesh extends Rpc
         $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterGrafanaWithOptions($request, $runtime);
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return DescribeRelatedResourcesReuseResponse
-     */
-    public function describeRelatedResourcesReuseWithOptions(DescribeRelatedResourcesReuseRequest $request, RuntimeOptions $runtime)
-    {
-        Utils::validateModel($request);
-
-        return DescribeRelatedResourcesReuseResponse::fromMap($this->doRequest('DescribeRelatedResourcesReuse', 'HTTPS', 'POST', '2020-01-11', 'AK', null, $request, $runtime));
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return DescribeRelatedResourcesReuseResponse
-     */
-    public function describeRelatedResourcesReuse(DescribeRelatedResourcesReuseRequest $request)
-    {
-        $runtime = new RuntimeOptions([]);
-
-        return $this->describeRelatedResourcesReuseWithOptions($request, $runtime);
     }
 
     /**

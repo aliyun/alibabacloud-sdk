@@ -120,30 +120,6 @@ namespace AlibabaCloud.SDK.Servicemesh20200111
             return await DescribeGuestClusterAccessLogDashboardsWithOptionsAsync(request, runtime);
         }
 
-        public DescribeReusableSlbResponse DescribeReusableSlbWithOptions(DescribeReusableSlbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
-        {
-            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeReusableSlbResponse>(DoRequest("DescribeReusableSlb", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
-        }
-
-        public async Task<DescribeReusableSlbResponse> DescribeReusableSlbWithOptionsAsync(DescribeReusableSlbRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
-        {
-            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeReusableSlbResponse>(await DoRequestAsync("DescribeReusableSlb", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
-        }
-
-        public DescribeReusableSlbResponse DescribeReusableSlb(DescribeReusableSlbRequest request)
-        {
-            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeReusableSlbWithOptions(request, runtime);
-        }
-
-        public async Task<DescribeReusableSlbResponse> DescribeReusableSlbAsync(DescribeReusableSlbRequest request)
-        {
-            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeReusableSlbWithOptionsAsync(request, runtime);
-        }
-
         public DescribeClusterPrometheusResponse DescribeClusterPrometheusWithOptions(DescribeClusterPrometheusRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
         {
             AlibabaCloud.TeaUtil.Common.ValidateModel(request);
@@ -190,30 +166,6 @@ namespace AlibabaCloud.SDK.Servicemesh20200111
         {
             AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
             return await DescribeClusterGrafanaWithOptionsAsync(request, runtime);
-        }
-
-        public DescribeRelatedResourcesReuseResponse DescribeRelatedResourcesReuseWithOptions(DescribeRelatedResourcesReuseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
-        {
-            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeRelatedResourcesReuseResponse>(DoRequest("DescribeRelatedResourcesReuse", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
-        }
-
-        public async Task<DescribeRelatedResourcesReuseResponse> DescribeRelatedResourcesReuseWithOptionsAsync(DescribeRelatedResourcesReuseRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)
-        {
-            AlibabaCloud.TeaUtil.Common.ValidateModel(request);
-            return TeaModel.ToObject<DescribeRelatedResourcesReuseResponse>(await DoRequestAsync("DescribeRelatedResourcesReuse", "HTTPS", "POST", "2020-01-11", "AK", null, request.ToMap(), runtime));
-        }
-
-        public DescribeRelatedResourcesReuseResponse DescribeRelatedResourcesReuse(DescribeRelatedResourcesReuseRequest request)
-        {
-            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return DescribeRelatedResourcesReuseWithOptions(request, runtime);
-        }
-
-        public async Task<DescribeRelatedResourcesReuseResponse> DescribeRelatedResourcesReuseAsync(DescribeRelatedResourcesReuseRequest request)
-        {
-            AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime = new AlibabaCloud.TeaUtil.Models.RuntimeOptions();
-            return await DescribeRelatedResourcesReuseWithOptionsAsync(request, runtime);
         }
 
         public DescribeRegionsResponse DescribeRegionsWithOptions(DescribeRegionsRequest request, AlibabaCloud.TeaUtil.Models.RuntimeOptions runtime)

@@ -10,7 +10,7 @@ public class DescribeCensResponse extends TeaModel {
 
     @NameInMap("Clusters")
     @Validation(required = true)
-    public String clusters;
+    public java.util.List<String> clusters;
 
     public static DescribeCensResponse build(java.util.Map<String, ?> map) throws Exception {
         DescribeCensResponse self = new DescribeCensResponse();

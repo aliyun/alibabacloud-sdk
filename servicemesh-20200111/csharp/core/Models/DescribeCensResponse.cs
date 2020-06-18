@@ -15,7 +15,7 @@ namespace AlibabaCloud.SDK.Servicemesh20200111.Models
 
         [NameInMap("Clusters")]
         [Validation(Required=true)]
-        public string Clusters { get; set; }
+        public List<string> Clusters { get; set; }
 
     }
 

@@ -186,50 +186,6 @@ export class DescribeGuestClusterAccessLogDashboardsResponse extends $tea.Model 
   }
 }
 
-export class DescribeReusableSlbRequest extends $tea.Model {
-  k8sClusterId: string;
-  networkType: string;
-  static names(): { [key: string]: string } {
-    return {
-      k8sClusterId: 'K8sClusterId',
-      networkType: 'NetworkType',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      k8sClusterId: 'string',
-      networkType: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DescribeReusableSlbResponse extends $tea.Model {
-  requestId: string;
-  reusableSlbList: DescribeReusableSlbResponseReusableSlbList[];
-  static names(): { [key: string]: string } {
-    return {
-      requestId: 'RequestId',
-      reusableSlbList: 'ReusableSlbList',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      requestId: 'string',
-      reusableSlbList: { 'type': 'array', 'itemType': DescribeReusableSlbResponseReusableSlbList },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
 export class DescribeClusterPrometheusRequest extends $tea.Model {
   serviceMeshId?: string;
   k8sClusterId?: string;
@@ -321,47 +277,6 @@ export class DescribeClusterGrafanaResponse extends $tea.Model {
   }
 }
 
-export class DescribeRelatedResourcesReuseRequest extends $tea.Model {
-  serviceMeshId: string;
-  static names(): { [key: string]: string } {
-    return {
-      serviceMeshId: 'ServiceMeshId',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      serviceMeshId: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
-export class DescribeRelatedResourcesReuseResponse extends $tea.Model {
-  requestId: string;
-  reuseInfo: { [key: string]: any }[];
-  static names(): { [key: string]: string } {
-    return {
-      requestId: 'RequestId',
-      reuseInfo: 'ReuseInfo',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      requestId: 'string',
-      reuseInfo: { 'type': 'array', 'itemType': { 'type': 'map', 'keyType': 'string', 'valueType': 'any' } },
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
 export class DescribeRegionsRequest extends $tea.Model {
   acceptLanguage?: string;
   static names(): { [key: string]: string } {
@@ -424,7 +339,7 @@ export class DescribeCensRequest extends $tea.Model {
 
 export class DescribeCensResponse extends $tea.Model {
   requestId: string;
-  clusters: string;
+  clusters: string[];
   static names(): { [key: string]: string } {
     return {
       requestId: 'RequestId',
@@ -435,7 +350,7 @@ export class DescribeCensResponse extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       requestId: 'string',
-      clusters: 'string',
+      clusters: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -963,28 +878,6 @@ export class DescribeGuestClusterAccessLogDashboardsResponseDashboards extends $
   }
 }
 
-export class DescribeReusableSlbResponseReusableSlbList extends $tea.Model {
-  loadBalancerId: string;
-  loadBalancerName: string;
-  static names(): { [key: string]: string } {
-    return {
-      loadBalancerId: 'LoadBalancerId',
-      loadBalancerName: 'LoadBalancerName',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      loadBalancerId: 'string',
-      loadBalancerName: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
-
 export class DescribeClusterGrafanaResponseDashboards extends $tea.Model {
   url: string;
   title: string;
@@ -1157,8 +1050,8 @@ export class DescribeServiceMeshesResponseServiceMeshesServiceMeshInfo extends $
 
 export class DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer extends $tea.Model {
   apiServerLoadbalancerId: string;
-  apiServerPublicEip: string;
-  pilotPublicEip: string;
+  apiServerPublicEip: boolean;
+  pilotPublicEip: boolean;
   pilotPublicLoadbalancerId: string;
   static names(): { [key: string]: string } {
     return {
@@ -1172,8 +1065,8 @@ export class DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer extends 
   static types(): { [key: string]: any } {
     return {
       apiServerLoadbalancerId: 'string',
-      apiServerPublicEip: 'string',
-      pilotPublicEip: 'string',
+      apiServerPublicEip: 'boolean',
+      pilotPublicEip: 'boolean',
       pilotPublicLoadbalancerId: 'string',
     };
   }
@@ -1626,16 +1519,6 @@ export default class Client extends RPC {
     return await this.describeGuestClusterAccessLogDashboardsWithOptions(request, runtime);
   }
 
-  async describeReusableSlbWithOptions(request: DescribeReusableSlbRequest, runtime: $Util.RuntimeOptions): Promise<DescribeReusableSlbResponse> {
-    Util.validateModel(request);
-    return $tea.cast<DescribeReusableSlbResponse>(await this.doRequest("DescribeReusableSlb", "HTTPS", "POST", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new DescribeReusableSlbResponse({}));
-  }
-
-  async describeReusableSlb(request: DescribeReusableSlbRequest): Promise<DescribeReusableSlbResponse> {
-    let runtime = new $Util.RuntimeOptions({ });
-    return await this.describeReusableSlbWithOptions(request, runtime);
-  }
-
   async describeClusterPrometheusWithOptions(request: DescribeClusterPrometheusRequest, runtime: $Util.RuntimeOptions): Promise<DescribeClusterPrometheusResponse> {
     Util.validateModel(request);
     return $tea.cast<DescribeClusterPrometheusResponse>(await this.doRequest("DescribeClusterPrometheus", "HTTPS", "POST", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new DescribeClusterPrometheusResponse({}));
@@ -1654,16 +1537,6 @@ export default class Client extends RPC {
   async describeClusterGrafana(request: DescribeClusterGrafanaRequest): Promise<DescribeClusterGrafanaResponse> {
     let runtime = new $Util.RuntimeOptions({ });
     return await this.describeClusterGrafanaWithOptions(request, runtime);
-  }
-
-  async describeRelatedResourcesReuseWithOptions(request: DescribeRelatedResourcesReuseRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRelatedResourcesReuseResponse> {
-    Util.validateModel(request);
-    return $tea.cast<DescribeRelatedResourcesReuseResponse>(await this.doRequest("DescribeRelatedResourcesReuse", "HTTPS", "POST", "2020-01-11", "AK", null, $tea.toMap(request), runtime), new DescribeRelatedResourcesReuseResponse({}));
-  }
-
-  async describeRelatedResourcesReuse(request: DescribeRelatedResourcesReuseRequest): Promise<DescribeRelatedResourcesReuseResponse> {
-    let runtime = new $Util.RuntimeOptions({ });
-    return await this.describeRelatedResourcesReuseWithOptions(request, runtime);
   }
 
   async describeRegionsWithOptions(request: DescribeRegionsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRegionsResponse> {
