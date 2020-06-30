@@ -5,16 +5,16 @@
 namespace AlibabaCloud\SDK\ImageSearch\V20200212;
 
 use AlibabaCloud\Endpoint\Endpoint;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\AddImageAdvanceRequest;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\AddImageRequest;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\AddImageResponse;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\DeleteImageRequest;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\DeleteImageResponse;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\SearchImageByNameRequest;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\SearchImageByNameResponse;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\SearchImageByPicAdvanceRequest;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\SearchImageByPicRequest;
-use AlibabaCloud\SDK\ImageSearch\V20200212\Models\SearchImageByPicResponse;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageAdvanceRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\AddImageResponse;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\DeleteImageRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\DeleteImageResponse;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByNameResponse;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicAdvanceRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicRequest;
+use AlibabaCloud\SDK\ImageSearch\V20200212\ImageSearch\SearchImageByPicResponse;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\Models\AuthorizeFileUploadRequest;
 use AlibabaCloud\SDK\OpenPlatform\V20191219\OpenPlatform;
 use AlibabaCloud\SDK\OSS\OSS;
