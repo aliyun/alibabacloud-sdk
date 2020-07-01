@@ -17,6 +17,90 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imagerecog', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model DetectFruitsRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model DetectFruitsResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        name: string(name='Name', description='name'),
+        score: string(name='Score', description='score'),
+        box: [ float ](name='Box', description='box'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function detectFruits(request: DetectFruitsRequest, runtime: Util.RuntimeOptions): DetectFruitsResponse {
+  Util.validateModel(request);
+  return doRequest('DetectFruits', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+}
+
+model DetectFruitsAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function detectFruitsAdvance(request: DetectFruitsAdvanceRequest, runtime: Util.RuntimeOptions): DetectFruitsResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imagerecog',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var detectFruitsreq = new DetectFruitsRequest{};
+  RPCUtil.convert(request, detectFruitsreq);
+  detectFruitsreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var detectFruitsResp = detectFruits(detectFruitsreq, runtime);
+  return detectFruitsResp;
+}
+
 model ClassifyingRubbishRequest = {
   imageURL: string(name='ImageURL', description='imageUrl'),
 }
