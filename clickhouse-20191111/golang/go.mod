@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Clickhouse-20191111
+module github.com/alibabacloud-go/clickhouse-20191111
 
 require (
 	github.com/alibabacloud-go/tea-utils v1.2.0

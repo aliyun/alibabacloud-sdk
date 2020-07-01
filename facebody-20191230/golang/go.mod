@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Facebody-20191230
+module github.com/alibabacloud-go/facebody-20191230
 
 require (
 	github.com/alibabacloud-go/tea-oss-sdk v1.1.0

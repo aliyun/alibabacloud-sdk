@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Xtrace-20190808
+module github.com/alibabacloud-go/xtrace-20190808
 
 require (
 	github.com/alibabacloud-go/tea-utils v1.2.0

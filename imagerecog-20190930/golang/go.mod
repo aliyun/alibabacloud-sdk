@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Imagerecog-20190930
+module github.com/alibabacloud-go/imagerecog-20190930
 
 require (
 	github.com/alibabacloud-go/OpenPlatform-20191219 v1.1.0

@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Viapiutils-20200401
+module github.com/alibabacloud-go/viapiutils-20200401
 
 require (
 	github.com/alibabacloud-go/endpoint-util v1.1.0

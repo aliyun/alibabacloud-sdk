@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Imageseg-20191230
+module github.com/alibabacloud-go/imageseg-20191230
 
 require (
 	github.com/alibabacloud-go/OpenPlatform-20191219 v1.1.0

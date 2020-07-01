@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Imageenhan-20190930
+module github.com/alibabacloud-go/imageenhan-20190930
 
 require (
 	github.com/alibabacloud-go/OpenPlatform-20191219 v1.1.0

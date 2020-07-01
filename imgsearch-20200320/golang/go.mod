@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Imgsearch-20200320
+module github.com/alibabacloud-go/imgsearch-20200320
 
 require (
 	github.com/alibabacloud-go/OpenPlatform-20191219 v1.1.0

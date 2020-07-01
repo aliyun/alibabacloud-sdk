@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Imageaudit-20191230
+module github.com/alibabacloud-go/imageaudit-20191230
 
 require (
 	github.com/alibabacloud-go/endpoint-util v1.1.0
