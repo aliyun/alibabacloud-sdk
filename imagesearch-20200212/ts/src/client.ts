@@ -1,83 +1,14 @@
 // This file is auto-generated, don't edit it
 import OSS, * as $OSS from '@alicloud/oss-client';
-import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform';
+import OpenPlatform, * as $OpenPlatform from '@alicloud/openplatform20191219';
 import RPCUtil from '@alicloud/rpc-util';
+import RPC, * as $RPC from '@alicloud/rpc-client';
 import OSSUtil, * as $OSSUtil from '@alicloud/oss-util';
 import Util, * as $Util from '@alicloud/tea-util';
-import Credential, * as $Credential from '@alicloud/credentials';
 import FileForm, * as $FileForm from '@alicloud/tea-fileform';
+import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
-
-export class Config extends $tea.Model {
-  accessKeyId?: string;
-  accessKeySecret?: string;
-  type?: string;
-  securityToken?: string;
-  endpoint: string;
-  protocol?: string;
-  regionId: string;
-  userAgent?: string;
-  readTimeout?: number;
-  connectTimeout?: number;
-  httpProxy?: string;
-  httpsProxy?: string;
-  noProxy?: string;
-  socks5Proxy?: string;
-  socks5NetWork?: string;
-  maxIdleConns?: number;
-  endpointType?: string;
-  openPlatformEndpoint?: string;
-  static names(): { [key: string]: string } {
-    return {
-      accessKeyId: 'accessKeyId',
-      accessKeySecret: 'accessKeySecret',
-      type: 'type',
-      securityToken: 'securityToken',
-      endpoint: 'endpoint',
-      protocol: 'protocol',
-      regionId: 'regionId',
-      userAgent: 'userAgent',
-      readTimeout: 'readTimeout',
-      connectTimeout: 'connectTimeout',
-      httpProxy: 'httpProxy',
-      httpsProxy: 'httpsProxy',
-      noProxy: 'noProxy',
-      socks5Proxy: 'socks5Proxy',
-      socks5NetWork: 'socks5NetWork',
-      maxIdleConns: 'maxIdleConns',
-      endpointType: 'endpointType',
-      openPlatformEndpoint: 'openPlatformEndpoint',
-    };
-  }
-
-  static types(): { [key: string]: any } {
-    return {
-      accessKeyId: 'string',
-      accessKeySecret: 'string',
-      type: 'string',
-      securityToken: 'string',
-      endpoint: 'string',
-      protocol: 'string',
-      regionId: 'string',
-      userAgent: 'string',
-      readTimeout: 'number',
-      connectTimeout: 'number',
-      httpProxy: 'string',
-      httpsProxy: 'string',
-      noProxy: 'string',
-      socks5Proxy: 'string',
-      socks5NetWork: 'string',
-      maxIdleConns: 'number',
-      endpointType: 'string',
-      openPlatformEndpoint: 'string',
-    };
-  }
-
-  constructor(map?: { [key: string]: any }) {
-    super(map);
-  }
-}
 
 export class SearchImageByNameRequest extends $tea.Model {
   categoryId?: number;
@@ -86,7 +17,6 @@ export class SearchImageByNameRequest extends $tea.Model {
   picName: string;
   num?: number;
   start?: number;
-  filter?: string;
   static names(): { [key: string]: string } {
     return {
       categoryId: 'CategoryId',
@@ -95,7 +25,6 @@ export class SearchImageByNameRequest extends $tea.Model {
       picName: 'PicName',
       num: 'Num',
       start: 'Start',
-      filter: 'Filter',
     };
   }
 
@@ -107,7 +36,6 @@ export class SearchImageByNameRequest extends $tea.Model {
       picName: 'string',
       num: 'number',
       start: 'number',
-      filter: 'string',
     };
   }
 
@@ -161,7 +89,6 @@ export class SearchImageByPicRequest extends $tea.Model {
   region?: string;
   num?: number;
   start?: number;
-  filter?: string;
   static names(): { [key: string]: string } {
     return {
       categoryId: 'CategoryId',
@@ -171,7 +98,6 @@ export class SearchImageByPicRequest extends $tea.Model {
       region: 'Region',
       num: 'Num',
       start: 'Start',
-      filter: 'Filter',
     };
   }
 
@@ -184,7 +110,6 @@ export class SearchImageByPicRequest extends $tea.Model {
       region: 'string',
       num: 'number',
       start: 'number',
-      filter: 'string',
     };
   }
 
@@ -238,7 +163,6 @@ export class SearchImageByPicAdvanceRequest extends $tea.Model {
   region?: string;
   num?: number;
   start?: number;
-  filter?: string;
   static names(): { [key: string]: string } {
     return {
       picContentObject: 'PicContentObject',
@@ -248,7 +172,6 @@ export class SearchImageByPicAdvanceRequest extends $tea.Model {
       region: 'Region',
       num: 'Num',
       start: 'Start',
-      filter: 'Filter',
     };
   }
 
@@ -261,7 +184,6 @@ export class SearchImageByPicAdvanceRequest extends $tea.Model {
       region: 'string',
       num: 'number',
       start: 'number',
-      filter: 'string',
     };
   }
 
@@ -687,166 +609,31 @@ export class AddImageResponsePicInfo extends $tea.Model {
 }
 
 
-export default class Client {
-  _endpoint: string;
-  _regionId: string;
-  _protocol: string;
-  _userAgent: string;
-  _endpointType: string;
-  _readTimeout: number;
-  _connectTimeout: number;
-  _httpProxy: string;
-  _httpsProxy: string;
-  _socks5Proxy: string;
-  _socks5NetWork: string;
-  _noProxy: string;
-  _maxIdleConns: number;
-  _openPlatformEndpoint: string;
-  _credential: Credential;
+export default class Client extends RPC {
 
-  constructor(config: Config) {
-    if (Util.isUnset($tea.toMap(config))) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config' can not be unset",
-      });
-    }
-
-    if (Util.empty(config.regionId)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.regionId' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.endpoint)) {
-      throw $tea.newError({
-        name: "ParameterMissing",
-        message: "'config.endpoint' can not be empty",
-      });
-    }
-
-    if (Util.empty(config.type)) {
-      config.type = "access_key";
-    }
-
-    let credentialConfig = new $Credential.Config({
-      accessKeyId: config.accessKeyId,
-      type: config.type,
-      accessKeySecret: config.accessKeySecret,
-      securityToken: config.securityToken,
-    });
-    this._credential = new Credential(credentialConfig);
-    this._endpoint = config.endpoint;
-    this._protocol = config.protocol;
-    this._regionId = config.regionId;
-    this._userAgent = config.userAgent;
-    this._readTimeout = config.readTimeout;
-    this._connectTimeout = config.connectTimeout;
-    this._httpProxy = config.httpProxy;
-    this._httpsProxy = config.httpsProxy;
-    this._noProxy = config.noProxy;
-    this._socks5Proxy = config.socks5Proxy;
-    this._socks5NetWork = config.socks5NetWork;
-    this._maxIdleConns = config.maxIdleConns;
-    this._endpointType = config.endpointType;
-    this._openPlatformEndpoint = config.openPlatformEndpoint;
+  constructor(config: $RPC.Config) {
+    super(config);
+    this._endpointRule = "";
+    this.checkConfig(config);
+    this._endpoint = this.getEndpoint("imagesearch", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
-  async _request(action: string, protocol: string, method: string, request: {[key: string]: any}, runtime: $Util.RuntimeOptions): Promise<{[key: string]: any}> {
-    let _runtime: { [key: string]: any } = {
-      timeouted: "retry",
-      readTimeout: Util.defaultNumber(runtime.readTimeout, this._readTimeout),
-      connectTimeout: Util.defaultNumber(runtime.connectTimeout, this._connectTimeout),
-      httpProxy: Util.defaultString(runtime.httpProxy, this._httpProxy),
-      httpsProxy: Util.defaultString(runtime.httpsProxy, this._httpsProxy),
-      noProxy: Util.defaultString(runtime.noProxy, this._noProxy),
-      maxIdleConns: Util.defaultNumber(runtime.maxIdleConns, this._maxIdleConns),
-      retry: {
-        retryable: runtime.autoretry,
-        maxAttempts: Util.defaultNumber(runtime.maxAttempts, 3),
-      },
-      backoff: {
-        policy: Util.defaultString(runtime.backoffPolicy, "no"),
-        period: Util.defaultNumber(runtime.backoffPeriod, 1),
-      },
-      ignoreSSL: runtime.ignoreSSL,
-    }
-
-    let _lastRequest = null;
-    let _now = Date.now();
-    let _retryTimes = 0;
-    while ($tea.allowRetry(_runtime['retry'], _retryTimes, _now)) {
-      if (_retryTimes > 0) {
-        let _backoffTime = $tea.getBackoffTime(_runtime['backoff'], _retryTimes);
-        if (_backoffTime > 0) {
-          await $tea.sleep(_backoffTime);
-        }
-      }
-
-      _retryTimes = _retryTimes + 1;
-      try {
-        let request_ = new $tea.Request();
-        request_.protocol = Util.defaultString(this._protocol, protocol);
-        request_.method = method;
-        request_.pathname = "/";
-        let accessKeyId = await this.getAccessKeyId();
-        let accessKeySecret = await this.getAccessKeySecret();
-        request_.query = RPCUtil.query({
-          Action: action,
-          Format: "json",
-          RegionId: this._regionId,
-          Timestamp: RPCUtil.getTimestamp(),
-          Version: "2020-02-12",
-          SignatureMethod: "HMAC-SHA1",
-          SignatureVersion: "1.0",
-          SignatureNonce: Util.getNonce(),
-          AccessKeyId: accessKeyId,
-          ...request,
-        });
-        request_.headers = {
-          host: RPCUtil.getHost("ImageSearch", this._regionId, this._endpoint),
-          'user-agent': this.getUserAgent(),
-        };
-        request_.query["Signature"] = RPCUtil.getSignature(request_, accessKeySecret);
-        _lastRequest = request_;
-        let response_ = await $tea.doAction(request_, _runtime);
-
-        let obj = await Util.readAsJSON(response_.body);
-        let body = Util.assertAsMap(obj);
-        if (Util.is4xx(response_.statusCode) || Util.is5xx(response_.statusCode)) {
-          throw $tea.newError({
-            message: body["Message"],
-            data: body,
-            code: body["Code"],
-          });
-        }
-
-        return body;
-      } catch (ex) {
-        if ($tea.isRetryable(ex)) {
-          continue;
-        }
-        throw ex;
-      }
-    }
-
-    throw $tea.newUnretryableError(_lastRequest);
-  }
 
   async searchImageByName(request: SearchImageByNameRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageByNameResponse> {
-    return $tea.cast<SearchImageByNameResponse>(await this._request("SearchImageByName", "HTTPS", "POST", $tea.toMap(request), runtime), new SearchImageByNameResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<SearchImageByNameResponse>(await this.doRequest("SearchImageByName", "HTTPS", "POST", "2020-02-12", "AK", null, $tea.toMap(request), runtime), new SearchImageByNameResponse({}));
   }
 
   async searchImageByPic(request: SearchImageByPicRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageByPicResponse> {
-    return $tea.cast<SearchImageByPicResponse>(await this._request("SearchImageByPic", "HTTPS", "POST", $tea.toMap(request), runtime), new SearchImageByPicResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<SearchImageByPicResponse>(await this.doRequest("SearchImageByPic", "HTTPS", "POST", "2020-02-12", "AK", null, $tea.toMap(request), runtime), new SearchImageByPicResponse({}));
   }
 
   async searchImageByPicAdvance(request: SearchImageByPicAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SearchImageByPicResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -859,7 +646,7 @@ export default class Client {
       product: "ImageSearch",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -899,18 +686,20 @@ export default class Client {
   }
 
   async deleteImage(request: DeleteImageRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageResponse> {
-    return $tea.cast<DeleteImageResponse>(await this._request("DeleteImage", "HTTPS", "POST", $tea.toMap(request), runtime), new DeleteImageResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<DeleteImageResponse>(await this.doRequest("DeleteImage", "HTTPS", "POST", "2020-02-12", "AK", null, $tea.toMap(request), runtime), new DeleteImageResponse({}));
   }
 
   async addImage(request: AddImageRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
-    return $tea.cast<AddImageResponse>(await this._request("AddImage", "HTTPS", "POST", $tea.toMap(request), runtime), new AddImageResponse({}));
+    Util.validateModel(request);
+    return $tea.cast<AddImageResponse>(await this.doRequest("AddImage", "HTTPS", "POST", "2020-02-12", "AK", null, $tea.toMap(request), runtime), new AddImageResponse({}));
   }
 
   async addImageAdvance(request: AddImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AddImageResponse> {
     // Step 0: init client
     let accessKeyId = await this._credential.getAccessKeyId();
     let accessKeySecret = await this._credential.getAccessKeySecret();
-    let authConfig = new $OpenPlatform.Config({
+    let authConfig = new $RPC.Config({
       accessKeyId: accessKeyId,
       accessKeySecret: accessKeySecret,
       type: "access_key",
@@ -923,7 +712,7 @@ export default class Client {
       product: "ImageSearch",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -962,27 +751,16 @@ export default class Client {
     return addImageResp;
   }
 
-  getUserAgent(): string {
-    let userAgent = Util.getUserAgent(this._userAgent);
-    return userAgent;
-  }
-
-  async getAccessKeyId(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+  getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: {[key: string ]: string}, endpoint: string): string {
+    if (!Util.empty(endpoint)) {
+      return endpoint;
     }
 
-    let accessKeyId = await this._credential.getAccessKeyId();
-    return accessKeyId;
-  }
-
-  async getAccessKeySecret(): Promise<string> {
-    if (Util.isUnset(this._credential)) {
-      return "";
+    if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+      return endpointMap[regionId];
     }
 
-    let secret = await this._credential.getAccessKeySecret();
-    return secret;
+    return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
   }
 
 }
