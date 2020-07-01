@@ -8,6 +8,9 @@ use AlibabaCloud\Endpoint\Endpoint;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\ClassifyingRubbishAdvanceRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\ClassifyingRubbishRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\ClassifyingRubbishResponse;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectFruitsAdvanceRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectFruitsRequest;
+use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectFruitsResponse;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectImageElementsAdvanceRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectImageElementsRequest;
 use AlibabaCloud\SDK\Imagerecog\V20190930\Models\DetectImageElementsResponse;
@@ -48,6 +51,80 @@ class Imagerecog extends Rpc
         $this->_endpointRule = 'regional';
         $this->checkConfig($config);
         $this->_endpoint = $this->getEndpoint('imagerecog', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DetectFruitsResponse
+     */
+    public function detectFruits(DetectFruitsRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return DetectFruitsResponse::fromMap($this->doRequest('DetectFruits', 'HTTPS', 'POST', '2019-09-30', 'AK', null, $request, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return DetectFruitsResponse
+     */
+    public function detectFruitsAdvance(DetectFruitsAdvanceRequest $request, RuntimeOptions $runtime)
+    {
+        // Step 0: init client
+        $accessKeyId     = $this->_credential->getAccessKeyId();
+        $accessKeySecret = $this->_credential->getAccessKeySecret();
+        $authConfig      = new Config([
+            'accessKeyId'     => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => 'openplatform.aliyuncs.com',
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $authClient  = new OpenPlatform($authConfig);
+        $authRequest = new AuthorizeFileUploadRequest([
+            'product'  => 'imagerecog',
+            'regionId' => $this->_regionId,
+        ]);
+        $authResponse = $authClient->authorizeFileUploadWithOptions($authRequest, $runtime);
+        // Step 1: request OSS api to upload file
+        $ossConfig = new \AlibabaCloud\SDK\OSS\OSS\Config([
+            'accessKeyId'     => $authResponse->accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'type'            => 'access_key',
+            'endpoint'        => RpcUtils::getEndpoint($authResponse->endpoint, $authResponse->useAccelerate, $this->_endpointType),
+            'protocol'        => $this->_protocol,
+            'regionId'        => $this->_regionId,
+        ]);
+        $ossClient = new OSS($ossConfig);
+        $fileObj   = new FileField([
+            'filename'    => $authResponse->objectKey,
+            'content'     => $request->imageURLObject,
+            'contentType' => '',
+        ]);
+        $ossHeader = new header([
+            'accessKeyId'         => $authResponse->accessKeyId,
+            'policy'              => $authResponse->encodedPolicy,
+            'signature'           => $authResponse->signature,
+            'key'                 => $authResponse->objectKey,
+            'file'                => $fileObj,
+            'successActionStatus' => '201',
+        ]);
+        $uploadRequest = new PostObjectRequest([
+            'bucketName' => $authResponse->bucket,
+            'header'     => $ossHeader,
+        ]);
+        $ossRuntime = new \AlibabaCloud\Tea\OSSUtils\OSSUtils\RuntimeOptions([]);
+        RpcUtils::convert($runtime, $ossRuntime);
+        $ossClient->postObject($uploadRequest, $ossRuntime);
+        // Step 2: request final api
+        $detectFruitsreq = new DetectFruitsRequest([]);
+        RpcUtils::convert($request, $detectFruitsreq);
+        $detectFruitsreq->imageURL = 'http://' . $authResponse->bucket . '.' . $authResponse->endpoint . '/' . $authResponse->objectKey . '';
+
+        return $this->detectFruits($detectFruitsreq, $runtime);
     }
 
     /**
