@@ -14,8 +14,111 @@ import (
 	"io"
 )
 
+type DetectFruitsRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s DetectFruitsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFruitsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFruitsRequest) SetImageURL(v string) *DetectFruitsRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type DetectFruitsResponse struct {
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectFruitsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s DetectFruitsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFruitsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFruitsResponse) SetRequestId(v string) *DetectFruitsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DetectFruitsResponse) SetData(v *DetectFruitsResponseData) *DetectFruitsResponse {
+	s.Data = v
+	return s
+}
+
+type DetectFruitsResponseData struct {
+	Elements []*DetectFruitsResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectFruitsResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFruitsResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFruitsResponseData) SetElements(v []*DetectFruitsResponseDataElements) *DetectFruitsResponseData {
+	s.Elements = v
+	return s
+}
+
+type DetectFruitsResponseDataElements struct {
+	Name  *string    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Score *string    `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Box   []*float32 `json:"Box,omitempty" xml:"Box,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DetectFruitsResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFruitsResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFruitsResponseDataElements) SetName(v string) *DetectFruitsResponseDataElements {
+	s.Name = &v
+	return s
+}
+
+func (s *DetectFruitsResponseDataElements) SetScore(v string) *DetectFruitsResponseDataElements {
+	s.Score = &v
+	return s
+}
+
+func (s *DetectFruitsResponseDataElements) SetBox(v []*float32) *DetectFruitsResponseDataElements {
+	s.Box = v
+	return s
+}
+
+type DetectFruitsAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s DetectFruitsAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DetectFruitsAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DetectFruitsAdvanceRequest) SetImageURLObject(v io.Reader) *DetectFruitsAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type ClassifyingRubbishRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s ClassifyingRubbishRequest) String() string {
@@ -32,8 +135,8 @@ func (s *ClassifyingRubbishRequest) SetImageURL(v string) *ClassifyingRubbishReq
 }
 
 type ClassifyingRubbishResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ClassifyingRubbishResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ClassifyingRubbishResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ClassifyingRubbishResponse) String() string {
@@ -55,8 +158,8 @@ func (s *ClassifyingRubbishResponse) SetData(v *ClassifyingRubbishResponseData) 
 }
 
 type ClassifyingRubbishResponseData struct {
-	Sensitive *bool                                     `json:"Sensitive" xml:"Sensitive" require:"true"`
-	Elements  []*ClassifyingRubbishResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Sensitive *bool                                     `json:"Sensitive,omitempty" xml:"Sensitive,omitempty" require:"true"`
+	Elements  []*ClassifyingRubbishResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ClassifyingRubbishResponseData) String() string {
@@ -78,10 +181,10 @@ func (s *ClassifyingRubbishResponseData) SetElements(v []*ClassifyingRubbishResp
 }
 
 type ClassifyingRubbishResponseDataElements struct {
-	Category      *string  `json:"Category" xml:"Category" require:"true"`
-	CategoryScore *float32 `json:"CategoryScore" xml:"CategoryScore" require:"true"`
-	Rubbish       *string  `json:"Rubbish" xml:"Rubbish" require:"true"`
-	RubbishScore  *float32 `json:"RubbishScore" xml:"RubbishScore" require:"true"`
+	Category      *string  `json:"Category,omitempty" xml:"Category,omitempty" require:"true"`
+	CategoryScore *float32 `json:"CategoryScore,omitempty" xml:"CategoryScore,omitempty" require:"true"`
+	Rubbish       *string  `json:"Rubbish,omitempty" xml:"Rubbish,omitempty" require:"true"`
+	RubbishScore  *float32 `json:"RubbishScore,omitempty" xml:"RubbishScore,omitempty" require:"true"`
 }
 
 func (s ClassifyingRubbishResponseDataElements) String() string {
@@ -113,7 +216,7 @@ func (s *ClassifyingRubbishResponseDataElements) SetRubbishScore(v float32) *Cla
 }
 
 type ClassifyingRubbishAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s ClassifyingRubbishAdvanceRequest) String() string {
@@ -130,7 +233,7 @@ func (s *ClassifyingRubbishAdvanceRequest) SetImageURLObject(v io.Reader) *Class
 }
 
 type RecognizeVehicleTypeRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleTypeRequest) String() string {
@@ -147,8 +250,8 @@ func (s *RecognizeVehicleTypeRequest) SetImageURL(v string) *RecognizeVehicleTyp
 }
 
 type RecognizeVehicleTypeResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVehicleTypeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVehicleTypeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVehicleTypeResponse) String() string {
@@ -170,8 +273,8 @@ func (s *RecognizeVehicleTypeResponse) SetData(v *RecognizeVehicleTypeResponseDa
 }
 
 type RecognizeVehicleTypeResponseData struct {
-	Threshold *float32                                    `json:"Threshold" xml:"Threshold" require:"true"`
-	Elements  []*RecognizeVehicleTypeResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Threshold *float32                                    `json:"Threshold,omitempty" xml:"Threshold,omitempty" require:"true"`
+	Elements  []*RecognizeVehicleTypeResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVehicleTypeResponseData) String() string {
@@ -193,8 +296,8 @@ func (s *RecognizeVehicleTypeResponseData) SetElements(v []*RecognizeVehicleType
 }
 
 type RecognizeVehicleTypeResponseDataElements struct {
-	Name  *string  `json:"Name" xml:"Name" require:"true"`
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Name  *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleTypeResponseDataElements) String() string {
@@ -216,7 +319,7 @@ func (s *RecognizeVehicleTypeResponseDataElements) SetScore(v float32) *Recogniz
 }
 
 type RecognizeVehicleTypeAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeVehicleTypeAdvanceRequest) String() string {
@@ -233,7 +336,7 @@ func (s *RecognizeVehicleTypeAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 }
 
 type RecognizeLogoRequest struct {
-	Tasks []*RecognizeLogoRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
+	Tasks []*RecognizeLogoRequestTasks `json:"Tasks,omitempty" xml:"Tasks,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeLogoRequest) String() string {
@@ -250,7 +353,7 @@ func (s *RecognizeLogoRequest) SetTasks(v []*RecognizeLogoRequestTasks) *Recogni
 }
 
 type RecognizeLogoRequestTasks struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeLogoRequestTasks) String() string {
@@ -267,8 +370,8 @@ func (s *RecognizeLogoRequestTasks) SetImageURL(v string) *RecognizeLogoRequestT
 }
 
 type RecognizeLogoResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeLogoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeLogoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeLogoResponse) String() string {
@@ -290,7 +393,7 @@ func (s *RecognizeLogoResponse) SetData(v *RecognizeLogoResponseData) *Recognize
 }
 
 type RecognizeLogoResponseData struct {
-	Elements []*RecognizeLogoResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizeLogoResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeLogoResponseData) String() string {
@@ -307,9 +410,9 @@ func (s *RecognizeLogoResponseData) SetElements(v []*RecognizeLogoResponseDataEl
 }
 
 type RecognizeLogoResponseDataElements struct {
-	TaskId   *string                                     `json:"TaskId" xml:"TaskId" require:"true"`
-	ImageURL *string                                     `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Results  []*RecognizeLogoResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	TaskId   *string                                     `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	ImageURL *string                                     `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Results  []*RecognizeLogoResponseDataElementsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeLogoResponseDataElements) String() string {
@@ -336,10 +439,10 @@ func (s *RecognizeLogoResponseDataElements) SetResults(v []*RecognizeLogoRespons
 }
 
 type RecognizeLogoResponseDataElementsResults struct {
-	Label      *string                                              `json:"Label" xml:"Label" require:"true"`
-	Suggestion *string                                              `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate       *float32                                             `json:"Rate" xml:"Rate" require:"true"`
-	LogosData  []*RecognizeLogoResponseDataElementsResultsLogosData `json:"LogosData" xml:"LogosData" require:"true" type:"Repeated"`
+	Label      *string                                              `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion *string                                              `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Rate       *float32                                             `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	LogosData  []*RecognizeLogoResponseDataElementsResultsLogosData `json:"LogosData,omitempty" xml:"LogosData,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeLogoResponseDataElementsResults) String() string {
@@ -371,12 +474,12 @@ func (s *RecognizeLogoResponseDataElementsResults) SetLogosData(v []*RecognizeLo
 }
 
 type RecognizeLogoResponseDataElementsResultsLogosData struct {
-	Name *string  `json:"Name" xml:"Name" require:"true"`
-	Type *string  `json:"Type" xml:"Type" require:"true"`
-	X    *float32 `json:"X" xml:"X" require:"true"`
-	Y    *float32 `json:"Y" xml:"Y" require:"true"`
-	H    *float32 `json:"H" xml:"H" require:"true"`
-	W    *float32 `json:"W" xml:"W" require:"true"`
+	Name *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Type *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	X    *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y    *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	H    *float32 `json:"H,omitempty" xml:"H,omitempty" require:"true"`
+	W    *float32 `json:"W,omitempty" xml:"W,omitempty" require:"true"`
 }
 
 func (s RecognizeLogoResponseDataElementsResultsLogosData) String() string {
@@ -418,7 +521,7 @@ func (s *RecognizeLogoResponseDataElementsResultsLogosData) SetW(v float32) *Rec
 }
 
 type TaggingImageRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s TaggingImageRequest) String() string {
@@ -435,8 +538,8 @@ func (s *TaggingImageRequest) SetImageURL(v string) *TaggingImageRequest {
 }
 
 type TaggingImageResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *TaggingImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *TaggingImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s TaggingImageResponse) String() string {
@@ -458,7 +561,7 @@ func (s *TaggingImageResponse) SetData(v *TaggingImageResponseData) *TaggingImag
 }
 
 type TaggingImageResponseData struct {
-	Tags []*TaggingImageResponseDataTags `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
+	Tags []*TaggingImageResponseDataTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s TaggingImageResponseData) String() string {
@@ -475,8 +578,8 @@ func (s *TaggingImageResponseData) SetTags(v []*TaggingImageResponseDataTags) *T
 }
 
 type TaggingImageResponseDataTags struct {
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
-	Value      *string  `json:"Value" xml:"Value" require:"true"`
+	Confidence *float32 `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
+	Value      *string  `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s TaggingImageResponseDataTags) String() string {
@@ -498,7 +601,7 @@ func (s *TaggingImageResponseDataTags) SetValue(v string) *TaggingImageResponseD
 }
 
 type TaggingImageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s TaggingImageAdvanceRequest) String() string {
@@ -515,7 +618,7 @@ func (s *TaggingImageAdvanceRequest) SetImageURLObject(v io.Reader) *TaggingImag
 }
 
 type RecognizeSceneRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeSceneRequest) String() string {
@@ -532,8 +635,8 @@ func (s *RecognizeSceneRequest) SetImageURL(v string) *RecognizeSceneRequest {
 }
 
 type RecognizeSceneResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeSceneResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeSceneResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeSceneResponse) String() string {
@@ -555,7 +658,7 @@ func (s *RecognizeSceneResponse) SetData(v *RecognizeSceneResponseData) *Recogni
 }
 
 type RecognizeSceneResponseData struct {
-	Tags []*RecognizeSceneResponseDataTags `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
+	Tags []*RecognizeSceneResponseDataTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeSceneResponseData) String() string {
@@ -572,8 +675,8 @@ func (s *RecognizeSceneResponseData) SetTags(v []*RecognizeSceneResponseDataTags
 }
 
 type RecognizeSceneResponseDataTags struct {
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
-	Value      *string  `json:"Value" xml:"Value" require:"true"`
+	Confidence *float32 `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
+	Value      *string  `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s RecognizeSceneResponseDataTags) String() string {
@@ -595,7 +698,7 @@ func (s *RecognizeSceneResponseDataTags) SetValue(v string) *RecognizeSceneRespo
 }
 
 type RecognizeSceneAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeSceneAdvanceRequest) String() string {
@@ -612,8 +715,8 @@ func (s *RecognizeSceneAdvanceRequest) SetImageURLObject(v io.Reader) *Recognize
 }
 
 type RecognizeImageColorRequest struct {
-	Url        *string `json:"Url" xml:"Url" require:"true"`
-	ColorCount *int    `json:"ColorCount" xml:"ColorCount"`
+	Url        *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	ColorCount *int    `json:"ColorCount,omitempty" xml:"ColorCount,omitempty"`
 }
 
 func (s RecognizeImageColorRequest) String() string {
@@ -635,8 +738,8 @@ func (s *RecognizeImageColorRequest) SetColorCount(v int) *RecognizeImageColorRe
 }
 
 type RecognizeImageColorResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeImageColorResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeImageColorResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeImageColorResponse) String() string {
@@ -658,7 +761,7 @@ func (s *RecognizeImageColorResponse) SetData(v *RecognizeImageColorResponseData
 }
 
 type RecognizeImageColorResponseData struct {
-	ColorTemplateList []*RecognizeImageColorResponseDataColorTemplateList `json:"ColorTemplateList" xml:"ColorTemplateList" require:"true" type:"Repeated"`
+	ColorTemplateList []*RecognizeImageColorResponseDataColorTemplateList `json:"ColorTemplateList,omitempty" xml:"ColorTemplateList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeImageColorResponseData) String() string {
@@ -675,9 +778,9 @@ func (s *RecognizeImageColorResponseData) SetColorTemplateList(v []*RecognizeIma
 }
 
 type RecognizeImageColorResponseDataColorTemplateList struct {
-	Color      *string  `json:"Color" xml:"Color" require:"true"`
-	Label      *string  `json:"Label" xml:"Label" require:"true"`
-	Percentage *float32 `json:"Percentage" xml:"Percentage" require:"true"`
+	Color      *string  `json:"Color,omitempty" xml:"Color,omitempty" require:"true"`
+	Label      *string  `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Percentage *float32 `json:"Percentage,omitempty" xml:"Percentage,omitempty" require:"true"`
 }
 
 func (s RecognizeImageColorResponseDataColorTemplateList) String() string {
@@ -704,8 +807,8 @@ func (s *RecognizeImageColorResponseDataColorTemplateList) SetPercentage(v float
 }
 
 type RecognizeImageColorAdvanceRequest struct {
-	UrlObject  io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
-	ColorCount *int      `json:"ColorCount" xml:"ColorCount"`
+	UrlObject  io.Reader `json:"UrlObject,omitempty" xml:"UrlObject,omitempty" require:"true"`
+	ColorCount *int      `json:"ColorCount,omitempty" xml:"ColorCount,omitempty"`
 }
 
 func (s RecognizeImageColorAdvanceRequest) String() string {
@@ -727,7 +830,7 @@ func (s *RecognizeImageColorAdvanceRequest) SetColorCount(v int) *RecognizeImage
 }
 
 type DetectImageElementsRequest struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
+	Url *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s DetectImageElementsRequest) String() string {
@@ -744,8 +847,8 @@ func (s *DetectImageElementsRequest) SetUrl(v string) *DetectImageElementsReques
 }
 
 type DetectImageElementsResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectImageElementsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectImageElementsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectImageElementsResponse) String() string {
@@ -767,7 +870,7 @@ func (s *DetectImageElementsResponse) SetData(v *DetectImageElementsResponseData
 }
 
 type DetectImageElementsResponseData struct {
-	Elements []*DetectImageElementsResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*DetectImageElementsResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectImageElementsResponseData) String() string {
@@ -784,12 +887,12 @@ func (s *DetectImageElementsResponseData) SetElements(v []*DetectImageElementsRe
 }
 
 type DetectImageElementsResponseDataElements struct {
-	Type   *string  `json:"Type" xml:"Type" require:"true"`
-	X      *int     `json:"X" xml:"X" require:"true"`
-	Y      *int     `json:"Y" xml:"Y" require:"true"`
-	Width  *int     `json:"Width" xml:"Width" require:"true"`
-	Height *int     `json:"Height" xml:"Height" require:"true"`
-	Score  *float32 `json:"Score" xml:"Score" require:"true"`
+	Type   *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	X      *int     `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *int     `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *int     `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int     `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Score  *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
 }
 
 func (s DetectImageElementsResponseDataElements) String() string {
@@ -831,7 +934,7 @@ func (s *DetectImageElementsResponseDataElements) SetScore(v float32) *DetectIma
 }
 
 type DetectImageElementsAdvanceRequest struct {
-	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
+	UrlObject io.Reader `json:"UrlObject,omitempty" xml:"UrlObject,omitempty" require:"true"`
 }
 
 func (s DetectImageElementsAdvanceRequest) String() string {
@@ -848,7 +951,7 @@ func (s *DetectImageElementsAdvanceRequest) SetUrlObject(v io.Reader) *DetectIma
 }
 
 type RecognizeImageStyleRequest struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
+	Url *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s RecognizeImageStyleRequest) String() string {
@@ -865,8 +968,8 @@ func (s *RecognizeImageStyleRequest) SetUrl(v string) *RecognizeImageStyleReques
 }
 
 type RecognizeImageStyleResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeImageStyleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeImageStyleResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeImageStyleResponse) String() string {
@@ -888,7 +991,7 @@ func (s *RecognizeImageStyleResponse) SetData(v *RecognizeImageStyleResponseData
 }
 
 type RecognizeImageStyleResponseData struct {
-	Styles []*string `json:"Styles" xml:"Styles" require:"true" type:"Repeated"`
+	Styles []*string `json:"Styles,omitempty" xml:"Styles,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeImageStyleResponseData) String() string {
@@ -905,7 +1008,7 @@ func (s *RecognizeImageStyleResponseData) SetStyles(v []*string) *RecognizeImage
 }
 
 type RecognizeImageStyleAdvanceRequest struct {
-	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
+	UrlObject io.Reader `json:"UrlObject,omitempty" xml:"UrlObject,omitempty" require:"true"`
 }
 
 func (s RecognizeImageStyleAdvanceRequest) String() string {
@@ -941,12 +1044,110 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("imagerecog"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
 	return nil
+}
+
+func (client *Client) DetectFruits(request *DetectFruitsRequest, runtime *util.RuntimeOptions) (_result *DetectFruitsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DetectFruitsResponse{}
+	_body, _err := client.DoRequest(tea.String("DetectFruits"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DetectFruitsAdvance(request *DetectFruitsAdvanceRequest, runtime *util.RuntimeOptions) (_result *DetectFruitsResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imagerecog"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	detectFruitsreq := &DetectFruitsRequest{}
+	rpcutil.Convert(request, detectFruitsreq)
+	detectFruitsreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	detectFruitsResp, _err := client.DetectFruits(detectFruitsreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = detectFruitsResp
+	return _result, _err
 }
 
 func (client *Client) ClassifyingRubbish(request *ClassifyingRubbishRequest, runtime *util.RuntimeOptions) (_result *ClassifyingRubbishResponse, _err error) {
@@ -992,7 +1193,7 @@ func (client *Client) ClassifyingRubbishAdvance(request *ClassifyingRubbishAdvan
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1090,7 +1291,7 @@ func (client *Client) RecognizeVehicleTypeAdvance(request *RecognizeVehicleTypeA
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1202,7 +1403,7 @@ func (client *Client) TaggingImageAdvance(request *TaggingImageAdvanceRequest, r
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1300,7 +1501,7 @@ func (client *Client) RecognizeSceneAdvance(request *RecognizeSceneAdvanceReques
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1398,7 +1599,7 @@ func (client *Client) RecognizeImageColorAdvance(request *RecognizeImageColorAdv
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1496,7 +1697,7 @@ func (client *Client) DetectImageElementsAdvance(request *DetectImageElementsAdv
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1594,7 +1795,7 @@ func (client *Client) RecognizeImageStyleAdvance(request *RecognizeImageStyleAdv
 		Product:  tea.String("imagerecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
