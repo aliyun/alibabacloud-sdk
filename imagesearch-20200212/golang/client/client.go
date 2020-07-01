@@ -15,13 +15,12 @@ import (
 )
 
 type SearchImageByNameRequest struct {
-	CategoryId   *int    `json:"CategoryId" xml:"CategoryId"`
-	InstanceName *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	ProductId    *string `json:"ProductId" xml:"ProductId" require:"true"`
-	PicName      *string `json:"PicName" xml:"PicName" require:"true"`
-	Num          *int    `json:"Num" xml:"Num"`
-	Start        *int    `json:"Start" xml:"Start"`
-	Filter       *string `json:"Filter" xml:"Filter"`
+	CategoryId   *int    `json:"CategoryId,omitempty" xml:"CategoryId,omitempty"`
+	InstanceName *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	ProductId    *string `json:"ProductId,omitempty" xml:"ProductId,omitempty" require:"true"`
+	PicName      *string `json:"PicName,omitempty" xml:"PicName,omitempty" require:"true"`
+	Num          *int    `json:"Num,omitempty" xml:"Num,omitempty"`
+	Start        *int    `json:"Start,omitempty" xml:"Start,omitempty"`
 }
 
 func (s SearchImageByNameRequest) String() string {
@@ -62,19 +61,14 @@ func (s *SearchImageByNameRequest) SetStart(v int) *SearchImageByNameRequest {
 	return s
 }
 
-func (s *SearchImageByNameRequest) SetFilter(v string) *SearchImageByNameRequest {
-	s.Filter = &v
-	return s
-}
-
 type SearchImageByNameResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                `json:"Success" xml:"Success" require:"true"`
-	Code      *int                                 `json:"Code" xml:"Code" require:"true"`
-	Msg       *string                              `json:"Msg" xml:"Msg" require:"true"`
-	Auctions  []*SearchImageByNameResponseAuctions `json:"Auctions" xml:"Auctions" require:"true" type:"Repeated"`
-	Head      *SearchImageByNameResponseHead       `json:"Head" xml:"Head" require:"true" type:"Struct"`
-	PicInfo   *SearchImageByNameResponsePicInfo    `json:"PicInfo" xml:"PicInfo" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *int                                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Msg       *string                              `json:"Msg,omitempty" xml:"Msg,omitempty" require:"true"`
+	Auctions  []*SearchImageByNameResponseAuctions `json:"Auctions,omitempty" xml:"Auctions,omitempty" require:"true" type:"Repeated"`
+	Head      *SearchImageByNameResponseHead       `json:"Head,omitempty" xml:"Head,omitempty" require:"true" type:"Struct"`
+	PicInfo   *SearchImageByNameResponsePicInfo    `json:"PicInfo,omitempty" xml:"PicInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchImageByNameResponse) String() string {
@@ -121,13 +115,13 @@ func (s *SearchImageByNameResponse) SetPicInfo(v *SearchImageByNameResponsePicIn
 }
 
 type SearchImageByNameResponseAuctions struct {
-	CategoryId     *int    `json:"CategoryId" xml:"CategoryId" require:"true"`
-	ProductId      *string `json:"ProductId" xml:"ProductId" require:"true"`
-	PicName        *string `json:"PicName" xml:"PicName" require:"true"`
-	CustomContent  *string `json:"CustomContent" xml:"CustomContent" require:"true"`
-	SortExprValues *string `json:"SortExprValues" xml:"SortExprValues" require:"true"`
-	IntAttr        *int    `json:"IntAttr" xml:"IntAttr" require:"true"`
-	StrAttr        *string `json:"StrAttr" xml:"StrAttr" require:"true"`
+	CategoryId     *int    `json:"CategoryId,omitempty" xml:"CategoryId,omitempty" require:"true"`
+	ProductId      *string `json:"ProductId,omitempty" xml:"ProductId,omitempty" require:"true"`
+	PicName        *string `json:"PicName,omitempty" xml:"PicName,omitempty" require:"true"`
+	CustomContent  *string `json:"CustomContent,omitempty" xml:"CustomContent,omitempty" require:"true"`
+	SortExprValues *string `json:"SortExprValues,omitempty" xml:"SortExprValues,omitempty" require:"true"`
+	IntAttr        *int    `json:"IntAttr,omitempty" xml:"IntAttr,omitempty" require:"true"`
+	StrAttr        *string `json:"StrAttr,omitempty" xml:"StrAttr,omitempty" require:"true"`
 }
 
 func (s SearchImageByNameResponseAuctions) String() string {
@@ -174,9 +168,9 @@ func (s *SearchImageByNameResponseAuctions) SetStrAttr(v string) *SearchImageByN
 }
 
 type SearchImageByNameResponseHead struct {
-	DocsReturn *int `json:"DocsReturn" xml:"DocsReturn" require:"true"`
-	DocsFound  *int `json:"DocsFound" xml:"DocsFound" require:"true"`
-	SearchTime *int `json:"SearchTime" xml:"SearchTime" require:"true"`
+	DocsReturn *int `json:"DocsReturn,omitempty" xml:"DocsReturn,omitempty" require:"true"`
+	DocsFound  *int `json:"DocsFound,omitempty" xml:"DocsFound,omitempty" require:"true"`
+	SearchTime *int `json:"SearchTime,omitempty" xml:"SearchTime,omitempty" require:"true"`
 }
 
 func (s SearchImageByNameResponseHead) String() string {
@@ -203,9 +197,9 @@ func (s *SearchImageByNameResponseHead) SetSearchTime(v int) *SearchImageByNameR
 }
 
 type SearchImageByNameResponsePicInfo struct {
-	CategoryId    *int                                             `json:"CategoryId" xml:"CategoryId" require:"true"`
-	Region        *string                                          `json:"Region" xml:"Region" require:"true"`
-	AllCategories []*SearchImageByNameResponsePicInfoAllCategories `json:"AllCategories" xml:"AllCategories" require:"true" type:"Repeated"`
+	CategoryId    *int                                             `json:"CategoryId,omitempty" xml:"CategoryId,omitempty" require:"true"`
+	Region        *string                                          `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	AllCategories []*SearchImageByNameResponsePicInfoAllCategories `json:"AllCategories,omitempty" xml:"AllCategories,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchImageByNameResponsePicInfo) String() string {
@@ -232,8 +226,8 @@ func (s *SearchImageByNameResponsePicInfo) SetAllCategories(v []*SearchImageByNa
 }
 
 type SearchImageByNameResponsePicInfoAllCategories struct {
-	Id   *int    `json:"Id" xml:"Id" require:"true"`
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Id   *int    `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s SearchImageByNameResponsePicInfoAllCategories) String() string {
@@ -255,14 +249,13 @@ func (s *SearchImageByNameResponsePicInfoAllCategories) SetName(v string) *Searc
 }
 
 type SearchImageByPicRequest struct {
-	CategoryId   *int    `json:"CategoryId" xml:"CategoryId"`
-	InstanceName *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	PicContent   *string `json:"PicContent" xml:"PicContent" require:"true"`
-	Crop         *bool   `json:"Crop" xml:"Crop"`
-	Region       *string `json:"Region" xml:"Region"`
-	Num          *int    `json:"Num" xml:"Num"`
-	Start        *int    `json:"Start" xml:"Start"`
-	Filter       *string `json:"Filter" xml:"Filter"`
+	CategoryId   *int    `json:"CategoryId,omitempty" xml:"CategoryId,omitempty"`
+	InstanceName *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	PicContent   *string `json:"PicContent,omitempty" xml:"PicContent,omitempty" require:"true"`
+	Crop         *bool   `json:"Crop,omitempty" xml:"Crop,omitempty"`
+	Region       *string `json:"Region,omitempty" xml:"Region,omitempty"`
+	Num          *int    `json:"Num,omitempty" xml:"Num,omitempty"`
+	Start        *int    `json:"Start,omitempty" xml:"Start,omitempty"`
 }
 
 func (s SearchImageByPicRequest) String() string {
@@ -308,19 +301,14 @@ func (s *SearchImageByPicRequest) SetStart(v int) *SearchImageByPicRequest {
 	return s
 }
 
-func (s *SearchImageByPicRequest) SetFilter(v string) *SearchImageByPicRequest {
-	s.Filter = &v
-	return s
-}
-
 type SearchImageByPicResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                               `json:"Success" xml:"Success" require:"true"`
-	Code      *int                                `json:"Code" xml:"Code" require:"true"`
-	Msg       *string                             `json:"Msg" xml:"Msg" require:"true"`
-	Auctions  []*SearchImageByPicResponseAuctions `json:"Auctions" xml:"Auctions" require:"true" type:"Repeated"`
-	Head      *SearchImageByPicResponseHead       `json:"Head" xml:"Head" require:"true" type:"Struct"`
-	PicInfo   *SearchImageByPicResponsePicInfo    `json:"PicInfo" xml:"PicInfo" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                               `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *int                                `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Msg       *string                             `json:"Msg,omitempty" xml:"Msg,omitempty" require:"true"`
+	Auctions  []*SearchImageByPicResponseAuctions `json:"Auctions,omitempty" xml:"Auctions,omitempty" require:"true" type:"Repeated"`
+	Head      *SearchImageByPicResponseHead       `json:"Head,omitempty" xml:"Head,omitempty" require:"true" type:"Struct"`
+	PicInfo   *SearchImageByPicResponsePicInfo    `json:"PicInfo,omitempty" xml:"PicInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchImageByPicResponse) String() string {
@@ -367,13 +355,13 @@ func (s *SearchImageByPicResponse) SetPicInfo(v *SearchImageByPicResponsePicInfo
 }
 
 type SearchImageByPicResponseAuctions struct {
-	CategoryId     *int    `json:"CategoryId" xml:"CategoryId" require:"true"`
-	ProductId      *string `json:"ProductId" xml:"ProductId" require:"true"`
-	PicName        *string `json:"PicName" xml:"PicName" require:"true"`
-	CustomContent  *string `json:"CustomContent" xml:"CustomContent" require:"true"`
-	SortExprValues *string `json:"SortExprValues" xml:"SortExprValues" require:"true"`
-	IntAttr        *int    `json:"IntAttr" xml:"IntAttr" require:"true"`
-	StrAttr        *string `json:"StrAttr" xml:"StrAttr" require:"true"`
+	CategoryId     *int    `json:"CategoryId,omitempty" xml:"CategoryId,omitempty" require:"true"`
+	ProductId      *string `json:"ProductId,omitempty" xml:"ProductId,omitempty" require:"true"`
+	PicName        *string `json:"PicName,omitempty" xml:"PicName,omitempty" require:"true"`
+	CustomContent  *string `json:"CustomContent,omitempty" xml:"CustomContent,omitempty" require:"true"`
+	SortExprValues *string `json:"SortExprValues,omitempty" xml:"SortExprValues,omitempty" require:"true"`
+	IntAttr        *int    `json:"IntAttr,omitempty" xml:"IntAttr,omitempty" require:"true"`
+	StrAttr        *string `json:"StrAttr,omitempty" xml:"StrAttr,omitempty" require:"true"`
 }
 
 func (s SearchImageByPicResponseAuctions) String() string {
@@ -420,9 +408,9 @@ func (s *SearchImageByPicResponseAuctions) SetStrAttr(v string) *SearchImageByPi
 }
 
 type SearchImageByPicResponseHead struct {
-	DocsReturn *int `json:"DocsReturn" xml:"DocsReturn" require:"true"`
-	DocsFound  *int `json:"DocsFound" xml:"DocsFound" require:"true"`
-	SearchTime *int `json:"SearchTime" xml:"SearchTime" require:"true"`
+	DocsReturn *int `json:"DocsReturn,omitempty" xml:"DocsReturn,omitempty" require:"true"`
+	DocsFound  *int `json:"DocsFound,omitempty" xml:"DocsFound,omitempty" require:"true"`
+	SearchTime *int `json:"SearchTime,omitempty" xml:"SearchTime,omitempty" require:"true"`
 }
 
 func (s SearchImageByPicResponseHead) String() string {
@@ -449,9 +437,9 @@ func (s *SearchImageByPicResponseHead) SetSearchTime(v int) *SearchImageByPicRes
 }
 
 type SearchImageByPicResponsePicInfo struct {
-	CategoryId    *int                                            `json:"CategoryId" xml:"CategoryId" require:"true"`
-	Region        *string                                         `json:"Region" xml:"Region" require:"true"`
-	AllCategories []*SearchImageByPicResponsePicInfoAllCategories `json:"AllCategories" xml:"AllCategories" require:"true" type:"Repeated"`
+	CategoryId    *int                                            `json:"CategoryId,omitempty" xml:"CategoryId,omitempty" require:"true"`
+	Region        *string                                         `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	AllCategories []*SearchImageByPicResponsePicInfoAllCategories `json:"AllCategories,omitempty" xml:"AllCategories,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchImageByPicResponsePicInfo) String() string {
@@ -478,8 +466,8 @@ func (s *SearchImageByPicResponsePicInfo) SetAllCategories(v []*SearchImageByPic
 }
 
 type SearchImageByPicResponsePicInfoAllCategories struct {
-	Id   *int    `json:"Id" xml:"Id" require:"true"`
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Id   *int    `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s SearchImageByPicResponsePicInfoAllCategories) String() string {
@@ -501,14 +489,13 @@ func (s *SearchImageByPicResponsePicInfoAllCategories) SetName(v string) *Search
 }
 
 type SearchImageByPicAdvanceRequest struct {
-	PicContentObject io.Reader `json:"PicContentObject" xml:"PicContentObject" require:"true"`
-	CategoryId       *int      `json:"CategoryId" xml:"CategoryId"`
-	InstanceName     *string   `json:"InstanceName" xml:"InstanceName" require:"true"`
-	Crop             *bool     `json:"Crop" xml:"Crop"`
-	Region           *string   `json:"Region" xml:"Region"`
-	Num              *int      `json:"Num" xml:"Num"`
-	Start            *int      `json:"Start" xml:"Start"`
-	Filter           *string   `json:"Filter" xml:"Filter"`
+	PicContentObject io.Reader `json:"PicContentObject,omitempty" xml:"PicContentObject,omitempty" require:"true"`
+	CategoryId       *int      `json:"CategoryId,omitempty" xml:"CategoryId,omitempty"`
+	InstanceName     *string   `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	Crop             *bool     `json:"Crop,omitempty" xml:"Crop,omitempty"`
+	Region           *string   `json:"Region,omitempty" xml:"Region,omitempty"`
+	Num              *int      `json:"Num,omitempty" xml:"Num,omitempty"`
+	Start            *int      `json:"Start,omitempty" xml:"Start,omitempty"`
 }
 
 func (s SearchImageByPicAdvanceRequest) String() string {
@@ -554,15 +541,10 @@ func (s *SearchImageByPicAdvanceRequest) SetStart(v int) *SearchImageByPicAdvanc
 	return s
 }
 
-func (s *SearchImageByPicAdvanceRequest) SetFilter(v string) *SearchImageByPicAdvanceRequest {
-	s.Filter = &v
-	return s
-}
-
 type DeleteImageRequest struct {
-	InstanceName *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	ProductId    *string `json:"ProductId" xml:"ProductId" require:"true"`
-	PicName      *string `json:"PicName" xml:"PicName"`
+	InstanceName *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	ProductId    *string `json:"ProductId,omitempty" xml:"ProductId,omitempty" require:"true"`
+	PicName      *string `json:"PicName,omitempty" xml:"PicName,omitempty"`
 }
 
 func (s DeleteImageRequest) String() string {
@@ -589,10 +571,10 @@ func (s *DeleteImageRequest) SetPicName(v string) *DeleteImageRequest {
 }
 
 type DeleteImageResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Code      *int    `json:"Code" xml:"Code" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Code      *int    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
 }
 
 func (s DeleteImageResponse) String() string {
@@ -624,16 +606,16 @@ func (s *DeleteImageResponse) SetCode(v int) *DeleteImageResponse {
 }
 
 type AddImageRequest struct {
-	InstanceName  *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	CategoryId    *int    `json:"CategoryId" xml:"CategoryId"`
-	ProductId     *string `json:"ProductId" xml:"ProductId" require:"true"`
-	PicName       *string `json:"PicName" xml:"PicName" require:"true"`
-	PicContent    *string `json:"PicContent" xml:"PicContent" require:"true"`
-	Crop          *bool   `json:"Crop" xml:"Crop"`
-	Region        *string `json:"Region" xml:"Region"`
-	CustomContent *string `json:"CustomContent" xml:"CustomContent"`
-	IntAttr       *int    `json:"IntAttr" xml:"IntAttr"`
-	StrAttr       *string `json:"StrAttr" xml:"StrAttr"`
+	InstanceName  *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	CategoryId    *int    `json:"CategoryId,omitempty" xml:"CategoryId,omitempty"`
+	ProductId     *string `json:"ProductId,omitempty" xml:"ProductId,omitempty" require:"true"`
+	PicName       *string `json:"PicName,omitempty" xml:"PicName,omitempty" require:"true"`
+	PicContent    *string `json:"PicContent,omitempty" xml:"PicContent,omitempty" require:"true"`
+	Crop          *bool   `json:"Crop,omitempty" xml:"Crop,omitempty"`
+	Region        *string `json:"Region,omitempty" xml:"Region,omitempty"`
+	CustomContent *string `json:"CustomContent,omitempty" xml:"CustomContent,omitempty"`
+	IntAttr       *int    `json:"IntAttr,omitempty" xml:"IntAttr,omitempty"`
+	StrAttr       *string `json:"StrAttr,omitempty" xml:"StrAttr,omitempty"`
 }
 
 func (s AddImageRequest) String() string {
@@ -695,11 +677,11 @@ func (s *AddImageRequest) SetStrAttr(v string) *AddImageRequest {
 }
 
 type AddImageResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                    `json:"Success" xml:"Success" require:"true"`
-	Message   *string                  `json:"Message" xml:"Message" require:"true"`
-	Code      *int                     `json:"Code" xml:"Code" require:"true"`
-	PicInfo   *AddImageResponsePicInfo `json:"PicInfo" xml:"PicInfo" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                    `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Code      *int                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	PicInfo   *AddImageResponsePicInfo `json:"PicInfo,omitempty" xml:"PicInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddImageResponse) String() string {
@@ -736,8 +718,8 @@ func (s *AddImageResponse) SetPicInfo(v *AddImageResponsePicInfo) *AddImageRespo
 }
 
 type AddImageResponsePicInfo struct {
-	CategoryId *int    `json:"CategoryId" xml:"CategoryId" require:"true"`
-	Region     *string `json:"Region" xml:"Region" require:"true"`
+	CategoryId *int    `json:"CategoryId,omitempty" xml:"CategoryId,omitempty" require:"true"`
+	Region     *string `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
 }
 
 func (s AddImageResponsePicInfo) String() string {
@@ -759,16 +741,16 @@ func (s *AddImageResponsePicInfo) SetRegion(v string) *AddImageResponsePicInfo {
 }
 
 type AddImageAdvanceRequest struct {
-	PicContentObject io.Reader `json:"PicContentObject" xml:"PicContentObject" require:"true"`
-	InstanceName     *string   `json:"InstanceName" xml:"InstanceName" require:"true"`
-	CategoryId       *int      `json:"CategoryId" xml:"CategoryId"`
-	ProductId        *string   `json:"ProductId" xml:"ProductId" require:"true"`
-	PicName          *string   `json:"PicName" xml:"PicName" require:"true"`
-	Crop             *bool     `json:"Crop" xml:"Crop"`
-	Region           *string   `json:"Region" xml:"Region"`
-	CustomContent    *string   `json:"CustomContent" xml:"CustomContent"`
-	IntAttr          *int      `json:"IntAttr" xml:"IntAttr"`
-	StrAttr          *string   `json:"StrAttr" xml:"StrAttr"`
+	PicContentObject io.Reader `json:"PicContentObject,omitempty" xml:"PicContentObject,omitempty" require:"true"`
+	InstanceName     *string   `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	CategoryId       *int      `json:"CategoryId,omitempty" xml:"CategoryId,omitempty"`
+	ProductId        *string   `json:"ProductId,omitempty" xml:"ProductId,omitempty" require:"true"`
+	PicName          *string   `json:"PicName,omitempty" xml:"PicName,omitempty" require:"true"`
+	Crop             *bool     `json:"Crop,omitempty" xml:"Crop,omitempty"`
+	Region           *string   `json:"Region,omitempty" xml:"Region,omitempty"`
+	CustomContent    *string   `json:"CustomContent,omitempty" xml:"CustomContent,omitempty"`
+	IntAttr          *int      `json:"IntAttr,omitempty" xml:"IntAttr,omitempty"`
+	StrAttr          *string   `json:"StrAttr,omitempty" xml:"StrAttr,omitempty"`
 }
 
 func (s AddImageAdvanceRequest) String() string {
@@ -849,7 +831,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("imagesearch"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -914,7 +896,7 @@ func (client *Client) SearchImageByPicAdvance(request *SearchImageByPicAdvanceRe
 		Product:  tea.String("ImageSearch"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1026,7 +1008,7 @@ func (client *Client) AddImageAdvance(request *AddImageAdvanceRequest, runtime *
 		Product:  tea.String("ImageSearch"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
