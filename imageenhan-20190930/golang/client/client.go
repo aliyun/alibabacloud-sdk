@@ -14,8 +14,441 @@ import (
 	"io"
 )
 
+type GetAsyncJobResultRequest struct {
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+}
+
+func (s GetAsyncJobResultRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest {
+	s.JobId = &v
+	return s
+}
+
+type GetAsyncJobResultResponse struct {
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s GetAsyncJobResultResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultResponse) SetRequestId(v string) *GetAsyncJobResultResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *GetAsyncJobResultResponse {
+	s.Data = v
+	return s
+}
+
+type GetAsyncJobResultResponseData struct {
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Result       *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+}
+
+func (s GetAsyncJobResultResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetAsyncJobResultResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GetAsyncJobResultResponseData) SetJobId(v string) *GetAsyncJobResultResponseData {
+	s.JobId = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetStatus(v string) *GetAsyncJobResultResponseData {
+	s.Status = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetResult(v string) *GetAsyncJobResultResponseData {
+	s.Result = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetErrorCode(v string) *GetAsyncJobResultResponseData {
+	s.ErrorCode = &v
+	return s
+}
+
+func (s *GetAsyncJobResultResponseData) SetErrorMessage(v string) *GetAsyncJobResultResponseData {
+	s.ErrorMessage = &v
+	return s
+}
+
+type ImitatePhotoStyleRequest struct {
+	StyleUrl *string `json:"StyleUrl,omitempty" xml:"StyleUrl,omitempty" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s ImitatePhotoStyleRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ImitatePhotoStyleRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ImitatePhotoStyleRequest) SetStyleUrl(v string) *ImitatePhotoStyleRequest {
+	s.StyleUrl = &v
+	return s
+}
+
+func (s *ImitatePhotoStyleRequest) SetImageURL(v string) *ImitatePhotoStyleRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type ImitatePhotoStyleResponse struct {
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ImitatePhotoStyleResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ImitatePhotoStyleResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ImitatePhotoStyleResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ImitatePhotoStyleResponse) SetRequestId(v string) *ImitatePhotoStyleResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ImitatePhotoStyleResponse) SetData(v *ImitatePhotoStyleResponseData) *ImitatePhotoStyleResponse {
+	s.Data = v
+	return s
+}
+
+type ImitatePhotoStyleResponseData struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s ImitatePhotoStyleResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ImitatePhotoStyleResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *ImitatePhotoStyleResponseData) SetImageURL(v string) *ImitatePhotoStyleResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type ImitatePhotoStyleAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	StyleUrl       *string   `json:"StyleUrl,omitempty" xml:"StyleUrl,omitempty" require:"true"`
+}
+
+func (s ImitatePhotoStyleAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ImitatePhotoStyleAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ImitatePhotoStyleAdvanceRequest) SetImageURLObject(v io.Reader) *ImitatePhotoStyleAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *ImitatePhotoStyleAdvanceRequest) SetStyleUrl(v string) *ImitatePhotoStyleAdvanceRequest {
+	s.StyleUrl = &v
+	return s
+}
+
+type EnhanceImageColorRequest struct {
+	ImageURL     *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	OutputFormat *string `json:"OutputFormat,omitempty" xml:"OutputFormat,omitempty" require:"true"`
+	Mode         *string `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
+}
+
+func (s EnhanceImageColorRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s EnhanceImageColorRequest) GoString() string {
+	return s.String()
+}
+
+func (s *EnhanceImageColorRequest) SetImageURL(v string) *EnhanceImageColorRequest {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *EnhanceImageColorRequest) SetOutputFormat(v string) *EnhanceImageColorRequest {
+	s.OutputFormat = &v
+	return s
+}
+
+func (s *EnhanceImageColorRequest) SetMode(v string) *EnhanceImageColorRequest {
+	s.Mode = &v
+	return s
+}
+
+type EnhanceImageColorResponse struct {
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *EnhanceImageColorResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s EnhanceImageColorResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s EnhanceImageColorResponse) GoString() string {
+	return s.String()
+}
+
+func (s *EnhanceImageColorResponse) SetRequestId(v string) *EnhanceImageColorResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *EnhanceImageColorResponse) SetData(v *EnhanceImageColorResponseData) *EnhanceImageColorResponse {
+	s.Data = v
+	return s
+}
+
+type EnhanceImageColorResponseData struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s EnhanceImageColorResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s EnhanceImageColorResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *EnhanceImageColorResponseData) SetImageURL(v string) *EnhanceImageColorResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type EnhanceImageColorAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	OutputFormat   *string   `json:"OutputFormat,omitempty" xml:"OutputFormat,omitempty" require:"true"`
+	Mode           *string   `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
+}
+
+func (s EnhanceImageColorAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s EnhanceImageColorAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *EnhanceImageColorAdvanceRequest) SetImageURLObject(v io.Reader) *EnhanceImageColorAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *EnhanceImageColorAdvanceRequest) SetOutputFormat(v string) *EnhanceImageColorAdvanceRequest {
+	s.OutputFormat = &v
+	return s
+}
+
+func (s *EnhanceImageColorAdvanceRequest) SetMode(v string) *EnhanceImageColorAdvanceRequest {
+	s.Mode = &v
+	return s
+}
+
+type RecolorHDImageRequest struct {
+	Url           *string                               `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	Mode          *string                               `json:"Mode,omitempty" xml:"Mode,omitempty"`
+	RefUrl        *string                               `json:"RefUrl,omitempty" xml:"RefUrl,omitempty"`
+	ColorCount    *int                                  `json:"ColorCount,omitempty" xml:"ColorCount,omitempty"`
+	ColorTemplate []*RecolorHDImageRequestColorTemplate `json:"ColorTemplate,omitempty" xml:"ColorTemplate,omitempty" type:"Repeated"`
+	Degree        *string                               `json:"Degree,omitempty" xml:"Degree,omitempty" require:"true"`
+}
+
+func (s RecolorHDImageRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecolorHDImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorHDImageRequest) SetUrl(v string) *RecolorHDImageRequest {
+	s.Url = &v
+	return s
+}
+
+func (s *RecolorHDImageRequest) SetMode(v string) *RecolorHDImageRequest {
+	s.Mode = &v
+	return s
+}
+
+func (s *RecolorHDImageRequest) SetRefUrl(v string) *RecolorHDImageRequest {
+	s.RefUrl = &v
+	return s
+}
+
+func (s *RecolorHDImageRequest) SetColorCount(v int) *RecolorHDImageRequest {
+	s.ColorCount = &v
+	return s
+}
+
+func (s *RecolorHDImageRequest) SetColorTemplate(v []*RecolorHDImageRequestColorTemplate) *RecolorHDImageRequest {
+	s.ColorTemplate = v
+	return s
+}
+
+func (s *RecolorHDImageRequest) SetDegree(v string) *RecolorHDImageRequest {
+	s.Degree = &v
+	return s
+}
+
+type RecolorHDImageRequestColorTemplate struct {
+	Color *string `json:"Color,omitempty" xml:"Color,omitempty"`
+}
+
+func (s RecolorHDImageRequestColorTemplate) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecolorHDImageRequestColorTemplate) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorHDImageRequestColorTemplate) SetColor(v string) *RecolorHDImageRequestColorTemplate {
+	s.Color = &v
+	return s
+}
+
+type RecolorHDImageResponse struct {
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecolorHDImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s RecolorHDImageResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecolorHDImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorHDImageResponse) SetRequestId(v string) *RecolorHDImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecolorHDImageResponse) SetData(v *RecolorHDImageResponseData) *RecolorHDImageResponse {
+	s.Data = v
+	return s
+}
+
+type RecolorHDImageResponseData struct {
+	ImageList []*string `json:"ImageList,omitempty" xml:"ImageList,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s RecolorHDImageResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecolorHDImageResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorHDImageResponseData) SetImageList(v []*string) *RecolorHDImageResponseData {
+	s.ImageList = v
+	return s
+}
+
+type RecolorHDImageAdvanceRequest struct {
+	UrlObject     io.Reader                                    `json:"UrlObject,omitempty" xml:"UrlObject,omitempty" require:"true"`
+	Mode          *string                                      `json:"Mode,omitempty" xml:"Mode,omitempty"`
+	RefUrl        *string                                      `json:"RefUrl,omitempty" xml:"RefUrl,omitempty"`
+	ColorCount    *int                                         `json:"ColorCount,omitempty" xml:"ColorCount,omitempty"`
+	ColorTemplate []*RecolorHDImageAdvanceRequestColorTemplate `json:"ColorTemplate,omitempty" xml:"ColorTemplate,omitempty" type:"Repeated"`
+	Degree        *string                                      `json:"Degree,omitempty" xml:"Degree,omitempty" require:"true"`
+}
+
+func (s RecolorHDImageAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecolorHDImageAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorHDImageAdvanceRequest) SetUrlObject(v io.Reader) *RecolorHDImageAdvanceRequest {
+	s.UrlObject = v
+	return s
+}
+
+func (s *RecolorHDImageAdvanceRequest) SetMode(v string) *RecolorHDImageAdvanceRequest {
+	s.Mode = &v
+	return s
+}
+
+func (s *RecolorHDImageAdvanceRequest) SetRefUrl(v string) *RecolorHDImageAdvanceRequest {
+	s.RefUrl = &v
+	return s
+}
+
+func (s *RecolorHDImageAdvanceRequest) SetColorCount(v int) *RecolorHDImageAdvanceRequest {
+	s.ColorCount = &v
+	return s
+}
+
+func (s *RecolorHDImageAdvanceRequest) SetColorTemplate(v []*RecolorHDImageAdvanceRequestColorTemplate) *RecolorHDImageAdvanceRequest {
+	s.ColorTemplate = v
+	return s
+}
+
+func (s *RecolorHDImageAdvanceRequest) SetDegree(v string) *RecolorHDImageAdvanceRequest {
+	s.Degree = &v
+	return s
+}
+
+type RecolorHDImageAdvanceRequestColorTemplate struct {
+	Color *string `json:"Color,omitempty" xml:"Color,omitempty"`
+}
+
+func (s RecolorHDImageAdvanceRequestColorTemplate) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecolorHDImageAdvanceRequestColorTemplate) GoString() string {
+	return s.String()
+}
+
+func (s *RecolorHDImageAdvanceRequestColorTemplate) SetColor(v string) *RecolorHDImageAdvanceRequestColorTemplate {
+	s.Color = &v
+	return s
+}
+
 type AssessCompositionRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s AssessCompositionRequest) String() string {
@@ -32,8 +465,8 @@ func (s *AssessCompositionRequest) SetImageURL(v string) *AssessCompositionReque
 }
 
 type AssessCompositionResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AssessCompositionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AssessCompositionResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AssessCompositionResponse) String() string {
@@ -55,7 +488,7 @@ func (s *AssessCompositionResponse) SetData(v *AssessCompositionResponseData) *A
 }
 
 type AssessCompositionResponseData struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
 }
 
 func (s AssessCompositionResponseData) String() string {
@@ -72,7 +505,7 @@ func (s *AssessCompositionResponseData) SetScore(v float32) *AssessCompositionRe
 }
 
 type AssessCompositionAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s AssessCompositionAdvanceRequest) String() string {
@@ -89,7 +522,7 @@ func (s *AssessCompositionAdvanceRequest) SetImageURLObject(v io.Reader) *Assess
 }
 
 type AssessSharpnessRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s AssessSharpnessRequest) String() string {
@@ -106,8 +539,8 @@ func (s *AssessSharpnessRequest) SetImageURL(v string) *AssessSharpnessRequest {
 }
 
 type AssessSharpnessResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AssessSharpnessResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AssessSharpnessResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AssessSharpnessResponse) String() string {
@@ -129,7 +562,7 @@ func (s *AssessSharpnessResponse) SetData(v *AssessSharpnessResponseData) *Asses
 }
 
 type AssessSharpnessResponseData struct {
-	Sharpness *float32 `json:"Sharpness" xml:"Sharpness" require:"true"`
+	Sharpness *float32 `json:"Sharpness,omitempty" xml:"Sharpness,omitempty" require:"true"`
 }
 
 func (s AssessSharpnessResponseData) String() string {
@@ -146,7 +579,7 @@ func (s *AssessSharpnessResponseData) SetSharpness(v float32) *AssessSharpnessRe
 }
 
 type AssessSharpnessAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s AssessSharpnessAdvanceRequest) String() string {
@@ -163,7 +596,7 @@ func (s *AssessSharpnessAdvanceRequest) SetImageURLObject(v io.Reader) *AssessSh
 }
 
 type AssessExposureRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s AssessExposureRequest) String() string {
@@ -180,8 +613,8 @@ func (s *AssessExposureRequest) SetImageURL(v string) *AssessExposureRequest {
 }
 
 type AssessExposureResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AssessExposureResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AssessExposureResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AssessExposureResponse) String() string {
@@ -203,7 +636,7 @@ func (s *AssessExposureResponse) SetData(v *AssessExposureResponseData) *AssessE
 }
 
 type AssessExposureResponseData struct {
-	Exposure *float32 `json:"Exposure" xml:"Exposure" require:"true"`
+	Exposure *float32 `json:"Exposure,omitempty" xml:"Exposure,omitempty" require:"true"`
 }
 
 func (s AssessExposureResponseData) String() string {
@@ -220,7 +653,7 @@ func (s *AssessExposureResponseData) SetExposure(v float32) *AssessExposureRespo
 }
 
 type AssessExposureAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s AssessExposureAdvanceRequest) String() string {
@@ -237,12 +670,12 @@ func (s *AssessExposureAdvanceRequest) SetImageURLObject(v io.Reader) *AssessExp
 }
 
 type ImageBlindCharacterWatermarkRequest struct {
-	FunctionType      *string `json:"FunctionType" xml:"FunctionType" require:"true"`
-	Text              *string `json:"Text" xml:"Text"`
-	WatermarkImageURL *string `json:"WatermarkImageURL" xml:"WatermarkImageURL"`
-	OutputFileType    *string `json:"OutputFileType" xml:"OutputFileType"`
-	QualityFactor     *int    `json:"QualityFactor" xml:"QualityFactor" require:"true"`
-	OriginImageURL    *string `json:"OriginImageURL" xml:"OriginImageURL" require:"true"`
+	FunctionType      *string `json:"FunctionType,omitempty" xml:"FunctionType,omitempty" require:"true"`
+	Text              *string `json:"Text,omitempty" xml:"Text,omitempty"`
+	WatermarkImageURL *string `json:"WatermarkImageURL,omitempty" xml:"WatermarkImageURL,omitempty"`
+	OutputFileType    *string `json:"OutputFileType,omitempty" xml:"OutputFileType,omitempty"`
+	QualityFactor     *int    `json:"QualityFactor,omitempty" xml:"QualityFactor,omitempty" require:"true"`
+	OriginImageURL    *string `json:"OriginImageURL,omitempty" xml:"OriginImageURL,omitempty" require:"true"`
 }
 
 func (s ImageBlindCharacterWatermarkRequest) String() string {
@@ -284,8 +717,8 @@ func (s *ImageBlindCharacterWatermarkRequest) SetOriginImageURL(v string) *Image
 }
 
 type ImageBlindCharacterWatermarkResponse struct {
-	RequestId *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ImageBlindCharacterWatermarkResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ImageBlindCharacterWatermarkResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ImageBlindCharacterWatermarkResponse) String() string {
@@ -307,8 +740,8 @@ func (s *ImageBlindCharacterWatermarkResponse) SetData(v *ImageBlindCharacterWat
 }
 
 type ImageBlindCharacterWatermarkResponseData struct {
-	WatermarkImageURL *string `json:"WatermarkImageURL" xml:"WatermarkImageURL" require:"true"`
-	TextImageURL      *string `json:"TextImageURL" xml:"TextImageURL" require:"true"`
+	WatermarkImageURL *string `json:"WatermarkImageURL,omitempty" xml:"WatermarkImageURL,omitempty" require:"true"`
+	TextImageURL      *string `json:"TextImageURL,omitempty" xml:"TextImageURL,omitempty" require:"true"`
 }
 
 func (s ImageBlindCharacterWatermarkResponseData) String() string {
@@ -330,12 +763,12 @@ func (s *ImageBlindCharacterWatermarkResponseData) SetTextImageURL(v string) *Im
 }
 
 type ImageBlindCharacterWatermarkAdvanceRequest struct {
-	OriginImageURLObject io.Reader `json:"OriginImageURLObject" xml:"OriginImageURLObject" require:"true"`
-	FunctionType         *string   `json:"FunctionType" xml:"FunctionType" require:"true"`
-	Text                 *string   `json:"Text" xml:"Text"`
-	WatermarkImageURL    *string   `json:"WatermarkImageURL" xml:"WatermarkImageURL"`
-	OutputFileType       *string   `json:"OutputFileType" xml:"OutputFileType"`
-	QualityFactor        *int      `json:"QualityFactor" xml:"QualityFactor" require:"true"`
+	OriginImageURLObject io.Reader `json:"OriginImageURLObject,omitempty" xml:"OriginImageURLObject,omitempty" require:"true"`
+	FunctionType         *string   `json:"FunctionType,omitempty" xml:"FunctionType,omitempty" require:"true"`
+	Text                 *string   `json:"Text,omitempty" xml:"Text,omitempty"`
+	WatermarkImageURL    *string   `json:"WatermarkImageURL,omitempty" xml:"WatermarkImageURL,omitempty"`
+	OutputFileType       *string   `json:"OutputFileType,omitempty" xml:"OutputFileType,omitempty"`
+	QualityFactor        *int      `json:"QualityFactor,omitempty" xml:"QualityFactor,omitempty" require:"true"`
 }
 
 func (s ImageBlindCharacterWatermarkAdvanceRequest) String() string {
@@ -377,11 +810,11 @@ func (s *ImageBlindCharacterWatermarkAdvanceRequest) SetQualityFactor(v int) *Im
 }
 
 type RemoveImageSubtitlesRequest struct {
-	ImageURL *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	BX       *float32 `json:"BX" xml:"BX"`
-	BY       *float32 `json:"BY" xml:"BY"`
-	BW       *float32 `json:"BW" xml:"BW"`
-	BH       *float32 `json:"BH" xml:"BH"`
+	ImageURL *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	BX       *float32 `json:"BX,omitempty" xml:"BX,omitempty"`
+	BY       *float32 `json:"BY,omitempty" xml:"BY,omitempty"`
+	BW       *float32 `json:"BW,omitempty" xml:"BW,omitempty"`
+	BH       *float32 `json:"BH,omitempty" xml:"BH,omitempty"`
 }
 
 func (s RemoveImageSubtitlesRequest) String() string {
@@ -418,8 +851,8 @@ func (s *RemoveImageSubtitlesRequest) SetBH(v float32) *RemoveImageSubtitlesRequ
 }
 
 type RemoveImageSubtitlesResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RemoveImageSubtitlesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RemoveImageSubtitlesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RemoveImageSubtitlesResponse) String() string {
@@ -441,7 +874,7 @@ func (s *RemoveImageSubtitlesResponse) SetData(v *RemoveImageSubtitlesResponseDa
 }
 
 type RemoveImageSubtitlesResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RemoveImageSubtitlesResponseData) String() string {
@@ -458,11 +891,11 @@ func (s *RemoveImageSubtitlesResponseData) SetImageURL(v string) *RemoveImageSub
 }
 
 type RemoveImageSubtitlesAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	BX             *float32  `json:"BX" xml:"BX"`
-	BY             *float32  `json:"BY" xml:"BY"`
-	BW             *float32  `json:"BW" xml:"BW"`
-	BH             *float32  `json:"BH" xml:"BH"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	BX             *float32  `json:"BX,omitempty" xml:"BX,omitempty"`
+	BY             *float32  `json:"BY,omitempty" xml:"BY,omitempty"`
+	BW             *float32  `json:"BW,omitempty" xml:"BW,omitempty"`
+	BH             *float32  `json:"BH,omitempty" xml:"BH,omitempty"`
 }
 
 func (s RemoveImageSubtitlesAdvanceRequest) String() string {
@@ -499,7 +932,7 @@ func (s *RemoveImageSubtitlesAdvanceRequest) SetBH(v float32) *RemoveImageSubtit
 }
 
 type RemoveImageWatermarkRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RemoveImageWatermarkRequest) String() string {
@@ -516,8 +949,8 @@ func (s *RemoveImageWatermarkRequest) SetImageURL(v string) *RemoveImageWatermar
 }
 
 type RemoveImageWatermarkResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RemoveImageWatermarkResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RemoveImageWatermarkResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RemoveImageWatermarkResponse) String() string {
@@ -539,7 +972,7 @@ func (s *RemoveImageWatermarkResponse) SetData(v *RemoveImageWatermarkResponseDa
 }
 
 type RemoveImageWatermarkResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RemoveImageWatermarkResponseData) String() string {
@@ -556,7 +989,7 @@ func (s *RemoveImageWatermarkResponseData) SetImageURL(v string) *RemoveImageWat
 }
 
 type RemoveImageWatermarkAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RemoveImageWatermarkAdvanceRequest) String() string {
@@ -573,12 +1006,12 @@ func (s *RemoveImageWatermarkAdvanceRequest) SetImageURLObject(v io.Reader) *Rem
 }
 
 type ImageBlindPicWatermarkRequest struct {
-	FunctionType      *string `json:"FunctionType" xml:"FunctionType" require:"true"`
-	LogoURL           *string `json:"LogoURL" xml:"LogoURL"`
-	WatermarkImageURL *string `json:"WatermarkImageURL" xml:"WatermarkImageURL"`
-	OutputFileType    *string `json:"OutputFileType" xml:"OutputFileType"`
-	QualityFactor     *int    `json:"QualityFactor" xml:"QualityFactor" require:"true"`
-	OriginImageURL    *string `json:"OriginImageURL" xml:"OriginImageURL" require:"true"`
+	FunctionType      *string `json:"FunctionType,omitempty" xml:"FunctionType,omitempty" require:"true"`
+	LogoURL           *string `json:"LogoURL,omitempty" xml:"LogoURL,omitempty"`
+	WatermarkImageURL *string `json:"WatermarkImageURL,omitempty" xml:"WatermarkImageURL,omitempty"`
+	OutputFileType    *string `json:"OutputFileType,omitempty" xml:"OutputFileType,omitempty"`
+	QualityFactor     *int    `json:"QualityFactor,omitempty" xml:"QualityFactor,omitempty" require:"true"`
+	OriginImageURL    *string `json:"OriginImageURL,omitempty" xml:"OriginImageURL,omitempty" require:"true"`
 }
 
 func (s ImageBlindPicWatermarkRequest) String() string {
@@ -620,8 +1053,8 @@ func (s *ImageBlindPicWatermarkRequest) SetOriginImageURL(v string) *ImageBlindP
 }
 
 type ImageBlindPicWatermarkResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ImageBlindPicWatermarkResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ImageBlindPicWatermarkResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ImageBlindPicWatermarkResponse) String() string {
@@ -643,8 +1076,8 @@ func (s *ImageBlindPicWatermarkResponse) SetData(v *ImageBlindPicWatermarkRespon
 }
 
 type ImageBlindPicWatermarkResponseData struct {
-	WatermarkImageURL *string `json:"WatermarkImageURL" xml:"WatermarkImageURL" require:"true"`
-	LogoURL           *string `json:"LogoURL" xml:"LogoURL" require:"true"`
+	WatermarkImageURL *string `json:"WatermarkImageURL,omitempty" xml:"WatermarkImageURL,omitempty" require:"true"`
+	LogoURL           *string `json:"LogoURL,omitempty" xml:"LogoURL,omitempty" require:"true"`
 }
 
 func (s ImageBlindPicWatermarkResponseData) String() string {
@@ -666,12 +1099,12 @@ func (s *ImageBlindPicWatermarkResponseData) SetLogoURL(v string) *ImageBlindPic
 }
 
 type ImageBlindPicWatermarkAdvanceRequest struct {
-	OriginImageURLObject io.Reader `json:"OriginImageURLObject" xml:"OriginImageURLObject" require:"true"`
-	FunctionType         *string   `json:"FunctionType" xml:"FunctionType" require:"true"`
-	LogoURL              *string   `json:"LogoURL" xml:"LogoURL"`
-	WatermarkImageURL    *string   `json:"WatermarkImageURL" xml:"WatermarkImageURL"`
-	OutputFileType       *string   `json:"OutputFileType" xml:"OutputFileType"`
-	QualityFactor        *int      `json:"QualityFactor" xml:"QualityFactor" require:"true"`
+	OriginImageURLObject io.Reader `json:"OriginImageURLObject,omitempty" xml:"OriginImageURLObject,omitempty" require:"true"`
+	FunctionType         *string   `json:"FunctionType,omitempty" xml:"FunctionType,omitempty" require:"true"`
+	LogoURL              *string   `json:"LogoURL,omitempty" xml:"LogoURL,omitempty"`
+	WatermarkImageURL    *string   `json:"WatermarkImageURL,omitempty" xml:"WatermarkImageURL,omitempty"`
+	OutputFileType       *string   `json:"OutputFileType,omitempty" xml:"OutputFileType,omitempty"`
+	QualityFactor        *int      `json:"QualityFactor,omitempty" xml:"QualityFactor,omitempty" require:"true"`
 }
 
 func (s ImageBlindPicWatermarkAdvanceRequest) String() string {
@@ -713,8 +1146,8 @@ func (s *ImageBlindPicWatermarkAdvanceRequest) SetQualityFactor(v int) *ImageBli
 }
 
 type IntelligentCompositionRequest struct {
-	NumBoxes *int    `json:"NumBoxes" xml:"NumBoxes"`
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	NumBoxes *int    `json:"NumBoxes,omitempty" xml:"NumBoxes,omitempty"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s IntelligentCompositionRequest) String() string {
@@ -736,8 +1169,8 @@ func (s *IntelligentCompositionRequest) SetImageURL(v string) *IntelligentCompos
 }
 
 type IntelligentCompositionResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *IntelligentCompositionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *IntelligentCompositionResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s IntelligentCompositionResponse) String() string {
@@ -759,7 +1192,7 @@ func (s *IntelligentCompositionResponse) SetData(v *IntelligentCompositionRespon
 }
 
 type IntelligentCompositionResponseData struct {
-	Elements []*IntelligentCompositionResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*IntelligentCompositionResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s IntelligentCompositionResponseData) String() string {
@@ -776,11 +1209,11 @@ func (s *IntelligentCompositionResponseData) SetElements(v []*IntelligentComposi
 }
 
 type IntelligentCompositionResponseDataElements struct {
-	MinX  *int     `json:"MinX" xml:"MinX" require:"true"`
-	MinY  *int     `json:"MinY" xml:"MinY" require:"true"`
-	MaxX  *int     `json:"MaxX" xml:"MaxX" require:"true"`
-	MaxY  *int     `json:"MaxY" xml:"MaxY" require:"true"`
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
+	MinX  *int     `json:"MinX,omitempty" xml:"MinX,omitempty" require:"true"`
+	MinY  *int     `json:"MinY,omitempty" xml:"MinY,omitempty" require:"true"`
+	MaxX  *int     `json:"MaxX,omitempty" xml:"MaxX,omitempty" require:"true"`
+	MaxY  *int     `json:"MaxY,omitempty" xml:"MaxY,omitempty" require:"true"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
 }
 
 func (s IntelligentCompositionResponseDataElements) String() string {
@@ -817,8 +1250,8 @@ func (s *IntelligentCompositionResponseDataElements) SetScore(v float32) *Intell
 }
 
 type IntelligentCompositionAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	NumBoxes       *int      `json:"NumBoxes" xml:"NumBoxes"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	NumBoxes       *int      `json:"NumBoxes,omitempty" xml:"NumBoxes,omitempty"`
 }
 
 func (s IntelligentCompositionAdvanceRequest) String() string {
@@ -840,9 +1273,9 @@ func (s *IntelligentCompositionAdvanceRequest) SetNumBoxes(v int) *IntelligentCo
 }
 
 type ChangeImageSizeRequest struct {
-	Width  *int    `json:"Width" xml:"Width" require:"true"`
-	Height *int    `json:"Height" xml:"Height" require:"true"`
-	Url    *string `json:"Url" xml:"Url" require:"true"`
+	Width  *int    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Url    *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s ChangeImageSizeRequest) String() string {
@@ -869,8 +1302,8 @@ func (s *ChangeImageSizeRequest) SetUrl(v string) *ChangeImageSizeRequest {
 }
 
 type ChangeImageSizeResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ChangeImageSizeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ChangeImageSizeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ChangeImageSizeResponse) String() string {
@@ -892,8 +1325,8 @@ func (s *ChangeImageSizeResponse) SetData(v *ChangeImageSizeResponseData) *Chang
 }
 
 type ChangeImageSizeResponseData struct {
-	Url            *string                                    `json:"Url" xml:"Url" require:"true"`
-	RetainLocation *ChangeImageSizeResponseDataRetainLocation `json:"RetainLocation" xml:"RetainLocation" require:"true" type:"Struct"`
+	Url            *string                                    `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	RetainLocation *ChangeImageSizeResponseDataRetainLocation `json:"RetainLocation,omitempty" xml:"RetainLocation,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ChangeImageSizeResponseData) String() string {
@@ -915,10 +1348,10 @@ func (s *ChangeImageSizeResponseData) SetRetainLocation(v *ChangeImageSizeRespon
 }
 
 type ChangeImageSizeResponseDataRetainLocation struct {
-	X      *int `json:"X" xml:"X" require:"true"`
-	Y      *int `json:"Y" xml:"Y" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
+	X      *int `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *int `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s ChangeImageSizeResponseDataRetainLocation) String() string {
@@ -950,9 +1383,9 @@ func (s *ChangeImageSizeResponseDataRetainLocation) SetHeight(v int) *ChangeImag
 }
 
 type ChangeImageSizeAdvanceRequest struct {
-	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
-	Width     *int      `json:"Width" xml:"Width" require:"true"`
-	Height    *int      `json:"Height" xml:"Height" require:"true"`
+	UrlObject io.Reader `json:"UrlObject,omitempty" xml:"UrlObject,omitempty" require:"true"`
+	Width     *int      `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height    *int      `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s ChangeImageSizeAdvanceRequest) String() string {
@@ -979,8 +1412,8 @@ func (s *ChangeImageSizeAdvanceRequest) SetHeight(v int) *ChangeImageSizeAdvance
 }
 
 type ExtendImageStyleRequest struct {
-	StyleUrl *string `json:"StyleUrl" xml:"StyleUrl" require:"true"`
-	MajorUrl *string `json:"MajorUrl" xml:"MajorUrl" require:"true"`
+	StyleUrl *string `json:"StyleUrl,omitempty" xml:"StyleUrl,omitempty" require:"true"`
+	MajorUrl *string `json:"MajorUrl,omitempty" xml:"MajorUrl,omitempty" require:"true"`
 }
 
 func (s ExtendImageStyleRequest) String() string {
@@ -1002,8 +1435,8 @@ func (s *ExtendImageStyleRequest) SetMajorUrl(v string) *ExtendImageStyleRequest
 }
 
 type ExtendImageStyleResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ExtendImageStyleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ExtendImageStyleResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExtendImageStyleResponse) String() string {
@@ -1025,8 +1458,8 @@ func (s *ExtendImageStyleResponse) SetData(v *ExtendImageStyleResponseData) *Ext
 }
 
 type ExtendImageStyleResponseData struct {
-	Url      *string `json:"Url" xml:"Url" require:"true"`
-	MajorUrl *string `json:"MajorUrl" xml:"MajorUrl" require:"true"`
+	Url      *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	MajorUrl *string `json:"MajorUrl,omitempty" xml:"MajorUrl,omitempty" require:"true"`
 }
 
 func (s ExtendImageStyleResponseData) String() string {
@@ -1048,7 +1481,7 @@ func (s *ExtendImageStyleResponseData) SetMajorUrl(v string) *ExtendImageStyleRe
 }
 
 type MakeSuperResolutionImageRequest struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
+	Url *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s MakeSuperResolutionImageRequest) String() string {
@@ -1065,8 +1498,8 @@ func (s *MakeSuperResolutionImageRequest) SetUrl(v string) *MakeSuperResolutionI
 }
 
 type MakeSuperResolutionImageResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *MakeSuperResolutionImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *MakeSuperResolutionImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s MakeSuperResolutionImageResponse) String() string {
@@ -1088,7 +1521,7 @@ func (s *MakeSuperResolutionImageResponse) SetData(v *MakeSuperResolutionImageRe
 }
 
 type MakeSuperResolutionImageResponseData struct {
-	Url *string `json:"Url" xml:"Url" require:"true"`
+	Url *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s MakeSuperResolutionImageResponseData) String() string {
@@ -1105,7 +1538,7 @@ func (s *MakeSuperResolutionImageResponseData) SetUrl(v string) *MakeSuperResolu
 }
 
 type MakeSuperResolutionImageAdvanceRequest struct {
-	UrlObject io.Reader `json:"UrlObject" xml:"UrlObject" require:"true"`
+	UrlObject io.Reader `json:"UrlObject,omitempty" xml:"UrlObject,omitempty" require:"true"`
 }
 
 func (s MakeSuperResolutionImageAdvanceRequest) String() string {
@@ -1122,11 +1555,11 @@ func (s *MakeSuperResolutionImageAdvanceRequest) SetUrlObject(v io.Reader) *Make
 }
 
 type RecolorImageRequest struct {
-	Url           *string                             `json:"Url" xml:"Url" require:"true"`
-	Mode          *string                             `json:"Mode" xml:"Mode"`
-	RefUrl        *string                             `json:"RefUrl" xml:"RefUrl"`
-	ColorCount    *int                                `json:"ColorCount" xml:"ColorCount"`
-	ColorTemplate []*RecolorImageRequestColorTemplate `json:"ColorTemplate" xml:"ColorTemplate" type:"Repeated"`
+	Url           *string                             `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	Mode          *string                             `json:"Mode,omitempty" xml:"Mode,omitempty"`
+	RefUrl        *string                             `json:"RefUrl,omitempty" xml:"RefUrl,omitempty"`
+	ColorCount    *int                                `json:"ColorCount,omitempty" xml:"ColorCount,omitempty"`
+	ColorTemplate []*RecolorImageRequestColorTemplate `json:"ColorTemplate,omitempty" xml:"ColorTemplate,omitempty" type:"Repeated"`
 }
 
 func (s RecolorImageRequest) String() string {
@@ -1163,7 +1596,7 @@ func (s *RecolorImageRequest) SetColorTemplate(v []*RecolorImageRequestColorTemp
 }
 
 type RecolorImageRequestColorTemplate struct {
-	Color *string `json:"Color" xml:"Color"`
+	Color *string `json:"Color,omitempty" xml:"Color,omitempty"`
 }
 
 func (s RecolorImageRequestColorTemplate) String() string {
@@ -1180,8 +1613,8 @@ func (s *RecolorImageRequestColorTemplate) SetColor(v string) *RecolorImageReque
 }
 
 type RecolorImageResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecolorImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecolorImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecolorImageResponse) String() string {
@@ -1203,7 +1636,7 @@ func (s *RecolorImageResponse) SetData(v *RecolorImageResponseData) *RecolorImag
 }
 
 type RecolorImageResponseData struct {
-	ImageList []*string `json:"ImageList" xml:"ImageList" require:"true" type:"Repeated"`
+	ImageList []*string `json:"ImageList,omitempty" xml:"ImageList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecolorImageResponseData) String() string {
@@ -1239,12 +1672,320 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("imageenhan"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
 	return nil
+}
+
+func (client *Client) GetAsyncJobResult(request *GetAsyncJobResultRequest, runtime *util.RuntimeOptions) (_result *GetAsyncJobResultResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetAsyncJobResultResponse{}
+	_body, _err := client.DoRequest(tea.String("GetAsyncJobResult"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ImitatePhotoStyle(request *ImitatePhotoStyleRequest, runtime *util.RuntimeOptions) (_result *ImitatePhotoStyleResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ImitatePhotoStyleResponse{}
+	_body, _err := client.DoRequest(tea.String("ImitatePhotoStyle"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ImitatePhotoStyleAdvance(request *ImitatePhotoStyleAdvanceRequest, runtime *util.RuntimeOptions) (_result *ImitatePhotoStyleResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	imitatePhotoStylereq := &ImitatePhotoStyleRequest{}
+	rpcutil.Convert(request, imitatePhotoStylereq)
+	imitatePhotoStylereq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	imitatePhotoStyleResp, _err := client.ImitatePhotoStyle(imitatePhotoStylereq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = imitatePhotoStyleResp
+	return _result, _err
+}
+
+func (client *Client) EnhanceImageColor(request *EnhanceImageColorRequest, runtime *util.RuntimeOptions) (_result *EnhanceImageColorResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &EnhanceImageColorResponse{}
+	_body, _err := client.DoRequest(tea.String("EnhanceImageColor"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) EnhanceImageColorAdvance(request *EnhanceImageColorAdvanceRequest, runtime *util.RuntimeOptions) (_result *EnhanceImageColorResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	enhanceImageColorreq := &EnhanceImageColorRequest{}
+	rpcutil.Convert(request, enhanceImageColorreq)
+	enhanceImageColorreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	enhanceImageColorResp, _err := client.EnhanceImageColor(enhanceImageColorreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = enhanceImageColorResp
+	return _result, _err
+}
+
+func (client *Client) RecolorHDImage(request *RecolorHDImageRequest, runtime *util.RuntimeOptions) (_result *RecolorHDImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &RecolorHDImageResponse{}
+	_body, _err := client.DoRequest(tea.String("RecolorHDImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RecolorHDImageAdvance(request *RecolorHDImageAdvanceRequest, runtime *util.RuntimeOptions) (_result *RecolorHDImageResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageenhan"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.UrlObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	recolorHDImagereq := &RecolorHDImageRequest{}
+	rpcutil.Convert(request, recolorHDImagereq)
+	recolorHDImagereq.Url = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	recolorHDImageResp, _err := client.RecolorHDImage(recolorHDImagereq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = recolorHDImageResp
+	return _result, _err
 }
 
 func (client *Client) AssessComposition(request *AssessCompositionRequest, runtime *util.RuntimeOptions) (_result *AssessCompositionResponse, _err error) {
@@ -1290,7 +2031,7 @@ func (client *Client) AssessCompositionAdvance(request *AssessCompositionAdvance
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1388,7 +2129,7 @@ func (client *Client) AssessSharpnessAdvance(request *AssessSharpnessAdvanceRequ
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1486,7 +2227,7 @@ func (client *Client) AssessExposureAdvance(request *AssessExposureAdvanceReques
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1584,7 +2325,7 @@ func (client *Client) ImageBlindCharacterWatermarkAdvance(request *ImageBlindCha
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1682,7 +2423,7 @@ func (client *Client) RemoveImageSubtitlesAdvance(request *RemoveImageSubtitlesA
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1780,7 +2521,7 @@ func (client *Client) RemoveImageWatermarkAdvance(request *RemoveImageWatermarkA
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1878,7 +2619,7 @@ func (client *Client) ImageBlindPicWatermarkAdvance(request *ImageBlindPicWaterm
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1976,7 +2717,7 @@ func (client *Client) IntelligentCompositionAdvance(request *IntelligentComposit
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2074,7 +2815,7 @@ func (client *Client) ChangeImageSizeAdvance(request *ChangeImageSizeAdvanceRequ
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2186,7 +2927,7 @@ func (client *Client) MakeSuperResolutionImageAdvance(request *MakeSuperResoluti
 		Product:  tea.String("imageenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
