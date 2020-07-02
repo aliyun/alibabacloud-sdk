@@ -14,8 +14,262 @@ import (
 	"io"
 )
 
+type VerifyFaceMaskRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	RefUrl   *string `json:"RefUrl,omitempty" xml:"RefUrl,omitempty" require:"true"`
+}
+
+func (s VerifyFaceMaskRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s VerifyFaceMaskRequest) GoString() string {
+	return s.String()
+}
+
+func (s *VerifyFaceMaskRequest) SetImageURL(v string) *VerifyFaceMaskRequest {
+	s.ImageURL = &v
+	return s
+}
+
+func (s *VerifyFaceMaskRequest) SetRefUrl(v string) *VerifyFaceMaskRequest {
+	s.RefUrl = &v
+	return s
+}
+
+type VerifyFaceMaskResponse struct {
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *VerifyFaceMaskResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s VerifyFaceMaskResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s VerifyFaceMaskResponse) GoString() string {
+	return s.String()
+}
+
+func (s *VerifyFaceMaskResponse) SetRequestId(v string) *VerifyFaceMaskResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *VerifyFaceMaskResponse) SetData(v *VerifyFaceMaskResponseData) *VerifyFaceMaskResponse {
+	s.Data = v
+	return s
+}
+
+type VerifyFaceMaskResponseData struct {
+	Confidence   *float32   `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
+	Mask         *int       `json:"Mask,omitempty" xml:"Mask,omitempty" require:"true"`
+	MaskRef      *int       `json:"MaskRef,omitempty" xml:"MaskRef,omitempty" require:"true"`
+	Rectangle    []*int     `json:"Rectangle,omitempty" xml:"Rectangle,omitempty" require:"true" type:"Repeated"`
+	RectangleRef []*int     `json:"RectangleRef,omitempty" xml:"RectangleRef,omitempty" require:"true" type:"Repeated"`
+	Thresholds   []*float32 `json:"Thresholds,omitempty" xml:"Thresholds,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s VerifyFaceMaskResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s VerifyFaceMaskResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *VerifyFaceMaskResponseData) SetConfidence(v float32) *VerifyFaceMaskResponseData {
+	s.Confidence = &v
+	return s
+}
+
+func (s *VerifyFaceMaskResponseData) SetMask(v int) *VerifyFaceMaskResponseData {
+	s.Mask = &v
+	return s
+}
+
+func (s *VerifyFaceMaskResponseData) SetMaskRef(v int) *VerifyFaceMaskResponseData {
+	s.MaskRef = &v
+	return s
+}
+
+func (s *VerifyFaceMaskResponseData) SetRectangle(v []*int) *VerifyFaceMaskResponseData {
+	s.Rectangle = v
+	return s
+}
+
+func (s *VerifyFaceMaskResponseData) SetRectangleRef(v []*int) *VerifyFaceMaskResponseData {
+	s.RectangleRef = v
+	return s
+}
+
+func (s *VerifyFaceMaskResponseData) SetThresholds(v []*float32) *VerifyFaceMaskResponseData {
+	s.Thresholds = v
+	return s
+}
+
+type VerifyFaceMaskAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	RefUrl         *string   `json:"RefUrl,omitempty" xml:"RefUrl,omitempty" require:"true"`
+}
+
+func (s VerifyFaceMaskAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s VerifyFaceMaskAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *VerifyFaceMaskAdvanceRequest) SetImageURLObject(v io.Reader) *VerifyFaceMaskAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+func (s *VerifyFaceMaskAdvanceRequest) SetRefUrl(v string) *VerifyFaceMaskAdvanceRequest {
+	s.RefUrl = &v
+	return s
+}
+
+type RecognizeActionRequest struct {
+	URLList  []*RecognizeActionRequestURLList `json:"URLList,omitempty" xml:"URLList,omitempty" type:"Repeated"`
+	Type     *int                             `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	VideoUrl *string                          `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty"`
+}
+
+func (s RecognizeActionRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeActionRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeActionRequest) SetURLList(v []*RecognizeActionRequestURLList) *RecognizeActionRequest {
+	s.URLList = v
+	return s
+}
+
+func (s *RecognizeActionRequest) SetType(v int) *RecognizeActionRequest {
+	s.Type = &v
+	return s
+}
+
+func (s *RecognizeActionRequest) SetVideoUrl(v string) *RecognizeActionRequest {
+	s.VideoUrl = &v
+	return s
+}
+
+type RecognizeActionRequestURLList struct {
+	URL *string `json:"URL,omitempty" xml:"URL,omitempty"`
+}
+
+func (s RecognizeActionRequestURLList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeActionRequestURLList) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeActionRequestURLList) SetURL(v string) *RecognizeActionRequestURLList {
+	s.URL = &v
+	return s
+}
+
+type RecognizeActionResponse struct {
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeActionResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s RecognizeActionResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeActionResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeActionResponse) SetRequestId(v string) *RecognizeActionResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RecognizeActionResponse) SetData(v *RecognizeActionResponseData) *RecognizeActionResponse {
+	s.Data = v
+	return s
+}
+
+type RecognizeActionResponseData struct {
+	Elements []*RecognizeActionResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeActionResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeActionResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeActionResponseData) SetElements(v []*RecognizeActionResponseDataElements) *RecognizeActionResponseData {
+	s.Elements = v
+	return s
+}
+
+type RecognizeActionResponseDataElements struct {
+	Timestamp *int                                        `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Boxes     []*RecognizeActionResponseDataElementsBoxes `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
+	Scores    []*float32                                  `json:"Scores,omitempty" xml:"Scores,omitempty" require:"true" type:"Repeated"`
+	Labels    []*string                                   `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeActionResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeActionResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeActionResponseDataElements) SetTimestamp(v int) *RecognizeActionResponseDataElements {
+	s.Timestamp = &v
+	return s
+}
+
+func (s *RecognizeActionResponseDataElements) SetBoxes(v []*RecognizeActionResponseDataElementsBoxes) *RecognizeActionResponseDataElements {
+	s.Boxes = v
+	return s
+}
+
+func (s *RecognizeActionResponseDataElements) SetScores(v []*float32) *RecognizeActionResponseDataElements {
+	s.Scores = v
+	return s
+}
+
+func (s *RecognizeActionResponseDataElements) SetLabels(v []*string) *RecognizeActionResponseDataElements {
+	s.Labels = v
+	return s
+}
+
+type RecognizeActionResponseDataElementsBoxes struct {
+	Box []*int `json:"Box,omitempty" xml:"Box,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s RecognizeActionResponseDataElementsBoxes) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RecognizeActionResponseDataElementsBoxes) GoString() string {
+	return s.String()
+}
+
+func (s *RecognizeActionResponseDataElementsBoxes) SetBox(v []*int) *RecognizeActionResponseDataElementsBoxes {
+	s.Box = v
+	return s
+}
+
 type DetectVideoLivingFaceRequest struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s DetectVideoLivingFaceRequest) String() string {
@@ -32,8 +286,8 @@ func (s *DetectVideoLivingFaceRequest) SetVideoUrl(v string) *DetectVideoLivingF
 }
 
 type DetectVideoLivingFaceResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectVideoLivingFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectVideoLivingFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectVideoLivingFaceResponse) String() string {
@@ -55,7 +309,7 @@ func (s *DetectVideoLivingFaceResponse) SetData(v *DetectVideoLivingFaceResponse
 }
 
 type DetectVideoLivingFaceResponseData struct {
-	Elements []*DetectVideoLivingFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*DetectVideoLivingFaceResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectVideoLivingFaceResponseData) String() string {
@@ -72,9 +326,9 @@ func (s *DetectVideoLivingFaceResponseData) SetElements(v []*DetectVideoLivingFa
 }
 
 type DetectVideoLivingFaceResponseDataElements struct {
-	LiveConfidence *float32 `json:"LiveConfidence" xml:"LiveConfidence" require:"true"`
-	FaceConfidence *float32 `json:"FaceConfidence" xml:"FaceConfidence" require:"true"`
-	Rect           []*int   `json:"Rect" xml:"Rect" require:"true" type:"Repeated"`
+	LiveConfidence *float32 `json:"LiveConfidence,omitempty" xml:"LiveConfidence,omitempty" require:"true"`
+	FaceConfidence *float32 `json:"FaceConfidence,omitempty" xml:"FaceConfidence,omitempty" require:"true"`
+	Rect           []*int   `json:"Rect,omitempty" xml:"Rect,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectVideoLivingFaceResponseDataElements) String() string {
@@ -101,7 +355,7 @@ func (s *DetectVideoLivingFaceResponseDataElements) SetRect(v []*int) *DetectVid
 }
 
 type DetectVideoLivingFaceAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
 }
 
 func (s DetectVideoLivingFaceAdvanceRequest) String() string {
@@ -118,9 +372,9 @@ func (s *DetectVideoLivingFaceAdvanceRequest) SetVideoUrlObject(v io.Reader) *De
 }
 
 type SwapFacialFeaturesRequest struct {
-	SourceImageURL *string `json:"SourceImageURL" xml:"SourceImageURL" require:"true"`
-	EditPart       *string `json:"EditPart" xml:"EditPart" require:"true"`
-	TargetImageURL *string `json:"TargetImageURL" xml:"TargetImageURL" require:"true"`
+	SourceImageURL *string `json:"SourceImageURL,omitempty" xml:"SourceImageURL,omitempty" require:"true"`
+	EditPart       *string `json:"EditPart,omitempty" xml:"EditPart,omitempty" require:"true"`
+	TargetImageURL *string `json:"TargetImageURL,omitempty" xml:"TargetImageURL,omitempty" require:"true"`
 }
 
 func (s SwapFacialFeaturesRequest) String() string {
@@ -147,8 +401,8 @@ func (s *SwapFacialFeaturesRequest) SetTargetImageURL(v string) *SwapFacialFeatu
 }
 
 type SwapFacialFeaturesResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SwapFacialFeaturesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SwapFacialFeaturesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SwapFacialFeaturesResponse) String() string {
@@ -170,7 +424,7 @@ func (s *SwapFacialFeaturesResponse) SetData(v *SwapFacialFeaturesResponseData) 
 }
 
 type SwapFacialFeaturesResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SwapFacialFeaturesResponseData) String() string {
@@ -187,9 +441,9 @@ func (s *SwapFacialFeaturesResponseData) SetImageURL(v string) *SwapFacialFeatur
 }
 
 type SwapFacialFeaturesAdvanceRequest struct {
-	SourceImageURLObject io.Reader `json:"SourceImageURLObject" xml:"SourceImageURLObject" require:"true"`
-	EditPart             *string   `json:"EditPart" xml:"EditPart" require:"true"`
-	TargetImageURL       *string   `json:"TargetImageURL" xml:"TargetImageURL" require:"true"`
+	SourceImageURLObject io.Reader `json:"SourceImageURLObject,omitempty" xml:"SourceImageURLObject,omitempty" require:"true"`
+	EditPart             *string   `json:"EditPart,omitempty" xml:"EditPart,omitempty" require:"true"`
+	TargetImageURL       *string   `json:"TargetImageURL,omitempty" xml:"TargetImageURL,omitempty" require:"true"`
 }
 
 func (s SwapFacialFeaturesAdvanceRequest) String() string {
@@ -216,9 +470,9 @@ func (s *SwapFacialFeaturesAdvanceRequest) SetTargetImageURL(v string) *SwapFaci
 }
 
 type AddFaceEntityRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
-	Labels   *string `json:"Labels" xml:"Labels"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	Labels   *string `json:"Labels,omitempty" xml:"Labels,omitempty"`
 }
 
 func (s AddFaceEntityRequest) String() string {
@@ -245,7 +499,7 @@ func (s *AddFaceEntityRequest) SetLabels(v string) *AddFaceEntityRequest {
 }
 
 type AddFaceEntityResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AddFaceEntityResponse) String() string {
@@ -262,8 +516,8 @@ func (s *AddFaceEntityResponse) SetRequestId(v string) *AddFaceEntityResponse {
 }
 
 type DeleteFaceEntityRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s DeleteFaceEntityRequest) String() string {
@@ -285,7 +539,7 @@ func (s *DeleteFaceEntityRequest) SetEntityId(v string) *DeleteFaceEntityRequest
 }
 
 type DeleteFaceEntityResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteFaceEntityResponse) String() string {
@@ -302,13 +556,13 @@ func (s *DeleteFaceEntityResponse) SetRequestId(v string) *DeleteFaceEntityRespo
 }
 
 type ListFaceEntitiesRequest struct {
-	DbName         *string `json:"DbName" xml:"DbName" require:"true"`
-	Offset         *int    `json:"Offset" xml:"Offset"`
-	Limit          *int    `json:"Limit" xml:"Limit"`
-	Token          *string `json:"Token" xml:"Token"`
-	Labels         *string `json:"Labels" xml:"Labels"`
-	EntityIdPrefix *string `json:"EntityIdPrefix" xml:"EntityIdPrefix"`
-	Order          *string `json:"Order" xml:"Order"`
+	DbName         *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	Offset         *int    `json:"Offset,omitempty" xml:"Offset,omitempty"`
+	Limit          *int    `json:"Limit,omitempty" xml:"Limit,omitempty"`
+	Token          *string `json:"Token,omitempty" xml:"Token,omitempty"`
+	Labels         *string `json:"Labels,omitempty" xml:"Labels,omitempty"`
+	EntityIdPrefix *string `json:"EntityIdPrefix,omitempty" xml:"EntityIdPrefix,omitempty"`
+	Order          *string `json:"Order,omitempty" xml:"Order,omitempty"`
 }
 
 func (s ListFaceEntitiesRequest) String() string {
@@ -355,8 +609,8 @@ func (s *ListFaceEntitiesRequest) SetOrder(v string) *ListFaceEntitiesRequest {
 }
 
 type ListFaceEntitiesResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ListFaceEntitiesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListFaceEntitiesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListFaceEntitiesResponse) String() string {
@@ -378,9 +632,9 @@ func (s *ListFaceEntitiesResponse) SetData(v *ListFaceEntitiesResponseData) *Lis
 }
 
 type ListFaceEntitiesResponseData struct {
-	Token      *string                                 `json:"Token" xml:"Token" require:"true"`
-	TotalCount *int                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Entities   []*ListFaceEntitiesResponseDataEntities `json:"Entities" xml:"Entities" require:"true" type:"Repeated"`
+	Token      *string                                 `json:"Token,omitempty" xml:"Token,omitempty" require:"true"`
+	TotalCount *int                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Entities   []*ListFaceEntitiesResponseDataEntities `json:"Entities,omitempty" xml:"Entities,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListFaceEntitiesResponseData) String() string {
@@ -407,12 +661,12 @@ func (s *ListFaceEntitiesResponseData) SetEntities(v []*ListFaceEntitiesResponse
 }
 
 type ListFaceEntitiesResponseDataEntities struct {
-	DbName    *string `json:"DbName" xml:"DbName" require:"true"`
-	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
-	FaceCount *int    `json:"FaceCount" xml:"FaceCount" require:"true"`
-	Labels    *string `json:"Labels" xml:"Labels" require:"true"`
-	CreatedAt *int64  `json:"CreatedAt" xml:"CreatedAt" require:"true"`
-	UpdatedAt *int64  `json:"UpdatedAt" xml:"UpdatedAt" require:"true"`
+	DbName    *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId  *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	FaceCount *int    `json:"FaceCount,omitempty" xml:"FaceCount,omitempty" require:"true"`
+	Labels    *string `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true"`
+	CreatedAt *int64  `json:"CreatedAt,omitempty" xml:"CreatedAt,omitempty" require:"true"`
+	UpdatedAt *int64  `json:"UpdatedAt,omitempty" xml:"UpdatedAt,omitempty" require:"true"`
 }
 
 func (s ListFaceEntitiesResponseDataEntities) String() string {
@@ -454,8 +708,8 @@ func (s *ListFaceEntitiesResponseDataEntities) SetUpdatedAt(v int64) *ListFaceEn
 }
 
 type GetFaceEntityRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s GetFaceEntityRequest) String() string {
@@ -477,8 +731,8 @@ func (s *GetFaceEntityRequest) SetEntityId(v string) *GetFaceEntityRequest {
 }
 
 type GetFaceEntityResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetFaceEntityResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetFaceEntityResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetFaceEntityResponse) String() string {
@@ -500,10 +754,10 @@ func (s *GetFaceEntityResponse) SetData(v *GetFaceEntityResponseData) *GetFaceEn
 }
 
 type GetFaceEntityResponseData struct {
-	DbName   *string                           `json:"DbName" xml:"DbName" require:"true"`
-	EntityId *string                           `json:"EntityId" xml:"EntityId" require:"true"`
-	Labels   *string                           `json:"Labels" xml:"Labels" require:"true"`
-	Faces    []*GetFaceEntityResponseDataFaces `json:"Faces" xml:"Faces" require:"true" type:"Repeated"`
+	DbName   *string                           `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId *string                           `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	Labels   *string                           `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true"`
+	Faces    []*GetFaceEntityResponseDataFaces `json:"Faces,omitempty" xml:"Faces,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetFaceEntityResponseData) String() string {
@@ -535,7 +789,7 @@ func (s *GetFaceEntityResponseData) SetFaces(v []*GetFaceEntityResponseDataFaces
 }
 
 type GetFaceEntityResponseDataFaces struct {
-	FaceId *string `json:"FaceId" xml:"FaceId" require:"true"`
+	FaceId *string `json:"FaceId,omitempty" xml:"FaceId,omitempty" require:"true"`
 }
 
 func (s GetFaceEntityResponseDataFaces) String() string {
@@ -552,9 +806,9 @@ func (s *GetFaceEntityResponseDataFaces) SetFaceId(v string) *GetFaceEntityRespo
 }
 
 type UpdateFaceEntityRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	EntityId *string `json:"EntityId" xml:"EntityId" require:"true"`
-	Labels   *string `json:"Labels" xml:"Labels"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	Labels   *string `json:"Labels,omitempty" xml:"Labels,omitempty"`
 }
 
 func (s UpdateFaceEntityRequest) String() string {
@@ -581,7 +835,7 @@ func (s *UpdateFaceEntityRequest) SetLabels(v string) *UpdateFaceEntityRequest {
 }
 
 type UpdateFaceEntityResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateFaceEntityResponse) String() string {
@@ -598,10 +852,10 @@ func (s *UpdateFaceEntityResponse) SetRequestId(v string) *UpdateFaceEntityRespo
 }
 
 type FaceMakeupRequest struct {
-	ImageURL     *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	MakeupType   *string  `json:"MakeupType" xml:"MakeupType" require:"true"`
-	ResourceType *string  `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Strength     *float32 `json:"Strength" xml:"Strength" require:"true"`
+	ImageURL     *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	MakeupType   *string  `json:"MakeupType,omitempty" xml:"MakeupType,omitempty" require:"true"`
+	ResourceType *string  `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Strength     *float32 `json:"Strength,omitempty" xml:"Strength,omitempty" require:"true"`
 }
 
 func (s FaceMakeupRequest) String() string {
@@ -633,8 +887,8 @@ func (s *FaceMakeupRequest) SetStrength(v float32) *FaceMakeupRequest {
 }
 
 type FaceMakeupResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *FaceMakeupResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *FaceMakeupResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s FaceMakeupResponse) String() string {
@@ -656,7 +910,7 @@ func (s *FaceMakeupResponse) SetData(v *FaceMakeupResponseData) *FaceMakeupRespo
 }
 
 type FaceMakeupResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s FaceMakeupResponseData) String() string {
@@ -673,10 +927,10 @@ func (s *FaceMakeupResponseData) SetImageURL(v string) *FaceMakeupResponseData {
 }
 
 type FaceMakeupAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	MakeupType     *string   `json:"MakeupType" xml:"MakeupType" require:"true"`
-	ResourceType   *string   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Strength       *float32  `json:"Strength" xml:"Strength" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	MakeupType     *string   `json:"MakeupType,omitempty" xml:"MakeupType,omitempty" require:"true"`
+	ResourceType   *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Strength       *float32  `json:"Strength,omitempty" xml:"Strength,omitempty" require:"true"`
 }
 
 func (s FaceMakeupAdvanceRequest) String() string {
@@ -708,7 +962,7 @@ func (s *FaceMakeupAdvanceRequest) SetStrength(v float32) *FaceMakeupAdvanceRequ
 }
 
 type HandPostureRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s HandPostureRequest) String() string {
@@ -725,8 +979,8 @@ func (s *HandPostureRequest) SetImageURL(v string) *HandPostureRequest {
 }
 
 type HandPostureResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *HandPostureResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *HandPostureResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s HandPostureResponse) String() string {
@@ -748,8 +1002,8 @@ func (s *HandPostureResponse) SetData(v *HandPostureResponseData) *HandPostureRe
 }
 
 type HandPostureResponseData struct {
-	Outputs    []*HandPostureResponseDataOutputs  `json:"Outputs" xml:"Outputs" require:"true" type:"Repeated"`
-	MetaObject *HandPostureResponseDataMetaObject `json:"MetaObject" xml:"MetaObject" require:"true" type:"Struct"`
+	Outputs    []*HandPostureResponseDataOutputs  `json:"Outputs,omitempty" xml:"Outputs,omitempty" require:"true" type:"Repeated"`
+	MetaObject *HandPostureResponseDataMetaObject `json:"MetaObject,omitempty" xml:"MetaObject,omitempty" require:"true" type:"Struct"`
 }
 
 func (s HandPostureResponseData) String() string {
@@ -771,8 +1025,8 @@ func (s *HandPostureResponseData) SetMetaObject(v *HandPostureResponseDataMetaOb
 }
 
 type HandPostureResponseDataOutputs struct {
-	HandCount *int                                     `json:"HandCount" xml:"HandCount" require:"true"`
-	Results   []*HandPostureResponseDataOutputsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	HandCount *int                                     `json:"HandCount,omitempty" xml:"HandCount,omitempty" require:"true"`
+	Results   []*HandPostureResponseDataOutputsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s HandPostureResponseDataOutputs) String() string {
@@ -794,8 +1048,8 @@ func (s *HandPostureResponseDataOutputs) SetResults(v []*HandPostureResponseData
 }
 
 type HandPostureResponseDataOutputsResults struct {
-	Box   *HandPostureResponseDataOutputsResultsBox   `json:"Box" xml:"Box" require:"true" type:"Struct"`
-	Hands *HandPostureResponseDataOutputsResultsHands `json:"Hands" xml:"Hands" require:"true" type:"Struct"`
+	Box   *HandPostureResponseDataOutputsResultsBox   `json:"Box,omitempty" xml:"Box,omitempty" require:"true" type:"Struct"`
+	Hands *HandPostureResponseDataOutputsResultsHands `json:"Hands,omitempty" xml:"Hands,omitempty" require:"true" type:"Struct"`
 }
 
 func (s HandPostureResponseDataOutputsResults) String() string {
@@ -817,8 +1071,8 @@ func (s *HandPostureResponseDataOutputsResults) SetHands(v *HandPostureResponseD
 }
 
 type HandPostureResponseDataOutputsResultsBox struct {
-	Confident *float32                                             `json:"Confident" xml:"Confident" require:"true"`
-	Positions []*HandPostureResponseDataOutputsResultsBoxPositions `json:"Positions" xml:"Positions" require:"true" type:"Repeated"`
+	Confident *float32                                             `json:"Confident,omitempty" xml:"Confident,omitempty" require:"true"`
+	Positions []*HandPostureResponseDataOutputsResultsBoxPositions `json:"Positions,omitempty" xml:"Positions,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s HandPostureResponseDataOutputsResultsBox) String() string {
@@ -840,7 +1094,7 @@ func (s *HandPostureResponseDataOutputsResultsBox) SetPositions(v []*HandPosture
 }
 
 type HandPostureResponseDataOutputsResultsBoxPositions struct {
-	Points []*float32 `json:"Points" xml:"Points" require:"true" type:"Repeated"`
+	Points []*float32 `json:"Points,omitempty" xml:"Points,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s HandPostureResponseDataOutputsResultsBoxPositions) String() string {
@@ -857,8 +1111,8 @@ func (s *HandPostureResponseDataOutputsResultsBoxPositions) SetPoints(v []*float
 }
 
 type HandPostureResponseDataOutputsResultsHands struct {
-	Confident *float32                                               `json:"Confident" xml:"Confident" require:"true"`
-	KeyPoints []*HandPostureResponseDataOutputsResultsHandsKeyPoints `json:"KeyPoints" xml:"KeyPoints" require:"true" type:"Repeated"`
+	Confident *float32                                               `json:"Confident,omitempty" xml:"Confident,omitempty" require:"true"`
+	KeyPoints []*HandPostureResponseDataOutputsResultsHandsKeyPoints `json:"KeyPoints,omitempty" xml:"KeyPoints,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s HandPostureResponseDataOutputsResultsHands) String() string {
@@ -880,8 +1134,8 @@ func (s *HandPostureResponseDataOutputsResultsHands) SetKeyPoints(v []*HandPostu
 }
 
 type HandPostureResponseDataOutputsResultsHandsKeyPoints struct {
-	Label     *string                                                         `json:"Label" xml:"Label" require:"true"`
-	Positions []*HandPostureResponseDataOutputsResultsHandsKeyPointsPositions `json:"Positions" xml:"Positions" require:"true" type:"Repeated"`
+	Label     *string                                                         `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Positions []*HandPostureResponseDataOutputsResultsHandsKeyPointsPositions `json:"Positions,omitempty" xml:"Positions,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s HandPostureResponseDataOutputsResultsHandsKeyPoints) String() string {
@@ -903,7 +1157,7 @@ func (s *HandPostureResponseDataOutputsResultsHandsKeyPoints) SetPositions(v []*
 }
 
 type HandPostureResponseDataOutputsResultsHandsKeyPointsPositions struct {
-	Points []*float32 `json:"Points" xml:"Points" require:"true" type:"Repeated"`
+	Points []*float32 `json:"Points,omitempty" xml:"Points,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s HandPostureResponseDataOutputsResultsHandsKeyPointsPositions) String() string {
@@ -920,8 +1174,8 @@ func (s *HandPostureResponseDataOutputsResultsHandsKeyPointsPositions) SetPoints
 }
 
 type HandPostureResponseDataMetaObject struct {
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s HandPostureResponseDataMetaObject) String() string {
@@ -943,7 +1197,7 @@ func (s *HandPostureResponseDataMetaObject) SetWidth(v int) *HandPostureResponse
 }
 
 type HandPostureAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s HandPostureAdvanceRequest) String() string {
@@ -960,7 +1214,7 @@ func (s *HandPostureAdvanceRequest) SetImageURLObject(v io.Reader) *HandPostureA
 }
 
 type BodyPostureRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s BodyPostureRequest) String() string {
@@ -977,8 +1231,8 @@ func (s *BodyPostureRequest) SetImageURL(v string) *BodyPostureRequest {
 }
 
 type BodyPostureResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *BodyPostureResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *BodyPostureResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s BodyPostureResponse) String() string {
@@ -1000,8 +1254,8 @@ func (s *BodyPostureResponse) SetData(v *BodyPostureResponseData) *BodyPostureRe
 }
 
 type BodyPostureResponseData struct {
-	Outputs    []*BodyPostureResponseDataOutputs  `json:"Outputs" xml:"Outputs" require:"true" type:"Repeated"`
-	MetaObject *BodyPostureResponseDataMetaObject `json:"MetaObject" xml:"MetaObject" require:"true" type:"Struct"`
+	Outputs    []*BodyPostureResponseDataOutputs  `json:"Outputs,omitempty" xml:"Outputs,omitempty" require:"true" type:"Repeated"`
+	MetaObject *BodyPostureResponseDataMetaObject `json:"MetaObject,omitempty" xml:"MetaObject,omitempty" require:"true" type:"Struct"`
 }
 
 func (s BodyPostureResponseData) String() string {
@@ -1023,8 +1277,8 @@ func (s *BodyPostureResponseData) SetMetaObject(v *BodyPostureResponseDataMetaOb
 }
 
 type BodyPostureResponseDataOutputs struct {
-	HumanCount *int                                     `json:"HumanCount" xml:"HumanCount" require:"true"`
-	Results    []*BodyPostureResponseDataOutputsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	HumanCount *int                                     `json:"HumanCount,omitempty" xml:"HumanCount,omitempty" require:"true"`
+	Results    []*BodyPostureResponseDataOutputsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s BodyPostureResponseDataOutputs) String() string {
@@ -1046,7 +1300,7 @@ func (s *BodyPostureResponseDataOutputs) SetResults(v []*BodyPostureResponseData
 }
 
 type BodyPostureResponseDataOutputsResults struct {
-	Bodies []*BodyPostureResponseDataOutputsResultsBodies `json:"Bodies" xml:"Bodies" require:"true" type:"Repeated"`
+	Bodies []*BodyPostureResponseDataOutputsResultsBodies `json:"Bodies,omitempty" xml:"Bodies,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s BodyPostureResponseDataOutputsResults) String() string {
@@ -1063,9 +1317,9 @@ func (s *BodyPostureResponseDataOutputsResults) SetBodies(v []*BodyPostureRespon
 }
 
 type BodyPostureResponseDataOutputsResultsBodies struct {
-	Confident *float32                                                `json:"Confident" xml:"Confident" require:"true"`
-	Label     *string                                                 `json:"Label" xml:"Label" require:"true"`
-	Positions []*BodyPostureResponseDataOutputsResultsBodiesPositions `json:"Positions" xml:"Positions" require:"true" type:"Repeated"`
+	Confident *float32                                                `json:"Confident,omitempty" xml:"Confident,omitempty" require:"true"`
+	Label     *string                                                 `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Positions []*BodyPostureResponseDataOutputsResultsBodiesPositions `json:"Positions,omitempty" xml:"Positions,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s BodyPostureResponseDataOutputsResultsBodies) String() string {
@@ -1092,7 +1346,7 @@ func (s *BodyPostureResponseDataOutputsResultsBodies) SetPositions(v []*BodyPost
 }
 
 type BodyPostureResponseDataOutputsResultsBodiesPositions struct {
-	Points []*float32 `json:"Points" xml:"Points" require:"true" type:"Repeated"`
+	Points []*float32 `json:"Points,omitempty" xml:"Points,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s BodyPostureResponseDataOutputsResultsBodiesPositions) String() string {
@@ -1109,8 +1363,8 @@ func (s *BodyPostureResponseDataOutputsResultsBodiesPositions) SetPoints(v []*fl
 }
 
 type BodyPostureResponseDataMetaObject struct {
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s BodyPostureResponseDataMetaObject) String() string {
@@ -1132,7 +1386,7 @@ func (s *BodyPostureResponseDataMetaObject) SetWidth(v int) *BodyPostureResponse
 }
 
 type BodyPostureAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s BodyPostureAdvanceRequest) String() string {
@@ -1149,7 +1403,7 @@ func (s *BodyPostureAdvanceRequest) SetImageURLObject(v io.Reader) *BodyPostureA
 }
 
 type DetectPedestrianRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectPedestrianRequest) String() string {
@@ -1166,8 +1420,8 @@ func (s *DetectPedestrianRequest) SetImageURL(v string) *DetectPedestrianRequest
 }
 
 type DetectPedestrianResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectPedestrianResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectPedestrianResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectPedestrianResponse) String() string {
@@ -1189,9 +1443,9 @@ func (s *DetectPedestrianResponse) SetData(v *DetectPedestrianResponseData) *Det
 }
 
 type DetectPedestrianResponseData struct {
-	Width    *int                                    `json:"Width" xml:"Width" require:"true"`
-	Height   *int                                    `json:"Height" xml:"Height" require:"true"`
-	Elements []*DetectPedestrianResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Width    *int                                    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height   *int                                    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Elements []*DetectPedestrianResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectPedestrianResponseData) String() string {
@@ -1218,9 +1472,9 @@ func (s *DetectPedestrianResponseData) SetElements(v []*DetectPedestrianResponse
 }
 
 type DetectPedestrianResponseDataElements struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Type  *string  `json:"Type" xml:"Type" require:"true"`
-	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Type  *string  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Boxes []*int   `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectPedestrianResponseDataElements) String() string {
@@ -1247,7 +1501,7 @@ func (s *DetectPedestrianResponseDataElements) SetBoxes(v []*int) *DetectPedestr
 }
 
 type DetectPedestrianAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectPedestrianAdvanceRequest) String() string {
@@ -1264,10 +1518,10 @@ func (s *DetectPedestrianAdvanceRequest) SetImageURLObject(v io.Reader) *DetectP
 }
 
 type FaceBeautyRequest struct {
-	ImageURL *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Sharp    *float32 `json:"Sharp" xml:"Sharp" require:"true"`
-	Smooth   *float32 `json:"Smooth" xml:"Smooth" require:"true"`
-	White    *float32 `json:"White" xml:"White" require:"true"`
+	ImageURL *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Sharp    *float32 `json:"Sharp,omitempty" xml:"Sharp,omitempty" require:"true"`
+	Smooth   *float32 `json:"Smooth,omitempty" xml:"Smooth,omitempty" require:"true"`
+	White    *float32 `json:"White,omitempty" xml:"White,omitempty" require:"true"`
 }
 
 func (s FaceBeautyRequest) String() string {
@@ -1299,8 +1553,8 @@ func (s *FaceBeautyRequest) SetWhite(v float32) *FaceBeautyRequest {
 }
 
 type FaceBeautyResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *FaceBeautyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *FaceBeautyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s FaceBeautyResponse) String() string {
@@ -1322,7 +1576,7 @@ func (s *FaceBeautyResponse) SetData(v *FaceBeautyResponseData) *FaceBeautyRespo
 }
 
 type FaceBeautyResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s FaceBeautyResponseData) String() string {
@@ -1339,10 +1593,10 @@ func (s *FaceBeautyResponseData) SetImageURL(v string) *FaceBeautyResponseData {
 }
 
 type FaceBeautyAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	Sharp          *float32  `json:"Sharp" xml:"Sharp" require:"true"`
-	Smooth         *float32  `json:"Smooth" xml:"Smooth" require:"true"`
-	White          *float32  `json:"White" xml:"White" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	Sharp          *float32  `json:"Sharp,omitempty" xml:"Sharp,omitempty" require:"true"`
+	Smooth         *float32  `json:"Smooth,omitempty" xml:"Smooth,omitempty" require:"true"`
+	White          *float32  `json:"White,omitempty" xml:"White,omitempty" require:"true"`
 }
 
 func (s FaceBeautyAdvanceRequest) String() string {
@@ -1374,9 +1628,9 @@ func (s *FaceBeautyAdvanceRequest) SetWhite(v float32) *FaceBeautyAdvanceRequest
 }
 
 type FaceFilterRequest struct {
-	ImageURL     *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	ResourceType *string  `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Strength     *float32 `json:"Strength" xml:"Strength" require:"true"`
+	ImageURL     *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	ResourceType *string  `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Strength     *float32 `json:"Strength,omitempty" xml:"Strength,omitempty" require:"true"`
 }
 
 func (s FaceFilterRequest) String() string {
@@ -1403,8 +1657,8 @@ func (s *FaceFilterRequest) SetStrength(v float32) *FaceFilterRequest {
 }
 
 type FaceFilterResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *FaceFilterResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *FaceFilterResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s FaceFilterResponse) String() string {
@@ -1426,7 +1680,7 @@ func (s *FaceFilterResponse) SetData(v *FaceFilterResponseData) *FaceFilterRespo
 }
 
 type FaceFilterResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s FaceFilterResponseData) String() string {
@@ -1443,9 +1697,9 @@ func (s *FaceFilterResponseData) SetImageURL(v string) *FaceFilterResponseData {
 }
 
 type FaceFilterAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ResourceType   *string   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Strength       *float32  `json:"Strength" xml:"Strength" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	ResourceType   *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Strength       *float32  `json:"Strength,omitempty" xml:"Strength,omitempty" require:"true"`
 }
 
 func (s FaceFilterAdvanceRequest) String() string {
@@ -1472,7 +1726,7 @@ func (s *FaceFilterAdvanceRequest) SetStrength(v float32) *FaceFilterAdvanceRequ
 }
 
 type EnhanceFaceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s EnhanceFaceRequest) String() string {
@@ -1489,8 +1743,8 @@ func (s *EnhanceFaceRequest) SetImageURL(v string) *EnhanceFaceRequest {
 }
 
 type EnhanceFaceResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *EnhanceFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *EnhanceFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s EnhanceFaceResponse) String() string {
@@ -1512,7 +1766,7 @@ func (s *EnhanceFaceResponse) SetData(v *EnhanceFaceResponseData) *EnhanceFaceRe
 }
 
 type EnhanceFaceResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s EnhanceFaceResponseData) String() string {
@@ -1529,7 +1783,7 @@ func (s *EnhanceFaceResponseData) SetImageURL(v string) *EnhanceFaceResponseData
 }
 
 type EnhanceFaceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s EnhanceFaceAdvanceRequest) String() string {
@@ -1546,9 +1800,9 @@ func (s *EnhanceFaceAdvanceRequest) SetImageURLObject(v io.Reader) *EnhanceFaceA
 }
 
 type FaceTidyupRequest struct {
-	ImageURL  *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	ShapeType *int     `json:"ShapeType" xml:"ShapeType" require:"true"`
-	Strength  *float32 `json:"Strength" xml:"Strength" require:"true"`
+	ImageURL  *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	ShapeType *int     `json:"ShapeType,omitempty" xml:"ShapeType,omitempty" require:"true"`
+	Strength  *float32 `json:"Strength,omitempty" xml:"Strength,omitempty" require:"true"`
 }
 
 func (s FaceTidyupRequest) String() string {
@@ -1575,8 +1829,8 @@ func (s *FaceTidyupRequest) SetStrength(v float32) *FaceTidyupRequest {
 }
 
 type FaceTidyupResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *FaceTidyupResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *FaceTidyupResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s FaceTidyupResponse) String() string {
@@ -1598,7 +1852,7 @@ func (s *FaceTidyupResponse) SetData(v *FaceTidyupResponseData) *FaceTidyupRespo
 }
 
 type FaceTidyupResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s FaceTidyupResponseData) String() string {
@@ -1615,9 +1869,9 @@ func (s *FaceTidyupResponseData) SetImageURL(v string) *FaceTidyupResponseData {
 }
 
 type FaceTidyupAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	ShapeType      *int      `json:"ShapeType" xml:"ShapeType" require:"true"`
-	Strength       *float32  `json:"Strength" xml:"Strength" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	ShapeType      *int      `json:"ShapeType,omitempty" xml:"ShapeType,omitempty" require:"true"`
+	Strength       *float32  `json:"Strength,omitempty" xml:"Strength,omitempty" require:"true"`
 }
 
 func (s FaceTidyupAdvanceRequest) String() string {
@@ -1644,9 +1898,9 @@ func (s *FaceTidyupAdvanceRequest) SetStrength(v float32) *FaceTidyupAdvanceRequ
 }
 
 type SearchFaceRequest struct {
-	DbName   *string `json:"DbName" xml:"DbName" require:"true"`
-	ImageUrl *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
-	Limit    *int    `json:"Limit" xml:"Limit" require:"true"`
+	DbName   *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	ImageUrl *string `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	Limit    *int    `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
 }
 
 func (s SearchFaceRequest) String() string {
@@ -1673,8 +1927,8 @@ func (s *SearchFaceRequest) SetLimit(v int) *SearchFaceRequest {
 }
 
 type SearchFaceResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SearchFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SearchFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchFaceResponse) String() string {
@@ -1696,7 +1950,7 @@ func (s *SearchFaceResponse) SetData(v *SearchFaceResponseData) *SearchFaceRespo
 }
 
 type SearchFaceResponseData struct {
-	MatchList []*SearchFaceResponseDataMatchList `json:"MatchList" xml:"MatchList" require:"true" type:"Repeated"`
+	MatchList []*SearchFaceResponseDataMatchList `json:"MatchList,omitempty" xml:"MatchList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchFaceResponseData) String() string {
@@ -1713,8 +1967,8 @@ func (s *SearchFaceResponseData) SetMatchList(v []*SearchFaceResponseDataMatchLi
 }
 
 type SearchFaceResponseDataMatchList struct {
-	FaceItems []*SearchFaceResponseDataMatchListFaceItems `json:"FaceItems" xml:"FaceItems" require:"true" type:"Repeated"`
-	Location  *SearchFaceResponseDataMatchListLocation    `json:"Location" xml:"Location" require:"true" type:"Struct"`
+	FaceItems []*SearchFaceResponseDataMatchListFaceItems `json:"FaceItems,omitempty" xml:"FaceItems,omitempty" require:"true" type:"Repeated"`
+	Location  *SearchFaceResponseDataMatchListLocation    `json:"Location,omitempty" xml:"Location,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchFaceResponseDataMatchList) String() string {
@@ -1736,10 +1990,10 @@ func (s *SearchFaceResponseDataMatchList) SetLocation(v *SearchFaceResponseDataM
 }
 
 type SearchFaceResponseDataMatchListFaceItems struct {
-	FaceId    *string  `json:"FaceId" xml:"FaceId" require:"true"`
-	Score     *float32 `json:"Score" xml:"Score" require:"true"`
-	ExtraData *string  `json:"ExtraData" xml:"ExtraData" require:"true"`
-	EntityId  *string  `json:"EntityId" xml:"EntityId" require:"true"`
+	FaceId    *string  `json:"FaceId,omitempty" xml:"FaceId,omitempty" require:"true"`
+	Score     *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	ExtraData *string  `json:"ExtraData,omitempty" xml:"ExtraData,omitempty" require:"true"`
+	EntityId  *string  `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
 }
 
 func (s SearchFaceResponseDataMatchListFaceItems) String() string {
@@ -1771,10 +2025,10 @@ func (s *SearchFaceResponseDataMatchListFaceItems) SetEntityId(v string) *Search
 }
 
 type SearchFaceResponseDataMatchListLocation struct {
-	X      *int `json:"X" xml:"X" require:"true"`
-	Y      *int `json:"Y" xml:"Y" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
+	X      *int `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y      *int `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s SearchFaceResponseDataMatchListLocation) String() string {
@@ -1806,9 +2060,9 @@ func (s *SearchFaceResponseDataMatchListLocation) SetHeight(v int) *SearchFaceRe
 }
 
 type SearchFaceAdvanceRequest struct {
-	ImageUrlObject io.Reader `json:"ImageUrlObject" xml:"ImageUrlObject" require:"true"`
-	DbName         *string   `json:"DbName" xml:"DbName" require:"true"`
-	Limit          *int      `json:"Limit" xml:"Limit" require:"true"`
+	ImageUrlObject io.Reader `json:"ImageUrlObject,omitempty" xml:"ImageUrlObject,omitempty" require:"true"`
+	DbName         *string   `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	Limit          *int      `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
 }
 
 func (s SearchFaceAdvanceRequest) String() string {
@@ -1846,8 +2100,8 @@ func (s ListFaceDbsRequest) GoString() string {
 }
 
 type ListFaceDbsResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ListFaceDbsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ListFaceDbsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListFaceDbsResponse) String() string {
@@ -1869,7 +2123,7 @@ func (s *ListFaceDbsResponse) SetData(v *ListFaceDbsResponseData) *ListFaceDbsRe
 }
 
 type ListFaceDbsResponseData struct {
-	DbList []*ListFaceDbsResponseDataDbList `json:"DbList" xml:"DbList" require:"true" type:"Repeated"`
+	DbList []*ListFaceDbsResponseDataDbList `json:"DbList,omitempty" xml:"DbList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListFaceDbsResponseData) String() string {
@@ -1886,7 +2140,7 @@ func (s *ListFaceDbsResponseData) SetDbList(v []*ListFaceDbsResponseDataDbList) 
 }
 
 type ListFaceDbsResponseDataDbList struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s ListFaceDbsResponseDataDbList) String() string {
@@ -1903,7 +2157,7 @@ func (s *ListFaceDbsResponseDataDbList) SetName(v string) *ListFaceDbsResponseDa
 }
 
 type CreateFaceDbRequest struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s CreateFaceDbRequest) String() string {
@@ -1920,7 +2174,7 @@ func (s *CreateFaceDbRequest) SetName(v string) *CreateFaceDbRequest {
 }
 
 type CreateFaceDbResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateFaceDbResponse) String() string {
@@ -1937,8 +2191,8 @@ func (s *CreateFaceDbResponse) SetRequestId(v string) *CreateFaceDbResponse {
 }
 
 type DeleteFaceRequest struct {
-	DbName *string `json:"DbName" xml:"DbName" require:"true"`
-	FaceId *string `json:"FaceId" xml:"FaceId" require:"true"`
+	DbName *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	FaceId *string `json:"FaceId,omitempty" xml:"FaceId,omitempty" require:"true"`
 }
 
 func (s DeleteFaceRequest) String() string {
@@ -1960,7 +2214,7 @@ func (s *DeleteFaceRequest) SetFaceId(v string) *DeleteFaceRequest {
 }
 
 type DeleteFaceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteFaceResponse) String() string {
@@ -1977,7 +2231,7 @@ func (s *DeleteFaceResponse) SetRequestId(v string) *DeleteFaceResponse {
 }
 
 type DeleteFaceDbRequest struct {
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s DeleteFaceDbRequest) String() string {
@@ -1994,7 +2248,7 @@ func (s *DeleteFaceDbRequest) SetName(v string) *DeleteFaceDbRequest {
 }
 
 type DeleteFaceDbResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteFaceDbResponse) String() string {
@@ -2011,10 +2265,10 @@ func (s *DeleteFaceDbResponse) SetRequestId(v string) *DeleteFaceDbResponse {
 }
 
 type AddFaceRequest struct {
-	DbName    *string `json:"DbName" xml:"DbName" require:"true"`
-	ImageUrl  *string `json:"ImageUrl" xml:"ImageUrl" require:"true"`
-	EntityId  *string `json:"EntityId" xml:"EntityId" require:"true"`
-	ExtraData *string `json:"ExtraData" xml:"ExtraData"`
+	DbName    *string `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	ImageUrl  *string `json:"ImageUrl,omitempty" xml:"ImageUrl,omitempty" require:"true"`
+	EntityId  *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	ExtraData *string `json:"ExtraData,omitempty" xml:"ExtraData,omitempty"`
 }
 
 func (s AddFaceRequest) String() string {
@@ -2046,8 +2300,8 @@ func (s *AddFaceRequest) SetExtraData(v string) *AddFaceRequest {
 }
 
 type AddFaceResponse struct {
-	RequestId *string              `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AddFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AddFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddFaceResponse) String() string {
@@ -2069,7 +2323,7 @@ func (s *AddFaceResponse) SetData(v *AddFaceResponseData) *AddFaceResponse {
 }
 
 type AddFaceResponseData struct {
-	FaceId *string `json:"FaceId" xml:"FaceId" require:"true"`
+	FaceId *string `json:"FaceId,omitempty" xml:"FaceId,omitempty" require:"true"`
 }
 
 func (s AddFaceResponseData) String() string {
@@ -2086,10 +2340,10 @@ func (s *AddFaceResponseData) SetFaceId(v string) *AddFaceResponseData {
 }
 
 type AddFaceAdvanceRequest struct {
-	ImageUrlObject io.Reader `json:"ImageUrlObject" xml:"ImageUrlObject" require:"true"`
-	DbName         *string   `json:"DbName" xml:"DbName" require:"true"`
-	EntityId       *string   `json:"EntityId" xml:"EntityId" require:"true"`
-	ExtraData      *string   `json:"ExtraData" xml:"ExtraData"`
+	ImageUrlObject io.Reader `json:"ImageUrlObject,omitempty" xml:"ImageUrlObject,omitempty" require:"true"`
+	DbName         *string   `json:"DbName,omitempty" xml:"DbName,omitempty" require:"true"`
+	EntityId       *string   `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	ExtraData      *string   `json:"ExtraData,omitempty" xml:"ExtraData,omitempty"`
 }
 
 func (s AddFaceAdvanceRequest) String() string {
@@ -2121,7 +2375,7 @@ func (s *AddFaceAdvanceRequest) SetExtraData(v string) *AddFaceAdvanceRequest {
 }
 
 type RecognizeExpressionRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeExpressionRequest) String() string {
@@ -2138,8 +2392,8 @@ func (s *RecognizeExpressionRequest) SetImageURL(v string) *RecognizeExpressionR
 }
 
 type RecognizeExpressionResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeExpressionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeExpressionResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeExpressionResponse) String() string {
@@ -2161,7 +2415,7 @@ func (s *RecognizeExpressionResponse) SetData(v *RecognizeExpressionResponseData
 }
 
 type RecognizeExpressionResponseData struct {
-	Elements []*RecognizeExpressionResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizeExpressionResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeExpressionResponseData) String() string {
@@ -2178,9 +2432,9 @@ func (s *RecognizeExpressionResponseData) SetElements(v []*RecognizeExpressionRe
 }
 
 type RecognizeExpressionResponseDataElements struct {
-	Expression      *string                                               `json:"Expression" xml:"Expression" require:"true"`
-	FaceProbability *float32                                              `json:"FaceProbability" xml:"FaceProbability" require:"true"`
-	FaceRectangle   *RecognizeExpressionResponseDataElementsFaceRectangle `json:"FaceRectangle" xml:"FaceRectangle" require:"true" type:"Struct"`
+	Expression      *string                                               `json:"Expression,omitempty" xml:"Expression,omitempty" require:"true"`
+	FaceProbability *float32                                              `json:"FaceProbability,omitempty" xml:"FaceProbability,omitempty" require:"true"`
+	FaceRectangle   *RecognizeExpressionResponseDataElementsFaceRectangle `json:"FaceRectangle,omitempty" xml:"FaceRectangle,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeExpressionResponseDataElements) String() string {
@@ -2207,10 +2461,10 @@ func (s *RecognizeExpressionResponseDataElements) SetFaceRectangle(v *RecognizeE
 }
 
 type RecognizeExpressionResponseDataElementsFaceRectangle struct {
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeExpressionResponseDataElementsFaceRectangle) String() string {
@@ -2242,7 +2496,7 @@ func (s *RecognizeExpressionResponseDataElementsFaceRectangle) SetWidth(v int) *
 }
 
 type RecognizeExpressionAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeExpressionAdvanceRequest) String() string {
@@ -2259,7 +2513,7 @@ func (s *RecognizeExpressionAdvanceRequest) SetImageURLObject(v io.Reader) *Reco
 }
 
 type RecognizePublicFaceRequest struct {
-	Task []*RecognizePublicFaceRequestTask `json:"Task" xml:"Task" require:"true" type:"Repeated"`
+	Task []*RecognizePublicFaceRequestTask `json:"Task,omitempty" xml:"Task,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePublicFaceRequest) String() string {
@@ -2276,7 +2530,7 @@ func (s *RecognizePublicFaceRequest) SetTask(v []*RecognizePublicFaceRequestTask
 }
 
 type RecognizePublicFaceRequestTask struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizePublicFaceRequestTask) String() string {
@@ -2293,8 +2547,8 @@ func (s *RecognizePublicFaceRequestTask) SetImageURL(v string) *RecognizePublicF
 }
 
 type RecognizePublicFaceResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizePublicFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizePublicFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizePublicFaceResponse) String() string {
@@ -2316,7 +2570,7 @@ func (s *RecognizePublicFaceResponse) SetData(v *RecognizePublicFaceResponseData
 }
 
 type RecognizePublicFaceResponseData struct {
-	Elements []*RecognizePublicFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizePublicFaceResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePublicFaceResponseData) String() string {
@@ -2333,9 +2587,9 @@ func (s *RecognizePublicFaceResponseData) SetElements(v []*RecognizePublicFaceRe
 }
 
 type RecognizePublicFaceResponseDataElements struct {
-	TaskId   *string                                           `json:"TaskId" xml:"TaskId" require:"true"`
-	ImageURL *string                                           `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Results  []*RecognizePublicFaceResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	TaskId   *string                                           `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	ImageURL *string                                           `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Results  []*RecognizePublicFaceResponseDataElementsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePublicFaceResponseDataElements) String() string {
@@ -2362,10 +2616,10 @@ func (s *RecognizePublicFaceResponseDataElements) SetResults(v []*RecognizePubli
 }
 
 type RecognizePublicFaceResponseDataElementsResults struct {
-	Label      *string                                                     `json:"Label" xml:"Label" require:"true"`
-	Suggestion *string                                                     `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate       *float32                                                    `json:"Rate" xml:"Rate" require:"true"`
-	SubResults []*RecognizePublicFaceResponseDataElementsResultsSubResults `json:"SubResults" xml:"SubResults" require:"true" type:"Repeated"`
+	Label      *string                                                     `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion *string                                                     `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Rate       *float32                                                    `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	SubResults []*RecognizePublicFaceResponseDataElementsResultsSubResults `json:"SubResults,omitempty" xml:"SubResults,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePublicFaceResponseDataElementsResults) String() string {
@@ -2397,11 +2651,11 @@ func (s *RecognizePublicFaceResponseDataElementsResults) SetSubResults(v []*Reco
 }
 
 type RecognizePublicFaceResponseDataElementsResultsSubResults struct {
-	H     *float32                                                         `json:"H" xml:"H" require:"true"`
-	W     *float32                                                         `json:"W" xml:"W" require:"true"`
-	X     *float32                                                         `json:"X" xml:"X" require:"true"`
-	Y     *float32                                                         `json:"Y" xml:"Y" require:"true"`
-	Faces []*RecognizePublicFaceResponseDataElementsResultsSubResultsFaces `json:"Faces" xml:"Faces" require:"true" type:"Repeated"`
+	H     *float32                                                         `json:"H,omitempty" xml:"H,omitempty" require:"true"`
+	W     *float32                                                         `json:"W,omitempty" xml:"W,omitempty" require:"true"`
+	X     *float32                                                         `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y     *float32                                                         `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Faces []*RecognizePublicFaceResponseDataElementsResultsSubResultsFaces `json:"Faces,omitempty" xml:"Faces,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePublicFaceResponseDataElementsResultsSubResults) String() string {
@@ -2438,9 +2692,9 @@ func (s *RecognizePublicFaceResponseDataElementsResultsSubResults) SetFaces(v []
 }
 
 type RecognizePublicFaceResponseDataElementsResultsSubResultsFaces struct {
-	Id   *string  `json:"Id" xml:"Id" require:"true"`
-	Name *string  `json:"Name" xml:"Name" require:"true"`
-	Rate *float32 `json:"Rate" xml:"Rate" require:"true"`
+	Id   *string  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Rate *float32 `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
 }
 
 func (s RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) String() string {
@@ -2467,7 +2721,7 @@ func (s *RecognizePublicFaceResponseDataElementsResultsSubResultsFaces) SetRate(
 }
 
 type DetectLivingFaceRequest struct {
-	Tasks []*DetectLivingFaceRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
+	Tasks []*DetectLivingFaceRequestTasks `json:"Tasks,omitempty" xml:"Tasks,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectLivingFaceRequest) String() string {
@@ -2484,7 +2738,7 @@ func (s *DetectLivingFaceRequest) SetTasks(v []*DetectLivingFaceRequestTasks) *D
 }
 
 type DetectLivingFaceRequestTasks struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectLivingFaceRequestTasks) String() string {
@@ -2501,8 +2755,8 @@ func (s *DetectLivingFaceRequestTasks) SetImageURL(v string) *DetectLivingFaceRe
 }
 
 type DetectLivingFaceResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectLivingFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectLivingFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectLivingFaceResponse) String() string {
@@ -2524,7 +2778,7 @@ func (s *DetectLivingFaceResponse) SetData(v *DetectLivingFaceResponseData) *Det
 }
 
 type DetectLivingFaceResponseData struct {
-	Elements []*DetectLivingFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*DetectLivingFaceResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectLivingFaceResponseData) String() string {
@@ -2541,9 +2795,9 @@ func (s *DetectLivingFaceResponseData) SetElements(v []*DetectLivingFaceResponse
 }
 
 type DetectLivingFaceResponseDataElements struct {
-	TaskId   *string                                        `json:"TaskId" xml:"TaskId" require:"true"`
-	ImageURL *string                                        `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Results  []*DetectLivingFaceResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	TaskId   *string                                        `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	ImageURL *string                                        `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Results  []*DetectLivingFaceResponseDataElementsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectLivingFaceResponseDataElements) String() string {
@@ -2570,10 +2824,10 @@ func (s *DetectLivingFaceResponseDataElements) SetResults(v []*DetectLivingFaceR
 }
 
 type DetectLivingFaceResponseDataElementsResults struct {
-	Label      *string                                              `json:"Label" xml:"Label" require:"true"`
-	Suggestion *string                                              `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate       *float32                                             `json:"Rate" xml:"Rate" require:"true"`
-	Frames     []*DetectLivingFaceResponseDataElementsResultsFrames `json:"Frames" xml:"Frames" require:"true" type:"Repeated"`
+	Label      *string                                              `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion *string                                              `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Rate       *float32                                             `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	Frames     []*DetectLivingFaceResponseDataElementsResultsFrames `json:"Frames,omitempty" xml:"Frames,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectLivingFaceResponseDataElementsResults) String() string {
@@ -2605,8 +2859,8 @@ func (s *DetectLivingFaceResponseDataElementsResults) SetFrames(v []*DetectLivin
 }
 
 type DetectLivingFaceResponseDataElementsResultsFrames struct {
-	Rate *float32 `json:"Rate" xml:"Rate" require:"true"`
-	Url  *string  `json:"Url" xml:"Url" require:"true"`
+	Rate *float32 `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	Url  *string  `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s DetectLivingFaceResponseDataElementsResultsFrames) String() string {
@@ -2628,7 +2882,7 @@ func (s *DetectLivingFaceResponseDataElementsResultsFrames) SetUrl(v string) *De
 }
 
 type DetectBodyCountRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectBodyCountRequest) String() string {
@@ -2645,8 +2899,8 @@ func (s *DetectBodyCountRequest) SetImageURL(v string) *DetectBodyCountRequest {
 }
 
 type DetectBodyCountResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectBodyCountResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectBodyCountResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectBodyCountResponse) String() string {
@@ -2668,7 +2922,7 @@ func (s *DetectBodyCountResponse) SetData(v *DetectBodyCountResponseData) *Detec
 }
 
 type DetectBodyCountResponseData struct {
-	PersonNumber *int `json:"PersonNumber" xml:"PersonNumber" require:"true"`
+	PersonNumber *int `json:"PersonNumber,omitempty" xml:"PersonNumber,omitempty" require:"true"`
 }
 
 func (s DetectBodyCountResponseData) String() string {
@@ -2685,7 +2939,7 @@ func (s *DetectBodyCountResponseData) SetPersonNumber(v int) *DetectBodyCountRes
 }
 
 type DetectBodyCountAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectBodyCountAdvanceRequest) String() string {
@@ -2702,7 +2956,7 @@ func (s *DetectBodyCountAdvanceRequest) SetImageURLObject(v io.Reader) *DetectBo
 }
 
 type DetectMaskRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectMaskRequest) String() string {
@@ -2719,8 +2973,8 @@ func (s *DetectMaskRequest) SetImageURL(v string) *DetectMaskRequest {
 }
 
 type DetectMaskResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectMaskResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectMaskResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectMaskResponse) String() string {
@@ -2742,8 +2996,8 @@ func (s *DetectMaskResponse) SetData(v *DetectMaskResponseData) *DetectMaskRespo
 }
 
 type DetectMaskResponseData struct {
-	Mask            *int     `json:"Mask" xml:"Mask" require:"true"`
-	FaceProbability *float32 `json:"FaceProbability" xml:"FaceProbability" require:"true"`
+	Mask            *int     `json:"Mask,omitempty" xml:"Mask,omitempty" require:"true"`
+	FaceProbability *float32 `json:"FaceProbability,omitempty" xml:"FaceProbability,omitempty" require:"true"`
 }
 
 func (s DetectMaskResponseData) String() string {
@@ -2765,7 +3019,7 @@ func (s *DetectMaskResponseData) SetFaceProbability(v float32) *DetectMaskRespon
 }
 
 type DetectMaskAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectMaskAdvanceRequest) String() string {
@@ -2782,7 +3036,7 @@ func (s *DetectMaskAdvanceRequest) SetImageURLObject(v io.Reader) *DetectMaskAdv
 }
 
 type RecognizeFaceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeFaceRequest) String() string {
@@ -2799,8 +3053,8 @@ func (s *RecognizeFaceRequest) SetImageURL(v string) *RecognizeFaceRequest {
 }
 
 type RecognizeFaceResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeFaceResponse) String() string {
@@ -2822,19 +3076,19 @@ func (s *RecognizeFaceResponse) SetData(v *RecognizeFaceResponseData) *Recognize
 }
 
 type RecognizeFaceResponseData struct {
-	FaceCount           *int       `json:"FaceCount" xml:"FaceCount" require:"true"`
-	LandmarkCount       *int       `json:"LandmarkCount" xml:"LandmarkCount" require:"true"`
-	DenseFeatureLength  *int       `json:"DenseFeatureLength" xml:"DenseFeatureLength" require:"true"`
-	FaceRectangles      []*int     `json:"FaceRectangles" xml:"FaceRectangles" require:"true" type:"Repeated"`
-	FaceProbabilityList []*float32 `json:"FaceProbabilityList" xml:"FaceProbabilityList" require:"true" type:"Repeated"`
-	PoseList            []*float32 `json:"PoseList" xml:"PoseList" require:"true" type:"Repeated"`
-	Landmarks           []*float32 `json:"Landmarks" xml:"Landmarks" require:"true" type:"Repeated"`
-	Pupils              []*float32 `json:"Pupils" xml:"Pupils" require:"true" type:"Repeated"`
-	GenderList          []*int     `json:"GenderList" xml:"GenderList" require:"true" type:"Repeated"`
-	AgeList             []*int     `json:"AgeList" xml:"AgeList" require:"true" type:"Repeated"`
-	Expressions         []*int     `json:"Expressions" xml:"Expressions" require:"true" type:"Repeated"`
-	Glasses             []*int     `json:"Glasses" xml:"Glasses" require:"true" type:"Repeated"`
-	DenseFeatures       []*string  `json:"DenseFeatures" xml:"DenseFeatures" require:"true" type:"Repeated"`
+	FaceCount           *int       `json:"FaceCount,omitempty" xml:"FaceCount,omitempty" require:"true"`
+	LandmarkCount       *int       `json:"LandmarkCount,omitempty" xml:"LandmarkCount,omitempty" require:"true"`
+	DenseFeatureLength  *int       `json:"DenseFeatureLength,omitempty" xml:"DenseFeatureLength,omitempty" require:"true"`
+	FaceRectangles      []*int     `json:"FaceRectangles,omitempty" xml:"FaceRectangles,omitempty" require:"true" type:"Repeated"`
+	FaceProbabilityList []*float32 `json:"FaceProbabilityList,omitempty" xml:"FaceProbabilityList,omitempty" require:"true" type:"Repeated"`
+	PoseList            []*float32 `json:"PoseList,omitempty" xml:"PoseList,omitempty" require:"true" type:"Repeated"`
+	Landmarks           []*float32 `json:"Landmarks,omitempty" xml:"Landmarks,omitempty" require:"true" type:"Repeated"`
+	Pupils              []*float32 `json:"Pupils,omitempty" xml:"Pupils,omitempty" require:"true" type:"Repeated"`
+	GenderList          []*int     `json:"GenderList,omitempty" xml:"GenderList,omitempty" require:"true" type:"Repeated"`
+	AgeList             []*int     `json:"AgeList,omitempty" xml:"AgeList,omitempty" require:"true" type:"Repeated"`
+	Expressions         []*int     `json:"Expressions,omitempty" xml:"Expressions,omitempty" require:"true" type:"Repeated"`
+	Glasses             []*int     `json:"Glasses,omitempty" xml:"Glasses,omitempty" require:"true" type:"Repeated"`
+	DenseFeatures       []*string  `json:"DenseFeatures,omitempty" xml:"DenseFeatures,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeFaceResponseData) String() string {
@@ -2911,7 +3165,7 @@ func (s *RecognizeFaceResponseData) SetDenseFeatures(v []*string) *RecognizeFace
 }
 
 type RecognizeFaceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeFaceAdvanceRequest) String() string {
@@ -2928,8 +3182,8 @@ func (s *RecognizeFaceAdvanceRequest) SetImageURLObject(v io.Reader) *RecognizeF
 }
 
 type CompareFaceRequest struct {
-	ImageURLA *string `json:"ImageURLA" xml:"ImageURLA" require:"true"`
-	ImageURLB *string `json:"ImageURLB" xml:"ImageURLB" require:"true"`
+	ImageURLA *string `json:"ImageURLA,omitempty" xml:"ImageURLA,omitempty" require:"true"`
+	ImageURLB *string `json:"ImageURLB,omitempty" xml:"ImageURLB,omitempty" require:"true"`
 }
 
 func (s CompareFaceRequest) String() string {
@@ -2951,8 +3205,8 @@ func (s *CompareFaceRequest) SetImageURLB(v string) *CompareFaceRequest {
 }
 
 type CompareFaceResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *CompareFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *CompareFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CompareFaceResponse) String() string {
@@ -2974,10 +3228,10 @@ func (s *CompareFaceResponse) SetData(v *CompareFaceResponseData) *CompareFaceRe
 }
 
 type CompareFaceResponseData struct {
-	Confidence *float32   `json:"Confidence" xml:"Confidence" require:"true"`
-	Thresholds []*float32 `json:"Thresholds" xml:"Thresholds" require:"true" type:"Repeated"`
-	RectAList  []*int     `json:"RectAList" xml:"RectAList" require:"true" type:"Repeated"`
-	RectBList  []*int     `json:"RectBList" xml:"RectBList" require:"true" type:"Repeated"`
+	Confidence *float32   `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
+	Thresholds []*float32 `json:"Thresholds,omitempty" xml:"Thresholds,omitempty" require:"true" type:"Repeated"`
+	RectAList  []*int     `json:"RectAList,omitempty" xml:"RectAList,omitempty" require:"true" type:"Repeated"`
+	RectBList  []*int     `json:"RectBList,omitempty" xml:"RectBList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CompareFaceResponseData) String() string {
@@ -3009,7 +3263,7 @@ func (s *CompareFaceResponseData) SetRectBList(v []*int) *CompareFaceResponseDat
 }
 
 type DetectFaceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s DetectFaceRequest) String() string {
@@ -3026,8 +3280,8 @@ func (s *DetectFaceRequest) SetImageURL(v string) *DetectFaceRequest {
 }
 
 type DetectFaceResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectFaceResponse) String() string {
@@ -3049,13 +3303,13 @@ func (s *DetectFaceResponse) SetData(v *DetectFaceResponseData) *DetectFaceRespo
 }
 
 type DetectFaceResponseData struct {
-	FaceCount           *int       `json:"FaceCount" xml:"FaceCount" require:"true"`
-	LandmarkCount       *int       `json:"LandmarkCount" xml:"LandmarkCount" require:"true"`
-	FaceRectangles      []*int     `json:"FaceRectangles" xml:"FaceRectangles" require:"true" type:"Repeated"`
-	FaceProbabilityList []*float32 `json:"FaceProbabilityList" xml:"FaceProbabilityList" require:"true" type:"Repeated"`
-	PoseList            []*float32 `json:"PoseList" xml:"PoseList" require:"true" type:"Repeated"`
-	Landmarks           []*float32 `json:"Landmarks" xml:"Landmarks" require:"true" type:"Repeated"`
-	Pupils              []*float32 `json:"Pupils" xml:"Pupils" require:"true" type:"Repeated"`
+	FaceCount           *int       `json:"FaceCount,omitempty" xml:"FaceCount,omitempty" require:"true"`
+	LandmarkCount       *int       `json:"LandmarkCount,omitempty" xml:"LandmarkCount,omitempty" require:"true"`
+	FaceRectangles      []*int     `json:"FaceRectangles,omitempty" xml:"FaceRectangles,omitempty" require:"true" type:"Repeated"`
+	FaceProbabilityList []*float32 `json:"FaceProbabilityList,omitempty" xml:"FaceProbabilityList,omitempty" require:"true" type:"Repeated"`
+	PoseList            []*float32 `json:"PoseList,omitempty" xml:"PoseList,omitempty" require:"true" type:"Repeated"`
+	Landmarks           []*float32 `json:"Landmarks,omitempty" xml:"Landmarks,omitempty" require:"true" type:"Repeated"`
+	Pupils              []*float32 `json:"Pupils,omitempty" xml:"Pupils,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectFaceResponseData) String() string {
@@ -3102,7 +3356,7 @@ func (s *DetectFaceResponseData) SetPupils(v []*float32) *DetectFaceResponseData
 }
 
 type DetectFaceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s DetectFaceAdvanceRequest) String() string {
@@ -3144,6 +3398,118 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) VerifyFaceMask(request *VerifyFaceMaskRequest, runtime *util.RuntimeOptions) (_result *VerifyFaceMaskResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &VerifyFaceMaskResponse{}
+	_body, _err := client.DoRequest(tea.String("VerifyFaceMask"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) VerifyFaceMaskAdvance(request *VerifyFaceMaskAdvanceRequest, runtime *util.RuntimeOptions) (_result *VerifyFaceMaskResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("facebody"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	verifyFaceMaskreq := &VerifyFaceMaskRequest{}
+	rpcutil.Convert(request, verifyFaceMaskreq)
+	verifyFaceMaskreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	verifyFaceMaskResp, _err := client.VerifyFaceMask(verifyFaceMaskreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = verifyFaceMaskResp
+	return _result, _err
+}
+
+func (client *Client) RecognizeAction(request *RecognizeActionRequest, runtime *util.RuntimeOptions) (_result *RecognizeActionResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &RecognizeActionResponse{}
+	_body, _err := client.DoRequest(tea.String("RecognizeAction"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
 }
 
 func (client *Client) DetectVideoLivingFace(request *DetectVideoLivingFaceRequest, runtime *util.RuntimeOptions) (_result *DetectVideoLivingFaceResponse, _err error) {
