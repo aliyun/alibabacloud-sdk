@@ -17,6 +17,166 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imageseg', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model SegmentFoodRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model SegmentFoodResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function segmentFood(request: SegmentFoodRequest, runtime: Util.RuntimeOptions): SegmentFoodResponse {
+  Util.validateModel(request);
+  return doRequest('SegmentFood', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model SegmentFoodAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: Util.RuntimeOptions): SegmentFoodResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var segmentFoodreq = new SegmentFoodRequest{};
+  RPCUtil.convert(request, segmentFoodreq);
+  segmentFoodreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentFoodResp = segmentFood(segmentFoodreq, runtime);
+  return segmentFoodResp;
+}
+
+model SegmentClothRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model SegmentClothResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        imageURL: string(name='ImageURL', description='imageUrl'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function segmentCloth(request: SegmentClothRequest, runtime: Util.RuntimeOptions): SegmentClothResponse {
+  Util.validateModel(request);
+  return doRequest('SegmentCloth', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model SegmentClothAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+}
+
+async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime: Util.RuntimeOptions): SegmentClothResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageseg',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var segmentClothreq = new SegmentClothRequest{};
+  RPCUtil.convert(request, segmentClothreq);
+  segmentClothreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var segmentClothResp = segmentCloth(segmentClothreq, runtime);
+  return segmentClothResp;
+}
+
 model SegmentAnimalRequest = {
   imageURL: string(name='ImageURL', description='imageUrl'),
 }
