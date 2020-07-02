@@ -14,8 +14,173 @@ import (
 	"io"
 )
 
+type SegmentFoodRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentFoodRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentFoodRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentFoodRequest) SetImageURL(v string) *SegmentFoodRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentFoodResponse struct {
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentFoodResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s SegmentFoodResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentFoodResponse) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentFoodResponse) SetRequestId(v string) *SegmentFoodResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *SegmentFoodResponse) SetData(v *SegmentFoodResponseData) *SegmentFoodResponse {
+	s.Data = v
+	return s
+}
+
+type SegmentFoodResponseData struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentFoodResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentFoodResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentFoodResponseData) SetImageURL(v string) *SegmentFoodResponseData {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentFoodAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s SegmentFoodAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentFoodAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentFoodAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentFoodAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
+type SegmentClothRequest struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentClothRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentClothRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentClothRequest) SetImageURL(v string) *SegmentClothRequest {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentClothResponse struct {
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentClothResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s SegmentClothResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentClothResponse) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentClothResponse) SetRequestId(v string) *SegmentClothResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *SegmentClothResponse) SetData(v *SegmentClothResponseData) *SegmentClothResponse {
+	s.Data = v
+	return s
+}
+
+type SegmentClothResponseData struct {
+	Elements []*SegmentClothResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s SegmentClothResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentClothResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentClothResponseData) SetElements(v []*SegmentClothResponseDataElements) *SegmentClothResponseData {
+	s.Elements = v
+	return s
+}
+
+type SegmentClothResponseDataElements struct {
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+}
+
+func (s SegmentClothResponseDataElements) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentClothResponseDataElements) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentClothResponseDataElements) SetImageURL(v string) *SegmentClothResponseDataElements {
+	s.ImageURL = &v
+	return s
+}
+
+type SegmentClothAdvanceRequest struct {
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+}
+
+func (s SegmentClothAdvanceRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s SegmentClothAdvanceRequest) GoString() string {
+	return s.String()
+}
+
+func (s *SegmentClothAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentClothAdvanceRequest {
+	s.ImageURLObject = v
+	return s
+}
+
 type SegmentAnimalRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentAnimalRequest) String() string {
@@ -32,8 +197,8 @@ func (s *SegmentAnimalRequest) SetImageURL(v string) *SegmentAnimalRequest {
 }
 
 type SegmentAnimalResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentAnimalResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentAnimalResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentAnimalResponse) String() string {
@@ -55,7 +220,7 @@ func (s *SegmentAnimalResponse) SetData(v *SegmentAnimalResponseData) *SegmentAn
 }
 
 type SegmentAnimalResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentAnimalResponseData) String() string {
@@ -72,7 +237,7 @@ func (s *SegmentAnimalResponseData) SetImageURL(v string) *SegmentAnimalResponse
 }
 
 type SegmentAnimalAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentAnimalAdvanceRequest) String() string {
@@ -89,7 +254,7 @@ func (s *SegmentAnimalAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentAni
 }
 
 type SegmentHDBodyRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentHDBodyRequest) String() string {
@@ -106,8 +271,8 @@ func (s *SegmentHDBodyRequest) SetImageURL(v string) *SegmentHDBodyRequest {
 }
 
 type SegmentHDBodyResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentHDBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentHDBodyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentHDBodyResponse) String() string {
@@ -129,7 +294,7 @@ func (s *SegmentHDBodyResponse) SetData(v *SegmentHDBodyResponseData) *SegmentHD
 }
 
 type SegmentHDBodyResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentHDBodyResponseData) String() string {
@@ -146,7 +311,7 @@ func (s *SegmentHDBodyResponseData) SetImageURL(v string) *SegmentHDBodyResponse
 }
 
 type SegmentHDBodyAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentHDBodyAdvanceRequest) String() string {
@@ -163,7 +328,7 @@ func (s *SegmentHDBodyAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentHDB
 }
 
 type SegmentSkyRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentSkyRequest) String() string {
@@ -180,8 +345,8 @@ func (s *SegmentSkyRequest) SetImageURL(v string) *SegmentSkyRequest {
 }
 
 type SegmentSkyResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentSkyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentSkyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentSkyResponse) String() string {
@@ -203,7 +368,7 @@ func (s *SegmentSkyResponse) SetData(v *SegmentSkyResponseData) *SegmentSkyRespo
 }
 
 type SegmentSkyResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentSkyResponseData) String() string {
@@ -220,7 +385,7 @@ func (s *SegmentSkyResponseData) SetImageURL(v string) *SegmentSkyResponseData {
 }
 
 type SegmentSkyAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentSkyAdvanceRequest) String() string {
@@ -237,7 +402,7 @@ func (s *SegmentSkyAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentSkyAdv
 }
 
 type GetAsyncJobResultRequest struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultRequest) String() string {
@@ -254,8 +419,8 @@ func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest 
 }
 
 type GetAsyncJobResultResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAsyncJobResultResponse) String() string {
@@ -277,11 +442,11 @@ func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *G
 }
 
 type GetAsyncJobResultResponseData struct {
-	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	Result       *string `json:"Result" xml:"Result" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Result       *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultResponseData) String() string {
@@ -318,7 +483,7 @@ func (s *GetAsyncJobResultResponseData) SetStatus(v string) *GetAsyncJobResultRe
 }
 
 type SegmentFurnitureRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentFurnitureRequest) String() string {
@@ -335,8 +500,8 @@ func (s *SegmentFurnitureRequest) SetImageURL(v string) *SegmentFurnitureRequest
 }
 
 type SegmentFurnitureResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentFurnitureResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentFurnitureResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentFurnitureResponse) String() string {
@@ -358,7 +523,7 @@ func (s *SegmentFurnitureResponse) SetData(v *SegmentFurnitureResponseData) *Seg
 }
 
 type SegmentFurnitureResponseData struct {
-	Elements []*SegmentFurnitureResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*SegmentFurnitureResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SegmentFurnitureResponseData) String() string {
@@ -375,7 +540,7 @@ func (s *SegmentFurnitureResponseData) SetElements(v []*SegmentFurnitureResponse
 }
 
 type SegmentFurnitureResponseDataElements struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentFurnitureResponseDataElements) String() string {
@@ -392,7 +557,7 @@ func (s *SegmentFurnitureResponseDataElements) SetImageURL(v string) *SegmentFur
 }
 
 type SegmentFurnitureAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentFurnitureAdvanceRequest) String() string {
@@ -409,8 +574,8 @@ func (s *SegmentFurnitureAdvanceRequest) SetImageURLObject(v io.Reader) *Segment
 }
 
 type RefineMaskRequest struct {
-	MaskImageURL *string `json:"MaskImageURL" xml:"MaskImageURL" require:"true"`
-	ImageURL     *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	MaskImageURL *string `json:"MaskImageURL,omitempty" xml:"MaskImageURL,omitempty" require:"true"`
+	ImageURL     *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RefineMaskRequest) String() string {
@@ -432,8 +597,8 @@ func (s *RefineMaskRequest) SetImageURL(v string) *RefineMaskRequest {
 }
 
 type RefineMaskResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RefineMaskResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RefineMaskResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RefineMaskResponse) String() string {
@@ -455,7 +620,7 @@ func (s *RefineMaskResponse) SetData(v *RefineMaskResponseData) *RefineMaskRespo
 }
 
 type RefineMaskResponseData struct {
-	Elements []*RefineMaskResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RefineMaskResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RefineMaskResponseData) String() string {
@@ -472,7 +637,7 @@ func (s *RefineMaskResponseData) SetElements(v []*RefineMaskResponseDataElements
 }
 
 type RefineMaskResponseDataElements struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RefineMaskResponseDataElements) String() string {
@@ -489,8 +654,8 @@ func (s *RefineMaskResponseDataElements) SetImageURL(v string) *RefineMaskRespon
 }
 
 type RefineMaskAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	MaskImageURL   *string   `json:"MaskImageURL" xml:"MaskImageURL" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	MaskImageURL   *string   `json:"MaskImageURL,omitempty" xml:"MaskImageURL,omitempty" require:"true"`
 }
 
 func (s RefineMaskAdvanceRequest) String() string {
@@ -512,7 +677,7 @@ func (s *RefineMaskAdvanceRequest) SetMaskImageURL(v string) *RefineMaskAdvanceR
 }
 
 type ParseFaceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s ParseFaceRequest) String() string {
@@ -529,8 +694,8 @@ func (s *ParseFaceRequest) SetImageURL(v string) *ParseFaceRequest {
 }
 
 type ParseFaceResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *ParseFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *ParseFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ParseFaceResponse) String() string {
@@ -552,8 +717,8 @@ func (s *ParseFaceResponse) SetData(v *ParseFaceResponseData) *ParseFaceResponse
 }
 
 type ParseFaceResponseData struct {
-	OriginImageURL *string                          `json:"OriginImageURL" xml:"OriginImageURL" require:"true"`
-	Elements       []*ParseFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	OriginImageURL *string                          `json:"OriginImageURL,omitempty" xml:"OriginImageURL,omitempty" require:"true"`
+	Elements       []*ParseFaceResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ParseFaceResponseData) String() string {
@@ -575,8 +740,8 @@ func (s *ParseFaceResponseData) SetElements(v []*ParseFaceResponseDataElements) 
 }
 
 type ParseFaceResponseDataElements struct {
-	Name     *string `json:"Name" xml:"Name" require:"true"`
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	Name     *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s ParseFaceResponseDataElements) String() string {
@@ -598,7 +763,7 @@ func (s *ParseFaceResponseDataElements) SetImageURL(v string) *ParseFaceResponse
 }
 
 type ParseFaceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s ParseFaceAdvanceRequest) String() string {
@@ -615,7 +780,7 @@ func (s *ParseFaceAdvanceRequest) SetImageURLObject(v io.Reader) *ParseFaceAdvan
 }
 
 type SegmentVehicleRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentVehicleRequest) String() string {
@@ -632,8 +797,8 @@ func (s *SegmentVehicleRequest) SetImageURL(v string) *SegmentVehicleRequest {
 }
 
 type SegmentVehicleResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentVehicleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentVehicleResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentVehicleResponse) String() string {
@@ -655,7 +820,7 @@ func (s *SegmentVehicleResponse) SetData(v *SegmentVehicleResponseData) *Segment
 }
 
 type SegmentVehicleResponseData struct {
-	Elements []*SegmentVehicleResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*SegmentVehicleResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SegmentVehicleResponseData) String() string {
@@ -672,8 +837,8 @@ func (s *SegmentVehicleResponseData) SetElements(v []*SegmentVehicleResponseData
 }
 
 type SegmentVehicleResponseDataElements struct {
-	OriginImageURL *string `json:"OriginImageURL" xml:"OriginImageURL" require:"true"`
-	ImageURL       *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	OriginImageURL *string `json:"OriginImageURL,omitempty" xml:"OriginImageURL,omitempty" require:"true"`
+	ImageURL       *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentVehicleResponseDataElements) String() string {
@@ -695,7 +860,7 @@ func (s *SegmentVehicleResponseDataElements) SetImageURL(v string) *SegmentVehic
 }
 
 type SegmentVehicleAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentVehicleAdvanceRequest) String() string {
@@ -712,7 +877,7 @@ func (s *SegmentVehicleAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentVe
 }
 
 type SegmentHairRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentHairRequest) String() string {
@@ -729,8 +894,8 @@ func (s *SegmentHairRequest) SetImageURL(v string) *SegmentHairRequest {
 }
 
 type SegmentHairResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentHairResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentHairResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentHairResponse) String() string {
@@ -752,7 +917,7 @@ func (s *SegmentHairResponse) SetData(v *SegmentHairResponseData) *SegmentHairRe
 }
 
 type SegmentHairResponseData struct {
-	Elements []*SegmentHairResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*SegmentHairResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SegmentHairResponseData) String() string {
@@ -769,11 +934,11 @@ func (s *SegmentHairResponseData) SetElements(v []*SegmentHairResponseDataElemen
 }
 
 type SegmentHairResponseDataElements struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	X        *int    `json:"X" xml:"X" require:"true"`
-	Y        *int    `json:"Y" xml:"Y" require:"true"`
-	Width    *int    `json:"Width" xml:"Width" require:"true"`
-	Height   *int    `json:"Height" xml:"Height" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	X        *int    `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y        *int    `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width    *int    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height   *int    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s SegmentHairResponseDataElements) String() string {
@@ -810,7 +975,7 @@ func (s *SegmentHairResponseDataElements) SetHeight(v int) *SegmentHairResponseD
 }
 
 type SegmentHairAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentHairAdvanceRequest) String() string {
@@ -827,7 +992,7 @@ func (s *SegmentHairAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentHairA
 }
 
 type SegmentFaceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentFaceRequest) String() string {
@@ -844,8 +1009,8 @@ func (s *SegmentFaceRequest) SetImageURL(v string) *SegmentFaceRequest {
 }
 
 type SegmentFaceResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentFaceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentFaceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentFaceResponse) String() string {
@@ -867,7 +1032,7 @@ func (s *SegmentFaceResponse) SetData(v *SegmentFaceResponseData) *SegmentFaceRe
 }
 
 type SegmentFaceResponseData struct {
-	Elements []*SegmentFaceResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*SegmentFaceResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SegmentFaceResponseData) String() string {
@@ -884,11 +1049,11 @@ func (s *SegmentFaceResponseData) SetElements(v []*SegmentFaceResponseDataElemen
 }
 
 type SegmentFaceResponseDataElements struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	X        *int    `json:"X" xml:"X" require:"true"`
-	Y        *int    `json:"Y" xml:"Y" require:"true"`
-	Width    *int    `json:"Width" xml:"Width" require:"true"`
-	Height   *int    `json:"Height" xml:"Height" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	X        *int    `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y        *int    `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width    *int    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height   *int    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s SegmentFaceResponseDataElements) String() string {
@@ -925,7 +1090,7 @@ func (s *SegmentFaceResponseDataElements) SetHeight(v int) *SegmentFaceResponseD
 }
 
 type SegmentFaceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentFaceAdvanceRequest) String() string {
@@ -942,7 +1107,7 @@ func (s *SegmentFaceAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentFaceA
 }
 
 type SegmentHeadRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentHeadRequest) String() string {
@@ -959,8 +1124,8 @@ func (s *SegmentHeadRequest) SetImageURL(v string) *SegmentHeadRequest {
 }
 
 type SegmentHeadResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentHeadResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentHeadResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentHeadResponse) String() string {
@@ -982,7 +1147,7 @@ func (s *SegmentHeadResponse) SetData(v *SegmentHeadResponseData) *SegmentHeadRe
 }
 
 type SegmentHeadResponseData struct {
-	Elements []*SegmentHeadResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*SegmentHeadResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SegmentHeadResponseData) String() string {
@@ -999,11 +1164,11 @@ func (s *SegmentHeadResponseData) SetElements(v []*SegmentHeadResponseDataElemen
 }
 
 type SegmentHeadResponseDataElements struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	X        *int    `json:"X" xml:"X" require:"true"`
-	Y        *int    `json:"Y" xml:"Y" require:"true"`
-	Width    *int    `json:"Width" xml:"Width" require:"true"`
-	Height   *int    `json:"Height" xml:"Height" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	X        *int    `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y        *int    `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
+	Width    *int    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height   *int    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s SegmentHeadResponseDataElements) String() string {
@@ -1040,7 +1205,7 @@ func (s *SegmentHeadResponseDataElements) SetHeight(v int) *SegmentHeadResponseD
 }
 
 type SegmentHeadAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentHeadAdvanceRequest) String() string {
@@ -1057,7 +1222,7 @@ func (s *SegmentHeadAdvanceRequest) SetImageURLObject(v io.Reader) *SegmentHeadA
 }
 
 type SegmentCommodityRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentCommodityRequest) String() string {
@@ -1074,8 +1239,8 @@ func (s *SegmentCommodityRequest) SetImageURL(v string) *SegmentCommodityRequest
 }
 
 type SegmentCommodityResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentCommodityResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentCommodityResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentCommodityResponse) String() string {
@@ -1097,7 +1262,7 @@ func (s *SegmentCommodityResponse) SetData(v *SegmentCommodityResponseData) *Seg
 }
 
 type SegmentCommodityResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentCommodityResponseData) String() string {
@@ -1114,7 +1279,7 @@ func (s *SegmentCommodityResponseData) SetImageURL(v string) *SegmentCommodityRe
 }
 
 type SegmentCommodityAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentCommodityAdvanceRequest) String() string {
@@ -1131,8 +1296,8 @@ func (s *SegmentCommodityAdvanceRequest) SetImageURLObject(v io.Reader) *Segment
 }
 
 type SegmentBodyRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Async    *bool   `json:"Async" xml:"Async"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Async    *bool   `json:"Async,omitempty" xml:"Async,omitempty"`
 }
 
 func (s SegmentBodyRequest) String() string {
@@ -1154,8 +1319,8 @@ func (s *SegmentBodyRequest) SetAsync(v bool) *SegmentBodyRequest {
 }
 
 type SegmentBodyResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentBodyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentBodyResponse) String() string {
@@ -1177,7 +1342,7 @@ func (s *SegmentBodyResponse) SetData(v *SegmentBodyResponseData) *SegmentBodyRe
 }
 
 type SegmentBodyResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentBodyResponseData) String() string {
@@ -1194,8 +1359,8 @@ func (s *SegmentBodyResponseData) SetImageURL(v string) *SegmentBodyResponseData
 }
 
 type SegmentBodyAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	Async          *bool     `json:"Async" xml:"Async"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	Async          *bool     `json:"Async,omitempty" xml:"Async,omitempty"`
 }
 
 func (s SegmentBodyAdvanceRequest) String() string {
@@ -1217,7 +1382,7 @@ func (s *SegmentBodyAdvanceRequest) SetAsync(v bool) *SegmentBodyAdvanceRequest 
 }
 
 type SegmentCommonImageRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentCommonImageRequest) String() string {
@@ -1234,8 +1399,8 @@ func (s *SegmentCommonImageRequest) SetImageURL(v string) *SegmentCommonImageReq
 }
 
 type SegmentCommonImageResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentCommonImageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentCommonImageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentCommonImageResponse) String() string {
@@ -1257,7 +1422,7 @@ func (s *SegmentCommonImageResponse) SetData(v *SegmentCommonImageResponseData) 
 }
 
 type SegmentCommonImageResponseData struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s SegmentCommonImageResponseData) String() string {
@@ -1274,7 +1439,7 @@ func (s *SegmentCommonImageResponseData) SetImageURL(v string) *SegmentCommonIma
 }
 
 type SegmentCommonImageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s SegmentCommonImageAdvanceRequest) String() string {
@@ -1310,12 +1475,208 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("imageseg"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
 	return nil
+}
+
+func (client *Client) SegmentFood(request *SegmentFoodRequest, runtime *util.RuntimeOptions) (_result *SegmentFoodResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &SegmentFoodResponse{}
+	_body, _err := client.DoRequest(tea.String("SegmentFood"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) SegmentFoodAdvance(request *SegmentFoodAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentFoodResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageseg"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	segmentFoodreq := &SegmentFoodRequest{}
+	rpcutil.Convert(request, segmentFoodreq)
+	segmentFoodreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	segmentFoodResp, _err := client.SegmentFood(segmentFoodreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = segmentFoodResp
+	return _result, _err
+}
+
+func (client *Client) SegmentCloth(request *SegmentClothRequest, runtime *util.RuntimeOptions) (_result *SegmentClothResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &SegmentClothResponse{}
+	_body, _err := client.DoRequest(tea.String("SegmentCloth"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) SegmentClothAdvance(request *SegmentClothAdvanceRequest, runtime *util.RuntimeOptions) (_result *SegmentClothResponse, _err error) {
+	// Step 0: init client
+	accessKeyId, _err := client.Credential.GetAccessKeyId()
+	if _err != nil {
+		return _result, _err
+	}
+
+	accessKeySecret, _err := client.Credential.GetAccessKeySecret()
+	if _err != nil {
+		return _result, _err
+	}
+
+	authConfig := &rpc.Config{
+		AccessKeyId:     accessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        tea.String("openplatform.aliyuncs.com"),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	authClient, _err := openplatform.NewClient(authConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	authRequest := &openplatform.AuthorizeFileUploadRequest{
+		Product:  tea.String("imageseg"),
+		RegionId: client.RegionId,
+	}
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	// Step 1: request OSS api to upload file
+	ossConfig := &oss.Config{
+		AccessKeyId:     authResponse.AccessKeyId,
+		AccessKeySecret: accessKeySecret,
+		Type:            tea.String("access_key"),
+		Endpoint:        rpcutil.GetEndpoint(authResponse.Endpoint, authResponse.UseAccelerate, client.EndpointType),
+		Protocol:        client.Protocol,
+		RegionId:        client.RegionId,
+	}
+	ossClient, _err := oss.NewClient(ossConfig)
+	if _err != nil {
+		return _result, _err
+	}
+
+	fileObj := &fileform.FileField{
+		Filename:    authResponse.ObjectKey,
+		Content:     request.ImageURLObject,
+		ContentType: tea.String(""),
+	}
+	ossHeader := &oss.PostObjectRequestHeader{
+		AccessKeyId:         authResponse.AccessKeyId,
+		Policy:              authResponse.EncodedPolicy,
+		Signature:           authResponse.Signature,
+		Key:                 authResponse.ObjectKey,
+		File:                fileObj,
+		SuccessActionStatus: tea.String("201"),
+	}
+	uploadRequest := &oss.PostObjectRequest{
+		BucketName: authResponse.Bucket,
+		Header:     ossHeader,
+	}
+	ossRuntime := &ossutil.RuntimeOptions{}
+	rpcutil.Convert(runtime, ossRuntime)
+	_, _err = ossClient.PostObject(uploadRequest, ossRuntime)
+	if _err != nil {
+		return _result, _err
+	}
+	// Step 2: request final api
+	segmentClothreq := &SegmentClothRequest{}
+	rpcutil.Convert(request, segmentClothreq)
+	segmentClothreq.ImageURL = tea.String("http://" + tea.StringValue(authResponse.Bucket) + "." + tea.StringValue(authResponse.Endpoint) + "/" + tea.StringValue(authResponse.ObjectKey))
+	segmentClothResp, _err := client.SegmentCloth(segmentClothreq, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+
+	_result = segmentClothResp
+	return _result, _err
 }
 
 func (client *Client) SegmentAnimal(request *SegmentAnimalRequest, runtime *util.RuntimeOptions) (_result *SegmentAnimalResponse, _err error) {
@@ -1361,7 +1722,7 @@ func (client *Client) SegmentAnimalAdvance(request *SegmentAnimalAdvanceRequest,
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1459,7 +1820,7 @@ func (client *Client) SegmentHDBodyAdvance(request *SegmentHDBodyAdvanceRequest,
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1557,7 +1918,7 @@ func (client *Client) SegmentSkyAdvance(request *SegmentSkyAdvanceRequest, runti
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1669,7 +2030,7 @@ func (client *Client) SegmentFurnitureAdvance(request *SegmentFurnitureAdvanceRe
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1767,7 +2128,7 @@ func (client *Client) RefineMaskAdvance(request *RefineMaskAdvanceRequest, runti
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1865,7 +2226,7 @@ func (client *Client) ParseFaceAdvance(request *ParseFaceAdvanceRequest, runtime
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1963,7 +2324,7 @@ func (client *Client) SegmentVehicleAdvance(request *SegmentVehicleAdvanceReques
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2061,7 +2422,7 @@ func (client *Client) SegmentHairAdvance(request *SegmentHairAdvanceRequest, run
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2159,7 +2520,7 @@ func (client *Client) SegmentFaceAdvance(request *SegmentFaceAdvanceRequest, run
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2257,7 +2618,7 @@ func (client *Client) SegmentHeadAdvance(request *SegmentHeadAdvanceRequest, run
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2355,7 +2716,7 @@ func (client *Client) SegmentCommodityAdvance(request *SegmentCommodityAdvanceRe
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2453,7 +2814,7 @@ func (client *Client) SegmentBodyAdvance(request *SegmentBodyAdvanceRequest, run
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -2551,7 +2912,7 @@ func (client *Client) SegmentCommonImageAdvance(request *SegmentCommonImageAdvan
 		Product:  tea.String("imageseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
