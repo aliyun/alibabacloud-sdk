@@ -10,6 +10,119 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class VerifyFaceMaskRequest extends $tea.Model {
+  imageURL: string;
+  refUrl: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      refUrl: 'RefUrl',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      refUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class VerifyFaceMaskResponse extends $tea.Model {
+  requestId: string;
+  data: VerifyFaceMaskResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: VerifyFaceMaskResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class VerifyFaceMaskAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  refUrl: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      refUrl: 'RefUrl',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      refUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeActionRequest extends $tea.Model {
+  URLList?: RecognizeActionRequestURLList[];
+  type: number;
+  videoUrl?: string;
+  static names(): { [key: string]: string } {
+    return {
+      URLList: 'URLList',
+      type: 'Type',
+      videoUrl: 'VideoUrl',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      URLList: { 'type': 'array', 'itemType': RecognizeActionRequestURLList },
+      type: 'number',
+      videoUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeActionResponse extends $tea.Model {
+  requestId: string;
+  data: RecognizeActionResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: RecognizeActionResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DetectVideoLivingFaceRequest extends $tea.Model {
   videoUrl: string;
   static names(): { [key: string]: string } {
@@ -1645,6 +1758,125 @@ export class DetectFaceAdvanceRequest extends $tea.Model {
   }
 }
 
+export class VerifyFaceMaskResponseData extends $tea.Model {
+  confidence: number;
+  mask: number;
+  maskRef: number;
+  rectangle: number[];
+  rectangleRef: number[];
+  thresholds: number[];
+  static names(): { [key: string]: string } {
+    return {
+      confidence: 'Confidence',
+      mask: 'Mask',
+      maskRef: 'MaskRef',
+      rectangle: 'Rectangle',
+      rectangleRef: 'RectangleRef',
+      thresholds: 'Thresholds',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      confidence: 'number',
+      mask: 'number',
+      maskRef: 'number',
+      rectangle: { 'type': 'array', 'itemType': 'integer' },
+      rectangleRef: { 'type': 'array', 'itemType': 'integer' },
+      thresholds: { 'type': 'array', 'itemType': 'float' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeActionRequestURLList extends $tea.Model {
+  URL?: string;
+  static names(): { [key: string]: string } {
+    return {
+      URL: 'URL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      URL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeActionResponseDataElementsBoxes extends $tea.Model {
+  box: number[];
+  static names(): { [key: string]: string } {
+    return {
+      box: 'Box',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      box: { 'type': 'array', 'itemType': 'integer' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeActionResponseDataElements extends $tea.Model {
+  timestamp: number;
+  boxes: RecognizeActionResponseDataElementsBoxes[];
+  scores: number[];
+  labels: string[];
+  static names(): { [key: string]: string } {
+    return {
+      timestamp: 'Timestamp',
+      boxes: 'Boxes',
+      scores: 'Scores',
+      labels: 'Labels',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      timestamp: 'number',
+      boxes: { 'type': 'array', 'itemType': RecognizeActionResponseDataElementsBoxes },
+      scores: { 'type': 'array', 'itemType': 'float' },
+      labels: { 'type': 'array', 'itemType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecognizeActionResponseData extends $tea.Model {
+  elements: RecognizeActionResponseDataElements[];
+  static names(): { [key: string]: string } {
+    return {
+      elements: 'Elements',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      elements: { 'type': 'array', 'itemType': RecognizeActionResponseDataElements },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class DetectVideoLivingFaceResponseDataElements extends $tea.Model {
   liveConfidence: number;
   faceConfidence: number;
@@ -2934,9 +3166,75 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "regional";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("facebody", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async verifyFaceMask(request: VerifyFaceMaskRequest, runtime: $Util.RuntimeOptions): Promise<VerifyFaceMaskResponse> {
+    Util.validateModel(request);
+    return $tea.cast<VerifyFaceMaskResponse>(await this.doRequest("VerifyFaceMask", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new VerifyFaceMaskResponse({}));
+  }
+
+  async verifyFaceMaskAdvance(request: VerifyFaceMaskAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<VerifyFaceMaskResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "facebody",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let verifyFaceMaskreq = new VerifyFaceMaskRequest({ });
+    RPCUtil.convert(request, verifyFaceMaskreq);
+    verifyFaceMaskreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let verifyFaceMaskResp = await this.verifyFaceMask(verifyFaceMaskreq, runtime);
+    return verifyFaceMaskResp;
+  }
+
+  async recognizeAction(request: RecognizeActionRequest, runtime: $Util.RuntimeOptions): Promise<RecognizeActionResponse> {
+    Util.validateModel(request);
+    return $tea.cast<RecognizeActionResponse>(await this.doRequest("RecognizeAction", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new RecognizeActionResponse({}));
+  }
 
   async detectVideoLivingFace(request: DetectVideoLivingFaceRequest, runtime: $Util.RuntimeOptions): Promise<DetectVideoLivingFaceResponse> {
     Util.validateModel(request);
@@ -2960,7 +3258,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3021,7 +3319,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3107,7 +3405,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3168,7 +3466,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3229,7 +3527,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3290,7 +3588,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3351,7 +3649,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3412,7 +3710,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3473,7 +3771,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3534,7 +3832,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3595,7 +3893,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3676,7 +3974,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3737,7 +4035,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3808,7 +4106,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3869,7 +4167,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3930,7 +4228,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -3996,7 +4294,7 @@ export default class Client extends RPC {
       product: "facebody",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
