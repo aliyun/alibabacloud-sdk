@@ -10,6 +10,126 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class SegmentFoodRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentFoodResponse extends $tea.Model {
+  requestId: string;
+  data: SegmentFoodResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: SegmentFoodResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentFoodAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentClothRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentClothResponse extends $tea.Model {
+  requestId: string;
+  data: SegmentClothResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: SegmentClothResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentClothAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class SegmentAnimalRequest extends $tea.Model {
   imageURL: string;
   static names(): { [key: string]: string } {
@@ -843,6 +963,63 @@ export class SegmentCommonImageAdvanceRequest extends $tea.Model {
   }
 }
 
+export class SegmentFoodResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentClothResponseDataElements extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class SegmentClothResponseData extends $tea.Model {
+  elements: SegmentClothResponseDataElements[];
+  static names(): { [key: string]: string } {
+    return {
+      elements: 'Elements',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      elements: { 'type': 'array', 'itemType': SegmentClothResponseDataElements },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class SegmentAnimalResponseData extends $tea.Model {
   imageURL: string;
   static names(): { [key: string]: string } {
@@ -1306,9 +1483,131 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "regional";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("imageseg", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async segmentFood(request: SegmentFoodRequest, runtime: $Util.RuntimeOptions): Promise<SegmentFoodResponse> {
+    Util.validateModel(request);
+    return $tea.cast<SegmentFoodResponse>(await this.doRequest("SegmentFood", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new SegmentFoodResponse({}));
+  }
+
+  async segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SegmentFoodResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageseg",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let segmentFoodreq = new SegmentFoodRequest({ });
+    RPCUtil.convert(request, segmentFoodreq);
+    segmentFoodreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let segmentFoodResp = await this.segmentFood(segmentFoodreq, runtime);
+    return segmentFoodResp;
+  }
+
+  async segmentCloth(request: SegmentClothRequest, runtime: $Util.RuntimeOptions): Promise<SegmentClothResponse> {
+    Util.validateModel(request);
+    return $tea.cast<SegmentClothResponse>(await this.doRequest("SegmentCloth", "HTTPS", "POST", "2019-12-30", "AK", null, $tea.toMap(request), runtime), new SegmentClothResponse({}));
+  }
+
+  async segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<SegmentClothResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageseg",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let segmentClothreq = new SegmentClothRequest({ });
+    RPCUtil.convert(request, segmentClothreq);
+    segmentClothreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let segmentClothResp = await this.segmentCloth(segmentClothreq, runtime);
+    return segmentClothResp;
+  }
 
   async segmentAnimal(request: SegmentAnimalRequest, runtime: $Util.RuntimeOptions): Promise<SegmentAnimalResponse> {
     Util.validateModel(request);
@@ -1332,7 +1631,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1393,7 +1692,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1454,7 +1753,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1520,7 +1819,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1581,7 +1880,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1642,7 +1941,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1703,7 +2002,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1764,7 +2063,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1825,7 +2124,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1886,7 +2185,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1947,7 +2246,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -2008,7 +2307,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -2069,7 +2368,7 @@ export default class Client extends RPC {
       product: "imageseg",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
