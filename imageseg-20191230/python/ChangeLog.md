@@ -1,3 +1,6 @@
+2020-07-02 Version: 1.0.2
+- Sdk for 026.
+
 2020-06-05 Version: 1.0.0
 - Generated imageseg-2019-12-30 for Python.
 

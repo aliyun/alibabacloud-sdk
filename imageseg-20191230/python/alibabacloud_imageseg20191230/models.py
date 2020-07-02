@@ -2,6 +2,201 @@
 from Tea.model import TeaModel
 
 
+class SegmentFoodRequest(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class SegmentFoodResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = SegmentFoodResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class SegmentFoodResponseData(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class SegmentFoodAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None):
+        self.image_urlobject = image_urlobject
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        return self
+
+
+class SegmentClothRequest(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class SegmentClothResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = SegmentClothResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class SegmentClothResponseDataElements(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class SegmentClothResponseData(TeaModel):
+    def __init__(self, elements=None):
+        self.elements = []
+
+    def validate(self):
+        self.validate_required(self.elements, 'elements')
+        if self.elements:
+            for k in self.elements:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['Elements'] = []
+        if self.elements is not None:
+            for k in self.elements:
+                result['Elements'].append(k.to_map() if k else None)
+        else:
+            result['Elements'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.elements = []
+        if map.get('Elements') is not None:
+            for k in map.get('Elements'):
+                temp_model = SegmentClothResponseDataElements()
+                temp_model = temp_model.from_map(k)
+                self.elements.append(temp_model)
+        else:
+            self.elements = None
+        return self
+
+
+class SegmentClothAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None):
+        self.image_urlobject = image_urlobject
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        return self
+
+
 class SegmentAnimalRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url

@@ -21,6 +21,134 @@ class Client(RPCClient):
         self.check_config(config)
         self._endpoint = self.get_endpoint("imageseg", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
+    def segment_food(self, request, runtime):
+        UtilClient.validate_model(request)
+        return imageseg_20191230_models.SegmentFoodResponse().from_map(self.do_request("SegmentFood", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
+
+
+    def segment_food_advance(self, request, runtime):
+        # Step 0: init client
+        access_key_id = self._credential.get_access_key_id()
+        access_key_secret = self._credential.get_access_key_secret()
+        auth_config = _rpc_models.Config(
+            access_key_id=access_key_id,
+            access_key_secret=access_key_secret,
+            type="access_key",
+            endpoint="openplatform.aliyuncs.com",
+            protocol=self._protocol,
+            region_id=self._region_id
+        )
+        auth_client = OpenPlatformClient(auth_config)
+        auth_request = open_platform_models.AuthorizeFileUploadRequest(
+            product="imageseg",
+            region_id=self._region_id
+        )
+        auth_response = auth_client.authorize_file_upload_with_options(auth_request, runtime)
+        # Step 1: request OSS api to upload file
+        oss_config = _oss_models.Config(
+            access_key_id=auth_response.access_key_id,
+            access_key_secret=access_key_secret,
+            type="access_key",
+            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate, self._endpoint_type),
+            protocol=self._protocol,
+            region_id=self._region_id
+        )
+        oss_client = OSSClient(oss_config)
+        file_obj = file_form_models.FileField(
+            filename=auth_response.object_key,
+            content=request.image_urlobject,
+            content_type=""
+        )
+        oss_header = _oss_models.PostObjectRequestHeader(
+            access_key_id=auth_response.access_key_id,
+            policy=auth_response.encoded_policy,
+            signature=auth_response.signature,
+            key=auth_response.object_key,
+            file=file_obj,
+            success_action_status="201"
+        )
+        upload_request = _oss_models.PostObjectRequest(
+            bucket_name=auth_response.bucket,
+            header=oss_header
+        )
+        oss_runtime = ossutil_models.RuntimeOptions(
+
+        )
+        RPCUtilClient.convert(runtime, oss_runtime)
+        oss_client.post_object(upload_request, oss_runtime)
+        # Step 2: request final api
+        segment_foodreq = imageseg_20191230_models.SegmentFoodRequest(
+
+        )
+        RPCUtilClient.convert(request, segment_foodreq)
+        segment_foodreq.image_url = "http://" + str(auth_response.bucket) + "." + str(auth_response.endpoint) + "/" + str(auth_response.object_key) + ""
+        segment_food_resp = self.segment_food(segment_foodreq, runtime)
+        return segment_food_resp
+
+    def segment_cloth(self, request, runtime):
+        UtilClient.validate_model(request)
+        return imageseg_20191230_models.SegmentClothResponse().from_map(self.do_request("SegmentCloth", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
+
+
+    def segment_cloth_advance(self, request, runtime):
+        # Step 0: init client
+        access_key_id = self._credential.get_access_key_id()
+        access_key_secret = self._credential.get_access_key_secret()
+        auth_config = _rpc_models.Config(
+            access_key_id=access_key_id,
+            access_key_secret=access_key_secret,
+            type="access_key",
+            endpoint="openplatform.aliyuncs.com",
+            protocol=self._protocol,
+            region_id=self._region_id
+        )
+        auth_client = OpenPlatformClient(auth_config)
+        auth_request = open_platform_models.AuthorizeFileUploadRequest(
+            product="imageseg",
+            region_id=self._region_id
+        )
+        auth_response = auth_client.authorize_file_upload_with_options(auth_request, runtime)
+        # Step 1: request OSS api to upload file
+        oss_config = _oss_models.Config(
+            access_key_id=auth_response.access_key_id,
+            access_key_secret=access_key_secret,
+            type="access_key",
+            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate, self._endpoint_type),
+            protocol=self._protocol,
+            region_id=self._region_id
+        )
+        oss_client = OSSClient(oss_config)
+        file_obj = file_form_models.FileField(
+            filename=auth_response.object_key,
+            content=request.image_urlobject,
+            content_type=""
+        )
+        oss_header = _oss_models.PostObjectRequestHeader(
+            access_key_id=auth_response.access_key_id,
+            policy=auth_response.encoded_policy,
+            signature=auth_response.signature,
+            key=auth_response.object_key,
+            file=file_obj,
+            success_action_status="201"
+        )
+        upload_request = _oss_models.PostObjectRequest(
+            bucket_name=auth_response.bucket,
+            header=oss_header
+        )
+        oss_runtime = ossutil_models.RuntimeOptions(
+
+        )
+        RPCUtilClient.convert(runtime, oss_runtime)
+        oss_client.post_object(upload_request, oss_runtime)
+        # Step 2: request final api
+        segment_clothreq = imageseg_20191230_models.SegmentClothRequest(
+
+        )
+        RPCUtilClient.convert(request, segment_clothreq)
+        segment_clothreq.image_url = "http://" + str(auth_response.bucket) + "." + str(auth_response.endpoint) + "/" + str(auth_response.object_key) + ""
+        segment_cloth_resp = self.segment_cloth(segment_clothreq, runtime)
+        return segment_cloth_resp
+
     def segment_animal(self, request, runtime):
         UtilClient.validate_model(request)
         return imageseg_20191230_models.SegmentAnimalResponse().from_map(self.do_request("SegmentAnimal", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
