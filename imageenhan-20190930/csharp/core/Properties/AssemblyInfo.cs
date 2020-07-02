@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("alibabacloud-imageenhan")]
-[assembly: AssemblyDescription("alibabacloud imageenhan")]
+[assembly: AssemblyDescription("Alibaba Cloud imageenhan (20190930) SDK Library for .NET")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Alibaba Cloud, Inc")]
-[assembly: AssemblyProduct("alibabacloud imageenhan")]
-[assembly: AssemblyCopyright("©2009-present Alibaba Cloud")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("78735205-a6ab-4811-a542-4c3a33fa3be4")]
+[assembly: Guid("668d0e30-bc2a-11ea-91aa-b589f80ddb90")]
 
 // Version information for an assembly consists of the following four values:
 //
