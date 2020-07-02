@@ -2,6 +2,356 @@
 from Tea.model import TeaModel
 
 
+class VerifyFaceMaskRequest(TeaModel):
+    def __init__(self, image_url=None, ref_url=None):
+        self.image_url = image_url
+        self.ref_url = ref_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+        self.validate_required(self.ref_url, 'ref_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        result['RefUrl'] = self.ref_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        self.ref_url = map.get('RefUrl')
+        return self
+
+
+class VerifyFaceMaskResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = VerifyFaceMaskResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class VerifyFaceMaskResponseData(TeaModel):
+    def __init__(self, confidence=None, mask=None, mask_ref=None, rectangle=None, rectangle_ref=None, thresholds=None):
+        self.confidence = confidence
+        self.mask = mask
+        self.mask_ref = mask_ref
+        self.rectangle = []
+        self.rectangle_ref = []
+        self.thresholds = []
+
+    def validate(self):
+        self.validate_required(self.confidence, 'confidence')
+        self.validate_required(self.mask, 'mask')
+        self.validate_required(self.mask_ref, 'mask_ref')
+        self.validate_required(self.rectangle, 'rectangle')
+        self.validate_required(self.rectangle_ref, 'rectangle_ref')
+        self.validate_required(self.thresholds, 'thresholds')
+
+    def to_map(self):
+        result = {}
+        result['Confidence'] = self.confidence
+        result['Mask'] = self.mask
+        result['MaskRef'] = self.mask_ref
+        result['Rectangle'] = []
+        if self.rectangle is not None:
+            for k in self.rectangle:
+                result['Rectangle'].append(k)
+        else:
+            result['Rectangle'] = None
+        result['RectangleRef'] = []
+        if self.rectangle_ref is not None:
+            for k in self.rectangle_ref:
+                result['RectangleRef'].append(k)
+        else:
+            result['RectangleRef'] = None
+        result['Thresholds'] = []
+        if self.thresholds is not None:
+            for k in self.thresholds:
+                result['Thresholds'].append(k)
+        else:
+            result['Thresholds'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.confidence = map.get('Confidence')
+        self.mask = map.get('Mask')
+        self.mask_ref = map.get('MaskRef')
+        self.rectangle = []
+        if map.get('Rectangle') is not None:
+            for k in map.get('Rectangle'):
+                self.rectangle.append(k)
+        else:
+            self.rectangle = None
+        self.rectangle_ref = []
+        if map.get('RectangleRef') is not None:
+            for k in map.get('RectangleRef'):
+                self.rectangle_ref.append(k)
+        else:
+            self.rectangle_ref = None
+        self.thresholds = []
+        if map.get('Thresholds') is not None:
+            for k in map.get('Thresholds'):
+                self.thresholds.append(k)
+        else:
+            self.thresholds = None
+        return self
+
+
+class VerifyFaceMaskAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None, ref_url=None):
+        self.image_urlobject = image_urlobject
+        self.ref_url = ref_url
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+        self.validate_required(self.ref_url, 'ref_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        result['RefUrl'] = self.ref_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        self.ref_url = map.get('RefUrl')
+        return self
+
+
+class RecognizeActionRequest(TeaModel):
+    def __init__(self, urllist=None, type=None, video_url=None):
+        self.urllist = []
+        self.type = type
+        self.video_url = video_url
+
+    def validate(self):
+        if self.urllist:
+            for k in self.urllist:
+                if k :
+                    k.validate()
+        self.validate_required(self.type, 'type')
+
+    def to_map(self):
+        result = {}
+        result['URLList'] = []
+        if self.urllist is not None:
+            for k in self.urllist:
+                result['URLList'].append(k.to_map() if k else None)
+        else:
+            result['URLList'] = None
+        result['Type'] = self.type
+        result['VideoUrl'] = self.video_url
+        return result
+
+    def from_map(self, map={}):
+        self.urllist = []
+        if map.get('URLList') is not None:
+            for k in map.get('URLList'):
+                temp_model = RecognizeActionRequestURLList()
+                temp_model = temp_model.from_map(k)
+                self.urllist.append(temp_model)
+        else:
+            self.urllist = None
+        self.type = map.get('Type')
+        self.video_url = map.get('VideoUrl')
+        return self
+
+
+class RecognizeActionRequestURLList(TeaModel):
+    def __init__(self, _url=None):
+        self._url = _url
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['URL'] = self._url
+        return result
+
+    def from_map(self, map={}):
+        self._url = map.get('URL')
+        return self
+
+
+class RecognizeActionResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = RecognizeActionResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class RecognizeActionResponseDataElementsBoxes(TeaModel):
+    def __init__(self, box=None):
+        self.box = []
+
+    def validate(self):
+        self.validate_required(self.box, 'box')
+
+    def to_map(self):
+        result = {}
+        result['Box'] = []
+        if self.box is not None:
+            for k in self.box:
+                result['Box'].append(k)
+        else:
+            result['Box'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.box = []
+        if map.get('Box') is not None:
+            for k in map.get('Box'):
+                self.box.append(k)
+        else:
+            self.box = None
+        return self
+
+
+class RecognizeActionResponseDataElements(TeaModel):
+    def __init__(self, timestamp=None, boxes=None, scores=None, labels=None):
+        self.timestamp = timestamp
+        self.boxes = []
+        self.scores = []
+        self.labels = []
+
+    def validate(self):
+        self.validate_required(self.timestamp, 'timestamp')
+        self.validate_required(self.boxes, 'boxes')
+        if self.boxes:
+            for k in self.boxes:
+                if k :
+                    k.validate()
+        self.validate_required(self.scores, 'scores')
+        self.validate_required(self.labels, 'labels')
+
+    def to_map(self):
+        result = {}
+        result['Timestamp'] = self.timestamp
+        result['Boxes'] = []
+        if self.boxes is not None:
+            for k in self.boxes:
+                result['Boxes'].append(k.to_map() if k else None)
+        else:
+            result['Boxes'] = None
+        result['Scores'] = []
+        if self.scores is not None:
+            for k in self.scores:
+                result['Scores'].append(k)
+        else:
+            result['Scores'] = None
+        result['Labels'] = []
+        if self.labels is not None:
+            for k in self.labels:
+                result['Labels'].append(k)
+        else:
+            result['Labels'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.timestamp = map.get('Timestamp')
+        self.boxes = []
+        if map.get('Boxes') is not None:
+            for k in map.get('Boxes'):
+                temp_model = RecognizeActionResponseDataElementsBoxes()
+                temp_model = temp_model.from_map(k)
+                self.boxes.append(temp_model)
+        else:
+            self.boxes = None
+        self.scores = []
+        if map.get('Scores') is not None:
+            for k in map.get('Scores'):
+                self.scores.append(k)
+        else:
+            self.scores = None
+        self.labels = []
+        if map.get('Labels') is not None:
+            for k in map.get('Labels'):
+                self.labels.append(k)
+        else:
+            self.labels = None
+        return self
+
+
+class RecognizeActionResponseData(TeaModel):
+    def __init__(self, elements=None):
+        self.elements = []
+
+    def validate(self):
+        self.validate_required(self.elements, 'elements')
+        if self.elements:
+            for k in self.elements:
+                if k :
+                    k.validate()
+
+    def to_map(self):
+        result = {}
+        result['Elements'] = []
+        if self.elements is not None:
+            for k in self.elements:
+                result['Elements'].append(k.to_map() if k else None)
+        else:
+            result['Elements'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.elements = []
+        if map.get('Elements') is not None:
+            for k in map.get('Elements'):
+                temp_model = RecognizeActionResponseDataElements()
+                temp_model = temp_model.from_map(k)
+                self.elements.append(temp_model)
+        else:
+            self.elements = None
+        return self
+
+
 class DetectVideoLivingFaceRequest(TeaModel):
     def __init__(self, video_url=None):
         self.video_url = video_url

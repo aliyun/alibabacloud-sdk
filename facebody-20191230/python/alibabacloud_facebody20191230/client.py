@@ -21,6 +21,75 @@ class Client(RPCClient):
         self.check_config(config)
         self._endpoint = self.get_endpoint("facebody", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
+    def verify_face_mask(self, request, runtime):
+        UtilClient.validate_model(request)
+        return facebody_20191230_models.VerifyFaceMaskResponse().from_map(self.do_request("VerifyFaceMask", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
+
+
+    def verify_face_mask_advance(self, request, runtime):
+        # Step 0: init client
+        access_key_id = self._credential.get_access_key_id()
+        access_key_secret = self._credential.get_access_key_secret()
+        auth_config = _rpc_models.Config(
+            access_key_id=access_key_id,
+            access_key_secret=access_key_secret,
+            type="access_key",
+            endpoint="openplatform.aliyuncs.com",
+            protocol=self._protocol,
+            region_id=self._region_id
+        )
+        auth_client = OpenPlatformClient(auth_config)
+        auth_request = open_platform_models.AuthorizeFileUploadRequest(
+            product="facebody",
+            region_id=self._region_id
+        )
+        auth_response = auth_client.authorize_file_upload_with_options(auth_request, runtime)
+        # Step 1: request OSS api to upload file
+        oss_config = _oss_models.Config(
+            access_key_id=auth_response.access_key_id,
+            access_key_secret=access_key_secret,
+            type="access_key",
+            endpoint=RPCUtilClient.get_endpoint(auth_response.endpoint, auth_response.use_accelerate, self._endpoint_type),
+            protocol=self._protocol,
+            region_id=self._region_id
+        )
+        oss_client = OSSClient(oss_config)
+        file_obj = file_form_models.FileField(
+            filename=auth_response.object_key,
+            content=request.image_urlobject,
+            content_type=""
+        )
+        oss_header = _oss_models.PostObjectRequestHeader(
+            access_key_id=auth_response.access_key_id,
+            policy=auth_response.encoded_policy,
+            signature=auth_response.signature,
+            key=auth_response.object_key,
+            file=file_obj,
+            success_action_status="201"
+        )
+        upload_request = _oss_models.PostObjectRequest(
+            bucket_name=auth_response.bucket,
+            header=oss_header
+        )
+        oss_runtime = ossutil_models.RuntimeOptions(
+
+        )
+        RPCUtilClient.convert(runtime, oss_runtime)
+        oss_client.post_object(upload_request, oss_runtime)
+        # Step 2: request final api
+        verify_face_maskreq = facebody_20191230_models.VerifyFaceMaskRequest(
+
+        )
+        RPCUtilClient.convert(request, verify_face_maskreq)
+        verify_face_maskreq.image_url = "http://" + str(auth_response.bucket) + "." + str(auth_response.endpoint) + "/" + str(auth_response.object_key) + ""
+        verify_face_mask_resp = self.verify_face_mask(verify_face_maskreq, runtime)
+        return verify_face_mask_resp
+
+    def recognize_action(self, request, runtime):
+        UtilClient.validate_model(request)
+        return facebody_20191230_models.RecognizeActionResponse().from_map(self.do_request("RecognizeAction", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
+
+
     def detect_video_living_face(self, request, runtime):
         UtilClient.validate_model(request)
         return facebody_20191230_models.DetectVideoLivingFaceResponse().from_map(self.do_request("DetectVideoLivingFace", "HTTPS", "POST", "2019-12-30", "AK", None, request.to_map(), runtime))
