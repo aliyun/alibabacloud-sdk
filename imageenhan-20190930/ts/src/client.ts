@@ -10,6 +10,455 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import { Readable } from 'stream';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class GetAsyncJobResultRequest extends $tea.Model {
+  jobId: string;
+  static names(): { [key: string]: string } {
+    return {
+      jobId: 'JobId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      jobId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetAsyncJobResultResponse extends $tea.Model {
+  requestId: string;
+  data: GetAsyncJobResultResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: GetAsyncJobResultResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ImitatePhotoStyleRequest extends $tea.Model {
+  styleUrl: string;
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      styleUrl: 'StyleUrl',
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      styleUrl: 'string',
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ImitatePhotoStyleResponse extends $tea.Model {
+  requestId: string;
+  data: ImitatePhotoStyleResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: ImitatePhotoStyleResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ImitatePhotoStyleAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  styleUrl: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      styleUrl: 'StyleUrl',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      styleUrl: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceImageColorRequest extends $tea.Model {
+  imageURL: string;
+  outputFormat: string;
+  mode: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+      outputFormat: 'OutputFormat',
+      mode: 'Mode',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+      outputFormat: 'string',
+      mode: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceImageColorResponse extends $tea.Model {
+  requestId: string;
+  data: EnhanceImageColorResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: EnhanceImageColorResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceImageColorAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  outputFormat: string;
+  mode: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+      outputFormat: 'OutputFormat',
+      mode: 'Mode',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+      outputFormat: 'string',
+      mode: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecolorHDImageRequest extends $tea.Model {
+  url: string;
+  mode?: string;
+  refUrl?: string;
+  colorCount?: number;
+  colorTemplate?: RecolorHDImageRequestColorTemplate[];
+  degree: string;
+  static names(): { [key: string]: string } {
+    return {
+      url: 'Url',
+      mode: 'Mode',
+      refUrl: 'RefUrl',
+      colorCount: 'ColorCount',
+      colorTemplate: 'ColorTemplate',
+      degree: 'Degree',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      url: 'string',
+      mode: 'string',
+      refUrl: 'string',
+      colorCount: 'number',
+      colorTemplate: { 'type': 'array', 'itemType': RecolorHDImageRequestColorTemplate },
+      degree: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecolorHDImageResponse extends $tea.Model {
+  requestId: string;
+  data: RecolorHDImageResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: RecolorHDImageResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecolorHDImageAdvanceRequest extends $tea.Model {
+  urlObject: Readable;
+  mode?: string;
+  refUrl?: string;
+  colorCount?: number;
+  colorTemplate?: RecolorHDImageAdvanceRequestColorTemplate[];
+  degree: string;
+  static names(): { [key: string]: string } {
+    return {
+      urlObject: 'UrlObject',
+      mode: 'Mode',
+      refUrl: 'RefUrl',
+      colorCount: 'ColorCount',
+      colorTemplate: 'ColorTemplate',
+      degree: 'Degree',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      urlObject: 'Readable',
+      mode: 'string',
+      refUrl: 'string',
+      colorCount: 'number',
+      colorTemplate: { 'type': 'array', 'itemType': RecolorHDImageAdvanceRequestColorTemplate },
+      degree: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessCompositionRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessCompositionResponse extends $tea.Model {
+  requestId: string;
+  data: AssessCompositionResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: AssessCompositionResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessCompositionAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessSharpnessRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessSharpnessResponse extends $tea.Model {
+  requestId: string;
+  data: AssessSharpnessResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: AssessSharpnessResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessSharpnessAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessExposureRequest extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessExposureResponse extends $tea.Model {
+  requestId: string;
+  data: AssessExposureResponseData;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      data: 'Data',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      data: AssessExposureResponseData,
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessExposureAdvanceRequest extends $tea.Model {
+  imageURLObject: Readable;
+  static names(): { [key: string]: string } {
+    return {
+      imageURLObject: 'ImageURLObject',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURLObject: 'Readable',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ImageBlindCharacterWatermarkRequest extends $tea.Model {
   functionType: string;
   text?: string;
@@ -629,6 +1078,189 @@ export class RecolorImageResponse extends $tea.Model {
   }
 }
 
+export class GetAsyncJobResultResponseData extends $tea.Model {
+  jobId: string;
+  status: string;
+  result: string;
+  errorCode: string;
+  errorMessage: string;
+  static names(): { [key: string]: string } {
+    return {
+      jobId: 'JobId',
+      status: 'Status',
+      result: 'Result',
+      errorCode: 'ErrorCode',
+      errorMessage: 'ErrorMessage',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      jobId: 'string',
+      status: 'string',
+      result: 'string',
+      errorCode: 'string',
+      errorMessage: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ImitatePhotoStyleResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class EnhanceImageColorResponseData extends $tea.Model {
+  imageURL: string;
+  static names(): { [key: string]: string } {
+    return {
+      imageURL: 'ImageURL',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageURL: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecolorHDImageRequestColorTemplate extends $tea.Model {
+  color?: string;
+  static names(): { [key: string]: string } {
+    return {
+      color: 'Color',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      color: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecolorHDImageResponseData extends $tea.Model {
+  imageList: string[];
+  static names(): { [key: string]: string } {
+    return {
+      imageList: 'ImageList',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      imageList: { 'type': 'array', 'itemType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class RecolorHDImageAdvanceRequestColorTemplate extends $tea.Model {
+  color?: string;
+  static names(): { [key: string]: string } {
+    return {
+      color: 'Color',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      color: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessCompositionResponseData extends $tea.Model {
+  score: number;
+  static names(): { [key: string]: string } {
+    return {
+      score: 'Score',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      score: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessSharpnessResponseData extends $tea.Model {
+  sharpness: number;
+  static names(): { [key: string]: string } {
+    return {
+      sharpness: 'Sharpness',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      sharpness: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class AssessExposureResponseData extends $tea.Model {
+  exposure: number;
+  static names(): { [key: string]: string } {
+    return {
+      exposure: 'Exposure',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      exposure: 'number',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class ImageBlindCharacterWatermarkResponseData extends $tea.Model {
   watermarkImageURL: string;
   textImageURL: string;
@@ -897,9 +1529,380 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "regional";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("imageenhan", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: $Util.RuntimeOptions): Promise<GetAsyncJobResultResponse> {
+    Util.validateModel(request);
+    return $tea.cast<GetAsyncJobResultResponse>(await this.doRequest("GetAsyncJobResult", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new GetAsyncJobResultResponse({}));
+  }
+
+  async imitatePhotoStyle(request: ImitatePhotoStyleRequest, runtime: $Util.RuntimeOptions): Promise<ImitatePhotoStyleResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ImitatePhotoStyleResponse>(await this.doRequest("ImitatePhotoStyle", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new ImitatePhotoStyleResponse({}));
+  }
+
+  async imitatePhotoStyleAdvance(request: ImitatePhotoStyleAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<ImitatePhotoStyleResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageenhan",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let imitatePhotoStylereq = new ImitatePhotoStyleRequest({ });
+    RPCUtil.convert(request, imitatePhotoStylereq);
+    imitatePhotoStylereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let imitatePhotoStyleResp = await this.imitatePhotoStyle(imitatePhotoStylereq, runtime);
+    return imitatePhotoStyleResp;
+  }
+
+  async enhanceImageColor(request: EnhanceImageColorRequest, runtime: $Util.RuntimeOptions): Promise<EnhanceImageColorResponse> {
+    Util.validateModel(request);
+    return $tea.cast<EnhanceImageColorResponse>(await this.doRequest("EnhanceImageColor", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new EnhanceImageColorResponse({}));
+  }
+
+  async enhanceImageColorAdvance(request: EnhanceImageColorAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<EnhanceImageColorResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageenhan",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let enhanceImageColorreq = new EnhanceImageColorRequest({ });
+    RPCUtil.convert(request, enhanceImageColorreq);
+    enhanceImageColorreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let enhanceImageColorResp = await this.enhanceImageColor(enhanceImageColorreq, runtime);
+    return enhanceImageColorResp;
+  }
+
+  async recolorHDImage(request: RecolorHDImageRequest, runtime: $Util.RuntimeOptions): Promise<RecolorHDImageResponse> {
+    Util.validateModel(request);
+    return $tea.cast<RecolorHDImageResponse>(await this.doRequest("RecolorHDImage", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new RecolorHDImageResponse({}));
+  }
+
+  async recolorHDImageAdvance(request: RecolorHDImageAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<RecolorHDImageResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageenhan",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.urlObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let recolorHDImagereq = new RecolorHDImageRequest({ });
+    RPCUtil.convert(request, recolorHDImagereq);
+    recolorHDImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let recolorHDImageResp = await this.recolorHDImage(recolorHDImagereq, runtime);
+    return recolorHDImageResp;
+  }
+
+  async assessComposition(request: AssessCompositionRequest, runtime: $Util.RuntimeOptions): Promise<AssessCompositionResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AssessCompositionResponse>(await this.doRequest("AssessComposition", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new AssessCompositionResponse({}));
+  }
+
+  async assessCompositionAdvance(request: AssessCompositionAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AssessCompositionResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageenhan",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let assessCompositionreq = new AssessCompositionRequest({ });
+    RPCUtil.convert(request, assessCompositionreq);
+    assessCompositionreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let assessCompositionResp = await this.assessComposition(assessCompositionreq, runtime);
+    return assessCompositionResp;
+  }
+
+  async assessSharpness(request: AssessSharpnessRequest, runtime: $Util.RuntimeOptions): Promise<AssessSharpnessResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AssessSharpnessResponse>(await this.doRequest("AssessSharpness", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new AssessSharpnessResponse({}));
+  }
+
+  async assessSharpnessAdvance(request: AssessSharpnessAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AssessSharpnessResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageenhan",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let assessSharpnessreq = new AssessSharpnessRequest({ });
+    RPCUtil.convert(request, assessSharpnessreq);
+    assessSharpnessreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let assessSharpnessResp = await this.assessSharpness(assessSharpnessreq, runtime);
+    return assessSharpnessResp;
+  }
+
+  async assessExposure(request: AssessExposureRequest, runtime: $Util.RuntimeOptions): Promise<AssessExposureResponse> {
+    Util.validateModel(request);
+    return $tea.cast<AssessExposureResponse>(await this.doRequest("AssessExposure", "HTTPS", "POST", "2019-09-30", "AK", null, $tea.toMap(request), runtime), new AssessExposureResponse({}));
+  }
+
+  async assessExposureAdvance(request: AssessExposureAdvanceRequest, runtime: $Util.RuntimeOptions): Promise<AssessExposureResponse> {
+    // Step 0: init client
+    let accessKeyId = await this._credential.getAccessKeyId();
+    let accessKeySecret = await this._credential.getAccessKeySecret();
+    let authConfig = new $RPC.Config({
+      accessKeyId: accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: "openplatform.aliyuncs.com",
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let authClient = new OpenPlatform(authConfig);
+    let authRequest = new $OpenPlatform.AuthorizeFileUploadRequest({
+      product: "imageenhan",
+      regionId: this._regionId,
+    });
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    // Step 1: request OSS api to upload file
+    let ossConfig = new $OSS.Config({
+      accessKeyId: authResponse.accessKeyId,
+      accessKeySecret: accessKeySecret,
+      type: "access_key",
+      endpoint: RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, this._endpointType),
+      protocol: this._protocol,
+      regionId: this._regionId,
+    });
+    let ossClient = new OSS(ossConfig);
+    let fileObj = new $FileForm.FileField({
+      filename: authResponse.objectKey,
+      content: request.imageURLObject,
+      contentType: "",
+    });
+    let ossHeader = new $OSS.PostObjectRequestHeader({
+      accessKeyId: authResponse.accessKeyId,
+      policy: authResponse.encodedPolicy,
+      signature: authResponse.signature,
+      key: authResponse.objectKey,
+      file: fileObj,
+      successActionStatus: "201",
+    });
+    let uploadRequest = new $OSS.PostObjectRequest({
+      bucketName: authResponse.bucket,
+      header: ossHeader,
+    });
+    let ossRuntime = new $OSSUtil.RuntimeOptions({ });
+    RPCUtil.convert(runtime, ossRuntime);
+    await ossClient.postObject(uploadRequest, ossRuntime);
+    // Step 2: request final api
+    let assessExposurereq = new AssessExposureRequest({ });
+    RPCUtil.convert(request, assessExposurereq);
+    assessExposurereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+    let assessExposureResp = await this.assessExposure(assessExposurereq, runtime);
+    return assessExposureResp;
+  }
 
   async imageBlindCharacterWatermark(request: ImageBlindCharacterWatermarkRequest, runtime: $Util.RuntimeOptions): Promise<ImageBlindCharacterWatermarkResponse> {
     Util.validateModel(request);
@@ -923,7 +1926,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -984,7 +1987,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1045,7 +2048,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1106,7 +2109,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1167,7 +2170,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1228,7 +2231,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
@@ -1294,7 +2297,7 @@ export default class Client extends RPC {
       product: "imageenhan",
       regionId: this._regionId,
     });
-    let authResponse = await authClient.authorizeFileUpload(authRequest, runtime);
+    let authResponse = await authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     // Step 1: request OSS api to upload file
     let ossConfig = new $OSS.Config({
       accessKeyId: authResponse.accessKeyId,
