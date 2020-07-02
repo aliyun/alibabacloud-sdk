@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Imagesearch-20200212
+module github.com/alibabacloud-go/ImageSearch-20200212
 
 require (
 	github.com/alibabacloud-go/tea-oss-sdk v1.1.0
