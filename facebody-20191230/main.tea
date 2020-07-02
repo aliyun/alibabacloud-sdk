@@ -17,6 +17,124 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('facebody', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model VerifyFaceMaskRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  refUrl: string(name='RefUrl', description='refUrl'),
+}
+
+model VerifyFaceMaskResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    confidence: float(name='Confidence', description='confidence'),
+    mask: integer(name='Mask', description='mask'),
+    maskRef: integer(name='MaskRef', description='maskRef'),
+    rectangle: [ integer ](name='Rectangle', description='rectangle'),
+    rectangleRef: [ integer ](name='RectangleRef', description='rectangleRef'),
+    thresholds: [ float ](name='Thresholds', description='thresholds'),
+  }(name='Data', description='data'),
+}
+
+async function verifyFaceMask(request: VerifyFaceMaskRequest, runtime: Util.RuntimeOptions): VerifyFaceMaskResponse {
+  Util.validateModel(request);
+  return doRequest('VerifyFaceMask', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
+model VerifyFaceMaskAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  refUrl: string(name='RefUrl', description='refUrl'),
+}
+
+async function verifyFaceMaskAdvance(request: VerifyFaceMaskAdvanceRequest, runtime: Util.RuntimeOptions): VerifyFaceMaskResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var verifyFaceMaskreq = new VerifyFaceMaskRequest{};
+  RPCUtil.convert(request, verifyFaceMaskreq);
+  verifyFaceMaskreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var verifyFaceMaskResp = verifyFaceMask(verifyFaceMaskreq, runtime);
+  return verifyFaceMaskResp;
+}
+
+model RecognizeActionRequest = {
+  URLList?: [
+    {
+      URL?: string(name='URL', description='url'),
+    }
+  ](name='URLList', description='urlList'),
+  type: integer(name='Type', description='type'),
+  videoUrl?: string(name='VideoUrl', description='videoUrl'),
+}
+
+model RecognizeActionResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    elements: [
+      {
+        timestamp: integer(name='Timestamp', description='timestamp'),
+        boxes: [
+          {
+            box: [ integer ](name='Box', description='box'),
+          }
+        ](name='Boxes', description='boxes'),
+        scores: [ float ](name='Scores', description='scores'),
+        labels: [ string ](name='Labels', description='labels'),
+      }
+    ](name='Elements', description='elements'),
+  }(name='Data', description='data'),
+}
+
+async function recognizeAction(request: RecognizeActionRequest, runtime: Util.RuntimeOptions): RecognizeActionResponse {
+  Util.validateModel(request);
+  return doRequest('RecognizeAction', 'HTTPS', 'POST' , '2019-12-30', 'AK', null, request, runtime);
+}
+
 model DetectVideoLivingFaceRequest = {
   videoUrl: string(name='VideoUrl', description='videoUrl'),
 }
