@@ -1,3 +1,6 @@
+2020-07-02 Version: 0.0.4
+- Sdk for 006.
+
 ### 2020-05-29 Version 0.0.3
 * Recodegen
 
