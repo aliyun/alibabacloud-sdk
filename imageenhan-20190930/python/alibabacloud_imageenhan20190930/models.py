@@ -2,6 +2,461 @@
 from Tea.model import TeaModel
 
 
+class GetAsyncJobResultRequest(TeaModel):
+    def __init__(self, job_id=None):
+        self.job_id = job_id
+
+    def validate(self):
+        self.validate_required(self.job_id, 'job_id')
+
+    def to_map(self):
+        result = {}
+        result['JobId'] = self.job_id
+        return result
+
+    def from_map(self, map={}):
+        self.job_id = map.get('JobId')
+        return self
+
+
+class GetAsyncJobResultResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = GetAsyncJobResultResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class GetAsyncJobResultResponseData(TeaModel):
+    def __init__(self, job_id=None, status=None, result=None, error_code=None, error_message=None):
+        self.job_id = job_id
+        self.status = status
+        self.result = result
+        self.error_code = error_code
+        self.error_message = error_message
+
+    def validate(self):
+        self.validate_required(self.job_id, 'job_id')
+        self.validate_required(self.status, 'status')
+        self.validate_required(self.result, 'result')
+        self.validate_required(self.error_code, 'error_code')
+        self.validate_required(self.error_message, 'error_message')
+
+    def to_map(self):
+        result = {}
+        result['JobId'] = self.job_id
+        result['Status'] = self.status
+        result['Result'] = self.result
+        result['ErrorCode'] = self.error_code
+        result['ErrorMessage'] = self.error_message
+        return result
+
+    def from_map(self, map={}):
+        self.job_id = map.get('JobId')
+        self.status = map.get('Status')
+        self.result = map.get('Result')
+        self.error_code = map.get('ErrorCode')
+        self.error_message = map.get('ErrorMessage')
+        return self
+
+
+class ImitatePhotoStyleRequest(TeaModel):
+    def __init__(self, style_url=None, image_url=None):
+        self.style_url = style_url
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.style_url, 'style_url')
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['StyleUrl'] = self.style_url
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.style_url = map.get('StyleUrl')
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class ImitatePhotoStyleResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = ImitatePhotoStyleResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class ImitatePhotoStyleResponseData(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class ImitatePhotoStyleAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None, style_url=None):
+        self.image_urlobject = image_urlobject
+        self.style_url = style_url
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+        self.validate_required(self.style_url, 'style_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        result['StyleUrl'] = self.style_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        self.style_url = map.get('StyleUrl')
+        return self
+
+
+class EnhanceImageColorRequest(TeaModel):
+    def __init__(self, image_url=None, output_format=None, mode=None):
+        self.image_url = image_url
+        self.output_format = output_format
+        self.mode = mode
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+        self.validate_required(self.output_format, 'output_format')
+        self.validate_required(self.mode, 'mode')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        result['OutputFormat'] = self.output_format
+        result['Mode'] = self.mode
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        self.output_format = map.get('OutputFormat')
+        self.mode = map.get('Mode')
+        return self
+
+
+class EnhanceImageColorResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = EnhanceImageColorResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class EnhanceImageColorResponseData(TeaModel):
+    def __init__(self, image_url=None):
+        self.image_url = image_url
+
+    def validate(self):
+        self.validate_required(self.image_url, 'image_url')
+
+    def to_map(self):
+        result = {}
+        result['ImageURL'] = self.image_url
+        return result
+
+    def from_map(self, map={}):
+        self.image_url = map.get('ImageURL')
+        return self
+
+
+class EnhanceImageColorAdvanceRequest(TeaModel):
+    def __init__(self, image_urlobject=None, output_format=None, mode=None):
+        self.image_urlobject = image_urlobject
+        self.output_format = output_format
+        self.mode = mode
+
+    def validate(self):
+        self.validate_required(self.image_urlobject, 'image_urlobject')
+        self.validate_required(self.output_format, 'output_format')
+        self.validate_required(self.mode, 'mode')
+
+    def to_map(self):
+        result = {}
+        result['ImageURLObject'] = self.image_urlobject
+        result['OutputFormat'] = self.output_format
+        result['Mode'] = self.mode
+        return result
+
+    def from_map(self, map={}):
+        self.image_urlobject = map.get('ImageURLObject')
+        self.output_format = map.get('OutputFormat')
+        self.mode = map.get('Mode')
+        return self
+
+
+class RecolorHDImageRequest(TeaModel):
+    def __init__(self, url=None, mode=None, ref_url=None, color_count=None, color_template=None, degree=None):
+        self.url = url
+        self.mode = mode
+        self.ref_url = ref_url
+        self.color_count = color_count
+        self.color_template = []
+        self.degree = degree
+
+    def validate(self):
+        self.validate_required(self.url, 'url')
+        if self.color_template:
+            for k in self.color_template:
+                if k :
+                    k.validate()
+        self.validate_required(self.degree, 'degree')
+
+    def to_map(self):
+        result = {}
+        result['Url'] = self.url
+        result['Mode'] = self.mode
+        result['RefUrl'] = self.ref_url
+        result['ColorCount'] = self.color_count
+        result['ColorTemplate'] = []
+        if self.color_template is not None:
+            for k in self.color_template:
+                result['ColorTemplate'].append(k.to_map() if k else None)
+        else:
+            result['ColorTemplate'] = None
+        result['Degree'] = self.degree
+        return result
+
+    def from_map(self, map={}):
+        self.url = map.get('Url')
+        self.mode = map.get('Mode')
+        self.ref_url = map.get('RefUrl')
+        self.color_count = map.get('ColorCount')
+        self.color_template = []
+        if map.get('ColorTemplate') is not None:
+            for k in map.get('ColorTemplate'):
+                temp_model = RecolorHDImageRequestColorTemplate()
+                temp_model = temp_model.from_map(k)
+                self.color_template.append(temp_model)
+        else:
+            self.color_template = None
+        self.degree = map.get('Degree')
+        return self
+
+
+class RecolorHDImageRequestColorTemplate(TeaModel):
+    def __init__(self, color=None):
+        self.color = color
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['Color'] = self.color
+        return result
+
+    def from_map(self, map={}):
+        self.color = map.get('Color')
+        return self
+
+
+class RecolorHDImageResponse(TeaModel):
+    def __init__(self, request_id=None, data=None):
+        self.request_id = request_id
+        self.data = data
+
+    def validate(self):
+        self.validate_required(self.request_id, 'request_id')
+        self.validate_required(self.data, 'data')
+        if self.data:
+            self.data.validate()
+
+    def to_map(self):
+        result = {}
+        result['RequestId'] = self.request_id
+        if self.data is not None:
+            result['Data'] = self.data.to_map()
+        else:
+            result['Data'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.request_id = map.get('RequestId')
+        if map.get('Data') is not None:
+            temp_model = RecolorHDImageResponseData()
+            self.data = temp_model.from_map(map['Data'])
+        else:
+            self.data = None
+        return self
+
+
+class RecolorHDImageResponseData(TeaModel):
+    def __init__(self, image_list=None):
+        self.image_list = []
+
+    def validate(self):
+        self.validate_required(self.image_list, 'image_list')
+
+    def to_map(self):
+        result = {}
+        result['ImageList'] = []
+        if self.image_list is not None:
+            for k in self.image_list:
+                result['ImageList'].append(k)
+        else:
+            result['ImageList'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.image_list = []
+        if map.get('ImageList') is not None:
+            for k in map.get('ImageList'):
+                self.image_list.append(k)
+        else:
+            self.image_list = None
+        return self
+
+
+class RecolorHDImageAdvanceRequest(TeaModel):
+    def __init__(self, url_object=None, mode=None, ref_url=None, color_count=None, color_template=None, degree=None):
+        self.url_object = url_object
+        self.mode = mode
+        self.ref_url = ref_url
+        self.color_count = color_count
+        self.color_template = []
+        self.degree = degree
+
+    def validate(self):
+        self.validate_required(self.url_object, 'url_object')
+        if self.color_template:
+            for k in self.color_template:
+                if k :
+                    k.validate()
+        self.validate_required(self.degree, 'degree')
+
+    def to_map(self):
+        result = {}
+        result['UrlObject'] = self.url_object
+        result['Mode'] = self.mode
+        result['RefUrl'] = self.ref_url
+        result['ColorCount'] = self.color_count
+        result['ColorTemplate'] = []
+        if self.color_template is not None:
+            for k in self.color_template:
+                result['ColorTemplate'].append(k.to_map() if k else None)
+        else:
+            result['ColorTemplate'] = None
+        result['Degree'] = self.degree
+        return result
+
+    def from_map(self, map={}):
+        self.url_object = map.get('UrlObject')
+        self.mode = map.get('Mode')
+        self.ref_url = map.get('RefUrl')
+        self.color_count = map.get('ColorCount')
+        self.color_template = []
+        if map.get('ColorTemplate') is not None:
+            for k in map.get('ColorTemplate'):
+                temp_model = RecolorHDImageAdvanceRequestColorTemplate()
+                temp_model = temp_model.from_map(k)
+                self.color_template.append(temp_model)
+        else:
+            self.color_template = None
+        self.degree = map.get('Degree')
+        return self
+
+
+class RecolorHDImageAdvanceRequestColorTemplate(TeaModel):
+    def __init__(self, color=None):
+        self.color = color
+
+    def validate(self):
+        pass
+
+    def to_map(self):
+        result = {}
+        result['Color'] = self.color
+        return result
+
+    def from_map(self, map={}):
+        self.color = map.get('Color')
+        return self
+
+
 class AssessCompositionRequest(TeaModel):
     def __init__(self, image_url=None):
         self.image_url = image_url
