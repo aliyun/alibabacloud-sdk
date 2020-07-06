@@ -1,3 +1,6 @@
+2020-07-06 Version: 0.5.0
+- Supported disabed addon for CreateCluster.
+
 2020-07-06 Version: 0.4.1
 - Supported disabed addon for CreateCluster.
 
