@@ -4069,7 +4069,7 @@ type DescribeClusterDetailResponseBody struct {
 	ExternalLoadbalancerId *string                                  `json:"external_loadbalancer_id,omitempty" xml:"external_loadbalancer_id,omitempty" require:"true"`
 	Created                *string                                  `json:"created,omitempty" xml:"created,omitempty" require:"true"`
 	Updated                *string                                  `json:"updated,omitempty" xml:"updated,omitempty" require:"true"`
-	Size                   *string                                  `json:"size,omitempty" xml:"size,omitempty" require:"true"`
+	Size                   *int                                     `json:"size,omitempty" xml:"size,omitempty" require:"true"`
 	Tags                   []*DescribeClusterDetailResponseBodyTags `json:"tags,omitempty" xml:"tags,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -4181,7 +4181,7 @@ func (s *DescribeClusterDetailResponseBody) SetUpdated(v string) *DescribeCluste
 	return s
 }
 
-func (s *DescribeClusterDetailResponseBody) SetSize(v string) *DescribeClusterDetailResponseBody {
+func (s *DescribeClusterDetailResponseBody) SetSize(v int) *DescribeClusterDetailResponseBody {
 	s.Size = &v
 	return s
 }
