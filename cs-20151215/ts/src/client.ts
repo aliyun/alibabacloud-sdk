@@ -3085,7 +3085,7 @@ export class DescribeClusterDetailResponseBody extends $tea.Model {
   externalLoadbalancerId: string;
   created: string;
   updated: string;
-  size: string;
+  size: number;
   tags: DescribeClusterDetailResponseBodyTags[];
   static names(): { [key: string]: string } {
     return {
@@ -3136,7 +3136,7 @@ export class DescribeClusterDetailResponseBody extends $tea.Model {
       externalLoadbalancerId: 'string',
       created: 'string',
       updated: 'string',
-      size: 'string',
+      size: 'number',
       tags: { 'type': 'array', 'itemType': DescribeClusterDetailResponseBodyTags },
     };
   }
