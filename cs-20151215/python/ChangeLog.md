@@ -1,3 +1,6 @@
+2020-07-06 Version: 1.2.1
+- Modified size type for DescribeClusterDetail.
+
 2020-07-06 Version: 1.2.0
 - Supported disabed addon for CreateCluster.
 
