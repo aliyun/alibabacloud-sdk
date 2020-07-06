@@ -2,6 +2,78 @@
 from Tea.model import TeaModel
 
 
+class ListTagResourcesQuery(TeaModel):
+    def __init__(self, next_token=None, resource_ids=None, tags=None, resource_type=None):
+        self.next_token = next_token
+        self.resource_ids = resource_ids
+        self.tags = tags
+        self.resource_type = resource_type
+
+    def validate(self):
+        self.validate_required(self.resource_type, 'resource_type')
+
+    def to_map(self):
+        result = {}
+        result['next_token'] = self.next_token
+        result['resource_ids'] = self.resource_ids
+        result['tags'] = self.tags
+        result['resource_type'] = self.resource_type
+        return result
+
+    def from_map(self, map={}):
+        self.next_token = map.get('next_token')
+        self.resource_ids = map.get('resource_ids')
+        self.tags = map.get('tags')
+        self.resource_type = map.get('resource_type')
+        return self
+
+
+class ListTagResourcesRequest(TeaModel):
+    def __init__(self, headers=None, query=None):
+        self.headers = {}
+        self.query = query
+
+    def validate(self):
+        self.validate_required(self.query, 'query')
+        if self.query:
+            self.query.validate()
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        if self.query is not None:
+            result['query'] = self.query.to_map()
+        else:
+            result['query'] = None
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        if map.get('query') is not None:
+            temp_model = ListTagResourcesQuery()
+            self.query = temp_model.from_map(map['query'])
+        else:
+            self.query = None
+        return self
+
+
+class ListTagResourcesResponse(TeaModel):
+    def __init__(self, headers=None):
+        self.headers = {}
+
+    def validate(self):
+        self.validate_required(self.headers, 'headers')
+
+    def to_map(self):
+        result = {}
+        result['headers'] = self.headers
+        return result
+
+    def from_map(self, map={}):
+        self.headers = map.get('headers')
+        return self
+
+
 class ResumeComponentUpgradeRequest(TeaModel):
     def __init__(self, headers=None):
         self.headers = {}
@@ -552,34 +624,26 @@ class DescribeAddonsResponseBody(TeaModel):
 
 
 class DescribeAddonsResponseBodyComponentGroupsItems(TeaModel):
-    def __init__(self, name=None, config=None, required=None, disabled=None, version=None):
+    def __init__(self, name=None, required=None, version=None):
         self.name = name
-        self.config = config
         self.required = required
-        self.disabled = disabled
         self.version = version
 
     def validate(self):
         self.validate_required(self.name, 'name')
-        self.validate_required(self.config, 'config')
         self.validate_required(self.required, 'required')
-        self.validate_required(self.disabled, 'disabled')
         self.validate_required(self.version, 'version')
 
     def to_map(self):
         result = {}
         result['name'] = self.name
-        result['config'] = self.config
         result['required'] = self.required
-        result['disabled'] = self.disabled
         result['version'] = self.version
         return result
 
     def from_map(self, map={}):
         self.name = map.get('name')
-        self.config = map.get('config')
         self.required = map.get('required')
-        self.disabled = map.get('disabled')
         self.version = map.get('version')
         return self
 
@@ -636,34 +700,26 @@ class DescribeAddonsResponseBodyComponentGroups(TeaModel):
 
 
 class DescribeAddonsResponseBodyStandardComponentsAddonName(TeaModel):
-    def __init__(self, name=None, config=None, required=None, disabled=None, version=None):
+    def __init__(self, name=None, required=None, version=None):
         self.name = name
-        self.config = config
         self.required = required
-        self.disabled = disabled
         self.version = version
 
     def validate(self):
         self.validate_required(self.name, 'name')
-        self.validate_required(self.config, 'config')
         self.validate_required(self.required, 'required')
-        self.validate_required(self.disabled, 'disabled')
         self.validate_required(self.version, 'version')
 
     def to_map(self):
         result = {}
         result['name'] = self.name
-        result['config'] = self.config
         result['required'] = self.required
-        result['disabled'] = self.disabled
         result['version'] = self.version
         return result
 
     def from_map(self, map={}):
         self.name = map.get('name')
-        self.config = map.get('config')
         self.required = map.get('required')
-        self.disabled = map.get('disabled')
         self.version = map.get('version')
         return self
 
@@ -1297,12 +1353,13 @@ class GetUpgradeStatusResponse(TeaModel):
 
 
 class ModifyClusterBody(TeaModel):
-    def __init__(self, deletion_protection=None, ingress_loadbalancer_id=None, api_server_eip=None, api_server_eip_id=None, resource_group_id=None):
+    def __init__(self, deletion_protection=None, ingress_loadbalancer_id=None, api_server_eip=None, api_server_eip_id=None, resource_group_id=None, ingress_domain_rebinding=None):
         self.deletion_protection = deletion_protection
         self.ingress_loadbalancer_id = ingress_loadbalancer_id
         self.api_server_eip = api_server_eip
         self.api_server_eip_id = api_server_eip_id
         self.resource_group_id = resource_group_id
+        self.ingress_domain_rebinding = ingress_domain_rebinding
 
     def validate(self):
         self.validate_required(self.deletion_protection, 'deletion_protection')
@@ -1310,6 +1367,7 @@ class ModifyClusterBody(TeaModel):
         self.validate_required(self.api_server_eip, 'api_server_eip')
         self.validate_required(self.api_server_eip_id, 'api_server_eip_id')
         self.validate_required(self.resource_group_id, 'resource_group_id')
+        self.validate_required(self.ingress_domain_rebinding, 'ingress_domain_rebinding')
 
     def to_map(self):
         result = {}
@@ -1318,6 +1376,7 @@ class ModifyClusterBody(TeaModel):
         result['api_server_eip'] = self.api_server_eip
         result['api_server_eip_id'] = self.api_server_eip_id
         result['resource_group_id'] = self.resource_group_id
+        result['ingress_domain_rebinding'] = self.ingress_domain_rebinding
         return result
 
     def from_map(self, map={}):
@@ -1326,6 +1385,7 @@ class ModifyClusterBody(TeaModel):
         self.api_server_eip = map.get('api_server_eip')
         self.api_server_eip_id = map.get('api_server_eip_id')
         self.resource_group_id = map.get('resource_group_id')
+        self.ingress_domain_rebinding = map.get('ingress_domain_rebinding')
         return self
 
 
@@ -1359,31 +1419,27 @@ class ModifyClusterRequest(TeaModel):
 
 
 class ModifyClusterResponseBody(TeaModel):
-    def __init__(self, cluster_id=None, request_id=None, task_id=None, instance_id=None):
+    def __init__(self, cluster_id=None, request_id=None, task_id=None):
         self.cluster_id = cluster_id
         self.request_id = request_id
         self.task_id = task_id
-        self.instance_id = instance_id
 
     def validate(self):
         self.validate_required(self.cluster_id, 'cluster_id')
         self.validate_required(self.request_id, 'request_id')
         self.validate_required(self.task_id, 'task_id')
-        self.validate_required(self.instance_id, 'instance_id')
 
     def to_map(self):
         result = {}
         result['cluster_id'] = self.cluster_id
         result['request_id'] = self.request_id
         result['task_id'] = self.task_id
-        result['instanceId'] = self.instance_id
         return result
 
     def from_map(self, map={}):
         self.cluster_id = map.get('cluster_id')
         self.request_id = map.get('request_id')
         self.task_id = map.get('task_id')
-        self.instance_id = map.get('instanceId')
         return self
 
 
@@ -1475,40 +1531,6 @@ class InstallClusterAddonsRequest(TeaModel):
 
 
 class InstallClusterAddonsResponse(TeaModel):
-    def __init__(self, headers=None):
-        self.headers = {}
-
-    def validate(self):
-        self.validate_required(self.headers, 'headers')
-
-    def to_map(self):
-        result = {}
-        result['headers'] = self.headers
-        return result
-
-    def from_map(self, map={}):
-        self.headers = map.get('headers')
-        return self
-
-
-class DeleteTriggerHookRequest(TeaModel):
-    def __init__(self, headers=None):
-        self.headers = {}
-
-    def validate(self):
-        pass
-
-    def to_map(self):
-        result = {}
-        result['headers'] = self.headers
-        return result
-
-    def from_map(self, map={}):
-        self.headers = map.get('headers')
-        return self
-
-
-class DeleteTriggerHookResponse(TeaModel):
     def __init__(self, headers=None):
         self.headers = {}
 
@@ -2165,80 +2187,6 @@ class DescribeClusterResourcesResponse(TeaModel):
                 self.body.append(temp_model)
         else:
             self.body = None
-        return self
-
-
-class CreateTriggerHookBody(TeaModel):
-    def __init__(self, region_id=None, cluster_id=None, project_id=None, action=None, trigger_url=None):
-        self.region_id = region_id
-        self.cluster_id = cluster_id
-        self.project_id = project_id
-        self.action = action
-        self.trigger_url = trigger_url
-
-    def validate(self):
-        pass
-
-    def to_map(self):
-        result = {}
-        result['region_id'] = self.region_id
-        result['cluster_id'] = self.cluster_id
-        result['project_id'] = self.project_id
-        result['action'] = self.action
-        result['trigger_url'] = self.trigger_url
-        return result
-
-    def from_map(self, map={}):
-        self.region_id = map.get('region_id')
-        self.cluster_id = map.get('cluster_id')
-        self.project_id = map.get('project_id')
-        self.action = map.get('action')
-        self.trigger_url = map.get('trigger_url')
-        return self
-
-
-class CreateTriggerHookRequest(TeaModel):
-    def __init__(self, headers=None, body=None):
-        self.headers = {}
-        self.body = body
-
-    def validate(self):
-        if self.body:
-            self.body.validate()
-
-    def to_map(self):
-        result = {}
-        result['headers'] = self.headers
-        if self.body is not None:
-            result['body'] = self.body.to_map()
-        else:
-            result['body'] = None
-        return result
-
-    def from_map(self, map={}):
-        self.headers = map.get('headers')
-        if map.get('body') is not None:
-            temp_model = CreateTriggerHookBody()
-            self.body = temp_model.from_map(map['body'])
-        else:
-            self.body = None
-        return self
-
-
-class CreateTriggerHookResponse(TeaModel):
-    def __init__(self, headers=None):
-        self.headers = {}
-
-    def validate(self):
-        self.validate_required(self.headers, 'headers')
-
-    def to_map(self):
-        result = {}
-        result['headers'] = self.headers
-        return result
-
-    def from_map(self, map={}):
-        self.headers = map.get('headers')
         return self
 
 
@@ -3494,7 +3442,7 @@ class CreateTemplateResponse(TeaModel):
 
 
 class CreateClusterBody(TeaModel):
-    def __init__(self, cluster_type=None, name=None, region_id=None, kubernetes_version=None, snat_entry=None, endpoint_public_access=None, ssh_flags=None, cloud_monitor_flags=None, deletion_protection=None, node_cidr_mask=None, proxy_mode=None, os_type=None, platform=None, node_port_range=None, key_pair=None, login_password=None, master_instance_charge_type=None, worker_instance_charge_type=None, master_period=None, worker_period=None, master_period_unit=None, worker_period_unit=None, master_auto_renew=None, master_auto_renew_period=None, worker_auto_renew=None, worker_auto_renew_period=None, cpu_policy=None, master_count=None, master_system_disk_category=None, master_system_disk_size=None, runtime=None, num_of_nodes=None, worker_system_disk_category=None, worker_system_disk_size=None, worker_data_disk=None, vpcid=None, security_group_id=None, container_cidr=None, service_cidr=None, disable_rollback=None, timeout_mins=None, tags=None, addons=None, taints=None, worker_data_disks=None, master_vswitch_ids=None, master_instance_types=None, worker_instance_types=None, worker_vswitch_ids=None):
+    def __init__(self, cluster_type=None, name=None, region_id=None, kubernetes_version=None, snat_entry=None, endpoint_public_access=None, ssh_flags=None, cloud_monitor_flags=None, deletion_protection=None, node_cidr_mask=None, proxy_mode=None, os_type=None, platform=None, node_port_range=None, key_pair=None, login_password=None, master_instance_charge_type=None, worker_instance_charge_type=None, master_period=None, worker_period=None, master_period_unit=None, worker_period_unit=None, master_auto_renew=None, master_auto_renew_period=None, worker_auto_renew=None, worker_auto_renew_period=None, cpu_policy=None, master_count=None, master_system_disk_category=None, master_system_disk_size=None, runtime=None, num_of_nodes=None, worker_system_disk_category=None, worker_system_disk_size=None, worker_data_disk=None, vpcid=None, security_group_id=None, container_cidr=None, service_cidr=None, disable_rollback=None, timeout_mins=None, tags=None, addons=None, taints=None, worker_data_disks=None, master_vswitch_ids=None, master_instance_types=None, worker_instance_types=None, worker_vswitch_ids=None, pod_vswitch_ids=None):
         self.cluster_type = cluster_type
         self.name = name
         self.region_id = region_id
@@ -3544,6 +3492,7 @@ class CreateClusterBody(TeaModel):
         self.master_instance_types = []
         self.worker_instance_types = []
         self.worker_vswitch_ids = []
+        self.pod_vswitch_ids = []
 
     def validate(self):
         self.validate_required(self.cluster_type, 'cluster_type')
@@ -3665,6 +3614,12 @@ class CreateClusterBody(TeaModel):
                 result['worker_vswitch_ids'].append(k)
         else:
             result['worker_vswitch_ids'] = None
+        result['pod_vswitch_ids'] = []
+        if self.pod_vswitch_ids is not None:
+            for k in self.pod_vswitch_ids:
+                result['pod_vswitch_ids'].append(k)
+        else:
+            result['pod_vswitch_ids'] = None
         return result
 
     def from_map(self, map={}):
@@ -3765,6 +3720,12 @@ class CreateClusterBody(TeaModel):
                 self.worker_vswitch_ids.append(k)
         else:
             self.worker_vswitch_ids = None
+        self.pod_vswitch_ids = []
+        if map.get('pod_vswitch_ids') is not None:
+            for k in map.get('pod_vswitch_ids'):
+                self.pod_vswitch_ids.append(k)
+        else:
+            self.pod_vswitch_ids = None
         return self
 
 
@@ -3789,9 +3750,10 @@ class CreateClusterBodyTags(TeaModel):
 
 
 class CreateClusterBodyAddons(TeaModel):
-    def __init__(self, name=None, config=None):
+    def __init__(self, name=None, config=None, disabled=None):
         self.name = name
         self.config = config
+        self.disabled = disabled
 
     def validate(self):
         pass
@@ -3800,11 +3762,13 @@ class CreateClusterBodyAddons(TeaModel):
         result = {}
         result['name'] = self.name
         result['config'] = self.config
+        result['disabled'] = self.disabled
         return result
 
     def from_map(self, map={}):
         self.name = map.get('name')
         self.config = map.get('config')
+        self.disabled = map.get('disabled')
         return self
 
 
@@ -4051,7 +4015,7 @@ class DescribeClustersRequest(TeaModel):
 
 
 class DescribeClustersResponseBody(TeaModel):
-    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None, meta_data=None, resource_group_id=None, vpc_id=None, vswitch_id=None, vswitch_cidr=None, data_disk_size=None, data_disk_category=None, security_group_id=None, zone_id=None, network_mode=None, master_url=None, docker_version=None, deletion_protection=None, tags=None):
+    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None, meta_data=None, resource_group_id=None, vpc_id=None, vswitch_id=None, vswitch_cidr=None, data_disk_size=None, data_disk_category=None, security_group_id=None, zone_id=None, network_mode=None, master_url=None, docker_version=None, deletion_protection=None, external_loadbalancer_id=None, created=None, updated=None, size=None, tags=None):
         self.name = name
         self.cluster_id = cluster_id
         self.region_id = region_id
@@ -4071,6 +4035,10 @@ class DescribeClustersResponseBody(TeaModel):
         self.master_url = master_url
         self.docker_version = docker_version
         self.deletion_protection = deletion_protection
+        self.external_loadbalancer_id = external_loadbalancer_id
+        self.created = created
+        self.updated = updated
+        self.size = size
         self.tags = []
 
     def validate(self):
@@ -4093,6 +4061,10 @@ class DescribeClustersResponseBody(TeaModel):
         self.validate_required(self.master_url, 'master_url')
         self.validate_required(self.docker_version, 'docker_version')
         self.validate_required(self.deletion_protection, 'deletion_protection')
+        self.validate_required(self.external_loadbalancer_id, 'external_loadbalancer_id')
+        self.validate_required(self.created, 'created')
+        self.validate_required(self.updated, 'updated')
+        self.validate_required(self.size, 'size')
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
@@ -4120,6 +4092,10 @@ class DescribeClustersResponseBody(TeaModel):
         result['master_url'] = self.master_url
         result['docker_version'] = self.docker_version
         result['deletion_protection'] = self.deletion_protection
+        result['external_loadbalancer_id'] = self.external_loadbalancer_id
+        result['created'] = self.created
+        result['updated'] = self.updated
+        result['size'] = self.size
         result['tags'] = []
         if self.tags is not None:
             for k in self.tags:
@@ -4148,6 +4124,10 @@ class DescribeClustersResponseBody(TeaModel):
         self.master_url = map.get('master_url')
         self.docker_version = map.get('docker_version')
         self.deletion_protection = map.get('deletion_protection')
+        self.external_loadbalancer_id = map.get('external_loadbalancer_id')
+        self.created = map.get('created')
+        self.updated = map.get('updated')
+        self.size = map.get('size')
         self.tags = []
         if map.get('tags') is not None:
             for k in map.get('tags'):
@@ -4235,7 +4215,7 @@ class DescribeClusterDetailRequest(TeaModel):
 
 
 class DescribeClusterDetailResponseBody(TeaModel):
-    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None, meta_data=None, resource_group_id=None, instance_type=None, vpc_id=None, vswitch_id=None, vswitch_cidr=None, data_disk_size=None, data_disk_category=None, security_group_id=None, zone_id=None, network_mode=None, docker_version=None, deletion_protection=None, tags=None):
+    def __init__(self, name=None, cluster_id=None, region_id=None, state=None, cluster_type=None, current_version=None, meta_data=None, resource_group_id=None, instance_type=None, vpc_id=None, vswitch_id=None, vswitch_cidr=None, security_group_id=None, zone_id=None, network_mode=None, docker_version=None, deletion_protection=None, external_loadbalancer_id=None, created=None, updated=None, size=None, tags=None):
         self.name = name
         self.cluster_id = cluster_id
         self.region_id = region_id
@@ -4248,13 +4228,15 @@ class DescribeClusterDetailResponseBody(TeaModel):
         self.vpc_id = vpc_id
         self.vswitch_id = vswitch_id
         self.vswitch_cidr = vswitch_cidr
-        self.data_disk_size = data_disk_size
-        self.data_disk_category = data_disk_category
         self.security_group_id = security_group_id
         self.zone_id = zone_id
         self.network_mode = network_mode
         self.docker_version = docker_version
         self.deletion_protection = deletion_protection
+        self.external_loadbalancer_id = external_loadbalancer_id
+        self.created = created
+        self.updated = updated
+        self.size = size
         self.tags = []
 
     def validate(self):
@@ -4270,13 +4252,15 @@ class DescribeClusterDetailResponseBody(TeaModel):
         self.validate_required(self.vpc_id, 'vpc_id')
         self.validate_required(self.vswitch_id, 'vswitch_id')
         self.validate_required(self.vswitch_cidr, 'vswitch_cidr')
-        self.validate_required(self.data_disk_size, 'data_disk_size')
-        self.validate_required(self.data_disk_category, 'data_disk_category')
         self.validate_required(self.security_group_id, 'security_group_id')
         self.validate_required(self.zone_id, 'zone_id')
         self.validate_required(self.network_mode, 'network_mode')
         self.validate_required(self.docker_version, 'docker_version')
         self.validate_required(self.deletion_protection, 'deletion_protection')
+        self.validate_required(self.external_loadbalancer_id, 'external_loadbalancer_id')
+        self.validate_required(self.created, 'created')
+        self.validate_required(self.updated, 'updated')
+        self.validate_required(self.size, 'size')
         self.validate_required(self.tags, 'tags')
         if self.tags:
             for k in self.tags:
@@ -4297,13 +4281,15 @@ class DescribeClusterDetailResponseBody(TeaModel):
         result['vpc_id'] = self.vpc_id
         result['vswitch_id'] = self.vswitch_id
         result['vswitch_cidr'] = self.vswitch_cidr
-        result['data_disk_size'] = self.data_disk_size
-        result['data_disk_category'] = self.data_disk_category
         result['security_group_id'] = self.security_group_id
         result['zone_id'] = self.zone_id
         result['network_mode'] = self.network_mode
         result['docker_version'] = self.docker_version
         result['deletion_protection'] = self.deletion_protection
+        result['external_loadbalancer_id'] = self.external_loadbalancer_id
+        result['created'] = self.created
+        result['updated'] = self.updated
+        result['size'] = self.size
         result['tags'] = []
         if self.tags is not None:
             for k in self.tags:
@@ -4325,13 +4311,15 @@ class DescribeClusterDetailResponseBody(TeaModel):
         self.vpc_id = map.get('vpc_id')
         self.vswitch_id = map.get('vswitch_id')
         self.vswitch_cidr = map.get('vswitch_cidr')
-        self.data_disk_size = map.get('data_disk_size')
-        self.data_disk_category = map.get('data_disk_category')
         self.security_group_id = map.get('security_group_id')
         self.zone_id = map.get('zone_id')
         self.network_mode = map.get('network_mode')
         self.docker_version = map.get('docker_version')
         self.deletion_protection = map.get('deletion_protection')
+        self.external_loadbalancer_id = map.get('external_loadbalancer_id')
+        self.created = map.get('created')
+        self.updated = map.get('updated')
+        self.size = map.get('size')
         self.tags = []
         if map.get('tags') is not None:
             for k in map.get('tags'):

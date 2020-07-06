@@ -50,6 +50,17 @@ class Client(ROAClient):
         self.check_config(config)
         self._endpoint_host = self.get_endpoint("cs", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint_host)
 
+    def list_tag_resources_with_options(self, request, runtime):
+        UtilClient.validate_model(request)
+        return _cs20151215_models.ListTagResourcesResponse().from_map(self.do_request("2015-12-15", "HTTPS", "GET", "AK", "/tags", UtilClient.stringify_map_value(request.query.to_map()), request.headers, None, runtime))
+
+
+    def list_tag_resources(self, request):
+        runtime = util_models.RuntimeOptions(
+
+        )
+        return self.list_tag_resources_with_options(request, runtime)
+
     def resume_component_upgrade_with_options(self, clusterid, componentid, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.ResumeComponentUpgradeResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(clusterid) + "/components/" + str(componentid) + "/resume", None, request.headers, None, runtime))
@@ -281,17 +292,6 @@ class Client(ROAClient):
         )
         return self.install_cluster_addons_with_options(cluster_id, request, runtime)
 
-    def delete_trigger_hook_with_options(self, request, runtime):
-        UtilClient.validate_model(request)
-        return _cs20151215_models.DeleteTriggerHookResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/api/v2/hook/trigger", None, request.headers, None, runtime))
-
-
-    def delete_trigger_hook(self, request):
-        runtime = util_models.RuntimeOptions(
-
-        )
-        return self.delete_trigger_hook_with_options(request, runtime)
-
     def modify_cluster_tags_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
         return _cs20151215_models.ModifyClusterTagsResponse().from_map(self.do_request("2015-12-15", "HTTPS", "POST", "AK", "/clusters/" + str(cluster_id) + "/tags", None, request.headers, request.body.to_map(), runtime))
@@ -346,17 +346,6 @@ class Client(ROAClient):
 
         )
         return self.describe_cluster_resources_with_options(cluster_id, request, runtime)
-
-    def create_trigger_hook_with_options(self, request, runtime):
-        UtilClient.validate_model(request)
-        return _cs20151215_models.CreateTriggerHookResponse().from_map(self.do_request("2015-12-15", "HTTPS", "PUT", "AK", "/hook/trigger", None, request.headers, request.body.to_map(), runtime))
-
-
-    def create_trigger_hook(self, request):
-        runtime = util_models.RuntimeOptions(
-
-        )
-        return self.create_trigger_hook_with_options(request, runtime)
 
     def upgrade_cluster_addons_with_options(self, cluster_id, request, runtime):
         UtilClient.validate_model(request)
