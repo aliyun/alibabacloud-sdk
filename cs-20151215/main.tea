@@ -52,6 +52,32 @@ init(config: ROA.Config){
 }
 
 
+model ListTagResourcesQuery = {
+  nextToken?: string(name='next_token', description='next_token'),
+  resourceIds?: string(name='resource_ids', description='resource_ids'),
+  tags?: string(name='tags', description='tags'),
+  resourceType: string(name='resource_type', description='resource_type'),
+}
+
+model ListTagResourcesRequest = {
+  headers?: map[string]string(name='headers', description='headers'),
+  query: ListTagResourcesQuery(name='query', description='query'),
+}
+
+model ListTagResourcesResponse = {
+  headers: map[string]string(name='headers', description='headers'),
+}
+
+async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+  Util.validateModel(request);
+  return doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', `/tags`, Util.stringifyMapValue(request.query), request.headers, null, runtime);
+}
+
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listTagResourcesWithOptions(request, runtime);
+}
+
 model ResumeComponentUpgradeRequest = {
   headers?: map[string]string(name='headers', description='headers'),
 }
@@ -256,9 +282,7 @@ model DescribeAddonsResponseBody = {
       items: [
         {
           name: string(name='name', description='name'),
-          config: string(name='config', description='config'),
           required: string(name='required', description='required'),
-          disabled: boolean(name='disabled', description='disabled'),
           version: string(name='version', description='version'),
         }
       ](name='items', description='items'),
@@ -268,9 +292,7 @@ model DescribeAddonsResponseBody = {
   standardComponents: {
     addonName: {
       name: string(name='name', description='name'),
-      config: string(name='config', description='config'),
       required: string(name='required', description='required'),
-      disabled: boolean(name='disabled', description='disabled'),
       version: string(name='version', description='version'),
     }(name='addon_name', description='addon_name'),
   }(name='StandardComponents', description='StandardComponents'),
@@ -506,6 +528,7 @@ model ModifyClusterBody = {
   apiServerEip: boolean(name='api_server_eip', description='api_server_eip'),
   apiServerEipId: string(name='api_server_eip_id', description='api_server_eip_id'),
   resourceGroupId: string(name='resource_group_id', description='resource_group_id'),
+  ingressDomainRebinding: string(name='ingress_domain_rebinding', description='ingress_domain_rebinding'),
 }
 
 model ModifyClusterRequest = {
@@ -517,7 +540,6 @@ model ModifyClusterResponseBody = {
   clusterId: string(name='cluster_id', description='cluster_id'),
   requestId: string(name='request_id', description='request_id'),
   taskId: string(name='task_id', description='task_id'),
-  instanceId: string(name='instanceId', description='instanceId'),
 }
 
 model ModifyClusterResponse = {
@@ -560,24 +582,6 @@ async function installClusterAddonsWithOptions(clusterId: string, request: Insta
 async function installClusterAddons(clusterId: string, request: InstallClusterAddonsRequest): InstallClusterAddonsResponse {
   var runtime = new Util.RuntimeOptions{};
   return installClusterAddonsWithOptions(clusterId, request, runtime);
-}
-
-model DeleteTriggerHookRequest = {
-  headers?: map[string]string(name='headers', description='headers'),
-}
-
-model DeleteTriggerHookResponse = {
-  headers: map[string]string(name='headers', description='headers'),
-}
-
-async function deleteTriggerHookWithOptions(request: DeleteTriggerHookRequest, runtime: Util.RuntimeOptions): DeleteTriggerHookResponse {
-  Util.validateModel(request);
-  return doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', `/api/v2/hook/trigger`, null, request.headers, null, runtime);
-}
-
-async function deleteTriggerHook(request: DeleteTriggerHookRequest): DeleteTriggerHookResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteTriggerHookWithOptions(request, runtime);
 }
 
 model ModifyClusterTagsBody = {
@@ -752,33 +756,6 @@ async function describeClusterResourcesWithOptions(clusterId: string, request: D
 async function describeClusterResources(clusterId: string, request: DescribeClusterResourcesRequest): DescribeClusterResourcesResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeClusterResourcesWithOptions(clusterId, request, runtime);
-}
-
-model CreateTriggerHookBody = {
-  regionId?: string(name='region_id', description='region_id'),
-  clusterId?: string(name='cluster_id', description='cluster_id'),
-  projectId?: string(name='project_id', description='project_id'),
-  action?: string(name='action', description='action'),
-  triggerUrl?: string(name='trigger_url', description='trigger_url'),
-}
-
-model CreateTriggerHookRequest = {
-  headers?: map[string]string(name='headers', description='headers'),
-  body?: CreateTriggerHookBody(name='body', description='body'),
-}
-
-model CreateTriggerHookResponse = {
-  headers: map[string]string(name='headers', description='headers'),
-}
-
-async function createTriggerHookWithOptions(request: CreateTriggerHookRequest, runtime: Util.RuntimeOptions): CreateTriggerHookResponse {
-  Util.validateModel(request);
-  return doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', `/hook/trigger`, null, request.headers, request.body, runtime);
-}
-
-async function createTriggerHook(request: CreateTriggerHookRequest): CreateTriggerHookResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createTriggerHookWithOptions(request, runtime);
 }
 
 model UpgradeClusterAddonsBody = {
@@ -1187,6 +1164,7 @@ model CreateClusterBody = {
     {
       name?: string(name='name', description='name'),
       config?: string(name='config', description='config'),
+      disabled?: boolean(name='disabled', description='disabled'),
     }
   ](name='addons', description='addons'),
   taints?: [
@@ -1207,6 +1185,7 @@ model CreateClusterBody = {
   masterInstanceTypes?: [ string ](name='master_instance_types', description='master_instance_types'),
   workerInstanceTypes?: [ string ](name='worker_instance_types', description='worker_instance_types'),
   workerVswitchIds?: [ string ](name='worker_vswitch_ids', description='worker_vswitch_ids'),
+  podVswitchIds?: [ string ](name='pod_vswitch_ids', description='pod_vswitch_ids'),
 }
 
 model CreateClusterRequest = {
@@ -1288,6 +1267,10 @@ model DescribeClustersResponseBody = {
   masterUrl: string(name='master_url', description='master_url'),
   dockerVersion: string(name='docker_version', description='docker_version'),
   deletionProtection: boolean(name='deletion_protection', description='deletion_protection'),
+  externalLoadbalancerId: string(name='external_loadbalancer_id', description='external_loadbalancer_id'),
+  created: string(name='created', description='created'),
+  updated: string(name='updated', description='updated'),
+  size: string(name='size', description='size'),
   tags: [
     {
       key: string(name='key', description='key'),
@@ -1328,13 +1311,15 @@ model DescribeClusterDetailResponseBody = {
   vpcId: string(name='vpc_id', description='vpc_id'),
   vswitchId: string(name='vswitch_id', description='vswitch_id'),
   vswitchCidr: string(name='vswitch_cidr', description='vswitch_cidr'),
-  dataDiskSize: integer(name='data_disk_size', description='data_disk_size'),
-  dataDiskCategory: string(name='data_disk_category', description='data_disk_category'),
   securityGroupId: string(name='security_group_id', description='security_group_id'),
   zoneId: string(name='zone_id', description='zone_id'),
   networkMode: string(name='network_mode', description='network_mode'),
   dockerVersion: string(name='docker_version', description='docker_version'),
   deletionProtection: boolean(name='deletion_protection', description='deletion_protection'),
+  externalLoadbalancerId: string(name='external_loadbalancer_id', description='external_loadbalancer_id'),
+  created: string(name='created', description='created'),
+  updated: string(name='updated', description='updated'),
+  size: string(name='size', description='size'),
   tags: [
     {
       key: string(name='key', description='key'),
