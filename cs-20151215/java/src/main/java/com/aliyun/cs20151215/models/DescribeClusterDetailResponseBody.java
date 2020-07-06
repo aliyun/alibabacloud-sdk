@@ -86,7 +86,7 @@ public class DescribeClusterDetailResponseBody extends TeaModel {
 
     @NameInMap("size")
     @Validation(required = true)
-    public String size;
+    public Integer size;
 
     @NameInMap("tags")
     @Validation(required = true)
