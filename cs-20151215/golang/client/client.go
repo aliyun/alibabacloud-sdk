@@ -8,8 +8,83 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type ListTagResourcesQuery struct {
+	NextToken    *string `json:"next_token,omitempty" xml:"next_token,omitempty"`
+	ResourceIds  *string `json:"resource_ids,omitempty" xml:"resource_ids,omitempty"`
+	Tags         *string `json:"tags,omitempty" xml:"tags,omitempty"`
+	ResourceType *string `json:"resource_type,omitempty" xml:"resource_type,omitempty" require:"true"`
+}
+
+func (s ListTagResourcesQuery) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagResourcesQuery) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagResourcesQuery) SetNextToken(v string) *ListTagResourcesQuery {
+	s.NextToken = &v
+	return s
+}
+
+func (s *ListTagResourcesQuery) SetResourceIds(v string) *ListTagResourcesQuery {
+	s.ResourceIds = &v
+	return s
+}
+
+func (s *ListTagResourcesQuery) SetTags(v string) *ListTagResourcesQuery {
+	s.Tags = &v
+	return s
+}
+
+func (s *ListTagResourcesQuery) SetResourceType(v string) *ListTagResourcesQuery {
+	s.ResourceType = &v
+	return s
+}
+
+type ListTagResourcesRequest struct {
+	Headers map[string]*string     `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *ListTagResourcesQuery `json:"query,omitempty" xml:"query,omitempty" require:"true"`
+}
+
+func (s ListTagResourcesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagResourcesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagResourcesRequest) SetHeaders(v map[string]*string) *ListTagResourcesRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *ListTagResourcesRequest) SetQuery(v *ListTagResourcesQuery) *ListTagResourcesRequest {
+	s.Query = v
+	return s
+}
+
+type ListTagResourcesResponse struct {
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+}
+
+func (s ListTagResourcesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagResourcesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagResourcesResponse) SetHeaders(v map[string]*string) *ListTagResourcesResponse {
+	s.Headers = v
+	return s
+}
+
 type ResumeComponentUpgradeRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s ResumeComponentUpgradeRequest) String() string {
@@ -26,7 +101,7 @@ func (s *ResumeComponentUpgradeRequest) SetHeaders(v map[string]*string) *Resume
 }
 
 type ResumeComponentUpgradeResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ResumeComponentUpgradeResponseBody) String() string {
@@ -43,8 +118,8 @@ func (s *ResumeComponentUpgradeResponseBody) SetRequestId(v string) *ResumeCompo
 }
 
 type ResumeComponentUpgradeResponse struct {
-	Headers map[string]*string                  `json:"headers" xml:"headers" require:"true"`
-	Body    *ResumeComponentUpgradeResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                  `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *ResumeComponentUpgradeResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ResumeComponentUpgradeResponse) String() string {
@@ -66,7 +141,7 @@ func (s *ResumeComponentUpgradeResponse) SetBody(v *ResumeComponentUpgradeRespon
 }
 
 type PauseComponentUpgradeRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s PauseComponentUpgradeRequest) String() string {
@@ -83,7 +158,7 @@ func (s *PauseComponentUpgradeRequest) SetHeaders(v map[string]*string) *PauseCo
 }
 
 type PauseComponentUpgradeResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s PauseComponentUpgradeResponseBody) String() string {
@@ -100,8 +175,8 @@ func (s *PauseComponentUpgradeResponseBody) SetRequestId(v string) *PauseCompone
 }
 
 type PauseComponentUpgradeResponse struct {
-	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
-	Body    *PauseComponentUpgradeResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                 `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *PauseComponentUpgradeResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s PauseComponentUpgradeResponse) String() string {
@@ -123,7 +198,7 @@ func (s *PauseComponentUpgradeResponse) SetBody(v *PauseComponentUpgradeResponse
 }
 
 type CancelComponentUpgradeRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s CancelComponentUpgradeRequest) String() string {
@@ -140,7 +215,7 @@ func (s *CancelComponentUpgradeRequest) SetHeaders(v map[string]*string) *Cancel
 }
 
 type CancelComponentUpgradeResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CancelComponentUpgradeResponseBody) String() string {
@@ -157,8 +232,8 @@ func (s *CancelComponentUpgradeResponseBody) SetRequestId(v string) *CancelCompo
 }
 
 type CancelComponentUpgradeResponse struct {
-	Headers map[string]*string                  `json:"headers" xml:"headers" require:"true"`
-	Body    *CancelComponentUpgradeResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                  `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *CancelComponentUpgradeResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CancelComponentUpgradeResponse) String() string {
@@ -180,7 +255,7 @@ func (s *CancelComponentUpgradeResponse) SetBody(v *CancelComponentUpgradeRespon
 }
 
 type CancelWorkflowRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s CancelWorkflowRequest) String() string {
@@ -197,7 +272,7 @@ func (s *CancelWorkflowRequest) SetHeaders(v map[string]*string) *CancelWorkflow
 }
 
 type CancelWorkflowResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s CancelWorkflowResponse) String() string {
@@ -214,7 +289,7 @@ func (s *CancelWorkflowResponse) SetHeaders(v map[string]*string) *CancelWorkflo
 }
 
 type DescirbeWorkflowRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescirbeWorkflowRequest) String() string {
@@ -231,7 +306,7 @@ func (s *DescirbeWorkflowRequest) SetHeaders(v map[string]*string) *DescirbeWork
 }
 
 type DescirbeWorkflowResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescirbeWorkflowResponse) String() string {
@@ -248,7 +323,7 @@ func (s *DescirbeWorkflowResponse) SetHeaders(v map[string]*string) *DescirbeWor
 }
 
 type RemoveWorkflowRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s RemoveWorkflowRequest) String() string {
@@ -265,7 +340,7 @@ func (s *RemoveWorkflowRequest) SetHeaders(v map[string]*string) *RemoveWorkflow
 }
 
 type RemoveWorkflowResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s RemoveWorkflowResponse) String() string {
@@ -282,7 +357,7 @@ func (s *RemoveWorkflowResponse) SetHeaders(v map[string]*string) *RemoveWorkflo
 }
 
 type DescribeWorkflowsRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeWorkflowsRequest) String() string {
@@ -299,7 +374,7 @@ func (s *DescribeWorkflowsRequest) SetHeaders(v map[string]*string) *DescribeWor
 }
 
 type DescribeWorkflowsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeWorkflowsResponse) String() string {
@@ -316,7 +391,7 @@ func (s *DescribeWorkflowsResponse) SetHeaders(v map[string]*string) *DescribeWo
 }
 
 type StartWorkflowRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s StartWorkflowRequest) String() string {
@@ -333,7 +408,7 @@ func (s *StartWorkflowRequest) SetHeaders(v map[string]*string) *StartWorkflowRe
 }
 
 type StartWorkflowResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s StartWorkflowResponse) String() string {
@@ -350,7 +425,7 @@ func (s *StartWorkflowResponse) SetHeaders(v map[string]*string) *StartWorkflowR
 }
 
 type UnInstallClusterAddonsBody struct {
-	Name *string `json:"name" xml:"name" require:"true"`
+	Name *string `json:"name,omitempty" xml:"name,omitempty" require:"true"`
 }
 
 func (s UnInstallClusterAddonsBody) String() string {
@@ -367,8 +442,8 @@ func (s *UnInstallClusterAddonsBody) SetName(v string) *UnInstallClusterAddonsBo
 }
 
 type UnInstallClusterAddonsRequest struct {
-	Headers map[string]*string          `json:"headers" xml:"headers"`
-	Body    *UnInstallClusterAddonsBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string          `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *UnInstallClusterAddonsBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s UnInstallClusterAddonsRequest) String() string {
@@ -390,7 +465,7 @@ func (s *UnInstallClusterAddonsRequest) SetBody(v *UnInstallClusterAddonsBody) *
 }
 
 type UnInstallClusterAddonsResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UnInstallClusterAddonsResponseBody) String() string {
@@ -407,8 +482,8 @@ func (s *UnInstallClusterAddonsResponseBody) SetRequestId(v string) *UnInstallCl
 }
 
 type UnInstallClusterAddonsResponse struct {
-	Headers map[string]*string                  `json:"headers" xml:"headers" require:"true"`
-	Body    *UnInstallClusterAddonsResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                  `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *UnInstallClusterAddonsResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s UnInstallClusterAddonsResponse) String() string {
@@ -430,8 +505,8 @@ func (s *UnInstallClusterAddonsResponse) SetBody(v *UnInstallClusterAddonsRespon
 }
 
 type DescribeAddonsQuery struct {
-	Region      *string `json:"region" xml:"region"`
-	ClusterType *string `json:"cluster_type" xml:"cluster_type"`
+	Region      *string `json:"region,omitempty" xml:"region,omitempty"`
+	ClusterType *string `json:"cluster_type,omitempty" xml:"cluster_type,omitempty"`
 }
 
 func (s DescribeAddonsQuery) String() string {
@@ -453,8 +528,8 @@ func (s *DescribeAddonsQuery) SetClusterType(v string) *DescribeAddonsQuery {
 }
 
 type DescribeAddonsRequest struct {
-	Headers map[string]*string   `json:"headers" xml:"headers"`
-	Query   *DescribeAddonsQuery `json:"query" xml:"query"`
+	Headers map[string]*string   `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeAddonsQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeAddonsRequest) String() string {
@@ -476,8 +551,8 @@ func (s *DescribeAddonsRequest) SetQuery(v *DescribeAddonsQuery) *DescribeAddons
 }
 
 type DescribeAddonsResponseBody struct {
-	ComponentGroups    []*DescribeAddonsResponseBodyComponentGroups  `json:"ComponentGroups" xml:"ComponentGroups" require:"true" type:"Repeated"`
-	StandardComponents *DescribeAddonsResponseBodyStandardComponents `json:"StandardComponents" xml:"StandardComponents" require:"true" type:"Struct"`
+	ComponentGroups    []*DescribeAddonsResponseBodyComponentGroups  `json:"ComponentGroups,omitempty" xml:"ComponentGroups,omitempty" require:"true" type:"Repeated"`
+	StandardComponents *DescribeAddonsResponseBodyStandardComponents `json:"StandardComponents,omitempty" xml:"StandardComponents,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAddonsResponseBody) String() string {
@@ -499,9 +574,9 @@ func (s *DescribeAddonsResponseBody) SetStandardComponents(v *DescribeAddonsResp
 }
 
 type DescribeAddonsResponseBodyComponentGroups struct {
-	GroupName *string                                           `json:"group_name" xml:"group_name" require:"true"`
-	Items     []*DescribeAddonsResponseBodyComponentGroupsItems `json:"items" xml:"items" require:"true" type:"Repeated"`
-	Default   []*string                                         `json:"default" xml:"default" require:"true" type:"Repeated"`
+	GroupName *string                                           `json:"group_name,omitempty" xml:"group_name,omitempty" require:"true"`
+	Items     []*DescribeAddonsResponseBodyComponentGroupsItems `json:"items,omitempty" xml:"items,omitempty" require:"true" type:"Repeated"`
+	Default   []*string                                         `json:"default,omitempty" xml:"default,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAddonsResponseBodyComponentGroups) String() string {
@@ -528,11 +603,9 @@ func (s *DescribeAddonsResponseBodyComponentGroups) SetDefault(v []*string) *Des
 }
 
 type DescribeAddonsResponseBodyComponentGroupsItems struct {
-	Name     *string `json:"name" xml:"name" require:"true"`
-	Config   *string `json:"config" xml:"config" require:"true"`
-	Required *string `json:"required" xml:"required" require:"true"`
-	Disabled *bool   `json:"disabled" xml:"disabled" require:"true"`
-	Version  *string `json:"version" xml:"version" require:"true"`
+	Name     *string `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	Required *string `json:"required,omitempty" xml:"required,omitempty" require:"true"`
+	Version  *string `json:"version,omitempty" xml:"version,omitempty" require:"true"`
 }
 
 func (s DescribeAddonsResponseBodyComponentGroupsItems) String() string {
@@ -548,18 +621,8 @@ func (s *DescribeAddonsResponseBodyComponentGroupsItems) SetName(v string) *Desc
 	return s
 }
 
-func (s *DescribeAddonsResponseBodyComponentGroupsItems) SetConfig(v string) *DescribeAddonsResponseBodyComponentGroupsItems {
-	s.Config = &v
-	return s
-}
-
 func (s *DescribeAddonsResponseBodyComponentGroupsItems) SetRequired(v string) *DescribeAddonsResponseBodyComponentGroupsItems {
 	s.Required = &v
-	return s
-}
-
-func (s *DescribeAddonsResponseBodyComponentGroupsItems) SetDisabled(v bool) *DescribeAddonsResponseBodyComponentGroupsItems {
-	s.Disabled = &v
 	return s
 }
 
@@ -569,7 +632,7 @@ func (s *DescribeAddonsResponseBodyComponentGroupsItems) SetVersion(v string) *D
 }
 
 type DescribeAddonsResponseBodyStandardComponents struct {
-	AddonName *DescribeAddonsResponseBodyStandardComponentsAddonName `json:"addon_name" xml:"addon_name" require:"true" type:"Struct"`
+	AddonName *DescribeAddonsResponseBodyStandardComponentsAddonName `json:"addon_name,omitempty" xml:"addon_name,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAddonsResponseBodyStandardComponents) String() string {
@@ -586,11 +649,9 @@ func (s *DescribeAddonsResponseBodyStandardComponents) SetAddonName(v *DescribeA
 }
 
 type DescribeAddonsResponseBodyStandardComponentsAddonName struct {
-	Name     *string `json:"name" xml:"name" require:"true"`
-	Config   *string `json:"config" xml:"config" require:"true"`
-	Required *string `json:"required" xml:"required" require:"true"`
-	Disabled *bool   `json:"disabled" xml:"disabled" require:"true"`
-	Version  *string `json:"version" xml:"version" require:"true"`
+	Name     *string `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	Required *string `json:"required,omitempty" xml:"required,omitempty" require:"true"`
+	Version  *string `json:"version,omitempty" xml:"version,omitempty" require:"true"`
 }
 
 func (s DescribeAddonsResponseBodyStandardComponentsAddonName) String() string {
@@ -606,18 +667,8 @@ func (s *DescribeAddonsResponseBodyStandardComponentsAddonName) SetName(v string
 	return s
 }
 
-func (s *DescribeAddonsResponseBodyStandardComponentsAddonName) SetConfig(v string) *DescribeAddonsResponseBodyStandardComponentsAddonName {
-	s.Config = &v
-	return s
-}
-
 func (s *DescribeAddonsResponseBodyStandardComponentsAddonName) SetRequired(v string) *DescribeAddonsResponseBodyStandardComponentsAddonName {
 	s.Required = &v
-	return s
-}
-
-func (s *DescribeAddonsResponseBodyStandardComponentsAddonName) SetDisabled(v bool) *DescribeAddonsResponseBodyStandardComponentsAddonName {
-	s.Disabled = &v
 	return s
 }
 
@@ -627,8 +678,8 @@ func (s *DescribeAddonsResponseBodyStandardComponentsAddonName) SetVersion(v str
 }
 
 type DescribeAddonsResponse struct {
-	Headers map[string]*string          `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeAddonsResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string          `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeAddonsResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeAddonsResponse) String() string {
@@ -650,7 +701,7 @@ func (s *DescribeAddonsResponse) SetBody(v *DescribeAddonsResponseBody) *Describ
 }
 
 type UpdateK8sClusterUserConfigExpireRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s UpdateK8sClusterUserConfigExpireRequest) String() string {
@@ -667,7 +718,7 @@ func (s *UpdateK8sClusterUserConfigExpireRequest) SetHeaders(v map[string]*strin
 }
 
 type UpdateK8sClusterUserConfigExpireResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s UpdateK8sClusterUserConfigExpireResponse) String() string {
@@ -684,7 +735,7 @@ func (s *UpdateK8sClusterUserConfigExpireResponse) SetHeaders(v map[string]*stri
 }
 
 type CancelClusterUpgradeRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s CancelClusterUpgradeRequest) String() string {
@@ -701,7 +752,7 @@ func (s *CancelClusterUpgradeRequest) SetHeaders(v map[string]*string) *CancelCl
 }
 
 type CancelClusterUpgradeResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CancelClusterUpgradeResponseBody) String() string {
@@ -718,8 +769,8 @@ func (s *CancelClusterUpgradeResponseBody) SetRequestId(v string) *CancelCluster
 }
 
 type CancelClusterUpgradeResponse struct {
-	Headers map[string]*string                `json:"headers" xml:"headers" require:"true"`
-	Body    *CancelClusterUpgradeResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *CancelClusterUpgradeResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CancelClusterUpgradeResponse) String() string {
@@ -741,7 +792,7 @@ func (s *CancelClusterUpgradeResponse) SetBody(v *CancelClusterUpgradeResponseBo
 }
 
 type DescribeUserQuotaRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeUserQuotaRequest) String() string {
@@ -758,10 +809,10 @@ func (s *DescribeUserQuotaRequest) SetHeaders(v map[string]*string) *DescribeUse
 }
 
 type DescribeUserQuotaResponseBody struct {
-	ClusterQuota    *int `json:"cluster_quota" xml:"cluster_quota" require:"true"`
-	NodeQuota       *int `json:"node_quota" xml:"node_quota" require:"true"`
-	AskClusterQuota *int `json:"ask_cluster_quota" xml:"ask_cluster_quota" require:"true"`
-	AmkClusterQuota *int `json:"amk_cluster_quota" xml:"amk_cluster_quota" require:"true"`
+	ClusterQuota    *int `json:"cluster_quota,omitempty" xml:"cluster_quota,omitempty" require:"true"`
+	NodeQuota       *int `json:"node_quota,omitempty" xml:"node_quota,omitempty" require:"true"`
+	AskClusterQuota *int `json:"ask_cluster_quota,omitempty" xml:"ask_cluster_quota,omitempty" require:"true"`
+	AmkClusterQuota *int `json:"amk_cluster_quota,omitempty" xml:"amk_cluster_quota,omitempty" require:"true"`
 }
 
 func (s DescribeUserQuotaResponseBody) String() string {
@@ -793,8 +844,8 @@ func (s *DescribeUserQuotaResponseBody) SetAmkClusterQuota(v int) *DescribeUserQ
 }
 
 type DescribeUserQuotaResponse struct {
-	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeUserQuotaResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string             `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeUserQuotaResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeUserQuotaResponse) String() string {
@@ -816,7 +867,7 @@ func (s *DescribeUserQuotaResponse) SetBody(v *DescribeUserQuotaResponseBody) *D
 }
 
 type DescribeClusterV2UserKubeconfigQuery struct {
-	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress"`
+	PrivateIpAddress *bool `json:"PrivateIpAddress,omitempty" xml:"PrivateIpAddress,omitempty"`
 }
 
 func (s DescribeClusterV2UserKubeconfigQuery) String() string {
@@ -833,8 +884,8 @@ func (s *DescribeClusterV2UserKubeconfigQuery) SetPrivateIpAddress(v bool) *Desc
 }
 
 type DescribeClusterV2UserKubeconfigRequest struct {
-	Headers map[string]*string                    `json:"headers" xml:"headers"`
-	Query   *DescribeClusterV2UserKubeconfigQuery `json:"query" xml:"query"`
+	Headers map[string]*string                    `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeClusterV2UserKubeconfigQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeClusterV2UserKubeconfigRequest) String() string {
@@ -856,7 +907,7 @@ func (s *DescribeClusterV2UserKubeconfigRequest) SetQuery(v *DescribeClusterV2Us
 }
 
 type DescribeClusterV2UserKubeconfigResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DescribeClusterV2UserKubeconfigResponseBody) String() string {
@@ -873,8 +924,8 @@ func (s *DescribeClusterV2UserKubeconfigResponseBody) SetRequestId(v string) *De
 }
 
 type DescribeClusterV2UserKubeconfigResponse struct {
-	Headers map[string]*string                           `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterV2UserKubeconfigResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                           `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterV2UserKubeconfigResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterV2UserKubeconfigResponse) String() string {
@@ -896,9 +947,9 @@ func (s *DescribeClusterV2UserKubeconfigResponse) SetBody(v *DescribeClusterV2Us
 }
 
 type RemoveClusterNodesBody struct {
-	ReleaseNode *bool                          `json:"release_node" xml:"release_node"`
-	DrainNode   *bool                          `json:"drain_node" xml:"drain_node"`
-	Nodes       []*RemoveClusterNodesBodyNodes `json:"nodes" xml:"nodes" type:"Repeated"`
+	ReleaseNode *bool                          `json:"release_node,omitempty" xml:"release_node,omitempty"`
+	DrainNode   *bool                          `json:"drain_node,omitempty" xml:"drain_node,omitempty"`
+	Nodes       []*RemoveClusterNodesBodyNodes `json:"nodes,omitempty" xml:"nodes,omitempty" type:"Repeated"`
 }
 
 func (s RemoveClusterNodesBody) String() string {
@@ -925,7 +976,7 @@ func (s *RemoveClusterNodesBody) SetNodes(v []*RemoveClusterNodesBodyNodes) *Rem
 }
 
 type RemoveClusterNodesBodyNodes struct {
-	NodeName *string `json:"node_name" xml:"node_name"`
+	NodeName *string `json:"node_name,omitempty" xml:"node_name,omitempty"`
 }
 
 func (s RemoveClusterNodesBodyNodes) String() string {
@@ -942,8 +993,8 @@ func (s *RemoveClusterNodesBodyNodes) SetNodeName(v string) *RemoveClusterNodesB
 }
 
 type RemoveClusterNodesRequest struct {
-	Headers map[string]*string      `json:"headers" xml:"headers"`
-	Body    *RemoveClusterNodesBody `json:"body" xml:"body"`
+	Headers map[string]*string      `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *RemoveClusterNodesBody `json:"body,omitempty" xml:"body,omitempty"`
 }
 
 func (s RemoveClusterNodesRequest) String() string {
@@ -965,7 +1016,7 @@ func (s *RemoveClusterNodesRequest) SetBody(v *RemoveClusterNodesBody) *RemoveCl
 }
 
 type RemoveClusterNodesResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s RemoveClusterNodesResponse) String() string {
@@ -982,7 +1033,7 @@ func (s *RemoveClusterNodesResponse) SetHeaders(v map[string]*string) *RemoveClu
 }
 
 type UpgradeClusterBody struct {
-	Version *string `json:"version" xml:"version"`
+	Version *string `json:"version,omitempty" xml:"version,omitempty"`
 }
 
 func (s UpgradeClusterBody) String() string {
@@ -999,8 +1050,8 @@ func (s *UpgradeClusterBody) SetVersion(v string) *UpgradeClusterBody {
 }
 
 type UpgradeClusterRequest struct {
-	Headers map[string]*string  `json:"headers" xml:"headers"`
-	Body    *UpgradeClusterBody `json:"body" xml:"body"`
+	Headers map[string]*string  `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *UpgradeClusterBody `json:"body,omitempty" xml:"body,omitempty"`
 }
 
 func (s UpgradeClusterRequest) String() string {
@@ -1022,7 +1073,7 @@ func (s *UpgradeClusterRequest) SetBody(v *UpgradeClusterBody) *UpgradeClusterRe
 }
 
 type UpgradeClusterResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s UpgradeClusterResponse) String() string {
@@ -1039,7 +1090,7 @@ func (s *UpgradeClusterResponse) SetHeaders(v map[string]*string) *UpgradeCluste
 }
 
 type PauseClusterUpgradeRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s PauseClusterUpgradeRequest) String() string {
@@ -1056,7 +1107,7 @@ func (s *PauseClusterUpgradeRequest) SetHeaders(v map[string]*string) *PauseClus
 }
 
 type PauseClusterUpgradeResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s PauseClusterUpgradeResponse) String() string {
@@ -1073,7 +1124,7 @@ func (s *PauseClusterUpgradeResponse) SetHeaders(v map[string]*string) *PauseClu
 }
 
 type ResumeUpgradeClusterRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s ResumeUpgradeClusterRequest) String() string {
@@ -1090,7 +1141,7 @@ func (s *ResumeUpgradeClusterRequest) SetHeaders(v map[string]*string) *ResumeUp
 }
 
 type ResumeUpgradeClusterResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s ResumeUpgradeClusterResponse) String() string {
@@ -1107,7 +1158,7 @@ func (s *ResumeUpgradeClusterResponse) SetHeaders(v map[string]*string) *ResumeU
 }
 
 type GetUpgradeStatusRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s GetUpgradeStatusRequest) String() string {
@@ -1124,10 +1175,10 @@ func (s *GetUpgradeStatusRequest) SetHeaders(v map[string]*string) *GetUpgradeSt
 }
 
 type GetUpgradeStatusResponseBody struct {
-	Status           *string `json:"status" xml:"status" require:"true"`
-	PrecheckReportId *string `json:"precheck_report_id" xml:"precheck_report_id" require:"true"`
-	UpgradeStep      *string `json:"upgrade_step" xml:"upgrade_step" require:"true"`
-	ErrorMessage     *string `json:"error_message" xml:"error_message" require:"true"`
+	Status           *string `json:"status,omitempty" xml:"status,omitempty" require:"true"`
+	PrecheckReportId *string `json:"precheck_report_id,omitempty" xml:"precheck_report_id,omitempty" require:"true"`
+	UpgradeStep      *string `json:"upgrade_step,omitempty" xml:"upgrade_step,omitempty" require:"true"`
+	ErrorMessage     *string `json:"error_message,omitempty" xml:"error_message,omitempty" require:"true"`
 }
 
 func (s GetUpgradeStatusResponseBody) String() string {
@@ -1159,8 +1210,8 @@ func (s *GetUpgradeStatusResponseBody) SetErrorMessage(v string) *GetUpgradeStat
 }
 
 type GetUpgradeStatusResponse struct {
-	Headers map[string]*string            `json:"headers" xml:"headers" require:"true"`
-	Body    *GetUpgradeStatusResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string            `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *GetUpgradeStatusResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s GetUpgradeStatusResponse) String() string {
@@ -1182,11 +1233,12 @@ func (s *GetUpgradeStatusResponse) SetBody(v *GetUpgradeStatusResponseBody) *Get
 }
 
 type ModifyClusterBody struct {
-	DeletionProtection    *bool   `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	IngressLoadbalancerId *string `json:"ingress_loadbalancer_id" xml:"ingress_loadbalancer_id" require:"true"`
-	ApiServerEip          *bool   `json:"api_server_eip" xml:"api_server_eip" require:"true"`
-	ApiServerEipId        *string `json:"api_server_eip_id" xml:"api_server_eip_id" require:"true"`
-	ResourceGroupId       *string `json:"resource_group_id" xml:"resource_group_id" require:"true"`
+	DeletionProtection     *bool   `json:"deletion_protection,omitempty" xml:"deletion_protection,omitempty" require:"true"`
+	IngressLoadbalancerId  *string `json:"ingress_loadbalancer_id,omitempty" xml:"ingress_loadbalancer_id,omitempty" require:"true"`
+	ApiServerEip           *bool   `json:"api_server_eip,omitempty" xml:"api_server_eip,omitempty" require:"true"`
+	ApiServerEipId         *string `json:"api_server_eip_id,omitempty" xml:"api_server_eip_id,omitempty" require:"true"`
+	ResourceGroupId        *string `json:"resource_group_id,omitempty" xml:"resource_group_id,omitempty" require:"true"`
+	IngressDomainRebinding *string `json:"ingress_domain_rebinding,omitempty" xml:"ingress_domain_rebinding,omitempty" require:"true"`
 }
 
 func (s ModifyClusterBody) String() string {
@@ -1222,9 +1274,14 @@ func (s *ModifyClusterBody) SetResourceGroupId(v string) *ModifyClusterBody {
 	return s
 }
 
+func (s *ModifyClusterBody) SetIngressDomainRebinding(v string) *ModifyClusterBody {
+	s.IngressDomainRebinding = &v
+	return s
+}
+
 type ModifyClusterRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
-	Body    *ModifyClusterBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *ModifyClusterBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ModifyClusterRequest) String() string {
@@ -1246,10 +1303,9 @@ func (s *ModifyClusterRequest) SetBody(v *ModifyClusterBody) *ModifyClusterReque
 }
 
 type ModifyClusterResponseBody struct {
-	ClusterId  *string `json:"cluster_id" xml:"cluster_id" require:"true"`
-	RequestId  *string `json:"request_id" xml:"request_id" require:"true"`
-	TaskId     *string `json:"task_id" xml:"task_id" require:"true"`
-	InstanceId *string `json:"instanceId" xml:"instanceId" require:"true"`
+	ClusterId *string `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	RequestId *string `json:"request_id,omitempty" xml:"request_id,omitempty" require:"true"`
+	TaskId    *string `json:"task_id,omitempty" xml:"task_id,omitempty" require:"true"`
 }
 
 func (s ModifyClusterResponseBody) String() string {
@@ -1275,14 +1331,9 @@ func (s *ModifyClusterResponseBody) SetTaskId(v string) *ModifyClusterResponseBo
 	return s
 }
 
-func (s *ModifyClusterResponseBody) SetInstanceId(v string) *ModifyClusterResponseBody {
-	s.InstanceId = &v
-	return s
-}
-
 type ModifyClusterResponse struct {
-	Headers map[string]*string         `json:"headers" xml:"headers" require:"true"`
-	Body    *ModifyClusterResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string         `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *ModifyClusterResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ModifyClusterResponse) String() string {
@@ -1304,11 +1355,11 @@ func (s *ModifyClusterResponse) SetBody(v *ModifyClusterResponseBody) *ModifyClu
 }
 
 type InstallClusterAddonsBody struct {
-	Name     *string `json:"name" xml:"name"`
-	Version  *string `json:"version" xml:"version"`
-	Disabled *bool   `json:"disabled" xml:"disabled"`
-	Required *string `json:"required" xml:"required"`
-	Config   *string `json:"config" xml:"config"`
+	Name     *string `json:"name,omitempty" xml:"name,omitempty"`
+	Version  *string `json:"version,omitempty" xml:"version,omitempty"`
+	Disabled *bool   `json:"disabled,omitempty" xml:"disabled,omitempty"`
+	Required *string `json:"required,omitempty" xml:"required,omitempty"`
+	Config   *string `json:"config,omitempty" xml:"config,omitempty"`
 }
 
 func (s InstallClusterAddonsBody) String() string {
@@ -1345,8 +1396,8 @@ func (s *InstallClusterAddonsBody) SetConfig(v string) *InstallClusterAddonsBody
 }
 
 type InstallClusterAddonsRequest struct {
-	Headers map[string]*string        `json:"headers" xml:"headers"`
-	Body    *InstallClusterAddonsBody `json:"body" xml:"body"`
+	Headers map[string]*string        `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *InstallClusterAddonsBody `json:"body,omitempty" xml:"body,omitempty"`
 }
 
 func (s InstallClusterAddonsRequest) String() string {
@@ -1368,7 +1419,7 @@ func (s *InstallClusterAddonsRequest) SetBody(v *InstallClusterAddonsBody) *Inst
 }
 
 type InstallClusterAddonsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s InstallClusterAddonsResponse) String() string {
@@ -1384,43 +1435,9 @@ func (s *InstallClusterAddonsResponse) SetHeaders(v map[string]*string) *Install
 	return s
 }
 
-type DeleteTriggerHookRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
-}
-
-func (s DeleteTriggerHookRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DeleteTriggerHookRequest) GoString() string {
-	return s.String()
-}
-
-func (s *DeleteTriggerHookRequest) SetHeaders(v map[string]*string) *DeleteTriggerHookRequest {
-	s.Headers = v
-	return s
-}
-
-type DeleteTriggerHookResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
-}
-
-func (s DeleteTriggerHookResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s DeleteTriggerHookResponse) GoString() string {
-	return s.String()
-}
-
-func (s *DeleteTriggerHookResponse) SetHeaders(v map[string]*string) *DeleteTriggerHookResponse {
-	s.Headers = v
-	return s
-}
-
 type ModifyClusterTagsBody struct {
-	Key   *string `json:"key" xml:"key" require:"true"`
-	Value *string `json:"value" xml:"value" require:"true"`
+	Key   *string `json:"key,omitempty" xml:"key,omitempty" require:"true"`
+	Value *string `json:"value,omitempty" xml:"value,omitempty" require:"true"`
 }
 
 func (s ModifyClusterTagsBody) String() string {
@@ -1442,8 +1459,8 @@ func (s *ModifyClusterTagsBody) SetValue(v string) *ModifyClusterTagsBody {
 }
 
 type ModifyClusterTagsRequest struct {
-	Headers map[string]*string     `json:"headers" xml:"headers"`
-	Body    *ModifyClusterTagsBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string     `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *ModifyClusterTagsBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ModifyClusterTagsRequest) String() string {
@@ -1465,7 +1482,7 @@ func (s *ModifyClusterTagsRequest) SetBody(v *ModifyClusterTagsBody) *ModifyClus
 }
 
 type ModifyClusterTagsResponseBody struct {
-	RequestId *string `json:"requestId" xml:"requestId" require:"true"`
+	RequestId *string `json:"requestId,omitempty" xml:"requestId,omitempty" require:"true"`
 }
 
 func (s ModifyClusterTagsResponseBody) String() string {
@@ -1482,8 +1499,8 @@ func (s *ModifyClusterTagsResponseBody) SetRequestId(v string) *ModifyClusterTag
 }
 
 type ModifyClusterTagsResponse struct {
-	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
-	Body    *ModifyClusterTagsResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string             `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *ModifyClusterTagsResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ModifyClusterTagsResponse) String() string {
@@ -1505,7 +1522,7 @@ func (s *ModifyClusterTagsResponse) SetBody(v *ModifyClusterTagsResponseBody) *M
 }
 
 type DescribeExternalAgentRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeExternalAgentRequest) String() string {
@@ -1522,7 +1539,7 @@ func (s *DescribeExternalAgentRequest) SetHeaders(v map[string]*string) *Describ
 }
 
 type DescribeExternalAgentResponseBody struct {
-	Config *string `json:"config" xml:"config" require:"true"`
+	Config *string `json:"config,omitempty" xml:"config,omitempty" require:"true"`
 }
 
 func (s DescribeExternalAgentResponseBody) String() string {
@@ -1539,8 +1556,8 @@ func (s *DescribeExternalAgentResponseBody) SetConfig(v string) *DescribeExterna
 }
 
 type DescribeExternalAgentResponse struct {
-	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeExternalAgentResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                 `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeExternalAgentResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeExternalAgentResponse) String() string {
@@ -1562,7 +1579,7 @@ func (s *DescribeExternalAgentResponse) SetBody(v *DescribeExternalAgentResponse
 }
 
 type DescribeClusterAttachScriptsBody struct {
-	Options *DescribeClusterAttachScriptsBodyOptions `json:"options" xml:"options" type:"Struct"`
+	Options *DescribeClusterAttachScriptsBodyOptions `json:"options,omitempty" xml:"options,omitempty" type:"Struct"`
 }
 
 func (s DescribeClusterAttachScriptsBody) String() string {
@@ -1579,12 +1596,12 @@ func (s *DescribeClusterAttachScriptsBody) SetOptions(v *DescribeClusterAttachSc
 }
 
 type DescribeClusterAttachScriptsBodyOptions struct {
-	FlannelIface     *string `json:"flannelIface" xml:"flannelIface"`
-	EnableIptables   *bool   `json:"enableIptables" xml:"enableIptables"`
-	ManageRuntime    *bool   `json:"manageRuntime" xml:"manageRuntime"`
-	NodeNameStrategy *string `json:"nodeNameStrategy" xml:"nodeNameStrategy"`
-	NodeName         *string `json:"nodeName" xml:"nodeName"`
-	NodeNamePrefix   *string `json:"nodeNamePrefix" xml:"nodeNamePrefix"`
+	FlannelIface     *string `json:"flannelIface,omitempty" xml:"flannelIface,omitempty"`
+	EnableIptables   *bool   `json:"enableIptables,omitempty" xml:"enableIptables,omitempty"`
+	ManageRuntime    *bool   `json:"manageRuntime,omitempty" xml:"manageRuntime,omitempty"`
+	NodeNameStrategy *string `json:"nodeNameStrategy,omitempty" xml:"nodeNameStrategy,omitempty"`
+	NodeName         *string `json:"nodeName,omitempty" xml:"nodeName,omitempty"`
+	NodeNamePrefix   *string `json:"nodeNamePrefix,omitempty" xml:"nodeNamePrefix,omitempty"`
 }
 
 func (s DescribeClusterAttachScriptsBodyOptions) String() string {
@@ -1626,8 +1643,8 @@ func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeNamePrefix(v string) *D
 }
 
 type DescribeClusterAttachScriptsRequest struct {
-	Headers map[string]*string                `json:"headers" xml:"headers"`
-	Body    *DescribeClusterAttachScriptsBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *DescribeClusterAttachScriptsBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterAttachScriptsRequest) String() string {
@@ -1649,7 +1666,7 @@ func (s *DescribeClusterAttachScriptsRequest) SetBody(v *DescribeClusterAttachSc
 }
 
 type DescribeClusterAttachScriptsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeClusterAttachScriptsResponse) String() string {
@@ -1666,25 +1683,25 @@ func (s *DescribeClusterAttachScriptsResponse) SetHeaders(v map[string]*string) 
 }
 
 type ScaleOutClusterBody struct {
-	Count                    *int                                  `json:"count" xml:"count" require:"true"`
-	WorkerInstanceChargeType *string                               `json:"worker_instance_charge_type" xml:"worker_instance_charge_type"`
-	WorkerPeriod             *int                                  `json:"worker_period" xml:"worker_period"`
-	WorkerPeriodUnit         *string                               `json:"worker_period_unit" xml:"worker_period_unit"`
-	WorkerAutoRenew          *bool                                 `json:"worker_auto_renew" xml:"worker_auto_renew"`
-	WorkerAutoRenewPeriod    *int                                  `json:"worker_auto_renew_period" xml:"worker_auto_renew_period"`
-	WorkerSystemDiskCategory *string                               `json:"worker_system_disk_category" xml:"worker_system_disk_category"`
-	WorkerSystemDiskSize     *int                                  `json:"worker_system_disk_size" xml:"worker_system_disk_size"`
-	WorkerDataDisk           *bool                                 `json:"worker_data_disk" xml:"worker_data_disk" require:"true"`
-	KeyPair                  *string                               `json:"key_pair" xml:"key_pair" require:"true"`
-	LoginPassword            *string                               `json:"login_password" xml:"login_password" require:"true"`
-	CloudMonitorFlags        *bool                                 `json:"cloud_monitor_flags" xml:"cloud_monitor_flags"`
-	CpuPolicy                *string                               `json:"cpu_policy" xml:"cpu_policy"`
-	DisableRollback          *bool                                 `json:"disable_rollback" xml:"disable_rollback"`
-	WorkerDataDisks          []*ScaleOutClusterBodyWorkerDataDisks `json:"worker_data_disks" xml:"worker_data_disks" type:"Repeated"`
-	Tags                     []*ScaleOutClusterBodyTags            `json:"tags" xml:"tags" type:"Repeated"`
-	Taints                   []*ScaleOutClusterBodyTaints          `json:"taints" xml:"taints" type:"Repeated"`
-	VswitchIds               []*string                             `json:"vswitch_ids" xml:"vswitch_ids" type:"Repeated"`
-	WorkerInstanceTypes      []*string                             `json:"worker_instance_types" xml:"worker_instance_types" type:"Repeated"`
+	Count                    *int                                  `json:"count,omitempty" xml:"count,omitempty" require:"true"`
+	WorkerInstanceChargeType *string                               `json:"worker_instance_charge_type,omitempty" xml:"worker_instance_charge_type,omitempty"`
+	WorkerPeriod             *int                                  `json:"worker_period,omitempty" xml:"worker_period,omitempty"`
+	WorkerPeriodUnit         *string                               `json:"worker_period_unit,omitempty" xml:"worker_period_unit,omitempty"`
+	WorkerAutoRenew          *bool                                 `json:"worker_auto_renew,omitempty" xml:"worker_auto_renew,omitempty"`
+	WorkerAutoRenewPeriod    *int                                  `json:"worker_auto_renew_period,omitempty" xml:"worker_auto_renew_period,omitempty"`
+	WorkerSystemDiskCategory *string                               `json:"worker_system_disk_category,omitempty" xml:"worker_system_disk_category,omitempty"`
+	WorkerSystemDiskSize     *int                                  `json:"worker_system_disk_size,omitempty" xml:"worker_system_disk_size,omitempty"`
+	WorkerDataDisk           *bool                                 `json:"worker_data_disk,omitempty" xml:"worker_data_disk,omitempty" require:"true"`
+	KeyPair                  *string                               `json:"key_pair,omitempty" xml:"key_pair,omitempty" require:"true"`
+	LoginPassword            *string                               `json:"login_password,omitempty" xml:"login_password,omitempty" require:"true"`
+	CloudMonitorFlags        *bool                                 `json:"cloud_monitor_flags,omitempty" xml:"cloud_monitor_flags,omitempty"`
+	CpuPolicy                *string                               `json:"cpu_policy,omitempty" xml:"cpu_policy,omitempty"`
+	DisableRollback          *bool                                 `json:"disable_rollback,omitempty" xml:"disable_rollback,omitempty"`
+	WorkerDataDisks          []*ScaleOutClusterBodyWorkerDataDisks `json:"worker_data_disks,omitempty" xml:"worker_data_disks,omitempty" type:"Repeated"`
+	Tags                     []*ScaleOutClusterBodyTags            `json:"tags,omitempty" xml:"tags,omitempty" type:"Repeated"`
+	Taints                   []*ScaleOutClusterBodyTaints          `json:"taints,omitempty" xml:"taints,omitempty" type:"Repeated"`
+	VswitchIds               []*string                             `json:"vswitch_ids,omitempty" xml:"vswitch_ids,omitempty" type:"Repeated"`
+	WorkerInstanceTypes      []*string                             `json:"worker_instance_types,omitempty" xml:"worker_instance_types,omitempty" type:"Repeated"`
 }
 
 func (s ScaleOutClusterBody) String() string {
@@ -1791,9 +1808,9 @@ func (s *ScaleOutClusterBody) SetWorkerInstanceTypes(v []*string) *ScaleOutClust
 }
 
 type ScaleOutClusterBodyWorkerDataDisks struct {
-	Category  *string `json:"category" xml:"category"`
-	Size      *string `json:"size" xml:"size"`
-	Encrypted *string `json:"encrypted" xml:"encrypted"`
+	Category  *string `json:"category,omitempty" xml:"category,omitempty"`
+	Size      *string `json:"size,omitempty" xml:"size,omitempty"`
+	Encrypted *string `json:"encrypted,omitempty" xml:"encrypted,omitempty"`
 }
 
 func (s ScaleOutClusterBodyWorkerDataDisks) String() string {
@@ -1820,8 +1837,8 @@ func (s *ScaleOutClusterBodyWorkerDataDisks) SetEncrypted(v string) *ScaleOutClu
 }
 
 type ScaleOutClusterBodyTags struct {
-	Key   *string `json:"key" xml:"key"`
-	Value *string `json:"value" xml:"value"`
+	Key   *string `json:"key,omitempty" xml:"key,omitempty"`
+	Value *string `json:"value,omitempty" xml:"value,omitempty"`
 }
 
 func (s ScaleOutClusterBodyTags) String() string {
@@ -1843,9 +1860,9 @@ func (s *ScaleOutClusterBodyTags) SetValue(v string) *ScaleOutClusterBodyTags {
 }
 
 type ScaleOutClusterBodyTaints struct {
-	Key    *string `json:"key" xml:"key"`
-	Value  *string `json:"value" xml:"value"`
-	Effect *string `json:"effect" xml:"effect"`
+	Key    *string `json:"key,omitempty" xml:"key,omitempty"`
+	Value  *string `json:"value,omitempty" xml:"value,omitempty"`
+	Effect *string `json:"effect,omitempty" xml:"effect,omitempty"`
 }
 
 func (s ScaleOutClusterBodyTaints) String() string {
@@ -1872,8 +1889,8 @@ func (s *ScaleOutClusterBodyTaints) SetEffect(v string) *ScaleOutClusterBodyTain
 }
 
 type ScaleOutClusterRequest struct {
-	Headers map[string]*string   `json:"headers" xml:"headers"`
-	Body    *ScaleOutClusterBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string   `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *ScaleOutClusterBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ScaleOutClusterRequest) String() string {
@@ -1895,10 +1912,10 @@ func (s *ScaleOutClusterRequest) SetBody(v *ScaleOutClusterBody) *ScaleOutCluste
 }
 
 type ScaleOutClusterResponseBody struct {
-	ClusterId  *string `json:"cluster_id" xml:"cluster_id" require:"true"`
-	RequestId  *string `json:"request_id" xml:"request_id" require:"true"`
-	TaskId     *string `json:"task_id" xml:"task_id" require:"true"`
-	InstanceId *string `json:"instanceId" xml:"instanceId" require:"true"`
+	ClusterId  *string `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	RequestId  *string `json:"request_id,omitempty" xml:"request_id,omitempty" require:"true"`
+	TaskId     *string `json:"task_id,omitempty" xml:"task_id,omitempty" require:"true"`
+	InstanceId *string `json:"instanceId,omitempty" xml:"instanceId,omitempty" require:"true"`
 }
 
 func (s ScaleOutClusterResponseBody) String() string {
@@ -1930,8 +1947,8 @@ func (s *ScaleOutClusterResponseBody) SetInstanceId(v string) *ScaleOutClusterRe
 }
 
 type ScaleOutClusterResponse struct {
-	Headers map[string]*string           `json:"headers" xml:"headers" require:"true"`
-	Body    *ScaleOutClusterResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string           `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *ScaleOutClusterResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ScaleOutClusterResponse) String() string {
@@ -1953,7 +1970,7 @@ func (s *ScaleOutClusterResponse) SetBody(v *ScaleOutClusterResponseBody) *Scale
 }
 
 type DescribeClusterResourcesRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeClusterResourcesRequest) String() string {
@@ -1970,10 +1987,10 @@ func (s *DescribeClusterResourcesRequest) SetHeaders(v map[string]*string) *Desc
 }
 
 type DescribeClusterResourcesResponseBody struct {
-	InstanceId   *string `json:"instance_id" xml:"instance_id" require:"true"`
-	ResourceType *string `json:"resource_type" xml:"resource_type" require:"true"`
-	ResourceInfo *string `json:"resource_info" xml:"resource_info" require:"true"`
-	State        *string `json:"state" xml:"state" require:"true"`
+	InstanceId   *string `json:"instance_id,omitempty" xml:"instance_id,omitempty" require:"true"`
+	ResourceType *string `json:"resource_type,omitempty" xml:"resource_type,omitempty" require:"true"`
+	ResourceInfo *string `json:"resource_info,omitempty" xml:"resource_info,omitempty" require:"true"`
+	State        *string `json:"state,omitempty" xml:"state,omitempty" require:"true"`
 }
 
 func (s DescribeClusterResourcesResponseBody) String() string {
@@ -2005,8 +2022,8 @@ func (s *DescribeClusterResourcesResponseBody) SetState(v string) *DescribeClust
 }
 
 type DescribeClusterResourcesResponse struct {
-	Headers map[string]*string                      `json:"headers" xml:"headers" require:"true"`
-	Body    []*DescribeClusterResourcesResponseBody `json:"body" xml:"body" require:"true" type:"Repeated"`
+	Headers map[string]*string                      `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    []*DescribeClusterResourcesResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClusterResourcesResponse) String() string {
@@ -2027,90 +2044,9 @@ func (s *DescribeClusterResourcesResponse) SetBody(v []*DescribeClusterResources
 	return s
 }
 
-type CreateTriggerHookBody struct {
-	RegionId   *string `json:"region_id" xml:"region_id"`
-	ClusterId  *string `json:"cluster_id" xml:"cluster_id"`
-	ProjectId  *string `json:"project_id" xml:"project_id"`
-	Action     *string `json:"action" xml:"action"`
-	TriggerUrl *string `json:"trigger_url" xml:"trigger_url"`
-}
-
-func (s CreateTriggerHookBody) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateTriggerHookBody) GoString() string {
-	return s.String()
-}
-
-func (s *CreateTriggerHookBody) SetRegionId(v string) *CreateTriggerHookBody {
-	s.RegionId = &v
-	return s
-}
-
-func (s *CreateTriggerHookBody) SetClusterId(v string) *CreateTriggerHookBody {
-	s.ClusterId = &v
-	return s
-}
-
-func (s *CreateTriggerHookBody) SetProjectId(v string) *CreateTriggerHookBody {
-	s.ProjectId = &v
-	return s
-}
-
-func (s *CreateTriggerHookBody) SetAction(v string) *CreateTriggerHookBody {
-	s.Action = &v
-	return s
-}
-
-func (s *CreateTriggerHookBody) SetTriggerUrl(v string) *CreateTriggerHookBody {
-	s.TriggerUrl = &v
-	return s
-}
-
-type CreateTriggerHookRequest struct {
-	Headers map[string]*string     `json:"headers" xml:"headers"`
-	Body    *CreateTriggerHookBody `json:"body" xml:"body"`
-}
-
-func (s CreateTriggerHookRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateTriggerHookRequest) GoString() string {
-	return s.String()
-}
-
-func (s *CreateTriggerHookRequest) SetHeaders(v map[string]*string) *CreateTriggerHookRequest {
-	s.Headers = v
-	return s
-}
-
-func (s *CreateTriggerHookRequest) SetBody(v *CreateTriggerHookBody) *CreateTriggerHookRequest {
-	s.Body = v
-	return s
-}
-
-type CreateTriggerHookResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
-}
-
-func (s CreateTriggerHookResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateTriggerHookResponse) GoString() string {
-	return s.String()
-}
-
-func (s *CreateTriggerHookResponse) SetHeaders(v map[string]*string) *CreateTriggerHookResponse {
-	s.Headers = v
-	return s
-}
-
 type UpgradeClusterAddonsBody struct {
-	ComponentName *string `json:"component_name" xml:"component_name"`
-	Version       *string `json:"version" xml:"version"`
+	ComponentName *string `json:"component_name,omitempty" xml:"component_name,omitempty"`
+	Version       *string `json:"version,omitempty" xml:"version,omitempty"`
 }
 
 func (s UpgradeClusterAddonsBody) String() string {
@@ -2132,8 +2068,8 @@ func (s *UpgradeClusterAddonsBody) SetVersion(v string) *UpgradeClusterAddonsBod
 }
 
 type UpgradeClusterAddonsRequest struct {
-	Headers map[string]*string        `json:"headers" xml:"headers"`
-	Body    *UpgradeClusterAddonsBody `json:"body" xml:"body"`
+	Headers map[string]*string        `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *UpgradeClusterAddonsBody `json:"body,omitempty" xml:"body,omitempty"`
 }
 
 func (s UpgradeClusterAddonsRequest) String() string {
@@ -2155,7 +2091,7 @@ func (s *UpgradeClusterAddonsRequest) SetBody(v *UpgradeClusterAddonsBody) *Upgr
 }
 
 type UpgradeClusterAddonsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s UpgradeClusterAddonsResponse) String() string {
@@ -2172,7 +2108,7 @@ func (s *UpgradeClusterAddonsResponse) SetHeaders(v map[string]*string) *Upgrade
 }
 
 type DescribeClusterAddonsVersionRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeClusterAddonsVersionRequest) String() string {
@@ -2189,14 +2125,14 @@ func (s *DescribeClusterAddonsVersionRequest) SetHeaders(v map[string]*string) *
 }
 
 type DescribeClusterAddonsVersionResponseBody struct {
-	Template      *string `json:"template" xml:"template" require:"true"`
-	NextVersion   *string `json:"next_version" xml:"next_version" require:"true"`
-	CanUpgrade    *bool   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
-	ComponentName *string `json:"component_name" xml:"component_name" require:"true"`
-	Version       *string `json:"version" xml:"version" require:"true"`
-	Changed       *string `json:"changed" xml:"changed" require:"true"`
-	Message       *string `json:"message" xml:"message" require:"true"`
-	Required      *bool   `json:"required" xml:"required" require:"true"`
+	Template      *string `json:"template,omitempty" xml:"template,omitempty" require:"true"`
+	NextVersion   *string `json:"next_version,omitempty" xml:"next_version,omitempty" require:"true"`
+	CanUpgrade    *bool   `json:"can_upgrade,omitempty" xml:"can_upgrade,omitempty" require:"true"`
+	ComponentName *string `json:"component_name,omitempty" xml:"component_name,omitempty" require:"true"`
+	Version       *string `json:"version,omitempty" xml:"version,omitempty" require:"true"`
+	Changed       *string `json:"changed,omitempty" xml:"changed,omitempty" require:"true"`
+	Message       *string `json:"message,omitempty" xml:"message,omitempty" require:"true"`
+	Required      *bool   `json:"required,omitempty" xml:"required,omitempty" require:"true"`
 }
 
 func (s DescribeClusterAddonsVersionResponseBody) String() string {
@@ -2248,8 +2184,8 @@ func (s *DescribeClusterAddonsVersionResponseBody) SetRequired(v bool) *Describe
 }
 
 type DescribeClusterAddonsVersionResponse struct {
-	Headers map[string]*string                        `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterAddonsVersionResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                        `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterAddonsVersionResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterAddonsVersionResponse) String() string {
@@ -2271,7 +2207,7 @@ func (s *DescribeClusterAddonsVersionResponse) SetBody(v *DescribeClusterAddonsV
 }
 
 type DescribeClusterAddonUpgradeStatusRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeClusterAddonUpgradeStatusRequest) String() string {
@@ -2288,9 +2224,9 @@ func (s *DescribeClusterAddonUpgradeStatusRequest) SetHeaders(v map[string]*stri
 }
 
 type DescribeClusterAddonUpgradeStatusResponseBody struct {
-	Template   *string                                                 `json:"template" xml:"template" require:"true"`
-	CanUpgrade *bool                                                   `json:"can_upgrade" xml:"can_upgrade" require:"true"`
-	AddonInfo  *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo `json:"addon_info" xml:"addon_info" require:"true" type:"Struct"`
+	Template   *string                                                 `json:"template,omitempty" xml:"template,omitempty" require:"true"`
+	CanUpgrade *bool                                                   `json:"can_upgrade,omitempty" xml:"can_upgrade,omitempty" require:"true"`
+	AddonInfo  *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo `json:"addon_info,omitempty" xml:"addon_info,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeClusterAddonUpgradeStatusResponseBody) String() string {
@@ -2317,11 +2253,11 @@ func (s *DescribeClusterAddonUpgradeStatusResponseBody) SetAddonInfo(v *Describe
 }
 
 type DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo struct {
-	Message       *string `json:"message" xml:"message" require:"true"`
-	Category      *string `json:"category" xml:"category" require:"true"`
-	Yaml          *string `json:"yaml" xml:"yaml" require:"true"`
-	ComponentName *string `json:"component_name" xml:"component_name" require:"true"`
-	Version       *string `json:"version" xml:"version" require:"true"`
+	Message       *string `json:"message,omitempty" xml:"message,omitempty" require:"true"`
+	Category      *string `json:"category,omitempty" xml:"category,omitempty" require:"true"`
+	Yaml          *string `json:"yaml,omitempty" xml:"yaml,omitempty" require:"true"`
+	ComponentName *string `json:"component_name,omitempty" xml:"component_name,omitempty" require:"true"`
+	Version       *string `json:"version,omitempty" xml:"version,omitempty" require:"true"`
 }
 
 func (s DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) String() string {
@@ -2358,8 +2294,8 @@ func (s *DescribeClusterAddonUpgradeStatusResponseBodyAddonInfo) SetVersion(v st
 }
 
 type DescribeClusterAddonUpgradeStatusResponse struct {
-	Headers map[string]*string                             `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterAddonUpgradeStatusResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                             `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterAddonUpgradeStatusResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterAddonUpgradeStatusResponse) String() string {
@@ -2381,8 +2317,8 @@ func (s *DescribeClusterAddonUpgradeStatusResponse) SetBody(v *DescribeClusterAd
 }
 
 type DeleteClusterNodesBody struct {
-	ReleaseNode *string   `json:"release_node" xml:"release_node"`
-	Nodes       []*string `json:"nodes" xml:"nodes" type:"Repeated"`
+	ReleaseNode *string   `json:"release_node,omitempty" xml:"release_node,omitempty"`
+	Nodes       []*string `json:"nodes,omitempty" xml:"nodes,omitempty" type:"Repeated"`
 }
 
 func (s DeleteClusterNodesBody) String() string {
@@ -2404,8 +2340,8 @@ func (s *DeleteClusterNodesBody) SetNodes(v []*string) *DeleteClusterNodesBody {
 }
 
 type DeleteClusterNodesRequest struct {
-	Headers map[string]*string      `json:"headers" xml:"headers"`
-	Body    *DeleteClusterNodesBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string      `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *DeleteClusterNodesBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DeleteClusterNodesRequest) String() string {
@@ -2427,7 +2363,7 @@ func (s *DeleteClusterNodesRequest) SetBody(v *DeleteClusterNodesBody) *DeleteCl
 }
 
 type DeleteClusterNodesResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteClusterNodesResponseBody) String() string {
@@ -2444,8 +2380,8 @@ func (s *DeleteClusterNodesResponseBody) SetRequestId(v string) *DeleteClusterNo
 }
 
 type DeleteClusterNodesResponse struct {
-	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
-	Body    *DeleteClusterNodesResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string              `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DeleteClusterNodesResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DeleteClusterNodesResponse) String() string {
@@ -2467,7 +2403,7 @@ func (s *DeleteClusterNodesResponse) SetBody(v *DeleteClusterNodesResponseBody) 
 }
 
 type DeleteTemplateRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DeleteTemplateRequest) String() string {
@@ -2484,7 +2420,7 @@ func (s *DeleteTemplateRequest) SetHeaders(v map[string]*string) *DeleteTemplate
 }
 
 type DeleteTemplateResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DeleteTemplateResponse) String() string {
@@ -2501,7 +2437,7 @@ func (s *DeleteTemplateResponse) SetHeaders(v map[string]*string) *DeleteTemplat
 }
 
 type DescribeClusterUserKubeconfigQuery struct {
-	PrivateIpAddress *bool `json:"PrivateIpAddress" xml:"PrivateIpAddress"`
+	PrivateIpAddress *bool `json:"PrivateIpAddress,omitempty" xml:"PrivateIpAddress,omitempty"`
 }
 
 func (s DescribeClusterUserKubeconfigQuery) String() string {
@@ -2518,8 +2454,8 @@ func (s *DescribeClusterUserKubeconfigQuery) SetPrivateIpAddress(v bool) *Descri
 }
 
 type DescribeClusterUserKubeconfigRequest struct {
-	Headers map[string]*string                  `json:"headers" xml:"headers"`
-	Query   *DescribeClusterUserKubeconfigQuery `json:"query" xml:"query"`
+	Headers map[string]*string                  `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeClusterUserKubeconfigQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeClusterUserKubeconfigRequest) String() string {
@@ -2541,7 +2477,7 @@ func (s *DescribeClusterUserKubeconfigRequest) SetQuery(v *DescribeClusterUserKu
 }
 
 type DescribeClusterUserKubeconfigResponseBody struct {
-	Config *string `json:"config" xml:"config" require:"true"`
+	Config *string `json:"config,omitempty" xml:"config,omitempty" require:"true"`
 }
 
 func (s DescribeClusterUserKubeconfigResponseBody) String() string {
@@ -2558,8 +2494,8 @@ func (s *DescribeClusterUserKubeconfigResponseBody) SetConfig(v string) *Describ
 }
 
 type DescribeClusterUserKubeconfigResponse struct {
-	Headers map[string]*string                         `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterUserKubeconfigResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                         `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterUserKubeconfigResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterUserKubeconfigResponse) String() string {
@@ -2581,10 +2517,10 @@ func (s *DescribeClusterUserKubeconfigResponse) SetBody(v *DescribeClusterUserKu
 }
 
 type DescribeClusterNodesQuery struct {
-	PageSize   *string `json:"pageSize" xml:"pageSize"`
-	PageNumber *string `json:"pageNumber" xml:"pageNumber"`
-	NodepoolId *string `json:"nodepool_id" xml:"nodepool_id"`
-	State      *string `json:"state" xml:"state"`
+	PageSize   *string `json:"pageSize,omitempty" xml:"pageSize,omitempty"`
+	PageNumber *string `json:"pageNumber,omitempty" xml:"pageNumber,omitempty"`
+	NodepoolId *string `json:"nodepool_id,omitempty" xml:"nodepool_id,omitempty"`
+	State      *string `json:"state,omitempty" xml:"state,omitempty"`
 }
 
 func (s DescribeClusterNodesQuery) String() string {
@@ -2616,8 +2552,8 @@ func (s *DescribeClusterNodesQuery) SetState(v string) *DescribeClusterNodesQuer
 }
 
 type DescribeClusterNodesRequest struct {
-	Headers map[string]*string         `json:"headers" xml:"headers"`
-	Query   *DescribeClusterNodesQuery `json:"query" xml:"query"`
+	Headers map[string]*string         `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeClusterNodesQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeClusterNodesRequest) String() string {
@@ -2639,8 +2575,8 @@ func (s *DescribeClusterNodesRequest) SetQuery(v *DescribeClusterNodesQuery) *De
 }
 
 type DescribeClusterNodesResponseBody struct {
-	Nodes []*DescribeClusterNodesResponseBodyNodes `json:"nodes" xml:"nodes" require:"true" type:"Repeated"`
-	Page  *DescribeClusterNodesResponseBodyPage    `json:"page" xml:"page" require:"true" type:"Struct"`
+	Nodes []*DescribeClusterNodesResponseBodyNodes `json:"nodes,omitempty" xml:"nodes,omitempty" require:"true" type:"Repeated"`
+	Page  *DescribeClusterNodesResponseBodyPage    `json:"page,omitempty" xml:"page,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeClusterNodesResponseBody) String() string {
@@ -2662,25 +2598,25 @@ func (s *DescribeClusterNodesResponseBody) SetPage(v *DescribeClusterNodesRespon
 }
 
 type DescribeClusterNodesResponseBodyNodes struct {
-	InstanceType       *string   `json:"instance_type" xml:"instance_type" require:"true"`
-	InstanceRole       *string   `json:"instance_role" xml:"instance_role" require:"true"`
-	ExpiredTime        *string   `json:"expired_time" xml:"expired_time" require:"true"`
-	State              *string   `json:"state" xml:"state" require:"true"`
-	InstanceName       *string   `json:"instance_name" xml:"instance_name" require:"true"`
-	IsAliyunNode       *bool     `json:"is_aliyun_node" xml:"is_aliyun_node" require:"true"`
-	HostName           *string   `json:"host_name" xml:"host_name" require:"true"`
-	ImageId            *string   `json:"image_id" xml:"image_id" require:"true"`
-	InstanceStatus     *string   `json:"instance_status" xml:"instance_status" require:"true"`
-	InstanceChargeType *string   `json:"instance_charge_type" xml:"instance_charge_type" require:"true"`
-	Source             *string   `json:"source" xml:"source" require:"true"`
-	ErrorMessage       *string   `json:"error_message" xml:"error_message" require:"true"`
-	NodeStatus         *string   `json:"node_status" xml:"node_status" require:"true"`
-	CreationTime       *string   `json:"creation_time" xml:"creation_time" require:"true"`
-	NodeName           *string   `json:"node_name" xml:"node_name" require:"true"`
-	InstanceTypeFamily *string   `json:"instance_type_family" xml:"instance_type_family" require:"true"`
-	NodepoolId         *string   `json:"nodepool_id" xml:"nodepool_id" require:"true"`
-	InstanceId         *string   `json:"instance_id" xml:"instance_id" require:"true"`
-	IpAddress          []*string `json:"ip_address" xml:"ip_address" require:"true" type:"Repeated"`
+	InstanceType       *string   `json:"instance_type,omitempty" xml:"instance_type,omitempty" require:"true"`
+	InstanceRole       *string   `json:"instance_role,omitempty" xml:"instance_role,omitempty" require:"true"`
+	ExpiredTime        *string   `json:"expired_time,omitempty" xml:"expired_time,omitempty" require:"true"`
+	State              *string   `json:"state,omitempty" xml:"state,omitempty" require:"true"`
+	InstanceName       *string   `json:"instance_name,omitempty" xml:"instance_name,omitempty" require:"true"`
+	IsAliyunNode       *bool     `json:"is_aliyun_node,omitempty" xml:"is_aliyun_node,omitempty" require:"true"`
+	HostName           *string   `json:"host_name,omitempty" xml:"host_name,omitempty" require:"true"`
+	ImageId            *string   `json:"image_id,omitempty" xml:"image_id,omitempty" require:"true"`
+	InstanceStatus     *string   `json:"instance_status,omitempty" xml:"instance_status,omitempty" require:"true"`
+	InstanceChargeType *string   `json:"instance_charge_type,omitempty" xml:"instance_charge_type,omitempty" require:"true"`
+	Source             *string   `json:"source,omitempty" xml:"source,omitempty" require:"true"`
+	ErrorMessage       *string   `json:"error_message,omitempty" xml:"error_message,omitempty" require:"true"`
+	NodeStatus         *string   `json:"node_status,omitempty" xml:"node_status,omitempty" require:"true"`
+	CreationTime       *string   `json:"creation_time,omitempty" xml:"creation_time,omitempty" require:"true"`
+	NodeName           *string   `json:"node_name,omitempty" xml:"node_name,omitempty" require:"true"`
+	InstanceTypeFamily *string   `json:"instance_type_family,omitempty" xml:"instance_type_family,omitempty" require:"true"`
+	NodepoolId         *string   `json:"nodepool_id,omitempty" xml:"nodepool_id,omitempty" require:"true"`
+	InstanceId         *string   `json:"instance_id,omitempty" xml:"instance_id,omitempty" require:"true"`
+	IpAddress          []*string `json:"ip_address,omitempty" xml:"ip_address,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClusterNodesResponseBodyNodes) String() string {
@@ -2787,9 +2723,9 @@ func (s *DescribeClusterNodesResponseBodyNodes) SetIpAddress(v []*string) *Descr
 }
 
 type DescribeClusterNodesResponseBodyPage struct {
-	PageSize   *int `json:"page_size" xml:"page_size" require:"true"`
-	PageNumber *int `json:"page_number" xml:"page_number" require:"true"`
-	TotalCount *int `json:"total_count" xml:"total_count" require:"true"`
+	PageSize   *int `json:"page_size,omitempty" xml:"page_size,omitempty" require:"true"`
+	PageNumber *int `json:"page_number,omitempty" xml:"page_number,omitempty" require:"true"`
+	TotalCount *int `json:"total_count,omitempty" xml:"total_count,omitempty" require:"true"`
 }
 
 func (s DescribeClusterNodesResponseBodyPage) String() string {
@@ -2816,8 +2752,8 @@ func (s *DescribeClusterNodesResponseBodyPage) SetTotalCount(v int) *DescribeClu
 }
 
 type DescribeClusterNodesResponse struct {
-	Headers map[string]*string                `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterNodesResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterNodesResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterNodesResponse) String() string {
@@ -2839,7 +2775,7 @@ func (s *DescribeClusterNodesResponse) SetBody(v *DescribeClusterNodesResponseBo
 }
 
 type DescribeClusterLogsRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeClusterLogsRequest) String() string {
@@ -2856,10 +2792,10 @@ func (s *DescribeClusterLogsRequest) SetHeaders(v map[string]*string) *DescribeC
 }
 
 type DescribeClusterLogsResponseBody struct {
-	ClusterId  *string `json:"cluster_id" xml:"cluster_id" require:"true"`
-	ClusterLog *string `json:"cluster_log" xml:"cluster_log" require:"true"`
-	LogLevel   *string `json:"log_level" xml:"log_level" require:"true"`
-	Created    *string `json:"created" xml:"created" require:"true"`
+	ClusterId  *string `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	ClusterLog *string `json:"cluster_log,omitempty" xml:"cluster_log,omitempty" require:"true"`
+	LogLevel   *string `json:"log_level,omitempty" xml:"log_level,omitempty" require:"true"`
+	Created    *string `json:"created,omitempty" xml:"created,omitempty" require:"true"`
 }
 
 func (s DescribeClusterLogsResponseBody) String() string {
@@ -2891,8 +2827,8 @@ func (s *DescribeClusterLogsResponseBody) SetCreated(v string) *DescribeClusterL
 }
 
 type DescribeClusterLogsResponse struct {
-	Headers map[string]*string               `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterLogsResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string               `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterLogsResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterLogsResponse) String() string {
@@ -2914,13 +2850,13 @@ func (s *DescribeClusterLogsResponse) SetBody(v *DescribeClusterLogsResponseBody
 }
 
 type AttachInstancesBody struct {
-	FormatDisk       *bool                      `json:"format_disk" xml:"format_disk"`
-	KeepInstanceName *bool                      `json:"keep_instance_name" xml:"keep_instance_name"`
-	CpuPolicy        *string                    `json:"cpu_policy" xml:"cpu_policy"`
-	KeyPair          *string                    `json:"key_pair" xml:"key_pair" require:"true"`
-	Password         *string                    `json:"password" xml:"password" require:"true"`
-	Tags             []*AttachInstancesBodyTags `json:"tags" xml:"tags" type:"Repeated"`
-	Instances        []*string                  `json:"instances" xml:"instances" type:"Repeated"`
+	FormatDisk       *bool                      `json:"format_disk,omitempty" xml:"format_disk,omitempty"`
+	KeepInstanceName *bool                      `json:"keep_instance_name,omitempty" xml:"keep_instance_name,omitempty"`
+	CpuPolicy        *string                    `json:"cpu_policy,omitempty" xml:"cpu_policy,omitempty"`
+	KeyPair          *string                    `json:"key_pair,omitempty" xml:"key_pair,omitempty" require:"true"`
+	Password         *string                    `json:"password,omitempty" xml:"password,omitempty" require:"true"`
+	Tags             []*AttachInstancesBodyTags `json:"tags,omitempty" xml:"tags,omitempty" type:"Repeated"`
+	Instances        []*string                  `json:"instances,omitempty" xml:"instances,omitempty" type:"Repeated"`
 }
 
 func (s AttachInstancesBody) String() string {
@@ -2967,8 +2903,8 @@ func (s *AttachInstancesBody) SetInstances(v []*string) *AttachInstancesBody {
 }
 
 type AttachInstancesBodyTags struct {
-	Key   *string `json:"key" xml:"key"`
-	Value *string `json:"value" xml:"value"`
+	Key   *string `json:"key,omitempty" xml:"key,omitempty"`
+	Value *string `json:"value,omitempty" xml:"value,omitempty"`
 }
 
 func (s AttachInstancesBodyTags) String() string {
@@ -2990,8 +2926,8 @@ func (s *AttachInstancesBodyTags) SetValue(v string) *AttachInstancesBodyTags {
 }
 
 type AttachInstancesRequest struct {
-	Headers map[string]*string   `json:"headers" xml:"headers"`
-	Body    *AttachInstancesBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string   `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *AttachInstancesBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s AttachInstancesRequest) String() string {
@@ -3013,8 +2949,8 @@ func (s *AttachInstancesRequest) SetBody(v *AttachInstancesBody) *AttachInstance
 }
 
 type AttachInstancesResponseBody struct {
-	TaskId *string                            `json:"task_id" xml:"task_id" require:"true"`
-	List   []*AttachInstancesResponseBodyList `json:"list" xml:"list" require:"true" type:"Repeated"`
+	TaskId *string                            `json:"task_id,omitempty" xml:"task_id,omitempty" require:"true"`
+	List   []*AttachInstancesResponseBodyList `json:"list,omitempty" xml:"list,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s AttachInstancesResponseBody) String() string {
@@ -3036,9 +2972,9 @@ func (s *AttachInstancesResponseBody) SetList(v []*AttachInstancesResponseBodyLi
 }
 
 type AttachInstancesResponseBodyList struct {
-	Code       *string `json:"code" xml:"code" require:"true"`
-	InstanceId *string `json:"instanceId" xml:"instanceId" require:"true"`
-	Message    *string `json:"message" xml:"message" require:"true"`
+	Code       *string `json:"code,omitempty" xml:"code,omitempty" require:"true"`
+	InstanceId *string `json:"instanceId,omitempty" xml:"instanceId,omitempty" require:"true"`
+	Message    *string `json:"message,omitempty" xml:"message,omitempty" require:"true"`
 }
 
 func (s AttachInstancesResponseBodyList) String() string {
@@ -3065,8 +3001,8 @@ func (s *AttachInstancesResponseBodyList) SetMessage(v string) *AttachInstancesR
 }
 
 type AttachInstancesResponse struct {
-	Headers map[string]*string           `json:"headers" xml:"headers" require:"true"`
-	Body    *AttachInstancesResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string           `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *AttachInstancesResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s AttachInstancesResponse) String() string {
@@ -3088,7 +3024,7 @@ func (s *AttachInstancesResponse) SetBody(v *AttachInstancesResponseBody) *Attac
 }
 
 type DescribeTemplatesQuery struct {
-	TemplateType *string `json:"template_type" xml:"template_type"`
+	TemplateType *string `json:"template_type,omitempty" xml:"template_type,omitempty"`
 }
 
 func (s DescribeTemplatesQuery) String() string {
@@ -3105,8 +3041,8 @@ func (s *DescribeTemplatesQuery) SetTemplateType(v string) *DescribeTemplatesQue
 }
 
 type DescribeTemplatesRequest struct {
-	Headers map[string]*string      `json:"headers" xml:"headers"`
-	Query   *DescribeTemplatesQuery `json:"query" xml:"query"`
+	Headers map[string]*string      `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeTemplatesQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeTemplatesRequest) String() string {
@@ -3128,12 +3064,12 @@ func (s *DescribeTemplatesRequest) SetQuery(v *DescribeTemplatesQuery) *Describe
 }
 
 type DescribeTemplatesResponseBody struct {
-	Template     *string `json:"template" xml:"template" require:"true"`
-	Acl          *string `json:"acl" xml:"acl" require:"true"`
-	Name         *string `json:"name" xml:"name" require:"true"`
-	Tags         *string `json:"tags" xml:"tags" require:"true"`
-	TemplateType *string `json:"template_type" xml:"template_type" require:"true"`
-	Description  *string `json:"description" xml:"description" require:"true"`
+	Template     *string `json:"template,omitempty" xml:"template,omitempty" require:"true"`
+	Acl          *string `json:"acl,omitempty" xml:"acl,omitempty" require:"true"`
+	Name         *string `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	Tags         *string `json:"tags,omitempty" xml:"tags,omitempty" require:"true"`
+	TemplateType *string `json:"template_type,omitempty" xml:"template_type,omitempty" require:"true"`
+	Description  *string `json:"description,omitempty" xml:"description,omitempty" require:"true"`
 }
 
 func (s DescribeTemplatesResponseBody) String() string {
@@ -3175,8 +3111,8 @@ func (s *DescribeTemplatesResponseBody) SetDescription(v string) *DescribeTempla
 }
 
 type DescribeTemplatesResponse struct {
-	Headers map[string]*string             `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeTemplatesResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string             `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeTemplatesResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeTemplatesResponse) String() string {
@@ -3198,10 +3134,10 @@ func (s *DescribeTemplatesResponse) SetBody(v *DescribeTemplatesResponseBody) *D
 }
 
 type CreateTemplateBody struct {
-	Name         *string `json:"name" xml:"name" require:"true"`
-	Template     *string `json:"template" xml:"template" require:"true"`
-	Tags         *string `json:"tags" xml:"tags"`
-	TemplateType *string `json:"template_type" xml:"template_type"`
+	Name         *string `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	Template     *string `json:"template,omitempty" xml:"template,omitempty" require:"true"`
+	Tags         *string `json:"tags,omitempty" xml:"tags,omitempty"`
+	TemplateType *string `json:"template_type,omitempty" xml:"template_type,omitempty"`
 }
 
 func (s CreateTemplateBody) String() string {
@@ -3233,8 +3169,8 @@ func (s *CreateTemplateBody) SetTemplateType(v string) *CreateTemplateBody {
 }
 
 type CreateTemplateRequest struct {
-	Headers map[string]*string  `json:"headers" xml:"headers"`
-	Body    *CreateTemplateBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string  `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *CreateTemplateBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CreateTemplateRequest) String() string {
@@ -3256,7 +3192,7 @@ func (s *CreateTemplateRequest) SetBody(v *CreateTemplateBody) *CreateTemplateRe
 }
 
 type CreateTemplateResponseBody struct {
-	TemplateId *string `json:"template_id" xml:"template_id" require:"true"`
+	TemplateId *string `json:"template_id,omitempty" xml:"template_id,omitempty" require:"true"`
 }
 
 func (s CreateTemplateResponseBody) String() string {
@@ -3273,8 +3209,8 @@ func (s *CreateTemplateResponseBody) SetTemplateId(v string) *CreateTemplateResp
 }
 
 type CreateTemplateResponse struct {
-	Headers map[string]*string          `json:"headers" xml:"headers" require:"true"`
-	Body    *CreateTemplateResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string          `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *CreateTemplateResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CreateTemplateResponse) String() string {
@@ -3296,55 +3232,56 @@ func (s *CreateTemplateResponse) SetBody(v *CreateTemplateResponseBody) *CreateT
 }
 
 type CreateClusterBody struct {
-	ClusterType              *string                             `json:"cluster_type" xml:"cluster_type" require:"true"`
-	Name                     *string                             `json:"name" xml:"name" require:"true"`
-	RegionId                 *string                             `json:"region_id" xml:"region_id" require:"true"`
-	KubernetesVersion        *string                             `json:"kubernetes_version" xml:"kubernetes_version"`
-	SnatEntry                *bool                               `json:"snat_entry" xml:"snat_entry" require:"true"`
-	EndpointPublicAccess     *bool                               `json:"endpoint_public_access" xml:"endpoint_public_access"`
-	SshFlags                 *bool                               `json:"ssh_flags" xml:"ssh_flags"`
-	CloudMonitorFlags        *bool                               `json:"cloud_monitor_flags" xml:"cloud_monitor_flags"`
-	DeletionProtection       *bool                               `json:"deletion_protection" xml:"deletion_protection"`
-	NodeCidrMask             *string                             `json:"node_cidr_mask" xml:"node_cidr_mask"`
-	ProxyMode                *string                             `json:"proxy_mode" xml:"proxy_mode"`
-	OsType                   *string                             `json:"os_type" xml:"os_type"`
-	Platform                 *string                             `json:"platform" xml:"platform"`
-	NodePortRange            *string                             `json:"node_port_range" xml:"node_port_range"`
-	KeyPair                  *string                             `json:"key_pair" xml:"key_pair" require:"true"`
-	LoginPassword            *string                             `json:"login_password" xml:"login_password" require:"true"`
-	MasterInstanceChargeType *string                             `json:"master_instance_charge_type" xml:"master_instance_charge_type"`
-	WorkerInstanceChargeType *string                             `json:"worker_instance_charge_type" xml:"worker_instance_charge_type"`
-	MasterPeriod             *int                                `json:"master_period" xml:"master_period"`
-	WorkerPeriod             *int                                `json:"worker_period" xml:"worker_period"`
-	MasterPeriodUnit         *string                             `json:"master_period_unit" xml:"master_period_unit"`
-	WorkerPeriodUnit         *string                             `json:"worker_period_unit" xml:"worker_period_unit"`
-	MasterAutoRenew          *bool                               `json:"master_auto_renew" xml:"master_auto_renew"`
-	MasterAutoRenewPeriod    *int                                `json:"master_auto_renew_period" xml:"master_auto_renew_period"`
-	WorkerAutoRenew          *bool                               `json:"worker_auto_renew" xml:"worker_auto_renew"`
-	WorkerAutoRenewPeriod    *int                                `json:"worker_auto_renew_period" xml:"worker_auto_renew_period"`
-	CpuPolicy                *string                             `json:"cpu_policy" xml:"cpu_policy"`
-	MasterCount              *int                                `json:"master_count" xml:"master_count"`
-	MasterSystemDiskCategory *string                             `json:"master_system_disk_category" xml:"master_system_disk_category" require:"true"`
-	MasterSystemDiskSize     *int                                `json:"master_system_disk_size" xml:"master_system_disk_size" require:"true"`
-	Runtime                  map[string]interface{}              `json:"runtime" xml:"runtime"`
-	NumOfNodes               *int                                `json:"num_of_nodes" xml:"num_of_nodes" require:"true"`
-	WorkerSystemDiskCategory *string                             `json:"worker_system_disk_category" xml:"worker_system_disk_category" require:"true"`
-	WorkerSystemDiskSize     *int                                `json:"worker_system_disk_size" xml:"worker_system_disk_size" require:"true"`
-	WorkerDataDisk           *bool                               `json:"worker_data_disk" xml:"worker_data_disk"`
-	Vpcid                    *string                             `json:"vpcid" xml:"vpcid"`
-	SecurityGroupId          *string                             `json:"security_group_id" xml:"security_group_id"`
-	ContainerCidr            *string                             `json:"container_cidr" xml:"container_cidr"`
-	ServiceCidr              *string                             `json:"service_cidr" xml:"service_cidr"`
-	DisableRollback          *bool                               `json:"disable_rollback" xml:"disable_rollback"`
-	TimeoutMins              *int                                `json:"timeout_mins" xml:"timeout_mins"`
-	Tags                     []*CreateClusterBodyTags            `json:"tags" xml:"tags" type:"Repeated"`
-	Addons                   []*CreateClusterBodyAddons          `json:"addons" xml:"addons" type:"Repeated"`
-	Taints                   []*CreateClusterBodyTaints          `json:"taints" xml:"taints" type:"Repeated"`
-	WorkerDataDisks          []*CreateClusterBodyWorkerDataDisks `json:"worker_data_disks" xml:"worker_data_disks" type:"Repeated"`
-	MasterVswitchIds         []*string                           `json:"master_vswitch_ids" xml:"master_vswitch_ids" type:"Repeated"`
-	MasterInstanceTypes      []*string                           `json:"master_instance_types" xml:"master_instance_types" type:"Repeated"`
-	WorkerInstanceTypes      []*string                           `json:"worker_instance_types" xml:"worker_instance_types" type:"Repeated"`
-	WorkerVswitchIds         []*string                           `json:"worker_vswitch_ids" xml:"worker_vswitch_ids" type:"Repeated"`
+	ClusterType              *string                             `json:"cluster_type,omitempty" xml:"cluster_type,omitempty" require:"true"`
+	Name                     *string                             `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	RegionId                 *string                             `json:"region_id,omitempty" xml:"region_id,omitempty" require:"true"`
+	KubernetesVersion        *string                             `json:"kubernetes_version,omitempty" xml:"kubernetes_version,omitempty"`
+	SnatEntry                *bool                               `json:"snat_entry,omitempty" xml:"snat_entry,omitempty" require:"true"`
+	EndpointPublicAccess     *bool                               `json:"endpoint_public_access,omitempty" xml:"endpoint_public_access,omitempty"`
+	SshFlags                 *bool                               `json:"ssh_flags,omitempty" xml:"ssh_flags,omitempty"`
+	CloudMonitorFlags        *bool                               `json:"cloud_monitor_flags,omitempty" xml:"cloud_monitor_flags,omitempty"`
+	DeletionProtection       *bool                               `json:"deletion_protection,omitempty" xml:"deletion_protection,omitempty"`
+	NodeCidrMask             *string                             `json:"node_cidr_mask,omitempty" xml:"node_cidr_mask,omitempty"`
+	ProxyMode                *string                             `json:"proxy_mode,omitempty" xml:"proxy_mode,omitempty"`
+	OsType                   *string                             `json:"os_type,omitempty" xml:"os_type,omitempty"`
+	Platform                 *string                             `json:"platform,omitempty" xml:"platform,omitempty"`
+	NodePortRange            *string                             `json:"node_port_range,omitempty" xml:"node_port_range,omitempty"`
+	KeyPair                  *string                             `json:"key_pair,omitempty" xml:"key_pair,omitempty" require:"true"`
+	LoginPassword            *string                             `json:"login_password,omitempty" xml:"login_password,omitempty" require:"true"`
+	MasterInstanceChargeType *string                             `json:"master_instance_charge_type,omitempty" xml:"master_instance_charge_type,omitempty"`
+	WorkerInstanceChargeType *string                             `json:"worker_instance_charge_type,omitempty" xml:"worker_instance_charge_type,omitempty"`
+	MasterPeriod             *int                                `json:"master_period,omitempty" xml:"master_period,omitempty"`
+	WorkerPeriod             *int                                `json:"worker_period,omitempty" xml:"worker_period,omitempty"`
+	MasterPeriodUnit         *string                             `json:"master_period_unit,omitempty" xml:"master_period_unit,omitempty"`
+	WorkerPeriodUnit         *string                             `json:"worker_period_unit,omitempty" xml:"worker_period_unit,omitempty"`
+	MasterAutoRenew          *bool                               `json:"master_auto_renew,omitempty" xml:"master_auto_renew,omitempty"`
+	MasterAutoRenewPeriod    *int                                `json:"master_auto_renew_period,omitempty" xml:"master_auto_renew_period,omitempty"`
+	WorkerAutoRenew          *bool                               `json:"worker_auto_renew,omitempty" xml:"worker_auto_renew,omitempty"`
+	WorkerAutoRenewPeriod    *int                                `json:"worker_auto_renew_period,omitempty" xml:"worker_auto_renew_period,omitempty"`
+	CpuPolicy                *string                             `json:"cpu_policy,omitempty" xml:"cpu_policy,omitempty"`
+	MasterCount              *int                                `json:"master_count,omitempty" xml:"master_count,omitempty"`
+	MasterSystemDiskCategory *string                             `json:"master_system_disk_category,omitempty" xml:"master_system_disk_category,omitempty" require:"true"`
+	MasterSystemDiskSize     *int                                `json:"master_system_disk_size,omitempty" xml:"master_system_disk_size,omitempty" require:"true"`
+	Runtime                  map[string]interface{}              `json:"runtime,omitempty" xml:"runtime,omitempty"`
+	NumOfNodes               *int                                `json:"num_of_nodes,omitempty" xml:"num_of_nodes,omitempty" require:"true"`
+	WorkerSystemDiskCategory *string                             `json:"worker_system_disk_category,omitempty" xml:"worker_system_disk_category,omitempty" require:"true"`
+	WorkerSystemDiskSize     *int                                `json:"worker_system_disk_size,omitempty" xml:"worker_system_disk_size,omitempty" require:"true"`
+	WorkerDataDisk           *bool                               `json:"worker_data_disk,omitempty" xml:"worker_data_disk,omitempty"`
+	Vpcid                    *string                             `json:"vpcid,omitempty" xml:"vpcid,omitempty"`
+	SecurityGroupId          *string                             `json:"security_group_id,omitempty" xml:"security_group_id,omitempty"`
+	ContainerCidr            *string                             `json:"container_cidr,omitempty" xml:"container_cidr,omitempty"`
+	ServiceCidr              *string                             `json:"service_cidr,omitempty" xml:"service_cidr,omitempty"`
+	DisableRollback          *bool                               `json:"disable_rollback,omitempty" xml:"disable_rollback,omitempty"`
+	TimeoutMins              *int                                `json:"timeout_mins,omitempty" xml:"timeout_mins,omitempty"`
+	Tags                     []*CreateClusterBodyTags            `json:"tags,omitempty" xml:"tags,omitempty" type:"Repeated"`
+	Addons                   []*CreateClusterBodyAddons          `json:"addons,omitempty" xml:"addons,omitempty" type:"Repeated"`
+	Taints                   []*CreateClusterBodyTaints          `json:"taints,omitempty" xml:"taints,omitempty" type:"Repeated"`
+	WorkerDataDisks          []*CreateClusterBodyWorkerDataDisks `json:"worker_data_disks,omitempty" xml:"worker_data_disks,omitempty" type:"Repeated"`
+	MasterVswitchIds         []*string                           `json:"master_vswitch_ids,omitempty" xml:"master_vswitch_ids,omitempty" type:"Repeated"`
+	MasterInstanceTypes      []*string                           `json:"master_instance_types,omitempty" xml:"master_instance_types,omitempty" type:"Repeated"`
+	WorkerInstanceTypes      []*string                           `json:"worker_instance_types,omitempty" xml:"worker_instance_types,omitempty" type:"Repeated"`
+	WorkerVswitchIds         []*string                           `json:"worker_vswitch_ids,omitempty" xml:"worker_vswitch_ids,omitempty" type:"Repeated"`
+	PodVswitchIds            []*string                           `json:"pod_vswitch_ids,omitempty" xml:"pod_vswitch_ids,omitempty" type:"Repeated"`
 }
 
 func (s CreateClusterBody) String() string {
@@ -3600,9 +3537,14 @@ func (s *CreateClusterBody) SetWorkerVswitchIds(v []*string) *CreateClusterBody 
 	return s
 }
 
+func (s *CreateClusterBody) SetPodVswitchIds(v []*string) *CreateClusterBody {
+	s.PodVswitchIds = v
+	return s
+}
+
 type CreateClusterBodyTags struct {
-	Key   *string `json:"key" xml:"key"`
-	Value *string `json:"value" xml:"value"`
+	Key   *string `json:"key,omitempty" xml:"key,omitempty"`
+	Value *string `json:"value,omitempty" xml:"value,omitempty"`
 }
 
 func (s CreateClusterBodyTags) String() string {
@@ -3624,8 +3566,9 @@ func (s *CreateClusterBodyTags) SetValue(v string) *CreateClusterBodyTags {
 }
 
 type CreateClusterBodyAddons struct {
-	Name   *string `json:"name" xml:"name"`
-	Config *string `json:"config" xml:"config"`
+	Name     *string `json:"name,omitempty" xml:"name,omitempty"`
+	Config   *string `json:"config,omitempty" xml:"config,omitempty"`
+	Disabled *bool   `json:"disabled,omitempty" xml:"disabled,omitempty"`
 }
 
 func (s CreateClusterBodyAddons) String() string {
@@ -3646,10 +3589,15 @@ func (s *CreateClusterBodyAddons) SetConfig(v string) *CreateClusterBodyAddons {
 	return s
 }
 
+func (s *CreateClusterBodyAddons) SetDisabled(v bool) *CreateClusterBodyAddons {
+	s.Disabled = &v
+	return s
+}
+
 type CreateClusterBodyTaints struct {
-	Key    *string `json:"key" xml:"key"`
-	Value  *string `json:"value" xml:"value"`
-	Effect *string `json:"effect" xml:"effect"`
+	Key    *string `json:"key,omitempty" xml:"key,omitempty"`
+	Value  *string `json:"value,omitempty" xml:"value,omitempty"`
+	Effect *string `json:"effect,omitempty" xml:"effect,omitempty"`
 }
 
 func (s CreateClusterBodyTaints) String() string {
@@ -3676,9 +3624,9 @@ func (s *CreateClusterBodyTaints) SetEffect(v string) *CreateClusterBodyTaints {
 }
 
 type CreateClusterBodyWorkerDataDisks struct {
-	Category  *string `json:"category" xml:"category"`
-	Size      *string `json:"size" xml:"size"`
-	Encrypted *string `json:"encrypted" xml:"encrypted"`
+	Category  *string `json:"category,omitempty" xml:"category,omitempty"`
+	Size      *string `json:"size,omitempty" xml:"size,omitempty"`
+	Encrypted *string `json:"encrypted,omitempty" xml:"encrypted,omitempty"`
 }
 
 func (s CreateClusterBodyWorkerDataDisks) String() string {
@@ -3705,8 +3653,8 @@ func (s *CreateClusterBodyWorkerDataDisks) SetEncrypted(v string) *CreateCluster
 }
 
 type CreateClusterRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
-	Body    *CreateClusterBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *CreateClusterBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CreateClusterRequest) String() string {
@@ -3728,9 +3676,9 @@ func (s *CreateClusterRequest) SetBody(v *CreateClusterBody) *CreateClusterReque
 }
 
 type CreateClusterResponseBody struct {
-	ClusterId *string `json:"cluster_id" xml:"cluster_id" require:"true"`
-	RequestId *string `json:"request_id" xml:"request_id" require:"true"`
-	TaskId    *string `json:"task_id" xml:"task_id" require:"true"`
+	ClusterId *string `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	RequestId *string `json:"request_id,omitempty" xml:"request_id,omitempty" require:"true"`
+	TaskId    *string `json:"task_id,omitempty" xml:"task_id,omitempty" require:"true"`
 }
 
 func (s CreateClusterResponseBody) String() string {
@@ -3757,8 +3705,8 @@ func (s *CreateClusterResponseBody) SetTaskId(v string) *CreateClusterResponseBo
 }
 
 type CreateClusterResponse struct {
-	Headers map[string]*string         `json:"headers" xml:"headers" require:"true"`
-	Body    *CreateClusterResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string         `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *CreateClusterResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CreateClusterResponse) String() string {
@@ -3780,7 +3728,7 @@ func (s *CreateClusterResponse) SetBody(v *CreateClusterResponseBody) *CreateClu
 }
 
 type ScaleClusterRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s ScaleClusterRequest) String() string {
@@ -3797,7 +3745,7 @@ func (s *ScaleClusterRequest) SetHeaders(v map[string]*string) *ScaleClusterRequ
 }
 
 type ScaleClusterResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ScaleClusterResponseBody) String() string {
@@ -3814,8 +3762,8 @@ func (s *ScaleClusterResponseBody) SetRequestId(v string) *ScaleClusterResponseB
 }
 
 type ScaleClusterResponse struct {
-	Headers map[string]*string        `json:"headers" xml:"headers" require:"true"`
-	Body    *ScaleClusterResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string        `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *ScaleClusterResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ScaleClusterResponse) String() string {
@@ -3837,8 +3785,8 @@ func (s *ScaleClusterResponse) SetBody(v *ScaleClusterResponseBody) *ScaleCluste
 }
 
 type DescribeClustersQuery struct {
-	Name        *string `json:"name" xml:"name"`
-	ClusterType *string `json:"clusterType" xml:"clusterType"`
+	Name        *string `json:"name,omitempty" xml:"name,omitempty"`
+	ClusterType *string `json:"clusterType,omitempty" xml:"clusterType,omitempty"`
 }
 
 func (s DescribeClustersQuery) String() string {
@@ -3860,8 +3808,8 @@ func (s *DescribeClustersQuery) SetClusterType(v string) *DescribeClustersQuery 
 }
 
 type DescribeClustersRequest struct {
-	Headers map[string]*string     `json:"headers" xml:"headers"`
-	Query   *DescribeClustersQuery `json:"query" xml:"query"`
+	Headers map[string]*string     `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeClustersQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeClustersRequest) String() string {
@@ -3883,26 +3831,30 @@ func (s *DescribeClustersRequest) SetQuery(v *DescribeClustersQuery) *DescribeCl
 }
 
 type DescribeClustersResponseBody struct {
-	Name               *string                             `json:"name" xml:"name" require:"true"`
-	ClusterId          *string                             `json:"cluster_id" xml:"cluster_id" require:"true"`
-	RegionId           *string                             `json:"region_id" xml:"region_id" require:"true"`
-	State              *string                             `json:"state" xml:"state" require:"true"`
-	ClusterType        *string                             `json:"cluster_type" xml:"cluster_type" require:"true"`
-	CurrentVersion     *string                             `json:"current_version" xml:"current_version" require:"true"`
-	MetaData           *string                             `json:"meta_data" xml:"meta_data" require:"true"`
-	ResourceGroupId    *string                             `json:"resource_group_id" xml:"resource_group_id" require:"true"`
-	VpcId              *string                             `json:"vpc_id" xml:"vpc_id" require:"true"`
-	VswitchId          *string                             `json:"vswitch_id" xml:"vswitch_id" require:"true"`
-	VswitchCidr        *string                             `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
-	DataDiskSize       *int                                `json:"data_disk_size" xml:"data_disk_size" require:"true"`
-	DataDiskCategory   *string                             `json:"data_disk_category" xml:"data_disk_category" require:"true"`
-	SecurityGroupId    *string                             `json:"security_group_id" xml:"security_group_id" require:"true"`
-	ZoneId             *string                             `json:"zone_id" xml:"zone_id" require:"true"`
-	NetworkMode        *string                             `json:"network_mode" xml:"network_mode" require:"true"`
-	MasterUrl          *string                             `json:"master_url" xml:"master_url" require:"true"`
-	DockerVersion      *string                             `json:"docker_version" xml:"docker_version" require:"true"`
-	DeletionProtection *bool                               `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	Tags               []*DescribeClustersResponseBodyTags `json:"tags" xml:"tags" require:"true" type:"Repeated"`
+	Name                   *string                             `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	ClusterId              *string                             `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	RegionId               *string                             `json:"region_id,omitempty" xml:"region_id,omitempty" require:"true"`
+	State                  *string                             `json:"state,omitempty" xml:"state,omitempty" require:"true"`
+	ClusterType            *string                             `json:"cluster_type,omitempty" xml:"cluster_type,omitempty" require:"true"`
+	CurrentVersion         *string                             `json:"current_version,omitempty" xml:"current_version,omitempty" require:"true"`
+	MetaData               *string                             `json:"meta_data,omitempty" xml:"meta_data,omitempty" require:"true"`
+	ResourceGroupId        *string                             `json:"resource_group_id,omitempty" xml:"resource_group_id,omitempty" require:"true"`
+	VpcId                  *string                             `json:"vpc_id,omitempty" xml:"vpc_id,omitempty" require:"true"`
+	VswitchId              *string                             `json:"vswitch_id,omitempty" xml:"vswitch_id,omitempty" require:"true"`
+	VswitchCidr            *string                             `json:"vswitch_cidr,omitempty" xml:"vswitch_cidr,omitempty" require:"true"`
+	DataDiskSize           *int                                `json:"data_disk_size,omitempty" xml:"data_disk_size,omitempty" require:"true"`
+	DataDiskCategory       *string                             `json:"data_disk_category,omitempty" xml:"data_disk_category,omitempty" require:"true"`
+	SecurityGroupId        *string                             `json:"security_group_id,omitempty" xml:"security_group_id,omitempty" require:"true"`
+	ZoneId                 *string                             `json:"zone_id,omitempty" xml:"zone_id,omitempty" require:"true"`
+	NetworkMode            *string                             `json:"network_mode,omitempty" xml:"network_mode,omitempty" require:"true"`
+	MasterUrl              *string                             `json:"master_url,omitempty" xml:"master_url,omitempty" require:"true"`
+	DockerVersion          *string                             `json:"docker_version,omitempty" xml:"docker_version,omitempty" require:"true"`
+	DeletionProtection     *bool                               `json:"deletion_protection,omitempty" xml:"deletion_protection,omitempty" require:"true"`
+	ExternalLoadbalancerId *string                             `json:"external_loadbalancer_id,omitempty" xml:"external_loadbalancer_id,omitempty" require:"true"`
+	Created                *string                             `json:"created,omitempty" xml:"created,omitempty" require:"true"`
+	Updated                *string                             `json:"updated,omitempty" xml:"updated,omitempty" require:"true"`
+	Size                   *string                             `json:"size,omitempty" xml:"size,omitempty" require:"true"`
+	Tags                   []*DescribeClustersResponseBodyTags `json:"tags,omitempty" xml:"tags,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClustersResponseBody) String() string {
@@ -4008,14 +3960,34 @@ func (s *DescribeClustersResponseBody) SetDeletionProtection(v bool) *DescribeCl
 	return s
 }
 
+func (s *DescribeClustersResponseBody) SetExternalLoadbalancerId(v string) *DescribeClustersResponseBody {
+	s.ExternalLoadbalancerId = &v
+	return s
+}
+
+func (s *DescribeClustersResponseBody) SetCreated(v string) *DescribeClustersResponseBody {
+	s.Created = &v
+	return s
+}
+
+func (s *DescribeClustersResponseBody) SetUpdated(v string) *DescribeClustersResponseBody {
+	s.Updated = &v
+	return s
+}
+
+func (s *DescribeClustersResponseBody) SetSize(v string) *DescribeClustersResponseBody {
+	s.Size = &v
+	return s
+}
+
 func (s *DescribeClustersResponseBody) SetTags(v []*DescribeClustersResponseBodyTags) *DescribeClustersResponseBody {
 	s.Tags = v
 	return s
 }
 
 type DescribeClustersResponseBodyTags struct {
-	Key   *string `json:"key" xml:"key" require:"true"`
-	Value *string `json:"value" xml:"value" require:"true"`
+	Key   *string `json:"key,omitempty" xml:"key,omitempty" require:"true"`
+	Value *string `json:"value,omitempty" xml:"value,omitempty" require:"true"`
 }
 
 func (s DescribeClustersResponseBodyTags) String() string {
@@ -4037,8 +4009,8 @@ func (s *DescribeClustersResponseBodyTags) SetValue(v string) *DescribeClustersR
 }
 
 type DescribeClustersResponse struct {
-	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
-	Body    []*DescribeClustersResponseBody `json:"body" xml:"body" require:"true" type:"Repeated"`
+	Headers map[string]*string              `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    []*DescribeClustersResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClustersResponse) String() string {
@@ -4060,7 +4032,7 @@ func (s *DescribeClustersResponse) SetBody(v []*DescribeClustersResponseBody) *D
 }
 
 type DescribeClusterDetailRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeClusterDetailRequest) String() string {
@@ -4077,26 +4049,28 @@ func (s *DescribeClusterDetailRequest) SetHeaders(v map[string]*string) *Describ
 }
 
 type DescribeClusterDetailResponseBody struct {
-	Name               *string                                  `json:"name" xml:"name" require:"true"`
-	ClusterId          *string                                  `json:"cluster_id" xml:"cluster_id" require:"true"`
-	RegionId           *string                                  `json:"region_id" xml:"region_id" require:"true"`
-	State              *string                                  `json:"state" xml:"state" require:"true"`
-	ClusterType        *string                                  `json:"cluster_type" xml:"cluster_type" require:"true"`
-	CurrentVersion     *string                                  `json:"current_version" xml:"current_version" require:"true"`
-	MetaData           *string                                  `json:"meta_data" xml:"meta_data" require:"true"`
-	ResourceGroupId    *string                                  `json:"resource_group_id" xml:"resource_group_id" require:"true"`
-	InstanceType       *string                                  `json:"instance_type" xml:"instance_type" require:"true"`
-	VpcId              *string                                  `json:"vpc_id" xml:"vpc_id" require:"true"`
-	VswitchId          *string                                  `json:"vswitch_id" xml:"vswitch_id" require:"true"`
-	VswitchCidr        *string                                  `json:"vswitch_cidr" xml:"vswitch_cidr" require:"true"`
-	DataDiskSize       *int                                     `json:"data_disk_size" xml:"data_disk_size" require:"true"`
-	DataDiskCategory   *string                                  `json:"data_disk_category" xml:"data_disk_category" require:"true"`
-	SecurityGroupId    *string                                  `json:"security_group_id" xml:"security_group_id" require:"true"`
-	ZoneId             *string                                  `json:"zone_id" xml:"zone_id" require:"true"`
-	NetworkMode        *string                                  `json:"network_mode" xml:"network_mode" require:"true"`
-	DockerVersion      *string                                  `json:"docker_version" xml:"docker_version" require:"true"`
-	DeletionProtection *bool                                    `json:"deletion_protection" xml:"deletion_protection" require:"true"`
-	Tags               []*DescribeClusterDetailResponseBodyTags `json:"tags" xml:"tags" require:"true" type:"Repeated"`
+	Name                   *string                                  `json:"name,omitempty" xml:"name,omitempty" require:"true"`
+	ClusterId              *string                                  `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	RegionId               *string                                  `json:"region_id,omitempty" xml:"region_id,omitempty" require:"true"`
+	State                  *string                                  `json:"state,omitempty" xml:"state,omitempty" require:"true"`
+	ClusterType            *string                                  `json:"cluster_type,omitempty" xml:"cluster_type,omitempty" require:"true"`
+	CurrentVersion         *string                                  `json:"current_version,omitempty" xml:"current_version,omitempty" require:"true"`
+	MetaData               *string                                  `json:"meta_data,omitempty" xml:"meta_data,omitempty" require:"true"`
+	ResourceGroupId        *string                                  `json:"resource_group_id,omitempty" xml:"resource_group_id,omitempty" require:"true"`
+	InstanceType           *string                                  `json:"instance_type,omitempty" xml:"instance_type,omitempty" require:"true"`
+	VpcId                  *string                                  `json:"vpc_id,omitempty" xml:"vpc_id,omitempty" require:"true"`
+	VswitchId              *string                                  `json:"vswitch_id,omitempty" xml:"vswitch_id,omitempty" require:"true"`
+	VswitchCidr            *string                                  `json:"vswitch_cidr,omitempty" xml:"vswitch_cidr,omitempty" require:"true"`
+	SecurityGroupId        *string                                  `json:"security_group_id,omitempty" xml:"security_group_id,omitempty" require:"true"`
+	ZoneId                 *string                                  `json:"zone_id,omitempty" xml:"zone_id,omitempty" require:"true"`
+	NetworkMode            *string                                  `json:"network_mode,omitempty" xml:"network_mode,omitempty" require:"true"`
+	DockerVersion          *string                                  `json:"docker_version,omitempty" xml:"docker_version,omitempty" require:"true"`
+	DeletionProtection     *bool                                    `json:"deletion_protection,omitempty" xml:"deletion_protection,omitempty" require:"true"`
+	ExternalLoadbalancerId *string                                  `json:"external_loadbalancer_id,omitempty" xml:"external_loadbalancer_id,omitempty" require:"true"`
+	Created                *string                                  `json:"created,omitempty" xml:"created,omitempty" require:"true"`
+	Updated                *string                                  `json:"updated,omitempty" xml:"updated,omitempty" require:"true"`
+	Size                   *string                                  `json:"size,omitempty" xml:"size,omitempty" require:"true"`
+	Tags                   []*DescribeClusterDetailResponseBodyTags `json:"tags,omitempty" xml:"tags,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClusterDetailResponseBody) String() string {
@@ -4167,16 +4141,6 @@ func (s *DescribeClusterDetailResponseBody) SetVswitchCidr(v string) *DescribeCl
 	return s
 }
 
-func (s *DescribeClusterDetailResponseBody) SetDataDiskSize(v int) *DescribeClusterDetailResponseBody {
-	s.DataDiskSize = &v
-	return s
-}
-
-func (s *DescribeClusterDetailResponseBody) SetDataDiskCategory(v string) *DescribeClusterDetailResponseBody {
-	s.DataDiskCategory = &v
-	return s
-}
-
 func (s *DescribeClusterDetailResponseBody) SetSecurityGroupId(v string) *DescribeClusterDetailResponseBody {
 	s.SecurityGroupId = &v
 	return s
@@ -4202,14 +4166,34 @@ func (s *DescribeClusterDetailResponseBody) SetDeletionProtection(v bool) *Descr
 	return s
 }
 
+func (s *DescribeClusterDetailResponseBody) SetExternalLoadbalancerId(v string) *DescribeClusterDetailResponseBody {
+	s.ExternalLoadbalancerId = &v
+	return s
+}
+
+func (s *DescribeClusterDetailResponseBody) SetCreated(v string) *DescribeClusterDetailResponseBody {
+	s.Created = &v
+	return s
+}
+
+func (s *DescribeClusterDetailResponseBody) SetUpdated(v string) *DescribeClusterDetailResponseBody {
+	s.Updated = &v
+	return s
+}
+
+func (s *DescribeClusterDetailResponseBody) SetSize(v string) *DescribeClusterDetailResponseBody {
+	s.Size = &v
+	return s
+}
+
 func (s *DescribeClusterDetailResponseBody) SetTags(v []*DescribeClusterDetailResponseBodyTags) *DescribeClusterDetailResponseBody {
 	s.Tags = v
 	return s
 }
 
 type DescribeClusterDetailResponseBodyTags struct {
-	Key   *string `json:"key" xml:"key" require:"true"`
-	Value *string `json:"value" xml:"value" require:"true"`
+	Key   *string `json:"key,omitempty" xml:"key,omitempty" require:"true"`
+	Value *string `json:"value,omitempty" xml:"value,omitempty" require:"true"`
 }
 
 func (s DescribeClusterDetailResponseBodyTags) String() string {
@@ -4231,8 +4215,8 @@ func (s *DescribeClusterDetailResponseBodyTags) SetValue(v string) *DescribeClus
 }
 
 type DescribeClusterDetailResponse struct {
-	Headers map[string]*string                 `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeClusterDetailResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                 `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeClusterDetailResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeClusterDetailResponse) String() string {
@@ -4254,7 +4238,7 @@ func (s *DescribeClusterDetailResponse) SetBody(v *DescribeClusterDetailResponse
 }
 
 type DeleteClusterRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DeleteClusterRequest) String() string {
@@ -4271,7 +4255,7 @@ func (s *DeleteClusterRequest) SetHeaders(v map[string]*string) *DeleteClusterRe
 }
 
 type DeleteClusterResponseBody struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteClusterResponseBody) String() string {
@@ -4288,8 +4272,8 @@ func (s *DeleteClusterResponseBody) SetRequestId(v string) *DeleteClusterRespons
 }
 
 type DeleteClusterResponse struct {
-	Headers map[string]*string         `json:"headers" xml:"headers" require:"true"`
-	Body    *DeleteClusterResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string         `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DeleteClusterResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DeleteClusterResponse) String() string {
@@ -4311,7 +4295,7 @@ func (s *DeleteClusterResponse) SetBody(v *DeleteClusterResponseBody) *DeleteClu
 }
 
 type DescribeApiVersionRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeApiVersionRequest) String() string {
@@ -4328,10 +4312,10 @@ func (s *DescribeApiVersionRequest) SetHeaders(v map[string]*string) *DescribeAp
 }
 
 type DescribeApiVersionResponseBody struct {
-	Version              *string `json:"version" xml:"version" require:"true"`
-	Build                *string `json:"build" xml:"build" require:"true"`
-	DockerVersion        *string `json:"docker_version" xml:"docker_version" require:"true"`
-	DockerRegionVersions *string `json:"docker_region_versions" xml:"docker_region_versions" require:"true"`
+	Version              *string `json:"version,omitempty" xml:"version,omitempty" require:"true"`
+	Build                *string `json:"build,omitempty" xml:"build,omitempty" require:"true"`
+	DockerVersion        *string `json:"docker_version,omitempty" xml:"docker_version,omitempty" require:"true"`
+	DockerRegionVersions *string `json:"docker_region_versions,omitempty" xml:"docker_region_versions,omitempty" require:"true"`
 }
 
 func (s DescribeApiVersionResponseBody) String() string {
@@ -4363,8 +4347,8 @@ func (s *DescribeApiVersionResponseBody) SetDockerRegionVersions(v string) *Desc
 }
 
 type DescribeApiVersionResponse struct {
-	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeApiVersionResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string              `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeApiVersionResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeApiVersionResponse) String() string {
@@ -4448,6 +4432,31 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) ListTagResourcesWithOptions(request *ListTagResourcesRequest, runtime *util.RuntimeOptions) (_result *ListTagResourcesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListTagResourcesResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/tags"), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListTagResources(request *ListTagResourcesRequest) (_result *ListTagResourcesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListTagResourcesResponse{}
+	_body, _err := client.ListTagResourcesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) ResumeComponentUpgradeWithOptions(clusterid *string, componentid *string, request *ResumeComponentUpgradeRequest, runtime *util.RuntimeOptions) (_result *ResumeComponentUpgradeResponse, _err error) {
@@ -4975,31 +4984,6 @@ func (client *Client) InstallClusterAddons(clusterId *string, request *InstallCl
 	return _result, _err
 }
 
-func (client *Client) DeleteTriggerHookWithOptions(request *DeleteTriggerHookRequest, runtime *util.RuntimeOptions) (_result *DeleteTriggerHookResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &DeleteTriggerHookResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/api/v2/hook/trigger"), nil, request.Headers, nil, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) DeleteTriggerHook(request *DeleteTriggerHookRequest) (_result *DeleteTriggerHookResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &DeleteTriggerHookResponse{}
-	_body, _err := client.DeleteTriggerHookWithOptions(request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
 func (client *Client) ModifyClusterTagsWithOptions(clusterId *string, request *ModifyClusterTagsRequest, runtime *util.RuntimeOptions) (_result *ModifyClusterTagsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
@@ -5118,31 +5102,6 @@ func (client *Client) DescribeClusterResources(clusterId *string, request *Descr
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeClusterResourcesResponse{}
 	_body, _err := client.DescribeClusterResourcesWithOptions(clusterId, request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
-func (client *Client) CreateTriggerHookWithOptions(request *CreateTriggerHookRequest, runtime *util.RuntimeOptions) (_result *CreateTriggerHookResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &CreateTriggerHookResponse{}
-	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("PUT"), tea.String("AK"), tea.String("/hook/trigger"), nil, request.Headers, tea.ToMap(request.Body), runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) CreateTriggerHook(request *CreateTriggerHookRequest) (_result *CreateTriggerHookResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &CreateTriggerHookResponse{}
-	_body, _err := client.CreateTriggerHookWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
