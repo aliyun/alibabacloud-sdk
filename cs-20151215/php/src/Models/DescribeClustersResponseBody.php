@@ -143,32 +143,64 @@ class DescribeClustersResponseBody extends Model
     public $deletionProtection;
 
     /**
+     * @description external_loadbalancer_id
+     *
+     * @var string
+     */
+    public $externalLoadbalancerId;
+
+    /**
+     * @description created
+     *
+     * @var string
+     */
+    public $created;
+
+    /**
+     * @description updated
+     *
+     * @var string
+     */
+    public $updated;
+
+    /**
+     * @description size
+     *
+     * @var string
+     */
+    public $size;
+
+    /**
      * @description tags
      *
      * @var array
      */
     public $tags;
     protected $_name = [
-        'name'               => 'name',
-        'clusterId'          => 'cluster_id',
-        'regionId'           => 'region_id',
-        'state'              => 'state',
-        'clusterType'        => 'cluster_type',
-        'currentVersion'     => 'current_version',
-        'metaData'           => 'meta_data',
-        'resourceGroupId'    => 'resource_group_id',
-        'vpcId'              => 'vpc_id',
-        'vswitchId'          => 'vswitch_id',
-        'vswitchCidr'        => 'vswitch_cidr',
-        'dataDiskSize'       => 'data_disk_size',
-        'dataDiskCategory'   => 'data_disk_category',
-        'securityGroupId'    => 'security_group_id',
-        'zoneId'             => 'zone_id',
-        'networkMode'        => 'network_mode',
-        'masterUrl'          => 'master_url',
-        'dockerVersion'      => 'docker_version',
-        'deletionProtection' => 'deletion_protection',
-        'tags'               => 'tags',
+        'name'                   => 'name',
+        'clusterId'              => 'cluster_id',
+        'regionId'               => 'region_id',
+        'state'                  => 'state',
+        'clusterType'            => 'cluster_type',
+        'currentVersion'         => 'current_version',
+        'metaData'               => 'meta_data',
+        'resourceGroupId'        => 'resource_group_id',
+        'vpcId'                  => 'vpc_id',
+        'vswitchId'              => 'vswitch_id',
+        'vswitchCidr'            => 'vswitch_cidr',
+        'dataDiskSize'           => 'data_disk_size',
+        'dataDiskCategory'       => 'data_disk_category',
+        'securityGroupId'        => 'security_group_id',
+        'zoneId'                 => 'zone_id',
+        'networkMode'            => 'network_mode',
+        'masterUrl'              => 'master_url',
+        'dockerVersion'          => 'docker_version',
+        'deletionProtection'     => 'deletion_protection',
+        'externalLoadbalancerId' => 'external_loadbalancer_id',
+        'created'                => 'created',
+        'updated'                => 'updated',
+        'size'                   => 'size',
+        'tags'                   => 'tags',
     ];
 
     public function validate()
@@ -192,6 +224,10 @@ class DescribeClustersResponseBody extends Model
         Model::validateRequired('masterUrl', $this->masterUrl, true);
         Model::validateRequired('dockerVersion', $this->dockerVersion, true);
         Model::validateRequired('deletionProtection', $this->deletionProtection, true);
+        Model::validateRequired('externalLoadbalancerId', $this->externalLoadbalancerId, true);
+        Model::validateRequired('created', $this->created, true);
+        Model::validateRequired('updated', $this->updated, true);
+        Model::validateRequired('size', $this->size, true);
         Model::validateRequired('tags', $this->tags, true);
     }
 
@@ -254,6 +290,18 @@ class DescribeClustersResponseBody extends Model
         }
         if (null !== $this->deletionProtection) {
             $res['deletion_protection'] = $this->deletionProtection;
+        }
+        if (null !== $this->externalLoadbalancerId) {
+            $res['external_loadbalancer_id'] = $this->externalLoadbalancerId;
+        }
+        if (null !== $this->created) {
+            $res['created'] = $this->created;
+        }
+        if (null !== $this->updated) {
+            $res['updated'] = $this->updated;
+        }
+        if (null !== $this->size) {
+            $res['size'] = $this->size;
         }
         if (null !== $this->tags) {
             $res['tags'] = [];
@@ -332,6 +380,18 @@ class DescribeClustersResponseBody extends Model
         }
         if (isset($map['deletion_protection'])) {
             $model->deletionProtection = $map['deletion_protection'];
+        }
+        if (isset($map['external_loadbalancer_id'])) {
+            $model->externalLoadbalancerId = $map['external_loadbalancer_id'];
+        }
+        if (isset($map['created'])) {
+            $model->created = $map['created'];
+        }
+        if (isset($map['updated'])) {
+            $model->updated = $map['updated'];
+        }
+        if (isset($map['size'])) {
+            $model->size = $map['size'];
         }
         if (isset($map['tags'])) {
             if (!empty($map['tags'])) {

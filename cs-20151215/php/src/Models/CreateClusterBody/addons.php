@@ -21,9 +21,17 @@ class addons extends Model
      * @var string
      */
     public $config;
+
+    /**
+     * @description disabled
+     *
+     * @var bool
+     */
+    public $disabled;
     protected $_name = [
-        'name'   => 'name',
-        'config' => 'config',
+        'name'     => 'name',
+        'config'   => 'config',
+        'disabled' => 'disabled',
     ];
 
     public function validate()
@@ -38,6 +46,9 @@ class addons extends Model
         }
         if (null !== $this->config) {
             $res['config'] = $this->config;
+        }
+        if (null !== $this->disabled) {
+            $res['disabled'] = $this->disabled;
         }
 
         return $res;
@@ -56,6 +67,9 @@ class addons extends Model
         }
         if (isset($map['config'])) {
             $model->config = $map['config'];
+        }
+        if (isset($map['disabled'])) {
+            $model->disabled = $map['disabled'];
         }
 
         return $model;

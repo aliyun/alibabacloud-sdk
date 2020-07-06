@@ -6,7 +6,7 @@ namespace AlibabaCloud\SDK\CS\V20151215\Models;
 
 use AlibabaCloud\Tea\Model;
 
-class DeleteTriggerHookResponse extends Model
+class ListTagResourcesResponse extends Model
 {
     /**
      * @description headers
@@ -36,7 +36,7 @@ class DeleteTriggerHookResponse extends Model
     /**
      * @param array $map
      *
-     * @return DeleteTriggerHookResponse
+     * @return ListTagResourcesResponse
      */
     public static function fromMap($map = [])
     {

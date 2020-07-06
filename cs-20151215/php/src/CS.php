@@ -17,16 +17,12 @@ use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateTemplateRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\CreateTemplateResponse;
-use AlibabaCloud\SDK\CS\V20151215\Models\CreateTriggerHookRequest;
-use AlibabaCloud\SDK\CS\V20151215\Models\CreateTriggerHookResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterNodesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTemplateRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTemplateResponse;
-use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTriggerHookRequest;
-use AlibabaCloud\SDK\CS\V20151215\Models\DeleteTriggerHookResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescirbeWorkflowResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\DescribeAddonsRequest;
@@ -65,6 +61,8 @@ use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\GetUpgradeStatusResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\InstallClusterAddonsResponse;
+use AlibabaCloud\SDK\CS\V20151215\Models\ListTagResourcesRequest;
+use AlibabaCloud\SDK\CS\V20151215\Models\ListTagResourcesResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterRequest;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterResponse;
 use AlibabaCloud\SDK\CS\V20151215\Models\ModifyClusterTagsRequest;
@@ -144,6 +142,30 @@ class CS extends Roa
         ];
         $this->checkConfig($config);
         $this->_endpointHost = $this->getEndpoint('cs', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpointHost);
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return ListTagResourcesResponse
+     */
+    public function listTagResourcesWithOptions(ListTagResourcesRequest $request, RuntimeOptions $runtime)
+    {
+        Utils::validateModel($request);
+
+        return ListTagResourcesResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'GET', 'AK', '/tags', Utils::stringifyMapValue($request->query), $request->headers, null, $runtime));
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return ListTagResourcesResponse
+     */
+    public function listTagResources(ListTagResourcesRequest $request)
+    {
+        $runtime = new RuntimeOptions([]);
+
+        return $this->listTagResourcesWithOptions($request, $runtime);
     }
 
     /**
@@ -725,30 +747,6 @@ class CS extends Roa
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return DeleteTriggerHookResponse
-     */
-    public function deleteTriggerHookWithOptions(DeleteTriggerHookRequest $request, RuntimeOptions $runtime)
-    {
-        Utils::validateModel($request);
-
-        return DeleteTriggerHookResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'POST', 'AK', '/api/v2/hook/trigger', null, $request->headers, null, $runtime));
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return DeleteTriggerHookResponse
-     */
-    public function deleteTriggerHook(DeleteTriggerHookRequest $request)
-    {
-        $runtime = new RuntimeOptions([]);
-
-        return $this->deleteTriggerHookWithOptions($request, $runtime);
-    }
-
-    /**
      * @param string $clusterId
      *
      * @throws \Exception
@@ -886,30 +884,6 @@ class CS extends Roa
         $runtime = new RuntimeOptions([]);
 
         return $this->describeClusterResourcesWithOptions($clusterId, $request, $runtime);
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return CreateTriggerHookResponse
-     */
-    public function createTriggerHookWithOptions(CreateTriggerHookRequest $request, RuntimeOptions $runtime)
-    {
-        Utils::validateModel($request);
-
-        return CreateTriggerHookResponse::fromMap($this->doRequest('2015-12-15', 'HTTPS', 'PUT', 'AK', '/hook/trigger', null, $request->headers, $request->body, $runtime));
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return CreateTriggerHookResponse
-     */
-    public function createTriggerHook(CreateTriggerHookRequest $request)
-    {
-        $runtime = new RuntimeOptions([]);
-
-        return $this->createTriggerHookWithOptions($request, $runtime);
     }
 
     /**

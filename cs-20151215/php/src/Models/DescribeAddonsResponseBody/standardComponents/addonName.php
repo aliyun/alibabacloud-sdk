@@ -16,25 +16,11 @@ class addonName extends Model
     public $name;
 
     /**
-     * @description config
-     *
-     * @var string
-     */
-    public $config;
-
-    /**
      * @description required
      *
      * @var string
      */
     public $required;
-
-    /**
-     * @description disabled
-     *
-     * @var bool
-     */
-    public $disabled;
 
     /**
      * @description version
@@ -44,18 +30,14 @@ class addonName extends Model
     public $version;
     protected $_name = [
         'name'     => 'name',
-        'config'   => 'config',
         'required' => 'required',
-        'disabled' => 'disabled',
         'version'  => 'version',
     ];
 
     public function validate()
     {
         Model::validateRequired('name', $this->name, true);
-        Model::validateRequired('config', $this->config, true);
         Model::validateRequired('required', $this->required, true);
-        Model::validateRequired('disabled', $this->disabled, true);
         Model::validateRequired('version', $this->version, true);
     }
 
@@ -65,14 +47,8 @@ class addonName extends Model
         if (null !== $this->name) {
             $res['name'] = $this->name;
         }
-        if (null !== $this->config) {
-            $res['config'] = $this->config;
-        }
         if (null !== $this->required) {
             $res['required'] = $this->required;
-        }
-        if (null !== $this->disabled) {
-            $res['disabled'] = $this->disabled;
         }
         if (null !== $this->version) {
             $res['version'] = $this->version;
@@ -92,14 +68,8 @@ class addonName extends Model
         if (isset($map['name'])) {
             $model->name = $map['name'];
         }
-        if (isset($map['config'])) {
-            $model->config = $map['config'];
-        }
         if (isset($map['required'])) {
             $model->required = $map['required'];
-        }
-        if (isset($map['disabled'])) {
-            $model->disabled = $map['disabled'];
         }
         if (isset($map['version'])) {
             $model->version = $map['version'];

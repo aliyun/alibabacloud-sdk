@@ -94,20 +94,6 @@ class DescribeClusterDetailResponseBody extends Model
     public $vswitchCidr;
 
     /**
-     * @description data_disk_size
-     *
-     * @var int
-     */
-    public $dataDiskSize;
-
-    /**
-     * @description data_disk_category
-     *
-     * @var string
-     */
-    public $dataDiskCategory;
-
-    /**
      * @description security_group_id
      *
      * @var string
@@ -143,32 +129,62 @@ class DescribeClusterDetailResponseBody extends Model
     public $deletionProtection;
 
     /**
+     * @description external_loadbalancer_id
+     *
+     * @var string
+     */
+    public $externalLoadbalancerId;
+
+    /**
+     * @description created
+     *
+     * @var string
+     */
+    public $created;
+
+    /**
+     * @description updated
+     *
+     * @var string
+     */
+    public $updated;
+
+    /**
+     * @description size
+     *
+     * @var string
+     */
+    public $size;
+
+    /**
      * @description tags
      *
      * @var array
      */
     public $tags;
     protected $_name = [
-        'name'               => 'name',
-        'clusterId'          => 'cluster_id',
-        'regionId'           => 'region_id',
-        'state'              => 'state',
-        'clusterType'        => 'cluster_type',
-        'currentVersion'     => 'current_version',
-        'metaData'           => 'meta_data',
-        'resourceGroupId'    => 'resource_group_id',
-        'instanceType'       => 'instance_type',
-        'vpcId'              => 'vpc_id',
-        'vswitchId'          => 'vswitch_id',
-        'vswitchCidr'        => 'vswitch_cidr',
-        'dataDiskSize'       => 'data_disk_size',
-        'dataDiskCategory'   => 'data_disk_category',
-        'securityGroupId'    => 'security_group_id',
-        'zoneId'             => 'zone_id',
-        'networkMode'        => 'network_mode',
-        'dockerVersion'      => 'docker_version',
-        'deletionProtection' => 'deletion_protection',
-        'tags'               => 'tags',
+        'name'                   => 'name',
+        'clusterId'              => 'cluster_id',
+        'regionId'               => 'region_id',
+        'state'                  => 'state',
+        'clusterType'            => 'cluster_type',
+        'currentVersion'         => 'current_version',
+        'metaData'               => 'meta_data',
+        'resourceGroupId'        => 'resource_group_id',
+        'instanceType'           => 'instance_type',
+        'vpcId'                  => 'vpc_id',
+        'vswitchId'              => 'vswitch_id',
+        'vswitchCidr'            => 'vswitch_cidr',
+        'securityGroupId'        => 'security_group_id',
+        'zoneId'                 => 'zone_id',
+        'networkMode'            => 'network_mode',
+        'dockerVersion'          => 'docker_version',
+        'deletionProtection'     => 'deletion_protection',
+        'externalLoadbalancerId' => 'external_loadbalancer_id',
+        'created'                => 'created',
+        'updated'                => 'updated',
+        'size'                   => 'size',
+        'tags'                   => 'tags',
     ];
 
     public function validate()
@@ -185,13 +201,15 @@ class DescribeClusterDetailResponseBody extends Model
         Model::validateRequired('vpcId', $this->vpcId, true);
         Model::validateRequired('vswitchId', $this->vswitchId, true);
         Model::validateRequired('vswitchCidr', $this->vswitchCidr, true);
-        Model::validateRequired('dataDiskSize', $this->dataDiskSize, true);
-        Model::validateRequired('dataDiskCategory', $this->dataDiskCategory, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('networkMode', $this->networkMode, true);
         Model::validateRequired('dockerVersion', $this->dockerVersion, true);
         Model::validateRequired('deletionProtection', $this->deletionProtection, true);
+        Model::validateRequired('externalLoadbalancerId', $this->externalLoadbalancerId, true);
+        Model::validateRequired('created', $this->created, true);
+        Model::validateRequired('updated', $this->updated, true);
+        Model::validateRequired('size', $this->size, true);
         Model::validateRequired('tags', $this->tags, true);
     }
 
@@ -234,12 +252,6 @@ class DescribeClusterDetailResponseBody extends Model
         if (null !== $this->vswitchCidr) {
             $res['vswitch_cidr'] = $this->vswitchCidr;
         }
-        if (null !== $this->dataDiskSize) {
-            $res['data_disk_size'] = $this->dataDiskSize;
-        }
-        if (null !== $this->dataDiskCategory) {
-            $res['data_disk_category'] = $this->dataDiskCategory;
-        }
         if (null !== $this->securityGroupId) {
             $res['security_group_id'] = $this->securityGroupId;
         }
@@ -254,6 +266,18 @@ class DescribeClusterDetailResponseBody extends Model
         }
         if (null !== $this->deletionProtection) {
             $res['deletion_protection'] = $this->deletionProtection;
+        }
+        if (null !== $this->externalLoadbalancerId) {
+            $res['external_loadbalancer_id'] = $this->externalLoadbalancerId;
+        }
+        if (null !== $this->created) {
+            $res['created'] = $this->created;
+        }
+        if (null !== $this->updated) {
+            $res['updated'] = $this->updated;
+        }
+        if (null !== $this->size) {
+            $res['size'] = $this->size;
         }
         if (null !== $this->tags) {
             $res['tags'] = [];
@@ -312,12 +336,6 @@ class DescribeClusterDetailResponseBody extends Model
         if (isset($map['vswitch_cidr'])) {
             $model->vswitchCidr = $map['vswitch_cidr'];
         }
-        if (isset($map['data_disk_size'])) {
-            $model->dataDiskSize = $map['data_disk_size'];
-        }
-        if (isset($map['data_disk_category'])) {
-            $model->dataDiskCategory = $map['data_disk_category'];
-        }
         if (isset($map['security_group_id'])) {
             $model->securityGroupId = $map['security_group_id'];
         }
@@ -332,6 +350,18 @@ class DescribeClusterDetailResponseBody extends Model
         }
         if (isset($map['deletion_protection'])) {
             $model->deletionProtection = $map['deletion_protection'];
+        }
+        if (isset($map['external_loadbalancer_id'])) {
+            $model->externalLoadbalancerId = $map['external_loadbalancer_id'];
+        }
+        if (isset($map['created'])) {
+            $model->created = $map['created'];
+        }
+        if (isset($map['updated'])) {
+            $model->updated = $map['updated'];
+        }
+        if (isset($map['size'])) {
+            $model->size = $map['size'];
         }
         if (isset($map['tags'])) {
             if (!empty($map['tags'])) {

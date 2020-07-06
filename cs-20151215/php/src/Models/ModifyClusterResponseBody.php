@@ -28,18 +28,10 @@ class ModifyClusterResponseBody extends Model
      * @var string
      */
     public $taskId;
-
-    /**
-     * @description instanceId
-     *
-     * @var string
-     */
-    public $instanceId;
     protected $_name = [
-        'clusterId'  => 'cluster_id',
-        'requestId'  => 'request_id',
-        'taskId'     => 'task_id',
-        'instanceId' => 'instanceId',
+        'clusterId' => 'cluster_id',
+        'requestId' => 'request_id',
+        'taskId'    => 'task_id',
     ];
 
     public function validate()
@@ -47,7 +39,6 @@ class ModifyClusterResponseBody extends Model
         Model::validateRequired('clusterId', $this->clusterId, true);
         Model::validateRequired('requestId', $this->requestId, true);
         Model::validateRequired('taskId', $this->taskId, true);
-        Model::validateRequired('instanceId', $this->instanceId, true);
     }
 
     public function toMap()
@@ -61,9 +52,6 @@ class ModifyClusterResponseBody extends Model
         }
         if (null !== $this->taskId) {
             $res['task_id'] = $this->taskId;
-        }
-        if (null !== $this->instanceId) {
-            $res['instanceId'] = $this->instanceId;
         }
 
         return $res;
@@ -85,9 +73,6 @@ class ModifyClusterResponseBody extends Model
         }
         if (isset($map['task_id'])) {
             $model->taskId = $map['task_id'];
-        }
-        if (isset($map['instanceId'])) {
-            $model->instanceId = $map['instanceId'];
         }
 
         return $model;

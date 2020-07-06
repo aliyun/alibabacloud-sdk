@@ -354,6 +354,13 @@ class CreateClusterBody extends Model
      * @var array
      */
     public $workerVswitchIds;
+
+    /**
+     * @description pod_vswitch_ids
+     *
+     * @var array
+     */
+    public $podVswitchIds;
     protected $_name = [
         'clusterType'              => 'cluster_type',
         'name'                     => 'name',
@@ -404,6 +411,7 @@ class CreateClusterBody extends Model
         'masterInstanceTypes'      => 'master_instance_types',
         'workerInstanceTypes'      => 'worker_instance_types',
         'workerVswitchIds'         => 'worker_vswitch_ids',
+        'podVswitchIds'            => 'pod_vswitch_ids',
     ];
 
     public function validate()
@@ -607,6 +615,12 @@ class CreateClusterBody extends Model
                 $res['worker_vswitch_ids'] = $this->workerVswitchIds;
             }
         }
+        if (null !== $this->podVswitchIds) {
+            $res['pod_vswitch_ids'] = [];
+            if (null !== $this->podVswitchIds) {
+                $res['pod_vswitch_ids'] = $this->podVswitchIds;
+            }
+        }
 
         return $res;
     }
@@ -800,6 +814,12 @@ class CreateClusterBody extends Model
             if (!empty($map['worker_vswitch_ids'])) {
                 $model->workerVswitchIds = [];
                 $model->workerVswitchIds = $map['worker_vswitch_ids'];
+            }
+        }
+        if (isset($map['pod_vswitch_ids'])) {
+            if (!empty($map['pod_vswitch_ids'])) {
+                $model->podVswitchIds = [];
+                $model->podVswitchIds = $map['pod_vswitch_ids'];
             }
         }
 
