@@ -1,4 +1,7 @@
 2020-07-06 Version: 0.5.1
+- Generated php 2015-12-15 for CS.
+
+2020-07-06 Version: 0.5.1
 - Modified size type for DescribeClusterDetail.
 
 2020-07-06 Version: 0.5.1
