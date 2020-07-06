@@ -199,6 +199,10 @@ namespace AlibabaCloud.SDK.CS20151215.Models
             [Validation(Required=false)]
             public string Config { get; set; }
 
+            [NameInMap("disabled")]
+            [Validation(Required=false)]
+            public bool? Disabled { get; set; }
+
         }
 
         [NameInMap("taints")]
@@ -252,6 +256,10 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [NameInMap("worker_vswitch_ids")]
         [Validation(Required=false)]
         public List<string> WorkerVswitchIds { get; set; }
+
+        [NameInMap("pod_vswitch_ids")]
+        [Validation(Required=false)]
+        public List<string> PodVswitchIds { get; set; }
 
     }
 

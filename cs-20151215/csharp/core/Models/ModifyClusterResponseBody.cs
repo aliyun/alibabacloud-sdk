@@ -21,10 +21,6 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public string TaskId { get; set; }
 
-        [NameInMap("instanceId")]
-        [Validation(Required=true)]
-        public string InstanceId { get; set; }
-
     }
 
 }

@@ -25,17 +25,9 @@ namespace AlibabaCloud.SDK.CS20151215.Models
                 [Validation(Required=true)]
                 public string Name { get; set; }
 
-                [NameInMap("config")]
-                [Validation(Required=true)]
-                public string Config { get; set; }
-
                 [NameInMap("required")]
                 [Validation(Required=true)]
                 public string Required { get; set; }
-
-                [NameInMap("disabled")]
-                [Validation(Required=true)]
-                public bool? Disabled { get; set; }
 
                 [NameInMap("version")]
                 [Validation(Required=true)]
@@ -61,17 +53,9 @@ namespace AlibabaCloud.SDK.CS20151215.Models
                 [Validation(Required=true)]
                 public string Name { get; set; }
 
-                [NameInMap("config")]
-                [Validation(Required=true)]
-                public string Config { get; set; }
-
                 [NameInMap("required")]
                 [Validation(Required=true)]
                 public string Required { get; set; }
-
-                [NameInMap("disabled")]
-                [Validation(Required=true)]
-                public bool? Disabled { get; set; }
 
                 [NameInMap("version")]
                 [Validation(Required=true)]

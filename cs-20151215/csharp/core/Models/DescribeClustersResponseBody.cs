@@ -85,6 +85,22 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public bool? DeletionProtection { get; set; }
 
+        [NameInMap("external_loadbalancer_id")]
+        [Validation(Required=true)]
+        public string ExternalLoadbalancerId { get; set; }
+
+        [NameInMap("created")]
+        [Validation(Required=true)]
+        public string Created { get; set; }
+
+        [NameInMap("updated")]
+        [Validation(Required=true)]
+        public string Updated { get; set; }
+
+        [NameInMap("size")]
+        [Validation(Required=true)]
+        public string Size { get; set; }
+
         [NameInMap("tags")]
         [Validation(Required=true)]
         public List<DescribeClustersResponseBodyTags> Tags { get; set; }

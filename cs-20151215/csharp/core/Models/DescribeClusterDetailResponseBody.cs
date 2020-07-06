@@ -57,14 +57,6 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [Validation(Required=true)]
         public string VswitchCidr { get; set; }
 
-        [NameInMap("data_disk_size")]
-        [Validation(Required=true)]
-        public int? DataDiskSize { get; set; }
-
-        [NameInMap("data_disk_category")]
-        [Validation(Required=true)]
-        public string DataDiskCategory { get; set; }
-
         [NameInMap("security_group_id")]
         [Validation(Required=true)]
         public string SecurityGroupId { get; set; }
@@ -84,6 +76,22 @@ namespace AlibabaCloud.SDK.CS20151215.Models
         [NameInMap("deletion_protection")]
         [Validation(Required=true)]
         public bool? DeletionProtection { get; set; }
+
+        [NameInMap("external_loadbalancer_id")]
+        [Validation(Required=true)]
+        public string ExternalLoadbalancerId { get; set; }
+
+        [NameInMap("created")]
+        [Validation(Required=true)]
+        public string Created { get; set; }
+
+        [NameInMap("updated")]
+        [Validation(Required=true)]
+        public string Updated { get; set; }
+
+        [NameInMap("size")]
+        [Validation(Required=true)]
+        public string Size { get; set; }
 
         [NameInMap("tags")]
         [Validation(Required=true)]

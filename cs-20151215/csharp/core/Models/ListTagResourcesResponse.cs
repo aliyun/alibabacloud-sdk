@@ -8,7 +8,7 @@ using Tea;
 
 namespace AlibabaCloud.SDK.CS20151215.Models
 {
-    public class CreateTriggerHookResponse : TeaModel {
+    public class ListTagResourcesResponse : TeaModel {
         [NameInMap("headers")]
         [Validation(Required=true)]
         public Dictionary<string, string> Headers { get; set; }

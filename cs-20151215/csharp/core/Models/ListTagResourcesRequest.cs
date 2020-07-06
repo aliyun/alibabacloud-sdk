@@ -8,14 +8,14 @@ using Tea;
 
 namespace AlibabaCloud.SDK.CS20151215.Models
 {
-    public class CreateTriggerHookRequest : TeaModel {
+    public class ListTagResourcesRequest : TeaModel {
         [NameInMap("headers")]
         [Validation(Required=false)]
         public Dictionary<string, string> Headers { get; set; }
 
-        [NameInMap("body")]
-        [Validation(Required=false)]
-        public CreateTriggerHookBody Body { get; set; }
+        [NameInMap("query")]
+        [Validation(Required=true)]
+        public ListTagResourcesQuery Query { get; set; }
 
     }
 
