@@ -152,7 +152,7 @@ class DescribeClusterDetailResponseBody extends Model
     /**
      * @description size
      *
-     * @var string
+     * @var int
      */
     public $size;
 
