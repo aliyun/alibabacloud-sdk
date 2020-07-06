@@ -3,7 +3,7 @@ package com.aliyun.cs20151215.models;
 
 import com.aliyun.tea.*;
 
-public class ModifyClusterResponseBody extends TeaModel {
+public class ScaleOutClusterResponseBody extends TeaModel {
     @NameInMap("cluster_id")
     @Validation(required = true)
     public String clusterId;
@@ -16,8 +16,12 @@ public class ModifyClusterResponseBody extends TeaModel {
     @Validation(required = true)
     public String taskId;
 
-    public static ModifyClusterResponseBody build(java.util.Map<String, ?> map) throws Exception {
-        ModifyClusterResponseBody self = new ModifyClusterResponseBody();
+    @NameInMap("instanceId")
+    @Validation(required = true)
+    public String instanceId;
+
+    public static ScaleOutClusterResponseBody build(java.util.Map<String, ?> map) throws Exception {
+        ScaleOutClusterResponseBody self = new ScaleOutClusterResponseBody();
         return TeaModel.build(map, self);
     }
 

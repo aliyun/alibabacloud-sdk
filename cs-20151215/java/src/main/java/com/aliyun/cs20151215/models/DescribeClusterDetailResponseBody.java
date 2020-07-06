@@ -3,7 +3,7 @@ package com.aliyun.cs20151215.models;
 
 import com.aliyun.tea.*;
 
-public class DescribeClustersResponseBody extends TeaModel {
+public class DescribeClusterDetailResponseBody extends TeaModel {
     @NameInMap("name")
     @Validation(required = true)
     public String name;
@@ -36,6 +36,10 @@ public class DescribeClustersResponseBody extends TeaModel {
     @Validation(required = true)
     public String resourceGroupId;
 
+    @NameInMap("instance_type")
+    @Validation(required = true)
+    public String instanceType;
+
     @NameInMap("vpc_id")
     @Validation(required = true)
     public String vpcId;
@@ -48,14 +52,6 @@ public class DescribeClustersResponseBody extends TeaModel {
     @Validation(required = true)
     public String vswitchCidr;
 
-    @NameInMap("data_disk_size")
-    @Validation(required = true)
-    public Integer dataDiskSize;
-
-    @NameInMap("data_disk_category")
-    @Validation(required = true)
-    public String dataDiskCategory;
-
     @NameInMap("security_group_id")
     @Validation(required = true)
     public String securityGroupId;
@@ -67,10 +63,6 @@ public class DescribeClustersResponseBody extends TeaModel {
     @NameInMap("network_mode")
     @Validation(required = true)
     public String networkMode;
-
-    @NameInMap("master_url")
-    @Validation(required = true)
-    public String masterUrl;
 
     @NameInMap("docker_version")
     @Validation(required = true)
@@ -98,14 +90,14 @@ public class DescribeClustersResponseBody extends TeaModel {
 
     @NameInMap("tags")
     @Validation(required = true)
-    public java.util.List<DescribeClustersResponseBodyTags> tags;
+    public java.util.List<DescribeClusterDetailResponseBodyTags> tags;
 
-    public static DescribeClustersResponseBody build(java.util.Map<String, ?> map) throws Exception {
-        DescribeClustersResponseBody self = new DescribeClustersResponseBody();
+    public static DescribeClusterDetailResponseBody build(java.util.Map<String, ?> map) throws Exception {
+        DescribeClusterDetailResponseBody self = new DescribeClusterDetailResponseBody();
         return TeaModel.build(map, self);
     }
 
-    public static class DescribeClustersResponseBodyTags extends TeaModel {
+    public static class DescribeClusterDetailResponseBodyTags extends TeaModel {
         @NameInMap("key")
         @Validation(required = true)
         public String key;
@@ -114,8 +106,8 @@ public class DescribeClustersResponseBody extends TeaModel {
         @Validation(required = true)
         public String value;
 
-        public static DescribeClustersResponseBodyTags build(java.util.Map<String, ?> map) throws Exception {
-            DescribeClustersResponseBodyTags self = new DescribeClustersResponseBodyTags();
+        public static DescribeClusterDetailResponseBodyTags build(java.util.Map<String, ?> map) throws Exception {
+            DescribeClusterDetailResponseBodyTags self = new DescribeClusterDetailResponseBodyTags();
             return TeaModel.build(map, self);
         }
 

@@ -162,6 +162,9 @@ public class CreateClusterBody extends TeaModel {
     @NameInMap("worker_vswitch_ids")
     public java.util.List<String> workerVswitchIds;
 
+    @NameInMap("pod_vswitch_ids")
+    public java.util.List<String> podVswitchIds;
+
     public static CreateClusterBody build(java.util.Map<String, ?> map) throws Exception {
         CreateClusterBody self = new CreateClusterBody();
         return TeaModel.build(map, self);
@@ -187,6 +190,9 @@ public class CreateClusterBody extends TeaModel {
 
         @NameInMap("config")
         public String config;
+
+        @NameInMap("disabled")
+        public Boolean disabled;
 
         public static CreateClusterBodyAddons build(java.util.Map<String, ?> map) throws Exception {
             CreateClusterBodyAddons self = new CreateClusterBodyAddons();
