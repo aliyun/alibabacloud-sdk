@@ -73,7 +73,7 @@ func (s *DetectFruitsResponseData) SetElements(v []*DetectFruitsResponseDataElem
 
 type DetectFruitsResponseDataElements struct {
 	Name  *string    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
-	Score *string    `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Score *float32   `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
 	Box   []*float32 `json:"Box,omitempty" xml:"Box,omitempty" require:"true" type:"Repeated"`
 }
 
@@ -90,7 +90,7 @@ func (s *DetectFruitsResponseDataElements) SetName(v string) *DetectFruitsRespon
 	return s
 }
 
-func (s *DetectFruitsResponseDataElements) SetScore(v string) *DetectFruitsResponseDataElements {
+func (s *DetectFruitsResponseDataElements) SetScore(v float32) *DetectFruitsResponseDataElements {
 	s.Score = &v
 	return s
 }
