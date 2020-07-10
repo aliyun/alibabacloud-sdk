@@ -17,6 +17,284 @@ init(config: RPC.Config){
   @endpoint = getEndpoint('imageenhan', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
+model GetAsyncJobResultRequest = {
+  jobId: string(name='JobId', description='jobId'),
+}
+
+model GetAsyncJobResultResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    jobId: string(name='JobId', description='jobId'),
+    status: string(name='Status', description='status'),
+    result: string(name='Result', description='result'),
+    errorCode: string(name='ErrorCode', description='errorCode'),
+    errorMessage: string(name='ErrorMessage', description='errorMessage'),
+  }(name='Data', description='data'),
+}
+
+async function getAsyncJobResult(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
+  Util.validateModel(request);
+  return doRequest('GetAsyncJobResult', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+}
+
+model ImitatePhotoStyleRequest = {
+  styleUrl: string(name='StyleUrl', description='styleUrl'),
+  imageURL: string(name='ImageURL', description='imageUrl'),
+}
+
+model ImitatePhotoStyleResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function imitatePhotoStyle(request: ImitatePhotoStyleRequest, runtime: Util.RuntimeOptions): ImitatePhotoStyleResponse {
+  Util.validateModel(request);
+  return doRequest('ImitatePhotoStyle', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+}
+
+model ImitatePhotoStyleAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  styleUrl: string(name='StyleUrl', description='styleUrl'),
+}
+
+async function imitatePhotoStyleAdvance(request: ImitatePhotoStyleAdvanceRequest, runtime: Util.RuntimeOptions): ImitatePhotoStyleResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var imitatePhotoStylereq = new ImitatePhotoStyleRequest{};
+  RPCUtil.convert(request, imitatePhotoStylereq);
+  imitatePhotoStylereq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var imitatePhotoStyleResp = imitatePhotoStyle(imitatePhotoStylereq, runtime);
+  return imitatePhotoStyleResp;
+}
+
+model EnhanceImageColorRequest = {
+  imageURL: string(name='ImageURL', description='imageUrl'),
+  outputFormat: string(name='OutputFormat', description='outputFormat'),
+  mode: string(name='Mode', description='mode'),
+}
+
+model EnhanceImageColorResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageURL: string(name='ImageURL', description='imageUrl'),
+  }(name='Data', description='data'),
+}
+
+async function enhanceImageColor(request: EnhanceImageColorRequest, runtime: Util.RuntimeOptions): EnhanceImageColorResponse {
+  Util.validateModel(request);
+  return doRequest('EnhanceImageColor', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+}
+
+model EnhanceImageColorAdvanceRequest = {
+  imageURLObject: readable(description='ImageURLObject', name='ImageURLObject'),
+  outputFormat: string(name='OutputFormat', description='outputFormat'),
+  mode: string(name='Mode', description='mode'),
+}
+
+async function enhanceImageColorAdvance(request: EnhanceImageColorAdvanceRequest, runtime: Util.RuntimeOptions): EnhanceImageColorResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.imageURLObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var enhanceImageColorreq = new EnhanceImageColorRequest{};
+  RPCUtil.convert(request, enhanceImageColorreq);
+  enhanceImageColorreq.imageURL = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var enhanceImageColorResp = enhanceImageColor(enhanceImageColorreq, runtime);
+  return enhanceImageColorResp;
+}
+
+model RecolorHDImageRequest = {
+  url: string(name='Url', description='url'),
+  mode?: string(name='Mode', description='mode'),
+  refUrl?: string(name='RefUrl', description='refUrl'),
+  colorCount?: integer(name='ColorCount', description='colorCount'),
+  colorTemplate?: [
+    {
+      color?: string(name='Color', description='color'),
+    }
+  ](name='ColorTemplate', description='colorTemplate'),
+  degree: string(name='Degree', description='degree'),
+}
+
+model RecolorHDImageResponse = {
+  requestId: string(name='RequestId', description='requestId'),
+  data: {
+    imageList: [ string ](name='ImageList', description='ImageList'),
+  }(name='Data', description='data'),
+}
+
+async function recolorHDImage(request: RecolorHDImageRequest, runtime: Util.RuntimeOptions): RecolorHDImageResponse {
+  Util.validateModel(request);
+  return doRequest('RecolorHDImage', 'HTTPS', 'POST' , '2019-09-30', 'AK', null, request, runtime);
+}
+
+model RecolorHDImageAdvanceRequest = {
+  urlObject: readable(description='UrlObject', name='UrlObject'),
+  mode?: string(name='Mode', description='mode'),
+  refUrl?: string(name='RefUrl', description='refUrl'),
+  colorCount?: integer(name='ColorCount', description='colorCount'),
+  colorTemplate?: [
+    {
+      color?: string(name='Color', description='color'),
+    }
+  ](name='ColorTemplate', description='colorTemplate'),
+  degree: string(name='Degree', description='degree'),
+}
+
+async function recolorHDImageAdvance(request: RecolorHDImageAdvanceRequest, runtime: Util.RuntimeOptions): RecolorHDImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var authConfig = new RPC.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = 'openplatform.aliyuncs.com',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'imageenhan',
+    regionId = @regionId,
+  };
+  var authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+  // Step 1: request OSS api to upload file
+  var ossConfig = new OSS.Config{
+    accessKeyId = authResponse.accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    endpoint = RPCUtil.getEndpoint(authResponse.endpoint, authResponse.useAccelerate, @endpointType),
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{
+    filename = authResponse.objectKey,
+    content = request.urlObject,
+    contentType = '',
+  };
+  var ossHeader = new OSS.PostObjectRequest.header{
+    accessKeyId = authResponse.accessKeyId,
+    policy = authResponse.encodedPolicy,
+    signature = authResponse.signature,
+    key = authResponse.objectKey,
+    file = fileObj,
+    successActionStatus = '201',
+  };
+  var uploadRequest = new OSS.PostObjectRequest{
+    bucketName = authResponse.bucket,
+    header = ossHeader,
+  };
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  RPCUtil.convert(runtime, ossRuntime);
+  ossClient.postObject(uploadRequest, ossRuntime);
+  // Step 2: request final api
+  var recolorHDImagereq = new RecolorHDImageRequest{};
+  RPCUtil.convert(request, recolorHDImagereq);
+  recolorHDImagereq.url = `http://${authResponse.bucket}.${authResponse.endpoint}/${authResponse.objectKey}`;
+  var recolorHDImageResp = recolorHDImage(recolorHDImagereq, runtime);
+  return recolorHDImageResp;
+}
+
 model AssessCompositionRequest = {
   imageURL: string(name='ImageURL', description='imageUrl'),
 }
