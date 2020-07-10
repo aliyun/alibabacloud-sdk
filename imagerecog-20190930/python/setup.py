@@ -23,7 +23,7 @@ import os
 """
 setup module for alibabacloud_imagerecog20190930.
 
-Created on 02/07/2020
+Created on 10/07/2020
 
 @author: Alibaba Cloud SDK
 """
