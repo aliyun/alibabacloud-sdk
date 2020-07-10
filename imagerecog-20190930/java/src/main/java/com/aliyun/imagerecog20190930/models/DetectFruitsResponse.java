@@ -24,7 +24,7 @@ public class DetectFruitsResponse extends TeaModel {
 
         @NameInMap("Score")
         @Validation(required = true)
-        public String score;
+        public Double score;
 
         @NameInMap("Box")
         @Validation(required = true)
