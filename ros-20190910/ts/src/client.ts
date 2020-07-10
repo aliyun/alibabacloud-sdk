@@ -4,6 +4,174 @@ import RPC, * as $RPC from '@alicloud/rpc-client';
 import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
+export class GetTemplateSummaryRequest extends $tea.Model {
+  stackId?: string;
+  templateBody?: string;
+  regionId?: string;
+  templateId?: string;
+  templateURL?: string;
+  changeSetId?: string;
+  static names(): { [key: string]: string } {
+    return {
+      stackId: 'StackId',
+      templateBody: 'TemplateBody',
+      regionId: 'RegionId',
+      templateId: 'TemplateId',
+      templateURL: 'TemplateURL',
+      changeSetId: 'ChangeSetId',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      stackId: 'string',
+      templateBody: 'string',
+      regionId: 'string',
+      templateId: 'string',
+      templateURL: 'string',
+      changeSetId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetTemplateSummaryResponse extends $tea.Model {
+  requestId: string;
+  description: string;
+  metadata: { [key: string]: any };
+  version: string;
+  resourceIdentifierSummaries: GetTemplateSummaryResponseResourceIdentifierSummaries[];
+  parameters: { [key: string]: any }[];
+  resourceTypes: string[];
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      description: 'Description',
+      metadata: 'Metadata',
+      version: 'Version',
+      resourceIdentifierSummaries: 'ResourceIdentifierSummaries',
+      parameters: 'Parameters',
+      resourceTypes: 'ResourceTypes',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      description: 'string',
+      metadata: { 'type': 'map', 'keyType': 'string', 'valueType': 'any' },
+      version: 'string',
+      resourceIdentifierSummaries: { 'type': 'array', 'itemType': GetTemplateSummaryResponseResourceIdentifierSummaries },
+      parameters: { 'type': 'array', 'itemType': { 'type': 'map', 'keyType': 'string', 'valueType': 'any' } },
+      resourceTypes: { 'type': 'array', 'itemType': 'string' },
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListTagValuesRequest extends $tea.Model {
+  regionId: string;
+  resourceType: string;
+  nextToken?: string;
+  key: string;
+  static names(): { [key: string]: string } {
+    return {
+      regionId: 'RegionId',
+      resourceType: 'ResourceType',
+      nextToken: 'NextToken',
+      key: 'Key',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      regionId: 'string',
+      resourceType: 'string',
+      nextToken: 'string',
+      key: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListTagValuesResponse extends $tea.Model {
+  requestId: string;
+  nextToken: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      nextToken: 'NextToken',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      nextToken: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListTagKeysRequest extends $tea.Model {
+  regionId: string;
+  resourceType: string;
+  nextToken?: string;
+  static names(): { [key: string]: string } {
+    return {
+      regionId: 'RegionId',
+      resourceType: 'ResourceType',
+      nextToken: 'NextToken',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      regionId: 'string',
+      resourceType: 'string',
+      nextToken: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class ListTagKeysResponse extends $tea.Model {
+  requestId: string;
+  nextToken: string;
+  static names(): { [key: string]: string } {
+    return {
+      requestId: 'RequestId',
+      nextToken: 'NextToken',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      requestId: 'string',
+      nextToken: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 export class SetDeletionProtectionRequest extends $tea.Model {
   stackId: string;
   deletionProtection: string;
@@ -1788,6 +1956,7 @@ export class UpdateStackRequest extends $tea.Model {
   disableRollback?: boolean;
   templateURL?: string;
   ramRoleName?: string;
+  replacementOption?: string;
   static names(): { [key: string]: string } {
     return {
       stackId: 'StackId',
@@ -1804,6 +1973,7 @@ export class UpdateStackRequest extends $tea.Model {
       disableRollback: 'DisableRollback',
       templateURL: 'TemplateURL',
       ramRoleName: 'RamRoleName',
+      replacementOption: 'ReplacementOption',
     };
   }
 
@@ -1823,6 +1993,7 @@ export class UpdateStackRequest extends $tea.Model {
       disableRollback: 'boolean',
       templateURL: 'string',
       ramRoleName: 'string',
+      replacementOption: 'string',
     };
   }
 
@@ -2388,6 +2559,7 @@ export class GetChangeSetResponse extends $tea.Model {
   status: string;
   templateBody: string;
   timeoutInMinutes: number;
+  statusReason: string;
   parameters: GetChangeSetResponseParameters[];
   changes: { [key: string]: any }[];
   static names(): { [key: string]: string } {
@@ -2406,6 +2578,7 @@ export class GetChangeSetResponse extends $tea.Model {
       status: 'Status',
       templateBody: 'TemplateBody',
       timeoutInMinutes: 'TimeoutInMinutes',
+      statusReason: 'StatusReason',
       parameters: 'Parameters',
       changes: 'Changes',
     };
@@ -2427,6 +2600,7 @@ export class GetChangeSetResponse extends $tea.Model {
       status: 'string',
       templateBody: 'string',
       timeoutInMinutes: 'number',
+      statusReason: 'string',
       parameters: { 'type': 'array', 'itemType': GetChangeSetResponseParameters },
       changes: { 'type': 'array', 'itemType': { 'type': 'map', 'keyType': 'string', 'valueType': 'any' } },
     };
@@ -3037,6 +3211,8 @@ export class CreateChangeSetRequest extends $tea.Model {
   stackPolicyDuringUpdateBody?: string;
   notificationURLs?: string[];
   ramRoleName?: string;
+  replacementOption?: string;
+  resourcesToImport?: CreateChangeSetRequestResourcesToImport[];
   static names(): { [key: string]: string } {
     return {
       stackId: 'StackId',
@@ -3058,6 +3234,8 @@ export class CreateChangeSetRequest extends $tea.Model {
       stackPolicyDuringUpdateBody: 'StackPolicyDuringUpdateBody',
       notificationURLs: 'NotificationURLs',
       ramRoleName: 'RamRoleName',
+      replacementOption: 'ReplacementOption',
+      resourcesToImport: 'ResourcesToImport',
     };
   }
 
@@ -3082,6 +3260,8 @@ export class CreateChangeSetRequest extends $tea.Model {
       stackPolicyDuringUpdateBody: 'string',
       notificationURLs: { 'type': 'array', 'itemType': 'string' },
       ramRoleName: 'string',
+      replacementOption: 'string',
+      resourcesToImport: { 'type': 'array', 'itemType': CreateChangeSetRequestResourcesToImport },
     };
   }
 
@@ -3107,6 +3287,31 @@ export class CreateChangeSetResponse extends $tea.Model {
       changeSetId: 'string',
       requestId: 'string',
       stackId: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
+export class GetTemplateSummaryResponseResourceIdentifierSummaries extends $tea.Model {
+  resourceType: string;
+  logicalResourceIds: string[];
+  resourceIdentifiers: string[];
+  static names(): { [key: string]: string } {
+    return {
+      resourceType: 'ResourceType',
+      logicalResourceIds: 'LogicalResourceIds',
+      resourceIdentifiers: 'ResourceIdentifiers',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      resourceType: 'string',
+      logicalResourceIds: { 'type': 'array', 'itemType': 'string' },
+      resourceIdentifiers: { 'type': 'array', 'itemType': 'string' },
     };
   }
 
@@ -4215,6 +4420,7 @@ export class ListChangeSetsResponseChangeSets extends $tea.Model {
   stackId: string;
   stackName: string;
   status: string;
+  statusReason: string;
   static names(): { [key: string]: string } {
     return {
       changeSetId: 'ChangeSetId',
@@ -4227,6 +4433,7 @@ export class ListChangeSetsResponseChangeSets extends $tea.Model {
       stackId: 'StackId',
       stackName: 'StackName',
       status: 'Status',
+      statusReason: 'StatusReason',
     };
   }
 
@@ -4242,6 +4449,7 @@ export class ListChangeSetsResponseChangeSets extends $tea.Model {
       stackId: 'string',
       stackName: 'string',
       status: 'string',
+      statusReason: 'string',
     };
   }
 
@@ -4389,6 +4597,31 @@ export class CreateChangeSetRequestParameters extends $tea.Model {
   }
 }
 
+export class CreateChangeSetRequestResourcesToImport extends $tea.Model {
+  logicalResourceId: string;
+  resourceType: string;
+  resourceIdentifier: string;
+  static names(): { [key: string]: string } {
+    return {
+      logicalResourceId: 'LogicalResourceId',
+      resourceType: 'ResourceType',
+      resourceIdentifier: 'ResourceIdentifier',
+    };
+  }
+
+  static types(): { [key: string]: any } {
+    return {
+      logicalResourceId: 'string',
+      resourceType: 'string',
+      resourceIdentifier: 'string',
+    };
+  }
+
+  constructor(map?: { [key: string]: any }) {
+    super(map);
+  }
+}
+
 
 export default class Client extends RPC {
 
@@ -4396,9 +4629,39 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "central";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("ros", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
+
+  async getTemplateSummaryWithOptions(request: GetTemplateSummaryRequest, runtime: $Util.RuntimeOptions): Promise<GetTemplateSummaryResponse> {
+    Util.validateModel(request);
+    return $tea.cast<GetTemplateSummaryResponse>(await this.doRequest("GetTemplateSummary", "HTTPS", "POST", "2019-09-10", "AK", null, $tea.toMap(request), runtime), new GetTemplateSummaryResponse({}));
+  }
+
+  async getTemplateSummary(request: GetTemplateSummaryRequest): Promise<GetTemplateSummaryResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.getTemplateSummaryWithOptions(request, runtime);
+  }
+
+  async listTagValuesWithOptions(request: ListTagValuesRequest, runtime: $Util.RuntimeOptions): Promise<ListTagValuesResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ListTagValuesResponse>(await this.doRequest("ListTagValues", "HTTPS", "POST", "2019-09-10", "AK", null, $tea.toMap(request), runtime), new ListTagValuesResponse({}));
+  }
+
+  async listTagValues(request: ListTagValuesRequest): Promise<ListTagValuesResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.listTagValuesWithOptions(request, runtime);
+  }
+
+  async listTagKeysWithOptions(request: ListTagKeysRequest, runtime: $Util.RuntimeOptions): Promise<ListTagKeysResponse> {
+    Util.validateModel(request);
+    return $tea.cast<ListTagKeysResponse>(await this.doRequest("ListTagKeys", "HTTPS", "POST", "2019-09-10", "AK", null, $tea.toMap(request), runtime), new ListTagKeysResponse({}));
+  }
+
+  async listTagKeys(request: ListTagKeysRequest): Promise<ListTagKeysResponse> {
+    let runtime = new $Util.RuntimeOptions({ });
+    return await this.listTagKeysWithOptions(request, runtime);
+  }
 
   async setDeletionProtectionWithOptions(request: SetDeletionProtectionRequest, runtime: $Util.RuntimeOptions): Promise<SetDeletionProtectionResponse> {
     Util.validateModel(request);
