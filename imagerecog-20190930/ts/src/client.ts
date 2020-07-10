@@ -539,7 +539,7 @@ export class RecognizeImageStyleAdvanceRequest extends $tea.Model {
 
 export class DetectFruitsResponseDataElements extends $tea.Model {
   name: string;
-  score: string;
+  score: number;
   box: number[];
   static names(): { [key: string]: string } {
     return {
@@ -552,7 +552,7 @@ export class DetectFruitsResponseDataElements extends $tea.Model {
   static types(): { [key: string]: any } {
     return {
       name: 'string',
-      score: 'string',
+      score: 'number',
       box: { 'type': 'array', 'itemType': 'float' },
     };
   }
