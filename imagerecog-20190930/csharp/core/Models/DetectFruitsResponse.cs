@@ -22,7 +22,7 @@ namespace AlibabaCloud.SDK.Imagerecog20190930.Models
             public List<DetectFruitsResponseDataElements> Elements { get; set; }
             public class DetectFruitsResponseDataElements : TeaModel {
                     public string Name { get; set; }
-                    public string Score { get; set; }
+                    public float? Score { get; set; }
                     public List<string> Box { get; set; }
             }
         };
