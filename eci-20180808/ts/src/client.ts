@@ -5,27 +5,15 @@ import EndpointUtil from '@alicloud/endpoint-util';
 import * as $tea from '@alicloud/tea-typescript';
 
 export class DescribeRegionsRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
     };
   }
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
     };
   }
@@ -58,10 +46,6 @@ export class DescribeRegionsResponse extends $tea.Model {
 }
 
 export class DescribeImageCachesRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   imageCacheId?: string;
   imageCacheName?: string;
@@ -69,10 +53,6 @@ export class DescribeImageCachesRequest extends $tea.Model {
   image?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       imageCacheId: 'ImageCacheId',
       imageCacheName: 'ImageCacheName',
@@ -83,10 +63,6 @@ export class DescribeImageCachesRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       imageCacheId: 'string',
       imageCacheName: 'string',
@@ -123,19 +99,11 @@ export class DescribeImageCachesResponse extends $tea.Model {
 }
 
 export class DeleteImageCacheRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   imageCacheId: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       imageCacheId: 'ImageCacheId',
       clientToken: 'ClientToken',
@@ -144,10 +112,6 @@ export class DeleteImageCacheRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       imageCacheId: 'string',
       clientToken: 'string',
@@ -179,14 +143,10 @@ export class DeleteImageCacheResponse extends $tea.Model {
 }
 
 export class CreateImageCacheRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   zoneId?: string;
   securityGroupId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   imageCacheName: string;
   imageRegistryCredential?: CreateImageCacheRequestImageRegistryCredential[];
   eipInstanceId?: string;
@@ -197,14 +157,10 @@ export class CreateImageCacheRequest extends $tea.Model {
   retentionDays?: number;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       zoneId: 'ZoneId',
       securityGroupId: 'SecurityGroupId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       imageCacheName: 'ImageCacheName',
       imageRegistryCredential: 'ImageRegistryCredential',
       eipInstanceId: 'EipInstanceId',
@@ -218,14 +174,10 @@ export class CreateImageCacheRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       zoneId: 'string',
       securityGroupId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       imageCacheName: 'string',
       imageRegistryCredential: { 'type': 'array', 'itemType': CreateImageCacheRequestImageRegistryCredential },
       eipInstanceId: 'string',
@@ -268,20 +220,12 @@ export class CreateImageCacheResponse extends $tea.Model {
 }
 
 export class DescribeMultiContainerGroupMetricRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupIds: string;
   resourceGroupId?: string;
   metricType?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupIds: 'ContainerGroupIds',
       resourceGroupId: 'ResourceGroupId',
@@ -291,10 +235,6 @@ export class DescribeMultiContainerGroupMetricRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupIds: 'string',
       resourceGroupId: 'string',
@@ -330,10 +270,6 @@ export class DescribeMultiContainerGroupMetricResponse extends $tea.Model {
 }
 
 export class DescribeContainerGroupMetricRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupId: string;
   startTime?: string;
@@ -341,10 +277,6 @@ export class DescribeContainerGroupMetricRequest extends $tea.Model {
   period?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
       startTime: 'StartTime',
@@ -355,10 +287,6 @@ export class DescribeContainerGroupMetricRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
       startTime: 'string',
@@ -398,19 +326,11 @@ export class DescribeContainerGroupMetricResponse extends $tea.Model {
 }
 
 export class UpdateContainerGroupByTemplateRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   template: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       template: 'Template',
       clientToken: 'ClientToken',
@@ -419,10 +339,6 @@ export class UpdateContainerGroupByTemplateRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       template: 'string',
       clientToken: 'string',
@@ -454,19 +370,11 @@ export class UpdateContainerGroupByTemplateResponse extends $tea.Model {
 }
 
 export class CreateContainerGroupFromTemplateRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   template: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       template: 'Template',
       clientToken: 'ClientToken',
@@ -475,10 +383,6 @@ export class CreateContainerGroupFromTemplateRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       template: 'string',
       clientToken: 'string',
@@ -513,18 +417,10 @@ export class CreateContainerGroupFromTemplateResponse extends $tea.Model {
 }
 
 export class ExportContainerGroupTemplateRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId?: string;
   containerGroupId?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
     };
@@ -532,10 +428,6 @@ export class ExportContainerGroupTemplateRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
     };
@@ -569,19 +461,11 @@ export class ExportContainerGroupTemplateResponse extends $tea.Model {
 }
 
 export class RestartContainerGroupRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupId: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
       clientToken: 'ClientToken',
@@ -590,10 +474,6 @@ export class RestartContainerGroupRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
       clientToken: 'string',
@@ -625,10 +505,6 @@ export class RestartContainerGroupResponse extends $tea.Model {
 }
 
 export class UpdateContainerGroupRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupId: string;
   restartPolicy?: string;
@@ -643,10 +519,6 @@ export class UpdateContainerGroupRequest extends $tea.Model {
   memory?: number;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
       restartPolicy: 'RestartPolicy',
@@ -664,10 +536,6 @@ export class UpdateContainerGroupRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
       restartPolicy: 'string',
@@ -708,10 +576,6 @@ export class UpdateContainerGroupResponse extends $tea.Model {
 }
 
 export class DescribeContainerGroupPriceRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   cpu?: number;
   memory?: number;
@@ -721,10 +585,6 @@ export class DescribeContainerGroupPriceRequest extends $tea.Model {
   spotPriceLimit?: number;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       cpu: 'Cpu',
       memory: 'Memory',
@@ -737,10 +597,6 @@ export class DescribeContainerGroupPriceRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       cpu: 'number',
       memory: 'number',
@@ -779,10 +635,6 @@ export class DescribeContainerGroupPriceResponse extends $tea.Model {
 }
 
 export class ExecContainerCommandRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupId: string;
   containerName: string;
@@ -791,10 +643,6 @@ export class ExecContainerCommandRequest extends $tea.Model {
   stdin?: boolean;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
       containerName: 'ContainerName',
@@ -806,10 +654,6 @@ export class ExecContainerCommandRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
       containerName: 'string',
@@ -847,10 +691,6 @@ export class ExecContainerCommandResponse extends $tea.Model {
 }
 
 export class DescribeContainerLogRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupId: string;
   containerName: string;
@@ -861,10 +701,6 @@ export class DescribeContainerLogRequest extends $tea.Model {
   limitBytes?: number;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
       containerName: 'ContainerName',
@@ -878,10 +714,6 @@ export class DescribeContainerLogRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
       containerName: 'string',
@@ -924,14 +756,10 @@ export class DescribeContainerLogResponse extends $tea.Model {
 }
 
 export class CreateContainerGroupRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   zoneId?: string;
   securityGroupId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   containerGroupName: string;
   restartPolicy?: string;
   tag?: CreateContainerGroupRequestTag[];
@@ -966,14 +794,10 @@ export class CreateContainerGroupRequest extends $tea.Model {
   corePattern?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       zoneId: 'ZoneId',
       securityGroupId: 'SecurityGroupId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       containerGroupName: 'ContainerGroupName',
       restartPolicy: 'RestartPolicy',
       tag: 'Tag',
@@ -1011,14 +835,10 @@ export class CreateContainerGroupRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       zoneId: 'string',
       securityGroupId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       containerGroupName: 'string',
       restartPolicy: 'string',
       tag: { 'type': 'array', 'itemType': CreateContainerGroupRequestTag },
@@ -1082,13 +902,9 @@ export class CreateContainerGroupResponse extends $tea.Model {
 }
 
 export class DescribeContainerGroupsRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   zoneId?: string;
-  VSwitchId?: string;
+  vSwitchId?: string;
   nextToken?: string;
   limit?: number;
   tag?: DescribeContainerGroupsRequestTag[];
@@ -1099,13 +915,9 @@ export class DescribeContainerGroupsRequest extends $tea.Model {
   withEvent?: boolean;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       zoneId: 'ZoneId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       nextToken: 'NextToken',
       limit: 'Limit',
       tag: 'Tag',
@@ -1119,13 +931,9 @@ export class DescribeContainerGroupsRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       zoneId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       nextToken: 'string',
       limit: 'number',
       tag: { 'type': 'array', 'itemType': DescribeContainerGroupsRequestTag },
@@ -1171,19 +979,11 @@ export class DescribeContainerGroupsResponse extends $tea.Model {
 }
 
 export class DeleteContainerGroupRequest extends $tea.Model {
-  ownerId?: number;
-  resourceOwnerAccount?: string;
-  resourceOwnerId?: number;
-  ownerAccount?: string;
   regionId: string;
   containerGroupId: string;
   clientToken?: string;
   static names(): { [key: string]: string } {
     return {
-      ownerId: 'OwnerId',
-      resourceOwnerAccount: 'ResourceOwnerAccount',
-      resourceOwnerId: 'ResourceOwnerId',
-      ownerAccount: 'OwnerAccount',
       regionId: 'RegionId',
       containerGroupId: 'ContainerGroupId',
       clientToken: 'ClientToken',
@@ -1192,10 +992,6 @@ export class DeleteContainerGroupRequest extends $tea.Model {
 
   static types(): { [key: string]: any } {
     return {
-      ownerId: 'number',
-      resourceOwnerAccount: 'string',
-      resourceOwnerId: 'number',
-      ownerAccount: 'string',
       regionId: 'string',
       containerGroupId: 'string',
       clientToken: 'string',
@@ -1294,6 +1090,7 @@ export class DescribeImageCachesResponseImageCaches extends $tea.Model {
   status: string;
   expireDateTime: string;
   creationTime: string;
+  regionId: string;
   events: DescribeImageCachesResponseImageCachesEvents[];
   images: string[];
   static names(): { [key: string]: string } {
@@ -1306,6 +1103,7 @@ export class DescribeImageCachesResponseImageCaches extends $tea.Model {
       status: 'Status',
       expireDateTime: 'ExpireDateTime',
       creationTime: 'CreationTime',
+      regionId: 'RegionId',
       events: 'Events',
       images: 'Images',
     };
@@ -1321,6 +1119,7 @@ export class DescribeImageCachesResponseImageCaches extends $tea.Model {
       status: 'string',
       expireDateTime: 'string',
       creationTime: 'string',
+      regionId: 'string',
       events: { 'type': 'array', 'itemType': DescribeImageCachesResponseImageCachesEvents },
       images: { 'type': 'array', 'itemType': 'string' },
     };
@@ -3817,7 +3616,7 @@ export class ExportContainerGroupTemplateResponseTemplate extends $tea.Model {
   regionId: string;
   zoneId: string;
   securityGroupId: string;
-  VSwitchId: string;
+  vSwitchId: string;
   resourceGroupId: string;
   eipInstanceId: string;
   containerGroupName: string;
@@ -3830,7 +3629,7 @@ export class ExportContainerGroupTemplateResponseTemplate extends $tea.Model {
       regionId: 'RegionId',
       zoneId: 'ZoneId',
       securityGroupId: 'SecurityGroupId',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       resourceGroupId: 'ResourceGroupId',
       eipInstanceId: 'EipInstanceId',
       containerGroupName: 'ContainerGroupName',
@@ -3846,7 +3645,7 @@ export class ExportContainerGroupTemplateResponseTemplate extends $tea.Model {
       regionId: 'string',
       zoneId: 'string',
       securityGroupId: 'string',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       resourceGroupId: 'string',
       eipInstanceId: 'string',
       containerGroupName: 'string',
@@ -7035,7 +6834,7 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
   zoneId: string;
   memory: number;
   cpu: number;
-  VSwitchId: string;
+  vSwitchId: string;
   securityGroupId: string;
   restartPolicy: string;
   intranetIp: string;
@@ -7072,7 +6871,7 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
       zoneId: 'ZoneId',
       memory: 'Memory',
       cpu: 'Cpu',
-      VSwitchId: 'VSwitchId',
+      vSwitchId: 'VSwitchId',
       securityGroupId: 'SecurityGroupId',
       restartPolicy: 'RestartPolicy',
       intranetIp: 'IntranetIp',
@@ -7112,7 +6911,7 @@ export class DescribeContainerGroupsResponseContainerGroups extends $tea.Model {
       zoneId: 'string',
       memory: 'number',
       cpu: 'number',
-      VSwitchId: 'string',
+      vSwitchId: 'string',
       securityGroupId: 'string',
       restartPolicy: 'string',
       intranetIp: 'string',
@@ -7156,13 +6955,13 @@ export default class Client extends RPC {
     super(config);
     this._endpointRule = "";
     this.checkConfig(config);
-    this._endpoint = this.getEndpoint(this._productId, this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
+    this._endpoint = this.getEndpoint("eci", this._regionId, this._endpointRule, this._network, this._suffix, this._endpointMap, this._endpoint);
   }
 
 
   async describeRegionsWithOptions(request: DescribeRegionsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeRegionsResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeRegionsResponse>(await this.doRequest("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeRegionsResponse({}));
+    return $tea.cast<DescribeRegionsResponse>(await this.doRequest("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeRegionsResponse({}));
   }
 
   async describeRegions(request: DescribeRegionsRequest): Promise<DescribeRegionsResponse> {
@@ -7172,7 +6971,7 @@ export default class Client extends RPC {
 
   async describeImageCachesWithOptions(request: DescribeImageCachesRequest, runtime: $Util.RuntimeOptions): Promise<DescribeImageCachesResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeImageCachesResponse>(await this.doRequest("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeImageCachesResponse({}));
+    return $tea.cast<DescribeImageCachesResponse>(await this.doRequest("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeImageCachesResponse({}));
   }
 
   async describeImageCaches(request: DescribeImageCachesRequest): Promise<DescribeImageCachesResponse> {
@@ -7182,7 +6981,7 @@ export default class Client extends RPC {
 
   async deleteImageCacheWithOptions(request: DeleteImageCacheRequest, runtime: $Util.RuntimeOptions): Promise<DeleteImageCacheResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteImageCacheResponse>(await this.doRequest("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DeleteImageCacheResponse({}));
+    return $tea.cast<DeleteImageCacheResponse>(await this.doRequest("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DeleteImageCacheResponse({}));
   }
 
   async deleteImageCache(request: DeleteImageCacheRequest): Promise<DeleteImageCacheResponse> {
@@ -7192,7 +6991,7 @@ export default class Client extends RPC {
 
   async createImageCacheWithOptions(request: CreateImageCacheRequest, runtime: $Util.RuntimeOptions): Promise<CreateImageCacheResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateImageCacheResponse>(await this.doRequest("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new CreateImageCacheResponse({}));
+    return $tea.cast<CreateImageCacheResponse>(await this.doRequest("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new CreateImageCacheResponse({}));
   }
 
   async createImageCache(request: CreateImageCacheRequest): Promise<CreateImageCacheResponse> {
@@ -7202,7 +7001,7 @@ export default class Client extends RPC {
 
   async describeMultiContainerGroupMetricWithOptions(request: DescribeMultiContainerGroupMetricRequest, runtime: $Util.RuntimeOptions): Promise<DescribeMultiContainerGroupMetricResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeMultiContainerGroupMetricResponse>(await this.doRequest("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeMultiContainerGroupMetricResponse({}));
+    return $tea.cast<DescribeMultiContainerGroupMetricResponse>(await this.doRequest("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeMultiContainerGroupMetricResponse({}));
   }
 
   async describeMultiContainerGroupMetric(request: DescribeMultiContainerGroupMetricRequest): Promise<DescribeMultiContainerGroupMetricResponse> {
@@ -7212,7 +7011,7 @@ export default class Client extends RPC {
 
   async describeContainerGroupMetricWithOptions(request: DescribeContainerGroupMetricRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupMetricResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeContainerGroupMetricResponse>(await this.doRequest("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupMetricResponse({}));
+    return $tea.cast<DescribeContainerGroupMetricResponse>(await this.doRequest("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeContainerGroupMetricResponse({}));
   }
 
   async describeContainerGroupMetric(request: DescribeContainerGroupMetricRequest): Promise<DescribeContainerGroupMetricResponse> {
@@ -7222,7 +7021,7 @@ export default class Client extends RPC {
 
   async updateContainerGroupByTemplateWithOptions(request: UpdateContainerGroupByTemplateRequest, runtime: $Util.RuntimeOptions): Promise<UpdateContainerGroupByTemplateResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateContainerGroupByTemplateResponse>(await this.doRequest("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new UpdateContainerGroupByTemplateResponse({}));
+    return $tea.cast<UpdateContainerGroupByTemplateResponse>(await this.doRequest("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new UpdateContainerGroupByTemplateResponse({}));
   }
 
   async updateContainerGroupByTemplate(request: UpdateContainerGroupByTemplateRequest): Promise<UpdateContainerGroupByTemplateResponse> {
@@ -7232,7 +7031,7 @@ export default class Client extends RPC {
 
   async createContainerGroupFromTemplateWithOptions(request: CreateContainerGroupFromTemplateRequest, runtime: $Util.RuntimeOptions): Promise<CreateContainerGroupFromTemplateResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateContainerGroupFromTemplateResponse>(await this.doRequest("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new CreateContainerGroupFromTemplateResponse({}));
+    return $tea.cast<CreateContainerGroupFromTemplateResponse>(await this.doRequest("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new CreateContainerGroupFromTemplateResponse({}));
   }
 
   async createContainerGroupFromTemplate(request: CreateContainerGroupFromTemplateRequest): Promise<CreateContainerGroupFromTemplateResponse> {
@@ -7242,7 +7041,7 @@ export default class Client extends RPC {
 
   async exportContainerGroupTemplateWithOptions(request: ExportContainerGroupTemplateRequest, runtime: $Util.RuntimeOptions): Promise<ExportContainerGroupTemplateResponse> {
     Util.validateModel(request);
-    return $tea.cast<ExportContainerGroupTemplateResponse>(await this.doRequest("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new ExportContainerGroupTemplateResponse({}));
+    return $tea.cast<ExportContainerGroupTemplateResponse>(await this.doRequest("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new ExportContainerGroupTemplateResponse({}));
   }
 
   async exportContainerGroupTemplate(request: ExportContainerGroupTemplateRequest): Promise<ExportContainerGroupTemplateResponse> {
@@ -7252,7 +7051,7 @@ export default class Client extends RPC {
 
   async restartContainerGroupWithOptions(request: RestartContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<RestartContainerGroupResponse> {
     Util.validateModel(request);
-    return $tea.cast<RestartContainerGroupResponse>(await this.doRequest("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new RestartContainerGroupResponse({}));
+    return $tea.cast<RestartContainerGroupResponse>(await this.doRequest("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new RestartContainerGroupResponse({}));
   }
 
   async restartContainerGroup(request: RestartContainerGroupRequest): Promise<RestartContainerGroupResponse> {
@@ -7262,7 +7061,7 @@ export default class Client extends RPC {
 
   async updateContainerGroupWithOptions(request: UpdateContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<UpdateContainerGroupResponse> {
     Util.validateModel(request);
-    return $tea.cast<UpdateContainerGroupResponse>(await this.doRequest("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new UpdateContainerGroupResponse({}));
+    return $tea.cast<UpdateContainerGroupResponse>(await this.doRequest("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new UpdateContainerGroupResponse({}));
   }
 
   async updateContainerGroup(request: UpdateContainerGroupRequest): Promise<UpdateContainerGroupResponse> {
@@ -7272,7 +7071,7 @@ export default class Client extends RPC {
 
   async describeContainerGroupPriceWithOptions(request: DescribeContainerGroupPriceRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupPriceResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeContainerGroupPriceResponse>(await this.doRequest("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupPriceResponse({}));
+    return $tea.cast<DescribeContainerGroupPriceResponse>(await this.doRequest("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeContainerGroupPriceResponse({}));
   }
 
   async describeContainerGroupPrice(request: DescribeContainerGroupPriceRequest): Promise<DescribeContainerGroupPriceResponse> {
@@ -7282,7 +7081,7 @@ export default class Client extends RPC {
 
   async execContainerCommandWithOptions(request: ExecContainerCommandRequest, runtime: $Util.RuntimeOptions): Promise<ExecContainerCommandResponse> {
     Util.validateModel(request);
-    return $tea.cast<ExecContainerCommandResponse>(await this.doRequest("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new ExecContainerCommandResponse({}));
+    return $tea.cast<ExecContainerCommandResponse>(await this.doRequest("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new ExecContainerCommandResponse({}));
   }
 
   async execContainerCommand(request: ExecContainerCommandRequest): Promise<ExecContainerCommandResponse> {
@@ -7292,7 +7091,7 @@ export default class Client extends RPC {
 
   async describeContainerLogWithOptions(request: DescribeContainerLogRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerLogResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeContainerLogResponse>(await this.doRequest("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerLogResponse({}));
+    return $tea.cast<DescribeContainerLogResponse>(await this.doRequest("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeContainerLogResponse({}));
   }
 
   async describeContainerLog(request: DescribeContainerLogRequest): Promise<DescribeContainerLogResponse> {
@@ -7302,7 +7101,7 @@ export default class Client extends RPC {
 
   async createContainerGroupWithOptions(request: CreateContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<CreateContainerGroupResponse> {
     Util.validateModel(request);
-    return $tea.cast<CreateContainerGroupResponse>(await this.doRequest("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new CreateContainerGroupResponse({}));
+    return $tea.cast<CreateContainerGroupResponse>(await this.doRequest("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new CreateContainerGroupResponse({}));
   }
 
   async createContainerGroup(request: CreateContainerGroupRequest): Promise<CreateContainerGroupResponse> {
@@ -7312,7 +7111,7 @@ export default class Client extends RPC {
 
   async describeContainerGroupsWithOptions(request: DescribeContainerGroupsRequest, runtime: $Util.RuntimeOptions): Promise<DescribeContainerGroupsResponse> {
     Util.validateModel(request);
-    return $tea.cast<DescribeContainerGroupsResponse>(await this.doRequest("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DescribeContainerGroupsResponse({}));
+    return $tea.cast<DescribeContainerGroupsResponse>(await this.doRequest("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DescribeContainerGroupsResponse({}));
   }
 
   async describeContainerGroups(request: DescribeContainerGroupsRequest): Promise<DescribeContainerGroupsResponse> {
@@ -7322,7 +7121,7 @@ export default class Client extends RPC {
 
   async deleteContainerGroupWithOptions(request: DeleteContainerGroupRequest, runtime: $Util.RuntimeOptions): Promise<DeleteContainerGroupResponse> {
     Util.validateModel(request);
-    return $tea.cast<DeleteContainerGroupResponse>(await this.doRequest("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", $tea.toMap(request), null, runtime), new DeleteContainerGroupResponse({}));
+    return $tea.cast<DeleteContainerGroupResponse>(await this.doRequest("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, $tea.toMap(request), runtime), new DeleteContainerGroupResponse({}));
   }
 
   async deleteContainerGroup(request: DeleteContainerGroupRequest): Promise<DeleteContainerGroupResponse> {
