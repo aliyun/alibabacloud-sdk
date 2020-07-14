@@ -49,6 +49,10 @@ namespace AlibabaCloud.SDK.Eci20180808.Models
             [Validation(Required=true)]
             public string CreationTime { get; set; }
 
+            [NameInMap("RegionId")]
+            [Validation(Required=true)]
+            public string RegionId { get; set; }
+
             [NameInMap("Events")]
             [Validation(Required=true)]
             public List<DescribeImageCachesResponseImageCachesEvents> Events { get; set; }
