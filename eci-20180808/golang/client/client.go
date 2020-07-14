@@ -9,11 +9,7 @@ import (
 )
 
 type DescribeRegionsRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -24,34 +20,14 @@ func (s DescribeRegionsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeRegionsRequest) SetOwnerId(v int64) *DescribeRegionsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetResourceOwnerAccount(v string) *DescribeRegionsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetResourceOwnerId(v int64) *DescribeRegionsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetOwnerAccount(v string) *DescribeRegionsRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeRegionsRequest) SetRegionId(v string) *DescribeRegionsRequest {
 	s.RegionId = &v
 	return s
 }
 
 type DescribeRegionsResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Regions   []*DescribeRegionsResponseRegions `json:"Regions" xml:"Regions" require:"true" type:"Repeated"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Regions   []*DescribeRegionsResponseRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -73,9 +49,9 @@ func (s *DescribeRegionsResponse) SetRegions(v []*DescribeRegionsResponseRegions
 }
 
 type DescribeRegionsResponseRegions struct {
-	RegionId       *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	RegionEndpoint *string   `json:"RegionEndpoint" xml:"RegionEndpoint" require:"true"`
-	Zones          []*string `json:"Zones" xml:"Zones" require:"true" type:"Repeated"`
+	RegionId       *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RegionEndpoint *string   `json:"RegionEndpoint,omitempty" xml:"RegionEndpoint,omitempty" require:"true"`
+	Zones          []*string `json:"Zones,omitempty" xml:"Zones,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -102,15 +78,11 @@ func (s *DescribeRegionsResponseRegions) SetZones(v []*string) *DescribeRegionsR
 }
 
 type DescribeImageCachesRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ImageCacheId         *string `json:"ImageCacheId" xml:"ImageCacheId"`
-	ImageCacheName       *string `json:"ImageCacheName" xml:"ImageCacheName"`
-	SnapshotId           *string `json:"SnapshotId" xml:"SnapshotId"`
-	Image                *string `json:"Image" xml:"Image"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ImageCacheId   *string `json:"ImageCacheId,omitempty" xml:"ImageCacheId,omitempty"`
+	ImageCacheName *string `json:"ImageCacheName,omitempty" xml:"ImageCacheName,omitempty"`
+	SnapshotId     *string `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty"`
+	Image          *string `json:"Image,omitempty" xml:"Image,omitempty"`
 }
 
 func (s DescribeImageCachesRequest) String() string {
@@ -119,26 +91,6 @@ func (s DescribeImageCachesRequest) String() string {
 
 func (s DescribeImageCachesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeImageCachesRequest) SetOwnerId(v int64) *DescribeImageCachesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeImageCachesRequest) SetResourceOwnerAccount(v string) *DescribeImageCachesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeImageCachesRequest) SetResourceOwnerId(v int64) *DescribeImageCachesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeImageCachesRequest) SetOwnerAccount(v string) *DescribeImageCachesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeImageCachesRequest) SetRegionId(v string) *DescribeImageCachesRequest {
@@ -167,8 +119,8 @@ func (s *DescribeImageCachesRequest) SetImage(v string) *DescribeImageCachesRequ
 }
 
 type DescribeImageCachesResponse struct {
-	RequestId   *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	ImageCaches []*DescribeImageCachesResponseImageCaches `json:"ImageCaches" xml:"ImageCaches" require:"true" type:"Repeated"`
+	RequestId   *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ImageCaches []*DescribeImageCachesResponseImageCaches `json:"ImageCaches,omitempty" xml:"ImageCaches,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeImageCachesResponse) String() string {
@@ -190,16 +142,17 @@ func (s *DescribeImageCachesResponse) SetImageCaches(v []*DescribeImageCachesRes
 }
 
 type DescribeImageCachesResponseImageCaches struct {
-	ContainerGroupId *string                                         `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ImageCacheId     *string                                         `json:"ImageCacheId" xml:"ImageCacheId" require:"true"`
-	ImageCacheName   *string                                         `json:"ImageCacheName" xml:"ImageCacheName" require:"true"`
-	SnapshotId       *string                                         `json:"SnapshotId" xml:"SnapshotId" require:"true"`
-	Progress         *string                                         `json:"Progress" xml:"Progress" require:"true"`
-	Status           *string                                         `json:"Status" xml:"Status" require:"true"`
-	ExpireDateTime   *string                                         `json:"ExpireDateTime" xml:"ExpireDateTime" require:"true"`
-	CreationTime     *string                                         `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Events           []*DescribeImageCachesResponseImageCachesEvents `json:"Events" xml:"Events" require:"true" type:"Repeated"`
-	Images           []*string                                       `json:"Images" xml:"Images" require:"true" type:"Repeated"`
+	ContainerGroupId *string                                         `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	ImageCacheId     *string                                         `json:"ImageCacheId,omitempty" xml:"ImageCacheId,omitempty" require:"true"`
+	ImageCacheName   *string                                         `json:"ImageCacheName,omitempty" xml:"ImageCacheName,omitempty" require:"true"`
+	SnapshotId       *string                                         `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty" require:"true"`
+	Progress         *string                                         `json:"Progress,omitempty" xml:"Progress,omitempty" require:"true"`
+	Status           *string                                         `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	ExpireDateTime   *string                                         `json:"ExpireDateTime,omitempty" xml:"ExpireDateTime,omitempty" require:"true"`
+	CreationTime     *string                                         `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	RegionId         *string                                         `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Events           []*DescribeImageCachesResponseImageCachesEvents `json:"Events,omitempty" xml:"Events,omitempty" require:"true" type:"Repeated"`
+	Images           []*string                                       `json:"Images,omitempty" xml:"Images,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeImageCachesResponseImageCaches) String() string {
@@ -250,6 +203,11 @@ func (s *DescribeImageCachesResponseImageCaches) SetCreationTime(v string) *Desc
 	return s
 }
 
+func (s *DescribeImageCachesResponseImageCaches) SetRegionId(v string) *DescribeImageCachesResponseImageCaches {
+	s.RegionId = &v
+	return s
+}
+
 func (s *DescribeImageCachesResponseImageCaches) SetEvents(v []*DescribeImageCachesResponseImageCachesEvents) *DescribeImageCachesResponseImageCaches {
 	s.Events = v
 	return s
@@ -261,12 +219,12 @@ func (s *DescribeImageCachesResponseImageCaches) SetImages(v []*string) *Describ
 }
 
 type DescribeImageCachesResponseImageCachesEvents struct {
-	Count          *int    `json:"Count" xml:"Count" require:"true"`
-	Type           *string `json:"Type" xml:"Type" require:"true"`
-	Name           *string `json:"Name" xml:"Name" require:"true"`
-	Message        *string `json:"Message" xml:"Message" require:"true"`
-	FirstTimestamp *string `json:"FirstTimestamp" xml:"FirstTimestamp" require:"true"`
-	LastTimestamp  *string `json:"LastTimestamp" xml:"LastTimestamp" require:"true"`
+	Count          *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Type           *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Name           *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Message        *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	FirstTimestamp *string `json:"FirstTimestamp,omitempty" xml:"FirstTimestamp,omitempty" require:"true"`
+	LastTimestamp  *string `json:"LastTimestamp,omitempty" xml:"LastTimestamp,omitempty" require:"true"`
 }
 
 func (s DescribeImageCachesResponseImageCachesEvents) String() string {
@@ -308,13 +266,9 @@ func (s *DescribeImageCachesResponseImageCachesEvents) SetLastTimestamp(v string
 }
 
 type DeleteImageCacheRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ImageCacheId         *string `json:"ImageCacheId" xml:"ImageCacheId" require:"true"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ImageCacheId *string `json:"ImageCacheId,omitempty" xml:"ImageCacheId,omitempty" require:"true"`
+	ClientToken  *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s DeleteImageCacheRequest) String() string {
@@ -323,26 +277,6 @@ func (s DeleteImageCacheRequest) String() string {
 
 func (s DeleteImageCacheRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteImageCacheRequest) SetOwnerId(v int64) *DeleteImageCacheRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteImageCacheRequest) SetResourceOwnerAccount(v string) *DeleteImageCacheRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteImageCacheRequest) SetResourceOwnerId(v int64) *DeleteImageCacheRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteImageCacheRequest) SetOwnerAccount(v string) *DeleteImageCacheRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteImageCacheRequest) SetRegionId(v string) *DeleteImageCacheRequest {
@@ -361,7 +295,7 @@ func (s *DeleteImageCacheRequest) SetClientToken(v string) *DeleteImageCacheRequ
 }
 
 type DeleteImageCacheResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteImageCacheResponse) String() string {
@@ -378,22 +312,18 @@ func (s *DeleteImageCacheResponse) SetRequestId(v string) *DeleteImageCacheRespo
 }
 
 type CreateImageCacheRequest struct {
-	OwnerId                 *int64                                            `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount    *string                                           `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId         *int64                                            `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount            *string                                           `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId                *string                                           `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId                  *string                                           `json:"ZoneId" xml:"ZoneId"`
-	SecurityGroupId         *string                                           `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	VSwitchId               *string                                           `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	ImageCacheName          *string                                           `json:"ImageCacheName" xml:"ImageCacheName" require:"true"`
-	ImageRegistryCredential []*CreateImageCacheRequestImageRegistryCredential `json:"ImageRegistryCredential" xml:"ImageRegistryCredential" type:"Repeated"`
-	EipInstanceId           *string                                           `json:"EipInstanceId" xml:"EipInstanceId"`
-	ResourceGroupId         *string                                           `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	ClientToken             *string                                           `json:"ClientToken" xml:"ClientToken"`
-	Image                   []*string                                         `json:"Image" xml:"Image" require:"true" type:"Repeated"`
-	ImageCacheSize          *int                                              `json:"ImageCacheSize" xml:"ImageCacheSize"`
-	RetentionDays           *int                                              `json:"RetentionDays" xml:"RetentionDays"`
+	RegionId                *string                                           `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId                  *string                                           `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	SecurityGroupId         *string                                           `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	VSwitchId               *string                                           `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
+	ImageCacheName          *string                                           `json:"ImageCacheName,omitempty" xml:"ImageCacheName,omitempty" require:"true"`
+	ImageRegistryCredential []*CreateImageCacheRequestImageRegistryCredential `json:"ImageRegistryCredential,omitempty" xml:"ImageRegistryCredential,omitempty" type:"Repeated"`
+	EipInstanceId           *string                                           `json:"EipInstanceId,omitempty" xml:"EipInstanceId,omitempty"`
+	ResourceGroupId         *string                                           `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	ClientToken             *string                                           `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	Image                   []*string                                         `json:"Image,omitempty" xml:"Image,omitempty" require:"true" type:"Repeated"`
+	ImageCacheSize          *int                                              `json:"ImageCacheSize,omitempty" xml:"ImageCacheSize,omitempty"`
+	RetentionDays           *int                                              `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty"`
 }
 
 func (s CreateImageCacheRequest) String() string {
@@ -402,26 +332,6 @@ func (s CreateImageCacheRequest) String() string {
 
 func (s CreateImageCacheRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateImageCacheRequest) SetOwnerId(v int64) *CreateImageCacheRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateImageCacheRequest) SetResourceOwnerAccount(v string) *CreateImageCacheRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateImageCacheRequest) SetResourceOwnerId(v int64) *CreateImageCacheRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateImageCacheRequest) SetOwnerAccount(v string) *CreateImageCacheRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateImageCacheRequest) SetRegionId(v string) *CreateImageCacheRequest {
@@ -485,9 +395,9 @@ func (s *CreateImageCacheRequest) SetRetentionDays(v int) *CreateImageCacheReque
 }
 
 type CreateImageCacheRequestImageRegistryCredential struct {
-	Server   *string `json:"Server" xml:"Server" require:"true"`
-	UserName *string `json:"UserName" xml:"UserName" require:"true"`
-	Password *string `json:"Password" xml:"Password" require:"true"`
+	Server   *string `json:"Server,omitempty" xml:"Server,omitempty" require:"true"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	Password *string `json:"Password,omitempty" xml:"Password,omitempty" require:"true"`
 }
 
 func (s CreateImageCacheRequestImageRegistryCredential) String() string {
@@ -514,9 +424,9 @@ func (s *CreateImageCacheRequestImageRegistryCredential) SetPassword(v string) *
 }
 
 type CreateImageCacheResponse struct {
-	RequestId        *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ImageCacheId     *string `json:"ImageCacheId" xml:"ImageCacheId" require:"true"`
-	ContainerGroupId *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
+	RequestId        *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ImageCacheId     *string `json:"ImageCacheId,omitempty" xml:"ImageCacheId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
 }
 
 func (s CreateImageCacheResponse) String() string {
@@ -543,14 +453,10 @@ func (s *CreateImageCacheResponse) SetContainerGroupId(v string) *CreateImageCac
 }
 
 type DescribeMultiContainerGroupMetricRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupIds    *string `json:"ContainerGroupIds" xml:"ContainerGroupIds" require:"true"`
-	ResourceGroupId      *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	MetricType           *string `json:"MetricType" xml:"MetricType"`
+	RegionId          *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupIds *string `json:"ContainerGroupIds,omitempty" xml:"ContainerGroupIds,omitempty" require:"true"`
+	ResourceGroupId   *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	MetricType        *string `json:"MetricType,omitempty" xml:"MetricType,omitempty"`
 }
 
 func (s DescribeMultiContainerGroupMetricRequest) String() string {
@@ -559,26 +465,6 @@ func (s DescribeMultiContainerGroupMetricRequest) String() string {
 
 func (s DescribeMultiContainerGroupMetricRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeMultiContainerGroupMetricRequest) SetOwnerId(v int64) *DescribeMultiContainerGroupMetricRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeMultiContainerGroupMetricRequest) SetResourceOwnerAccount(v string) *DescribeMultiContainerGroupMetricRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeMultiContainerGroupMetricRequest) SetResourceOwnerId(v int64) *DescribeMultiContainerGroupMetricRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeMultiContainerGroupMetricRequest) SetOwnerAccount(v string) *DescribeMultiContainerGroupMetricRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeMultiContainerGroupMetricRequest) SetRegionId(v string) *DescribeMultiContainerGroupMetricRequest {
@@ -602,8 +488,8 @@ func (s *DescribeMultiContainerGroupMetricRequest) SetMetricType(v string) *Desc
 }
 
 type DescribeMultiContainerGroupMetricResponse struct {
-	RequestId    *string                                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	MonitorDatas []*DescribeMultiContainerGroupMetricResponseMonitorDatas `json:"MonitorDatas" xml:"MonitorDatas" require:"true" type:"Repeated"`
+	RequestId    *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MonitorDatas []*DescribeMultiContainerGroupMetricResponseMonitorDatas `json:"MonitorDatas,omitempty" xml:"MonitorDatas,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponse) String() string {
@@ -625,9 +511,9 @@ func (s *DescribeMultiContainerGroupMetricResponse) SetMonitorDatas(v []*Describ
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatas struct {
-	ContainerGroupId *string                                                                `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	Records          []*DescribeMultiContainerGroupMetricResponseMonitorDatasRecords        `json:"Records" xml:"Records" require:"true" type:"Repeated"`
-	ContainerInfos   []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos `json:"ContainerInfos" xml:"ContainerInfos" require:"true" type:"Repeated"`
+	ContainerGroupId *string                                                                `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	Records          []*DescribeMultiContainerGroupMetricResponseMonitorDatasRecords        `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
+	ContainerInfos   []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos `json:"ContainerInfos,omitempty" xml:"ContainerInfos,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatas) String() string {
@@ -654,11 +540,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatas) SetContainerInfo
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecords struct {
-	Timestamp  *string                                                                   `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Containers []*DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainers `json:"Containers" xml:"Containers" require:"true" type:"Repeated"`
-	CPU        *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsCPU          `json:"CPU" xml:"CPU" require:"true" type:"Struct"`
-	Memory     *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsMemory       `json:"Memory" xml:"Memory" require:"true" type:"Struct"`
-	Network    *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetwork      `json:"Network" xml:"Network" require:"true" type:"Struct"`
+	Timestamp  *string                                                                   `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Containers []*DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainers `json:"Containers,omitempty" xml:"Containers,omitempty" require:"true" type:"Repeated"`
+	CPU        *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsCPU          `json:"CPU,omitempty" xml:"CPU,omitempty" require:"true" type:"Struct"`
+	Memory     *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsMemory       `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true" type:"Struct"`
+	Network    *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetwork      `json:"Network,omitempty" xml:"Network,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecords) String() string {
@@ -695,9 +581,9 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecords) SetNetwor
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainers struct {
-	Name   *string                                                                       `json:"Name" xml:"Name" require:"true"`
-	CPU    *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersCPU    `json:"CPU" xml:"CPU" require:"true" type:"Struct"`
-	Memory *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersMemory `json:"Memory" xml:"Memory" require:"true" type:"Struct"`
+	Name   *string                                                                       `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	CPU    *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersCPU    `json:"CPU,omitempty" xml:"CPU,omitempty" require:"true" type:"Struct"`
+	Memory *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersMemory `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainers) String() string {
@@ -724,10 +610,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainers)
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersCPU struct {
-	Limit                *int64 `json:"Limit" xml:"Limit" require:"true"`
-	Load                 *int64 `json:"Load" xml:"Load" require:"true"`
-	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds" xml:"UsageCoreNanoSeconds" require:"true"`
-	UsageNanoCores       *int64 `json:"UsageNanoCores" xml:"UsageNanoCores" require:"true"`
+	Limit                *int64 `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
+	Load                 *int64 `json:"Load,omitempty" xml:"Load,omitempty" require:"true"`
+	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds,omitempty" xml:"UsageCoreNanoSeconds,omitempty" require:"true"`
+	UsageNanoCores       *int64 `json:"UsageNanoCores,omitempty" xml:"UsageNanoCores,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersCPU) String() string {
@@ -759,11 +645,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersC
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersMemory struct {
-	AvailableBytes *int64 `json:"AvailableBytes" xml:"AvailableBytes" require:"true"`
-	UsageBytes     *int64 `json:"UsageBytes" xml:"UsageBytes" require:"true"`
-	Cache          *int64 `json:"Cache" xml:"Cache" require:"true"`
-	WorkingSet     *int64 `json:"WorkingSet" xml:"WorkingSet" require:"true"`
-	Rss            *int64 `json:"Rss" xml:"Rss" require:"true"`
+	AvailableBytes *int64 `json:"AvailableBytes,omitempty" xml:"AvailableBytes,omitempty" require:"true"`
+	UsageBytes     *int64 `json:"UsageBytes,omitempty" xml:"UsageBytes,omitempty" require:"true"`
+	Cache          *int64 `json:"Cache,omitempty" xml:"Cache,omitempty" require:"true"`
+	WorkingSet     *int64 `json:"WorkingSet,omitempty" xml:"WorkingSet,omitempty" require:"true"`
+	Rss            *int64 `json:"Rss,omitempty" xml:"Rss,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersMemory) String() string {
@@ -800,10 +686,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsContainersM
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsCPU struct {
-	Limit                *int64 `json:"Limit" xml:"Limit" require:"true"`
-	Load                 *int64 `json:"Load" xml:"Load" require:"true"`
-	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds" xml:"UsageCoreNanoSeconds" require:"true"`
-	UsageNanoCores       *int64 `json:"UsageNanoCores" xml:"UsageNanoCores" require:"true"`
+	Limit                *int64 `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
+	Load                 *int64 `json:"Load,omitempty" xml:"Load,omitempty" require:"true"`
+	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds,omitempty" xml:"UsageCoreNanoSeconds,omitempty" require:"true"`
+	UsageNanoCores       *int64 `json:"UsageNanoCores,omitempty" xml:"UsageNanoCores,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsCPU) String() string {
@@ -835,11 +721,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsCPU) SetUsa
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsMemory struct {
-	AvailableBytes *int64 `json:"AvailableBytes" xml:"AvailableBytes" require:"true"`
-	UsageBytes     *int64 `json:"UsageBytes" xml:"UsageBytes" require:"true"`
-	Cache          *int64 `json:"Cache" xml:"Cache" require:"true"`
-	WorkingSet     *int64 `json:"WorkingSet" xml:"WorkingSet" require:"true"`
-	Rss            *int64 `json:"Rss" xml:"Rss" require:"true"`
+	AvailableBytes *int64 `json:"AvailableBytes,omitempty" xml:"AvailableBytes,omitempty" require:"true"`
+	UsageBytes     *int64 `json:"UsageBytes,omitempty" xml:"UsageBytes,omitempty" require:"true"`
+	Cache          *int64 `json:"Cache,omitempty" xml:"Cache,omitempty" require:"true"`
+	WorkingSet     *int64 `json:"WorkingSet,omitempty" xml:"WorkingSet,omitempty" require:"true"`
+	Rss            *int64 `json:"Rss,omitempty" xml:"Rss,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsMemory) String() string {
@@ -876,7 +762,7 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsMemory) Set
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetwork struct {
-	Interfaces []*DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetworkInterfaces `json:"Interfaces" xml:"Interfaces" require:"true" type:"Repeated"`
+	Interfaces []*DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetworkInterfaces `json:"Interfaces,omitempty" xml:"Interfaces,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetwork) String() string {
@@ -893,11 +779,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetwork) Se
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetworkInterfaces struct {
-	TxBytes  *int64  `json:"TxBytes" xml:"TxBytes" require:"true"`
-	RxBytes  *int64  `json:"RxBytes" xml:"RxBytes" require:"true"`
-	TxErrors *int64  `json:"TxErrors" xml:"TxErrors" require:"true"`
-	RxErrors *int64  `json:"RxErrors" xml:"RxErrors" require:"true"`
-	Name     *string `json:"Name" xml:"Name" require:"true"`
+	TxBytes  *int64  `json:"TxBytes,omitempty" xml:"TxBytes,omitempty" require:"true"`
+	RxBytes  *int64  `json:"RxBytes,omitempty" xml:"RxBytes,omitempty" require:"true"`
+	TxErrors *int64  `json:"TxErrors,omitempty" xml:"TxErrors,omitempty" require:"true"`
+	RxErrors *int64  `json:"RxErrors,omitempty" xml:"RxErrors,omitempty" require:"true"`
+	Name     *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetworkInterfaces) String() string {
@@ -934,13 +820,13 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasRecordsNetworkInte
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos struct {
-	Id             *string                                                                              `json:"Id" xml:"Id" require:"true"`
-	Name           *string                                                                              `json:"Name" xml:"Name" require:"true"`
-	Namespace      *string                                                                              `json:"Namespace" xml:"Namespace" require:"true"`
-	Labels         *string                                                                              `json:"Labels" xml:"Labels" require:"true"`
-	ContainerStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStats `json:"ContainerStats" xml:"ContainerStats" require:"true" type:"Repeated"`
-	ContainerSpec  *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpec    `json:"ContainerSpec" xml:"ContainerSpec" require:"true" type:"Struct"`
-	Aliases        []*string                                                                            `json:"Aliases" xml:"Aliases" require:"true" type:"Repeated"`
+	Id             *string                                                                              `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name           *string                                                                              `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Namespace      *string                                                                              `json:"Namespace,omitempty" xml:"Namespace,omitempty" require:"true"`
+	Labels         *string                                                                              `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true"`
+	ContainerStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStats `json:"ContainerStats,omitempty" xml:"ContainerStats,omitempty" require:"true" type:"Repeated"`
+	ContainerSpec  *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpec    `json:"ContainerSpec,omitempty" xml:"ContainerSpec,omitempty" require:"true" type:"Struct"`
+	Aliases        []*string                                                                            `json:"Aliases,omitempty" xml:"Aliases,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos) String() string {
@@ -987,14 +873,14 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfos) Se
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStats struct {
-	Timestamp        *string                                                                                              `json:"Timestamp" xml:"Timestamp" require:"true"`
-	FsStats          []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsFsStats          `json:"FsStats" xml:"FsStats" require:"true" type:"Repeated"`
-	AcceleratorStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsAcceleratorStats `json:"AcceleratorStats" xml:"AcceleratorStats" require:"true" type:"Repeated"`
-	CpuStats         *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStats           `json:"CpuStats" xml:"CpuStats" require:"true" type:"Struct"`
-	DiskIoStats      *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStats        `json:"DiskIoStats" xml:"DiskIoStats" require:"true" type:"Struct"`
-	MemoryStats      *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStats        `json:"MemoryStats" xml:"MemoryStats" require:"true" type:"Struct"`
-	NetworkStats     *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStats       `json:"NetworkStats" xml:"NetworkStats" require:"true" type:"Struct"`
-	TaskStats        *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsTaskStats          `json:"TaskStats" xml:"TaskStats" require:"true" type:"Struct"`
+	Timestamp        *string                                                                                              `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	FsStats          []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsFsStats          `json:"FsStats,omitempty" xml:"FsStats,omitempty" require:"true" type:"Repeated"`
+	AcceleratorStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsAcceleratorStats `json:"AcceleratorStats,omitempty" xml:"AcceleratorStats,omitempty" require:"true" type:"Repeated"`
+	CpuStats         *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStats           `json:"CpuStats,omitempty" xml:"CpuStats,omitempty" require:"true" type:"Struct"`
+	DiskIoStats      *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStats        `json:"DiskIoStats,omitempty" xml:"DiskIoStats,omitempty" require:"true" type:"Struct"`
+	MemoryStats      *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStats        `json:"MemoryStats,omitempty" xml:"MemoryStats,omitempty" require:"true" type:"Struct"`
+	NetworkStats     *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStats       `json:"NetworkStats,omitempty" xml:"NetworkStats,omitempty" require:"true" type:"Struct"`
+	TaskStats        *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsTaskStats          `json:"TaskStats,omitempty" xml:"TaskStats,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStats) String() string {
@@ -1046,26 +932,26 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsFsStats struct {
-	Device          *string `json:"Device" xml:"Device" require:"true"`
-	Type            *string `json:"Type" xml:"Type" require:"true"`
-	Limit           *int64  `json:"Limit" xml:"Limit" require:"true"`
-	Usage           *int64  `json:"Usage" xml:"Usage" require:"true"`
-	BaseUsage       *int64  `json:"BaseUsage" xml:"BaseUsage" require:"true"`
-	Available       *int64  `json:"Available" xml:"Available" require:"true"`
-	HasInodes       *bool   `json:"HasInodes" xml:"HasInodes" require:"true"`
-	Inodes          *int64  `json:"Inodes" xml:"Inodes" require:"true"`
-	InodesFree      *int64  `json:"InodesFree" xml:"InodesFree" require:"true"`
-	ReadsCompleted  *int64  `json:"ReadsCompleted" xml:"ReadsCompleted" require:"true"`
-	ReadsMerged     *int64  `json:"ReadsMerged" xml:"ReadsMerged" require:"true"`
-	SectorsRead     *int64  `json:"SectorsRead" xml:"SectorsRead" require:"true"`
-	ReadTime        *int64  `json:"ReadTime" xml:"ReadTime" require:"true"`
-	WritesCompleted *int64  `json:"WritesCompleted" xml:"WritesCompleted" require:"true"`
-	WritesMerged    *int64  `json:"WritesMerged" xml:"WritesMerged" require:"true"`
-	SectorsWritten  *int64  `json:"SectorsWritten" xml:"SectorsWritten" require:"true"`
-	WriteTime       *int64  `json:"WriteTime" xml:"WriteTime" require:"true"`
-	IoInProgress    *int64  `json:"IoInProgress" xml:"IoInProgress" require:"true"`
-	IoTime          *int64  `json:"IoTime" xml:"IoTime" require:"true"`
-	WeightedIoTime  *int64  `json:"WeightedIoTime" xml:"WeightedIoTime" require:"true"`
+	Device          *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Type            *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Limit           *int64  `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
+	Usage           *int64  `json:"Usage,omitempty" xml:"Usage,omitempty" require:"true"`
+	BaseUsage       *int64  `json:"BaseUsage,omitempty" xml:"BaseUsage,omitempty" require:"true"`
+	Available       *int64  `json:"Available,omitempty" xml:"Available,omitempty" require:"true"`
+	HasInodes       *bool   `json:"HasInodes,omitempty" xml:"HasInodes,omitempty" require:"true"`
+	Inodes          *int64  `json:"Inodes,omitempty" xml:"Inodes,omitempty" require:"true"`
+	InodesFree      *int64  `json:"InodesFree,omitempty" xml:"InodesFree,omitempty" require:"true"`
+	ReadsCompleted  *int64  `json:"ReadsCompleted,omitempty" xml:"ReadsCompleted,omitempty" require:"true"`
+	ReadsMerged     *int64  `json:"ReadsMerged,omitempty" xml:"ReadsMerged,omitempty" require:"true"`
+	SectorsRead     *int64  `json:"SectorsRead,omitempty" xml:"SectorsRead,omitempty" require:"true"`
+	ReadTime        *int64  `json:"ReadTime,omitempty" xml:"ReadTime,omitempty" require:"true"`
+	WritesCompleted *int64  `json:"WritesCompleted,omitempty" xml:"WritesCompleted,omitempty" require:"true"`
+	WritesMerged    *int64  `json:"WritesMerged,omitempty" xml:"WritesMerged,omitempty" require:"true"`
+	SectorsWritten  *int64  `json:"SectorsWritten,omitempty" xml:"SectorsWritten,omitempty" require:"true"`
+	WriteTime       *int64  `json:"WriteTime,omitempty" xml:"WriteTime,omitempty" require:"true"`
+	IoInProgress    *int64  `json:"IoInProgress,omitempty" xml:"IoInProgress,omitempty" require:"true"`
+	IoTime          *int64  `json:"IoTime,omitempty" xml:"IoTime,omitempty" require:"true"`
+	WeightedIoTime  *int64  `json:"WeightedIoTime,omitempty" xml:"WeightedIoTime,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsFsStats) String() string {
@@ -1177,12 +1063,12 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsAcceleratorStats struct {
-	Id          *string `json:"Id" xml:"Id" require:"true"`
-	Make        *string `json:"Make" xml:"Make" require:"true"`
-	Model       *string `json:"Model" xml:"Model" require:"true"`
-	MemoryTotal *int64  `json:"MemoryTotal" xml:"MemoryTotal" require:"true"`
-	MemoryUsed  *int64  `json:"MemoryUsed" xml:"MemoryUsed" require:"true"`
-	DutyCycle   *int64  `json:"DutyCycle" xml:"DutyCycle" require:"true"`
+	Id          *string `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Make        *string `json:"Make,omitempty" xml:"Make,omitempty" require:"true"`
+	Model       *string `json:"Model,omitempty" xml:"Model,omitempty" require:"true"`
+	MemoryTotal *int64  `json:"MemoryTotal,omitempty" xml:"MemoryTotal,omitempty" require:"true"`
+	MemoryUsed  *int64  `json:"MemoryUsed,omitempty" xml:"MemoryUsed,omitempty" require:"true"`
+	DutyCycle   *int64  `json:"DutyCycle,omitempty" xml:"DutyCycle,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsAcceleratorStats) String() string {
@@ -1224,9 +1110,9 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStats struct {
-	LoadAverage *int64                                                                                             `json:"LoadAverage" xml:"LoadAverage" require:"true"`
-	CpuUsage    *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage `json:"CpuUsage" xml:"CpuUsage" require:"true" type:"Struct"`
-	CpuCFS      *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuCFS   `json:"CpuCFS" xml:"CpuCFS" require:"true" type:"Struct"`
+	LoadAverage *int64                                                                                             `json:"LoadAverage,omitempty" xml:"LoadAverage,omitempty" require:"true"`
+	CpuUsage    *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage `json:"CpuUsage,omitempty" xml:"CpuUsage,omitempty" require:"true" type:"Struct"`
+	CpuCFS      *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuCFS   `json:"CpuCFS,omitempty" xml:"CpuCFS,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStats) String() string {
@@ -1253,10 +1139,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage struct {
-	Total        *int64   `json:"Total" xml:"Total" require:"true"`
-	User         *int64   `json:"User" xml:"User" require:"true"`
-	System       *int64   `json:"System" xml:"System" require:"true"`
-	PerCpuUsages []*int64 `json:"PerCpuUsages" xml:"PerCpuUsages" require:"true" type:"Repeated"`
+	Total        *int64   `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	User         *int64   `json:"User,omitempty" xml:"User,omitempty" require:"true"`
+	System       *int64   `json:"System,omitempty" xml:"System,omitempty" require:"true"`
+	PerCpuUsages []*int64 `json:"PerCpuUsages,omitempty" xml:"PerCpuUsages,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuUsage) String() string {
@@ -1288,9 +1174,9 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuCFS struct {
-	Periods          *int64 `json:"Periods" xml:"Periods" require:"true"`
-	ThrottledPeriods *int64 `json:"ThrottledPeriods" xml:"ThrottledPeriods" require:"true"`
-	ThrottledTime    *int64 `json:"ThrottledTime" xml:"ThrottledTime" require:"true"`
+	Periods          *int64 `json:"Periods,omitempty" xml:"Periods,omitempty" require:"true"`
+	ThrottledPeriods *int64 `json:"ThrottledPeriods,omitempty" xml:"ThrottledPeriods,omitempty" require:"true"`
+	ThrottledTime    *int64 `json:"ThrottledTime,omitempty" xml:"ThrottledTime,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsCpuStatsCpuCFS) String() string {
@@ -1317,14 +1203,14 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStats struct {
-	IoServiceBytes []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceBytes `json:"IoServiceBytes" xml:"IoServiceBytes" require:"true" type:"Repeated"`
-	IoServiced     []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiced     `json:"IoServiced" xml:"IoServiced" require:"true" type:"Repeated"`
-	IoQueued       []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoQueued       `json:"IoQueued" xml:"IoQueued" require:"true" type:"Repeated"`
-	Sectors        []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsSectors        `json:"Sectors" xml:"Sectors" require:"true" type:"Repeated"`
-	IoServiceTime  []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceTime  `json:"IoServiceTime" xml:"IoServiceTime" require:"true" type:"Repeated"`
-	IoWaitTime     []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoWaitTime     `json:"IoWaitTime" xml:"IoWaitTime" require:"true" type:"Repeated"`
-	IoMerged       []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoMerged       `json:"IoMerged" xml:"IoMerged" require:"true" type:"Repeated"`
-	IoTime         []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoTime         `json:"IoTime" xml:"IoTime" require:"true" type:"Repeated"`
+	IoServiceBytes []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceBytes `json:"IoServiceBytes,omitempty" xml:"IoServiceBytes,omitempty" require:"true" type:"Repeated"`
+	IoServiced     []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiced     `json:"IoServiced,omitempty" xml:"IoServiced,omitempty" require:"true" type:"Repeated"`
+	IoQueued       []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoQueued       `json:"IoQueued,omitempty" xml:"IoQueued,omitempty" require:"true" type:"Repeated"`
+	Sectors        []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsSectors        `json:"Sectors,omitempty" xml:"Sectors,omitempty" require:"true" type:"Repeated"`
+	IoServiceTime  []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceTime  `json:"IoServiceTime,omitempty" xml:"IoServiceTime,omitempty" require:"true" type:"Repeated"`
+	IoWaitTime     []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoWaitTime     `json:"IoWaitTime,omitempty" xml:"IoWaitTime,omitempty" require:"true" type:"Repeated"`
+	IoMerged       []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoMerged       `json:"IoMerged,omitempty" xml:"IoMerged,omitempty" require:"true" type:"Repeated"`
+	IoTime         []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoTime         `json:"IoTime,omitempty" xml:"IoTime,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStats) String() string {
@@ -1376,10 +1262,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceBytes struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceBytes) String() string {
@@ -1411,10 +1297,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiced struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiced) String() string {
@@ -1446,10 +1332,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoQueued struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoQueued) String() string {
@@ -1481,10 +1367,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsSectors struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsSectors) String() string {
@@ -1516,10 +1402,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceTime struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoServiceTime) String() string {
@@ -1551,10 +1437,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoWaitTime struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoWaitTime) String() string {
@@ -1586,10 +1472,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoMerged struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoMerged) String() string {
@@ -1621,10 +1507,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoTime struct {
-	Device *string `json:"Device" xml:"Device" require:"true"`
-	Major  *int64  `json:"Major" xml:"Major" require:"true"`
-	Minor  *int64  `json:"Minor" xml:"Minor" require:"true"`
-	Stats  *string `json:"Stats" xml:"Stats" require:"true"`
+	Device *string `json:"Device,omitempty" xml:"Device,omitempty" require:"true"`
+	Major  *int64  `json:"Major,omitempty" xml:"Major,omitempty" require:"true"`
+	Minor  *int64  `json:"Minor,omitempty" xml:"Minor,omitempty" require:"true"`
+	Stats  *string `json:"Stats,omitempty" xml:"Stats,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsDiskIoStatsIoTime) String() string {
@@ -1656,15 +1542,15 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStats struct {
-	Usage            *int64                                                                                                        `json:"Usage" xml:"Usage" require:"true"`
-	MaxUsage         *int64                                                                                                        `json:"MaxUsage" xml:"MaxUsage" require:"true"`
-	Cache            *int64                                                                                                        `json:"Cache" xml:"Cache" require:"true"`
-	Rss              *int64                                                                                                        `json:"Rss" xml:"Rss" require:"true"`
-	Swap             *int64                                                                                                        `json:"Swap" xml:"Swap" require:"true"`
-	WorkingSet       *int64                                                                                                        `json:"WorkingSet" xml:"WorkingSet" require:"true"`
-	FailCnt          *int64                                                                                                        `json:"FailCnt" xml:"FailCnt" require:"true"`
-	ContainerData    *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsContainerData    `json:"ContainerData" xml:"ContainerData" require:"true" type:"Struct"`
-	HierarchicalData *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsHierarchicalData `json:"HierarchicalData" xml:"HierarchicalData" require:"true" type:"Struct"`
+	Usage            *int64                                                                                                        `json:"Usage,omitempty" xml:"Usage,omitempty" require:"true"`
+	MaxUsage         *int64                                                                                                        `json:"MaxUsage,omitempty" xml:"MaxUsage,omitempty" require:"true"`
+	Cache            *int64                                                                                                        `json:"Cache,omitempty" xml:"Cache,omitempty" require:"true"`
+	Rss              *int64                                                                                                        `json:"Rss,omitempty" xml:"Rss,omitempty" require:"true"`
+	Swap             *int64                                                                                                        `json:"Swap,omitempty" xml:"Swap,omitempty" require:"true"`
+	WorkingSet       *int64                                                                                                        `json:"WorkingSet,omitempty" xml:"WorkingSet,omitempty" require:"true"`
+	FailCnt          *int64                                                                                                        `json:"FailCnt,omitempty" xml:"FailCnt,omitempty" require:"true"`
+	ContainerData    *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsContainerData    `json:"ContainerData,omitempty" xml:"ContainerData,omitempty" require:"true" type:"Struct"`
+	HierarchicalData *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsHierarchicalData `json:"HierarchicalData,omitempty" xml:"HierarchicalData,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStats) String() string {
@@ -1721,8 +1607,8 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsContainerData struct {
-	PgFault    *int64 `json:"PgFault" xml:"PgFault" require:"true"`
-	PgmajFault *int64 `json:"PgmajFault" xml:"PgmajFault" require:"true"`
+	PgFault    *int64 `json:"PgFault,omitempty" xml:"PgFault,omitempty" require:"true"`
+	PgmajFault *int64 `json:"PgmajFault,omitempty" xml:"PgmajFault,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsContainerData) String() string {
@@ -1744,8 +1630,8 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsHierarchicalData struct {
-	PgFault    *int64 `json:"PgFault" xml:"PgFault" require:"true"`
-	PgmajFault *int64 `json:"PgmajFault" xml:"PgmajFault" require:"true"`
+	PgFault    *int64 `json:"PgFault,omitempty" xml:"PgFault,omitempty" require:"true"`
+	PgmajFault *int64 `json:"PgmajFault,omitempty" xml:"PgmajFault,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsMemoryStatsHierarchicalData) String() string {
@@ -1767,20 +1653,20 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStats struct {
-	Name           *string                                                                                                        `json:"Name" xml:"Name" require:"true"`
-	RxBytes        *int64                                                                                                         `json:"RxBytes" xml:"RxBytes" require:"true"`
-	RxPackets      *int64                                                                                                         `json:"RxPackets" xml:"RxPackets" require:"true"`
-	RxErrors       *int64                                                                                                         `json:"RxErrors" xml:"RxErrors" require:"true"`
-	RxDropped      *int64                                                                                                         `json:"RxDropped" xml:"RxDropped" require:"true"`
-	TxBytes        *int64                                                                                                         `json:"TxBytes" xml:"TxBytes" require:"true"`
-	TxPackets      *int64                                                                                                         `json:"TxPackets" xml:"TxPackets" require:"true"`
-	TxDropped      *int64                                                                                                         `json:"TxDropped" xml:"TxDropped" require:"true"`
-	TxErrors       *int64                                                                                                         `json:"TxErrors" xml:"TxErrors" require:"true"`
-	InterfaceStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsInterfaceStats `json:"InterfaceStats" xml:"InterfaceStats" require:"true" type:"Repeated"`
-	Tcp            *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp              `json:"Tcp" xml:"Tcp" require:"true" type:"Struct"`
-	Tcp6           *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp6             `json:"Tcp6" xml:"Tcp6" require:"true" type:"Struct"`
-	Udp            *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp              `json:"Udp" xml:"Udp" require:"true" type:"Struct"`
-	Udp6           *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp6             `json:"Udp6" xml:"Udp6" require:"true" type:"Struct"`
+	Name           *string                                                                                                        `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RxBytes        *int64                                                                                                         `json:"RxBytes,omitempty" xml:"RxBytes,omitempty" require:"true"`
+	RxPackets      *int64                                                                                                         `json:"RxPackets,omitempty" xml:"RxPackets,omitempty" require:"true"`
+	RxErrors       *int64                                                                                                         `json:"RxErrors,omitempty" xml:"RxErrors,omitempty" require:"true"`
+	RxDropped      *int64                                                                                                         `json:"RxDropped,omitempty" xml:"RxDropped,omitempty" require:"true"`
+	TxBytes        *int64                                                                                                         `json:"TxBytes,omitempty" xml:"TxBytes,omitempty" require:"true"`
+	TxPackets      *int64                                                                                                         `json:"TxPackets,omitempty" xml:"TxPackets,omitempty" require:"true"`
+	TxDropped      *int64                                                                                                         `json:"TxDropped,omitempty" xml:"TxDropped,omitempty" require:"true"`
+	TxErrors       *int64                                                                                                         `json:"TxErrors,omitempty" xml:"TxErrors,omitempty" require:"true"`
+	InterfaceStats []*DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsInterfaceStats `json:"InterfaceStats,omitempty" xml:"InterfaceStats,omitempty" require:"true" type:"Repeated"`
+	Tcp            *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp              `json:"Tcp,omitempty" xml:"Tcp,omitempty" require:"true" type:"Struct"`
+	Tcp6           *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp6             `json:"Tcp6,omitempty" xml:"Tcp6,omitempty" require:"true" type:"Struct"`
+	Udp            *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp              `json:"Udp,omitempty" xml:"Udp,omitempty" require:"true" type:"Struct"`
+	Udp6           *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp6             `json:"Udp6,omitempty" xml:"Udp6,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStats) String() string {
@@ -1862,15 +1748,15 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsInterfaceStats struct {
-	Name      *string `json:"Name" xml:"Name" require:"true"`
-	RxBytes   *int64  `json:"RxBytes" xml:"RxBytes" require:"true"`
-	RxPackets *int64  `json:"RxPackets" xml:"RxPackets" require:"true"`
-	RxErrors  *int64  `json:"RxErrors" xml:"RxErrors" require:"true"`
-	RxDropped *int64  `json:"RxDropped" xml:"RxDropped" require:"true"`
-	TxBytes   *int64  `json:"TxBytes" xml:"TxBytes" require:"true"`
-	TxPackets *int64  `json:"TxPackets" xml:"TxPackets" require:"true"`
-	TxDropped *int64  `json:"TxDropped" xml:"TxDropped" require:"true"`
-	TxErrors  *int64  `json:"TxErrors" xml:"TxErrors" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RxBytes   *int64  `json:"RxBytes,omitempty" xml:"RxBytes,omitempty" require:"true"`
+	RxPackets *int64  `json:"RxPackets,omitempty" xml:"RxPackets,omitempty" require:"true"`
+	RxErrors  *int64  `json:"RxErrors,omitempty" xml:"RxErrors,omitempty" require:"true"`
+	RxDropped *int64  `json:"RxDropped,omitempty" xml:"RxDropped,omitempty" require:"true"`
+	TxBytes   *int64  `json:"TxBytes,omitempty" xml:"TxBytes,omitempty" require:"true"`
+	TxPackets *int64  `json:"TxPackets,omitempty" xml:"TxPackets,omitempty" require:"true"`
+	TxDropped *int64  `json:"TxDropped,omitempty" xml:"TxDropped,omitempty" require:"true"`
+	TxErrors  *int64  `json:"TxErrors,omitempty" xml:"TxErrors,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsInterfaceStats) String() string {
@@ -1927,17 +1813,17 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp struct {
-	Established *int64 `json:"Established" xml:"Established" require:"true"`
-	SynSent     *int64 `json:"SynSent" xml:"SynSent" require:"true"`
-	SynRecv     *int64 `json:"SynRecv" xml:"SynRecv" require:"true"`
-	FinWait1    *int64 `json:"FinWait1" xml:"FinWait1" require:"true"`
-	FinWait2    *int64 `json:"FinWait2" xml:"FinWait2" require:"true"`
-	TimeWait    *int64 `json:"TimeWait" xml:"TimeWait" require:"true"`
-	Close       *int64 `json:"Close" xml:"Close" require:"true"`
-	CloseWait   *int64 `json:"CloseWait" xml:"CloseWait" require:"true"`
-	LastAck     *int64 `json:"LastAck" xml:"LastAck" require:"true"`
-	Listen      *int64 `json:"Listen" xml:"Listen" require:"true"`
-	Closing     *int64 `json:"Closing" xml:"Closing" require:"true"`
+	Established *int64 `json:"Established,omitempty" xml:"Established,omitempty" require:"true"`
+	SynSent     *int64 `json:"SynSent,omitempty" xml:"SynSent,omitempty" require:"true"`
+	SynRecv     *int64 `json:"SynRecv,omitempty" xml:"SynRecv,omitempty" require:"true"`
+	FinWait1    *int64 `json:"FinWait1,omitempty" xml:"FinWait1,omitempty" require:"true"`
+	FinWait2    *int64 `json:"FinWait2,omitempty" xml:"FinWait2,omitempty" require:"true"`
+	TimeWait    *int64 `json:"TimeWait,omitempty" xml:"TimeWait,omitempty" require:"true"`
+	Close       *int64 `json:"Close,omitempty" xml:"Close,omitempty" require:"true"`
+	CloseWait   *int64 `json:"CloseWait,omitempty" xml:"CloseWait,omitempty" require:"true"`
+	LastAck     *int64 `json:"LastAck,omitempty" xml:"LastAck,omitempty" require:"true"`
+	Listen      *int64 `json:"Listen,omitempty" xml:"Listen,omitempty" require:"true"`
+	Closing     *int64 `json:"Closing,omitempty" xml:"Closing,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp) String() string {
@@ -2004,17 +1890,17 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp6 struct {
-	Established *int64 `json:"Established" xml:"Established" require:"true"`
-	SynSent     *int64 `json:"SynSent" xml:"SynSent" require:"true"`
-	SynRecv     *int64 `json:"SynRecv" xml:"SynRecv" require:"true"`
-	FinWait1    *int64 `json:"FinWait1" xml:"FinWait1" require:"true"`
-	FinWait2    *int64 `json:"FinWait2" xml:"FinWait2" require:"true"`
-	TimeWait    *int64 `json:"TimeWait" xml:"TimeWait" require:"true"`
-	Close       *int64 `json:"Close" xml:"Close" require:"true"`
-	CloseWait   *int64 `json:"CloseWait" xml:"CloseWait" require:"true"`
-	LastAck     *int64 `json:"LastAck" xml:"LastAck" require:"true"`
-	Listen      *int64 `json:"Listen" xml:"Listen" require:"true"`
-	Closing     *int64 `json:"Closing" xml:"Closing" require:"true"`
+	Established *int64 `json:"Established,omitempty" xml:"Established,omitempty" require:"true"`
+	SynSent     *int64 `json:"SynSent,omitempty" xml:"SynSent,omitempty" require:"true"`
+	SynRecv     *int64 `json:"SynRecv,omitempty" xml:"SynRecv,omitempty" require:"true"`
+	FinWait1    *int64 `json:"FinWait1,omitempty" xml:"FinWait1,omitempty" require:"true"`
+	FinWait2    *int64 `json:"FinWait2,omitempty" xml:"FinWait2,omitempty" require:"true"`
+	TimeWait    *int64 `json:"TimeWait,omitempty" xml:"TimeWait,omitempty" require:"true"`
+	Close       *int64 `json:"Close,omitempty" xml:"Close,omitempty" require:"true"`
+	CloseWait   *int64 `json:"CloseWait,omitempty" xml:"CloseWait,omitempty" require:"true"`
+	LastAck     *int64 `json:"LastAck,omitempty" xml:"LastAck,omitempty" require:"true"`
+	Listen      *int64 `json:"Listen,omitempty" xml:"Listen,omitempty" require:"true"`
+	Closing     *int64 `json:"Closing,omitempty" xml:"Closing,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsTcp6) String() string {
@@ -2081,10 +1967,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp struct {
-	Listen   *int64 `json:"Listen" xml:"Listen" require:"true"`
-	Dropped  *int64 `json:"Dropped" xml:"Dropped" require:"true"`
-	RxQueued *int64 `json:"RxQueued" xml:"RxQueued" require:"true"`
-	TxQueued *int64 `json:"TxQueued" xml:"TxQueued" require:"true"`
+	Listen   *int64 `json:"Listen,omitempty" xml:"Listen,omitempty" require:"true"`
+	Dropped  *int64 `json:"Dropped,omitempty" xml:"Dropped,omitempty" require:"true"`
+	RxQueued *int64 `json:"RxQueued,omitempty" xml:"RxQueued,omitempty" require:"true"`
+	TxQueued *int64 `json:"TxQueued,omitempty" xml:"TxQueued,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp) String() string {
@@ -2116,10 +2002,10 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp6 struct {
-	Listen   *int64 `json:"Listen" xml:"Listen" require:"true"`
-	Dropped  *int64 `json:"Dropped" xml:"Dropped" require:"true"`
-	RxQueued *int64 `json:"RxQueued" xml:"RxQueued" require:"true"`
-	TxQueued *int64 `json:"TxQueued" xml:"TxQueued" require:"true"`
+	Listen   *int64 `json:"Listen,omitempty" xml:"Listen,omitempty" require:"true"`
+	Dropped  *int64 `json:"Dropped,omitempty" xml:"Dropped,omitempty" require:"true"`
+	RxQueued *int64 `json:"RxQueued,omitempty" xml:"RxQueued,omitempty" require:"true"`
+	TxQueued *int64 `json:"TxQueued,omitempty" xml:"TxQueued,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsNetworkStatsUdp6) String() string {
@@ -2151,11 +2037,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsTaskStats struct {
-	NrSleeping        *int64 `json:"NrSleeping" xml:"NrSleeping" require:"true"`
-	NrRunning         *int64 `json:"NrRunning" xml:"NrRunning" require:"true"`
-	NrStopped         *int64 `json:"NrStopped" xml:"NrStopped" require:"true"`
-	NrUninterruptible *int64 `json:"NrUninterruptible" xml:"NrUninterruptible" require:"true"`
-	NrIoWait          *int64 `json:"NrIoWait" xml:"NrIoWait" require:"true"`
+	NrSleeping        *int64 `json:"NrSleeping,omitempty" xml:"NrSleeping,omitempty" require:"true"`
+	NrRunning         *int64 `json:"NrRunning,omitempty" xml:"NrRunning,omitempty" require:"true"`
+	NrStopped         *int64 `json:"NrStopped,omitempty" xml:"NrStopped,omitempty" require:"true"`
+	NrUninterruptible *int64 `json:"NrUninterruptible,omitempty" xml:"NrUninterruptible,omitempty" require:"true"`
+	NrIoWait          *int64 `json:"NrIoWait,omitempty" xml:"NrIoWait,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerStatsTaskStats) String() string {
@@ -2192,18 +2078,18 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpec struct {
-	CreationTime     *string                                                                                          `json:"CreationTime" xml:"CreationTime" require:"true"`
-	HasCpu           *bool                                                                                            `json:"HasCpu" xml:"HasCpu" require:"true"`
-	HasMemory        *bool                                                                                            `json:"HasMemory" xml:"HasMemory" require:"true"`
-	HasNetwork       *bool                                                                                            `json:"HasNetwork" xml:"HasNetwork" require:"true"`
-	HasFilesystem    *bool                                                                                            `json:"HasFilesystem" xml:"HasFilesystem" require:"true"`
-	HasDiskIo        *bool                                                                                            `json:"HasDiskIo" xml:"HasDiskIo" require:"true"`
-	HasCustomMetrics *bool                                                                                            `json:"HasCustomMetrics" xml:"HasCustomMetrics" require:"true"`
-	Image            *string                                                                                          `json:"Image" xml:"Image" require:"true"`
-	Labels           *string                                                                                          `json:"Labels" xml:"Labels" require:"true"`
-	Envs             *string                                                                                          `json:"Envs" xml:"Envs" require:"true"`
-	ContainerCpu     *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerCpu    `json:"ContainerCpu" xml:"ContainerCpu" require:"true" type:"Struct"`
-	ContainerMemory  *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerMemory `json:"ContainerMemory" xml:"ContainerMemory" require:"true" type:"Struct"`
+	CreationTime     *string                                                                                          `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	HasCpu           *bool                                                                                            `json:"HasCpu,omitempty" xml:"HasCpu,omitempty" require:"true"`
+	HasMemory        *bool                                                                                            `json:"HasMemory,omitempty" xml:"HasMemory,omitempty" require:"true"`
+	HasNetwork       *bool                                                                                            `json:"HasNetwork,omitempty" xml:"HasNetwork,omitempty" require:"true"`
+	HasFilesystem    *bool                                                                                            `json:"HasFilesystem,omitempty" xml:"HasFilesystem,omitempty" require:"true"`
+	HasDiskIo        *bool                                                                                            `json:"HasDiskIo,omitempty" xml:"HasDiskIo,omitempty" require:"true"`
+	HasCustomMetrics *bool                                                                                            `json:"HasCustomMetrics,omitempty" xml:"HasCustomMetrics,omitempty" require:"true"`
+	Image            *string                                                                                          `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	Labels           *string                                                                                          `json:"Labels,omitempty" xml:"Labels,omitempty" require:"true"`
+	Envs             *string                                                                                          `json:"Envs,omitempty" xml:"Envs,omitempty" require:"true"`
+	ContainerCpu     *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerCpu    `json:"ContainerCpu,omitempty" xml:"ContainerCpu,omitempty" require:"true" type:"Struct"`
+	ContainerMemory  *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerMemory `json:"ContainerMemory,omitempty" xml:"ContainerMemory,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpec) String() string {
@@ -2275,11 +2161,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerCpu struct {
-	Limit    *int64  `json:"Limit" xml:"Limit" require:"true"`
-	MaxLimit *int64  `json:"MaxLimit" xml:"MaxLimit" require:"true"`
-	Mask     *string `json:"Mask" xml:"Mask" require:"true"`
-	Quota    *int64  `json:"Quota" xml:"Quota" require:"true"`
-	Period   *int64  `json:"Period" xml:"Period" require:"true"`
+	Limit    *int64  `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
+	MaxLimit *int64  `json:"MaxLimit,omitempty" xml:"MaxLimit,omitempty" require:"true"`
+	Mask     *string `json:"Mask,omitempty" xml:"Mask,omitempty" require:"true"`
+	Quota    *int64  `json:"Quota,omitempty" xml:"Quota,omitempty" require:"true"`
+	Period   *int64  `json:"Period,omitempty" xml:"Period,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerCpu) String() string {
@@ -2316,9 +2202,9 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerMemory struct {
-	Limit       *int64 `json:"Limit" xml:"Limit" require:"true"`
-	Reservation *int64 `json:"Reservation" xml:"Reservation" require:"true"`
-	SwapLimit   *int64 `json:"SwapLimit" xml:"SwapLimit" require:"true"`
+	Limit       *int64 `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
+	Reservation *int64 `json:"Reservation,omitempty" xml:"Reservation,omitempty" require:"true"`
+	SwapLimit   *int64 `json:"SwapLimit,omitempty" xml:"SwapLimit,omitempty" require:"true"`
 }
 
 func (s DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosContainerSpecContainerMemory) String() string {
@@ -2345,15 +2231,11 @@ func (s *DescribeMultiContainerGroupMetricResponseMonitorDatasContainerInfosCont
 }
 
 type DescribeContainerGroupMetricRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupId     *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	StartTime            *string `json:"StartTime" xml:"StartTime"`
-	EndTime              *string `json:"EndTime" xml:"EndTime"`
-	Period               *string `json:"Period" xml:"Period"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	StartTime        *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime          *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	Period           *string `json:"Period,omitempty" xml:"Period,omitempty"`
 }
 
 func (s DescribeContainerGroupMetricRequest) String() string {
@@ -2362,26 +2244,6 @@ func (s DescribeContainerGroupMetricRequest) String() string {
 
 func (s DescribeContainerGroupMetricRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeContainerGroupMetricRequest) SetOwnerId(v int64) *DescribeContainerGroupMetricRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerGroupMetricRequest) SetResourceOwnerAccount(v string) *DescribeContainerGroupMetricRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeContainerGroupMetricRequest) SetResourceOwnerId(v int64) *DescribeContainerGroupMetricRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerGroupMetricRequest) SetOwnerAccount(v string) *DescribeContainerGroupMetricRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeContainerGroupMetricRequest) SetRegionId(v string) *DescribeContainerGroupMetricRequest {
@@ -2410,9 +2272,9 @@ func (s *DescribeContainerGroupMetricRequest) SetPeriod(v string) *DescribeConta
 }
 
 type DescribeContainerGroupMetricResponse struct {
-	RequestId        *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	ContainerGroupId *string                                        `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	Records          []*DescribeContainerGroupMetricResponseRecords `json:"Records" xml:"Records" require:"true" type:"Repeated"`
+	RequestId        *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ContainerGroupId *string                                        `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	Records          []*DescribeContainerGroupMetricResponseRecords `json:"Records,omitempty" xml:"Records,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupMetricResponse) String() string {
@@ -2439,11 +2301,11 @@ func (s *DescribeContainerGroupMetricResponse) SetRecords(v []*DescribeContainer
 }
 
 type DescribeContainerGroupMetricResponseRecords struct {
-	Timestamp  *string                                                  `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Containers []*DescribeContainerGroupMetricResponseRecordsContainers `json:"Containers" xml:"Containers" require:"true" type:"Repeated"`
-	CPU        *DescribeContainerGroupMetricResponseRecordsCPU          `json:"CPU" xml:"CPU" require:"true" type:"Struct"`
-	Memory     *DescribeContainerGroupMetricResponseRecordsMemory       `json:"Memory" xml:"Memory" require:"true" type:"Struct"`
-	Network    *DescribeContainerGroupMetricResponseRecordsNetwork      `json:"Network" xml:"Network" require:"true" type:"Struct"`
+	Timestamp  *string                                                  `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Containers []*DescribeContainerGroupMetricResponseRecordsContainers `json:"Containers,omitempty" xml:"Containers,omitempty" require:"true" type:"Repeated"`
+	CPU        *DescribeContainerGroupMetricResponseRecordsCPU          `json:"CPU,omitempty" xml:"CPU,omitempty" require:"true" type:"Struct"`
+	Memory     *DescribeContainerGroupMetricResponseRecordsMemory       `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true" type:"Struct"`
+	Network    *DescribeContainerGroupMetricResponseRecordsNetwork      `json:"Network,omitempty" xml:"Network,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecords) String() string {
@@ -2480,9 +2342,9 @@ func (s *DescribeContainerGroupMetricResponseRecords) SetNetwork(v *DescribeCont
 }
 
 type DescribeContainerGroupMetricResponseRecordsContainers struct {
-	Name   *string                                                      `json:"Name" xml:"Name" require:"true"`
-	CPU    *DescribeContainerGroupMetricResponseRecordsContainersCPU    `json:"CPU" xml:"CPU" require:"true" type:"Struct"`
-	Memory *DescribeContainerGroupMetricResponseRecordsContainersMemory `json:"Memory" xml:"Memory" require:"true" type:"Struct"`
+	Name   *string                                                      `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	CPU    *DescribeContainerGroupMetricResponseRecordsContainersCPU    `json:"CPU,omitempty" xml:"CPU,omitempty" require:"true" type:"Struct"`
+	Memory *DescribeContainerGroupMetricResponseRecordsContainersMemory `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsContainers) String() string {
@@ -2509,10 +2371,10 @@ func (s *DescribeContainerGroupMetricResponseRecordsContainers) SetMemory(v *Des
 }
 
 type DescribeContainerGroupMetricResponseRecordsContainersCPU struct {
-	UsageNanoCores       *int64 `json:"UsageNanoCores" xml:"UsageNanoCores" require:"true"`
-	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds" xml:"UsageCoreNanoSeconds" require:"true"`
-	Load                 *int64 `json:"Load" xml:"Load" require:"true"`
-	Limit                *int64 `json:"Limit" xml:"Limit" require:"true"`
+	UsageNanoCores       *int64 `json:"UsageNanoCores,omitempty" xml:"UsageNanoCores,omitempty" require:"true"`
+	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds,omitempty" xml:"UsageCoreNanoSeconds,omitempty" require:"true"`
+	Load                 *int64 `json:"Load,omitempty" xml:"Load,omitempty" require:"true"`
+	Limit                *int64 `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsContainersCPU) String() string {
@@ -2544,11 +2406,11 @@ func (s *DescribeContainerGroupMetricResponseRecordsContainersCPU) SetLimit(v in
 }
 
 type DescribeContainerGroupMetricResponseRecordsContainersMemory struct {
-	AvailableBytes *int64 `json:"AvailableBytes" xml:"AvailableBytes" require:"true"`
-	UsageBytes     *int64 `json:"UsageBytes" xml:"UsageBytes" require:"true"`
-	Cache          *int64 `json:"Cache" xml:"Cache" require:"true"`
-	WorkingSet     *int64 `json:"WorkingSet" xml:"WorkingSet" require:"true"`
-	Rss            *int64 `json:"Rss" xml:"Rss" require:"true"`
+	AvailableBytes *int64 `json:"AvailableBytes,omitempty" xml:"AvailableBytes,omitempty" require:"true"`
+	UsageBytes     *int64 `json:"UsageBytes,omitempty" xml:"UsageBytes,omitempty" require:"true"`
+	Cache          *int64 `json:"Cache,omitempty" xml:"Cache,omitempty" require:"true"`
+	WorkingSet     *int64 `json:"WorkingSet,omitempty" xml:"WorkingSet,omitempty" require:"true"`
+	Rss            *int64 `json:"Rss,omitempty" xml:"Rss,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsContainersMemory) String() string {
@@ -2585,10 +2447,10 @@ func (s *DescribeContainerGroupMetricResponseRecordsContainersMemory) SetRss(v i
 }
 
 type DescribeContainerGroupMetricResponseRecordsCPU struct {
-	UsageNanoCores       *int64 `json:"UsageNanoCores" xml:"UsageNanoCores" require:"true"`
-	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds" xml:"UsageCoreNanoSeconds" require:"true"`
-	Load                 *int64 `json:"Load" xml:"Load" require:"true"`
-	Limit                *int64 `json:"Limit" xml:"Limit" require:"true"`
+	UsageNanoCores       *int64 `json:"UsageNanoCores,omitempty" xml:"UsageNanoCores,omitempty" require:"true"`
+	UsageCoreNanoSeconds *int64 `json:"UsageCoreNanoSeconds,omitempty" xml:"UsageCoreNanoSeconds,omitempty" require:"true"`
+	Load                 *int64 `json:"Load,omitempty" xml:"Load,omitempty" require:"true"`
+	Limit                *int64 `json:"Limit,omitempty" xml:"Limit,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsCPU) String() string {
@@ -2620,11 +2482,11 @@ func (s *DescribeContainerGroupMetricResponseRecordsCPU) SetLimit(v int64) *Desc
 }
 
 type DescribeContainerGroupMetricResponseRecordsMemory struct {
-	AvailableBytes *int64 `json:"AvailableBytes" xml:"AvailableBytes" require:"true"`
-	UsageBytes     *int64 `json:"UsageBytes" xml:"UsageBytes" require:"true"`
-	Cache          *int64 `json:"Cache" xml:"Cache" require:"true"`
-	WorkingSet     *int64 `json:"WorkingSet" xml:"WorkingSet" require:"true"`
-	Rss            *int64 `json:"Rss" xml:"Rss" require:"true"`
+	AvailableBytes *int64 `json:"AvailableBytes,omitempty" xml:"AvailableBytes,omitempty" require:"true"`
+	UsageBytes     *int64 `json:"UsageBytes,omitempty" xml:"UsageBytes,omitempty" require:"true"`
+	Cache          *int64 `json:"Cache,omitempty" xml:"Cache,omitempty" require:"true"`
+	WorkingSet     *int64 `json:"WorkingSet,omitempty" xml:"WorkingSet,omitempty" require:"true"`
+	Rss            *int64 `json:"Rss,omitempty" xml:"Rss,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsMemory) String() string {
@@ -2661,7 +2523,7 @@ func (s *DescribeContainerGroupMetricResponseRecordsMemory) SetRss(v int64) *Des
 }
 
 type DescribeContainerGroupMetricResponseRecordsNetwork struct {
-	Interfaces []*DescribeContainerGroupMetricResponseRecordsNetworkInterfaces `json:"Interfaces" xml:"Interfaces" require:"true" type:"Repeated"`
+	Interfaces []*DescribeContainerGroupMetricResponseRecordsNetworkInterfaces `json:"Interfaces,omitempty" xml:"Interfaces,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsNetwork) String() string {
@@ -2678,11 +2540,11 @@ func (s *DescribeContainerGroupMetricResponseRecordsNetwork) SetInterfaces(v []*
 }
 
 type DescribeContainerGroupMetricResponseRecordsNetworkInterfaces struct {
-	TxBytes  *int64  `json:"TxBytes" xml:"TxBytes" require:"true"`
-	RxBytes  *int64  `json:"RxBytes" xml:"RxBytes" require:"true"`
-	TxErrors *int64  `json:"TxErrors" xml:"TxErrors" require:"true"`
-	RxErrors *int64  `json:"RxErrors" xml:"RxErrors" require:"true"`
-	Name     *string `json:"Name" xml:"Name" require:"true"`
+	TxBytes  *int64  `json:"TxBytes,omitempty" xml:"TxBytes,omitempty" require:"true"`
+	RxBytes  *int64  `json:"RxBytes,omitempty" xml:"RxBytes,omitempty" require:"true"`
+	TxErrors *int64  `json:"TxErrors,omitempty" xml:"TxErrors,omitempty" require:"true"`
+	RxErrors *int64  `json:"RxErrors,omitempty" xml:"RxErrors,omitempty" require:"true"`
+	Name     *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupMetricResponseRecordsNetworkInterfaces) String() string {
@@ -2719,13 +2581,9 @@ func (s *DescribeContainerGroupMetricResponseRecordsNetworkInterfaces) SetName(v
 }
 
 type UpdateContainerGroupByTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Template             *string `json:"Template" xml:"Template" require:"true"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Template    *string `json:"Template,omitempty" xml:"Template,omitempty" require:"true"`
+	ClientToken *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s UpdateContainerGroupByTemplateRequest) String() string {
@@ -2734,26 +2592,6 @@ func (s UpdateContainerGroupByTemplateRequest) String() string {
 
 func (s UpdateContainerGroupByTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateContainerGroupByTemplateRequest) SetOwnerId(v int64) *UpdateContainerGroupByTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateContainerGroupByTemplateRequest) SetResourceOwnerAccount(v string) *UpdateContainerGroupByTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateContainerGroupByTemplateRequest) SetResourceOwnerId(v int64) *UpdateContainerGroupByTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *UpdateContainerGroupByTemplateRequest) SetOwnerAccount(v string) *UpdateContainerGroupByTemplateRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *UpdateContainerGroupByTemplateRequest) SetRegionId(v string) *UpdateContainerGroupByTemplateRequest {
@@ -2772,7 +2610,7 @@ func (s *UpdateContainerGroupByTemplateRequest) SetClientToken(v string) *Update
 }
 
 type UpdateContainerGroupByTemplateResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateContainerGroupByTemplateResponse) String() string {
@@ -2789,13 +2627,9 @@ func (s *UpdateContainerGroupByTemplateResponse) SetRequestId(v string) *UpdateC
 }
 
 type CreateContainerGroupFromTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Template             *string `json:"Template" xml:"Template" require:"true"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Template    *string `json:"Template,omitempty" xml:"Template,omitempty" require:"true"`
+	ClientToken *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s CreateContainerGroupFromTemplateRequest) String() string {
@@ -2804,26 +2638,6 @@ func (s CreateContainerGroupFromTemplateRequest) String() string {
 
 func (s CreateContainerGroupFromTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateContainerGroupFromTemplateRequest) SetOwnerId(v int64) *CreateContainerGroupFromTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateContainerGroupFromTemplateRequest) SetResourceOwnerAccount(v string) *CreateContainerGroupFromTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateContainerGroupFromTemplateRequest) SetResourceOwnerId(v int64) *CreateContainerGroupFromTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateContainerGroupFromTemplateRequest) SetOwnerAccount(v string) *CreateContainerGroupFromTemplateRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateContainerGroupFromTemplateRequest) SetRegionId(v string) *CreateContainerGroupFromTemplateRequest {
@@ -2842,8 +2656,8 @@ func (s *CreateContainerGroupFromTemplateRequest) SetClientToken(v string) *Crea
 }
 
 type CreateContainerGroupFromTemplateResponse struct {
-	RequestId        *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ContainerGroupId *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
+	RequestId        *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
 }
 
 func (s CreateContainerGroupFromTemplateResponse) String() string {
@@ -2865,12 +2679,8 @@ func (s *CreateContainerGroupFromTemplateResponse) SetContainerGroupId(v string)
 }
 
 type ExportContainerGroupTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId"`
-	ContainerGroupId     *string `json:"ContainerGroupId" xml:"ContainerGroupId"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty"`
 }
 
 func (s ExportContainerGroupTemplateRequest) String() string {
@@ -2879,26 +2689,6 @@ func (s ExportContainerGroupTemplateRequest) String() string {
 
 func (s ExportContainerGroupTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ExportContainerGroupTemplateRequest) SetOwnerId(v int64) *ExportContainerGroupTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ExportContainerGroupTemplateRequest) SetResourceOwnerAccount(v string) *ExportContainerGroupTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ExportContainerGroupTemplateRequest) SetResourceOwnerId(v int64) *ExportContainerGroupTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ExportContainerGroupTemplateRequest) SetOwnerAccount(v string) *ExportContainerGroupTemplateRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ExportContainerGroupTemplateRequest) SetRegionId(v string) *ExportContainerGroupTemplateRequest {
@@ -2912,8 +2702,8 @@ func (s *ExportContainerGroupTemplateRequest) SetContainerGroupId(v string) *Exp
 }
 
 type ExportContainerGroupTemplateResponse struct {
-	RequestId *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Template  *ExportContainerGroupTemplateResponseTemplate `json:"Template" xml:"Template" require:"true" type:"Struct"`
+	RequestId *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Template  *ExportContainerGroupTemplateResponseTemplate `json:"Template,omitempty" xml:"Template,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponse) String() string {
@@ -2935,17 +2725,17 @@ func (s *ExportContainerGroupTemplateResponse) SetTemplate(v *ExportContainerGro
 }
 
 type ExportContainerGroupTemplateResponseTemplate struct {
-	RegionId           *string                                                `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId             *string                                                `json:"ZoneId" xml:"ZoneId" require:"true"`
-	SecurityGroupId    *string                                                `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	VSwitchId          *string                                                `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	ResourceGroupId    *string                                                `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	EipInstanceId      *string                                                `json:"EipInstanceId" xml:"EipInstanceId" require:"true"`
-	ContainerGroupName *string                                                `json:"ContainerGroupName" xml:"ContainerGroupName" require:"true"`
-	InstanceType       *string                                                `json:"InstanceType" xml:"InstanceType" require:"true"`
-	Tags               []*ExportContainerGroupTemplateResponseTemplateTags    `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
-	Resources          *ExportContainerGroupTemplateResponseTemplateResources `json:"Resources" xml:"Resources" require:"true" type:"Struct"`
-	Spec               *ExportContainerGroupTemplateResponseTemplateSpec      `json:"Spec" xml:"Spec" require:"true" type:"Struct"`
+	RegionId           *string                                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId             *string                                                `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	SecurityGroupId    *string                                                `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	VSwitchId          *string                                                `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
+	ResourceGroupId    *string                                                `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	EipInstanceId      *string                                                `json:"EipInstanceId,omitempty" xml:"EipInstanceId,omitempty" require:"true"`
+	ContainerGroupName *string                                                `json:"ContainerGroupName,omitempty" xml:"ContainerGroupName,omitempty" require:"true"`
+	InstanceType       *string                                                `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	Tags               []*ExportContainerGroupTemplateResponseTemplateTags    `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
+	Resources          *ExportContainerGroupTemplateResponseTemplateResources `json:"Resources,omitempty" xml:"Resources,omitempty" require:"true" type:"Struct"`
+	Spec               *ExportContainerGroupTemplateResponseTemplateSpec      `json:"Spec,omitempty" xml:"Spec,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplate) String() string {
@@ -3012,8 +2802,8 @@ func (s *ExportContainerGroupTemplateResponseTemplate) SetSpec(v *ExportContaine
 }
 
 type ExportContainerGroupTemplateResponseTemplateTags struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateTags) String() string {
@@ -3035,8 +2825,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateTags) SetValue(v string) *E
 }
 
 type ExportContainerGroupTemplateResponseTemplateResources struct {
-	Cpu    *float32 `json:"Cpu" xml:"Cpu" require:"true"`
-	Memory *float32 `json:"Memory" xml:"Memory" require:"true"`
+	Cpu    *float32 `json:"Cpu,omitempty" xml:"Cpu,omitempty" require:"true"`
+	Memory *float32 `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateResources) String() string {
@@ -3058,13 +2848,13 @@ func (s *ExportContainerGroupTemplateResponseTemplateResources) SetMemory(v floa
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpec struct {
-	RestartPolicy   *string                                                           `json:"RestartPolicy" xml:"RestartPolicy" require:"true"`
-	DnsPolicy       *string                                                           `json:"DnsPolicy" xml:"DnsPolicy" require:"true"`
-	Volumes         []*ExportContainerGroupTemplateResponseTemplateSpecVolumes        `json:"Volumes" xml:"Volumes" require:"true" type:"Repeated"`
-	InitContainers  []*ExportContainerGroupTemplateResponseTemplateSpecInitContainers `json:"InitContainers" xml:"InitContainers" require:"true" type:"Repeated"`
-	Containers      []*ExportContainerGroupTemplateResponseTemplateSpecContainers     `json:"Containers" xml:"Containers" require:"true" type:"Repeated"`
-	DnsConfig       *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig        `json:"DnsConfig" xml:"DnsConfig" require:"true" type:"Struct"`
-	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecSecurityContext  `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
+	RestartPolicy   *string                                                           `json:"RestartPolicy,omitempty" xml:"RestartPolicy,omitempty" require:"true"`
+	DnsPolicy       *string                                                           `json:"DnsPolicy,omitempty" xml:"DnsPolicy,omitempty" require:"true"`
+	Volumes         []*ExportContainerGroupTemplateResponseTemplateSpecVolumes        `json:"Volumes,omitempty" xml:"Volumes,omitempty" require:"true" type:"Repeated"`
+	InitContainers  []*ExportContainerGroupTemplateResponseTemplateSpecInitContainers `json:"InitContainers,omitempty" xml:"InitContainers,omitempty" require:"true" type:"Repeated"`
+	Containers      []*ExportContainerGroupTemplateResponseTemplateSpecContainers     `json:"Containers,omitempty" xml:"Containers,omitempty" require:"true" type:"Repeated"`
+	DnsConfig       *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig        `json:"DnsConfig,omitempty" xml:"DnsConfig,omitempty" require:"true" type:"Struct"`
+	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecSecurityContext  `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpec) String() string {
@@ -3111,10 +2901,10 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpec) SetSecurityContext(v 
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecVolumes struct {
-	Name       *string                                                            `json:"Name" xml:"Name" require:"true"`
-	ConfigFile *ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFile `json:"ConfigFile" xml:"ConfigFile" require:"true" type:"Struct"`
-	EmptyDir   *ExportContainerGroupTemplateResponseTemplateSpecVolumesEmptyDir   `json:"EmptyDir" xml:"EmptyDir" require:"true" type:"Struct"`
-	Nfs        *ExportContainerGroupTemplateResponseTemplateSpecVolumesNfs        `json:"Nfs" xml:"Nfs" require:"true" type:"Struct"`
+	Name       *string                                                            `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	ConfigFile *ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFile `json:"ConfigFile,omitempty" xml:"ConfigFile,omitempty" require:"true" type:"Struct"`
+	EmptyDir   *ExportContainerGroupTemplateResponseTemplateSpecVolumesEmptyDir   `json:"EmptyDir,omitempty" xml:"EmptyDir,omitempty" require:"true" type:"Struct"`
+	Nfs        *ExportContainerGroupTemplateResponseTemplateSpecVolumesNfs        `json:"Nfs,omitempty" xml:"Nfs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecVolumes) String() string {
@@ -3146,8 +2936,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecVolumes) SetNfs(v *Expo
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFile struct {
-	DefaultMode *int                                                                      `json:"DefaultMode" xml:"DefaultMode" require:"true"`
-	Items       []*ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFileItems `json:"Items" xml:"Items" require:"true" type:"Repeated"`
+	DefaultMode *int                                                                      `json:"DefaultMode,omitempty" xml:"DefaultMode,omitempty" require:"true"`
+	Items       []*ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFileItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFile) String() string {
@@ -3169,9 +2959,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFile) SetI
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFileItems struct {
-	Mode    *int    `json:"Mode" xml:"Mode" require:"true"`
-	Path    *string `json:"Path" xml:"Path" require:"true"`
-	Content *string `json:"Content" xml:"Content" require:"true"`
+	Mode    *int    `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
+	Path    *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFileItems) String() string {
@@ -3198,7 +2988,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecVolumesConfigFileItems)
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecVolumesEmptyDir struct {
-	SizeLimit *string `json:"SizeLimit" xml:"SizeLimit" require:"true"`
+	SizeLimit *string `json:"SizeLimit,omitempty" xml:"SizeLimit,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecVolumesEmptyDir) String() string {
@@ -3215,9 +3005,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecVolumesEmptyDir) SetSiz
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecVolumesNfs struct {
-	Server   *string `json:"Server" xml:"Server" require:"true"`
-	Path     *string `json:"Path" xml:"Path" require:"true"`
-	ReadOnly *bool   `json:"ReadOnly" xml:"ReadOnly" require:"true"`
+	Server   *string `json:"Server,omitempty" xml:"Server,omitempty" require:"true"`
+	Path     *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	ReadOnly *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecVolumesNfs) String() string {
@@ -3244,20 +3034,20 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecVolumesNfs) SetReadOnly
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainers struct {
-	Name            *string                                                                        `json:"Name" xml:"Name" require:"true"`
-	Image           *string                                                                        `json:"Image" xml:"Image" require:"true"`
-	ImagePullPolicy *string                                                                        `json:"ImagePullPolicy" xml:"ImagePullPolicy" require:"true"`
-	Stdin           *bool                                                                          `json:"Stdin" xml:"Stdin" require:"true"`
-	StdinOnce       *bool                                                                          `json:"StdinOnce" xml:"StdinOnce" require:"true"`
-	Tty             *bool                                                                          `json:"Tty" xml:"Tty" require:"true"`
-	WorkingDir      *string                                                                        `json:"WorkingDir" xml:"WorkingDir" require:"true"`
-	Env             []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnv           `json:"Env" xml:"Env" require:"true" type:"Repeated"`
-	Ports           []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersPorts         `json:"Ports" xml:"Ports" require:"true" type:"Repeated"`
-	VolumeMounts    []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersVolumeMounts  `json:"VolumeMounts" xml:"VolumeMounts" require:"true" type:"Repeated"`
-	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContext `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Resources       *ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources       `json:"Resources" xml:"Resources" require:"true" type:"Struct"`
-	Command         []*string                                                                      `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Args            []*string                                                                      `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Name            *string                                                                        `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Image           *string                                                                        `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	ImagePullPolicy *string                                                                        `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty" require:"true"`
+	Stdin           *bool                                                                          `json:"Stdin,omitempty" xml:"Stdin,omitempty" require:"true"`
+	StdinOnce       *bool                                                                          `json:"StdinOnce,omitempty" xml:"StdinOnce,omitempty" require:"true"`
+	Tty             *bool                                                                          `json:"Tty,omitempty" xml:"Tty,omitempty" require:"true"`
+	WorkingDir      *string                                                                        `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty" require:"true"`
+	Env             []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnv           `json:"Env,omitempty" xml:"Env,omitempty" require:"true" type:"Repeated"`
+	Ports           []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersPorts         `json:"Ports,omitempty" xml:"Ports,omitempty" require:"true" type:"Repeated"`
+	VolumeMounts    []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersVolumeMounts  `json:"VolumeMounts,omitempty" xml:"VolumeMounts,omitempty" require:"true" type:"Repeated"`
+	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContext `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Resources       *ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources       `json:"Resources,omitempty" xml:"Resources,omitempty" require:"true" type:"Struct"`
+	Command         []*string                                                                      `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
+	Args            []*string                                                                      `json:"Args,omitempty" xml:"Args,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainers) String() string {
@@ -3339,9 +3129,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainers) SetArgs
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnv struct {
-	Name      *string                                                                     `json:"Name" xml:"Name" require:"true"`
-	Value     *string                                                                     `json:"Value" xml:"Value" require:"true"`
-	ValueFrom *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFrom `json:"ValueFrom" xml:"ValueFrom" require:"true" type:"Struct"`
+	Name      *string                                                                     `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value     *string                                                                     `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	ValueFrom *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFrom `json:"ValueFrom,omitempty" xml:"ValueFrom,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnv) String() string {
@@ -3368,7 +3158,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnv) SetV
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFrom struct {
-	FieldRef *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFromFieldRef `json:"FieldRef" xml:"FieldRef" require:"true" type:"Struct"`
+	FieldRef *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFromFieldRef `json:"FieldRef,omitempty" xml:"FieldRef,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFrom) String() string {
@@ -3385,7 +3175,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueF
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFromFieldRef struct {
-	FieldPath *string `json:"FieldPath" xml:"FieldPath" require:"true"`
+	FieldPath *string `json:"FieldPath,omitempty" xml:"FieldPath,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueFromFieldRef) String() string {
@@ -3402,9 +3192,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersEnvValueF
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersPorts struct {
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	Protocol      *string `json:"Protocol" xml:"Protocol" require:"true"`
-	ContainerPort *int    `json:"ContainerPort" xml:"ContainerPort" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Protocol      *string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true"`
+	ContainerPort *int    `json:"ContainerPort,omitempty" xml:"ContainerPort,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersPorts) String() string {
@@ -3431,10 +3221,10 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersPorts) Se
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersVolumeMounts struct {
-	Name      *string `json:"Name" xml:"Name" require:"true"`
-	SubPath   *string `json:"SubPath" xml:"SubPath" require:"true"`
-	MountPath *string `json:"MountPath" xml:"MountPath" require:"true"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	SubPath   *string `json:"SubPath,omitempty" xml:"SubPath,omitempty" require:"true"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty" require:"true"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersVolumeMounts) String() string {
@@ -3466,7 +3256,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersVolumeMou
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContext struct {
-	Sysctls []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContextSysctls `json:"Sysctls" xml:"Sysctls" require:"true" type:"Repeated"`
+	Sysctls []*ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContextSysctls `json:"Sysctls,omitempty" xml:"Sysctls,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContext) String() string {
@@ -3483,8 +3273,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityC
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContextSysctls struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityContextSysctls) String() string {
@@ -3506,8 +3296,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersSecurityC
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources struct {
-	Cpu    *float32 `json:"Cpu" xml:"Cpu" require:"true"`
-	Memory *float32 `json:"Memory" xml:"Memory" require:"true"`
+	Cpu    *float32 `json:"Cpu,omitempty" xml:"Cpu,omitempty" require:"true"`
+	Memory *float32 `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources) String() string {
@@ -3529,22 +3319,22 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecInitContainersResources
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainers struct {
-	Name            *string                                                                    `json:"Name" xml:"Name" require:"true"`
-	Image           *string                                                                    `json:"Image" xml:"Image" require:"true"`
-	ImagePullPolicy *string                                                                    `json:"ImagePullPolicy" xml:"ImagePullPolicy" require:"true"`
-	Stdin           *bool                                                                      `json:"Stdin" xml:"Stdin" require:"true"`
-	StdinOnce       *bool                                                                      `json:"StdinOnce" xml:"StdinOnce" require:"true"`
-	Tty             *bool                                                                      `json:"Tty" xml:"Tty" require:"true"`
-	WorkingDir      *string                                                                    `json:"WorkingDir" xml:"WorkingDir" require:"true"`
-	Env             []*ExportContainerGroupTemplateResponseTemplateSpecContainersEnv           `json:"Env" xml:"Env" require:"true" type:"Repeated"`
-	Ports           []*ExportContainerGroupTemplateResponseTemplateSpecContainersPorts         `json:"Ports" xml:"Ports" require:"true" type:"Repeated"`
-	VolumeMounts    []*ExportContainerGroupTemplateResponseTemplateSpecContainersVolumeMounts  `json:"VolumeMounts" xml:"VolumeMounts" require:"true" type:"Repeated"`
-	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContext `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Resources       *ExportContainerGroupTemplateResponseTemplateSpecContainersResources       `json:"Resources" xml:"Resources" require:"true" type:"Struct"`
-	ReadinessProbe  *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbe  `json:"ReadinessProbe" xml:"ReadinessProbe" require:"true" type:"Struct"`
-	LivenessProbe   *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe   `json:"LivenessProbe" xml:"LivenessProbe" require:"true" type:"Struct"`
-	Command         []*string                                                                  `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Args            []*string                                                                  `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Name            *string                                                                    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Image           *string                                                                    `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	ImagePullPolicy *string                                                                    `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty" require:"true"`
+	Stdin           *bool                                                                      `json:"Stdin,omitempty" xml:"Stdin,omitempty" require:"true"`
+	StdinOnce       *bool                                                                      `json:"StdinOnce,omitempty" xml:"StdinOnce,omitempty" require:"true"`
+	Tty             *bool                                                                      `json:"Tty,omitempty" xml:"Tty,omitempty" require:"true"`
+	WorkingDir      *string                                                                    `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty" require:"true"`
+	Env             []*ExportContainerGroupTemplateResponseTemplateSpecContainersEnv           `json:"Env,omitempty" xml:"Env,omitempty" require:"true" type:"Repeated"`
+	Ports           []*ExportContainerGroupTemplateResponseTemplateSpecContainersPorts         `json:"Ports,omitempty" xml:"Ports,omitempty" require:"true" type:"Repeated"`
+	VolumeMounts    []*ExportContainerGroupTemplateResponseTemplateSpecContainersVolumeMounts  `json:"VolumeMounts,omitempty" xml:"VolumeMounts,omitempty" require:"true" type:"Repeated"`
+	SecurityContext *ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContext `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Resources       *ExportContainerGroupTemplateResponseTemplateSpecContainersResources       `json:"Resources,omitempty" xml:"Resources,omitempty" require:"true" type:"Struct"`
+	ReadinessProbe  *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbe  `json:"ReadinessProbe,omitempty" xml:"ReadinessProbe,omitempty" require:"true" type:"Struct"`
+	LivenessProbe   *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe   `json:"LivenessProbe,omitempty" xml:"LivenessProbe,omitempty" require:"true" type:"Struct"`
+	Command         []*string                                                                  `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
+	Args            []*string                                                                  `json:"Args,omitempty" xml:"Args,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainers) String() string {
@@ -3636,9 +3426,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainers) SetArgs(v [
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersEnv struct {
-	Name      *string                                                                 `json:"Name" xml:"Name" require:"true"`
-	Value     *string                                                                 `json:"Value" xml:"Value" require:"true"`
-	ValueFrom *ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFrom `json:"ValueFrom" xml:"ValueFrom" require:"true" type:"Struct"`
+	Name      *string                                                                 `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value     *string                                                                 `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	ValueFrom *ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFrom `json:"ValueFrom,omitempty" xml:"ValueFrom,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersEnv) String() string {
@@ -3665,7 +3455,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersEnv) SetValue
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFrom struct {
-	FieldRef *ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFromFieldRef `json:"FieldRef" xml:"FieldRef" require:"true" type:"Struct"`
+	FieldRef *ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFromFieldRef `json:"FieldRef,omitempty" xml:"FieldRef,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFrom) String() string {
@@ -3682,7 +3472,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFrom)
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFromFieldRef struct {
-	FieldPath *string `json:"FieldPath" xml:"FieldPath" require:"true"`
+	FieldPath *string `json:"FieldPath,omitempty" xml:"FieldPath,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFromFieldRef) String() string {
@@ -3699,9 +3489,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersEnvValueFromF
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersPorts struct {
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	Protocol      *string `json:"Protocol" xml:"Protocol" require:"true"`
-	ContainerPort *int    `json:"ContainerPort" xml:"ContainerPort" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Protocol      *string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true"`
+	ContainerPort *int    `json:"ContainerPort,omitempty" xml:"ContainerPort,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersPorts) String() string {
@@ -3728,10 +3518,10 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersPorts) SetCon
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersVolumeMounts struct {
-	Name      *string `json:"Name" xml:"Name" require:"true"`
-	SubPath   *string `json:"SubPath" xml:"SubPath" require:"true"`
-	MountPath *string `json:"MountPath" xml:"MountPath" require:"true"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	SubPath   *string `json:"SubPath,omitempty" xml:"SubPath,omitempty" require:"true"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty" require:"true"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersVolumeMounts) String() string {
@@ -3763,7 +3553,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersVolumeMounts)
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContext struct {
-	Sysctls []*ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContextSysctls `json:"Sysctls" xml:"Sysctls" require:"true" type:"Repeated"`
+	Sysctls []*ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContextSysctls `json:"Sysctls,omitempty" xml:"Sysctls,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContext) String() string {
@@ -3780,8 +3570,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityConte
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContextSysctls struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityContextSysctls) String() string {
@@ -3803,8 +3593,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersSecurityConte
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersResources struct {
-	Cpu    *float32 `json:"Cpu" xml:"Cpu" require:"true"`
-	Memory *float32 `json:"Memory" xml:"Memory" require:"true"`
+	Cpu    *float32 `json:"Cpu,omitempty" xml:"Cpu,omitempty" require:"true"`
+	Memory *float32 `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersResources) String() string {
@@ -3826,14 +3616,14 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersResources) Se
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbe struct {
-	InitialDelaySeconds *int                                                                               `json:"InitialDelaySeconds" xml:"InitialDelaySeconds" require:"true"`
-	PeriodSeconds       *int                                                                               `json:"PeriodSeconds" xml:"PeriodSeconds" require:"true"`
-	SuccessThreshold    *int                                                                               `json:"SuccessThreshold" xml:"SuccessThreshold" require:"true"`
-	FailureThreshold    *int                                                                               `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
-	TimeoutSeconds      *int                                                                               `json:"TimeoutSeconds" xml:"TimeoutSeconds" require:"true"`
-	Exec                *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec      `json:"Exec" xml:"Exec" require:"true" type:"Struct"`
-	TcpSocket           *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	HttpGet             *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
+	InitialDelaySeconds *int                                                                               `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty" require:"true"`
+	PeriodSeconds       *int                                                                               `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty" require:"true"`
+	SuccessThreshold    *int                                                                               `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty" require:"true"`
+	FailureThreshold    *int                                                                               `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty" require:"true"`
+	TimeoutSeconds      *int                                                                               `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty" require:"true"`
+	Exec                *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec      `json:"Exec,omitempty" xml:"Exec,omitempty" require:"true" type:"Struct"`
+	TcpSocket           *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
+	HttpGet             *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbe) String() string {
@@ -3885,7 +3675,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProb
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec struct {
-	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeExec) String() string {
@@ -3902,7 +3692,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProb
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeTcpSocket struct {
-	Port *int `json:"Port" xml:"Port" require:"true"`
+	Port *int `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeTcpSocket) String() string {
@@ -3919,9 +3709,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProb
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeHttpGet struct {
-	Scheme *string `json:"Scheme" xml:"Scheme" require:"true"`
-	Path   *string `json:"Path" xml:"Path" require:"true"`
-	Port   *int    `json:"Port" xml:"Port" require:"true"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty" require:"true"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProbeHttpGet) String() string {
@@ -3948,14 +3738,14 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersReadinessProb
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe struct {
-	InitialDelaySeconds *int                                                                              `json:"InitialDelaySeconds" xml:"InitialDelaySeconds" require:"true"`
-	PeriodSeconds       *int                                                                              `json:"PeriodSeconds" xml:"PeriodSeconds" require:"true"`
-	SuccessThreshold    *int                                                                              `json:"SuccessThreshold" xml:"SuccessThreshold" require:"true"`
-	FailureThreshold    *int                                                                              `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
-	TimeoutSeconds      *int                                                                              `json:"TimeoutSeconds" xml:"TimeoutSeconds" require:"true"`
-	Exec                *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec      `json:"Exec" xml:"Exec" require:"true" type:"Struct"`
-	TcpSocket           *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	HttpGet             *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
+	InitialDelaySeconds *int                                                                              `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty" require:"true"`
+	PeriodSeconds       *int                                                                              `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty" require:"true"`
+	SuccessThreshold    *int                                                                              `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty" require:"true"`
+	FailureThreshold    *int                                                                              `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty" require:"true"`
+	TimeoutSeconds      *int                                                                              `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty" require:"true"`
+	Exec                *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec      `json:"Exec,omitempty" xml:"Exec,omitempty" require:"true" type:"Struct"`
+	TcpSocket           *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
+	HttpGet             *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe) String() string {
@@ -4007,7 +3797,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec struct {
-	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeExec) String() string {
@@ -4024,7 +3814,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeTcpSocket struct {
-	Port *int `json:"Port" xml:"Port" require:"true"`
+	Port *int `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeTcpSocket) String() string {
@@ -4041,9 +3831,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeHttpGet struct {
-	Scheme *string `json:"Scheme" xml:"Scheme" require:"true"`
-	Path   *string `json:"Path" xml:"Path" require:"true"`
-	Port   *int    `json:"Port" xml:"Port" require:"true"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty" require:"true"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbeHttpGet) String() string {
@@ -4070,9 +3860,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecContainersLivenessProbe
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecDnsConfig struct {
-	Options     []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions `json:"Options" xml:"Options" require:"true" type:"Repeated"`
-	NameServers []*string                                                           `json:"NameServers" xml:"NameServers" require:"true" type:"Repeated"`
-	Searches    []*string                                                           `json:"Searches" xml:"Searches" require:"true" type:"Repeated"`
+	Options     []*ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions `json:"Options,omitempty" xml:"Options,omitempty" require:"true" type:"Repeated"`
+	NameServers []*string                                                           `json:"NameServers,omitempty" xml:"NameServers,omitempty" require:"true" type:"Repeated"`
+	Searches    []*string                                                           `json:"Searches,omitempty" xml:"Searches,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) String() string {
@@ -4099,8 +3889,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfig) SetSearches(
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions) String() string {
@@ -4122,7 +3912,7 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecDnsConfigOptions) SetVa
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecSecurityContext struct {
-	Sysctls []*ExportContainerGroupTemplateResponseTemplateSpecSecurityContextSysctls `json:"Sysctls" xml:"Sysctls" require:"true" type:"Repeated"`
+	Sysctls []*ExportContainerGroupTemplateResponseTemplateSpecSecurityContextSysctls `json:"Sysctls,omitempty" xml:"Sysctls,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecSecurityContext) String() string {
@@ -4139,8 +3929,8 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecSecurityContext) SetSys
 }
 
 type ExportContainerGroupTemplateResponseTemplateSpecSecurityContextSysctls struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ExportContainerGroupTemplateResponseTemplateSpecSecurityContextSysctls) String() string {
@@ -4162,13 +3952,9 @@ func (s *ExportContainerGroupTemplateResponseTemplateSpecSecurityContextSysctls)
 }
 
 type RestartContainerGroupRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupId     *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	ClientToken      *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s RestartContainerGroupRequest) String() string {
@@ -4177,26 +3963,6 @@ func (s RestartContainerGroupRequest) String() string {
 
 func (s RestartContainerGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RestartContainerGroupRequest) SetOwnerId(v int64) *RestartContainerGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *RestartContainerGroupRequest) SetResourceOwnerAccount(v string) *RestartContainerGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *RestartContainerGroupRequest) SetResourceOwnerId(v int64) *RestartContainerGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *RestartContainerGroupRequest) SetOwnerAccount(v string) *RestartContainerGroupRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *RestartContainerGroupRequest) SetRegionId(v string) *RestartContainerGroupRequest {
@@ -4215,7 +3981,7 @@ func (s *RestartContainerGroupRequest) SetClientToken(v string) *RestartContaine
 }
 
 type RestartContainerGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RestartContainerGroupResponse) String() string {
@@ -4232,22 +3998,18 @@ func (s *RestartContainerGroupResponse) SetRequestId(v string) *RestartContainer
 }
 
 type UpdateContainerGroupRequest struct {
-	OwnerId                 *int64                                                `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount    *string                                               `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId         *int64                                                `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount            *string                                               `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId                *string                                               `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupId        *string                                               `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	RestartPolicy           *string                                               `json:"RestartPolicy" xml:"RestartPolicy"`
-	Tag                     []*UpdateContainerGroupRequestTag                     `json:"Tag" xml:"Tag" type:"Repeated"`
-	Volume                  []*UpdateContainerGroupRequestVolume                  `json:"Volume" xml:"Volume" type:"Repeated"`
-	DnsConfig               *UpdateContainerGroupRequestDnsConfig                 `json:"DnsConfig" xml:"DnsConfig" require:"true" type:"Struct"`
-	Container               []*UpdateContainerGroupRequestContainer               `json:"Container" xml:"Container" type:"Repeated"`
-	InitContainer           []*UpdateContainerGroupRequestInitContainer           `json:"InitContainer" xml:"InitContainer" type:"Repeated"`
-	ImageRegistryCredential []*UpdateContainerGroupRequestImageRegistryCredential `json:"ImageRegistryCredential" xml:"ImageRegistryCredential" type:"Repeated"`
-	ClientToken             *string                                               `json:"ClientToken" xml:"ClientToken"`
-	Cpu                     *float32                                              `json:"Cpu" xml:"Cpu"`
-	Memory                  *float32                                              `json:"Memory" xml:"Memory"`
+	RegionId                *string                                               `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupId        *string                                               `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	RestartPolicy           *string                                               `json:"RestartPolicy,omitempty" xml:"RestartPolicy,omitempty"`
+	Tag                     []*UpdateContainerGroupRequestTag                     `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	Volume                  []*UpdateContainerGroupRequestVolume                  `json:"Volume,omitempty" xml:"Volume,omitempty" type:"Repeated"`
+	DnsConfig               *UpdateContainerGroupRequestDnsConfig                 `json:"DnsConfig,omitempty" xml:"DnsConfig,omitempty" require:"true" type:"Struct"`
+	Container               []*UpdateContainerGroupRequestContainer               `json:"Container,omitempty" xml:"Container,omitempty" type:"Repeated"`
+	InitContainer           []*UpdateContainerGroupRequestInitContainer           `json:"InitContainer,omitempty" xml:"InitContainer,omitempty" type:"Repeated"`
+	ImageRegistryCredential []*UpdateContainerGroupRequestImageRegistryCredential `json:"ImageRegistryCredential,omitempty" xml:"ImageRegistryCredential,omitempty" type:"Repeated"`
+	ClientToken             *string                                               `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	Cpu                     *float32                                              `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory                  *float32                                              `json:"Memory,omitempty" xml:"Memory,omitempty"`
 }
 
 func (s UpdateContainerGroupRequest) String() string {
@@ -4256,26 +4018,6 @@ func (s UpdateContainerGroupRequest) String() string {
 
 func (s UpdateContainerGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateContainerGroupRequest) SetOwnerId(v int64) *UpdateContainerGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateContainerGroupRequest) SetResourceOwnerAccount(v string) *UpdateContainerGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateContainerGroupRequest) SetResourceOwnerId(v int64) *UpdateContainerGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *UpdateContainerGroupRequest) SetOwnerAccount(v string) *UpdateContainerGroupRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *UpdateContainerGroupRequest) SetRegionId(v string) *UpdateContainerGroupRequest {
@@ -4339,8 +4081,8 @@ func (s *UpdateContainerGroupRequest) SetMemory(v float32) *UpdateContainerGroup
 }
 
 type UpdateContainerGroupRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestTag) String() string {
@@ -4362,11 +4104,11 @@ func (s *UpdateContainerGroupRequestTag) SetValue(v string) *UpdateContainerGrou
 }
 
 type UpdateContainerGroupRequestVolume struct {
-	Name             *string                                            `json:"Name" xml:"Name"`
-	Type             *string                                            `json:"Type" xml:"Type"`
-	NFSVolume        *UpdateContainerGroupRequestVolumeNFSVolume        `json:"NFSVolume" xml:"NFSVolume" require:"true" type:"Struct"`
-	ConfigFileVolume *UpdateContainerGroupRequestVolumeConfigFileVolume `json:"ConfigFileVolume" xml:"ConfigFileVolume" require:"true" type:"Struct"`
-	EmptyDirVolume   *UpdateContainerGroupRequestVolumeEmptyDirVolume   `json:"EmptyDirVolume" xml:"EmptyDirVolume" require:"true" type:"Struct"`
+	Name             *string                                            `json:"Name,omitempty" xml:"Name,omitempty"`
+	Type             *string                                            `json:"Type,omitempty" xml:"Type,omitempty"`
+	NFSVolume        *UpdateContainerGroupRequestVolumeNFSVolume        `json:"NFSVolume,omitempty" xml:"NFSVolume,omitempty" require:"true" type:"Struct"`
+	ConfigFileVolume *UpdateContainerGroupRequestVolumeConfigFileVolume `json:"ConfigFileVolume,omitempty" xml:"ConfigFileVolume,omitempty" require:"true" type:"Struct"`
+	EmptyDirVolume   *UpdateContainerGroupRequestVolumeEmptyDirVolume   `json:"EmptyDirVolume,omitempty" xml:"EmptyDirVolume,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateContainerGroupRequestVolume) String() string {
@@ -4403,9 +4145,9 @@ func (s *UpdateContainerGroupRequestVolume) SetEmptyDirVolume(v *UpdateContainer
 }
 
 type UpdateContainerGroupRequestVolumeNFSVolume struct {
-	Server   *string `json:"Server" xml:"Server"`
-	Path     *string `json:"Path" xml:"Path"`
-	ReadOnly *bool   `json:"ReadOnly" xml:"ReadOnly"`
+	Server   *string `json:"Server,omitempty" xml:"Server,omitempty"`
+	Path     *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	ReadOnly *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestVolumeNFSVolume) String() string {
@@ -4432,7 +4174,7 @@ func (s *UpdateContainerGroupRequestVolumeNFSVolume) SetReadOnly(v bool) *Update
 }
 
 type UpdateContainerGroupRequestVolumeConfigFileVolume struct {
-	ConfigFileToPath []*UpdateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath `json:"ConfigFileToPath" xml:"ConfigFileToPath" require:"true" type:"Repeated"`
+	ConfigFileToPath []*UpdateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath `json:"ConfigFileToPath,omitempty" xml:"ConfigFileToPath,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateContainerGroupRequestVolumeConfigFileVolume) String() string {
@@ -4449,8 +4191,8 @@ func (s *UpdateContainerGroupRequestVolumeConfigFileVolume) SetConfigFileToPath(
 }
 
 type UpdateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath struct {
-	Content *string `json:"Content" xml:"Content"`
-	Path    *string `json:"Path" xml:"Path"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty"`
+	Path    *string `json:"Path,omitempty" xml:"Path,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath) String() string {
@@ -4472,7 +4214,7 @@ func (s *UpdateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath) SetP
 }
 
 type UpdateContainerGroupRequestVolumeEmptyDirVolume struct {
-	Medium *string `json:"Medium" xml:"Medium"`
+	Medium *string `json:"Medium,omitempty" xml:"Medium,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestVolumeEmptyDirVolume) String() string {
@@ -4489,9 +4231,9 @@ func (s *UpdateContainerGroupRequestVolumeEmptyDirVolume) SetMedium(v string) *U
 }
 
 type UpdateContainerGroupRequestDnsConfig struct {
-	NameServer []*string                                     `json:"NameServer" xml:"NameServer" type:"Repeated"`
-	Search     []*string                                     `json:"Search" xml:"Search" type:"Repeated"`
-	Option     []*UpdateContainerGroupRequestDnsConfigOption `json:"Option" xml:"Option" type:"Repeated"`
+	NameServer []*string                                     `json:"NameServer,omitempty" xml:"NameServer,omitempty" type:"Repeated"`
+	Search     []*string                                     `json:"Search,omitempty" xml:"Search,omitempty" type:"Repeated"`
+	Option     []*UpdateContainerGroupRequestDnsConfigOption `json:"Option,omitempty" xml:"Option,omitempty" type:"Repeated"`
 }
 
 func (s UpdateContainerGroupRequestDnsConfig) String() string {
@@ -4518,8 +4260,8 @@ func (s *UpdateContainerGroupRequestDnsConfig) SetOption(v []*UpdateContainerGro
 }
 
 type UpdateContainerGroupRequestDnsConfigOption struct {
-	Name  *string `json:"Name" xml:"Name"`
-	Value *string `json:"Value" xml:"Value"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestDnsConfigOption) String() string {
@@ -4541,24 +4283,24 @@ func (s *UpdateContainerGroupRequestDnsConfigOption) SetValue(v string) *UpdateC
 }
 
 type UpdateContainerGroupRequestContainer struct {
-	Name            *string                                               `json:"Name" xml:"Name"`
-	Image           *string                                               `json:"Image" xml:"Image"`
-	Cpu             *float32                                              `json:"Cpu" xml:"Cpu"`
-	Memory          *float32                                              `json:"Memory" xml:"Memory"`
-	WorkingDir      *string                                               `json:"WorkingDir" xml:"WorkingDir"`
-	ImagePullPolicy *string                                               `json:"ImagePullPolicy" xml:"ImagePullPolicy"`
-	Stdin           *bool                                                 `json:"Stdin" xml:"Stdin"`
-	StdinOnce       *bool                                                 `json:"StdinOnce" xml:"StdinOnce"`
-	Tty             *bool                                                 `json:"Tty" xml:"Tty"`
-	Command         []*string                                             `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Arg             []*string                                             `json:"Arg" xml:"Arg" require:"true" type:"Repeated"`
-	EnvironmentVar  []*UpdateContainerGroupRequestContainerEnvironmentVar `json:"EnvironmentVar" xml:"EnvironmentVar" require:"true" type:"Repeated"`
-	Port            []*UpdateContainerGroupRequestContainerPort           `json:"Port" xml:"Port" require:"true" type:"Repeated"`
-	VolumeMount     []*UpdateContainerGroupRequestContainerVolumeMount    `json:"VolumeMount" xml:"VolumeMount" require:"true" type:"Repeated"`
-	ReadinessProbe  *UpdateContainerGroupRequestContainerReadinessProbe   `json:"ReadinessProbe" xml:"ReadinessProbe" require:"true" type:"Struct"`
-	LivenessProbe   *UpdateContainerGroupRequestContainerLivenessProbe    `json:"LivenessProbe" xml:"LivenessProbe" require:"true" type:"Struct"`
-	SecurityContext *UpdateContainerGroupRequestContainerSecurityContext  `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Gpu             *int                                                  `json:"Gpu" xml:"Gpu"`
+	Name            *string                                               `json:"Name,omitempty" xml:"Name,omitempty"`
+	Image           *string                                               `json:"Image,omitempty" xml:"Image,omitempty"`
+	Cpu             *float32                                              `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory          *float32                                              `json:"Memory,omitempty" xml:"Memory,omitempty"`
+	WorkingDir      *string                                               `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty"`
+	ImagePullPolicy *string                                               `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty"`
+	Stdin           *bool                                                 `json:"Stdin,omitempty" xml:"Stdin,omitempty"`
+	StdinOnce       *bool                                                 `json:"StdinOnce,omitempty" xml:"StdinOnce,omitempty"`
+	Tty             *bool                                                 `json:"Tty,omitempty" xml:"Tty,omitempty"`
+	Command         []*string                                             `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
+	Arg             []*string                                             `json:"Arg,omitempty" xml:"Arg,omitempty" require:"true" type:"Repeated"`
+	EnvironmentVar  []*UpdateContainerGroupRequestContainerEnvironmentVar `json:"EnvironmentVar,omitempty" xml:"EnvironmentVar,omitempty" require:"true" type:"Repeated"`
+	Port            []*UpdateContainerGroupRequestContainerPort           `json:"Port,omitempty" xml:"Port,omitempty" require:"true" type:"Repeated"`
+	VolumeMount     []*UpdateContainerGroupRequestContainerVolumeMount    `json:"VolumeMount,omitempty" xml:"VolumeMount,omitempty" require:"true" type:"Repeated"`
+	ReadinessProbe  *UpdateContainerGroupRequestContainerReadinessProbe   `json:"ReadinessProbe,omitempty" xml:"ReadinessProbe,omitempty" require:"true" type:"Struct"`
+	LivenessProbe   *UpdateContainerGroupRequestContainerLivenessProbe    `json:"LivenessProbe,omitempty" xml:"LivenessProbe,omitempty" require:"true" type:"Struct"`
+	SecurityContext *UpdateContainerGroupRequestContainerSecurityContext  `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Gpu             *int                                                  `json:"Gpu,omitempty" xml:"Gpu,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainer) String() string {
@@ -4660,8 +4402,8 @@ func (s *UpdateContainerGroupRequestContainer) SetGpu(v int) *UpdateContainerGro
 }
 
 type UpdateContainerGroupRequestContainerEnvironmentVar struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerEnvironmentVar) String() string {
@@ -4683,8 +4425,8 @@ func (s *UpdateContainerGroupRequestContainerEnvironmentVar) SetValue(v string) 
 }
 
 type UpdateContainerGroupRequestContainerPort struct {
-	Protocol *string `json:"Protocol" xml:"Protocol"`
-	Port     *int    `json:"Port" xml:"Port"`
+	Protocol *string `json:"Protocol,omitempty" xml:"Protocol,omitempty"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerPort) String() string {
@@ -4706,10 +4448,10 @@ func (s *UpdateContainerGroupRequestContainerPort) SetPort(v int) *UpdateContain
 }
 
 type UpdateContainerGroupRequestContainerVolumeMount struct {
-	Name      *string `json:"Name" xml:"Name"`
-	MountPath *string `json:"MountPath" xml:"MountPath"`
-	SubPath   *string `json:"SubPath" xml:"SubPath"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty"`
+	SubPath   *string `json:"SubPath,omitempty" xml:"SubPath,omitempty"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerVolumeMount) String() string {
@@ -4741,14 +4483,14 @@ func (s *UpdateContainerGroupRequestContainerVolumeMount) SetReadOnly(v bool) *U
 }
 
 type UpdateContainerGroupRequestContainerReadinessProbe struct {
-	TcpSocket           *UpdateContainerGroupRequestContainerReadinessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	Exec                *UpdateContainerGroupRequestContainerReadinessProbeExec      `json:"Exec" xml:"Exec" require:"true" type:"Struct"`
-	HttpGet             *UpdateContainerGroupRequestContainerReadinessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
-	InitialDelaySeconds *int                                                         `json:"InitialDelaySeconds" xml:"InitialDelaySeconds"`
-	PeriodSeconds       *int                                                         `json:"PeriodSeconds" xml:"PeriodSeconds"`
-	SuccessThreshold    *int                                                         `json:"SuccessThreshold" xml:"SuccessThreshold"`
-	FailureThreshold    *int                                                         `json:"FailureThreshold" xml:"FailureThreshold"`
-	TimeoutSeconds      *int                                                         `json:"TimeoutSeconds" xml:"TimeoutSeconds"`
+	TcpSocket           *UpdateContainerGroupRequestContainerReadinessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
+	Exec                *UpdateContainerGroupRequestContainerReadinessProbeExec      `json:"Exec,omitempty" xml:"Exec,omitempty" require:"true" type:"Struct"`
+	HttpGet             *UpdateContainerGroupRequestContainerReadinessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
+	InitialDelaySeconds *int                                                         `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty"`
+	PeriodSeconds       *int                                                         `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty"`
+	SuccessThreshold    *int                                                         `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty"`
+	FailureThreshold    *int                                                         `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty"`
+	TimeoutSeconds      *int                                                         `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerReadinessProbe) String() string {
@@ -4800,7 +4542,7 @@ func (s *UpdateContainerGroupRequestContainerReadinessProbe) SetTimeoutSeconds(v
 }
 
 type UpdateContainerGroupRequestContainerReadinessProbeTcpSocket struct {
-	Port *int `json:"Port" xml:"Port"`
+	Port *int `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerReadinessProbeTcpSocket) String() string {
@@ -4817,7 +4559,7 @@ func (s *UpdateContainerGroupRequestContainerReadinessProbeTcpSocket) SetPort(v 
 }
 
 type UpdateContainerGroupRequestContainerReadinessProbeExec struct {
-	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateContainerGroupRequestContainerReadinessProbeExec) String() string {
@@ -4834,9 +4576,9 @@ func (s *UpdateContainerGroupRequestContainerReadinessProbeExec) SetCommand(v []
 }
 
 type UpdateContainerGroupRequestContainerReadinessProbeHttpGet struct {
-	Path   *string `json:"Path" xml:"Path"`
-	Port   *int    `json:"Port" xml:"Port"`
-	Scheme *string `json:"Scheme" xml:"Scheme"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerReadinessProbeHttpGet) String() string {
@@ -4863,14 +4605,14 @@ func (s *UpdateContainerGroupRequestContainerReadinessProbeHttpGet) SetScheme(v 
 }
 
 type UpdateContainerGroupRequestContainerLivenessProbe struct {
-	TcpSocket           *UpdateContainerGroupRequestContainerLivenessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	Exec                *UpdateContainerGroupRequestContainerLivenessProbeExec      `json:"Exec" xml:"Exec" require:"true" type:"Struct"`
-	HttpGet             *UpdateContainerGroupRequestContainerLivenessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
-	InitialDelaySeconds *int                                                        `json:"InitialDelaySeconds" xml:"InitialDelaySeconds"`
-	PeriodSeconds       *int                                                        `json:"PeriodSeconds" xml:"PeriodSeconds"`
-	SuccessThreshold    *int                                                        `json:"SuccessThreshold" xml:"SuccessThreshold"`
-	FailureThreshold    *int                                                        `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
-	TimeoutSeconds      *int                                                        `json:"TimeoutSeconds" xml:"TimeoutSeconds"`
+	TcpSocket           *UpdateContainerGroupRequestContainerLivenessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
+	Exec                *UpdateContainerGroupRequestContainerLivenessProbeExec      `json:"Exec,omitempty" xml:"Exec,omitempty" require:"true" type:"Struct"`
+	HttpGet             *UpdateContainerGroupRequestContainerLivenessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
+	InitialDelaySeconds *int                                                        `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty"`
+	PeriodSeconds       *int                                                        `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty"`
+	SuccessThreshold    *int                                                        `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty"`
+	FailureThreshold    *int                                                        `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty" require:"true"`
+	TimeoutSeconds      *int                                                        `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerLivenessProbe) String() string {
@@ -4922,7 +4664,7 @@ func (s *UpdateContainerGroupRequestContainerLivenessProbe) SetTimeoutSeconds(v 
 }
 
 type UpdateContainerGroupRequestContainerLivenessProbeTcpSocket struct {
-	Port *int `json:"Port" xml:"Port"`
+	Port *int `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerLivenessProbeTcpSocket) String() string {
@@ -4939,7 +4681,7 @@ func (s *UpdateContainerGroupRequestContainerLivenessProbeTcpSocket) SetPort(v i
 }
 
 type UpdateContainerGroupRequestContainerLivenessProbeExec struct {
-	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateContainerGroupRequestContainerLivenessProbeExec) String() string {
@@ -4956,9 +4698,9 @@ func (s *UpdateContainerGroupRequestContainerLivenessProbeExec) SetCommand(v []*
 }
 
 type UpdateContainerGroupRequestContainerLivenessProbeHttpGet struct {
-	Path   *string `json:"Path" xml:"Path"`
-	Port   *int    `json:"Port" xml:"Port"`
-	Scheme *string `json:"Scheme" xml:"Scheme"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestContainerLivenessProbeHttpGet) String() string {
@@ -4985,9 +4727,9 @@ func (s *UpdateContainerGroupRequestContainerLivenessProbeHttpGet) SetScheme(v s
 }
 
 type UpdateContainerGroupRequestContainerSecurityContext struct {
-	ReadOnlyRootFilesystem *bool                                                          `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem"`
-	RunAsUser              *int64                                                         `json:"RunAsUser" xml:"RunAsUser"`
-	Capability             *UpdateContainerGroupRequestContainerSecurityContextCapability `json:"Capability" xml:"Capability" require:"true" type:"Struct"`
+	ReadOnlyRootFilesystem *bool                                                          `json:"ReadOnlyRootFilesystem,omitempty" xml:"ReadOnlyRootFilesystem,omitempty"`
+	RunAsUser              *int64                                                         `json:"RunAsUser,omitempty" xml:"RunAsUser,omitempty"`
+	Capability             *UpdateContainerGroupRequestContainerSecurityContextCapability `json:"Capability,omitempty" xml:"Capability,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateContainerGroupRequestContainerSecurityContext) String() string {
@@ -5014,7 +4756,7 @@ func (s *UpdateContainerGroupRequestContainerSecurityContext) SetCapability(v *U
 }
 
 type UpdateContainerGroupRequestContainerSecurityContextCapability struct {
-	Add []*string `json:"Add" xml:"Add" require:"true" type:"Repeated"`
+	Add []*string `json:"Add,omitempty" xml:"Add,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateContainerGroupRequestContainerSecurityContextCapability) String() string {
@@ -5031,22 +4773,22 @@ func (s *UpdateContainerGroupRequestContainerSecurityContextCapability) SetAdd(v
 }
 
 type UpdateContainerGroupRequestInitContainer struct {
-	Name            *string                                                   `json:"Name" xml:"Name"`
-	Image           *string                                                   `json:"Image" xml:"Image"`
-	Cpu             *float32                                                  `json:"Cpu" xml:"Cpu"`
-	Memory          *float32                                                  `json:"Memory" xml:"Memory"`
-	WorkingDir      *string                                                   `json:"WorkingDir" xml:"WorkingDir"`
-	ImagePullPolicy *string                                                   `json:"ImagePullPolicy" xml:"ImagePullPolicy"`
-	Stdin           *bool                                                     `json:"Stdin" xml:"Stdin"`
-	StdinOnce       *bool                                                     `json:"StdinOnce" xml:"StdinOnce"`
-	Tty             *bool                                                     `json:"Tty" xml:"Tty"`
-	Command         []*string                                                 `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Arg             []*string                                                 `json:"Arg" xml:"Arg" require:"true" type:"Repeated"`
-	EnvironmentVar  []*UpdateContainerGroupRequestInitContainerEnvironmentVar `json:"EnvironmentVar" xml:"EnvironmentVar" require:"true" type:"Repeated"`
-	Port            []*UpdateContainerGroupRequestInitContainerPort           `json:"Port" xml:"Port" require:"true" type:"Repeated"`
-	VolumeMount     []*UpdateContainerGroupRequestInitContainerVolumeMount    `json:"VolumeMount" xml:"VolumeMount" require:"true" type:"Repeated"`
-	SecurityContext *UpdateContainerGroupRequestInitContainerSecurityContext  `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Gpu             *int                                                      `json:"Gpu" xml:"Gpu"`
+	Name            *string                                                   `json:"Name,omitempty" xml:"Name,omitempty"`
+	Image           *string                                                   `json:"Image,omitempty" xml:"Image,omitempty"`
+	Cpu             *float32                                                  `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory          *float32                                                  `json:"Memory,omitempty" xml:"Memory,omitempty"`
+	WorkingDir      *string                                                   `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty"`
+	ImagePullPolicy *string                                                   `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty"`
+	Stdin           *bool                                                     `json:"Stdin,omitempty" xml:"Stdin,omitempty"`
+	StdinOnce       *bool                                                     `json:"StdinOnce,omitempty" xml:"StdinOnce,omitempty"`
+	Tty             *bool                                                     `json:"Tty,omitempty" xml:"Tty,omitempty"`
+	Command         []*string                                                 `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
+	Arg             []*string                                                 `json:"Arg,omitempty" xml:"Arg,omitempty" require:"true" type:"Repeated"`
+	EnvironmentVar  []*UpdateContainerGroupRequestInitContainerEnvironmentVar `json:"EnvironmentVar,omitempty" xml:"EnvironmentVar,omitempty" require:"true" type:"Repeated"`
+	Port            []*UpdateContainerGroupRequestInitContainerPort           `json:"Port,omitempty" xml:"Port,omitempty" require:"true" type:"Repeated"`
+	VolumeMount     []*UpdateContainerGroupRequestInitContainerVolumeMount    `json:"VolumeMount,omitempty" xml:"VolumeMount,omitempty" require:"true" type:"Repeated"`
+	SecurityContext *UpdateContainerGroupRequestInitContainerSecurityContext  `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Gpu             *int                                                      `json:"Gpu,omitempty" xml:"Gpu,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestInitContainer) String() string {
@@ -5138,8 +4880,8 @@ func (s *UpdateContainerGroupRequestInitContainer) SetGpu(v int) *UpdateContaine
 }
 
 type UpdateContainerGroupRequestInitContainerEnvironmentVar struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestInitContainerEnvironmentVar) String() string {
@@ -5161,8 +4903,8 @@ func (s *UpdateContainerGroupRequestInitContainerEnvironmentVar) SetValue(v stri
 }
 
 type UpdateContainerGroupRequestInitContainerPort struct {
-	Port     *int    `json:"Port" xml:"Port"`
-	Protocol *string `json:"Protocol" xml:"Protocol" require:"true"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty"`
+	Protocol *string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true"`
 }
 
 func (s UpdateContainerGroupRequestInitContainerPort) String() string {
@@ -5184,10 +4926,10 @@ func (s *UpdateContainerGroupRequestInitContainerPort) SetProtocol(v string) *Up
 }
 
 type UpdateContainerGroupRequestInitContainerVolumeMount struct {
-	Name      *string `json:"Name" xml:"Name"`
-	MountPath *string `json:"MountPath" xml:"MountPath"`
-	SubPath   *string `json:"SubPath" xml:"SubPath"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty"`
+	SubPath   *string `json:"SubPath,omitempty" xml:"SubPath,omitempty"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestInitContainerVolumeMount) String() string {
@@ -5219,9 +4961,9 @@ func (s *UpdateContainerGroupRequestInitContainerVolumeMount) SetReadOnly(v bool
 }
 
 type UpdateContainerGroupRequestInitContainerSecurityContext struct {
-	ReadOnlyRootFilesystem *bool                                                              `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem"`
-	RunAsUser              *int64                                                             `json:"RunAsUser" xml:"RunAsUser"`
-	Capability             *UpdateContainerGroupRequestInitContainerSecurityContextCapability `json:"Capability" xml:"Capability" require:"true" type:"Struct"`
+	ReadOnlyRootFilesystem *bool                                                              `json:"ReadOnlyRootFilesystem,omitempty" xml:"ReadOnlyRootFilesystem,omitempty"`
+	RunAsUser              *int64                                                             `json:"RunAsUser,omitempty" xml:"RunAsUser,omitempty"`
+	Capability             *UpdateContainerGroupRequestInitContainerSecurityContextCapability `json:"Capability,omitempty" xml:"Capability,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateContainerGroupRequestInitContainerSecurityContext) String() string {
@@ -5248,7 +4990,7 @@ func (s *UpdateContainerGroupRequestInitContainerSecurityContext) SetCapability(
 }
 
 type UpdateContainerGroupRequestInitContainerSecurityContextCapability struct {
-	Add []*string `json:"Add" xml:"Add" require:"true" type:"Repeated"`
+	Add []*string `json:"Add,omitempty" xml:"Add,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateContainerGroupRequestInitContainerSecurityContextCapability) String() string {
@@ -5265,9 +5007,9 @@ func (s *UpdateContainerGroupRequestInitContainerSecurityContextCapability) SetA
 }
 
 type UpdateContainerGroupRequestImageRegistryCredential struct {
-	Server   *string `json:"Server" xml:"Server"`
-	UserName *string `json:"UserName" xml:"UserName"`
-	Password *string `json:"Password" xml:"Password"`
+	Server   *string `json:"Server,omitempty" xml:"Server,omitempty"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	Password *string `json:"Password,omitempty" xml:"Password,omitempty"`
 }
 
 func (s UpdateContainerGroupRequestImageRegistryCredential) String() string {
@@ -5294,7 +5036,7 @@ func (s *UpdateContainerGroupRequestImageRegistryCredential) SetPassword(v strin
 }
 
 type UpdateContainerGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateContainerGroupResponse) String() string {
@@ -5311,17 +5053,13 @@ func (s *UpdateContainerGroupResponse) SetRequestId(v string) *UpdateContainerGr
 }
 
 type DescribeContainerGroupPriceRequest struct {
-	OwnerId              *int64   `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string  `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64   `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string  `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string  `json:"RegionId" xml:"RegionId" require:"true"`
-	Cpu                  *float32 `json:"Cpu" xml:"Cpu"`
-	Memory               *float32 `json:"Memory" xml:"Memory"`
-	InstanceType         *string  `json:"InstanceType" xml:"InstanceType"`
-	SpotStrategy         *string  `json:"SpotStrategy" xml:"SpotStrategy"`
-	ZoneId               *string  `json:"ZoneId" xml:"ZoneId"`
-	SpotPriceLimit       *float32 `json:"SpotPriceLimit" xml:"SpotPriceLimit"`
+	RegionId       *string  `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Cpu            *float32 `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory         *float32 `json:"Memory,omitempty" xml:"Memory,omitempty"`
+	InstanceType   *string  `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
+	SpotStrategy   *string  `json:"SpotStrategy,omitempty" xml:"SpotStrategy,omitempty"`
+	ZoneId         *string  `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	SpotPriceLimit *float32 `json:"SpotPriceLimit,omitempty" xml:"SpotPriceLimit,omitempty"`
 }
 
 func (s DescribeContainerGroupPriceRequest) String() string {
@@ -5330,26 +5068,6 @@ func (s DescribeContainerGroupPriceRequest) String() string {
 
 func (s DescribeContainerGroupPriceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeContainerGroupPriceRequest) SetOwnerId(v int64) *DescribeContainerGroupPriceRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerGroupPriceRequest) SetResourceOwnerAccount(v string) *DescribeContainerGroupPriceRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeContainerGroupPriceRequest) SetResourceOwnerId(v int64) *DescribeContainerGroupPriceRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerGroupPriceRequest) SetOwnerAccount(v string) *DescribeContainerGroupPriceRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeContainerGroupPriceRequest) SetRegionId(v string) *DescribeContainerGroupPriceRequest {
@@ -5388,8 +5106,8 @@ func (s *DescribeContainerGroupPriceRequest) SetSpotPriceLimit(v float32) *Descr
 }
 
 type DescribeContainerGroupPriceResponse struct {
-	RequestId *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	PriceInfo *DescribeContainerGroupPriceResponsePriceInfo `json:"PriceInfo" xml:"PriceInfo" require:"true" type:"Struct"`
+	RequestId *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PriceInfo *DescribeContainerGroupPriceResponsePriceInfo `json:"PriceInfo,omitempty" xml:"PriceInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupPriceResponse) String() string {
@@ -5411,9 +5129,9 @@ func (s *DescribeContainerGroupPriceResponse) SetPriceInfo(v *DescribeContainerG
 }
 
 type DescribeContainerGroupPriceResponsePriceInfo struct {
-	Rules      *DescribeContainerGroupPriceResponsePriceInfoRules      `json:"Rules" xml:"Rules" require:"true" type:"Struct"`
-	SpotPrices *DescribeContainerGroupPriceResponsePriceInfoSpotPrices `json:"SpotPrices" xml:"SpotPrices" require:"true" type:"Struct"`
-	Price      *DescribeContainerGroupPriceResponsePriceInfoPrice      `json:"Price" xml:"Price" require:"true" type:"Struct"`
+	Rules      *DescribeContainerGroupPriceResponsePriceInfoRules      `json:"Rules,omitempty" xml:"Rules,omitempty" require:"true" type:"Struct"`
+	SpotPrices *DescribeContainerGroupPriceResponsePriceInfoSpotPrices `json:"SpotPrices,omitempty" xml:"SpotPrices,omitempty" require:"true" type:"Struct"`
+	Price      *DescribeContainerGroupPriceResponsePriceInfoPrice      `json:"Price,omitempty" xml:"Price,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfo) String() string {
@@ -5440,7 +5158,7 @@ func (s *DescribeContainerGroupPriceResponsePriceInfo) SetPrice(v *DescribeConta
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoRules struct {
-	Rule []*DescribeContainerGroupPriceResponsePriceInfoRulesRule `json:"Rule" xml:"Rule" require:"true" type:"Repeated"`
+	Rule []*DescribeContainerGroupPriceResponsePriceInfoRulesRule `json:"Rule,omitempty" xml:"Rule,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoRules) String() string {
@@ -5457,8 +5175,8 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoRules) SetRule(v []*Describ
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoRulesRule struct {
-	RuleId      *int64  `json:"RuleId" xml:"RuleId" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	RuleId      *int64  `json:"RuleId,omitempty" xml:"RuleId,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoRulesRule) String() string {
@@ -5480,7 +5198,7 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoRulesRule) SetDescription(v
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoSpotPrices struct {
-	SpotPrice []*DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice `json:"SpotPrice" xml:"SpotPrice" require:"true" type:"Repeated"`
+	SpotPrice []*DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice `json:"SpotPrice,omitempty" xml:"SpotPrice,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoSpotPrices) String() string {
@@ -5497,10 +5215,10 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPrices) SetSpotPrice(v 
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice struct {
-	ZoneId       *string  `json:"ZoneId" xml:"ZoneId" require:"true"`
-	InstanceType *string  `json:"InstanceType" xml:"InstanceType" require:"true"`
-	SpotPrice    *float32 `json:"SpotPrice" xml:"SpotPrice" require:"true"`
-	OriginPrice  *float32 `json:"OriginPrice" xml:"OriginPrice" require:"true"`
+	ZoneId       *string  `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	InstanceType *string  `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	SpotPrice    *float32 `json:"SpotPrice,omitempty" xml:"SpotPrice,omitempty" require:"true"`
+	OriginPrice  *float32 `json:"OriginPrice,omitempty" xml:"OriginPrice,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) String() string {
@@ -5532,11 +5250,11 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoSpotPricesSpotPrice) SetOri
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoPrice struct {
-	OriginalPrice *float32                                                      `json:"OriginalPrice" xml:"OriginalPrice" require:"true"`
-	DiscountPrice *float32                                                      `json:"DiscountPrice" xml:"DiscountPrice" require:"true"`
-	TradePrice    *float32                                                      `json:"TradePrice" xml:"TradePrice" require:"true"`
-	Currency      *string                                                       `json:"Currency" xml:"Currency" require:"true"`
-	DetailInfos   *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfos `json:"DetailInfos" xml:"DetailInfos" require:"true" type:"Struct"`
+	OriginalPrice *float32                                                      `json:"OriginalPrice,omitempty" xml:"OriginalPrice,omitempty" require:"true"`
+	DiscountPrice *float32                                                      `json:"DiscountPrice,omitempty" xml:"DiscountPrice,omitempty" require:"true"`
+	TradePrice    *float32                                                      `json:"TradePrice,omitempty" xml:"TradePrice,omitempty" require:"true"`
+	Currency      *string                                                       `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	DetailInfos   *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfos `json:"DetailInfos,omitempty" xml:"DetailInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoPrice) String() string {
@@ -5573,7 +5291,7 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoPrice) SetDetailInfos(v *De
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfos struct {
-	DetailInfo []*DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfo `json:"DetailInfo" xml:"DetailInfo" require:"true" type:"Repeated"`
+	DetailInfo []*DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfo `json:"DetailInfo,omitempty" xml:"DetailInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfos) String() string {
@@ -5590,11 +5308,11 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfos) SetDetail
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfo struct {
-	Resource      *string                                                                      `json:"Resource" xml:"Resource" require:"true"`
-	OriginalPrice *float32                                                                     `json:"OriginalPrice" xml:"OriginalPrice" require:"true"`
-	DiscountPrice *float32                                                                     `json:"DiscountPrice" xml:"DiscountPrice" require:"true"`
-	TradePrice    *float32                                                                     `json:"TradePrice" xml:"TradePrice" require:"true"`
-	Rules         *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRules `json:"Rules" xml:"Rules" require:"true" type:"Struct"`
+	Resource      *string                                                                      `json:"Resource,omitempty" xml:"Resource,omitempty" require:"true"`
+	OriginalPrice *float32                                                                     `json:"OriginalPrice,omitempty" xml:"OriginalPrice,omitempty" require:"true"`
+	DiscountPrice *float32                                                                     `json:"DiscountPrice,omitempty" xml:"DiscountPrice,omitempty" require:"true"`
+	TradePrice    *float32                                                                     `json:"TradePrice,omitempty" xml:"TradePrice,omitempty" require:"true"`
+	Rules         *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRules `json:"Rules,omitempty" xml:"Rules,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfo) String() string {
@@ -5631,7 +5349,7 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfo)
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRules struct {
-	Rule []*DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRulesRule `json:"Rule" xml:"Rule" require:"true" type:"Repeated"`
+	Rule []*DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRulesRule `json:"Rule,omitempty" xml:"Rule,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRules) String() string {
@@ -5648,8 +5366,8 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoR
 }
 
 type DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRulesRule struct {
-	RuleId      *int64  `json:"RuleId" xml:"RuleId" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	RuleId      *int64  `json:"RuleId,omitempty" xml:"RuleId,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoRulesRule) String() string {
@@ -5671,16 +5389,12 @@ func (s *DescribeContainerGroupPriceResponsePriceInfoPriceDetailInfosDetailInfoR
 }
 
 type ExecContainerCommandRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupId     *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ContainerName        *string `json:"ContainerName" xml:"ContainerName" require:"true"`
-	Command              *string `json:"Command" xml:"Command" require:"true"`
-	TTY                  *bool   `json:"TTY" xml:"TTY"`
-	Stdin                *bool   `json:"Stdin" xml:"Stdin"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	ContainerName    *string `json:"ContainerName,omitempty" xml:"ContainerName,omitempty" require:"true"`
+	Command          *string `json:"Command,omitempty" xml:"Command,omitempty" require:"true"`
+	TTY              *bool   `json:"TTY,omitempty" xml:"TTY,omitempty"`
+	Stdin            *bool   `json:"Stdin,omitempty" xml:"Stdin,omitempty"`
 }
 
 func (s ExecContainerCommandRequest) String() string {
@@ -5689,26 +5403,6 @@ func (s ExecContainerCommandRequest) String() string {
 
 func (s ExecContainerCommandRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ExecContainerCommandRequest) SetOwnerId(v int64) *ExecContainerCommandRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ExecContainerCommandRequest) SetResourceOwnerAccount(v string) *ExecContainerCommandRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ExecContainerCommandRequest) SetResourceOwnerId(v int64) *ExecContainerCommandRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ExecContainerCommandRequest) SetOwnerAccount(v string) *ExecContainerCommandRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ExecContainerCommandRequest) SetRegionId(v string) *ExecContainerCommandRequest {
@@ -5742,8 +5436,8 @@ func (s *ExecContainerCommandRequest) SetStdin(v bool) *ExecContainerCommandRequ
 }
 
 type ExecContainerCommandResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	WebSocketUri *string `json:"WebSocketUri" xml:"WebSocketUri" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	WebSocketUri *string `json:"WebSocketUri,omitempty" xml:"WebSocketUri,omitempty" require:"true"`
 }
 
 func (s ExecContainerCommandResponse) String() string {
@@ -5765,18 +5459,14 @@ func (s *ExecContainerCommandResponse) SetWebSocketUri(v string) *ExecContainerC
 }
 
 type DescribeContainerLogRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupId     *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ContainerName        *string `json:"ContainerName" xml:"ContainerName" require:"true"`
-	StartTime            *string `json:"StartTime" xml:"StartTime"`
-	Tail                 *int    `json:"Tail" xml:"Tail"`
-	LastTime             *bool   `json:"LastTime" xml:"LastTime"`
-	SinceSeconds         *int    `json:"SinceSeconds" xml:"SinceSeconds"`
-	LimitBytes           *int64  `json:"LimitBytes" xml:"LimitBytes"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	ContainerName    *string `json:"ContainerName,omitempty" xml:"ContainerName,omitempty" require:"true"`
+	StartTime        *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	Tail             *int    `json:"Tail,omitempty" xml:"Tail,omitempty"`
+	LastTime         *bool   `json:"LastTime,omitempty" xml:"LastTime,omitempty"`
+	SinceSeconds     *int    `json:"SinceSeconds,omitempty" xml:"SinceSeconds,omitempty"`
+	LimitBytes       *int64  `json:"LimitBytes,omitempty" xml:"LimitBytes,omitempty"`
 }
 
 func (s DescribeContainerLogRequest) String() string {
@@ -5785,26 +5475,6 @@ func (s DescribeContainerLogRequest) String() string {
 
 func (s DescribeContainerLogRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeContainerLogRequest) SetOwnerId(v int64) *DescribeContainerLogRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerLogRequest) SetResourceOwnerAccount(v string) *DescribeContainerLogRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeContainerLogRequest) SetResourceOwnerId(v int64) *DescribeContainerLogRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerLogRequest) SetOwnerAccount(v string) *DescribeContainerLogRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeContainerLogRequest) SetRegionId(v string) *DescribeContainerLogRequest {
@@ -5848,9 +5518,9 @@ func (s *DescribeContainerLogRequest) SetLimitBytes(v int64) *DescribeContainerL
 }
 
 type DescribeContainerLogResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ContainerName *string `json:"ContainerName" xml:"ContainerName" require:"true"`
-	Content       *string `json:"Content" xml:"Content" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ContainerName *string `json:"ContainerName,omitempty" xml:"ContainerName,omitempty" require:"true"`
+	Content       *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s DescribeContainerLogResponse) String() string {
@@ -5877,46 +5547,42 @@ func (s *DescribeContainerLogResponse) SetContent(v string) *DescribeContainerLo
 }
 
 type CreateContainerGroupRequest struct {
-	OwnerId                       *int64                                                `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount          *string                                               `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId               *int64                                                `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount                  *string                                               `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId                      *string                                               `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId                        *string                                               `json:"ZoneId" xml:"ZoneId"`
-	SecurityGroupId               *string                                               `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	VSwitchId                     *string                                               `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	ContainerGroupName            *string                                               `json:"ContainerGroupName" xml:"ContainerGroupName" require:"true"`
-	RestartPolicy                 *string                                               `json:"RestartPolicy" xml:"RestartPolicy"`
-	Tag                           []*CreateContainerGroupRequestTag                     `json:"Tag" xml:"Tag" type:"Repeated"`
-	ImageRegistryCredential       []*CreateContainerGroupRequestImageRegistryCredential `json:"ImageRegistryCredential" xml:"ImageRegistryCredential" type:"Repeated"`
-	Container                     []*CreateContainerGroupRequestContainer               `json:"Container" xml:"Container" require:"true" type:"Repeated"`
-	Volume                        []*CreateContainerGroupRequestVolume                  `json:"Volume" xml:"Volume" type:"Repeated"`
-	EipInstanceId                 *string                                               `json:"EipInstanceId" xml:"EipInstanceId"`
-	InitContainer                 []*CreateContainerGroupRequestInitContainer           `json:"InitContainer" xml:"InitContainer" type:"Repeated"`
-	DnsConfig                     *CreateContainerGroupRequestDnsConfig                 `json:"DnsConfig" xml:"DnsConfig" require:"true" type:"Struct"`
-	Cpu                           *float32                                              `json:"Cpu" xml:"Cpu"`
-	Memory                        *float32                                              `json:"Memory" xml:"Memory"`
-	ResourceGroupId               *string                                               `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	DnsPolicy                     *string                                               `json:"DnsPolicy" xml:"DnsPolicy"`
-	ClientToken                   *string                                               `json:"ClientToken" xml:"ClientToken"`
-	HostAliase                    []*CreateContainerGroupRequestHostAliase              `json:"HostAliase" xml:"HostAliase" type:"Repeated"`
-	Arn                           []*CreateContainerGroupRequestArn                     `json:"Arn" xml:"Arn" type:"Repeated"`
-	InstanceType                  *string                                               `json:"InstanceType" xml:"InstanceType"`
-	SecurityContext               *CreateContainerGroupRequestSecurityContext           `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	SlsEnable                     *bool                                                 `json:"SlsEnable" xml:"SlsEnable"`
-	ImageSnapshotId               *string                                               `json:"ImageSnapshotId" xml:"ImageSnapshotId"`
-	RamRoleName                   *string                                               `json:"RamRoleName" xml:"RamRoleName"`
-	NtpServer                     []*string                                             `json:"NtpServer" xml:"NtpServer" type:"Repeated"`
-	TerminationGracePeriodSeconds *int64                                                `json:"TerminationGracePeriodSeconds" xml:"TerminationGracePeriodSeconds"`
-	AutoMatchImageCache           *bool                                                 `json:"AutoMatchImageCache" xml:"AutoMatchImageCache"`
-	Ipv6AddressCount              *int                                                  `json:"Ipv6AddressCount" xml:"Ipv6AddressCount"`
-	ActiveDeadlineSeconds         *int64                                                `json:"ActiveDeadlineSeconds" xml:"ActiveDeadlineSeconds"`
-	SpotStrategy                  *string                                               `json:"SpotStrategy" xml:"SpotStrategy"`
-	SpotPriceLimit                *float32                                              `json:"SpotPriceLimit" xml:"SpotPriceLimit"`
-	ScheduleStrategy              *string                                               `json:"ScheduleStrategy" xml:"ScheduleStrategy"`
-	TenantVSwitchId               *string                                               `json:"TenantVSwitchId" xml:"TenantVSwitchId"`
-	TenantSecurityGroupId         *string                                               `json:"TenantSecurityGroupId" xml:"TenantSecurityGroupId"`
-	CorePattern                   *string                                               `json:"CorePattern" xml:"CorePattern"`
+	RegionId                      *string                                               `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId                        *string                                               `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	SecurityGroupId               *string                                               `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	VSwitchId                     *string                                               `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
+	ContainerGroupName            *string                                               `json:"ContainerGroupName,omitempty" xml:"ContainerGroupName,omitempty" require:"true"`
+	RestartPolicy                 *string                                               `json:"RestartPolicy,omitempty" xml:"RestartPolicy,omitempty"`
+	Tag                           []*CreateContainerGroupRequestTag                     `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ImageRegistryCredential       []*CreateContainerGroupRequestImageRegistryCredential `json:"ImageRegistryCredential,omitempty" xml:"ImageRegistryCredential,omitempty" type:"Repeated"`
+	Container                     []*CreateContainerGroupRequestContainer               `json:"Container,omitempty" xml:"Container,omitempty" require:"true" type:"Repeated"`
+	Volume                        []*CreateContainerGroupRequestVolume                  `json:"Volume,omitempty" xml:"Volume,omitempty" type:"Repeated"`
+	EipInstanceId                 *string                                               `json:"EipInstanceId,omitempty" xml:"EipInstanceId,omitempty"`
+	InitContainer                 []*CreateContainerGroupRequestInitContainer           `json:"InitContainer,omitempty" xml:"InitContainer,omitempty" type:"Repeated"`
+	DnsConfig                     *CreateContainerGroupRequestDnsConfig                 `json:"DnsConfig,omitempty" xml:"DnsConfig,omitempty" require:"true" type:"Struct"`
+	Cpu                           *float32                                              `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory                        *float32                                              `json:"Memory,omitempty" xml:"Memory,omitempty"`
+	ResourceGroupId               *string                                               `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	DnsPolicy                     *string                                               `json:"DnsPolicy,omitempty" xml:"DnsPolicy,omitempty"`
+	ClientToken                   *string                                               `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	HostAliase                    []*CreateContainerGroupRequestHostAliase              `json:"HostAliase,omitempty" xml:"HostAliase,omitempty" type:"Repeated"`
+	Arn                           []*CreateContainerGroupRequestArn                     `json:"Arn,omitempty" xml:"Arn,omitempty" type:"Repeated"`
+	InstanceType                  *string                                               `json:"InstanceType,omitempty" xml:"InstanceType,omitempty"`
+	SecurityContext               *CreateContainerGroupRequestSecurityContext           `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	SlsEnable                     *bool                                                 `json:"SlsEnable,omitempty" xml:"SlsEnable,omitempty"`
+	ImageSnapshotId               *string                                               `json:"ImageSnapshotId,omitempty" xml:"ImageSnapshotId,omitempty"`
+	RamRoleName                   *string                                               `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
+	NtpServer                     []*string                                             `json:"NtpServer,omitempty" xml:"NtpServer,omitempty" type:"Repeated"`
+	TerminationGracePeriodSeconds *int64                                                `json:"TerminationGracePeriodSeconds,omitempty" xml:"TerminationGracePeriodSeconds,omitempty"`
+	AutoMatchImageCache           *bool                                                 `json:"AutoMatchImageCache,omitempty" xml:"AutoMatchImageCache,omitempty"`
+	Ipv6AddressCount              *int                                                  `json:"Ipv6AddressCount,omitempty" xml:"Ipv6AddressCount,omitempty"`
+	ActiveDeadlineSeconds         *int64                                                `json:"ActiveDeadlineSeconds,omitempty" xml:"ActiveDeadlineSeconds,omitempty"`
+	SpotStrategy                  *string                                               `json:"SpotStrategy,omitempty" xml:"SpotStrategy,omitempty"`
+	SpotPriceLimit                *float32                                              `json:"SpotPriceLimit,omitempty" xml:"SpotPriceLimit,omitempty"`
+	ScheduleStrategy              *string                                               `json:"ScheduleStrategy,omitempty" xml:"ScheduleStrategy,omitempty"`
+	TenantVSwitchId               *string                                               `json:"TenantVSwitchId,omitempty" xml:"TenantVSwitchId,omitempty"`
+	TenantSecurityGroupId         *string                                               `json:"TenantSecurityGroupId,omitempty" xml:"TenantSecurityGroupId,omitempty"`
+	CorePattern                   *string                                               `json:"CorePattern,omitempty" xml:"CorePattern,omitempty"`
 }
 
 func (s CreateContainerGroupRequest) String() string {
@@ -5925,26 +5591,6 @@ func (s CreateContainerGroupRequest) String() string {
 
 func (s CreateContainerGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateContainerGroupRequest) SetOwnerId(v int64) *CreateContainerGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateContainerGroupRequest) SetResourceOwnerAccount(v string) *CreateContainerGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateContainerGroupRequest) SetResourceOwnerId(v int64) *CreateContainerGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateContainerGroupRequest) SetOwnerAccount(v string) *CreateContainerGroupRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateContainerGroupRequest) SetRegionId(v string) *CreateContainerGroupRequest {
@@ -6128,8 +5774,8 @@ func (s *CreateContainerGroupRequest) SetCorePattern(v string) *CreateContainerG
 }
 
 type CreateContainerGroupRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s CreateContainerGroupRequestTag) String() string {
@@ -6151,9 +5797,9 @@ func (s *CreateContainerGroupRequestTag) SetValue(v string) *CreateContainerGrou
 }
 
 type CreateContainerGroupRequestImageRegistryCredential struct {
-	Server   *string `json:"Server" xml:"Server" require:"true"`
-	UserName *string `json:"UserName" xml:"UserName" require:"true"`
-	Password *string `json:"Password" xml:"Password" require:"true"`
+	Server   *string `json:"Server,omitempty" xml:"Server,omitempty" require:"true"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	Password *string `json:"Password,omitempty" xml:"Password,omitempty" require:"true"`
 }
 
 func (s CreateContainerGroupRequestImageRegistryCredential) String() string {
@@ -6180,42 +5826,42 @@ func (s *CreateContainerGroupRequestImageRegistryCredential) SetPassword(v strin
 }
 
 type CreateContainerGroupRequestContainer struct {
-	Image                                      *string                                                                           `json:"Image" xml:"Image" require:"true"`
-	Name                                       *string                                                                           `json:"Name" xml:"Name" require:"true"`
-	Cpu                                        *float32                                                                          `json:"Cpu" xml:"Cpu"`
-	Memory                                     *float32                                                                          `json:"Memory" xml:"Memory"`
-	WorkingDir                                 *string                                                                           `json:"WorkingDir" xml:"WorkingDir"`
-	ImagePullPolicy                            *string                                                                           `json:"ImagePullPolicy" xml:"ImagePullPolicy"`
-	Command                                    []*string                                                                         `json:"Command" xml:"Command" type:"Repeated"`
-	Arg                                        []*string                                                                         `json:"Arg" xml:"Arg" type:"Repeated"`
-	VolumeMount                                []*CreateContainerGroupRequestContainerVolumeMount                                `json:"VolumeMount" xml:"VolumeMount" type:"Repeated"`
-	Port                                       []*CreateContainerGroupRequestContainerPort                                       `json:"Port" xml:"Port" type:"Repeated"`
-	EnvironmentVar                             []*CreateContainerGroupRequestContainerEnvironmentVar                             `json:"EnvironmentVar" xml:"EnvironmentVar" type:"Repeated"`
-	ReadinessProbe                             *CreateContainerGroupRequestContainerReadinessProbe                               `json:"ReadinessProbe" xml:"ReadinessProbe" require:"true" type:"Struct"`
-	LivenessProbe                              *CreateContainerGroupRequestContainerLivenessProbe                                `json:"LivenessProbe" xml:"LivenessProbe" require:"true" type:"Struct"`
-	SecurityContext                            *CreateContainerGroupRequestContainerSecurityContext                              `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Stdin                                      *bool                                                                             `json:"Stdin" xml:"Stdin"`
-	StdinOnce                                  *bool                                                                             `json:"StdinOnce" xml:"StdinOnce"`
-	Tty                                        *bool                                                                             `json:"Tty" xml:"Tty"`
-	Gpu                                        *int                                                                              `json:"Gpu" xml:"Gpu"`
-	LifecyclePostStartHandlerHttpGetHost       *string                                                                           `json:"LifecyclePostStartHandlerHttpGetHost" xml:"LifecyclePostStartHandlerHttpGetHost"`
-	LifecyclePostStartHandlerHttpGetPort       *int                                                                              `json:"LifecyclePostStartHandlerHttpGetPort" xml:"LifecyclePostStartHandlerHttpGetPort"`
-	LifecyclePostStartHandlerHttpGetPath       *string                                                                           `json:"LifecyclePostStartHandlerHttpGetPath" xml:"LifecyclePostStartHandlerHttpGetPath"`
-	LifecyclePostStartHandlerHttpGetScheme     *string                                                                           `json:"LifecyclePostStartHandlerHttpGetScheme" xml:"LifecyclePostStartHandlerHttpGetScheme"`
-	LifecyclePostStartHandlerHttpGetHttpHeader []*CreateContainerGroupRequestContainerLifecyclePostStartHandlerHttpGetHttpHeader `json:"LifecyclePostStartHandlerHttpGetHttpHeader" xml:"LifecyclePostStartHandlerHttpGetHttpHeader" type:"Repeated"`
-	LifecyclePostStartHandlerExec              []*string                                                                         `json:"LifecyclePostStartHandlerExec" xml:"LifecyclePostStartHandlerExec" type:"Repeated"`
-	LifecyclePostStartHandlerTcpSocketHost     *string                                                                           `json:"LifecyclePostStartHandlerTcpSocketHost" xml:"LifecyclePostStartHandlerTcpSocketHost"`
-	LifecyclePostStartHandlerTcpSocketPort     *int                                                                              `json:"LifecyclePostStartHandlerTcpSocketPort" xml:"LifecyclePostStartHandlerTcpSocketPort"`
-	LifecyclePreStopHandlerHttpGetHost         *string                                                                           `json:"LifecyclePreStopHandlerHttpGetHost" xml:"LifecyclePreStopHandlerHttpGetHost"`
-	LifecyclePreStopHandlerHttpGetPort         *int                                                                              `json:"LifecyclePreStopHandlerHttpGetPort" xml:"LifecyclePreStopHandlerHttpGetPort"`
-	LifecyclePreStopHandlerHttpGetPath         *string                                                                           `json:"LifecyclePreStopHandlerHttpGetPath" xml:"LifecyclePreStopHandlerHttpGetPath"`
-	LifecyclePreStopHandlerHttpGetScheme       *string                                                                           `json:"LifecyclePreStopHandlerHttpGetScheme" xml:"LifecyclePreStopHandlerHttpGetScheme"`
-	LifecyclePreStopHandlerHttpGetHttpHeader   []*CreateContainerGroupRequestContainerLifecyclePreStopHandlerHttpGetHttpHeader   `json:"LifecyclePreStopHandlerHttpGetHttpHeader" xml:"LifecyclePreStopHandlerHttpGetHttpHeader" type:"Repeated"`
-	LifecyclePreStopHandlerExec                []*string                                                                         `json:"LifecyclePreStopHandlerExec" xml:"LifecyclePreStopHandlerExec" type:"Repeated"`
-	LifecyclePreStopHandlerTcpSocketHost       *string                                                                           `json:"LifecyclePreStopHandlerTcpSocketHost" xml:"LifecyclePreStopHandlerTcpSocketHost"`
-	LifecyclePreStopHandlerTcpSocketPort       *int                                                                              `json:"LifecyclePreStopHandlerTcpSocketPort" xml:"LifecyclePreStopHandlerTcpSocketPort"`
-	TerminationMessagePath                     *string                                                                           `json:"TerminationMessagePath" xml:"TerminationMessagePath"`
-	TerminationMessagePolicy                   *string                                                                           `json:"TerminationMessagePolicy" xml:"TerminationMessagePolicy"`
+	Image                                      *string                                                                           `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	Name                                       *string                                                                           `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Cpu                                        *float32                                                                          `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory                                     *float32                                                                          `json:"Memory,omitempty" xml:"Memory,omitempty"`
+	WorkingDir                                 *string                                                                           `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty"`
+	ImagePullPolicy                            *string                                                                           `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty"`
+	Command                                    []*string                                                                         `json:"Command,omitempty" xml:"Command,omitempty" type:"Repeated"`
+	Arg                                        []*string                                                                         `json:"Arg,omitempty" xml:"Arg,omitempty" type:"Repeated"`
+	VolumeMount                                []*CreateContainerGroupRequestContainerVolumeMount                                `json:"VolumeMount,omitempty" xml:"VolumeMount,omitempty" type:"Repeated"`
+	Port                                       []*CreateContainerGroupRequestContainerPort                                       `json:"Port,omitempty" xml:"Port,omitempty" type:"Repeated"`
+	EnvironmentVar                             []*CreateContainerGroupRequestContainerEnvironmentVar                             `json:"EnvironmentVar,omitempty" xml:"EnvironmentVar,omitempty" type:"Repeated"`
+	ReadinessProbe                             *CreateContainerGroupRequestContainerReadinessProbe                               `json:"ReadinessProbe,omitempty" xml:"ReadinessProbe,omitempty" require:"true" type:"Struct"`
+	LivenessProbe                              *CreateContainerGroupRequestContainerLivenessProbe                                `json:"LivenessProbe,omitempty" xml:"LivenessProbe,omitempty" require:"true" type:"Struct"`
+	SecurityContext                            *CreateContainerGroupRequestContainerSecurityContext                              `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Stdin                                      *bool                                                                             `json:"Stdin,omitempty" xml:"Stdin,omitempty"`
+	StdinOnce                                  *bool                                                                             `json:"StdinOnce,omitempty" xml:"StdinOnce,omitempty"`
+	Tty                                        *bool                                                                             `json:"Tty,omitempty" xml:"Tty,omitempty"`
+	Gpu                                        *int                                                                              `json:"Gpu,omitempty" xml:"Gpu,omitempty"`
+	LifecyclePostStartHandlerHttpGetHost       *string                                                                           `json:"LifecyclePostStartHandlerHttpGetHost,omitempty" xml:"LifecyclePostStartHandlerHttpGetHost,omitempty"`
+	LifecyclePostStartHandlerHttpGetPort       *int                                                                              `json:"LifecyclePostStartHandlerHttpGetPort,omitempty" xml:"LifecyclePostStartHandlerHttpGetPort,omitempty"`
+	LifecyclePostStartHandlerHttpGetPath       *string                                                                           `json:"LifecyclePostStartHandlerHttpGetPath,omitempty" xml:"LifecyclePostStartHandlerHttpGetPath,omitempty"`
+	LifecyclePostStartHandlerHttpGetScheme     *string                                                                           `json:"LifecyclePostStartHandlerHttpGetScheme,omitempty" xml:"LifecyclePostStartHandlerHttpGetScheme,omitempty"`
+	LifecyclePostStartHandlerHttpGetHttpHeader []*CreateContainerGroupRequestContainerLifecyclePostStartHandlerHttpGetHttpHeader `json:"LifecyclePostStartHandlerHttpGetHttpHeader,omitempty" xml:"LifecyclePostStartHandlerHttpGetHttpHeader,omitempty" type:"Repeated"`
+	LifecyclePostStartHandlerExec              []*string                                                                         `json:"LifecyclePostStartHandlerExec,omitempty" xml:"LifecyclePostStartHandlerExec,omitempty" type:"Repeated"`
+	LifecyclePostStartHandlerTcpSocketHost     *string                                                                           `json:"LifecyclePostStartHandlerTcpSocketHost,omitempty" xml:"LifecyclePostStartHandlerTcpSocketHost,omitempty"`
+	LifecyclePostStartHandlerTcpSocketPort     *int                                                                              `json:"LifecyclePostStartHandlerTcpSocketPort,omitempty" xml:"LifecyclePostStartHandlerTcpSocketPort,omitempty"`
+	LifecyclePreStopHandlerHttpGetHost         *string                                                                           `json:"LifecyclePreStopHandlerHttpGetHost,omitempty" xml:"LifecyclePreStopHandlerHttpGetHost,omitempty"`
+	LifecyclePreStopHandlerHttpGetPort         *int                                                                              `json:"LifecyclePreStopHandlerHttpGetPort,omitempty" xml:"LifecyclePreStopHandlerHttpGetPort,omitempty"`
+	LifecyclePreStopHandlerHttpGetPath         *string                                                                           `json:"LifecyclePreStopHandlerHttpGetPath,omitempty" xml:"LifecyclePreStopHandlerHttpGetPath,omitempty"`
+	LifecyclePreStopHandlerHttpGetScheme       *string                                                                           `json:"LifecyclePreStopHandlerHttpGetScheme,omitempty" xml:"LifecyclePreStopHandlerHttpGetScheme,omitempty"`
+	LifecyclePreStopHandlerHttpGetHttpHeader   []*CreateContainerGroupRequestContainerLifecyclePreStopHandlerHttpGetHttpHeader   `json:"LifecyclePreStopHandlerHttpGetHttpHeader,omitempty" xml:"LifecyclePreStopHandlerHttpGetHttpHeader,omitempty" type:"Repeated"`
+	LifecyclePreStopHandlerExec                []*string                                                                         `json:"LifecyclePreStopHandlerExec,omitempty" xml:"LifecyclePreStopHandlerExec,omitempty" type:"Repeated"`
+	LifecyclePreStopHandlerTcpSocketHost       *string                                                                           `json:"LifecyclePreStopHandlerTcpSocketHost,omitempty" xml:"LifecyclePreStopHandlerTcpSocketHost,omitempty"`
+	LifecyclePreStopHandlerTcpSocketPort       *int                                                                              `json:"LifecyclePreStopHandlerTcpSocketPort,omitempty" xml:"LifecyclePreStopHandlerTcpSocketPort,omitempty"`
+	TerminationMessagePath                     *string                                                                           `json:"TerminationMessagePath,omitempty" xml:"TerminationMessagePath,omitempty"`
+	TerminationMessagePolicy                   *string                                                                           `json:"TerminationMessagePolicy,omitempty" xml:"TerminationMessagePolicy,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainer) String() string {
@@ -6407,10 +6053,10 @@ func (s *CreateContainerGroupRequestContainer) SetTerminationMessagePolicy(v str
 }
 
 type CreateContainerGroupRequestContainerVolumeMount struct {
-	MountPath *string `json:"MountPath" xml:"MountPath" require:"true"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly" require:"true"`
-	Name      *string `json:"Name" xml:"Name"`
-	SubPath   *string `json:"SubPath" xml:"SubPath"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty" require:"true"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	SubPath   *string `json:"SubPath,omitempty" xml:"SubPath,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerVolumeMount) String() string {
@@ -6442,8 +6088,8 @@ func (s *CreateContainerGroupRequestContainerVolumeMount) SetSubPath(v string) *
 }
 
 type CreateContainerGroupRequestContainerPort struct {
-	Protocol *string `json:"Protocol" xml:"Protocol" require:"true"`
-	Port     *int    `json:"Port" xml:"Port" require:"true"`
+	Protocol *string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s CreateContainerGroupRequestContainerPort) String() string {
@@ -6465,9 +6111,9 @@ func (s *CreateContainerGroupRequestContainerPort) SetPort(v int) *CreateContain
 }
 
 type CreateContainerGroupRequestContainerEnvironmentVar struct {
-	Key      *string                                                     `json:"Key" xml:"Key"`
-	Value    *string                                                     `json:"Value" xml:"Value"`
-	FieldRef *CreateContainerGroupRequestContainerEnvironmentVarFieldRef `json:"FieldRef" xml:"FieldRef" require:"true" type:"Struct"`
+	Key      *string                                                     `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value    *string                                                     `json:"Value,omitempty" xml:"Value,omitempty"`
+	FieldRef *CreateContainerGroupRequestContainerEnvironmentVarFieldRef `json:"FieldRef,omitempty" xml:"FieldRef,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateContainerGroupRequestContainerEnvironmentVar) String() string {
@@ -6494,7 +6140,7 @@ func (s *CreateContainerGroupRequestContainerEnvironmentVar) SetFieldRef(v *Crea
 }
 
 type CreateContainerGroupRequestContainerEnvironmentVarFieldRef struct {
-	FieldPath *string `json:"FieldPath" xml:"FieldPath"`
+	FieldPath *string `json:"FieldPath,omitempty" xml:"FieldPath,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerEnvironmentVarFieldRef) String() string {
@@ -6511,14 +6157,14 @@ func (s *CreateContainerGroupRequestContainerEnvironmentVarFieldRef) SetFieldPat
 }
 
 type CreateContainerGroupRequestContainerReadinessProbe struct {
-	HttpGet             *CreateContainerGroupRequestContainerReadinessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
-	InitialDelaySeconds *int                                                         `json:"InitialDelaySeconds" xml:"InitialDelaySeconds"`
-	PeriodSeconds       *int                                                         `json:"PeriodSeconds" xml:"PeriodSeconds"`
-	SuccessThreshold    *int                                                         `json:"SuccessThreshold" xml:"SuccessThreshold"`
-	FailureThreshold    *int                                                         `json:"FailureThreshold" xml:"FailureThreshold"`
-	TimeoutSeconds      *int                                                         `json:"TimeoutSeconds" xml:"TimeoutSeconds"`
-	Exec                *CreateContainerGroupRequestContainerReadinessProbeExec      `json:"Exec" xml:"Exec" require:"true" type:"Struct"`
-	TcpSocket           *CreateContainerGroupRequestContainerReadinessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
+	HttpGet             *CreateContainerGroupRequestContainerReadinessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
+	InitialDelaySeconds *int                                                         `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty"`
+	PeriodSeconds       *int                                                         `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty"`
+	SuccessThreshold    *int                                                         `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty"`
+	FailureThreshold    *int                                                         `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty"`
+	TimeoutSeconds      *int                                                         `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty"`
+	Exec                *CreateContainerGroupRequestContainerReadinessProbeExec      `json:"Exec,omitempty" xml:"Exec,omitempty" require:"true" type:"Struct"`
+	TcpSocket           *CreateContainerGroupRequestContainerReadinessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateContainerGroupRequestContainerReadinessProbe) String() string {
@@ -6570,9 +6216,9 @@ func (s *CreateContainerGroupRequestContainerReadinessProbe) SetTcpSocket(v *Cre
 }
 
 type CreateContainerGroupRequestContainerReadinessProbeHttpGet struct {
-	Path   *string `json:"Path" xml:"Path"`
-	Port   *int    `json:"Port" xml:"Port"`
-	Scheme *string `json:"Scheme" xml:"Scheme"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerReadinessProbeHttpGet) String() string {
@@ -6599,7 +6245,7 @@ func (s *CreateContainerGroupRequestContainerReadinessProbeHttpGet) SetScheme(v 
 }
 
 type CreateContainerGroupRequestContainerReadinessProbeExec struct {
-	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestContainerReadinessProbeExec) String() string {
@@ -6616,7 +6262,7 @@ func (s *CreateContainerGroupRequestContainerReadinessProbeExec) SetCommand(v []
 }
 
 type CreateContainerGroupRequestContainerReadinessProbeTcpSocket struct {
-	Port *int `json:"Port" xml:"Port"`
+	Port *int `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerReadinessProbeTcpSocket) String() string {
@@ -6633,14 +6279,14 @@ func (s *CreateContainerGroupRequestContainerReadinessProbeTcpSocket) SetPort(v 
 }
 
 type CreateContainerGroupRequestContainerLivenessProbe struct {
-	HttpGet             *CreateContainerGroupRequestContainerLivenessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
-	InitialDelaySeconds *int                                                        `json:"InitialDelaySeconds" xml:"InitialDelaySeconds"`
-	PeriodSeconds       *int                                                        `json:"PeriodSeconds" xml:"PeriodSeconds"`
-	SuccessThreshold    *int                                                        `json:"SuccessThreshold" xml:"SuccessThreshold"`
-	FailureThreshold    *int                                                        `json:"FailureThreshold" xml:"FailureThreshold"`
-	TimeoutSeconds      *int                                                        `json:"TimeoutSeconds" xml:"TimeoutSeconds"`
-	Exec                *CreateContainerGroupRequestContainerLivenessProbeExec      `json:"Exec" xml:"Exec" require:"true" type:"Struct"`
-	TcpSocket           *CreateContainerGroupRequestContainerLivenessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
+	HttpGet             *CreateContainerGroupRequestContainerLivenessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
+	InitialDelaySeconds *int                                                        `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty"`
+	PeriodSeconds       *int                                                        `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty"`
+	SuccessThreshold    *int                                                        `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty"`
+	FailureThreshold    *int                                                        `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty"`
+	TimeoutSeconds      *int                                                        `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty"`
+	Exec                *CreateContainerGroupRequestContainerLivenessProbeExec      `json:"Exec,omitempty" xml:"Exec,omitempty" require:"true" type:"Struct"`
+	TcpSocket           *CreateContainerGroupRequestContainerLivenessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateContainerGroupRequestContainerLivenessProbe) String() string {
@@ -6692,9 +6338,9 @@ func (s *CreateContainerGroupRequestContainerLivenessProbe) SetTcpSocket(v *Crea
 }
 
 type CreateContainerGroupRequestContainerLivenessProbeHttpGet struct {
-	Path   *string `json:"Path" xml:"Path"`
-	Port   *int    `json:"Port" xml:"Port"`
-	Scheme *string `json:"Scheme" xml:"Scheme"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerLivenessProbeHttpGet) String() string {
@@ -6721,7 +6367,7 @@ func (s *CreateContainerGroupRequestContainerLivenessProbeHttpGet) SetScheme(v s
 }
 
 type CreateContainerGroupRequestContainerLivenessProbeExec struct {
-	Command []*string `json:"Command" xml:"Command" require:"true" type:"Repeated"`
+	Command []*string `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestContainerLivenessProbeExec) String() string {
@@ -6738,7 +6384,7 @@ func (s *CreateContainerGroupRequestContainerLivenessProbeExec) SetCommand(v []*
 }
 
 type CreateContainerGroupRequestContainerLivenessProbeTcpSocket struct {
-	Port *int `json:"Port" xml:"Port"`
+	Port *int `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerLivenessProbeTcpSocket) String() string {
@@ -6755,9 +6401,9 @@ func (s *CreateContainerGroupRequestContainerLivenessProbeTcpSocket) SetPort(v i
 }
 
 type CreateContainerGroupRequestContainerSecurityContext struct {
-	Capability             *CreateContainerGroupRequestContainerSecurityContextCapability `json:"Capability" xml:"Capability" require:"true" type:"Struct"`
-	ReadOnlyRootFilesystem *bool                                                          `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem"`
-	RunAsUser              *int64                                                         `json:"RunAsUser" xml:"RunAsUser"`
+	Capability             *CreateContainerGroupRequestContainerSecurityContextCapability `json:"Capability,omitempty" xml:"Capability,omitempty" require:"true" type:"Struct"`
+	ReadOnlyRootFilesystem *bool                                                          `json:"ReadOnlyRootFilesystem,omitempty" xml:"ReadOnlyRootFilesystem,omitempty"`
+	RunAsUser              *int64                                                         `json:"RunAsUser,omitempty" xml:"RunAsUser,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerSecurityContext) String() string {
@@ -6784,7 +6430,7 @@ func (s *CreateContainerGroupRequestContainerSecurityContext) SetRunAsUser(v int
 }
 
 type CreateContainerGroupRequestContainerSecurityContextCapability struct {
-	Add []*string `json:"Add" xml:"Add" require:"true" type:"Repeated"`
+	Add []*string `json:"Add,omitempty" xml:"Add,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestContainerSecurityContextCapability) String() string {
@@ -6801,8 +6447,8 @@ func (s *CreateContainerGroupRequestContainerSecurityContextCapability) SetAdd(v
 }
 
 type CreateContainerGroupRequestContainerLifecyclePostStartHandlerHttpGetHttpHeader struct {
-	Name  *string `json:"Name" xml:"Name"`
-	Value *string `json:"Value" xml:"Value"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerLifecyclePostStartHandlerHttpGetHttpHeader) String() string {
@@ -6824,8 +6470,8 @@ func (s *CreateContainerGroupRequestContainerLifecyclePostStartHandlerHttpGetHtt
 }
 
 type CreateContainerGroupRequestContainerLifecyclePreStopHandlerHttpGetHttpHeader struct {
-	Name  *string `json:"Name" xml:"Name"`
-	Value *string `json:"Value" xml:"Value"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s CreateContainerGroupRequestContainerLifecyclePreStopHandlerHttpGetHttpHeader) String() string {
@@ -6847,14 +6493,14 @@ func (s *CreateContainerGroupRequestContainerLifecyclePreStopHandlerHttpGetHttpH
 }
 
 type CreateContainerGroupRequestVolume struct {
-	Name             *string                                            `json:"Name" xml:"Name"`
-	NFSVolume        *CreateContainerGroupRequestVolumeNFSVolume        `json:"NFSVolume" xml:"NFSVolume" require:"true" type:"Struct"`
-	ConfigFileVolume *CreateContainerGroupRequestVolumeConfigFileVolume `json:"ConfigFileVolume" xml:"ConfigFileVolume" require:"true" type:"Struct"`
-	Type             *string                                            `json:"Type" xml:"Type"`
-	EmptyDirVolume   *CreateContainerGroupRequestVolumeEmptyDirVolume   `json:"EmptyDirVolume" xml:"EmptyDirVolume" require:"true" type:"Struct"`
-	DiskVolume       *CreateContainerGroupRequestVolumeDiskVolume       `json:"DiskVolume" xml:"DiskVolume" require:"true" type:"Struct"`
-	FlexVolume       *CreateContainerGroupRequestVolumeFlexVolume       `json:"FlexVolume" xml:"FlexVolume" require:"true" type:"Struct"`
-	HostPathVolume   *CreateContainerGroupRequestVolumeHostPathVolume   `json:"HostPathVolume" xml:"HostPathVolume" require:"true" type:"Struct"`
+	Name             *string                                            `json:"Name,omitempty" xml:"Name,omitempty"`
+	NFSVolume        *CreateContainerGroupRequestVolumeNFSVolume        `json:"NFSVolume,omitempty" xml:"NFSVolume,omitempty" require:"true" type:"Struct"`
+	ConfigFileVolume *CreateContainerGroupRequestVolumeConfigFileVolume `json:"ConfigFileVolume,omitempty" xml:"ConfigFileVolume,omitempty" require:"true" type:"Struct"`
+	Type             *string                                            `json:"Type,omitempty" xml:"Type,omitempty"`
+	EmptyDirVolume   *CreateContainerGroupRequestVolumeEmptyDirVolume   `json:"EmptyDirVolume,omitempty" xml:"EmptyDirVolume,omitempty" require:"true" type:"Struct"`
+	DiskVolume       *CreateContainerGroupRequestVolumeDiskVolume       `json:"DiskVolume,omitempty" xml:"DiskVolume,omitempty" require:"true" type:"Struct"`
+	FlexVolume       *CreateContainerGroupRequestVolumeFlexVolume       `json:"FlexVolume,omitempty" xml:"FlexVolume,omitempty" require:"true" type:"Struct"`
+	HostPathVolume   *CreateContainerGroupRequestVolumeHostPathVolume   `json:"HostPathVolume,omitempty" xml:"HostPathVolume,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateContainerGroupRequestVolume) String() string {
@@ -6906,9 +6552,9 @@ func (s *CreateContainerGroupRequestVolume) SetHostPathVolume(v *CreateContainer
 }
 
 type CreateContainerGroupRequestVolumeNFSVolume struct {
-	Server   *string `json:"Server" xml:"Server"`
-	Path     *string `json:"Path" xml:"Path"`
-	ReadOnly *bool   `json:"ReadOnly" xml:"ReadOnly"`
+	Server   *string `json:"Server,omitempty" xml:"Server,omitempty"`
+	Path     *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	ReadOnly *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeNFSVolume) String() string {
@@ -6935,8 +6581,8 @@ func (s *CreateContainerGroupRequestVolumeNFSVolume) SetReadOnly(v bool) *Create
 }
 
 type CreateContainerGroupRequestVolumeConfigFileVolume struct {
-	ConfigFileToPath []*CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath `json:"ConfigFileToPath" xml:"ConfigFileToPath" require:"true" type:"Repeated"`
-	DefaultMode      *int                                                                 `json:"DefaultMode" xml:"DefaultMode"`
+	ConfigFileToPath []*CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath `json:"ConfigFileToPath,omitempty" xml:"ConfigFileToPath,omitempty" require:"true" type:"Repeated"`
+	DefaultMode      *int                                                                 `json:"DefaultMode,omitempty" xml:"DefaultMode,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeConfigFileVolume) String() string {
@@ -6958,9 +6604,9 @@ func (s *CreateContainerGroupRequestVolumeConfigFileVolume) SetDefaultMode(v int
 }
 
 type CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath struct {
-	Content *string `json:"Content" xml:"Content"`
-	Path    *string `json:"Path" xml:"Path"`
-	Mode    *int    `json:"Mode" xml:"Mode"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty"`
+	Path    *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	Mode    *int    `json:"Mode,omitempty" xml:"Mode,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath) String() string {
@@ -6987,7 +6633,7 @@ func (s *CreateContainerGroupRequestVolumeConfigFileVolumeConfigFileToPath) SetM
 }
 
 type CreateContainerGroupRequestVolumeEmptyDirVolume struct {
-	Medium *string `json:"Medium" xml:"Medium"`
+	Medium *string `json:"Medium,omitempty" xml:"Medium,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeEmptyDirVolume) String() string {
@@ -7004,9 +6650,9 @@ func (s *CreateContainerGroupRequestVolumeEmptyDirVolume) SetMedium(v string) *C
 }
 
 type CreateContainerGroupRequestVolumeDiskVolume struct {
-	DiskId   *string `json:"DiskId" xml:"DiskId"`
-	FsType   *string `json:"FsType" xml:"FsType"`
-	DiskSize *int    `json:"DiskSize" xml:"DiskSize"`
+	DiskId   *string `json:"DiskId,omitempty" xml:"DiskId,omitempty"`
+	FsType   *string `json:"FsType,omitempty" xml:"FsType,omitempty"`
+	DiskSize *int    `json:"DiskSize,omitempty" xml:"DiskSize,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeDiskVolume) String() string {
@@ -7033,9 +6679,9 @@ func (s *CreateContainerGroupRequestVolumeDiskVolume) SetDiskSize(v int) *Create
 }
 
 type CreateContainerGroupRequestVolumeFlexVolume struct {
-	Driver  *string `json:"Driver" xml:"Driver"`
-	FsType  *string `json:"FsType" xml:"FsType"`
-	Options *string `json:"Options" xml:"Options"`
+	Driver  *string `json:"Driver,omitempty" xml:"Driver,omitempty"`
+	FsType  *string `json:"FsType,omitempty" xml:"FsType,omitempty"`
+	Options *string `json:"Options,omitempty" xml:"Options,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeFlexVolume) String() string {
@@ -7062,8 +6708,8 @@ func (s *CreateContainerGroupRequestVolumeFlexVolume) SetOptions(v string) *Crea
 }
 
 type CreateContainerGroupRequestVolumeHostPathVolume struct {
-	Type *string `json:"Type" xml:"Type"`
-	Path *string `json:"Path" xml:"Path"`
+	Type *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	Path *string `json:"Path,omitempty" xml:"Path,omitempty"`
 }
 
 func (s CreateContainerGroupRequestVolumeHostPathVolume) String() string {
@@ -7085,21 +6731,21 @@ func (s *CreateContainerGroupRequestVolumeHostPathVolume) SetPath(v string) *Cre
 }
 
 type CreateContainerGroupRequestInitContainer struct {
-	Name                     *string                                                   `json:"Name" xml:"Name"`
-	Image                    *string                                                   `json:"Image" xml:"Image"`
-	Cpu                      *float32                                                  `json:"Cpu" xml:"Cpu"`
-	Memory                   *float32                                                  `json:"Memory" xml:"Memory"`
-	WorkingDir               *string                                                   `json:"WorkingDir" xml:"WorkingDir"`
-	ImagePullPolicy          *string                                                   `json:"ImagePullPolicy" xml:"ImagePullPolicy"`
-	Command                  []*string                                                 `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Arg                      []*string                                                 `json:"Arg" xml:"Arg" require:"true" type:"Repeated"`
-	VolumeMount              []*CreateContainerGroupRequestInitContainerVolumeMount    `json:"VolumeMount" xml:"VolumeMount" require:"true" type:"Repeated"`
-	Port                     []*CreateContainerGroupRequestInitContainerPort           `json:"Port" xml:"Port" require:"true" type:"Repeated"`
-	EnvironmentVar           []*CreateContainerGroupRequestInitContainerEnvironmentVar `json:"EnvironmentVar" xml:"EnvironmentVar" require:"true" type:"Repeated"`
-	SecurityContext          *CreateContainerGroupRequestInitContainerSecurityContext  `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Gpu                      *int                                                      `json:"Gpu" xml:"Gpu"`
-	TerminationMessagePath   *string                                                   `json:"TerminationMessagePath" xml:"TerminationMessagePath"`
-	TerminationMessagePolicy *string                                                   `json:"TerminationMessagePolicy" xml:"TerminationMessagePolicy"`
+	Name                     *string                                                   `json:"Name,omitempty" xml:"Name,omitempty"`
+	Image                    *string                                                   `json:"Image,omitempty" xml:"Image,omitempty"`
+	Cpu                      *float32                                                  `json:"Cpu,omitempty" xml:"Cpu,omitempty"`
+	Memory                   *float32                                                  `json:"Memory,omitempty" xml:"Memory,omitempty"`
+	WorkingDir               *string                                                   `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty"`
+	ImagePullPolicy          *string                                                   `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty"`
+	Command                  []*string                                                 `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
+	Arg                      []*string                                                 `json:"Arg,omitempty" xml:"Arg,omitempty" require:"true" type:"Repeated"`
+	VolumeMount              []*CreateContainerGroupRequestInitContainerVolumeMount    `json:"VolumeMount,omitempty" xml:"VolumeMount,omitempty" require:"true" type:"Repeated"`
+	Port                     []*CreateContainerGroupRequestInitContainerPort           `json:"Port,omitempty" xml:"Port,omitempty" require:"true" type:"Repeated"`
+	EnvironmentVar           []*CreateContainerGroupRequestInitContainerEnvironmentVar `json:"EnvironmentVar,omitempty" xml:"EnvironmentVar,omitempty" require:"true" type:"Repeated"`
+	SecurityContext          *CreateContainerGroupRequestInitContainerSecurityContext  `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Gpu                      *int                                                      `json:"Gpu,omitempty" xml:"Gpu,omitempty"`
+	TerminationMessagePath   *string                                                   `json:"TerminationMessagePath,omitempty" xml:"TerminationMessagePath,omitempty"`
+	TerminationMessagePolicy *string                                                   `json:"TerminationMessagePolicy,omitempty" xml:"TerminationMessagePolicy,omitempty"`
 }
 
 func (s CreateContainerGroupRequestInitContainer) String() string {
@@ -7186,10 +6832,10 @@ func (s *CreateContainerGroupRequestInitContainer) SetTerminationMessagePolicy(v
 }
 
 type CreateContainerGroupRequestInitContainerVolumeMount struct {
-	MountPath *string `json:"MountPath" xml:"MountPath"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly"`
-	Name      *string `json:"Name" xml:"Name"`
-	SubPath   *string `json:"SubPath" xml:"SubPath"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	SubPath   *string `json:"SubPath,omitempty" xml:"SubPath,omitempty"`
 }
 
 func (s CreateContainerGroupRequestInitContainerVolumeMount) String() string {
@@ -7221,8 +6867,8 @@ func (s *CreateContainerGroupRequestInitContainerVolumeMount) SetSubPath(v strin
 }
 
 type CreateContainerGroupRequestInitContainerPort struct {
-	Protocol *string `json:"Protocol" xml:"Protocol"`
-	Port     *int    `json:"Port" xml:"Port"`
+	Protocol *string `json:"Protocol,omitempty" xml:"Protocol,omitempty"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s CreateContainerGroupRequestInitContainerPort) String() string {
@@ -7244,9 +6890,9 @@ func (s *CreateContainerGroupRequestInitContainerPort) SetPort(v int) *CreateCon
 }
 
 type CreateContainerGroupRequestInitContainerEnvironmentVar struct {
-	Key      *string                                                         `json:"Key" xml:"Key"`
-	Value    *string                                                         `json:"Value" xml:"Value"`
-	FieldRef *CreateContainerGroupRequestInitContainerEnvironmentVarFieldRef `json:"FieldRef" xml:"FieldRef" require:"true" type:"Struct"`
+	Key      *string                                                         `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value    *string                                                         `json:"Value,omitempty" xml:"Value,omitempty"`
+	FieldRef *CreateContainerGroupRequestInitContainerEnvironmentVarFieldRef `json:"FieldRef,omitempty" xml:"FieldRef,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateContainerGroupRequestInitContainerEnvironmentVar) String() string {
@@ -7273,7 +6919,7 @@ func (s *CreateContainerGroupRequestInitContainerEnvironmentVar) SetFieldRef(v *
 }
 
 type CreateContainerGroupRequestInitContainerEnvironmentVarFieldRef struct {
-	FieldPath *string `json:"FieldPath" xml:"FieldPath"`
+	FieldPath *string `json:"FieldPath,omitempty" xml:"FieldPath,omitempty"`
 }
 
 func (s CreateContainerGroupRequestInitContainerEnvironmentVarFieldRef) String() string {
@@ -7290,9 +6936,9 @@ func (s *CreateContainerGroupRequestInitContainerEnvironmentVarFieldRef) SetFiel
 }
 
 type CreateContainerGroupRequestInitContainerSecurityContext struct {
-	Capability             *CreateContainerGroupRequestInitContainerSecurityContextCapability `json:"Capability" xml:"Capability" require:"true" type:"Struct"`
-	ReadOnlyRootFilesystem *bool                                                              `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem"`
-	RunAsUser              *int64                                                             `json:"RunAsUser" xml:"RunAsUser"`
+	Capability             *CreateContainerGroupRequestInitContainerSecurityContextCapability `json:"Capability,omitempty" xml:"Capability,omitempty" require:"true" type:"Struct"`
+	ReadOnlyRootFilesystem *bool                                                              `json:"ReadOnlyRootFilesystem,omitempty" xml:"ReadOnlyRootFilesystem,omitempty"`
+	RunAsUser              *int64                                                             `json:"RunAsUser,omitempty" xml:"RunAsUser,omitempty"`
 }
 
 func (s CreateContainerGroupRequestInitContainerSecurityContext) String() string {
@@ -7319,7 +6965,7 @@ func (s *CreateContainerGroupRequestInitContainerSecurityContext) SetRunAsUser(v
 }
 
 type CreateContainerGroupRequestInitContainerSecurityContextCapability struct {
-	Add []*string `json:"Add" xml:"Add" require:"true" type:"Repeated"`
+	Add []*string `json:"Add,omitempty" xml:"Add,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestInitContainerSecurityContextCapability) String() string {
@@ -7336,9 +6982,9 @@ func (s *CreateContainerGroupRequestInitContainerSecurityContextCapability) SetA
 }
 
 type CreateContainerGroupRequestDnsConfig struct {
-	NameServer []*string                                     `json:"NameServer" xml:"NameServer" type:"Repeated"`
-	Search     []*string                                     `json:"Search" xml:"Search" type:"Repeated"`
-	Option     []*CreateContainerGroupRequestDnsConfigOption `json:"Option" xml:"Option" type:"Repeated"`
+	NameServer []*string                                     `json:"NameServer,omitempty" xml:"NameServer,omitempty" type:"Repeated"`
+	Search     []*string                                     `json:"Search,omitempty" xml:"Search,omitempty" type:"Repeated"`
+	Option     []*CreateContainerGroupRequestDnsConfigOption `json:"Option,omitempty" xml:"Option,omitempty" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestDnsConfig) String() string {
@@ -7365,8 +7011,8 @@ func (s *CreateContainerGroupRequestDnsConfig) SetOption(v []*CreateContainerGro
 }
 
 type CreateContainerGroupRequestDnsConfigOption struct {
-	Name  *string `json:"Name" xml:"Name"`
-	Value *string `json:"Value" xml:"Value"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s CreateContainerGroupRequestDnsConfigOption) String() string {
@@ -7388,8 +7034,8 @@ func (s *CreateContainerGroupRequestDnsConfigOption) SetValue(v string) *CreateC
 }
 
 type CreateContainerGroupRequestHostAliase struct {
-	Ip       *string   `json:"Ip" xml:"Ip"`
-	Hostname []*string `json:"Hostname" xml:"Hostname" require:"true" type:"Repeated"`
+	Ip       *string   `json:"Ip,omitempty" xml:"Ip,omitempty"`
+	Hostname []*string `json:"Hostname,omitempty" xml:"Hostname,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestHostAliase) String() string {
@@ -7411,9 +7057,9 @@ func (s *CreateContainerGroupRequestHostAliase) SetHostname(v []*string) *Create
 }
 
 type CreateContainerGroupRequestArn struct {
-	RoleArn       *string `json:"RoleArn" xml:"RoleArn"`
-	RoleType      *string `json:"RoleType" xml:"RoleType"`
-	AssumeRoleFor *string `json:"AssumeRoleFor" xml:"AssumeRoleFor"`
+	RoleArn       *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty"`
+	RoleType      *string `json:"RoleType,omitempty" xml:"RoleType,omitempty"`
+	AssumeRoleFor *string `json:"AssumeRoleFor,omitempty" xml:"AssumeRoleFor,omitempty"`
 }
 
 func (s CreateContainerGroupRequestArn) String() string {
@@ -7440,7 +7086,7 @@ func (s *CreateContainerGroupRequestArn) SetAssumeRoleFor(v string) *CreateConta
 }
 
 type CreateContainerGroupRequestSecurityContext struct {
-	Sysctl []*CreateContainerGroupRequestSecurityContextSysctl `json:"Sysctl" xml:"Sysctl" type:"Repeated"`
+	Sysctl []*CreateContainerGroupRequestSecurityContextSysctl `json:"Sysctl,omitempty" xml:"Sysctl,omitempty" type:"Repeated"`
 }
 
 func (s CreateContainerGroupRequestSecurityContext) String() string {
@@ -7457,8 +7103,8 @@ func (s *CreateContainerGroupRequestSecurityContext) SetSysctl(v []*CreateContai
 }
 
 type CreateContainerGroupRequestSecurityContextSysctl struct {
-	Name  *string `json:"Name" xml:"Name"`
-	Value *string `json:"Value" xml:"Value"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s CreateContainerGroupRequestSecurityContextSysctl) String() string {
@@ -7480,8 +7126,8 @@ func (s *CreateContainerGroupRequestSecurityContextSysctl) SetValue(v string) *C
 }
 
 type CreateContainerGroupResponse struct {
-	RequestId        *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ContainerGroupId *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
+	RequestId        *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
 }
 
 func (s CreateContainerGroupResponse) String() string {
@@ -7503,21 +7149,17 @@ func (s *CreateContainerGroupResponse) SetContainerGroupId(v string) *CreateCont
 }
 
 type DescribeContainerGroupsRequest struct {
-	OwnerId              *int64                               `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                              `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                               `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string                              `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string                              `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId               *string                              `json:"ZoneId" xml:"ZoneId"`
-	VSwitchId            *string                              `json:"VSwitchId" xml:"VSwitchId"`
-	NextToken            *string                              `json:"NextToken" xml:"NextToken"`
-	Limit                *int                                 `json:"Limit" xml:"Limit"`
-	Tag                  []*DescribeContainerGroupsRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	ContainerGroupIds    *string                              `json:"ContainerGroupIds" xml:"ContainerGroupIds"`
-	ContainerGroupName   *string                              `json:"ContainerGroupName" xml:"ContainerGroupName"`
-	Status               *string                              `json:"Status" xml:"Status"`
-	ResourceGroupId      *string                              `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	WithEvent            *bool                                `json:"WithEvent" xml:"WithEvent"`
+	RegionId           *string                              `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId             *string                              `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	VSwitchId          *string                              `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty"`
+	NextToken          *string                              `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
+	Limit              *int                                 `json:"Limit,omitempty" xml:"Limit,omitempty"`
+	Tag                []*DescribeContainerGroupsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ContainerGroupIds  *string                              `json:"ContainerGroupIds,omitempty" xml:"ContainerGroupIds,omitempty"`
+	ContainerGroupName *string                              `json:"ContainerGroupName,omitempty" xml:"ContainerGroupName,omitempty"`
+	Status             *string                              `json:"Status,omitempty" xml:"Status,omitempty"`
+	ResourceGroupId    *string                              `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	WithEvent          *bool                                `json:"WithEvent,omitempty" xml:"WithEvent,omitempty"`
 }
 
 func (s DescribeContainerGroupsRequest) String() string {
@@ -7526,26 +7168,6 @@ func (s DescribeContainerGroupsRequest) String() string {
 
 func (s DescribeContainerGroupsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeContainerGroupsRequest) SetOwnerId(v int64) *DescribeContainerGroupsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerGroupsRequest) SetResourceOwnerAccount(v string) *DescribeContainerGroupsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeContainerGroupsRequest) SetResourceOwnerId(v int64) *DescribeContainerGroupsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeContainerGroupsRequest) SetOwnerAccount(v string) *DescribeContainerGroupsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeContainerGroupsRequest) SetRegionId(v string) *DescribeContainerGroupsRequest {
@@ -7604,8 +7226,8 @@ func (s *DescribeContainerGroupsRequest) SetWithEvent(v bool) *DescribeContainer
 }
 
 type DescribeContainerGroupsRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsRequestTag) String() string {
@@ -7627,10 +7249,10 @@ func (s *DescribeContainerGroupsRequestTag) SetValue(v string) *DescribeContaine
 }
 
 type DescribeContainerGroupsResponse struct {
-	RequestId       *string                                           `json:"RequestId" xml:"RequestId" require:"true"`
-	NextToken       *string                                           `json:"NextToken" xml:"NextToken" require:"true"`
-	TotalCount      *int                                              `json:"TotalCount" xml:"TotalCount" require:"true"`
-	ContainerGroups []*DescribeContainerGroupsResponseContainerGroups `json:"ContainerGroups" xml:"ContainerGroups" require:"true" type:"Repeated"`
+	RequestId       *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken       *string                                           `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	TotalCount      *int                                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	ContainerGroups []*DescribeContainerGroupsResponseContainerGroups `json:"ContainerGroups,omitempty" xml:"ContainerGroups,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponse) String() string {
@@ -7662,41 +7284,41 @@ func (s *DescribeContainerGroupsResponse) SetContainerGroups(v []*DescribeContai
 }
 
 type DescribeContainerGroupsResponseContainerGroups struct {
-	ContainerGroupId      *string                                                           `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ContainerGroupName    *string                                                           `json:"ContainerGroupName" xml:"ContainerGroupName" require:"true"`
-	RegionId              *string                                                           `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId                *string                                                           `json:"ZoneId" xml:"ZoneId" require:"true"`
-	Memory                *float32                                                          `json:"Memory" xml:"Memory" require:"true"`
-	Cpu                   *float32                                                          `json:"Cpu" xml:"Cpu" require:"true"`
-	VSwitchId             *string                                                           `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	SecurityGroupId       *string                                                           `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	RestartPolicy         *string                                                           `json:"RestartPolicy" xml:"RestartPolicy" require:"true"`
-	IntranetIp            *string                                                           `json:"IntranetIp" xml:"IntranetIp" require:"true"`
-	Status                *string                                                           `json:"Status" xml:"Status" require:"true"`
-	InternetIp            *string                                                           `json:"InternetIp" xml:"InternetIp" require:"true"`
-	CreationTime          *string                                                           `json:"CreationTime" xml:"CreationTime" require:"true"`
-	SucceededTime         *string                                                           `json:"SucceededTime" xml:"SucceededTime" require:"true"`
-	EniInstanceId         *string                                                           `json:"EniInstanceId" xml:"EniInstanceId" require:"true"`
-	InstanceType          *string                                                           `json:"InstanceType" xml:"InstanceType" require:"true"`
-	ExpiredTime           *string                                                           `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
-	FailedTime            *string                                                           `json:"FailedTime" xml:"FailedTime" require:"true"`
-	RamRoleName           *string                                                           `json:"RamRoleName" xml:"RamRoleName" require:"true"`
-	Ipv6Address           *string                                                           `json:"Ipv6Address" xml:"Ipv6Address" require:"true"`
-	VpcId                 *string                                                           `json:"VpcId" xml:"VpcId" require:"true"`
-	Discount              *int                                                              `json:"Discount" xml:"Discount" require:"true"`
-	ResourceGroupId       *string                                                           `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	TenantEniInstanceId   *string                                                           `json:"TenantEniInstanceId" xml:"TenantEniInstanceId" require:"true"`
-	TenantVSwitchId       *string                                                           `json:"TenantVSwitchId" xml:"TenantVSwitchId" require:"true"`
-	TenantSecurityGroupId *string                                                           `json:"TenantSecurityGroupId" xml:"TenantSecurityGroupId" require:"true"`
-	SpotStrategy          *string                                                           `json:"SpotStrategy" xml:"SpotStrategy" require:"true"`
-	Tags                  []*DescribeContainerGroupsResponseContainerGroupsTags             `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
-	Events                []*DescribeContainerGroupsResponseContainerGroupsEvents           `json:"Events" xml:"Events" require:"true" type:"Repeated"`
-	Containers            []*DescribeContainerGroupsResponseContainerGroupsContainers       `json:"Containers" xml:"Containers" require:"true" type:"Repeated"`
-	Volumes               []*DescribeContainerGroupsResponseContainerGroupsVolumes          `json:"Volumes" xml:"Volumes" require:"true" type:"Repeated"`
-	InitContainers        []*DescribeContainerGroupsResponseContainerGroupsInitContainers   `json:"InitContainers" xml:"InitContainers" require:"true" type:"Repeated"`
-	HostAliases           []*DescribeContainerGroupsResponseContainerGroupsHostAliases      `json:"HostAliases" xml:"HostAliases" require:"true" type:"Repeated"`
-	DnsConfig             *DescribeContainerGroupsResponseContainerGroupsDnsConfig          `json:"DnsConfig" xml:"DnsConfig" require:"true" type:"Struct"`
-	EciSecurityContext    *DescribeContainerGroupsResponseContainerGroupsEciSecurityContext `json:"EciSecurityContext" xml:"EciSecurityContext" require:"true" type:"Struct"`
+	ContainerGroupId      *string                                                           `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	ContainerGroupName    *string                                                           `json:"ContainerGroupName,omitempty" xml:"ContainerGroupName,omitempty" require:"true"`
+	RegionId              *string                                                           `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId                *string                                                           `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	Memory                *float32                                                          `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true"`
+	Cpu                   *float32                                                          `json:"Cpu,omitempty" xml:"Cpu,omitempty" require:"true"`
+	VSwitchId             *string                                                           `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
+	SecurityGroupId       *string                                                           `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	RestartPolicy         *string                                                           `json:"RestartPolicy,omitempty" xml:"RestartPolicy,omitempty" require:"true"`
+	IntranetIp            *string                                                           `json:"IntranetIp,omitempty" xml:"IntranetIp,omitempty" require:"true"`
+	Status                *string                                                           `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	InternetIp            *string                                                           `json:"InternetIp,omitempty" xml:"InternetIp,omitempty" require:"true"`
+	CreationTime          *string                                                           `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	SucceededTime         *string                                                           `json:"SucceededTime,omitempty" xml:"SucceededTime,omitempty" require:"true"`
+	EniInstanceId         *string                                                           `json:"EniInstanceId,omitempty" xml:"EniInstanceId,omitempty" require:"true"`
+	InstanceType          *string                                                           `json:"InstanceType,omitempty" xml:"InstanceType,omitempty" require:"true"`
+	ExpiredTime           *string                                                           `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
+	FailedTime            *string                                                           `json:"FailedTime,omitempty" xml:"FailedTime,omitempty" require:"true"`
+	RamRoleName           *string                                                           `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty" require:"true"`
+	Ipv6Address           *string                                                           `json:"Ipv6Address,omitempty" xml:"Ipv6Address,omitempty" require:"true"`
+	VpcId                 *string                                                           `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	Discount              *int                                                              `json:"Discount,omitempty" xml:"Discount,omitempty" require:"true"`
+	ResourceGroupId       *string                                                           `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	TenantEniInstanceId   *string                                                           `json:"TenantEniInstanceId,omitempty" xml:"TenantEniInstanceId,omitempty" require:"true"`
+	TenantVSwitchId       *string                                                           `json:"TenantVSwitchId,omitempty" xml:"TenantVSwitchId,omitempty" require:"true"`
+	TenantSecurityGroupId *string                                                           `json:"TenantSecurityGroupId,omitempty" xml:"TenantSecurityGroupId,omitempty" require:"true"`
+	SpotStrategy          *string                                                           `json:"SpotStrategy,omitempty" xml:"SpotStrategy,omitempty" require:"true"`
+	Tags                  []*DescribeContainerGroupsResponseContainerGroupsTags             `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
+	Events                []*DescribeContainerGroupsResponseContainerGroupsEvents           `json:"Events,omitempty" xml:"Events,omitempty" require:"true" type:"Repeated"`
+	Containers            []*DescribeContainerGroupsResponseContainerGroupsContainers       `json:"Containers,omitempty" xml:"Containers,omitempty" require:"true" type:"Repeated"`
+	Volumes               []*DescribeContainerGroupsResponseContainerGroupsVolumes          `json:"Volumes,omitempty" xml:"Volumes,omitempty" require:"true" type:"Repeated"`
+	InitContainers        []*DescribeContainerGroupsResponseContainerGroupsInitContainers   `json:"InitContainers,omitempty" xml:"InitContainers,omitempty" require:"true" type:"Repeated"`
+	HostAliases           []*DescribeContainerGroupsResponseContainerGroupsHostAliases      `json:"HostAliases,omitempty" xml:"HostAliases,omitempty" require:"true" type:"Repeated"`
+	DnsConfig             *DescribeContainerGroupsResponseContainerGroupsDnsConfig          `json:"DnsConfig,omitempty" xml:"DnsConfig,omitempty" require:"true" type:"Struct"`
+	EciSecurityContext    *DescribeContainerGroupsResponseContainerGroupsEciSecurityContext `json:"EciSecurityContext,omitempty" xml:"EciSecurityContext,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroups) String() string {
@@ -7883,8 +7505,8 @@ func (s *DescribeContainerGroupsResponseContainerGroups) SetEciSecurityContext(v
 }
 
 type DescribeContainerGroupsResponseContainerGroupsTags struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsTags) String() string {
@@ -7906,13 +7528,13 @@ func (s *DescribeContainerGroupsResponseContainerGroupsTags) SetValue(v string) 
 }
 
 type DescribeContainerGroupsResponseContainerGroupsEvents struct {
-	Count          *int    `json:"Count" xml:"Count" require:"true"`
-	Type           *string `json:"Type" xml:"Type" require:"true"`
-	Name           *string `json:"Name" xml:"Name" require:"true"`
-	Message        *string `json:"Message" xml:"Message" require:"true"`
-	FirstTimestamp *string `json:"FirstTimestamp" xml:"FirstTimestamp" require:"true"`
-	LastTimestamp  *string `json:"LastTimestamp" xml:"LastTimestamp" require:"true"`
-	Reason         *string `json:"Reason" xml:"Reason" require:"true"`
+	Count          *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Type           *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Name           *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Message        *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	FirstTimestamp *string `json:"FirstTimestamp,omitempty" xml:"FirstTimestamp,omitempty" require:"true"`
+	LastTimestamp  *string `json:"LastTimestamp,omitempty" xml:"LastTimestamp,omitempty" require:"true"`
+	Reason         *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsEvents) String() string {
@@ -7959,28 +7581,28 @@ func (s *DescribeContainerGroupsResponseContainerGroupsEvents) SetReason(v strin
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainers struct {
-	Name            *string                                                                    `json:"Name" xml:"Name" require:"true"`
-	Image           *string                                                                    `json:"Image" xml:"Image" require:"true"`
-	Memory          *float32                                                                   `json:"Memory" xml:"Memory" require:"true"`
-	Cpu             *float32                                                                   `json:"Cpu" xml:"Cpu" require:"true"`
-	RestartCount    *int                                                                       `json:"RestartCount" xml:"RestartCount" require:"true"`
-	WorkingDir      *string                                                                    `json:"WorkingDir" xml:"WorkingDir" require:"true"`
-	ImagePullPolicy *string                                                                    `json:"ImagePullPolicy" xml:"ImagePullPolicy" require:"true"`
-	Ready           *bool                                                                      `json:"Ready" xml:"Ready" require:"true"`
-	Gpu             *int                                                                       `json:"Gpu" xml:"Gpu" require:"true"`
-	Stdin           *bool                                                                      `json:"Stdin" xml:"Stdin" require:"true"`
-	StdinOnce       *bool                                                                      `json:"StdinOnce" xml:"StdinOnce" require:"true"`
-	Tty             *bool                                                                      `json:"Tty" xml:"Tty" require:"true"`
-	VolumeMounts    []*DescribeContainerGroupsResponseContainerGroupsContainersVolumeMounts    `json:"VolumeMounts" xml:"VolumeMounts" require:"true" type:"Repeated"`
-	Ports           []*DescribeContainerGroupsResponseContainerGroupsContainersPorts           `json:"Ports" xml:"Ports" require:"true" type:"Repeated"`
-	EnvironmentVars []*DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars `json:"EnvironmentVars" xml:"EnvironmentVars" require:"true" type:"Repeated"`
-	PreviousState   *DescribeContainerGroupsResponseContainerGroupsContainersPreviousState     `json:"PreviousState" xml:"PreviousState" require:"true" type:"Struct"`
-	CurrentState    *DescribeContainerGroupsResponseContainerGroupsContainersCurrentState      `json:"CurrentState" xml:"CurrentState" require:"true" type:"Struct"`
-	ReadinessProbe  *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe    `json:"ReadinessProbe" xml:"ReadinessProbe" require:"true" type:"Struct"`
-	LivenessProbe   *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe     `json:"LivenessProbe" xml:"LivenessProbe" require:"true" type:"Struct"`
-	SecurityContext *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext   `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Commands        []*string                                                                  `json:"Commands" xml:"Commands" require:"true" type:"Repeated"`
-	Args            []*string                                                                  `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Name            *string                                                                    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Image           *string                                                                    `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	Memory          *float32                                                                   `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true"`
+	Cpu             *float32                                                                   `json:"Cpu,omitempty" xml:"Cpu,omitempty" require:"true"`
+	RestartCount    *int                                                                       `json:"RestartCount,omitempty" xml:"RestartCount,omitempty" require:"true"`
+	WorkingDir      *string                                                                    `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty" require:"true"`
+	ImagePullPolicy *string                                                                    `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty" require:"true"`
+	Ready           *bool                                                                      `json:"Ready,omitempty" xml:"Ready,omitempty" require:"true"`
+	Gpu             *int                                                                       `json:"Gpu,omitempty" xml:"Gpu,omitempty" require:"true"`
+	Stdin           *bool                                                                      `json:"Stdin,omitempty" xml:"Stdin,omitempty" require:"true"`
+	StdinOnce       *bool                                                                      `json:"StdinOnce,omitempty" xml:"StdinOnce,omitempty" require:"true"`
+	Tty             *bool                                                                      `json:"Tty,omitempty" xml:"Tty,omitempty" require:"true"`
+	VolumeMounts    []*DescribeContainerGroupsResponseContainerGroupsContainersVolumeMounts    `json:"VolumeMounts,omitempty" xml:"VolumeMounts,omitempty" require:"true" type:"Repeated"`
+	Ports           []*DescribeContainerGroupsResponseContainerGroupsContainersPorts           `json:"Ports,omitempty" xml:"Ports,omitempty" require:"true" type:"Repeated"`
+	EnvironmentVars []*DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars `json:"EnvironmentVars,omitempty" xml:"EnvironmentVars,omitempty" require:"true" type:"Repeated"`
+	PreviousState   *DescribeContainerGroupsResponseContainerGroupsContainersPreviousState     `json:"PreviousState,omitempty" xml:"PreviousState,omitempty" require:"true" type:"Struct"`
+	CurrentState    *DescribeContainerGroupsResponseContainerGroupsContainersCurrentState      `json:"CurrentState,omitempty" xml:"CurrentState,omitempty" require:"true" type:"Struct"`
+	ReadinessProbe  *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe    `json:"ReadinessProbe,omitempty" xml:"ReadinessProbe,omitempty" require:"true" type:"Struct"`
+	LivenessProbe   *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe     `json:"LivenessProbe,omitempty" xml:"LivenessProbe,omitempty" require:"true" type:"Struct"`
+	SecurityContext *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext   `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Commands        []*string                                                                  `json:"Commands,omitempty" xml:"Commands,omitempty" require:"true" type:"Repeated"`
+	Args            []*string                                                                  `json:"Args,omitempty" xml:"Args,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainers) String() string {
@@ -8102,9 +7724,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainers) SetArgs(v []*
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersVolumeMounts struct {
-	Name      *string `json:"Name" xml:"Name" require:"true"`
-	MountPath *string `json:"MountPath" xml:"MountPath" require:"true"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty" require:"true"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersVolumeMounts) String() string {
@@ -8131,8 +7753,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersVolumeMounts) S
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersPorts struct {
-	Port     *int    `json:"Port" xml:"Port" require:"true"`
-	Protocol *string `json:"Protocol" xml:"Protocol" require:"true"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	Protocol *string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersPorts) String() string {
@@ -8154,9 +7776,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersPorts) SetProto
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars struct {
-	Key       *string                                                                           `json:"Key" xml:"Key" require:"true"`
-	Value     *string                                                                           `json:"Value" xml:"Value" require:"true"`
-	ValueFrom *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFrom `json:"ValueFrom" xml:"ValueFrom" require:"true" type:"Struct"`
+	Key       *string                                                                           `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value     *string                                                                           `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	ValueFrom *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFrom `json:"ValueFrom,omitempty" xml:"ValueFrom,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars) String() string {
@@ -8183,7 +7805,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFrom struct {
-	FieldRef *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFromFieldRef `json:"FieldRef" xml:"FieldRef" require:"true" type:"Struct"`
+	FieldRef *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFromFieldRef `json:"FieldRef,omitempty" xml:"FieldRef,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFrom) String() string {
@@ -8200,7 +7822,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFromFieldRef struct {
-	FieldPath *string `json:"FieldPath" xml:"FieldPath" require:"true"`
+	FieldPath *string `json:"FieldPath,omitempty" xml:"FieldPath,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVarsValueFromFieldRef) String() string {
@@ -8217,14 +7839,14 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersEnvironmentVars
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersPreviousState struct {
-	State        *string `json:"State" xml:"State" require:"true"`
-	DetailStatus *string `json:"DetailStatus" xml:"DetailStatus" require:"true"`
-	ExitCode     *int    `json:"ExitCode" xml:"ExitCode" require:"true"`
-	StartTime    *string `json:"StartTime" xml:"StartTime" require:"true"`
-	FinishTime   *string `json:"FinishTime" xml:"FinishTime" require:"true"`
-	Reason       *string `json:"Reason" xml:"Reason" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
-	Signal       *int    `json:"Signal" xml:"Signal" require:"true"`
+	State        *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	DetailStatus *string `json:"DetailStatus,omitempty" xml:"DetailStatus,omitempty" require:"true"`
+	ExitCode     *int    `json:"ExitCode,omitempty" xml:"ExitCode,omitempty" require:"true"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	FinishTime   *string `json:"FinishTime,omitempty" xml:"FinishTime,omitempty" require:"true"`
+	Reason       *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Signal       *int    `json:"Signal,omitempty" xml:"Signal,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersPreviousState) String() string {
@@ -8276,14 +7898,14 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersPreviousState) 
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersCurrentState struct {
-	State        *string `json:"State" xml:"State" require:"true"`
-	DetailStatus *string `json:"DetailStatus" xml:"DetailStatus" require:"true"`
-	ExitCode     *int    `json:"ExitCode" xml:"ExitCode" require:"true"`
-	StartTime    *string `json:"StartTime" xml:"StartTime" require:"true"`
-	FinishTime   *string `json:"FinishTime" xml:"FinishTime" require:"true"`
-	Reason       *string `json:"Reason" xml:"Reason" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
-	Signal       *int    `json:"Signal" xml:"Signal" require:"true"`
+	State        *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	DetailStatus *string `json:"DetailStatus,omitempty" xml:"DetailStatus,omitempty" require:"true"`
+	ExitCode     *int    `json:"ExitCode,omitempty" xml:"ExitCode,omitempty" require:"true"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	FinishTime   *string `json:"FinishTime,omitempty" xml:"FinishTime,omitempty" require:"true"`
+	Reason       *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Signal       *int    `json:"Signal,omitempty" xml:"Signal,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersCurrentState) String() string {
@@ -8335,14 +7957,14 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersCurrentState) S
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe struct {
-	InitialDelaySeconds *int                                                                             `json:"InitialDelaySeconds" xml:"InitialDelaySeconds" require:"true"`
-	PeriodSeconds       *int                                                                             `json:"PeriodSeconds" xml:"PeriodSeconds" require:"true"`
-	TimeoutSeconds      *int                                                                             `json:"TimeoutSeconds" xml:"TimeoutSeconds" require:"true"`
-	SuccessThreshold    *int                                                                             `json:"SuccessThreshold" xml:"SuccessThreshold" require:"true"`
-	FailureThreshold    *int                                                                             `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
-	HttpGet             *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
-	TcpSocket           *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	Execs               []*string                                                                        `json:"Execs" xml:"Execs" require:"true" type:"Repeated"`
+	InitialDelaySeconds *int                                                                             `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty" require:"true"`
+	PeriodSeconds       *int                                                                             `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty" require:"true"`
+	TimeoutSeconds      *int                                                                             `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty" require:"true"`
+	SuccessThreshold    *int                                                                             `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty" require:"true"`
+	FailureThreshold    *int                                                                             `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty" require:"true"`
+	HttpGet             *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
+	TcpSocket           *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
+	Execs               []*string                                                                        `json:"Execs,omitempty" xml:"Execs,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe) String() string {
@@ -8394,9 +8016,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbe)
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeHttpGet struct {
-	Path   *string `json:"Path" xml:"Path" require:"true"`
-	Port   *int    `json:"Port" xml:"Port" require:"true"`
-	Scheme *string `json:"Scheme" xml:"Scheme" require:"true"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeHttpGet) String() string {
@@ -8423,8 +8045,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeH
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeTcpSocket struct {
-	Host *string `json:"Host" xml:"Host" require:"true"`
-	Port *int    `json:"Port" xml:"Port" require:"true"`
+	Host *string `json:"Host,omitempty" xml:"Host,omitempty" require:"true"`
+	Port *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeTcpSocket) String() string {
@@ -8446,14 +8068,14 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersReadinessProbeT
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe struct {
-	InitialDelaySeconds *int                                                                            `json:"InitialDelaySeconds" xml:"InitialDelaySeconds" require:"true"`
-	PeriodSeconds       *int                                                                            `json:"PeriodSeconds" xml:"PeriodSeconds" require:"true"`
-	TimeoutSeconds      *int                                                                            `json:"TimeoutSeconds" xml:"TimeoutSeconds" require:"true"`
-	SuccessThreshold    *int                                                                            `json:"SuccessThreshold" xml:"SuccessThreshold" require:"true"`
-	FailureThreshold    *int                                                                            `json:"FailureThreshold" xml:"FailureThreshold" require:"true"`
-	HttpGet             *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeHttpGet   `json:"HttpGet" xml:"HttpGet" require:"true" type:"Struct"`
-	TcpSocket           *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTcpSocket `json:"TcpSocket" xml:"TcpSocket" require:"true" type:"Struct"`
-	Execs               []*string                                                                       `json:"Execs" xml:"Execs" require:"true" type:"Repeated"`
+	InitialDelaySeconds *int                                                                            `json:"InitialDelaySeconds,omitempty" xml:"InitialDelaySeconds,omitempty" require:"true"`
+	PeriodSeconds       *int                                                                            `json:"PeriodSeconds,omitempty" xml:"PeriodSeconds,omitempty" require:"true"`
+	TimeoutSeconds      *int                                                                            `json:"TimeoutSeconds,omitempty" xml:"TimeoutSeconds,omitempty" require:"true"`
+	SuccessThreshold    *int                                                                            `json:"SuccessThreshold,omitempty" xml:"SuccessThreshold,omitempty" require:"true"`
+	FailureThreshold    *int                                                                            `json:"FailureThreshold,omitempty" xml:"FailureThreshold,omitempty" require:"true"`
+	HttpGet             *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeHttpGet   `json:"HttpGet,omitempty" xml:"HttpGet,omitempty" require:"true" type:"Struct"`
+	TcpSocket           *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTcpSocket `json:"TcpSocket,omitempty" xml:"TcpSocket,omitempty" require:"true" type:"Struct"`
+	Execs               []*string                                                                       `json:"Execs,omitempty" xml:"Execs,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe) String() string {
@@ -8505,9 +8127,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbe) 
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeHttpGet struct {
-	Path   *string `json:"Path" xml:"Path" require:"true"`
-	Port   *int    `json:"Port" xml:"Port" require:"true"`
-	Scheme *string `json:"Scheme" xml:"Scheme" require:"true"`
+	Path   *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	Port   *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	Scheme *string `json:"Scheme,omitempty" xml:"Scheme,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeHttpGet) String() string {
@@ -8534,8 +8156,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeHt
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTcpSocket struct {
-	Host *string `json:"Host" xml:"Host" require:"true"`
-	Port *int    `json:"Port" xml:"Port" require:"true"`
+	Host *string `json:"Host,omitempty" xml:"Host,omitempty" require:"true"`
+	Port *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTcpSocket) String() string {
@@ -8557,9 +8179,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersLivenessProbeTc
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext struct {
-	ReadOnlyRootFilesystem *bool                                                                              `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem" require:"true"`
-	RunAsUser              *int64                                                                             `json:"RunAsUser" xml:"RunAsUser" require:"true"`
-	Capability             *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability `json:"Capability" xml:"Capability" require:"true" type:"Struct"`
+	ReadOnlyRootFilesystem *bool                                                                              `json:"ReadOnlyRootFilesystem,omitempty" xml:"ReadOnlyRootFilesystem,omitempty" require:"true"`
+	RunAsUser              *int64                                                                             `json:"RunAsUser,omitempty" xml:"RunAsUser,omitempty" require:"true"`
+	Capability             *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability `json:"Capability,omitempty" xml:"Capability,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext) String() string {
@@ -8586,7 +8208,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext
 }
 
 type DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability struct {
-	Adds []*string `json:"Adds" xml:"Adds" require:"true" type:"Repeated"`
+	Adds []*string `json:"Adds,omitempty" xml:"Adds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsContainersSecurityContextCapability) String() string {
@@ -8603,17 +8225,17 @@ func (s *DescribeContainerGroupsResponseContainerGroupsContainersSecurityContext
 }
 
 type DescribeContainerGroupsResponseContainerGroupsVolumes struct {
-	Type                              *string                                                                                   `json:"Type" xml:"Type" require:"true"`
-	Name                              *string                                                                                   `json:"Name" xml:"Name" require:"true"`
-	NFSVolumePath                     *string                                                                                   `json:"NFSVolumePath" xml:"NFSVolumePath" require:"true"`
-	NFSVolumeServer                   *string                                                                                   `json:"NFSVolumeServer" xml:"NFSVolumeServer" require:"true"`
-	NFSVolumeReadOnly                 *bool                                                                                     `json:"NFSVolumeReadOnly" xml:"NFSVolumeReadOnly" require:"true"`
-	DiskVolumeDiskId                  *string                                                                                   `json:"DiskVolumeDiskId" xml:"DiskVolumeDiskId" require:"true"`
-	DiskVolumeFsType                  *string                                                                                   `json:"DiskVolumeFsType" xml:"DiskVolumeFsType" require:"true"`
-	FlexVolumeDriver                  *string                                                                                   `json:"FlexVolumeDriver" xml:"FlexVolumeDriver" require:"true"`
-	FlexVolumeFsType                  *string                                                                                   `json:"FlexVolumeFsType" xml:"FlexVolumeFsType" require:"true"`
-	FlexVolumeOptions                 *string                                                                                   `json:"FlexVolumeOptions" xml:"FlexVolumeOptions" require:"true"`
-	ConfigFileVolumeConfigFileToPaths []*DescribeContainerGroupsResponseContainerGroupsVolumesConfigFileVolumeConfigFileToPaths `json:"ConfigFileVolumeConfigFileToPaths" xml:"ConfigFileVolumeConfigFileToPaths" require:"true" type:"Repeated"`
+	Type                              *string                                                                                   `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Name                              *string                                                                                   `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	NFSVolumePath                     *string                                                                                   `json:"NFSVolumePath,omitempty" xml:"NFSVolumePath,omitempty" require:"true"`
+	NFSVolumeServer                   *string                                                                                   `json:"NFSVolumeServer,omitempty" xml:"NFSVolumeServer,omitempty" require:"true"`
+	NFSVolumeReadOnly                 *bool                                                                                     `json:"NFSVolumeReadOnly,omitempty" xml:"NFSVolumeReadOnly,omitempty" require:"true"`
+	DiskVolumeDiskId                  *string                                                                                   `json:"DiskVolumeDiskId,omitempty" xml:"DiskVolumeDiskId,omitempty" require:"true"`
+	DiskVolumeFsType                  *string                                                                                   `json:"DiskVolumeFsType,omitempty" xml:"DiskVolumeFsType,omitempty" require:"true"`
+	FlexVolumeDriver                  *string                                                                                   `json:"FlexVolumeDriver,omitempty" xml:"FlexVolumeDriver,omitempty" require:"true"`
+	FlexVolumeFsType                  *string                                                                                   `json:"FlexVolumeFsType,omitempty" xml:"FlexVolumeFsType,omitempty" require:"true"`
+	FlexVolumeOptions                 *string                                                                                   `json:"FlexVolumeOptions,omitempty" xml:"FlexVolumeOptions,omitempty" require:"true"`
+	ConfigFileVolumeConfigFileToPaths []*DescribeContainerGroupsResponseContainerGroupsVolumesConfigFileVolumeConfigFileToPaths `json:"ConfigFileVolumeConfigFileToPaths,omitempty" xml:"ConfigFileVolumeConfigFileToPaths,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsVolumes) String() string {
@@ -8680,8 +8302,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsVolumes) SetConfigFileVol
 }
 
 type DescribeContainerGroupsResponseContainerGroupsVolumesConfigFileVolumeConfigFileToPaths struct {
-	Content *string `json:"Content" xml:"Content" require:"true"`
-	Path    *string `json:"Path" xml:"Path" require:"true"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	Path    *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsVolumesConfigFileVolumeConfigFileToPaths) String() string {
@@ -8703,23 +8325,23 @@ func (s *DescribeContainerGroupsResponseContainerGroupsVolumesConfigFileVolumeCo
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainers struct {
-	Name            *string                                                                        `json:"Name" xml:"Name" require:"true"`
-	Image           *string                                                                        `json:"Image" xml:"Image" require:"true"`
-	Cpu             *float32                                                                       `json:"Cpu" xml:"Cpu" require:"true"`
-	Memory          *float32                                                                       `json:"Memory" xml:"Memory" require:"true"`
-	RestartCount    *int                                                                           `json:"RestartCount" xml:"RestartCount" require:"true"`
-	WorkingDir      *string                                                                        `json:"WorkingDir" xml:"WorkingDir" require:"true"`
-	ImagePullPolicy *string                                                                        `json:"ImagePullPolicy" xml:"ImagePullPolicy" require:"true"`
-	Ready           *bool                                                                          `json:"Ready" xml:"Ready" require:"true"`
-	Gpu             *int                                                                           `json:"Gpu" xml:"Gpu" require:"true"`
-	VolumeMounts    []*DescribeContainerGroupsResponseContainerGroupsInitContainersVolumeMounts    `json:"VolumeMounts" xml:"VolumeMounts" require:"true" type:"Repeated"`
-	Ports           []*DescribeContainerGroupsResponseContainerGroupsInitContainersPorts           `json:"Ports" xml:"Ports" require:"true" type:"Repeated"`
-	EnvironmentVars []*DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVars `json:"EnvironmentVars" xml:"EnvironmentVars" require:"true" type:"Repeated"`
-	PreviousState   *DescribeContainerGroupsResponseContainerGroupsInitContainersPreviousState     `json:"PreviousState" xml:"PreviousState" require:"true" type:"Struct"`
-	CurrentState    *DescribeContainerGroupsResponseContainerGroupsInitContainersCurrentState      `json:"CurrentState" xml:"CurrentState" require:"true" type:"Struct"`
-	SecurityContext *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext   `json:"SecurityContext" xml:"SecurityContext" require:"true" type:"Struct"`
-	Command         []*string                                                                      `json:"Command" xml:"Command" require:"true" type:"Repeated"`
-	Args            []*string                                                                      `json:"Args" xml:"Args" require:"true" type:"Repeated"`
+	Name            *string                                                                        `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Image           *string                                                                        `json:"Image,omitempty" xml:"Image,omitempty" require:"true"`
+	Cpu             *float32                                                                       `json:"Cpu,omitempty" xml:"Cpu,omitempty" require:"true"`
+	Memory          *float32                                                                       `json:"Memory,omitempty" xml:"Memory,omitempty" require:"true"`
+	RestartCount    *int                                                                           `json:"RestartCount,omitempty" xml:"RestartCount,omitempty" require:"true"`
+	WorkingDir      *string                                                                        `json:"WorkingDir,omitempty" xml:"WorkingDir,omitempty" require:"true"`
+	ImagePullPolicy *string                                                                        `json:"ImagePullPolicy,omitempty" xml:"ImagePullPolicy,omitempty" require:"true"`
+	Ready           *bool                                                                          `json:"Ready,omitempty" xml:"Ready,omitempty" require:"true"`
+	Gpu             *int                                                                           `json:"Gpu,omitempty" xml:"Gpu,omitempty" require:"true"`
+	VolumeMounts    []*DescribeContainerGroupsResponseContainerGroupsInitContainersVolumeMounts    `json:"VolumeMounts,omitempty" xml:"VolumeMounts,omitempty" require:"true" type:"Repeated"`
+	Ports           []*DescribeContainerGroupsResponseContainerGroupsInitContainersPorts           `json:"Ports,omitempty" xml:"Ports,omitempty" require:"true" type:"Repeated"`
+	EnvironmentVars []*DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVars `json:"EnvironmentVars,omitempty" xml:"EnvironmentVars,omitempty" require:"true" type:"Repeated"`
+	PreviousState   *DescribeContainerGroupsResponseContainerGroupsInitContainersPreviousState     `json:"PreviousState,omitempty" xml:"PreviousState,omitempty" require:"true" type:"Struct"`
+	CurrentState    *DescribeContainerGroupsResponseContainerGroupsInitContainersCurrentState      `json:"CurrentState,omitempty" xml:"CurrentState,omitempty" require:"true" type:"Struct"`
+	SecurityContext *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext   `json:"SecurityContext,omitempty" xml:"SecurityContext,omitempty" require:"true" type:"Struct"`
+	Command         []*string                                                                      `json:"Command,omitempty" xml:"Command,omitempty" require:"true" type:"Repeated"`
+	Args            []*string                                                                      `json:"Args,omitempty" xml:"Args,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainers) String() string {
@@ -8816,9 +8438,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainers) SetArgs(v
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersVolumeMounts struct {
-	Name      *string `json:"Name" xml:"Name" require:"true"`
-	MountPath *string `json:"MountPath" xml:"MountPath" require:"true"`
-	ReadOnly  *bool   `json:"ReadOnly" xml:"ReadOnly" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	MountPath *string `json:"MountPath,omitempty" xml:"MountPath,omitempty" require:"true"`
+	ReadOnly  *bool   `json:"ReadOnly,omitempty" xml:"ReadOnly,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersVolumeMounts) String() string {
@@ -8845,8 +8467,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersVolumeMount
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersPorts struct {
-	Port     *int    `json:"Port" xml:"Port" require:"true"`
-	Protocol *string `json:"Protocol" xml:"Protocol" require:"true"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	Protocol *string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersPorts) String() string {
@@ -8868,9 +8490,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersPorts) SetP
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVars struct {
-	Key       *string                                                                               `json:"Key" xml:"Key" require:"true"`
-	Value     *string                                                                               `json:"Value" xml:"Value" require:"true"`
-	ValueFrom *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFrom `json:"ValueFrom" xml:"ValueFrom" require:"true" type:"Struct"`
+	Key       *string                                                                               `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value     *string                                                                               `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	ValueFrom *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFrom `json:"ValueFrom,omitempty" xml:"ValueFrom,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVars) String() string {
@@ -8897,7 +8519,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironment
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFrom struct {
-	FieldRef *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFromFieldRef `json:"FieldRef" xml:"FieldRef" require:"true" type:"Struct"`
+	FieldRef *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFromFieldRef `json:"FieldRef,omitempty" xml:"FieldRef,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFrom) String() string {
@@ -8914,7 +8536,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironment
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFromFieldRef struct {
-	FieldPath *string `json:"FieldPath" xml:"FieldPath" require:"true"`
+	FieldPath *string `json:"FieldPath,omitempty" xml:"FieldPath,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironmentVarsValueFromFieldRef) String() string {
@@ -8931,14 +8553,14 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersEnvironment
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersPreviousState struct {
-	State        *string `json:"State" xml:"State" require:"true"`
-	DetailStatus *string `json:"DetailStatus" xml:"DetailStatus" require:"true"`
-	ExitCode     *int    `json:"ExitCode" xml:"ExitCode" require:"true"`
-	StartTime    *string `json:"StartTime" xml:"StartTime" require:"true"`
-	FinishTime   *string `json:"FinishTime" xml:"FinishTime" require:"true"`
-	Reason       *string `json:"Reason" xml:"Reason" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
-	Signal       *int    `json:"Signal" xml:"Signal" require:"true"`
+	State        *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	DetailStatus *string `json:"DetailStatus,omitempty" xml:"DetailStatus,omitempty" require:"true"`
+	ExitCode     *int    `json:"ExitCode,omitempty" xml:"ExitCode,omitempty" require:"true"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	FinishTime   *string `json:"FinishTime,omitempty" xml:"FinishTime,omitempty" require:"true"`
+	Reason       *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Signal       *int    `json:"Signal,omitempty" xml:"Signal,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersPreviousState) String() string {
@@ -8990,14 +8612,14 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersPreviousSta
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersCurrentState struct {
-	State        *string `json:"State" xml:"State" require:"true"`
-	DetailStatus *string `json:"DetailStatus" xml:"DetailStatus" require:"true"`
-	ExitCode     *int    `json:"ExitCode" xml:"ExitCode" require:"true"`
-	StartTime    *string `json:"StartTime" xml:"StartTime" require:"true"`
-	FinishTime   *string `json:"FinishTime" xml:"FinishTime" require:"true"`
-	Reason       *string `json:"Reason" xml:"Reason" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
-	Signal       *int    `json:"Signal" xml:"Signal" require:"true"`
+	State        *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	DetailStatus *string `json:"DetailStatus,omitempty" xml:"DetailStatus,omitempty" require:"true"`
+	ExitCode     *int    `json:"ExitCode,omitempty" xml:"ExitCode,omitempty" require:"true"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	FinishTime   *string `json:"FinishTime,omitempty" xml:"FinishTime,omitempty" require:"true"`
+	Reason       *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Signal       *int    `json:"Signal,omitempty" xml:"Signal,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersCurrentState) String() string {
@@ -9049,9 +8671,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersCurrentStat
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext struct {
-	ReadOnlyRootFilesystem *bool                                                                                  `json:"ReadOnlyRootFilesystem" xml:"ReadOnlyRootFilesystem" require:"true"`
-	RunAsUser              *int64                                                                                 `json:"RunAsUser" xml:"RunAsUser" require:"true"`
-	Capability             *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability `json:"Capability" xml:"Capability" require:"true" type:"Struct"`
+	ReadOnlyRootFilesystem *bool                                                                                  `json:"ReadOnlyRootFilesystem,omitempty" xml:"ReadOnlyRootFilesystem,omitempty" require:"true"`
+	RunAsUser              *int64                                                                                 `json:"RunAsUser,omitempty" xml:"RunAsUser,omitempty" require:"true"`
+	Capability             *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability `json:"Capability,omitempty" xml:"Capability,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContext) String() string {
@@ -9078,7 +8700,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityCon
 }
 
 type DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability struct {
-	Adds []*string `json:"Adds" xml:"Adds" require:"true" type:"Repeated"`
+	Adds []*string `json:"Adds,omitempty" xml:"Adds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityContextCapability) String() string {
@@ -9095,8 +8717,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsInitContainersSecurityCon
 }
 
 type DescribeContainerGroupsResponseContainerGroupsHostAliases struct {
-	Ip        *string   `json:"Ip" xml:"Ip" require:"true"`
-	Hostnames []*string `json:"Hostnames" xml:"Hostnames" require:"true" type:"Repeated"`
+	Ip        *string   `json:"Ip,omitempty" xml:"Ip,omitempty" require:"true"`
+	Hostnames []*string `json:"Hostnames,omitempty" xml:"Hostnames,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsHostAliases) String() string {
@@ -9118,9 +8740,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsHostAliases) SetHostnames
 }
 
 type DescribeContainerGroupsResponseContainerGroupsDnsConfig struct {
-	Options     []*DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions `json:"Options" xml:"Options" require:"true" type:"Repeated"`
-	NameServers []*string                                                         `json:"NameServers" xml:"NameServers" require:"true" type:"Repeated"`
-	Searches    []*string                                                         `json:"Searches" xml:"Searches" require:"true" type:"Repeated"`
+	Options     []*DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions `json:"Options,omitempty" xml:"Options,omitempty" require:"true" type:"Repeated"`
+	NameServers []*string                                                         `json:"NameServers,omitempty" xml:"NameServers,omitempty" require:"true" type:"Repeated"`
+	Searches    []*string                                                         `json:"Searches,omitempty" xml:"Searches,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsDnsConfig) String() string {
@@ -9147,8 +8769,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfig) SetSearches(v 
 }
 
 type DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions) String() string {
@@ -9170,7 +8792,7 @@ func (s *DescribeContainerGroupsResponseContainerGroupsDnsConfigOptions) SetValu
 }
 
 type DescribeContainerGroupsResponseContainerGroupsEciSecurityContext struct {
-	Sysctls []*DescribeContainerGroupsResponseContainerGroupsEciSecurityContextSysctls `json:"Sysctls" xml:"Sysctls" require:"true" type:"Repeated"`
+	Sysctls []*DescribeContainerGroupsResponseContainerGroupsEciSecurityContextSysctls `json:"Sysctls,omitempty" xml:"Sysctls,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsEciSecurityContext) String() string {
@@ -9187,8 +8809,8 @@ func (s *DescribeContainerGroupsResponseContainerGroupsEciSecurityContext) SetSy
 }
 
 type DescribeContainerGroupsResponseContainerGroupsEciSecurityContextSysctls struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeContainerGroupsResponseContainerGroupsEciSecurityContextSysctls) String() string {
@@ -9210,13 +8832,9 @@ func (s *DescribeContainerGroupsResponseContainerGroupsEciSecurityContextSysctls
 }
 
 type DeleteContainerGroupRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ContainerGroupId     *string `json:"ContainerGroupId" xml:"ContainerGroupId" require:"true"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ContainerGroupId *string `json:"ContainerGroupId,omitempty" xml:"ContainerGroupId,omitempty" require:"true"`
+	ClientToken      *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s DeleteContainerGroupRequest) String() string {
@@ -9225,26 +8843,6 @@ func (s DeleteContainerGroupRequest) String() string {
 
 func (s DeleteContainerGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteContainerGroupRequest) SetOwnerId(v int64) *DeleteContainerGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteContainerGroupRequest) SetResourceOwnerAccount(v string) *DeleteContainerGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteContainerGroupRequest) SetResourceOwnerId(v int64) *DeleteContainerGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteContainerGroupRequest) SetOwnerAccount(v string) *DeleteContainerGroupRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteContainerGroupRequest) SetRegionId(v string) *DeleteContainerGroupRequest {
@@ -9263,7 +8861,7 @@ func (s *DeleteContainerGroupRequest) SetClientToken(v string) *DeleteContainerG
 }
 
 type DeleteContainerGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteContainerGroupResponse) String() string {
@@ -9299,7 +8897,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("eci"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -9313,7 +8911,7 @@ func (client *Client) DescribeRegionsWithOptions(request *DescribeRegionsRequest
 		return _result, _err
 	}
 	_result = &DescribeRegionsResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeRegions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeRegions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9338,7 +8936,7 @@ func (client *Client) DescribeImageCachesWithOptions(request *DescribeImageCache
 		return _result, _err
 	}
 	_result = &DescribeImageCachesResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeImageCaches"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeImageCaches"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9363,7 +8961,7 @@ func (client *Client) DeleteImageCacheWithOptions(request *DeleteImageCacheReque
 		return _result, _err
 	}
 	_result = &DeleteImageCacheResponse{}
-	_body, _err := client.DoRequest(tea.String("DeleteImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9388,7 +8986,7 @@ func (client *Client) CreateImageCacheWithOptions(request *CreateImageCacheReque
 		return _result, _err
 	}
 	_result = &CreateImageCacheResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateImageCache"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9413,7 +9011,7 @@ func (client *Client) DescribeMultiContainerGroupMetricWithOptions(request *Desc
 		return _result, _err
 	}
 	_result = &DescribeMultiContainerGroupMetricResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeMultiContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeMultiContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9438,7 +9036,7 @@ func (client *Client) DescribeContainerGroupMetricWithOptions(request *DescribeC
 		return _result, _err
 	}
 	_result = &DescribeContainerGroupMetricResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupMetric"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9463,7 +9061,7 @@ func (client *Client) UpdateContainerGroupByTemplateWithOptions(request *UpdateC
 		return _result, _err
 	}
 	_result = &UpdateContainerGroupByTemplateResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateContainerGroupByTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateContainerGroupByTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9488,7 +9086,7 @@ func (client *Client) CreateContainerGroupFromTemplateWithOptions(request *Creat
 		return _result, _err
 	}
 	_result = &CreateContainerGroupFromTemplateResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateContainerGroupFromTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateContainerGroupFromTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9513,7 +9111,7 @@ func (client *Client) ExportContainerGroupTemplateWithOptions(request *ExportCon
 		return _result, _err
 	}
 	_result = &ExportContainerGroupTemplateResponse{}
-	_body, _err := client.DoRequest(tea.String("ExportContainerGroupTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ExportContainerGroupTemplate"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9538,7 +9136,7 @@ func (client *Client) RestartContainerGroupWithOptions(request *RestartContainer
 		return _result, _err
 	}
 	_result = &RestartContainerGroupResponse{}
-	_body, _err := client.DoRequest(tea.String("RestartContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("RestartContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9563,7 +9161,7 @@ func (client *Client) UpdateContainerGroupWithOptions(request *UpdateContainerGr
 		return _result, _err
 	}
 	_result = &UpdateContainerGroupResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9588,7 +9186,7 @@ func (client *Client) DescribeContainerGroupPriceWithOptions(request *DescribeCo
 		return _result, _err
 	}
 	_result = &DescribeContainerGroupPriceResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupPrice"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerGroupPrice"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9613,7 +9211,7 @@ func (client *Client) ExecContainerCommandWithOptions(request *ExecContainerComm
 		return _result, _err
 	}
 	_result = &ExecContainerCommandResponse{}
-	_body, _err := client.DoRequest(tea.String("ExecContainerCommand"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ExecContainerCommand"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9638,7 +9236,7 @@ func (client *Client) DescribeContainerLogWithOptions(request *DescribeContainer
 		return _result, _err
 	}
 	_result = &DescribeContainerLogResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeContainerLog"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerLog"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9663,7 +9261,7 @@ func (client *Client) CreateContainerGroupWithOptions(request *CreateContainerGr
 		return _result, _err
 	}
 	_result = &CreateContainerGroupResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9688,7 +9286,7 @@ func (client *Client) DescribeContainerGroupsWithOptions(request *DescribeContai
 		return _result, _err
 	}
 	_result = &DescribeContainerGroupsResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeContainerGroups"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeContainerGroups"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -9713,7 +9311,7 @@ func (client *Client) DeleteContainerGroupWithOptions(request *DeleteContainerGr
 		return _result, _err
 	}
 	_result = &DeleteContainerGroupResponse{}
-	_body, _err := client.DoRequest(tea.String("DeleteContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteContainerGroup"), tea.String("HTTPS"), tea.String("POST"), tea.String("2018-08-08"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
