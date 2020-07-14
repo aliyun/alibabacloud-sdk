@@ -66,6 +66,13 @@ class imageCaches extends Model
     public $creationTime;
 
     /**
+     * @description regionId
+     *
+     * @var string
+     */
+    public $regionId;
+
+    /**
      * @description events
      *
      * @var array
@@ -87,6 +94,7 @@ class imageCaches extends Model
         'status'           => 'Status',
         'expireDateTime'   => 'ExpireDateTime',
         'creationTime'     => 'CreationTime',
+        'regionId'         => 'RegionId',
         'events'           => 'Events',
         'images'           => 'Images',
     ];
@@ -101,6 +109,7 @@ class imageCaches extends Model
         Model::validateRequired('status', $this->status, true);
         Model::validateRequired('expireDateTime', $this->expireDateTime, true);
         Model::validateRequired('creationTime', $this->creationTime, true);
+        Model::validateRequired('regionId', $this->regionId, true);
         Model::validateRequired('events', $this->events, true);
         Model::validateRequired('images', $this->images, true);
     }
@@ -131,6 +140,9 @@ class imageCaches extends Model
         }
         if (null !== $this->creationTime) {
             $res['CreationTime'] = $this->creationTime;
+        }
+        if (null !== $this->regionId) {
+            $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->events) {
             $res['Events'] = [];
@@ -182,6 +194,9 @@ class imageCaches extends Model
         }
         if (isset($map['CreationTime'])) {
             $model->creationTime = $map['CreationTime'];
+        }
+        if (isset($map['RegionId'])) {
+            $model->regionId = $map['RegionId'];
         }
         if (isset($map['Events'])) {
             if (!empty($map['Events'])) {

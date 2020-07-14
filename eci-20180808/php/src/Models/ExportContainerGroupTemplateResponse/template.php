@@ -37,7 +37,7 @@ class template extends Model
      *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
      * @description resourceGroupId
@@ -91,7 +91,7 @@ class template extends Model
         'regionId'           => 'RegionId',
         'zoneId'             => 'ZoneId',
         'securityGroupId'    => 'SecurityGroupId',
-        'VSwitchId'          => 'VSwitchId',
+        'vSwitchId'          => 'VSwitchId',
         'resourceGroupId'    => 'ResourceGroupId',
         'eipInstanceId'      => 'EipInstanceId',
         'containerGroupName' => 'ContainerGroupName',
@@ -106,7 +106,7 @@ class template extends Model
         Model::validateRequired('regionId', $this->regionId, true);
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('resourceGroupId', $this->resourceGroupId, true);
         Model::validateRequired('eipInstanceId', $this->eipInstanceId, true);
         Model::validateRequired('containerGroupName', $this->containerGroupName, true);
@@ -128,8 +128,8 @@ class template extends Model
         if (null !== $this->securityGroupId) {
             $res['SecurityGroupId'] = $this->securityGroupId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->resourceGroupId) {
             $res['ResourceGroupId'] = $this->resourceGroupId;
@@ -180,7 +180,7 @@ class template extends Model
             $model->securityGroupId = $map['SecurityGroupId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['ResourceGroupId'])) {
             $model->resourceGroupId = $map['ResourceGroupId'];

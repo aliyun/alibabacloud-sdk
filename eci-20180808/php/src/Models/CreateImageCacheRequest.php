@@ -10,34 +10,6 @@ use AlibabaCloud\Tea\Model;
 class CreateImageCacheRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
      * @description regionId
      *
      * @var string
@@ -63,7 +35,7 @@ class CreateImageCacheRequest extends Model
      *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
      * @description containerGroupName
@@ -121,14 +93,10 @@ class CreateImageCacheRequest extends Model
      */
     public $retentionDays;
     protected $_name = [
-        'ownerId'                 => 'OwnerId',
-        'resourceOwnerAccount'    => 'ResourceOwnerAccount',
-        'resourceOwnerId'         => 'ResourceOwnerId',
-        'ownerAccount'            => 'OwnerAccount',
         'regionId'                => 'RegionId',
         'zoneId'                  => 'ZoneId',
         'securityGroupId'         => 'SecurityGroupId',
-        'VSwitchId'               => 'VSwitchId',
+        'vSwitchId'               => 'VSwitchId',
         'imageCacheName'          => 'ImageCacheName',
         'imageRegistryCredential' => 'ImageRegistryCredential',
         'eipInstanceId'           => 'EipInstanceId',
@@ -143,7 +111,7 @@ class CreateImageCacheRequest extends Model
     {
         Model::validateRequired('regionId', $this->regionId, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('imageCacheName', $this->imageCacheName, true);
         Model::validateRequired('image', $this->image, true);
     }
@@ -151,18 +119,6 @@ class CreateImageCacheRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
@@ -172,8 +128,8 @@ class CreateImageCacheRequest extends Model
         if (null !== $this->securityGroupId) {
             $res['SecurityGroupId'] = $this->securityGroupId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->imageCacheName) {
             $res['ImageCacheName'] = $this->imageCacheName;
@@ -220,18 +176,6 @@ class CreateImageCacheRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -242,7 +186,7 @@ class CreateImageCacheRequest extends Model
             $model->securityGroupId = $map['SecurityGroupId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['ImageCacheName'])) {
             $model->imageCacheName = $map['ImageCacheName'];

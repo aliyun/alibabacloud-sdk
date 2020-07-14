@@ -50,7 +50,7 @@ class Eci extends Rpc
         parent::__construct($config);
         $this->_endpointRule = '';
         $this->checkConfig($config);
-        $this->_endpoint = $this->getEndpoint($this->_productId, $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
+        $this->_endpoint = $this->getEndpoint('eci', $this->_regionId, $this->_endpointRule, $this->_network, $this->_suffix, $this->_endpointMap, $this->_endpoint);
     }
 
     /**
@@ -62,7 +62,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeRegionsResponse::fromMap($this->doRequest('DescribeRegions', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeRegionsResponse::fromMap($this->doRequest('DescribeRegions', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -86,7 +86,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeImageCachesResponse::fromMap($this->doRequest('DescribeImageCaches', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeImageCachesResponse::fromMap($this->doRequest('DescribeImageCaches', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -110,7 +110,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DeleteImageCacheResponse::fromMap($this->doRequest('DeleteImageCache', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DeleteImageCacheResponse::fromMap($this->doRequest('DeleteImageCache', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -134,7 +134,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return CreateImageCacheResponse::fromMap($this->doRequest('CreateImageCache', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return CreateImageCacheResponse::fromMap($this->doRequest('CreateImageCache', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -158,7 +158,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeMultiContainerGroupMetricResponse::fromMap($this->doRequest('DescribeMultiContainerGroupMetric', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeMultiContainerGroupMetricResponse::fromMap($this->doRequest('DescribeMultiContainerGroupMetric', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -182,7 +182,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeContainerGroupMetricResponse::fromMap($this->doRequest('DescribeContainerGroupMetric', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeContainerGroupMetricResponse::fromMap($this->doRequest('DescribeContainerGroupMetric', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -206,7 +206,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return UpdateContainerGroupByTemplateResponse::fromMap($this->doRequest('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return UpdateContainerGroupByTemplateResponse::fromMap($this->doRequest('UpdateContainerGroupByTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -230,7 +230,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return CreateContainerGroupFromTemplateResponse::fromMap($this->doRequest('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return CreateContainerGroupFromTemplateResponse::fromMap($this->doRequest('CreateContainerGroupFromTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -254,7 +254,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return ExportContainerGroupTemplateResponse::fromMap($this->doRequest('ExportContainerGroupTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return ExportContainerGroupTemplateResponse::fromMap($this->doRequest('ExportContainerGroupTemplate', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -278,7 +278,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return RestartContainerGroupResponse::fromMap($this->doRequest('RestartContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return RestartContainerGroupResponse::fromMap($this->doRequest('RestartContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -302,7 +302,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return UpdateContainerGroupResponse::fromMap($this->doRequest('UpdateContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return UpdateContainerGroupResponse::fromMap($this->doRequest('UpdateContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -326,7 +326,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeContainerGroupPriceResponse::fromMap($this->doRequest('DescribeContainerGroupPrice', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeContainerGroupPriceResponse::fromMap($this->doRequest('DescribeContainerGroupPrice', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -350,7 +350,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return ExecContainerCommandResponse::fromMap($this->doRequest('ExecContainerCommand', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return ExecContainerCommandResponse::fromMap($this->doRequest('ExecContainerCommand', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -374,7 +374,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeContainerLogResponse::fromMap($this->doRequest('DescribeContainerLog', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeContainerLogResponse::fromMap($this->doRequest('DescribeContainerLog', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -398,7 +398,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return CreateContainerGroupResponse::fromMap($this->doRequest('CreateContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return CreateContainerGroupResponse::fromMap($this->doRequest('CreateContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -422,7 +422,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DescribeContainerGroupsResponse::fromMap($this->doRequest('DescribeContainerGroups', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DescribeContainerGroupsResponse::fromMap($this->doRequest('DescribeContainerGroups', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**
@@ -446,7 +446,7 @@ class Eci extends Rpc
     {
         Utils::validateModel($request);
 
-        return DeleteContainerGroupResponse::fromMap($this->doRequest('DeleteContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', $request, null, $runtime));
+        return DeleteContainerGroupResponse::fromMap($this->doRequest('DeleteContainerGroup', 'HTTPS', 'POST', '2018-08-08', 'AK', null, $request, $runtime));
     }
 
     /**

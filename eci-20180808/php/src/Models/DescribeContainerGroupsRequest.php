@@ -10,34 +10,6 @@ use AlibabaCloud\Tea\Model;
 class DescribeContainerGroupsRequest extends Model
 {
     /**
-     * @description ownerId
-     *
-     * @var int
-     */
-    public $ownerId;
-
-    /**
-     * @description resourceOwnerAccount
-     *
-     * @var string
-     */
-    public $resourceOwnerAccount;
-
-    /**
-     * @description resourceOwnerId
-     *
-     * @var int
-     */
-    public $resourceOwnerId;
-
-    /**
-     * @description ownerAccount
-     *
-     * @var string
-     */
-    public $ownerAccount;
-
-    /**
      * @description regionId
      *
      * @var string
@@ -56,7 +28,7 @@ class DescribeContainerGroupsRequest extends Model
      *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
      * @description nextToken
@@ -114,21 +86,17 @@ class DescribeContainerGroupsRequest extends Model
      */
     public $withEvent;
     protected $_name = [
-        'ownerId'              => 'OwnerId',
-        'resourceOwnerAccount' => 'ResourceOwnerAccount',
-        'resourceOwnerId'      => 'ResourceOwnerId',
-        'ownerAccount'         => 'OwnerAccount',
-        'regionId'             => 'RegionId',
-        'zoneId'               => 'ZoneId',
-        'VSwitchId'            => 'VSwitchId',
-        'nextToken'            => 'NextToken',
-        'limit'                => 'Limit',
-        'tag'                  => 'Tag',
-        'containerGroupIds'    => 'ContainerGroupIds',
-        'containerGroupName'   => 'ContainerGroupName',
-        'status'               => 'Status',
-        'resourceGroupId'      => 'ResourceGroupId',
-        'withEvent'            => 'WithEvent',
+        'regionId'           => 'RegionId',
+        'zoneId'             => 'ZoneId',
+        'vSwitchId'          => 'VSwitchId',
+        'nextToken'          => 'NextToken',
+        'limit'              => 'Limit',
+        'tag'                => 'Tag',
+        'containerGroupIds'  => 'ContainerGroupIds',
+        'containerGroupName' => 'ContainerGroupName',
+        'status'             => 'Status',
+        'resourceGroupId'    => 'ResourceGroupId',
+        'withEvent'          => 'WithEvent',
     ];
 
     public function validate()
@@ -139,26 +107,14 @@ class DescribeContainerGroupsRequest extends Model
     public function toMap()
     {
         $res = [];
-        if (null !== $this->ownerId) {
-            $res['OwnerId'] = $this->ownerId;
-        }
-        if (null !== $this->resourceOwnerAccount) {
-            $res['ResourceOwnerAccount'] = $this->resourceOwnerAccount;
-        }
-        if (null !== $this->resourceOwnerId) {
-            $res['ResourceOwnerId'] = $this->resourceOwnerId;
-        }
-        if (null !== $this->ownerAccount) {
-            $res['OwnerAccount'] = $this->ownerAccount;
-        }
         if (null !== $this->regionId) {
             $res['RegionId'] = $this->regionId;
         }
         if (null !== $this->zoneId) {
             $res['ZoneId'] = $this->zoneId;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->nextToken) {
             $res['NextToken'] = $this->nextToken;
@@ -202,18 +158,6 @@ class DescribeContainerGroupsRequest extends Model
     public static function fromMap($map = [])
     {
         $model = new self();
-        if (isset($map['OwnerId'])) {
-            $model->ownerId = $map['OwnerId'];
-        }
-        if (isset($map['ResourceOwnerAccount'])) {
-            $model->resourceOwnerAccount = $map['ResourceOwnerAccount'];
-        }
-        if (isset($map['ResourceOwnerId'])) {
-            $model->resourceOwnerId = $map['ResourceOwnerId'];
-        }
-        if (isset($map['OwnerAccount'])) {
-            $model->ownerAccount = $map['OwnerAccount'];
-        }
         if (isset($map['RegionId'])) {
             $model->regionId = $map['RegionId'];
         }
@@ -221,7 +165,7 @@ class DescribeContainerGroupsRequest extends Model
             $model->zoneId = $map['ZoneId'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['NextToken'])) {
             $model->nextToken = $map['NextToken'];

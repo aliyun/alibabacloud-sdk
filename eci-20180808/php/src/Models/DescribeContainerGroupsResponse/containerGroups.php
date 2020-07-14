@@ -63,7 +63,7 @@ class containerGroups extends Model
      *
      * @var string
      */
-    public $VSwitchId;
+    public $vSwitchId;
 
     /**
      * @description securityGroupId
@@ -267,7 +267,7 @@ class containerGroups extends Model
         'zoneId'                => 'ZoneId',
         'memory'                => 'Memory',
         'cpu'                   => 'Cpu',
-        'VSwitchId'             => 'VSwitchId',
+        'vSwitchId'             => 'VSwitchId',
         'securityGroupId'       => 'SecurityGroupId',
         'restartPolicy'         => 'RestartPolicy',
         'intranetIp'            => 'IntranetIp',
@@ -306,7 +306,7 @@ class containerGroups extends Model
         Model::validateRequired('zoneId', $this->zoneId, true);
         Model::validateRequired('memory', $this->memory, true);
         Model::validateRequired('cpu', $this->cpu, true);
-        Model::validateRequired('VSwitchId', $this->VSwitchId, true);
+        Model::validateRequired('vSwitchId', $this->vSwitchId, true);
         Model::validateRequired('securityGroupId', $this->securityGroupId, true);
         Model::validateRequired('restartPolicy', $this->restartPolicy, true);
         Model::validateRequired('intranetIp', $this->intranetIp, true);
@@ -358,8 +358,8 @@ class containerGroups extends Model
         if (null !== $this->cpu) {
             $res['Cpu'] = $this->cpu;
         }
-        if (null !== $this->VSwitchId) {
-            $res['VSwitchId'] = $this->VSwitchId;
+        if (null !== $this->vSwitchId) {
+            $res['VSwitchId'] = $this->vSwitchId;
         }
         if (null !== $this->securityGroupId) {
             $res['SecurityGroupId'] = $this->securityGroupId;
@@ -512,7 +512,7 @@ class containerGroups extends Model
             $model->cpu = $map['Cpu'];
         }
         if (isset($map['VSwitchId'])) {
-            $model->VSwitchId = $map['VSwitchId'];
+            $model->vSwitchId = $map['VSwitchId'];
         }
         if (isset($map['SecurityGroupId'])) {
             $model->securityGroupId = $map['SecurityGroupId'];
