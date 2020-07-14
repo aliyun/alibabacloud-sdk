@@ -11,11 +11,11 @@ class Client(RPCClient):
         super().__init__(config)
         self._endpoint_rule = ""
         self.check_config(config)
-        self._endpoint = self.get_endpoint(self._product_id, self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
+        self._endpoint = self.get_endpoint("eci", self._region_id, self._endpoint_rule, self._network, self._suffix, self._endpoint_map, self._endpoint)
 
     def describe_regions_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeRegionsResponse().from_map(self.do_request("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeRegionsResponse().from_map(self.do_request("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_regions(self, request):
@@ -26,7 +26,7 @@ class Client(RPCClient):
 
     def describe_image_caches_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeImageCachesResponse().from_map(self.do_request("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeImageCachesResponse().from_map(self.do_request("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_image_caches(self, request):
@@ -37,7 +37,7 @@ class Client(RPCClient):
 
     def delete_image_cache_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DeleteImageCacheResponse().from_map(self.do_request("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DeleteImageCacheResponse().from_map(self.do_request("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def delete_image_cache(self, request):
@@ -48,7 +48,7 @@ class Client(RPCClient):
 
     def create_image_cache_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.CreateImageCacheResponse().from_map(self.do_request("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.CreateImageCacheResponse().from_map(self.do_request("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def create_image_cache(self, request):
@@ -59,7 +59,7 @@ class Client(RPCClient):
 
     def describe_multi_container_group_metric_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeMultiContainerGroupMetricResponse().from_map(self.do_request("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeMultiContainerGroupMetricResponse().from_map(self.do_request("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_multi_container_group_metric(self, request):
@@ -70,7 +70,7 @@ class Client(RPCClient):
 
     def describe_container_group_metric_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeContainerGroupMetricResponse().from_map(self.do_request("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeContainerGroupMetricResponse().from_map(self.do_request("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_container_group_metric(self, request):
@@ -81,7 +81,7 @@ class Client(RPCClient):
 
     def update_container_group_by_template_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.UpdateContainerGroupByTemplateResponse().from_map(self.do_request("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.UpdateContainerGroupByTemplateResponse().from_map(self.do_request("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def update_container_group_by_template(self, request):
@@ -92,7 +92,7 @@ class Client(RPCClient):
 
     def create_container_group_from_template_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.CreateContainerGroupFromTemplateResponse().from_map(self.do_request("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.CreateContainerGroupFromTemplateResponse().from_map(self.do_request("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def create_container_group_from_template(self, request):
@@ -103,7 +103,7 @@ class Client(RPCClient):
 
     def export_container_group_template_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.ExportContainerGroupTemplateResponse().from_map(self.do_request("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.ExportContainerGroupTemplateResponse().from_map(self.do_request("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def export_container_group_template(self, request):
@@ -114,7 +114,7 @@ class Client(RPCClient):
 
     def restart_container_group_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.RestartContainerGroupResponse().from_map(self.do_request("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.RestartContainerGroupResponse().from_map(self.do_request("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def restart_container_group(self, request):
@@ -125,7 +125,7 @@ class Client(RPCClient):
 
     def update_container_group_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.UpdateContainerGroupResponse().from_map(self.do_request("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.UpdateContainerGroupResponse().from_map(self.do_request("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def update_container_group(self, request):
@@ -136,7 +136,7 @@ class Client(RPCClient):
 
     def describe_container_group_price_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeContainerGroupPriceResponse().from_map(self.do_request("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeContainerGroupPriceResponse().from_map(self.do_request("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_container_group_price(self, request):
@@ -147,7 +147,7 @@ class Client(RPCClient):
 
     def exec_container_command_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.ExecContainerCommandResponse().from_map(self.do_request("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.ExecContainerCommandResponse().from_map(self.do_request("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def exec_container_command(self, request):
@@ -158,7 +158,7 @@ class Client(RPCClient):
 
     def describe_container_log_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeContainerLogResponse().from_map(self.do_request("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeContainerLogResponse().from_map(self.do_request("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_container_log(self, request):
@@ -169,7 +169,7 @@ class Client(RPCClient):
 
     def create_container_group_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.CreateContainerGroupResponse().from_map(self.do_request("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.CreateContainerGroupResponse().from_map(self.do_request("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def create_container_group(self, request):
@@ -180,7 +180,7 @@ class Client(RPCClient):
 
     def describe_container_groups_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DescribeContainerGroupsResponse().from_map(self.do_request("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DescribeContainerGroupsResponse().from_map(self.do_request("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def describe_container_groups(self, request):
@@ -191,7 +191,7 @@ class Client(RPCClient):
 
     def delete_container_group_with_options(self, request, runtime):
         UtilClient.validate_model(request)
-        return eci_20180808_models.DeleteContainerGroupResponse().from_map(self.do_request("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", request.to_map(), None, runtime))
+        return eci_20180808_models.DeleteContainerGroupResponse().from_map(self.do_request("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", None, request.to_map(), runtime))
 
 
     def delete_container_group(self, request):

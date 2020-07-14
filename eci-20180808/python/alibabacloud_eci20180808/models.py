@@ -3,11 +3,7 @@ from Tea.model import TeaModel
 
 
 class DescribeRegionsRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None):
         self.region_id = region_id
 
     def validate(self):
@@ -15,18 +11,10 @@ class DescribeRegionsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         return self
 
@@ -104,11 +92,7 @@ class DescribeRegionsResponseRegions(TeaModel):
 
 
 class DescribeImageCachesRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, image_cache_id=None, image_cache_name=None, snapshot_id=None, image=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, image_cache_id=None, image_cache_name=None, snapshot_id=None, image=None):
         self.region_id = region_id
         self.image_cache_id = image_cache_id
         self.image_cache_name = image_cache_name
@@ -120,10 +104,6 @@ class DescribeImageCachesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ImageCacheId'] = self.image_cache_id
         result['ImageCacheName'] = self.image_cache_name
@@ -132,10 +112,6 @@ class DescribeImageCachesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.image_cache_id = map.get('ImageCacheId')
         self.image_cache_name = map.get('ImageCacheName')
@@ -219,7 +195,7 @@ class DescribeImageCachesResponseImageCachesEvents(TeaModel):
 
 
 class DescribeImageCachesResponseImageCaches(TeaModel):
-    def __init__(self, container_group_id=None, image_cache_id=None, image_cache_name=None, snapshot_id=None, progress=None, status=None, expire_date_time=None, creation_time=None, events=None, images=None):
+    def __init__(self, container_group_id=None, image_cache_id=None, image_cache_name=None, snapshot_id=None, progress=None, status=None, expire_date_time=None, creation_time=None, region_id=None, events=None, images=None):
         self.container_group_id = container_group_id
         self.image_cache_id = image_cache_id
         self.image_cache_name = image_cache_name
@@ -228,6 +204,7 @@ class DescribeImageCachesResponseImageCaches(TeaModel):
         self.status = status
         self.expire_date_time = expire_date_time
         self.creation_time = creation_time
+        self.region_id = region_id
         self.events = []
         self.images = []
 
@@ -240,6 +217,7 @@ class DescribeImageCachesResponseImageCaches(TeaModel):
         self.validate_required(self.status, 'status')
         self.validate_required(self.expire_date_time, 'expire_date_time')
         self.validate_required(self.creation_time, 'creation_time')
+        self.validate_required(self.region_id, 'region_id')
         self.validate_required(self.events, 'events')
         if self.events:
             for k in self.events:
@@ -257,6 +235,7 @@ class DescribeImageCachesResponseImageCaches(TeaModel):
         result['Status'] = self.status
         result['ExpireDateTime'] = self.expire_date_time
         result['CreationTime'] = self.creation_time
+        result['RegionId'] = self.region_id
         result['Events'] = []
         if self.events is not None:
             for k in self.events:
@@ -280,6 +259,7 @@ class DescribeImageCachesResponseImageCaches(TeaModel):
         self.status = map.get('Status')
         self.expire_date_time = map.get('ExpireDateTime')
         self.creation_time = map.get('CreationTime')
+        self.region_id = map.get('RegionId')
         self.events = []
         if map.get('Events') is not None:
             for k in map.get('Events'):
@@ -298,11 +278,7 @@ class DescribeImageCachesResponseImageCaches(TeaModel):
 
 
 class DeleteImageCacheRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, image_cache_id=None, client_token=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, image_cache_id=None, client_token=None):
         self.region_id = region_id
         self.image_cache_id = image_cache_id
         self.client_token = client_token
@@ -313,20 +289,12 @@ class DeleteImageCacheRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ImageCacheId'] = self.image_cache_id
         result['ClientToken'] = self.client_token
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.image_cache_id = map.get('ImageCacheId')
         self.client_token = map.get('ClientToken')
@@ -351,15 +319,11 @@ class DeleteImageCacheResponse(TeaModel):
 
 
 class CreateImageCacheRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, zone_id=None, security_group_id=None, vswitch_id=None, image_cache_name=None, image_registry_credential=None, eip_instance_id=None, resource_group_id=None, client_token=None, image=None, image_cache_size=None, retention_days=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, zone_id=None, security_group_id=None, v_switch_id=None, image_cache_name=None, image_registry_credential=None, eip_instance_id=None, resource_group_id=None, client_token=None, image=None, image_cache_size=None, retention_days=None):
         self.region_id = region_id
         self.zone_id = zone_id
         self.security_group_id = security_group_id
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.image_cache_name = image_cache_name
         self.image_registry_credential = []
         self.eip_instance_id = eip_instance_id
@@ -372,7 +336,7 @@ class CreateImageCacheRequest(TeaModel):
     def validate(self):
         self.validate_required(self.region_id, 'region_id')
         self.validate_required(self.security_group_id, 'security_group_id')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
         self.validate_required(self.image_cache_name, 'image_cache_name')
         if self.image_registry_credential:
             for k in self.image_registry_credential:
@@ -382,14 +346,10 @@ class CreateImageCacheRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ZoneId'] = self.zone_id
         result['SecurityGroupId'] = self.security_group_id
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['ImageCacheName'] = self.image_cache_name
         result['ImageRegistryCredential'] = []
         if self.image_registry_credential is not None:
@@ -411,14 +371,10 @@ class CreateImageCacheRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.zone_id = map.get('ZoneId')
         self.security_group_id = map.get('SecurityGroupId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.image_cache_name = map.get('ImageCacheName')
         self.image_registry_credential = []
         if map.get('ImageRegistryCredential') is not None:
@@ -493,11 +449,7 @@ class CreateImageCacheResponse(TeaModel):
 
 
 class DescribeMultiContainerGroupMetricRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_ids=None, resource_group_id=None, metric_type=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_ids=None, resource_group_id=None, metric_type=None):
         self.region_id = region_id
         self.container_group_ids = container_group_ids
         self.resource_group_id = resource_group_id
@@ -509,10 +461,6 @@ class DescribeMultiContainerGroupMetricRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupIds'] = self.container_group_ids
         result['ResourceGroupId'] = self.resource_group_id
@@ -520,10 +468,6 @@ class DescribeMultiContainerGroupMetricRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_ids = map.get('ContainerGroupIds')
         self.resource_group_id = map.get('ResourceGroupId')
@@ -2396,11 +2340,7 @@ class DescribeMultiContainerGroupMetricResponseMonitorDatas(TeaModel):
 
 
 class DescribeContainerGroupMetricRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None, start_time=None, end_time=None, period=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None, start_time=None, end_time=None, period=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
         self.start_time = start_time
@@ -2413,10 +2353,6 @@ class DescribeContainerGroupMetricRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         result['StartTime'] = self.start_time
@@ -2425,10 +2361,6 @@ class DescribeContainerGroupMetricRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         self.start_time = map.get('StartTime')
@@ -2788,11 +2720,7 @@ class DescribeContainerGroupMetricResponseRecords(TeaModel):
 
 
 class UpdateContainerGroupByTemplateRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, template=None, client_token=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, template=None, client_token=None):
         self.region_id = region_id
         self.template = template
         self.client_token = client_token
@@ -2803,20 +2731,12 @@ class UpdateContainerGroupByTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['Template'] = self.template
         result['ClientToken'] = self.client_token
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.template = map.get('Template')
         self.client_token = map.get('ClientToken')
@@ -2841,11 +2761,7 @@ class UpdateContainerGroupByTemplateResponse(TeaModel):
 
 
 class CreateContainerGroupFromTemplateRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, template=None, client_token=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, template=None, client_token=None):
         self.region_id = region_id
         self.template = template
         self.client_token = client_token
@@ -2856,20 +2772,12 @@ class CreateContainerGroupFromTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['Template'] = self.template
         result['ClientToken'] = self.client_token
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.template = map.get('Template')
         self.client_token = map.get('ClientToken')
@@ -2898,11 +2806,7 @@ class CreateContainerGroupFromTemplateResponse(TeaModel):
 
 
 class ExportContainerGroupTemplateRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
 
@@ -2911,19 +2815,11 @@ class ExportContainerGroupTemplateRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         return self
@@ -4435,11 +4331,11 @@ class ExportContainerGroupTemplateResponseTemplateSpec(TeaModel):
 
 
 class ExportContainerGroupTemplateResponseTemplate(TeaModel):
-    def __init__(self, region_id=None, zone_id=None, security_group_id=None, vswitch_id=None, resource_group_id=None, eip_instance_id=None, container_group_name=None, instance_type=None, tags=None, resources=None, spec=None):
+    def __init__(self, region_id=None, zone_id=None, security_group_id=None, v_switch_id=None, resource_group_id=None, eip_instance_id=None, container_group_name=None, instance_type=None, tags=None, resources=None, spec=None):
         self.region_id = region_id
         self.zone_id = zone_id
         self.security_group_id = security_group_id
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.resource_group_id = resource_group_id
         self.eip_instance_id = eip_instance_id
         self.container_group_name = container_group_name
@@ -4452,7 +4348,7 @@ class ExportContainerGroupTemplateResponseTemplate(TeaModel):
         self.validate_required(self.region_id, 'region_id')
         self.validate_required(self.zone_id, 'zone_id')
         self.validate_required(self.security_group_id, 'security_group_id')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
         self.validate_required(self.resource_group_id, 'resource_group_id')
         self.validate_required(self.eip_instance_id, 'eip_instance_id')
         self.validate_required(self.container_group_name, 'container_group_name')
@@ -4474,7 +4370,7 @@ class ExportContainerGroupTemplateResponseTemplate(TeaModel):
         result['RegionId'] = self.region_id
         result['ZoneId'] = self.zone_id
         result['SecurityGroupId'] = self.security_group_id
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['ResourceGroupId'] = self.resource_group_id
         result['EipInstanceId'] = self.eip_instance_id
         result['ContainerGroupName'] = self.container_group_name
@@ -4499,7 +4395,7 @@ class ExportContainerGroupTemplateResponseTemplate(TeaModel):
         self.region_id = map.get('RegionId')
         self.zone_id = map.get('ZoneId')
         self.security_group_id = map.get('SecurityGroupId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.resource_group_id = map.get('ResourceGroupId')
         self.eip_instance_id = map.get('EipInstanceId')
         self.container_group_name = map.get('ContainerGroupName')
@@ -4526,11 +4422,7 @@ class ExportContainerGroupTemplateResponseTemplate(TeaModel):
 
 
 class RestartContainerGroupRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None, client_token=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None, client_token=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
         self.client_token = client_token
@@ -4541,20 +4433,12 @@ class RestartContainerGroupRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         result['ClientToken'] = self.client_token
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         self.client_token = map.get('ClientToken')
@@ -4579,11 +4463,7 @@ class RestartContainerGroupResponse(TeaModel):
 
 
 class UpdateContainerGroupRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None, restart_policy=None, tag=None, volume=None, dns_config=None, container=None, init_container=None, image_registry_credential=None, client_token=None, cpu=None, memory=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None, restart_policy=None, tag=None, volume=None, dns_config=None, container=None, init_container=None, image_registry_credential=None, client_token=None, cpu=None, memory=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
         self.restart_policy = restart_policy
@@ -4626,10 +4506,6 @@ class UpdateContainerGroupRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         result['RestartPolicy'] = self.restart_policy
@@ -4673,10 +4549,6 @@ class UpdateContainerGroupRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         self.restart_policy = map.get('RestartPolicy')
@@ -5854,11 +5726,7 @@ class UpdateContainerGroupResponse(TeaModel):
 
 
 class DescribeContainerGroupPriceRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, cpu=None, memory=None, instance_type=None, spot_strategy=None, zone_id=None, spot_price_limit=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, cpu=None, memory=None, instance_type=None, spot_strategy=None, zone_id=None, spot_price_limit=None):
         self.region_id = region_id
         self.cpu = cpu
         self.memory = memory
@@ -5872,10 +5740,6 @@ class DescribeContainerGroupPriceRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['Cpu'] = self.cpu
         result['Memory'] = self.memory
@@ -5886,10 +5750,6 @@ class DescribeContainerGroupPriceRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.cpu = map.get('Cpu')
         self.memory = map.get('Memory')
@@ -6270,11 +6130,7 @@ class DescribeContainerGroupPriceResponsePriceInfo(TeaModel):
 
 
 class ExecContainerCommandRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None, container_name=None, command=None, _tty=None, stdin=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None, container_name=None, command=None, _tty=None, stdin=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
         self.container_name = container_name
@@ -6290,10 +6146,6 @@ class ExecContainerCommandRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         result['ContainerName'] = self.container_name
@@ -6303,10 +6155,6 @@ class ExecContainerCommandRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         self.container_name = map.get('ContainerName')
@@ -6338,11 +6186,7 @@ class ExecContainerCommandResponse(TeaModel):
 
 
 class DescribeContainerLogRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None, container_name=None, start_time=None, tail=None, last_time=None, since_seconds=None, limit_bytes=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None, container_name=None, start_time=None, tail=None, last_time=None, since_seconds=None, limit_bytes=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
         self.container_name = container_name
@@ -6359,10 +6203,6 @@ class DescribeContainerLogRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         result['ContainerName'] = self.container_name
@@ -6374,10 +6214,6 @@ class DescribeContainerLogRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         self.container_name = map.get('ContainerName')
@@ -6415,15 +6251,11 @@ class DescribeContainerLogResponse(TeaModel):
 
 
 class CreateContainerGroupRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, zone_id=None, security_group_id=None, vswitch_id=None, container_group_name=None, restart_policy=None, tag=None, image_registry_credential=None, container=None, volume=None, eip_instance_id=None, init_container=None, dns_config=None, cpu=None, memory=None, resource_group_id=None, dns_policy=None, client_token=None, host_aliase=None, arn=None, instance_type=None, security_context=None, sls_enable=None, image_snapshot_id=None, ram_role_name=None, ntp_server=None, termination_grace_period_seconds=None, auto_match_image_cache=None, ipv_6address_count=None, active_deadline_seconds=None, spot_strategy=None, spot_price_limit=None, schedule_strategy=None, tenant_vswitch_id=None, tenant_security_group_id=None, core_pattern=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, zone_id=None, security_group_id=None, v_switch_id=None, container_group_name=None, restart_policy=None, tag=None, image_registry_credential=None, container=None, volume=None, eip_instance_id=None, init_container=None, dns_config=None, cpu=None, memory=None, resource_group_id=None, dns_policy=None, client_token=None, host_aliase=None, arn=None, instance_type=None, security_context=None, sls_enable=None, image_snapshot_id=None, ram_role_name=None, ntp_server=None, termination_grace_period_seconds=None, auto_match_image_cache=None, ipv_6address_count=None, active_deadline_seconds=None, spot_strategy=None, spot_price_limit=None, schedule_strategy=None, tenant_vswitch_id=None, tenant_security_group_id=None, core_pattern=None):
         self.region_id = region_id
         self.zone_id = zone_id
         self.security_group_id = security_group_id
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.container_group_name = container_group_name
         self.restart_policy = restart_policy
         self.tag = []
@@ -6460,7 +6292,7 @@ class CreateContainerGroupRequest(TeaModel):
     def validate(self):
         self.validate_required(self.region_id, 'region_id')
         self.validate_required(self.security_group_id, 'security_group_id')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
         self.validate_required(self.container_group_name, 'container_group_name')
         if self.tag:
             for k in self.tag:
@@ -6500,14 +6332,10 @@ class CreateContainerGroupRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ZoneId'] = self.zone_id
         result['SecurityGroupId'] = self.security_group_id
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['ContainerGroupName'] = self.container_group_name
         result['RestartPolicy'] = self.restart_policy
         result['Tag'] = []
@@ -6589,14 +6417,10 @@ class CreateContainerGroupRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.zone_id = map.get('ZoneId')
         self.security_group_id = map.get('SecurityGroupId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.container_group_name = map.get('ContainerGroupName')
         self.restart_policy = map.get('RestartPolicy')
         self.tag = []
@@ -8239,14 +8063,10 @@ class CreateContainerGroupResponse(TeaModel):
 
 
 class DescribeContainerGroupsRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, zone_id=None, vswitch_id=None, next_token=None, limit=None, tag=None, container_group_ids=None, container_group_name=None, status=None, resource_group_id=None, with_event=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, zone_id=None, v_switch_id=None, next_token=None, limit=None, tag=None, container_group_ids=None, container_group_name=None, status=None, resource_group_id=None, with_event=None):
         self.region_id = region_id
         self.zone_id = zone_id
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.next_token = next_token
         self.limit = limit
         self.tag = []
@@ -8265,13 +8085,9 @@ class DescribeContainerGroupsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ZoneId'] = self.zone_id
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['NextToken'] = self.next_token
         result['Limit'] = self.limit
         result['Tag'] = []
@@ -8288,13 +8104,9 @@ class DescribeContainerGroupsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.zone_id = map.get('ZoneId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.next_token = map.get('NextToken')
         self.limit = map.get('Limit')
         self.tag = []
@@ -9879,14 +9691,14 @@ class DescribeContainerGroupsResponseContainerGroupsEciSecurityContext(TeaModel)
 
 
 class DescribeContainerGroupsResponseContainerGroups(TeaModel):
-    def __init__(self, container_group_id=None, container_group_name=None, region_id=None, zone_id=None, memory=None, cpu=None, vswitch_id=None, security_group_id=None, restart_policy=None, intranet_ip=None, status=None, internet_ip=None, creation_time=None, succeeded_time=None, eni_instance_id=None, instance_type=None, expired_time=None, failed_time=None, ram_role_name=None, ipv_6address=None, vpc_id=None, discount=None, resource_group_id=None, tenant_eni_instance_id=None, tenant_vswitch_id=None, tenant_security_group_id=None, spot_strategy=None, tags=None, events=None, containers=None, volumes=None, init_containers=None, host_aliases=None, dns_config=None, eci_security_context=None):
+    def __init__(self, container_group_id=None, container_group_name=None, region_id=None, zone_id=None, memory=None, cpu=None, v_switch_id=None, security_group_id=None, restart_policy=None, intranet_ip=None, status=None, internet_ip=None, creation_time=None, succeeded_time=None, eni_instance_id=None, instance_type=None, expired_time=None, failed_time=None, ram_role_name=None, ipv_6address=None, vpc_id=None, discount=None, resource_group_id=None, tenant_eni_instance_id=None, tenant_vswitch_id=None, tenant_security_group_id=None, spot_strategy=None, tags=None, events=None, containers=None, volumes=None, init_containers=None, host_aliases=None, dns_config=None, eci_security_context=None):
         self.container_group_id = container_group_id
         self.container_group_name = container_group_name
         self.region_id = region_id
         self.zone_id = zone_id
         self.memory = memory
         self.cpu = cpu
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.security_group_id = security_group_id
         self.restart_policy = restart_policy
         self.intranet_ip = intranet_ip
@@ -9923,7 +9735,7 @@ class DescribeContainerGroupsResponseContainerGroups(TeaModel):
         self.validate_required(self.zone_id, 'zone_id')
         self.validate_required(self.memory, 'memory')
         self.validate_required(self.cpu, 'cpu')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
         self.validate_required(self.security_group_id, 'security_group_id')
         self.validate_required(self.restart_policy, 'restart_policy')
         self.validate_required(self.intranet_ip, 'intranet_ip')
@@ -9989,7 +9801,7 @@ class DescribeContainerGroupsResponseContainerGroups(TeaModel):
         result['ZoneId'] = self.zone_id
         result['Memory'] = self.memory
         result['Cpu'] = self.cpu
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['SecurityGroupId'] = self.security_group_id
         result['RestartPolicy'] = self.restart_policy
         result['IntranetIp'] = self.intranet_ip
@@ -10063,7 +9875,7 @@ class DescribeContainerGroupsResponseContainerGroups(TeaModel):
         self.zone_id = map.get('ZoneId')
         self.memory = map.get('Memory')
         self.cpu = map.get('Cpu')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.security_group_id = map.get('SecurityGroupId')
         self.restart_policy = map.get('RestartPolicy')
         self.intranet_ip = map.get('IntranetIp')
@@ -10146,11 +9958,7 @@ class DescribeContainerGroupsResponseContainerGroups(TeaModel):
 
 
 class DeleteContainerGroupRequest(TeaModel):
-    def __init__(self, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, container_group_id=None, client_token=None):
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, container_group_id=None, client_token=None):
         self.region_id = region_id
         self.container_group_id = container_group_id
         self.client_token = client_token
@@ -10161,20 +9969,12 @@ class DeleteContainerGroupRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ContainerGroupId'] = self.container_group_id
         result['ClientToken'] = self.client_token
         return result
 
     def from_map(self, map={}):
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.container_group_id = map.get('ContainerGroupId')
         self.client_token = map.get('ClientToken')
