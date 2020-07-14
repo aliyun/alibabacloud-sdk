@@ -960,7 +960,7 @@ public class DescribeContainerGroupsResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         @NameInMap("SecurityGroupId")
         @Validation(required = true)

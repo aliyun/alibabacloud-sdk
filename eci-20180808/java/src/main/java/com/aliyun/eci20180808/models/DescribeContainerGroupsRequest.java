@@ -4,18 +4,6 @@ package com.aliyun.eci20180808.models;
 import com.aliyun.tea.*;
 
 public class DescribeContainerGroupsRequest extends TeaModel {
-    @NameInMap("OwnerId")
-    public Long ownerId;
-
-    @NameInMap("ResourceOwnerAccount")
-    public String resourceOwnerAccount;
-
-    @NameInMap("ResourceOwnerId")
-    public Long resourceOwnerId;
-
-    @NameInMap("OwnerAccount")
-    public String ownerAccount;
-
     @NameInMap("RegionId")
     @Validation(required = true)
     public String regionId;
@@ -24,7 +12,7 @@ public class DescribeContainerGroupsRequest extends TeaModel {
     public String zoneId;
 
     @NameInMap("VSwitchId")
-    public String VSwitchId;
+    public String vSwitchId;
 
     @NameInMap("NextToken")
     public String nextToken;

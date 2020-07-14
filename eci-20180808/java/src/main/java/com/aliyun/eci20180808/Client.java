@@ -9,13 +9,13 @@ public class Client extends com.aliyun.tearpc.Client {
         super(config);
         this._endpointRule = "";
         this.checkConfig(config);
-        this._endpoint = this.getEndpoint(_productId, _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
+        this._endpoint = this.getEndpoint("eci", _regionId, _endpointRule, _network, _suffix, _endpointMap, _endpoint);
     }
 
 
     public DescribeRegionsResponse describeRegionsWithOptions(DescribeRegionsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeRegionsResponse());
+        return TeaModel.toModel(this.doRequest("DescribeRegions", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeRegionsResponse());
     }
 
     public DescribeRegionsResponse describeRegions(DescribeRegionsRequest request) throws Exception {
@@ -25,7 +25,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeImageCachesResponse describeImageCachesWithOptions(DescribeImageCachesRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeImageCachesResponse());
+        return TeaModel.toModel(this.doRequest("DescribeImageCaches", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeImageCachesResponse());
     }
 
     public DescribeImageCachesResponse describeImageCaches(DescribeImageCachesRequest request) throws Exception {
@@ -35,7 +35,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DeleteImageCacheResponse deleteImageCacheWithOptions(DeleteImageCacheRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DeleteImageCacheResponse());
+        return TeaModel.toModel(this.doRequest("DeleteImageCache", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DeleteImageCacheResponse());
     }
 
     public DeleteImageCacheResponse deleteImageCache(DeleteImageCacheRequest request) throws Exception {
@@ -45,7 +45,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public CreateImageCacheResponse createImageCacheWithOptions(CreateImageCacheRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new CreateImageCacheResponse());
+        return TeaModel.toModel(this.doRequest("CreateImageCache", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new CreateImageCacheResponse());
     }
 
     public CreateImageCacheResponse createImageCache(CreateImageCacheRequest request) throws Exception {
@@ -55,7 +55,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeMultiContainerGroupMetricResponse describeMultiContainerGroupMetricWithOptions(DescribeMultiContainerGroupMetricRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeMultiContainerGroupMetricResponse());
+        return TeaModel.toModel(this.doRequest("DescribeMultiContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeMultiContainerGroupMetricResponse());
     }
 
     public DescribeMultiContainerGroupMetricResponse describeMultiContainerGroupMetric(DescribeMultiContainerGroupMetricRequest request) throws Exception {
@@ -65,7 +65,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeContainerGroupMetricResponse describeContainerGroupMetricWithOptions(DescribeContainerGroupMetricRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeContainerGroupMetricResponse());
+        return TeaModel.toModel(this.doRequest("DescribeContainerGroupMetric", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeContainerGroupMetricResponse());
     }
 
     public DescribeContainerGroupMetricResponse describeContainerGroupMetric(DescribeContainerGroupMetricRequest request) throws Exception {
@@ -75,7 +75,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public UpdateContainerGroupByTemplateResponse updateContainerGroupByTemplateWithOptions(UpdateContainerGroupByTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new UpdateContainerGroupByTemplateResponse());
+        return TeaModel.toModel(this.doRequest("UpdateContainerGroupByTemplate", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new UpdateContainerGroupByTemplateResponse());
     }
 
     public UpdateContainerGroupByTemplateResponse updateContainerGroupByTemplate(UpdateContainerGroupByTemplateRequest request) throws Exception {
@@ -85,7 +85,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public CreateContainerGroupFromTemplateResponse createContainerGroupFromTemplateWithOptions(CreateContainerGroupFromTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new CreateContainerGroupFromTemplateResponse());
+        return TeaModel.toModel(this.doRequest("CreateContainerGroupFromTemplate", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new CreateContainerGroupFromTemplateResponse());
     }
 
     public CreateContainerGroupFromTemplateResponse createContainerGroupFromTemplate(CreateContainerGroupFromTemplateRequest request) throws Exception {
@@ -95,7 +95,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public ExportContainerGroupTemplateResponse exportContainerGroupTemplateWithOptions(ExportContainerGroupTemplateRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new ExportContainerGroupTemplateResponse());
+        return TeaModel.toModel(this.doRequest("ExportContainerGroupTemplate", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new ExportContainerGroupTemplateResponse());
     }
 
     public ExportContainerGroupTemplateResponse exportContainerGroupTemplate(ExportContainerGroupTemplateRequest request) throws Exception {
@@ -105,7 +105,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public RestartContainerGroupResponse restartContainerGroupWithOptions(RestartContainerGroupRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new RestartContainerGroupResponse());
+        return TeaModel.toModel(this.doRequest("RestartContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new RestartContainerGroupResponse());
     }
 
     public RestartContainerGroupResponse restartContainerGroup(RestartContainerGroupRequest request) throws Exception {
@@ -115,7 +115,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public UpdateContainerGroupResponse updateContainerGroupWithOptions(UpdateContainerGroupRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new UpdateContainerGroupResponse());
+        return TeaModel.toModel(this.doRequest("UpdateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new UpdateContainerGroupResponse());
     }
 
     public UpdateContainerGroupResponse updateContainerGroup(UpdateContainerGroupRequest request) throws Exception {
@@ -125,7 +125,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeContainerGroupPriceResponse describeContainerGroupPriceWithOptions(DescribeContainerGroupPriceRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeContainerGroupPriceResponse());
+        return TeaModel.toModel(this.doRequest("DescribeContainerGroupPrice", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeContainerGroupPriceResponse());
     }
 
     public DescribeContainerGroupPriceResponse describeContainerGroupPrice(DescribeContainerGroupPriceRequest request) throws Exception {
@@ -135,7 +135,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public ExecContainerCommandResponse execContainerCommandWithOptions(ExecContainerCommandRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new ExecContainerCommandResponse());
+        return TeaModel.toModel(this.doRequest("ExecContainerCommand", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new ExecContainerCommandResponse());
     }
 
     public ExecContainerCommandResponse execContainerCommand(ExecContainerCommandRequest request) throws Exception {
@@ -145,7 +145,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeContainerLogResponse describeContainerLogWithOptions(DescribeContainerLogRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeContainerLogResponse());
+        return TeaModel.toModel(this.doRequest("DescribeContainerLog", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeContainerLogResponse());
     }
 
     public DescribeContainerLogResponse describeContainerLog(DescribeContainerLogRequest request) throws Exception {
@@ -155,7 +155,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public CreateContainerGroupResponse createContainerGroupWithOptions(CreateContainerGroupRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new CreateContainerGroupResponse());
+        return TeaModel.toModel(this.doRequest("CreateContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new CreateContainerGroupResponse());
     }
 
     public CreateContainerGroupResponse createContainerGroup(CreateContainerGroupRequest request) throws Exception {
@@ -165,7 +165,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DescribeContainerGroupsResponse describeContainerGroupsWithOptions(DescribeContainerGroupsRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DescribeContainerGroupsResponse());
+        return TeaModel.toModel(this.doRequest("DescribeContainerGroups", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DescribeContainerGroupsResponse());
     }
 
     public DescribeContainerGroupsResponse describeContainerGroups(DescribeContainerGroupsRequest request) throws Exception {
@@ -175,7 +175,7 @@ public class Client extends com.aliyun.tearpc.Client {
 
     public DeleteContainerGroupResponse deleteContainerGroupWithOptions(DeleteContainerGroupRequest request, com.aliyun.teautil.models.RuntimeOptions runtime) throws Exception {
         com.aliyun.teautil.Common.validateModel(request);
-        return TeaModel.toModel(this.doRequest("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", TeaModel.buildMap(request), null, runtime), new DeleteContainerGroupResponse());
+        return TeaModel.toModel(this.doRequest("DeleteContainerGroup", "HTTPS", "POST", "2018-08-08", "AK", null, TeaModel.buildMap(request), runtime), new DeleteContainerGroupResponse());
     }
 
     public DeleteContainerGroupResponse deleteContainerGroup(DeleteContainerGroupRequest request) throws Exception {
@@ -188,8 +188,8 @@ public class Client extends com.aliyun.tearpc.Client {
             return endpoint;
         }
 
-        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get("regionId"))) {
-            return endpointMap.get("regionId");
+        if (!com.aliyun.teautil.Common.isUnset(endpointMap) && !com.aliyun.teautil.Common.empty(endpointMap.get(regionId))) {
+            return endpointMap.get(regionId);
         }
 
         return com.aliyun.endpointutil.Client.getEndpointRules(productId, regionId, endpointRule, network, suffix);

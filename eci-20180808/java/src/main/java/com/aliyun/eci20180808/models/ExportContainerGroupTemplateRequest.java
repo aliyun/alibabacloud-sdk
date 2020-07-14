@@ -4,18 +4,6 @@ package com.aliyun.eci20180808.models;
 import com.aliyun.tea.*;
 
 public class ExportContainerGroupTemplateRequest extends TeaModel {
-    @NameInMap("OwnerId")
-    public Long ownerId;
-
-    @NameInMap("ResourceOwnerAccount")
-    public String resourceOwnerAccount;
-
-    @NameInMap("ResourceOwnerId")
-    public Long resourceOwnerId;
-
-    @NameInMap("OwnerAccount")
-    public String ownerAccount;
-
     @NameInMap("RegionId")
     public String regionId;
 

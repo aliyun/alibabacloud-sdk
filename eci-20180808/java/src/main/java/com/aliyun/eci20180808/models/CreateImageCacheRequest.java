@@ -4,18 +4,6 @@ package com.aliyun.eci20180808.models;
 import com.aliyun.tea.*;
 
 public class CreateImageCacheRequest extends TeaModel {
-    @NameInMap("OwnerId")
-    public Long ownerId;
-
-    @NameInMap("ResourceOwnerAccount")
-    public String resourceOwnerAccount;
-
-    @NameInMap("ResourceOwnerId")
-    public Long resourceOwnerId;
-
-    @NameInMap("OwnerAccount")
-    public String ownerAccount;
-
     @NameInMap("RegionId")
     @Validation(required = true)
     public String regionId;
@@ -29,7 +17,7 @@ public class CreateImageCacheRequest extends TeaModel {
 
     @NameInMap("VSwitchId")
     @Validation(required = true)
-    public String VSwitchId;
+    public String vSwitchId;
 
     @NameInMap("ImageCacheName")
     @Validation(required = true)

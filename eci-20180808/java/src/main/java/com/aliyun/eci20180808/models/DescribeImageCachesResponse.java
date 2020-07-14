@@ -82,6 +82,10 @@ public class DescribeImageCachesResponse extends TeaModel {
         @Validation(required = true)
         public String creationTime;
 
+        @NameInMap("RegionId")
+        @Validation(required = true)
+        public String regionId;
+
         @NameInMap("Events")
         @Validation(required = true)
         public java.util.List<DescribeImageCachesResponseImageCachesEvents> events;

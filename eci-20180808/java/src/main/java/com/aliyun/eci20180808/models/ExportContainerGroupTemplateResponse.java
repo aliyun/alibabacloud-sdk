@@ -824,7 +824,7 @@ public class ExportContainerGroupTemplateResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         @NameInMap("ResourceGroupId")
         @Validation(required = true)
