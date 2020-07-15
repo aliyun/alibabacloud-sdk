@@ -36,11 +36,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDiagnosticReportListRequest $request
+     * @param RuntimeOptions                      $runtime
      *
      * @return DescribeDiagnosticReportListResponse
      */
-    public function describeDiagnosticReportListWithOptions(DescribeDiagnosticReportListRequest $request, RuntimeOptions $runtime)
+    public function describeDiagnosticReportListWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -48,11 +49,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param DescribeDiagnosticReportListRequest $request
      *
      * @return DescribeDiagnosticReportListResponse
      */
-    public function describeDiagnosticReportList(DescribeDiagnosticReportListRequest $request)
+    public function describeDiagnosticReportList($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -60,11 +61,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDiagnosticReportRequest $request
+     * @param RuntimeOptions                $runtime
      *
      * @return CreateDiagnosticReportResponse
      */
-    public function createDiagnosticReportWithOptions(CreateDiagnosticReportRequest $request, RuntimeOptions $runtime)
+    public function createDiagnosticReportWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -72,11 +74,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param CreateDiagnosticReportRequest $request
      *
      * @return CreateDiagnosticReportResponse
      */
-    public function createDiagnosticReport(CreateDiagnosticReportRequest $request)
+    public function createDiagnosticReport($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -84,11 +86,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AccessHDMInstanceRequest $request
+     * @param RuntimeOptions           $runtime
      *
      * @return AccessHDMInstanceResponse
      */
-    public function accessHDMInstanceWithOptions(AccessHDMInstanceRequest $request, RuntimeOptions $runtime)
+    public function accessHDMInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -96,11 +99,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AccessHDMInstanceRequest $request
      *
      * @return AccessHDMInstanceResponse
      */
-    public function accessHDMInstance(AccessHDMInstanceRequest $request)
+    public function accessHDMInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -108,11 +111,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SyncHDMAliyunResourceRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return SyncHDMAliyunResourceResponse
      */
-    public function syncHDMAliyunResourceWithOptions(SyncHDMAliyunResourceRequest $request, RuntimeOptions $runtime)
+    public function syncHDMAliyunResourceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -120,11 +124,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param SyncHDMAliyunResourceRequest $request
      *
      * @return SyncHDMAliyunResourceResponse
      */
-    public function syncHDMAliyunResource(SyncHDMAliyunResourceRequest $request)
+    public function syncHDMAliyunResource($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -132,11 +136,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetHDMLastAliyunResourceSyncResultRequest $request
+     * @param RuntimeOptions                            $runtime
      *
      * @return GetHDMLastAliyunResourceSyncResultResponse
      */
-    public function getHDMLastAliyunResourceSyncResultWithOptions(GetHDMLastAliyunResourceSyncResultRequest $request, RuntimeOptions $runtime)
+    public function getHDMLastAliyunResourceSyncResultWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -144,11 +149,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetHDMLastAliyunResourceSyncResultRequest $request
      *
      * @return GetHDMLastAliyunResourceSyncResultResponse
      */
-    public function getHDMLastAliyunResourceSyncResult(GetHDMLastAliyunResourceSyncResultRequest $request)
+    public function getHDMLastAliyunResourceSyncResult($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -156,11 +161,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetEndpointSwitchTaskRequest $request
+     * @param RuntimeOptions               $runtime
      *
      * @return GetEndpointSwitchTaskResponse
      */
-    public function getEndpointSwitchTaskWithOptions(GetEndpointSwitchTaskRequest $request, RuntimeOptions $runtime)
+    public function getEndpointSwitchTaskWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -168,11 +174,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetEndpointSwitchTaskRequest $request
      *
      * @return GetEndpointSwitchTaskResponse
      */
-    public function getEndpointSwitchTask(GetEndpointSwitchTaskRequest $request)
+    public function getEndpointSwitchTask($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -180,11 +186,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetHDMAliyunResourceSyncResultRequest $request
+     * @param RuntimeOptions                        $runtime
      *
      * @return GetHDMAliyunResourceSyncResultResponse
      */
-    public function getHDMAliyunResourceSyncResultWithOptions(GetHDMAliyunResourceSyncResultRequest $request, RuntimeOptions $runtime)
+    public function getHDMAliyunResourceSyncResultWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -192,11 +199,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param GetHDMAliyunResourceSyncResultRequest $request
      *
      * @return GetHDMAliyunResourceSyncResultResponse
      */
-    public function getHDMAliyunResourceSyncResult(GetHDMAliyunResourceSyncResultRequest $request)
+    public function getHDMAliyunResourceSyncResult($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -204,11 +211,12 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddHDMInstanceRequest $request
+     * @param RuntimeOptions        $runtime
      *
      * @return AddHDMInstanceResponse
      */
-    public function addHDMInstanceWithOptions(AddHDMInstanceRequest $request, RuntimeOptions $runtime)
+    public function addHDMInstanceWithOptions($request, $runtime)
     {
         Utils::validateModel($request);
 
@@ -216,11 +224,11 @@ class DAS extends Rpc
     }
 
     /**
-     * @throws \Exception
+     * @param AddHDMInstanceRequest $request
      *
      * @return AddHDMInstanceResponse
      */
-    public function addHDMInstance(AddHDMInstanceRequest $request)
+    public function addHDMInstance($request)
     {
         $runtime = new RuntimeOptions([]);
 
@@ -235,8 +243,6 @@ class DAS extends Rpc
      * @param string $suffix
      * @param array  $endpointMap
      * @param string $endpoint
-     *
-     * @throws \Exception
      *
      * @return string
      */
