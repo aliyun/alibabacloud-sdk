@@ -9,17 +9,17 @@ import (
 )
 
 type QueryMetricRequest struct {
-	IntervalInSec *int                         `json:"IntervalInSec" xml:"IntervalInSec"`
-	StartTime     *int64                       `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *int64                       `json:"EndTime" xml:"EndTime" require:"true"`
-	OrderBy       *string                      `json:"OrderBy" xml:"OrderBy"`
-	Limit         *int                         `json:"Limit" xml:"Limit"`
-	Filters       []*QueryMetricRequestFilters `json:"Filters" xml:"Filters" type:"Repeated"`
-	Dimensions    []*string                    `json:"Dimensions" xml:"Dimensions" type:"Repeated"`
-	Metric        *string                      `json:"Metric" xml:"Metric" require:"true"`
-	Measures      []*string                    `json:"Measures" xml:"Measures" type:"Repeated"`
-	Order         *string                      `json:"Order" xml:"Order"`
-	ProxyUserId   *string                      `json:"ProxyUserId" xml:"ProxyUserId"`
+	IntervalInSec *int                         `json:"IntervalInSec,omitempty" xml:"IntervalInSec,omitempty"`
+	StartTime     *int64                       `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *int64                       `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	OrderBy       *string                      `json:"OrderBy,omitempty" xml:"OrderBy,omitempty"`
+	Limit         *int                         `json:"Limit,omitempty" xml:"Limit,omitempty"`
+	Filters       []*QueryMetricRequestFilters `json:"Filters,omitempty" xml:"Filters,omitempty" type:"Repeated"`
+	Dimensions    []*string                    `json:"Dimensions,omitempty" xml:"Dimensions,omitempty" type:"Repeated"`
+	Metric        *string                      `json:"Metric,omitempty" xml:"Metric,omitempty" require:"true"`
+	Measures      []*string                    `json:"Measures,omitempty" xml:"Measures,omitempty" type:"Repeated"`
+	Order         *string                      `json:"Order,omitempty" xml:"Order,omitempty"`
+	ProxyUserId   *string                      `json:"ProxyUserId,omitempty" xml:"ProxyUserId,omitempty"`
 }
 
 func (s QueryMetricRequest) String() string {
@@ -86,8 +86,8 @@ func (s *QueryMetricRequest) SetProxyUserId(v string) *QueryMetricRequest {
 }
 
 type QueryMetricRequestFilters struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s QueryMetricRequestFilters) String() string {
@@ -109,8 +109,8 @@ func (s *QueryMetricRequestFilters) SetValue(v string) *QueryMetricRequestFilter
 }
 
 type QueryMetricResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s QueryMetricResponse) String() string {
@@ -132,9 +132,9 @@ func (s *QueryMetricResponse) SetData(v string) *QueryMetricResponse {
 }
 
 type GetTraceRequest struct {
-	TraceID  *string `json:"TraceID" xml:"TraceID" require:"true"`
-	AppType  *string `json:"AppType" xml:"AppType"`
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
+	TraceID  *string `json:"TraceID,omitempty" xml:"TraceID,omitempty" require:"true"`
+	AppType  *string `json:"AppType,omitempty" xml:"AppType,omitempty"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s GetTraceRequest) String() string {
@@ -161,8 +161,8 @@ func (s *GetTraceRequest) SetRegionId(v string) *GetTraceRequest {
 }
 
 type GetTraceResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Spans     *GetTraceResponseSpans `json:"Spans" xml:"Spans" require:"true" type:"Struct"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Spans     *GetTraceResponseSpans `json:"Spans,omitempty" xml:"Spans,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTraceResponse) String() string {
@@ -184,7 +184,7 @@ func (s *GetTraceResponse) SetSpans(v *GetTraceResponseSpans) *GetTraceResponse 
 }
 
 type GetTraceResponseSpans struct {
-	Span []*GetTraceResponseSpansSpan `json:"Span" xml:"Span" require:"true" type:"Repeated"`
+	Span []*GetTraceResponseSpansSpan `json:"Span,omitempty" xml:"Span,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTraceResponseSpans) String() string {
@@ -201,17 +201,17 @@ func (s *GetTraceResponseSpans) SetSpan(v []*GetTraceResponseSpansSpan) *GetTrac
 }
 
 type GetTraceResponseSpansSpan struct {
-	TraceID       *string                                `json:"TraceID" xml:"TraceID" require:"true"`
-	OperationName *string                                `json:"OperationName" xml:"OperationName" require:"true"`
-	Duration      *int64                                 `json:"Duration" xml:"Duration" require:"true"`
-	ServiceName   *string                                `json:"ServiceName" xml:"ServiceName" require:"true"`
-	ServiceIp     *string                                `json:"ServiceIp" xml:"ServiceIp" require:"true"`
-	Timestamp     *int64                                 `json:"Timestamp" xml:"Timestamp" require:"true"`
-	RpcId         *string                                `json:"RpcId" xml:"RpcId" require:"true"`
-	ResultCode    *string                                `json:"ResultCode" xml:"ResultCode" require:"true"`
-	HaveStack     *bool                                  `json:"HaveStack" xml:"HaveStack" require:"true"`
-	TagEntryList  *GetTraceResponseSpansSpanTagEntryList `json:"TagEntryList" xml:"TagEntryList" require:"true" type:"Struct"`
-	LogEventList  *GetTraceResponseSpansSpanLogEventList `json:"LogEventList" xml:"LogEventList" require:"true" type:"Struct"`
+	TraceID       *string                                `json:"TraceID,omitempty" xml:"TraceID,omitempty" require:"true"`
+	OperationName *string                                `json:"OperationName,omitempty" xml:"OperationName,omitempty" require:"true"`
+	Duration      *int64                                 `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	ServiceName   *string                                `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	ServiceIp     *string                                `json:"ServiceIp,omitempty" xml:"ServiceIp,omitempty" require:"true"`
+	Timestamp     *int64                                 `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	RpcId         *string                                `json:"RpcId,omitempty" xml:"RpcId,omitempty" require:"true"`
+	ResultCode    *string                                `json:"ResultCode,omitempty" xml:"ResultCode,omitempty" require:"true"`
+	HaveStack     *bool                                  `json:"HaveStack,omitempty" xml:"HaveStack,omitempty" require:"true"`
+	TagEntryList  *GetTraceResponseSpansSpanTagEntryList `json:"TagEntryList,omitempty" xml:"TagEntryList,omitempty" require:"true" type:"Struct"`
+	LogEventList  *GetTraceResponseSpansSpanLogEventList `json:"LogEventList,omitempty" xml:"LogEventList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTraceResponseSpansSpan) String() string {
@@ -278,7 +278,7 @@ func (s *GetTraceResponseSpansSpan) SetLogEventList(v *GetTraceResponseSpansSpan
 }
 
 type GetTraceResponseSpansSpanTagEntryList struct {
-	TagEntry []*GetTraceResponseSpansSpanTagEntryListTagEntry `json:"TagEntry" xml:"TagEntry" require:"true" type:"Repeated"`
+	TagEntry []*GetTraceResponseSpansSpanTagEntryListTagEntry `json:"TagEntry,omitempty" xml:"TagEntry,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTraceResponseSpansSpanTagEntryList) String() string {
@@ -295,8 +295,8 @@ func (s *GetTraceResponseSpansSpanTagEntryList) SetTagEntry(v []*GetTraceRespons
 }
 
 type GetTraceResponseSpansSpanTagEntryListTagEntry struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s GetTraceResponseSpansSpanTagEntryListTagEntry) String() string {
@@ -318,7 +318,7 @@ func (s *GetTraceResponseSpansSpanTagEntryListTagEntry) SetValue(v string) *GetT
 }
 
 type GetTraceResponseSpansSpanLogEventList struct {
-	LogEvent []*GetTraceResponseSpansSpanLogEventListLogEvent `json:"LogEvent" xml:"LogEvent" require:"true" type:"Repeated"`
+	LogEvent []*GetTraceResponseSpansSpanLogEventListLogEvent `json:"LogEvent,omitempty" xml:"LogEvent,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTraceResponseSpansSpanLogEventList) String() string {
@@ -335,8 +335,8 @@ func (s *GetTraceResponseSpansSpanLogEventList) SetLogEvent(v []*GetTraceRespons
 }
 
 type GetTraceResponseSpansSpanLogEventListLogEvent struct {
-	Timestamp    *int64                                                     `json:"Timestamp" xml:"Timestamp" require:"true"`
-	TagEntryList *GetTraceResponseSpansSpanLogEventListLogEventTagEntryList `json:"TagEntryList" xml:"TagEntryList" require:"true" type:"Struct"`
+	Timestamp    *int64                                                     `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	TagEntryList *GetTraceResponseSpansSpanLogEventListLogEventTagEntryList `json:"TagEntryList,omitempty" xml:"TagEntryList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTraceResponseSpansSpanLogEventListLogEvent) String() string {
@@ -358,7 +358,7 @@ func (s *GetTraceResponseSpansSpanLogEventListLogEvent) SetTagEntryList(v *GetTr
 }
 
 type GetTraceResponseSpansSpanLogEventListLogEventTagEntryList struct {
-	TagEntry []*GetTraceResponseSpansSpanLogEventListLogEventTagEntryListTagEntry `json:"TagEntry" xml:"TagEntry" require:"true" type:"Repeated"`
+	TagEntry []*GetTraceResponseSpansSpanLogEventListLogEventTagEntryListTagEntry `json:"TagEntry,omitempty" xml:"TagEntry,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTraceResponseSpansSpanLogEventListLogEventTagEntryList) String() string {
@@ -375,8 +375,8 @@ func (s *GetTraceResponseSpansSpanLogEventListLogEventTagEntryList) SetTagEntry(
 }
 
 type GetTraceResponseSpansSpanLogEventListLogEventTagEntryListTagEntry struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s GetTraceResponseSpansSpanLogEventListLogEventTagEntryListTagEntry) String() string {
@@ -398,17 +398,17 @@ func (s *GetTraceResponseSpansSpanLogEventListLogEventTagEntryListTagEntry) SetV
 }
 
 type SearchTracesRequest struct {
-	StartTime     *int64                    `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *int64                    `json:"EndTime" xml:"EndTime" require:"true"`
-	RegionId      *string                   `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName   *string                   `json:"ServiceName" xml:"ServiceName"`
-	OperationName *string                   `json:"OperationName" xml:"OperationName"`
-	MinDuration   *int64                    `json:"MinDuration" xml:"MinDuration"`
-	AppType       *string                   `json:"AppType" xml:"AppType"`
-	Tag           []*SearchTracesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	PageNumber    *int                      `json:"PageNumber" xml:"PageNumber"`
-	PageSize      *int                      `json:"PageSize" xml:"PageSize"`
-	ServiceIp     *string                   `json:"ServiceIp" xml:"ServiceIp"`
+	StartTime     *int64                    `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *int64                    `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	RegionId      *string                   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName   *string                   `json:"ServiceName,omitempty" xml:"ServiceName,omitempty"`
+	OperationName *string                   `json:"OperationName,omitempty" xml:"OperationName,omitempty"`
+	MinDuration   *int64                    `json:"MinDuration,omitempty" xml:"MinDuration,omitempty"`
+	AppType       *string                   `json:"AppType,omitempty" xml:"AppType,omitempty"`
+	Tag           []*SearchTracesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	PageNumber    *int                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize      *int                      `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ServiceIp     *string                   `json:"ServiceIp,omitempty" xml:"ServiceIp,omitempty"`
 }
 
 func (s SearchTracesRequest) String() string {
@@ -475,8 +475,8 @@ func (s *SearchTracesRequest) SetServiceIp(v string) *SearchTracesRequest {
 }
 
 type SearchTracesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s SearchTracesRequestTag) String() string {
@@ -498,8 +498,8 @@ func (s *SearchTracesRequestTag) SetValue(v string) *SearchTracesRequestTag {
 }
 
 type SearchTracesResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	PageBean  *SearchTracesResponsePageBean `json:"PageBean" xml:"PageBean" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageBean  *SearchTracesResponsePageBean `json:"PageBean,omitempty" xml:"PageBean,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchTracesResponse) String() string {
@@ -521,10 +521,10 @@ func (s *SearchTracesResponse) SetPageBean(v *SearchTracesResponsePageBean) *Sea
 }
 
 type SearchTracesResponsePageBean struct {
-	TotalCount *int64                                  `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	TraceInfos *SearchTracesResponsePageBeanTraceInfos `json:"TraceInfos" xml:"TraceInfos" require:"true" type:"Struct"`
+	TotalCount *int64                                  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	TraceInfos *SearchTracesResponsePageBeanTraceInfos `json:"TraceInfos,omitempty" xml:"TraceInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchTracesResponsePageBean) String() string {
@@ -556,7 +556,7 @@ func (s *SearchTracesResponsePageBean) SetTraceInfos(v *SearchTracesResponsePage
 }
 
 type SearchTracesResponsePageBeanTraceInfos struct {
-	TraceInfo []*SearchTracesResponsePageBeanTraceInfosTraceInfo `json:"TraceInfo" xml:"TraceInfo" require:"true" type:"Repeated"`
+	TraceInfo []*SearchTracesResponsePageBeanTraceInfosTraceInfo `json:"TraceInfo,omitempty" xml:"TraceInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchTracesResponsePageBeanTraceInfos) String() string {
@@ -573,12 +573,12 @@ func (s *SearchTracesResponsePageBeanTraceInfos) SetTraceInfo(v []*SearchTracesR
 }
 
 type SearchTracesResponsePageBeanTraceInfosTraceInfo struct {
-	TraceID       *string `json:"TraceID" xml:"TraceID" require:"true"`
-	OperationName *string `json:"OperationName" xml:"OperationName" require:"true"`
-	ServiceName   *string `json:"ServiceName" xml:"ServiceName" require:"true"`
-	ServiceIp     *string `json:"ServiceIp" xml:"ServiceIp" require:"true"`
-	Duration      *int64  `json:"Duration" xml:"Duration" require:"true"`
-	Timestamp     *int64  `json:"Timestamp" xml:"Timestamp" require:"true"`
+	TraceID       *string `json:"TraceID,omitempty" xml:"TraceID,omitempty" require:"true"`
+	OperationName *string `json:"OperationName,omitempty" xml:"OperationName,omitempty" require:"true"`
+	ServiceName   *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	ServiceIp     *string `json:"ServiceIp,omitempty" xml:"ServiceIp,omitempty" require:"true"`
+	Duration      *int64  `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Timestamp     *int64  `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s SearchTracesResponsePageBeanTraceInfosTraceInfo) String() string {
@@ -620,12 +620,12 @@ func (s *SearchTracesResponsePageBeanTraceInfosTraceInfo) SetTimestamp(v int64) 
 }
 
 type GetTagValRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId"`
-	ServiceName *string `json:"ServiceName" xml:"ServiceName"`
-	SpanName    *string `json:"SpanName" xml:"SpanName"`
-	TagKey      *string `json:"TagKey" xml:"TagKey" require:"true"`
-	StartTime   *int64  `json:"StartTime" xml:"StartTime"`
-	EndTime     *int64  `json:"EndTime" xml:"EndTime"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	ServiceName *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty"`
+	SpanName    *string `json:"SpanName,omitempty" xml:"SpanName,omitempty"`
+	TagKey      *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	StartTime   *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime     *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s GetTagValRequest) String() string {
@@ -667,8 +667,8 @@ func (s *GetTagValRequest) SetEndTime(v int64) *GetTagValRequest {
 }
 
 type GetTagValResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TagValues *GetTagValResponseTagValues `json:"TagValues" xml:"TagValues" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TagValues *GetTagValResponseTagValues `json:"TagValues,omitempty" xml:"TagValues,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTagValResponse) String() string {
@@ -690,7 +690,7 @@ func (s *GetTagValResponse) SetTagValues(v *GetTagValResponseTagValues) *GetTagV
 }
 
 type GetTagValResponseTagValues struct {
-	TagValue []*string `json:"TagValue" xml:"TagValue" require:"true" type:"Repeated"`
+	TagValue []*string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTagValResponseTagValues) String() string {
@@ -707,11 +707,11 @@ func (s *GetTagValResponseTagValues) SetTagValue(v []*string) *GetTagValResponse
 }
 
 type GetTagKeyRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName *string `json:"ServiceName" xml:"ServiceName"`
-	SpanName    *string `json:"SpanName" xml:"SpanName"`
-	StartTime   *int64  `json:"StartTime" xml:"StartTime"`
-	EndTime     *int64  `json:"EndTime" xml:"EndTime"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty"`
+	SpanName    *string `json:"SpanName,omitempty" xml:"SpanName,omitempty"`
+	StartTime   *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime     *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s GetTagKeyRequest) String() string {
@@ -748,8 +748,8 @@ func (s *GetTagKeyRequest) SetEndTime(v int64) *GetTagKeyRequest {
 }
 
 type GetTagKeyResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TagKeys   *GetTagKeyResponseTagKeys `json:"TagKeys" xml:"TagKeys" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TagKeys   *GetTagKeyResponseTagKeys `json:"TagKeys,omitempty" xml:"TagKeys,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTagKeyResponse) String() string {
@@ -771,7 +771,7 @@ func (s *GetTagKeyResponse) SetTagKeys(v *GetTagKeyResponseTagKeys) *GetTagKeyRe
 }
 
 type GetTagKeyResponseTagKeys struct {
-	TagKey []*string `json:"TagKey" xml:"TagKey" require:"true" type:"Repeated"`
+	TagKey []*string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTagKeyResponseTagKeys) String() string {
@@ -788,10 +788,10 @@ func (s *GetTagKeyResponseTagKeys) SetTagKey(v []*string) *GetTagKeyResponseTagK
 }
 
 type ListIpOrHostsRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName *string `json:"ServiceName" xml:"ServiceName"`
-	StartTime   *int64  `json:"StartTime" xml:"StartTime"`
-	EndTime     *int64  `json:"EndTime" xml:"EndTime"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty"`
+	StartTime   *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime     *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s ListIpOrHostsRequest) String() string {
@@ -823,8 +823,8 @@ func (s *ListIpOrHostsRequest) SetEndTime(v int64) *ListIpOrHostsRequest {
 }
 
 type ListIpOrHostsResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	IpNames   *ListIpOrHostsResponseIpNames `json:"IpNames" xml:"IpNames" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IpNames   *ListIpOrHostsResponseIpNames `json:"IpNames,omitempty" xml:"IpNames,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListIpOrHostsResponse) String() string {
@@ -846,7 +846,7 @@ func (s *ListIpOrHostsResponse) SetIpNames(v *ListIpOrHostsResponseIpNames) *Lis
 }
 
 type ListIpOrHostsResponseIpNames struct {
-	IpName []*string `json:"IpName" xml:"IpName" require:"true" type:"Repeated"`
+	IpName []*string `json:"IpName,omitempty" xml:"IpName,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListIpOrHostsResponseIpNames) String() string {
@@ -863,8 +863,8 @@ func (s *ListIpOrHostsResponseIpNames) SetIpName(v []*string) *ListIpOrHostsResp
 }
 
 type ListServicesRequest struct {
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
-	AppType  *string `json:"AppType" xml:"AppType"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	AppType  *string `json:"AppType,omitempty" xml:"AppType,omitempty"`
 }
 
 func (s ListServicesRequest) String() string {
@@ -886,8 +886,8 @@ func (s *ListServicesRequest) SetAppType(v string) *ListServicesRequest {
 }
 
 type ListServicesResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Services  *ListServicesResponseServices `json:"Services" xml:"Services" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Services  *ListServicesResponseServices `json:"Services,omitempty" xml:"Services,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListServicesResponse) String() string {
@@ -909,7 +909,7 @@ func (s *ListServicesResponse) SetServices(v *ListServicesResponseServices) *Lis
 }
 
 type ListServicesResponseServices struct {
-	Service []*ListServicesResponseServicesService `json:"Service" xml:"Service" require:"true" type:"Repeated"`
+	Service []*ListServicesResponseServicesService `json:"Service,omitempty" xml:"Service,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListServicesResponseServices) String() string {
@@ -926,9 +926,9 @@ func (s *ListServicesResponseServices) SetService(v []*ListServicesResponseServi
 }
 
 type ListServicesResponseServicesService struct {
-	ServiceName *string `json:"ServiceName" xml:"ServiceName" require:"true"`
-	Pid         *string `json:"Pid" xml:"Pid" require:"true"`
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
+	ServiceName *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty" require:"true"`
+	Pid         *string `json:"Pid,omitempty" xml:"Pid,omitempty" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s ListServicesResponseServicesService) String() string {
@@ -955,10 +955,10 @@ func (s *ListServicesResponseServicesService) SetRegionId(v string) *ListService
 }
 
 type ListSpanNamesRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceName *string `json:"ServiceName" xml:"ServiceName"`
-	StartTime   *int64  `json:"StartTime" xml:"StartTime"`
-	EndTime     *int64  `json:"EndTime" xml:"EndTime"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceName *string `json:"ServiceName,omitempty" xml:"ServiceName,omitempty"`
+	StartTime   *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime     *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s ListSpanNamesRequest) String() string {
@@ -990,8 +990,8 @@ func (s *ListSpanNamesRequest) SetEndTime(v int64) *ListSpanNamesRequest {
 }
 
 type ListSpanNamesResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	SpanNames *ListSpanNamesResponseSpanNames `json:"SpanNames" xml:"SpanNames" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SpanNames *ListSpanNamesResponseSpanNames `json:"SpanNames,omitempty" xml:"SpanNames,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSpanNamesResponse) String() string {
@@ -1013,7 +1013,7 @@ func (s *ListSpanNamesResponse) SetSpanNames(v *ListSpanNamesResponseSpanNames) 
 }
 
 type ListSpanNamesResponseSpanNames struct {
-	SpanName []*string `json:"SpanName" xml:"SpanName" require:"true" type:"Repeated"`
+	SpanName []*string `json:"SpanName,omitempty" xml:"SpanName,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListSpanNamesResponseSpanNames) String() string {
@@ -1030,8 +1030,8 @@ func (s *ListSpanNamesResponseSpanNames) SetSpanName(v []*string) *ListSpanNames
 }
 
 type GetTokenRequest struct {
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
-	AppType  *string `json:"AppType" xml:"AppType"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	AppType  *string `json:"AppType,omitempty" xml:"AppType,omitempty"`
 }
 
 func (s GetTokenRequest) String() string {
@@ -1053,8 +1053,8 @@ func (s *GetTokenRequest) SetAppType(v string) *GetTokenRequest {
 }
 
 type GetTokenResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Token     *GetTokenResponseToken `json:"Token" xml:"Token" require:"true" type:"Struct"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Token     *GetTokenResponseToken `json:"Token,omitempty" xml:"Token,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTokenResponse) String() string {
@@ -1076,10 +1076,10 @@ func (s *GetTokenResponse) SetToken(v *GetTokenResponseToken) *GetTokenResponse 
 }
 
 type GetTokenResponseToken struct {
-	Domain         *string `json:"Domain" xml:"Domain" require:"true"`
-	LicenseKey     *string `json:"LicenseKey" xml:"LicenseKey" require:"true"`
-	Pid            *string `json:"Pid" xml:"Pid" require:"true"`
-	InternalDomain *string `json:"InternalDomain" xml:"InternalDomain" require:"true"`
+	Domain         *string `json:"Domain,omitempty" xml:"Domain,omitempty" require:"true"`
+	LicenseKey     *string `json:"LicenseKey,omitempty" xml:"LicenseKey,omitempty" require:"true"`
+	Pid            *string `json:"Pid,omitempty" xml:"Pid,omitempty" require:"true"`
+	InternalDomain *string `json:"InternalDomain,omitempty" xml:"InternalDomain,omitempty" require:"true"`
 }
 
 func (s GetTokenResponseToken) String() string {
