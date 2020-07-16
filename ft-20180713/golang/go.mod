@@ -1,4 +1,4 @@
-module github.com/alibabacloud-go/Ft-20180713
+module github.com/alibabacloud-go/ft-20180713
 
 require (
 	github.com/alibabacloud-go/tea-utils v1.1.1
