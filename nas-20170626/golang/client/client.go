@@ -9,8 +9,8 @@ import (
 )
 
 type DeleteLifecyclePolicyRequest struct {
-	FileSystemId        *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	LifecyclePolicyName *string `json:"LifecyclePolicyName" xml:"LifecyclePolicyName" require:"true"`
+	FileSystemId        *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	LifecyclePolicyName *string `json:"LifecyclePolicyName,omitempty" xml:"LifecyclePolicyName,omitempty" require:"true"`
 }
 
 func (s DeleteLifecyclePolicyRequest) String() string {
@@ -32,8 +32,8 @@ func (s *DeleteLifecyclePolicyRequest) SetLifecyclePolicyName(v string) *DeleteL
 }
 
 type DeleteLifecyclePolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
 }
 
 func (s DeleteLifecyclePolicyResponse) String() string {
@@ -55,10 +55,10 @@ func (s *DeleteLifecyclePolicyResponse) SetSuccess(v bool) *DeleteLifecyclePolic
 }
 
 type UpgradeFileSystemRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Capacity     *int64  `json:"Capacity" xml:"Capacity" require:"true"`
-	DryRun       *bool   `json:"DryRun" xml:"DryRun"`
-	ClientToken  *string `json:"ClientToken" xml:"ClientToken"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Capacity     *int64  `json:"Capacity,omitempty" xml:"Capacity,omitempty" require:"true"`
+	DryRun       *bool   `json:"DryRun,omitempty" xml:"DryRun,omitempty"`
+	ClientToken  *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s UpgradeFileSystemRequest) String() string {
@@ -90,7 +90,7 @@ func (s *UpgradeFileSystemRequest) SetClientToken(v string) *UpgradeFileSystemRe
 }
 
 type UpgradeFileSystemResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpgradeFileSystemResponse) String() string {
@@ -107,11 +107,11 @@ func (s *UpgradeFileSystemResponse) SetRequestId(v string) *UpgradeFileSystemRes
 }
 
 type ModifyLifecyclePolicyRequest struct {
-	FileSystemId        *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	LifecyclePolicyName *string `json:"LifecyclePolicyName" xml:"LifecyclePolicyName" require:"true"`
-	Path                *string `json:"Path" xml:"Path" require:"true"`
-	LifecycleRuleName   *string `json:"LifecycleRuleName" xml:"LifecycleRuleName" require:"true"`
-	StorageType         *string `json:"StorageType" xml:"StorageType" require:"true"`
+	FileSystemId        *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	LifecyclePolicyName *string `json:"LifecyclePolicyName,omitempty" xml:"LifecyclePolicyName,omitempty" require:"true"`
+	Path                *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	LifecycleRuleName   *string `json:"LifecycleRuleName,omitempty" xml:"LifecycleRuleName,omitempty" require:"true"`
+	StorageType         *string `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
 }
 
 func (s ModifyLifecyclePolicyRequest) String() string {
@@ -148,8 +148,8 @@ func (s *ModifyLifecyclePolicyRequest) SetStorageType(v string) *ModifyLifecycle
 }
 
 type ModifyLifecyclePolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
 }
 
 func (s ModifyLifecyclePolicyResponse) String() string {
@@ -171,11 +171,11 @@ func (s *ModifyLifecyclePolicyResponse) SetSuccess(v bool) *ModifyLifecyclePolic
 }
 
 type CreateLifecyclePolicyRequest struct {
-	FileSystemId        *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	LifecyclePolicyName *string `json:"LifecyclePolicyName" xml:"LifecyclePolicyName" require:"true"`
-	Path                *string `json:"Path" xml:"Path" require:"true"`
-	LifecycleRuleName   *string `json:"LifecycleRuleName" xml:"LifecycleRuleName" require:"true"`
-	StorageType         *string `json:"StorageType" xml:"StorageType" require:"true"`
+	FileSystemId        *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	LifecyclePolicyName *string `json:"LifecyclePolicyName,omitempty" xml:"LifecyclePolicyName,omitempty" require:"true"`
+	Path                *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	LifecycleRuleName   *string `json:"LifecycleRuleName,omitempty" xml:"LifecycleRuleName,omitempty" require:"true"`
+	StorageType         *string `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
 }
 
 func (s CreateLifecyclePolicyRequest) String() string {
@@ -212,8 +212,8 @@ func (s *CreateLifecyclePolicyRequest) SetStorageType(v string) *CreateLifecycle
 }
 
 type CreateLifecyclePolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
 }
 
 func (s CreateLifecyclePolicyResponse) String() string {
@@ -235,9 +235,9 @@ func (s *CreateLifecyclePolicyResponse) SetSuccess(v bool) *CreateLifecyclePolic
 }
 
 type DescribeLifecyclePoliciesRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId"`
-	PageSize     *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber   *int    `json:"PageNumber" xml:"PageNumber"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty"`
+	PageSize     *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber   *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeLifecyclePoliciesRequest) String() string {
@@ -264,11 +264,11 @@ func (s *DescribeLifecyclePoliciesRequest) SetPageNumber(v int) *DescribeLifecyc
 }
 
 type DescribeLifecyclePoliciesResponse struct {
-	RequestId         *string                                               `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount        *int                                                  `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize          *int                                                  `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber        *int                                                  `json:"PageNumber" xml:"PageNumber" require:"true"`
-	LifecyclePolicies []*DescribeLifecyclePoliciesResponseLifecyclePolicies `json:"LifecyclePolicies" xml:"LifecyclePolicies" require:"true" type:"Repeated"`
+	RequestId         *string                                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount        *int                                                  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize          *int                                                  `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber        *int                                                  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	LifecyclePolicies []*DescribeLifecyclePoliciesResponseLifecyclePolicies `json:"LifecyclePolicies,omitempty" xml:"LifecyclePolicies,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeLifecyclePoliciesResponse) String() string {
@@ -305,12 +305,12 @@ func (s *DescribeLifecyclePoliciesResponse) SetLifecyclePolicies(v []*DescribeLi
 }
 
 type DescribeLifecyclePoliciesResponseLifecyclePolicies struct {
-	FileSystemId        *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	LifecyclePolicyName *string `json:"LifecyclePolicyName" xml:"LifecyclePolicyName" require:"true"`
-	Path                *string `json:"Path" xml:"Path" require:"true"`
-	LifecycleRuleName   *string `json:"LifecycleRuleName" xml:"LifecycleRuleName" require:"true"`
-	StorageType         *string `json:"StorageType" xml:"StorageType" require:"true"`
-	CreateTime          *string `json:"CreateTime" xml:"CreateTime" require:"true"`
+	FileSystemId        *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	LifecyclePolicyName *string `json:"LifecyclePolicyName,omitempty" xml:"LifecyclePolicyName,omitempty" require:"true"`
+	Path                *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	LifecycleRuleName   *string `json:"LifecycleRuleName,omitempty" xml:"LifecycleRuleName,omitempty" require:"true"`
+	StorageType         *string `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
+	CreateTime          *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
 }
 
 func (s DescribeLifecyclePoliciesResponseLifecyclePolicies) String() string {
@@ -352,10 +352,10 @@ func (s *DescribeLifecyclePoliciesResponseLifecyclePolicies) SetCreateTime(v str
 }
 
 type DescribeDirQuotasRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Path         *string `json:"Path" xml:"Path"`
-	PageSize     *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber   *int    `json:"PageNumber" xml:"PageNumber"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Path         *string `json:"Path,omitempty" xml:"Path,omitempty"`
+	PageSize     *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber   *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeDirQuotasRequest) String() string {
@@ -387,11 +387,11 @@ func (s *DescribeDirQuotasRequest) SetPageNumber(v int) *DescribeDirQuotasReques
 }
 
 type DescribeDirQuotasResponse struct {
-	RequestId     *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize      *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber    *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	DirQuotaInfos []*DescribeDirQuotasResponseDirQuotaInfos `json:"DirQuotaInfos" xml:"DirQuotaInfos" require:"true" type:"Repeated"`
+	RequestId     *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize      *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber    *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	DirQuotaInfos []*DescribeDirQuotasResponseDirQuotaInfos `json:"DirQuotaInfos,omitempty" xml:"DirQuotaInfos,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDirQuotasResponse) String() string {
@@ -428,10 +428,10 @@ func (s *DescribeDirQuotasResponse) SetDirQuotaInfos(v []*DescribeDirQuotasRespo
 }
 
 type DescribeDirQuotasResponseDirQuotaInfos struct {
-	Path           *string                                                 `json:"Path" xml:"Path" require:"true"`
-	DirInode       *string                                                 `json:"DirInode" xml:"DirInode" require:"true"`
-	Status         *string                                                 `json:"Status" xml:"Status" require:"true"`
-	UserQuotaInfos []*DescribeDirQuotasResponseDirQuotaInfosUserQuotaInfos `json:"UserQuotaInfos" xml:"UserQuotaInfos" require:"true" type:"Repeated"`
+	Path           *string                                                 `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	DirInode       *string                                                 `json:"DirInode,omitempty" xml:"DirInode,omitempty" require:"true"`
+	Status         *string                                                 `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	UserQuotaInfos []*DescribeDirQuotasResponseDirQuotaInfosUserQuotaInfos `json:"UserQuotaInfos,omitempty" xml:"UserQuotaInfos,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDirQuotasResponseDirQuotaInfos) String() string {
@@ -463,13 +463,13 @@ func (s *DescribeDirQuotasResponseDirQuotaInfos) SetUserQuotaInfos(v []*Describe
 }
 
 type DescribeDirQuotasResponseDirQuotaInfosUserQuotaInfos struct {
-	UserType       *string `json:"UserType" xml:"UserType" require:"true"`
-	UserId         *string `json:"UserId" xml:"UserId" require:"true"`
-	QuotaType      *string `json:"QuotaType" xml:"QuotaType" require:"true"`
-	SizeLimit      *int64  `json:"SizeLimit" xml:"SizeLimit" require:"true"`
-	SizeReal       *int64  `json:"SizeReal" xml:"SizeReal" require:"true"`
-	FileCountLimit *int64  `json:"FileCountLimit" xml:"FileCountLimit" require:"true"`
-	FileCountReal  *int64  `json:"FileCountReal" xml:"FileCountReal" require:"true"`
+	UserType       *string `json:"UserType,omitempty" xml:"UserType,omitempty" require:"true"`
+	UserId         *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	QuotaType      *string `json:"QuotaType,omitempty" xml:"QuotaType,omitempty" require:"true"`
+	SizeLimit      *int64  `json:"SizeLimit,omitempty" xml:"SizeLimit,omitempty" require:"true"`
+	SizeReal       *int64  `json:"SizeReal,omitempty" xml:"SizeReal,omitempty" require:"true"`
+	FileCountLimit *int64  `json:"FileCountLimit,omitempty" xml:"FileCountLimit,omitempty" require:"true"`
+	FileCountReal  *int64  `json:"FileCountReal,omitempty" xml:"FileCountReal,omitempty" require:"true"`
 }
 
 func (s DescribeDirQuotasResponseDirQuotaInfosUserQuotaInfos) String() string {
@@ -516,13 +516,13 @@ func (s *DescribeDirQuotasResponseDirQuotaInfosUserQuotaInfos) SetFileCountReal(
 }
 
 type SetDirQuotaRequest struct {
-	FileSystemId   *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Path           *string `json:"Path" xml:"Path" require:"true"`
-	QuotaType      *string `json:"QuotaType" xml:"QuotaType" require:"true"`
-	UserType       *string `json:"UserType" xml:"UserType" require:"true"`
-	UserId         *string `json:"UserId" xml:"UserId"`
-	SizeLimit      *int64  `json:"SizeLimit" xml:"SizeLimit"`
-	FileCountLimit *int64  `json:"FileCountLimit" xml:"FileCountLimit"`
+	FileSystemId   *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Path           *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	QuotaType      *string `json:"QuotaType,omitempty" xml:"QuotaType,omitempty" require:"true"`
+	UserType       *string `json:"UserType,omitempty" xml:"UserType,omitempty" require:"true"`
+	UserId         *string `json:"UserId,omitempty" xml:"UserId,omitempty"`
+	SizeLimit      *int64  `json:"SizeLimit,omitempty" xml:"SizeLimit,omitempty"`
+	FileCountLimit *int64  `json:"FileCountLimit,omitempty" xml:"FileCountLimit,omitempty"`
 }
 
 func (s SetDirQuotaRequest) String() string {
@@ -569,8 +569,8 @@ func (s *SetDirQuotaRequest) SetFileCountLimit(v int64) *SetDirQuotaRequest {
 }
 
 type SetDirQuotaResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
 }
 
 func (s SetDirQuotaResponse) String() string {
@@ -592,10 +592,10 @@ func (s *SetDirQuotaResponse) SetSuccess(v bool) *SetDirQuotaResponse {
 }
 
 type CancelDirQuotaRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Path         *string `json:"Path" xml:"Path" require:"true"`
-	UserType     *string `json:"UserType" xml:"UserType" require:"true"`
-	UserId       *string `json:"UserId" xml:"UserId"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Path         *string `json:"Path,omitempty" xml:"Path,omitempty" require:"true"`
+	UserType     *string `json:"UserType,omitempty" xml:"UserType,omitempty" require:"true"`
+	UserId       *string `json:"UserId,omitempty" xml:"UserId,omitempty"`
 }
 
 func (s CancelDirQuotaRequest) String() string {
@@ -627,8 +627,8 @@ func (s *CancelDirQuotaRequest) SetUserId(v string) *CancelDirQuotaRequest {
 }
 
 type CancelDirQuotaResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
 }
 
 func (s CancelDirQuotaResponse) String() string {
@@ -650,10 +650,10 @@ func (s *CancelDirQuotaResponse) SetSuccess(v bool) *CancelDirQuotaResponse {
 }
 
 type DescribeStoragePackagesRequest struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
-	UseUTCDateTime *bool   `json:"UseUTCDateTime" xml:"UseUTCDateTime"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	UseUTCDateTime *bool   `json:"UseUTCDateTime,omitempty" xml:"UseUTCDateTime,omitempty"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeStoragePackagesRequest) String() string {
@@ -685,11 +685,11 @@ func (s *DescribeStoragePackagesRequest) SetPageNumber(v int) *DescribeStoragePa
 }
 
 type DescribeStoragePackagesResponse struct {
-	RequestId  *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                     `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                     `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                     `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Packages   *DescribeStoragePackagesResponsePackages `json:"Packages" xml:"Packages" require:"true" type:"Struct"`
+	RequestId  *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                     `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                     `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Packages   *DescribeStoragePackagesResponsePackages `json:"Packages,omitempty" xml:"Packages,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeStoragePackagesResponse) String() string {
@@ -726,7 +726,7 @@ func (s *DescribeStoragePackagesResponse) SetPackages(v *DescribeStoragePackages
 }
 
 type DescribeStoragePackagesResponsePackages struct {
-	Package []*DescribeStoragePackagesResponsePackagesPackage `json:"Package" xml:"Package" require:"true" type:"Repeated"`
+	Package []*DescribeStoragePackagesResponsePackagesPackage `json:"Package,omitempty" xml:"Package,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeStoragePackagesResponsePackages) String() string {
@@ -743,13 +743,13 @@ func (s *DescribeStoragePackagesResponsePackages) SetPackage(v []*DescribeStorag
 }
 
 type DescribeStoragePackagesResponsePackagesPackage struct {
-	StartTime    *string `json:"StartTime" xml:"StartTime" require:"true"`
-	StorageType  *string `json:"StorageType" xml:"StorageType" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	PackageId    *string `json:"PackageId" xml:"PackageId" require:"true"`
-	ExpiredTime  *string `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
-	Size         *int64  `json:"Size" xml:"Size" require:"true"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	StorageType  *string `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	PackageId    *string `json:"PackageId,omitempty" xml:"PackageId,omitempty" require:"true"`
+	ExpiredTime  *string `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
+	Size         *int64  `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
 }
 
 func (s DescribeStoragePackagesResponsePackagesPackage) String() string {
@@ -796,8 +796,8 @@ func (s *DescribeStoragePackagesResponsePackagesPackage) SetSize(v int64) *Descr
 }
 
 type DescribeFileSystemStatisticsRequest struct {
-	PageSize   *int `json:"PageSize" xml:"PageSize"`
-	PageNumber *int `json:"PageNumber" xml:"PageNumber"`
+	PageSize   *int `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber *int `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeFileSystemStatisticsRequest) String() string {
@@ -819,11 +819,11 @@ func (s *DescribeFileSystemStatisticsRequest) SetPageNumber(v int) *DescribeFile
 }
 
 type DescribeFileSystemStatisticsResponse struct {
-	RequestId            *string                                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount           *int                                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize             *int                                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber           *int                                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	FileSystemStatistics *DescribeFileSystemStatisticsResponseFileSystemStatistics `json:"FileSystemStatistics" xml:"FileSystemStatistics" require:"true" type:"Struct"`
+	RequestId            *string                                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount           *int                                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize             *int                                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber           *int                                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	FileSystemStatistics *DescribeFileSystemStatisticsResponseFileSystemStatistics `json:"FileSystemStatistics,omitempty" xml:"FileSystemStatistics,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeFileSystemStatisticsResponse) String() string {
@@ -860,7 +860,7 @@ func (s *DescribeFileSystemStatisticsResponse) SetFileSystemStatistics(v *Descri
 }
 
 type DescribeFileSystemStatisticsResponseFileSystemStatistics struct {
-	FileSystemStatistic []*DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStatistic `json:"FileSystemStatistic" xml:"FileSystemStatistic" require:"true" type:"Repeated"`
+	FileSystemStatistic []*DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStatistic `json:"FileSystemStatistic,omitempty" xml:"FileSystemStatistic,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeFileSystemStatisticsResponseFileSystemStatistics) String() string {
@@ -877,11 +877,11 @@ func (s *DescribeFileSystemStatisticsResponseFileSystemStatistics) SetFileSystem
 }
 
 type DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStatistic struct {
-	FileSystemType *string `json:"FileSystemType" xml:"FileSystemType" require:"true"`
-	TotalCount     *int    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	MeteredSize    *int64  `json:"MeteredSize" xml:"MeteredSize" require:"true"`
-	ExpiredCount   *int    `json:"ExpiredCount" xml:"ExpiredCount" require:"true"`
-	ExpiringCount  *int    `json:"ExpiringCount" xml:"ExpiringCount" require:"true"`
+	FileSystemType *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty" require:"true"`
+	TotalCount     *int    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	MeteredSize    *int64  `json:"MeteredSize,omitempty" xml:"MeteredSize,omitempty" require:"true"`
+	ExpiredCount   *int    `json:"ExpiredCount,omitempty" xml:"ExpiredCount,omitempty" require:"true"`
+	ExpiringCount  *int    `json:"ExpiringCount,omitempty" xml:"ExpiringCount,omitempty" require:"true"`
 }
 
 func (s DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStatistic) String() string {
@@ -918,7 +918,9 @@ func (s *DescribeFileSystemStatisticsResponseFileSystemStatisticsFileSystemStati
 }
 
 type DescribeLogAnalysisRequest struct {
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
+	RegionId   *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeLogAnalysisRequest) String() string {
@@ -934,13 +936,23 @@ func (s *DescribeLogAnalysisRequest) SetRegionId(v string) *DescribeLogAnalysisR
 	return s
 }
 
+func (s *DescribeLogAnalysisRequest) SetPageSize(v int) *DescribeLogAnalysisRequest {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeLogAnalysisRequest) SetPageNumber(v int) *DescribeLogAnalysisRequest {
+	s.PageNumber = &v
+	return s
+}
+
 type DescribeLogAnalysisResponse struct {
-	RequestId  *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Code       *string                              `json:"Code" xml:"Code" require:"true"`
-	TotalCount *int                                 `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                 `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                 `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Analyses   *DescribeLogAnalysisResponseAnalyses `json:"Analyses" xml:"Analyses" require:"true" type:"Struct"`
+	RequestId  *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code       *string                              `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	TotalCount *int                                 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                 `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                 `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Analyses   *DescribeLogAnalysisResponseAnalyses `json:"Analyses,omitempty" xml:"Analyses,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeLogAnalysisResponse) String() string {
@@ -982,7 +994,7 @@ func (s *DescribeLogAnalysisResponse) SetAnalyses(v *DescribeLogAnalysisResponse
 }
 
 type DescribeLogAnalysisResponseAnalyses struct {
-	Analysis []*DescribeLogAnalysisResponseAnalysesAnalysis `json:"Analysis" xml:"Analysis" require:"true" type:"Repeated"`
+	Analysis []*DescribeLogAnalysisResponseAnalysesAnalysis `json:"Analysis,omitempty" xml:"Analysis,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeLogAnalysisResponseAnalyses) String() string {
@@ -999,8 +1011,8 @@ func (s *DescribeLogAnalysisResponseAnalyses) SetAnalysis(v []*DescribeLogAnalys
 }
 
 type DescribeLogAnalysisResponseAnalysesAnalysis struct {
-	MetaKey   *string                                               `json:"MetaKey" xml:"MetaKey" require:"true"`
-	MetaValue *DescribeLogAnalysisResponseAnalysesAnalysisMetaValue `json:"MetaValue" xml:"MetaValue" require:"true" type:"Struct"`
+	MetaKey   *string                                               `json:"MetaKey,omitempty" xml:"MetaKey,omitempty" require:"true"`
+	MetaValue *DescribeLogAnalysisResponseAnalysesAnalysisMetaValue `json:"MetaValue,omitempty" xml:"MetaValue,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeLogAnalysisResponseAnalysesAnalysis) String() string {
@@ -1022,10 +1034,10 @@ func (s *DescribeLogAnalysisResponseAnalysesAnalysis) SetMetaValue(v *DescribeLo
 }
 
 type DescribeLogAnalysisResponseAnalysesAnalysisMetaValue struct {
-	Logstore *string `json:"Logstore" xml:"Logstore" require:"true"`
-	Region   *string `json:"Region" xml:"Region" require:"true"`
-	Project  *string `json:"Project" xml:"Project" require:"true"`
-	RoleArn  *string `json:"RoleArn" xml:"RoleArn" require:"true"`
+	Logstore *string `json:"Logstore,omitempty" xml:"Logstore,omitempty" require:"true"`
+	Region   *string `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	Project  *string `json:"Project,omitempty" xml:"Project,omitempty" require:"true"`
+	RoleArn  *string `json:"RoleArn,omitempty" xml:"RoleArn,omitempty" require:"true"`
 }
 
 func (s DescribeLogAnalysisResponseAnalysesAnalysisMetaValue) String() string {
@@ -1057,12 +1069,12 @@ func (s *DescribeLogAnalysisResponseAnalysesAnalysisMetaValue) SetRoleArn(v stri
 }
 
 type DescribeMountedClientsRequest struct {
-	RegionId          *string `json:"RegionId" xml:"RegionId" require:"true"`
-	PageSize          *int    `json:"PageSize" xml:"PageSize"`
-	FileSystemId      *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	ClientIP          *string `json:"ClientIP" xml:"ClientIP"`
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain" require:"true"`
-	PageNumber        *int    `json:"PageNumber" xml:"PageNumber"`
+	RegionId          *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	PageSize          *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	FileSystemId      *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	ClientIP          *string `json:"ClientIP,omitempty" xml:"ClientIP,omitempty"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty" require:"true"`
+	PageNumber        *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeMountedClientsRequest) String() string {
@@ -1104,11 +1116,11 @@ func (s *DescribeMountedClientsRequest) SetPageNumber(v int) *DescribeMountedCli
 }
 
 type DescribeMountedClientsResponse struct {
-	RequestId  *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                   `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                   `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                   `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Clients    *DescribeMountedClientsResponseClients `json:"Clients" xml:"Clients" require:"true" type:"Struct"`
+	RequestId  *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                   `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                   `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                   `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Clients    *DescribeMountedClientsResponseClients `json:"Clients,omitempty" xml:"Clients,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMountedClientsResponse) String() string {
@@ -1145,7 +1157,7 @@ func (s *DescribeMountedClientsResponse) SetClients(v *DescribeMountedClientsRes
 }
 
 type DescribeMountedClientsResponseClients struct {
-	Client []*DescribeMountedClientsResponseClientsClient `json:"Client" xml:"Client" require:"true" type:"Repeated"`
+	Client []*DescribeMountedClientsResponseClientsClient `json:"Client,omitempty" xml:"Client,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMountedClientsResponseClients) String() string {
@@ -1162,7 +1174,7 @@ func (s *DescribeMountedClientsResponseClients) SetClient(v []*DescribeMountedCl
 }
 
 type DescribeMountedClientsResponseClientsClient struct {
-	ClientIP *string `json:"ClientIP" xml:"ClientIP" require:"true"`
+	ClientIP *string `json:"ClientIP,omitempty" xml:"ClientIP,omitempty" require:"true"`
 }
 
 func (s DescribeMountedClientsResponseClientsClient) String() string {
@@ -1179,11 +1191,11 @@ func (s *DescribeMountedClientsResponseClientsClient) SetClientIP(v string) *Des
 }
 
 type DescribeAutoSnapshotTasksRequest struct {
-	FileSystemIds         *string `json:"FileSystemIds" xml:"FileSystemIds"`
-	AutoSnapshotPolicyIds *string `json:"AutoSnapshotPolicyIds" xml:"AutoSnapshotPolicyIds"`
-	FileSystemType        *string `json:"FileSystemType" xml:"FileSystemType" require:"true"`
-	PageSize              *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber            *int    `json:"PageNumber" xml:"PageNumber"`
+	FileSystemIds         *string `json:"FileSystemIds,omitempty" xml:"FileSystemIds,omitempty"`
+	AutoSnapshotPolicyIds *string `json:"AutoSnapshotPolicyIds,omitempty" xml:"AutoSnapshotPolicyIds,omitempty"`
+	FileSystemType        *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty" require:"true"`
+	PageSize              *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber            *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeAutoSnapshotTasksRequest) String() string {
@@ -1220,11 +1232,11 @@ func (s *DescribeAutoSnapshotTasksRequest) SetPageNumber(v int) *DescribeAutoSna
 }
 
 type DescribeAutoSnapshotTasksResponse struct {
-	RequestId         *string                                             `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount        *int                                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize          *int                                                `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber        *int                                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AutoSnapshotTasks *DescribeAutoSnapshotTasksResponseAutoSnapshotTasks `json:"AutoSnapshotTasks" xml:"AutoSnapshotTasks" require:"true" type:"Struct"`
+	RequestId         *string                                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount        *int                                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize          *int                                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber        *int                                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AutoSnapshotTasks *DescribeAutoSnapshotTasksResponseAutoSnapshotTasks `json:"AutoSnapshotTasks,omitempty" xml:"AutoSnapshotTasks,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAutoSnapshotTasksResponse) String() string {
@@ -1261,7 +1273,7 @@ func (s *DescribeAutoSnapshotTasksResponse) SetAutoSnapshotTasks(v *DescribeAuto
 }
 
 type DescribeAutoSnapshotTasksResponseAutoSnapshotTasks struct {
-	AutoSnapshotTask []*DescribeAutoSnapshotTasksResponseAutoSnapshotTasksAutoSnapshotTask `json:"AutoSnapshotTask" xml:"AutoSnapshotTask" require:"true" type:"Repeated"`
+	AutoSnapshotTask []*DescribeAutoSnapshotTasksResponseAutoSnapshotTasksAutoSnapshotTask `json:"AutoSnapshotTask,omitempty" xml:"AutoSnapshotTask,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAutoSnapshotTasksResponseAutoSnapshotTasks) String() string {
@@ -1278,8 +1290,8 @@ func (s *DescribeAutoSnapshotTasksResponseAutoSnapshotTasks) SetAutoSnapshotTask
 }
 
 type DescribeAutoSnapshotTasksResponseAutoSnapshotTasksAutoSnapshotTask struct {
-	SourceFileSystemId   *string `json:"SourceFileSystemId" xml:"SourceFileSystemId" require:"true"`
-	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
+	SourceFileSystemId   *string `json:"SourceFileSystemId,omitempty" xml:"SourceFileSystemId,omitempty" require:"true"`
+	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
 }
 
 func (s DescribeAutoSnapshotTasksResponseAutoSnapshotTasksAutoSnapshotTask) String() string {
@@ -1301,10 +1313,10 @@ func (s *DescribeAutoSnapshotTasksResponseAutoSnapshotTasksAutoSnapshotTask) Set
 }
 
 type RemoveClientFromBlackListRequest struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	ClientIP     *string `json:"ClientIP" xml:"ClientIP" require:"true"`
-	ClientToken  *string `json:"ClientToken" xml:"ClientToken" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	ClientIP     *string `json:"ClientIP,omitempty" xml:"ClientIP,omitempty" require:"true"`
+	ClientToken  *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty" require:"true"`
 }
 
 func (s RemoveClientFromBlackListRequest) String() string {
@@ -1336,7 +1348,7 @@ func (s *RemoveClientFromBlackListRequest) SetClientToken(v string) *RemoveClien
 }
 
 type RemoveClientFromBlackListResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveClientFromBlackListResponse) String() string {
@@ -1353,9 +1365,9 @@ func (s *RemoveClientFromBlackListResponse) SetRequestId(v string) *RemoveClient
 }
 
 type DescribeBlackListClientsRequest struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	ClientIP     *string `json:"ClientIP" xml:"ClientIP"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	ClientIP     *string `json:"ClientIP,omitempty" xml:"ClientIP,omitempty"`
 }
 
 func (s DescribeBlackListClientsRequest) String() string {
@@ -1382,8 +1394,8 @@ func (s *DescribeBlackListClientsRequest) SetClientIP(v string) *DescribeBlackLi
 }
 
 type DescribeBlackListClientsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Clients   *string `json:"Clients" xml:"Clients" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Clients   *string `json:"Clients,omitempty" xml:"Clients,omitempty" require:"true"`
 }
 
 func (s DescribeBlackListClientsResponse) String() string {
@@ -1405,10 +1417,10 @@ func (s *DescribeBlackListClientsResponse) SetClients(v string) *DescribeBlackLi
 }
 
 type AddClientToBlackListRequest struct {
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	ClientIP     *string `json:"ClientIP" xml:"ClientIP" require:"true"`
-	ClientToken  *string `json:"ClientToken" xml:"ClientToken" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	ClientIP     *string `json:"ClientIP,omitempty" xml:"ClientIP,omitempty" require:"true"`
+	ClientToken  *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty" require:"true"`
 }
 
 func (s AddClientToBlackListRequest) String() string {
@@ -1440,7 +1452,7 @@ func (s *AddClientToBlackListRequest) SetClientToken(v string) *AddClientToBlack
 }
 
 type AddClientToBlackListResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AddClientToBlackListResponse) String() string {
@@ -1457,7 +1469,7 @@ func (s *AddClientToBlackListResponse) SetRequestId(v string) *AddClientToBlackL
 }
 
 type DescribeLDAPConfigRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
 }
 
 func (s DescribeLDAPConfigRequest) String() string {
@@ -1474,8 +1486,8 @@ func (s *DescribeLDAPConfigRequest) SetFileSystemId(v string) *DescribeLDAPConfi
 }
 
 type DescribeLDAPConfigResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Ldap      *DescribeLDAPConfigResponseLdap `json:"Ldap" xml:"Ldap" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Ldap      *DescribeLDAPConfigResponseLdap `json:"Ldap,omitempty" xml:"Ldap,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeLDAPConfigResponse) String() string {
@@ -1497,9 +1509,9 @@ func (s *DescribeLDAPConfigResponse) SetLdap(v *DescribeLDAPConfigResponseLdap) 
 }
 
 type DescribeLDAPConfigResponseLdap struct {
-	BindDN     *string `json:"BindDN" xml:"BindDN" require:"true"`
-	URI        *string `json:"URI" xml:"URI" require:"true"`
-	SearchBase *string `json:"SearchBase" xml:"SearchBase" require:"true"`
+	BindDN     *string `json:"BindDN,omitempty" xml:"BindDN,omitempty" require:"true"`
+	URI        *string `json:"URI,omitempty" xml:"URI,omitempty" require:"true"`
+	SearchBase *string `json:"SearchBase,omitempty" xml:"SearchBase,omitempty" require:"true"`
 }
 
 func (s DescribeLDAPConfigResponseLdap) String() string {
@@ -1526,10 +1538,10 @@ func (s *DescribeLDAPConfigResponseLdap) SetSearchBase(v string) *DescribeLDAPCo
 }
 
 type ModifyLDAPConfigRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	URI          *string `json:"URI" xml:"URI" require:"true"`
-	BindDN       *string `json:"BindDN" xml:"BindDN"`
-	SearchBase   *string `json:"SearchBase" xml:"SearchBase" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	URI          *string `json:"URI,omitempty" xml:"URI,omitempty" require:"true"`
+	BindDN       *string `json:"BindDN,omitempty" xml:"BindDN,omitempty"`
+	SearchBase   *string `json:"SearchBase,omitempty" xml:"SearchBase,omitempty" require:"true"`
 }
 
 func (s ModifyLDAPConfigRequest) String() string {
@@ -1561,7 +1573,7 @@ func (s *ModifyLDAPConfigRequest) SetSearchBase(v string) *ModifyLDAPConfigReque
 }
 
 type ModifyLDAPConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyLDAPConfigResponse) String() string {
@@ -1578,10 +1590,10 @@ func (s *ModifyLDAPConfigResponse) SetRequestId(v string) *ModifyLDAPConfigRespo
 }
 
 type CreateLDAPConfigRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	URI          *string `json:"URI" xml:"URI" require:"true"`
-	BindDN       *string `json:"BindDN" xml:"BindDN"`
-	SearchBase   *string `json:"SearchBase" xml:"SearchBase" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	URI          *string `json:"URI,omitempty" xml:"URI,omitempty" require:"true"`
+	BindDN       *string `json:"BindDN,omitempty" xml:"BindDN,omitempty"`
+	SearchBase   *string `json:"SearchBase,omitempty" xml:"SearchBase,omitempty" require:"true"`
 }
 
 func (s CreateLDAPConfigRequest) String() string {
@@ -1613,7 +1625,7 @@ func (s *CreateLDAPConfigRequest) SetSearchBase(v string) *CreateLDAPConfigReque
 }
 
 type CreateLDAPConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateLDAPConfigResponse) String() string {
@@ -1630,7 +1642,7 @@ func (s *CreateLDAPConfigResponse) SetRequestId(v string) *CreateLDAPConfigRespo
 }
 
 type DeleteLDAPConfigRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
 }
 
 func (s DeleteLDAPConfigRequest) String() string {
@@ -1647,7 +1659,7 @@ func (s *DeleteLDAPConfigRequest) SetFileSystemId(v string) *DeleteLDAPConfigReq
 }
 
 type DeleteLDAPConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteLDAPConfigResponse) String() string {
@@ -1664,10 +1676,10 @@ func (s *DeleteLDAPConfigResponse) SetRequestId(v string) *DeleteLDAPConfigRespo
 }
 
 type DescribeTagsRequest struct {
-	FileSystemId *string                   `json:"FileSystemId" xml:"FileSystemId"`
-	PageSize     *int                      `json:"PageSize" xml:"PageSize"`
-	PageNumber   *int                      `json:"PageNumber" xml:"PageNumber"`
-	Tag          []*DescribeTagsRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	FileSystemId *string                   `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty"`
+	PageSize     *int                      `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber   *int                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	Tag          []*DescribeTagsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DescribeTagsRequest) String() string {
@@ -1699,8 +1711,8 @@ func (s *DescribeTagsRequest) SetTag(v []*DescribeTagsRequestTag) *DescribeTagsR
 }
 
 type DescribeTagsRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s DescribeTagsRequestTag) String() string {
@@ -1722,11 +1734,11 @@ func (s *DescribeTagsRequestTag) SetValue(v string) *DescribeTagsRequestTag {
 }
 
 type DescribeTagsResponse struct {
-	RequestId  *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Tags       *DescribeTagsResponseTags `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
+	RequestId  *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Tags       *DescribeTagsResponseTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTagsResponse) String() string {
@@ -1763,7 +1775,7 @@ func (s *DescribeTagsResponse) SetTags(v *DescribeTagsResponseTags) *DescribeTag
 }
 
 type DescribeTagsResponseTags struct {
-	Tag []*DescribeTagsResponseTagsTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	Tag []*DescribeTagsResponseTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTagsResponseTags) String() string {
@@ -1780,9 +1792,9 @@ func (s *DescribeTagsResponseTags) SetTag(v []*DescribeTagsResponseTagsTag) *Des
 }
 
 type DescribeTagsResponseTagsTag struct {
-	Key           *string                                   `json:"Key" xml:"Key" require:"true"`
-	Value         *string                                   `json:"Value" xml:"Value" require:"true"`
-	FileSystemIds *DescribeTagsResponseTagsTagFileSystemIds `json:"FileSystemIds" xml:"FileSystemIds" require:"true" type:"Struct"`
+	Key           *string                                   `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value         *string                                   `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	FileSystemIds *DescribeTagsResponseTagsTagFileSystemIds `json:"FileSystemIds,omitempty" xml:"FileSystemIds,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTagsResponseTagsTag) String() string {
@@ -1809,7 +1821,7 @@ func (s *DescribeTagsResponseTagsTag) SetFileSystemIds(v *DescribeTagsResponseTa
 }
 
 type DescribeTagsResponseTagsTagFileSystemIds struct {
-	FileSystemId []*string `json:"FileSystemId" xml:"FileSystemId" require:"true" type:"Repeated"`
+	FileSystemId []*string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTagsResponseTagsTagFileSystemIds) String() string {
@@ -1826,8 +1838,8 @@ func (s *DescribeTagsResponseTagsTagFileSystemIds) SetFileSystemId(v []*string) 
 }
 
 type RemoveTagsRequest struct {
-	FileSystemId *string                 `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Tag          []*RemoveTagsRequestTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	FileSystemId *string                 `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Tag          []*RemoveTagsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RemoveTagsRequest) String() string {
@@ -1849,8 +1861,8 @@ func (s *RemoveTagsRequest) SetTag(v []*RemoveTagsRequestTag) *RemoveTagsRequest
 }
 
 type RemoveTagsRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s RemoveTagsRequestTag) String() string {
@@ -1872,7 +1884,7 @@ func (s *RemoveTagsRequestTag) SetValue(v string) *RemoveTagsRequestTag {
 }
 
 type RemoveTagsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveTagsResponse) String() string {
@@ -1889,8 +1901,8 @@ func (s *RemoveTagsResponse) SetRequestId(v string) *RemoveTagsResponse {
 }
 
 type AddTagsRequest struct {
-	FileSystemId *string              `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Tag          []*AddTagsRequestTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	FileSystemId *string              `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Tag          []*AddTagsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s AddTagsRequest) String() string {
@@ -1912,8 +1924,8 @@ func (s *AddTagsRequest) SetTag(v []*AddTagsRequestTag) *AddTagsRequest {
 }
 
 type AddTagsRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s AddTagsRequestTag) String() string {
@@ -1935,7 +1947,7 @@ func (s *AddTagsRequestTag) SetValue(v string) *AddTagsRequestTag {
 }
 
 type AddTagsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AddTagsResponse) String() string {
@@ -1952,8 +1964,8 @@ func (s *AddTagsResponse) SetRequestId(v string) *AddTagsResponse {
 }
 
 type ResetFileSystemRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	SnapshotId   *string `json:"SnapshotId" xml:"SnapshotId" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	SnapshotId   *string `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty" require:"true"`
 }
 
 func (s ResetFileSystemRequest) String() string {
@@ -1975,7 +1987,7 @@ func (s *ResetFileSystemRequest) SetSnapshotId(v string) *ResetFileSystemRequest
 }
 
 type ResetFileSystemResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ResetFileSystemResponse) String() string {
@@ -1992,11 +2004,11 @@ func (s *ResetFileSystemResponse) SetRequestId(v string) *ResetFileSystemRespons
 }
 
 type CreateAutoSnapshotPolicyRequest struct {
-	RepeatWeekdays         *string `json:"RepeatWeekdays" xml:"RepeatWeekdays" require:"true"`
-	TimePoints             *string `json:"TimePoints" xml:"TimePoints" require:"true"`
-	RetentionDays          *int    `json:"RetentionDays" xml:"RetentionDays"`
-	AutoSnapshotPolicyName *string `json:"AutoSnapshotPolicyName" xml:"AutoSnapshotPolicyName"`
-	FileSystemType         *string `json:"FileSystemType" xml:"FileSystemType" require:"true"`
+	RepeatWeekdays         *string `json:"RepeatWeekdays,omitempty" xml:"RepeatWeekdays,omitempty" require:"true"`
+	TimePoints             *string `json:"TimePoints,omitempty" xml:"TimePoints,omitempty" require:"true"`
+	RetentionDays          *int    `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty"`
+	AutoSnapshotPolicyName *string `json:"AutoSnapshotPolicyName,omitempty" xml:"AutoSnapshotPolicyName,omitempty"`
+	FileSystemType         *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty" require:"true"`
 }
 
 func (s CreateAutoSnapshotPolicyRequest) String() string {
@@ -2033,8 +2045,8 @@ func (s *CreateAutoSnapshotPolicyRequest) SetFileSystemType(v string) *CreateAut
 }
 
 type CreateAutoSnapshotPolicyResponse struct {
-	RequestId            *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
+	RequestId            *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
 }
 
 func (s CreateAutoSnapshotPolicyResponse) String() string {
@@ -2056,10 +2068,10 @@ func (s *CreateAutoSnapshotPolicyResponse) SetAutoSnapshotPolicyId(v string) *Cr
 }
 
 type DescribeAutoSnapshotPoliciesRequest struct {
-	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
-	FileSystemType       *string `json:"FileSystemType" xml:"FileSystemType" require:"true"`
+	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty"`
+	PageSize             *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber           *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	FileSystemType       *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty" require:"true"`
 }
 
 func (s DescribeAutoSnapshotPoliciesRequest) String() string {
@@ -2091,11 +2103,11 @@ func (s *DescribeAutoSnapshotPoliciesRequest) SetFileSystemType(v string) *Descr
 }
 
 type DescribeAutoSnapshotPoliciesResponse struct {
-	RequestId            *string                                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount           *int                                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize             *int                                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber           *int                                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AutoSnapshotPolicies *DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies `json:"AutoSnapshotPolicies" xml:"AutoSnapshotPolicies" require:"true" type:"Struct"`
+	RequestId            *string                                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount           *int                                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize             *int                                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber           *int                                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AutoSnapshotPolicies *DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies `json:"AutoSnapshotPolicies,omitempty" xml:"AutoSnapshotPolicies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAutoSnapshotPoliciesResponse) String() string {
@@ -2132,7 +2144,7 @@ func (s *DescribeAutoSnapshotPoliciesResponse) SetAutoSnapshotPolicies(v *Descri
 }
 
 type DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies struct {
-	AutoSnapshotPolicy []*DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPolicy `json:"AutoSnapshotPolicy" xml:"AutoSnapshotPolicy" require:"true" type:"Repeated"`
+	AutoSnapshotPolicy []*DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPolicy `json:"AutoSnapshotPolicy,omitempty" xml:"AutoSnapshotPolicy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies) String() string {
@@ -2149,15 +2161,15 @@ func (s *DescribeAutoSnapshotPoliciesResponseAutoSnapshotPolicies) SetAutoSnapsh
 }
 
 type DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPolicy struct {
-	AutoSnapshotPolicyId   *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
-	AutoSnapshotPolicyName *string `json:"AutoSnapshotPolicyName" xml:"AutoSnapshotPolicyName" require:"true"`
-	CreateTime             *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	FileSystemNums         *int    `json:"FileSystemNums" xml:"FileSystemNums" require:"true"`
-	RegionId               *string `json:"RegionId" xml:"RegionId" require:"true"`
-	RepeatWeekdays         *string `json:"RepeatWeekdays" xml:"RepeatWeekdays" require:"true"`
-	RetentionDays          *int    `json:"RetentionDays" xml:"RetentionDays" require:"true"`
-	Status                 *string `json:"Status" xml:"Status" require:"true"`
-	TimePoints             *string `json:"TimePoints" xml:"TimePoints" require:"true"`
+	AutoSnapshotPolicyId   *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
+	AutoSnapshotPolicyName *string `json:"AutoSnapshotPolicyName,omitempty" xml:"AutoSnapshotPolicyName,omitempty" require:"true"`
+	CreateTime             *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	FileSystemNums         *int    `json:"FileSystemNums,omitempty" xml:"FileSystemNums,omitempty" require:"true"`
+	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RepeatWeekdays         *string `json:"RepeatWeekdays,omitempty" xml:"RepeatWeekdays,omitempty" require:"true"`
+	RetentionDays          *int    `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty" require:"true"`
+	Status                 *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	TimePoints             *string `json:"TimePoints,omitempty" xml:"TimePoints,omitempty" require:"true"`
 }
 
 func (s DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPolicy) String() string {
@@ -2214,7 +2226,7 @@ func (s *DescribeAutoSnapshotPoliciesResponseAutoSnapshotPoliciesAutoSnapshotPol
 }
 
 type CancelAutoSnapshotPolicyRequest struct {
-	FileSystemIds *string `json:"FileSystemIds" xml:"FileSystemIds" require:"true"`
+	FileSystemIds *string `json:"FileSystemIds,omitempty" xml:"FileSystemIds,omitempty" require:"true"`
 }
 
 func (s CancelAutoSnapshotPolicyRequest) String() string {
@@ -2231,7 +2243,7 @@ func (s *CancelAutoSnapshotPolicyRequest) SetFileSystemIds(v string) *CancelAuto
 }
 
 type CancelAutoSnapshotPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CancelAutoSnapshotPolicyResponse) String() string {
@@ -2248,8 +2260,8 @@ func (s *CancelAutoSnapshotPolicyResponse) SetRequestId(v string) *CancelAutoSna
 }
 
 type ApplyAutoSnapshotPolicyRequest struct {
-	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
-	FileSystemIds        *string `json:"FileSystemIds" xml:"FileSystemIds" require:"true"`
+	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
+	FileSystemIds        *string `json:"FileSystemIds,omitempty" xml:"FileSystemIds,omitempty" require:"true"`
 }
 
 func (s ApplyAutoSnapshotPolicyRequest) String() string {
@@ -2271,7 +2283,7 @@ func (s *ApplyAutoSnapshotPolicyRequest) SetFileSystemIds(v string) *ApplyAutoSn
 }
 
 type ApplyAutoSnapshotPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ApplyAutoSnapshotPolicyResponse) String() string {
@@ -2288,11 +2300,11 @@ func (s *ApplyAutoSnapshotPolicyResponse) SetRequestId(v string) *ApplyAutoSnaps
 }
 
 type ModifyAutoSnapshotPolicyRequest struct {
-	AutoSnapshotPolicyId   *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
-	AutoSnapshotPolicyName *string `json:"AutoSnapshotPolicyName" xml:"AutoSnapshotPolicyName"`
-	RepeatWeekdays         *string `json:"RepeatWeekdays" xml:"RepeatWeekdays"`
-	RetentionDays          *int    `json:"RetentionDays" xml:"RetentionDays"`
-	TimePoints             *string `json:"TimePoints" xml:"TimePoints"`
+	AutoSnapshotPolicyId   *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
+	AutoSnapshotPolicyName *string `json:"AutoSnapshotPolicyName,omitempty" xml:"AutoSnapshotPolicyName,omitempty"`
+	RepeatWeekdays         *string `json:"RepeatWeekdays,omitempty" xml:"RepeatWeekdays,omitempty"`
+	RetentionDays          *int    `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty"`
+	TimePoints             *string `json:"TimePoints,omitempty" xml:"TimePoints,omitempty"`
 }
 
 func (s ModifyAutoSnapshotPolicyRequest) String() string {
@@ -2329,7 +2341,7 @@ func (s *ModifyAutoSnapshotPolicyRequest) SetTimePoints(v string) *ModifyAutoSna
 }
 
 type ModifyAutoSnapshotPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAutoSnapshotPolicyResponse) String() string {
@@ -2346,7 +2358,7 @@ func (s *ModifyAutoSnapshotPolicyResponse) SetRequestId(v string) *ModifyAutoSna
 }
 
 type DeleteAutoSnapshotPolicyRequest struct {
-	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
+	AutoSnapshotPolicyId *string `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
 }
 
 func (s DeleteAutoSnapshotPolicyRequest) String() string {
@@ -2363,7 +2375,7 @@ func (s *DeleteAutoSnapshotPolicyRequest) SetAutoSnapshotPolicyId(v string) *Del
 }
 
 type DeleteAutoSnapshotPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAutoSnapshotPolicyResponse) String() string {
@@ -2380,7 +2392,7 @@ func (s *DeleteAutoSnapshotPolicyResponse) SetRequestId(v string) *DeleteAutoSna
 }
 
 type DeleteSnapshotRequest struct {
-	SnapshotId *string `json:"SnapshotId" xml:"SnapshotId" require:"true"`
+	SnapshotId *string `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty" require:"true"`
 }
 
 func (s DeleteSnapshotRequest) String() string {
@@ -2397,7 +2409,7 @@ func (s *DeleteSnapshotRequest) SetSnapshotId(v string) *DeleteSnapshotRequest {
 }
 
 type DeleteSnapshotResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteSnapshotResponse) String() string {
@@ -2414,10 +2426,10 @@ func (s *DeleteSnapshotResponse) SetRequestId(v string) *DeleteSnapshotResponse 
 }
 
 type CreateSnapshotRequest struct {
-	FileSystemId  *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	SnapshotName  *string `json:"SnapshotName" xml:"SnapshotName"`
-	Description   *string `json:"Description" xml:"Description"`
-	RetentionDays *int    `json:"RetentionDays" xml:"RetentionDays"`
+	FileSystemId  *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	SnapshotName  *string `json:"SnapshotName,omitempty" xml:"SnapshotName,omitempty"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	RetentionDays *int    `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty"`
 }
 
 func (s CreateSnapshotRequest) String() string {
@@ -2449,8 +2461,8 @@ func (s *CreateSnapshotRequest) SetRetentionDays(v int) *CreateSnapshotRequest {
 }
 
 type CreateSnapshotResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SnapshotId *string `json:"SnapshotId" xml:"SnapshotId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SnapshotId *string `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty" require:"true"`
 }
 
 func (s CreateSnapshotResponse) String() string {
@@ -2472,14 +2484,14 @@ func (s *CreateSnapshotResponse) SetSnapshotId(v string) *CreateSnapshotResponse
 }
 
 type DescribeSnapshotsRequest struct {
-	FileSystemType *string `json:"FileSystemType" xml:"FileSystemType" require:"true"`
-	FileSystemId   *string `json:"FileSystemId" xml:"FileSystemId"`
-	SnapshotIds    *string `json:"SnapshotIds" xml:"SnapshotIds"`
-	SnapshotName   *string `json:"SnapshotName" xml:"SnapshotName"`
-	SnapshotType   *string `json:"SnapshotType" xml:"SnapshotType"`
-	Status         *string `json:"Status" xml:"Status"`
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
+	FileSystemType *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty" require:"true"`
+	FileSystemId   *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty"`
+	SnapshotIds    *string `json:"SnapshotIds,omitempty" xml:"SnapshotIds,omitempty"`
+	SnapshotName   *string `json:"SnapshotName,omitempty" xml:"SnapshotName,omitempty"`
+	SnapshotType   *string `json:"SnapshotType,omitempty" xml:"SnapshotType,omitempty"`
+	Status         *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeSnapshotsRequest) String() string {
@@ -2531,11 +2543,11 @@ func (s *DescribeSnapshotsRequest) SetPageNumber(v int) *DescribeSnapshotsReques
 }
 
 type DescribeSnapshotsResponse struct {
-	RequestId  *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                                `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Snapshots  *DescribeSnapshotsResponseSnapshots `json:"Snapshots" xml:"Snapshots" require:"true" type:"Struct"`
+	RequestId  *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Snapshots  *DescribeSnapshotsResponseSnapshots `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSnapshotsResponse) String() string {
@@ -2572,7 +2584,7 @@ func (s *DescribeSnapshotsResponse) SetSnapshots(v *DescribeSnapshotsResponseSna
 }
 
 type DescribeSnapshotsResponseSnapshots struct {
-	Snapshot []*DescribeSnapshotsResponseSnapshotsSnapshot `json:"Snapshot" xml:"Snapshot" require:"true" type:"Repeated"`
+	Snapshot []*DescribeSnapshotsResponseSnapshotsSnapshot `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSnapshotsResponseSnapshots) String() string {
@@ -2589,18 +2601,18 @@ func (s *DescribeSnapshotsResponseSnapshots) SetSnapshot(v []*DescribeSnapshotsR
 }
 
 type DescribeSnapshotsResponseSnapshotsSnapshot struct {
-	CreateTime              *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	Description             *string `json:"Description" xml:"Description" require:"true"`
-	Progress                *string `json:"Progress" xml:"Progress" require:"true"`
-	RemainTime              *int    `json:"RemainTime" xml:"RemainTime" require:"true"`
-	RetentionDays           *int    `json:"RetentionDays" xml:"RetentionDays" require:"true"`
-	SnapshotId              *string `json:"SnapshotId" xml:"SnapshotId" require:"true"`
-	SnapshotName            *string `json:"SnapshotName" xml:"SnapshotName" require:"true"`
-	SourceFileSystemId      *string `json:"SourceFileSystemId" xml:"SourceFileSystemId" require:"true"`
-	SourceFileSystemSize    *int64  `json:"SourceFileSystemSize" xml:"SourceFileSystemSize" require:"true"`
-	Status                  *string `json:"Status" xml:"Status" require:"true"`
-	EncryptType             *int    `json:"EncryptType" xml:"EncryptType" require:"true"`
-	SourceFileSystemVersion *string `json:"SourceFileSystemVersion" xml:"SourceFileSystemVersion" require:"true"`
+	CreateTime              *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	Description             *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Progress                *string `json:"Progress,omitempty" xml:"Progress,omitempty" require:"true"`
+	RemainTime              *int    `json:"RemainTime,omitempty" xml:"RemainTime,omitempty" require:"true"`
+	RetentionDays           *int    `json:"RetentionDays,omitempty" xml:"RetentionDays,omitempty" require:"true"`
+	SnapshotId              *string `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty" require:"true"`
+	SnapshotName            *string `json:"SnapshotName,omitempty" xml:"SnapshotName,omitempty" require:"true"`
+	SourceFileSystemId      *string `json:"SourceFileSystemId,omitempty" xml:"SourceFileSystemId,omitempty" require:"true"`
+	SourceFileSystemSize    *int64  `json:"SourceFileSystemSize,omitempty" xml:"SourceFileSystemSize,omitempty" require:"true"`
+	Status                  *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	EncryptType             *int    `json:"EncryptType,omitempty" xml:"EncryptType,omitempty" require:"true"`
+	SourceFileSystemVersion *string `json:"SourceFileSystemVersion,omitempty" xml:"SourceFileSystemVersion,omitempty" require:"true"`
 }
 
 func (s DescribeSnapshotsResponseSnapshotsSnapshot) String() string {
@@ -2672,7 +2684,7 @@ func (s *DescribeSnapshotsResponseSnapshotsSnapshot) SetSourceFileSystemVersion(
 }
 
 type DescribeZonesRequest struct {
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s DescribeZonesRequest) String() string {
@@ -2689,8 +2701,8 @@ func (s *DescribeZonesRequest) SetRegionId(v string) *DescribeZonesRequest {
 }
 
 type DescribeZonesResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Zones     *DescribeZonesResponseZones `json:"Zones" xml:"Zones" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Zones     *DescribeZonesResponseZones `json:"Zones,omitempty" xml:"Zones,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeZonesResponse) String() string {
@@ -2712,7 +2724,7 @@ func (s *DescribeZonesResponse) SetZones(v *DescribeZonesResponseZones) *Describ
 }
 
 type DescribeZonesResponseZones struct {
-	Zone []*DescribeZonesResponseZonesZone `json:"Zone" xml:"Zone" require:"true" type:"Repeated"`
+	Zone []*DescribeZonesResponseZonesZone `json:"Zone,omitempty" xml:"Zone,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeZonesResponseZones) String() string {
@@ -2729,9 +2741,9 @@ func (s *DescribeZonesResponseZones) SetZone(v []*DescribeZonesResponseZonesZone
 }
 
 type DescribeZonesResponseZonesZone struct {
-	ZoneId      *string                                    `json:"ZoneId" xml:"ZoneId" require:"true"`
-	Capacity    *DescribeZonesResponseZonesZoneCapacity    `json:"Capacity" xml:"Capacity" require:"true" type:"Struct"`
-	Performance *DescribeZonesResponseZonesZonePerformance `json:"Performance" xml:"Performance" require:"true" type:"Struct"`
+	ZoneId      *string                                    `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	Capacity    *DescribeZonesResponseZonesZoneCapacity    `json:"Capacity,omitempty" xml:"Capacity,omitempty" require:"true" type:"Struct"`
+	Performance *DescribeZonesResponseZonesZonePerformance `json:"Performance,omitempty" xml:"Performance,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeZonesResponseZonesZone) String() string {
@@ -2758,7 +2770,7 @@ func (s *DescribeZonesResponseZonesZone) SetPerformance(v *DescribeZonesResponse
 }
 
 type DescribeZonesResponseZonesZoneCapacity struct {
-	Protocol []*string `json:"Protocol" xml:"Protocol" require:"true" type:"Repeated"`
+	Protocol []*string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeZonesResponseZonesZoneCapacity) String() string {
@@ -2775,7 +2787,7 @@ func (s *DescribeZonesResponseZonesZoneCapacity) SetProtocol(v []*string) *Descr
 }
 
 type DescribeZonesResponseZonesZonePerformance struct {
-	Protocol []*string `json:"Protocol" xml:"Protocol" require:"true" type:"Repeated"`
+	Protocol []*string `json:"Protocol,omitempty" xml:"Protocol,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeZonesResponseZonesZonePerformance) String() string {
@@ -2792,10 +2804,10 @@ func (s *DescribeZonesResponseZonesZonePerformance) SetProtocol(v []*string) *De
 }
 
 type CreateAccessGroupRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	AccessGroupType *string `json:"AccessGroupType" xml:"AccessGroupType" require:"true"`
-	Description     *string `json:"Description" xml:"Description"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	AccessGroupType *string `json:"AccessGroupType,omitempty" xml:"AccessGroupType,omitempty" require:"true"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s CreateAccessGroupRequest) String() string {
@@ -2827,8 +2839,8 @@ func (s *CreateAccessGroupRequest) SetFileSystemType(v string) *CreateAccessGrou
 }
 
 type CreateAccessGroupResponse struct {
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
 }
 
 func (s CreateAccessGroupResponse) String() string {
@@ -2850,12 +2862,12 @@ func (s *CreateAccessGroupResponse) SetAccessGroupName(v string) *CreateAccessGr
 }
 
 type CreateMountTargetRequest struct {
-	FileSystemId    *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	NetworkType     *string `json:"NetworkType" xml:"NetworkType" require:"true"`
-	VpcId           *string `json:"VpcId" xml:"VpcId"`
-	VSwitchId       *string `json:"VSwitchId" xml:"VSwitchId"`
-	SecurityGroupId *string `json:"SecurityGroupId" xml:"SecurityGroupId"`
+	FileSystemId    *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	NetworkType     *string `json:"NetworkType,omitempty" xml:"NetworkType,omitempty" require:"true"`
+	VpcId           *string `json:"VpcId,omitempty" xml:"VpcId,omitempty"`
+	VSwitchId       *string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty"`
+	SecurityGroupId *string `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty"`
 }
 
 func (s CreateMountTargetRequest) String() string {
@@ -2897,8 +2909,8 @@ func (s *CreateMountTargetRequest) SetSecurityGroupId(v string) *CreateMountTarg
 }
 
 type CreateMountTargetResponse struct {
-	RequestId         *string `json:"RequestId" xml:"RequestId" require:"true"`
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain" require:"true"`
+	RequestId         *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty" require:"true"`
 }
 
 func (s CreateMountTargetResponse) String() string {
@@ -2920,21 +2932,21 @@ func (s *CreateMountTargetResponse) SetMountTargetDomain(v string) *CreateMountT
 }
 
 type CreateFileSystemRequest struct {
-	FileSystemType *string `json:"FileSystemType" xml:"FileSystemType"`
-	ChargeType     *string `json:"ChargeType" xml:"ChargeType"`
-	Duration       *int    `json:"Duration" xml:"Duration"`
-	Capacity       *int64  `json:"Capacity" xml:"Capacity"`
-	Bandwidth      *int64  `json:"Bandwidth" xml:"Bandwidth"`
-	StorageType    *string `json:"StorageType" xml:"StorageType" require:"true"`
-	ZoneId         *string `json:"ZoneId" xml:"ZoneId"`
-	ProtocolType   *string `json:"ProtocolType" xml:"ProtocolType" require:"true"`
-	EncryptType    *int    `json:"EncryptType" xml:"EncryptType"`
-	SnapshotId     *string `json:"SnapshotId" xml:"SnapshotId"`
-	VpcId          *string `json:"VpcId" xml:"VpcId"`
-	VSwitchId      *string `json:"VSwitchId" xml:"VSwitchId"`
-	Description    *string `json:"Description" xml:"Description"`
-	ClientToken    *string `json:"ClientToken" xml:"ClientToken"`
-	DryRun         *bool   `json:"DryRun" xml:"DryRun"`
+	FileSystemType *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
+	ChargeType     *string `json:"ChargeType,omitempty" xml:"ChargeType,omitempty"`
+	Duration       *int    `json:"Duration,omitempty" xml:"Duration,omitempty"`
+	Capacity       *int64  `json:"Capacity,omitempty" xml:"Capacity,omitempty"`
+	Bandwidth      *int64  `json:"Bandwidth,omitempty" xml:"Bandwidth,omitempty"`
+	StorageType    *string `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
+	ZoneId         *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	ProtocolType   *string `json:"ProtocolType,omitempty" xml:"ProtocolType,omitempty" require:"true"`
+	EncryptType    *int    `json:"EncryptType,omitempty" xml:"EncryptType,omitempty"`
+	SnapshotId     *string `json:"SnapshotId,omitempty" xml:"SnapshotId,omitempty"`
+	VpcId          *string `json:"VpcId,omitempty" xml:"VpcId,omitempty"`
+	VSwitchId      *string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	ClientToken    *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	DryRun         *bool   `json:"DryRun,omitempty" xml:"DryRun,omitempty"`
 }
 
 func (s CreateFileSystemRequest) String() string {
@@ -3021,8 +3033,8 @@ func (s *CreateFileSystemRequest) SetDryRun(v bool) *CreateFileSystemRequest {
 }
 
 type CreateFileSystemResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
 }
 
 func (s CreateFileSystemResponse) String() string {
@@ -3044,12 +3056,12 @@ func (s *CreateFileSystemResponse) SetFileSystemId(v string) *CreateFileSystemRe
 }
 
 type CreateAccessRuleRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	SourceCidrIp    *string `json:"SourceCidrIp" xml:"SourceCidrIp" require:"true"`
-	RWAccessType    *string `json:"RWAccessType" xml:"RWAccessType"`
-	UserAccessType  *string `json:"UserAccessType" xml:"UserAccessType"`
-	Priority        *int    `json:"Priority" xml:"Priority"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	SourceCidrIp    *string `json:"SourceCidrIp,omitempty" xml:"SourceCidrIp,omitempty" require:"true"`
+	RWAccessType    *string `json:"RWAccessType,omitempty" xml:"RWAccessType,omitempty"`
+	UserAccessType  *string `json:"UserAccessType,omitempty" xml:"UserAccessType,omitempty"`
+	Priority        *int    `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s CreateAccessRuleRequest) String() string {
@@ -3091,8 +3103,8 @@ func (s *CreateAccessRuleRequest) SetFileSystemType(v string) *CreateAccessRuleR
 }
 
 type CreateAccessRuleResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AccessRuleId *string `json:"AccessRuleId" xml:"AccessRuleId" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AccessRuleId *string `json:"AccessRuleId,omitempty" xml:"AccessRuleId,omitempty" require:"true"`
 }
 
 func (s CreateAccessRuleResponse) String() string {
@@ -3114,11 +3126,11 @@ func (s *CreateAccessRuleResponse) SetAccessRuleId(v string) *CreateAccessRuleRe
 }
 
 type DescribeAccessRulesRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	AccessRuleId    *string `json:"AccessRuleId" xml:"AccessRuleId"`
-	PageSize        *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber      *int    `json:"PageNumber" xml:"PageNumber"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	AccessRuleId    *string `json:"AccessRuleId,omitempty" xml:"AccessRuleId,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber      *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s DescribeAccessRulesRequest) String() string {
@@ -3155,11 +3167,11 @@ func (s *DescribeAccessRulesRequest) SetFileSystemType(v string) *DescribeAccess
 }
 
 type DescribeAccessRulesResponse struct {
-	RequestId   *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize    *int                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber  *int                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AccessRules *DescribeAccessRulesResponseAccessRules `json:"AccessRules" xml:"AccessRules" require:"true" type:"Struct"`
+	RequestId   *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize    *int                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber  *int                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AccessRules *DescribeAccessRulesResponseAccessRules `json:"AccessRules,omitempty" xml:"AccessRules,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAccessRulesResponse) String() string {
@@ -3196,7 +3208,7 @@ func (s *DescribeAccessRulesResponse) SetAccessRules(v *DescribeAccessRulesRespo
 }
 
 type DescribeAccessRulesResponseAccessRules struct {
-	AccessRule []*DescribeAccessRulesResponseAccessRulesAccessRule `json:"AccessRule" xml:"AccessRule" require:"true" type:"Repeated"`
+	AccessRule []*DescribeAccessRulesResponseAccessRulesAccessRule `json:"AccessRule,omitempty" xml:"AccessRule,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAccessRulesResponseAccessRules) String() string {
@@ -3213,11 +3225,11 @@ func (s *DescribeAccessRulesResponseAccessRules) SetAccessRule(v []*DescribeAcce
 }
 
 type DescribeAccessRulesResponseAccessRulesAccessRule struct {
-	SourceCidrIp *string `json:"SourceCidrIp" xml:"SourceCidrIp" require:"true"`
-	Priority     *int    `json:"Priority" xml:"Priority" require:"true"`
-	AccessRuleId *string `json:"AccessRuleId" xml:"AccessRuleId" require:"true"`
-	RWAccess     *string `json:"RWAccess" xml:"RWAccess" require:"true"`
-	UserAccess   *string `json:"UserAccess" xml:"UserAccess" require:"true"`
+	SourceCidrIp *string `json:"SourceCidrIp,omitempty" xml:"SourceCidrIp,omitempty" require:"true"`
+	Priority     *int    `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
+	AccessRuleId *string `json:"AccessRuleId,omitempty" xml:"AccessRuleId,omitempty" require:"true"`
+	RWAccess     *string `json:"RWAccess,omitempty" xml:"RWAccess,omitempty" require:"true"`
+	UserAccess   *string `json:"UserAccess,omitempty" xml:"UserAccess,omitempty" require:"true"`
 }
 
 func (s DescribeAccessRulesResponseAccessRulesAccessRule) String() string {
@@ -3254,11 +3266,11 @@ func (s *DescribeAccessRulesResponseAccessRulesAccessRule) SetUserAccess(v strin
 }
 
 type DescribeAccessGroupsRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName"`
-	PageSize        *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber      *int    `json:"PageNumber" xml:"PageNumber"`
-	UseUTCDateTime  *bool   `json:"UseUTCDateTime" xml:"UseUTCDateTime"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber      *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	UseUTCDateTime  *bool   `json:"UseUTCDateTime,omitempty" xml:"UseUTCDateTime,omitempty"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s DescribeAccessGroupsRequest) String() string {
@@ -3295,11 +3307,11 @@ func (s *DescribeAccessGroupsRequest) SetFileSystemType(v string) *DescribeAcces
 }
 
 type DescribeAccessGroupsResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount   *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize     *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber   *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	AccessGroups *DescribeAccessGroupsResponseAccessGroups `json:"AccessGroups" xml:"AccessGroups" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount   *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize     *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber   *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	AccessGroups *DescribeAccessGroupsResponseAccessGroups `json:"AccessGroups,omitempty" xml:"AccessGroups,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAccessGroupsResponse) String() string {
@@ -3336,7 +3348,7 @@ func (s *DescribeAccessGroupsResponse) SetAccessGroups(v *DescribeAccessGroupsRe
 }
 
 type DescribeAccessGroupsResponseAccessGroups struct {
-	AccessGroup []*DescribeAccessGroupsResponseAccessGroupsAccessGroup `json:"AccessGroup" xml:"AccessGroup" require:"true" type:"Repeated"`
+	AccessGroup []*DescribeAccessGroupsResponseAccessGroupsAccessGroup `json:"AccessGroup,omitempty" xml:"AccessGroup,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAccessGroupsResponseAccessGroups) String() string {
@@ -3353,12 +3365,12 @@ func (s *DescribeAccessGroupsResponseAccessGroups) SetAccessGroup(v []*DescribeA
 }
 
 type DescribeAccessGroupsResponseAccessGroupsAccessGroup struct {
-	AccessGroupName  *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	AccessGroupType  *string `json:"AccessGroupType" xml:"AccessGroupType" require:"true"`
-	RuleCount        *int    `json:"RuleCount" xml:"RuleCount" require:"true"`
-	MountTargetCount *int    `json:"MountTargetCount" xml:"MountTargetCount" require:"true"`
-	Description      *string `json:"Description" xml:"Description" require:"true"`
-	CreateTime       *string `json:"CreateTime" xml:"CreateTime" require:"true"`
+	AccessGroupName  *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	AccessGroupType  *string `json:"AccessGroupType,omitempty" xml:"AccessGroupType,omitempty" require:"true"`
+	RuleCount        *int    `json:"RuleCount,omitempty" xml:"RuleCount,omitempty" require:"true"`
+	MountTargetCount *int    `json:"MountTargetCount,omitempty" xml:"MountTargetCount,omitempty" require:"true"`
+	Description      *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateTime       *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
 }
 
 func (s DescribeAccessGroupsResponseAccessGroupsAccessGroup) String() string {
@@ -3400,8 +3412,8 @@ func (s *DescribeAccessGroupsResponseAccessGroupsAccessGroup) SetCreateTime(v st
 }
 
 type DeleteMountTargetRequest struct {
-	FileSystemId      *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain" require:"true"`
+	FileSystemId      *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty" require:"true"`
 }
 
 func (s DeleteMountTargetRequest) String() string {
@@ -3423,7 +3435,7 @@ func (s *DeleteMountTargetRequest) SetMountTargetDomain(v string) *DeleteMountTa
 }
 
 type DeleteMountTargetResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteMountTargetResponse) String() string {
@@ -3440,7 +3452,7 @@ func (s *DeleteMountTargetResponse) SetRequestId(v string) *DeleteMountTargetRes
 }
 
 type DeleteFileSystemRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
 }
 
 func (s DeleteFileSystemRequest) String() string {
@@ -3457,7 +3469,7 @@ func (s *DeleteFileSystemRequest) SetFileSystemId(v string) *DeleteFileSystemReq
 }
 
 type DeleteFileSystemResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteFileSystemResponse) String() string {
@@ -3474,9 +3486,9 @@ func (s *DeleteFileSystemResponse) SetRequestId(v string) *DeleteFileSystemRespo
 }
 
 type DeleteAccessRuleRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	AccessRuleId    *string `json:"AccessRuleId" xml:"AccessRuleId" require:"true"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	AccessRuleId    *string `json:"AccessRuleId,omitempty" xml:"AccessRuleId,omitempty" require:"true"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s DeleteAccessRuleRequest) String() string {
@@ -3503,7 +3515,7 @@ func (s *DeleteAccessRuleRequest) SetFileSystemType(v string) *DeleteAccessRuleR
 }
 
 type DeleteAccessRuleResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAccessRuleResponse) String() string {
@@ -3520,8 +3532,8 @@ func (s *DeleteAccessRuleResponse) SetRequestId(v string) *DeleteAccessRuleRespo
 }
 
 type DeleteAccessGroupRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s DeleteAccessGroupRequest) String() string {
@@ -3543,7 +3555,7 @@ func (s *DeleteAccessGroupRequest) SetFileSystemType(v string) *DeleteAccessGrou
 }
 
 type DeleteAccessGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAccessGroupResponse) String() string {
@@ -3560,13 +3572,13 @@ func (s *DeleteAccessGroupResponse) SetRequestId(v string) *DeleteAccessGroupRes
 }
 
 type ModifyAccessRuleRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	AccessRuleId    *string `json:"AccessRuleId" xml:"AccessRuleId" require:"true"`
-	SourceCidrIp    *string `json:"SourceCidrIp" xml:"SourceCidrIp"`
-	RWAccessType    *string `json:"RWAccessType" xml:"RWAccessType"`
-	UserAccessType  *string `json:"UserAccessType" xml:"UserAccessType"`
-	Priority        *int    `json:"Priority" xml:"Priority"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	AccessRuleId    *string `json:"AccessRuleId,omitempty" xml:"AccessRuleId,omitempty" require:"true"`
+	SourceCidrIp    *string `json:"SourceCidrIp,omitempty" xml:"SourceCidrIp,omitempty"`
+	RWAccessType    *string `json:"RWAccessType,omitempty" xml:"RWAccessType,omitempty"`
+	UserAccessType  *string `json:"UserAccessType,omitempty" xml:"UserAccessType,omitempty"`
+	Priority        *int    `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s ModifyAccessRuleRequest) String() string {
@@ -3613,7 +3625,7 @@ func (s *ModifyAccessRuleRequest) SetFileSystemType(v string) *ModifyAccessRuleR
 }
 
 type ModifyAccessRuleResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAccessRuleResponse) String() string {
@@ -3630,9 +3642,9 @@ func (s *ModifyAccessRuleResponse) SetRequestId(v string) *ModifyAccessRuleRespo
 }
 
 type ModifyAccessGroupRequest struct {
-	AccessGroupName *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	Description     *string `json:"Description" xml:"Description"`
-	FileSystemType  *string `json:"FileSystemType" xml:"FileSystemType"`
+	AccessGroupName *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	FileSystemType  *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s ModifyAccessGroupRequest) String() string {
@@ -3659,7 +3671,7 @@ func (s *ModifyAccessGroupRequest) SetFileSystemType(v string) *ModifyAccessGrou
 }
 
 type ModifyAccessGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAccessGroupResponse) String() string {
@@ -3676,9 +3688,9 @@ func (s *ModifyAccessGroupResponse) SetRequestId(v string) *ModifyAccessGroupRes
 }
 
 type DescribeRegionsRequest struct {
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
-	FileSystemType *string `json:"FileSystemType" xml:"FileSystemType"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	FileSystemType *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -3705,11 +3717,11 @@ func (s *DescribeRegionsRequest) SetFileSystemType(v string) *DescribeRegionsReq
 }
 
 type DescribeRegionsResponse struct {
-	RequestId  *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                            `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize   *int                            `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                            `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Regions    *DescribeRegionsResponseRegions `json:"Regions" xml:"Regions" require:"true" type:"Struct"`
+	RequestId  *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                            `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize   *int                            `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Regions    *DescribeRegionsResponseRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -3746,7 +3758,7 @@ func (s *DescribeRegionsResponse) SetRegions(v *DescribeRegionsResponseRegions) 
 }
 
 type DescribeRegionsResponseRegions struct {
-	Region []*DescribeRegionsResponseRegionsRegion `json:"Region" xml:"Region" require:"true" type:"Repeated"`
+	Region []*DescribeRegionsResponseRegionsRegion `json:"Region,omitempty" xml:"Region,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -3763,9 +3775,9 @@ func (s *DescribeRegionsResponseRegions) SetRegion(v []*DescribeRegionsResponseR
 }
 
 type DescribeRegionsResponseRegionsRegion struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	LocalName      *string `json:"LocalName" xml:"LocalName" require:"true"`
-	RegionEndpoint *string `json:"RegionEndpoint" xml:"RegionEndpoint" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	LocalName      *string `json:"LocalName,omitempty" xml:"LocalName,omitempty" require:"true"`
+	RegionEndpoint *string `json:"RegionEndpoint,omitempty" xml:"RegionEndpoint,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponseRegionsRegion) String() string {
@@ -3792,10 +3804,10 @@ func (s *DescribeRegionsResponseRegionsRegion) SetRegionEndpoint(v string) *Desc
 }
 
 type DescribeMountTargetsRequest struct {
-	FileSystemId      *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain"`
-	PageSize          *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber        *int    `json:"PageNumber" xml:"PageNumber"`
+	FileSystemId      *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty"`
+	PageSize          *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber        *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeMountTargetsRequest) String() string {
@@ -3827,11 +3839,11 @@ func (s *DescribeMountTargetsRequest) SetPageNumber(v int) *DescribeMountTargets
 }
 
 type DescribeMountTargetsResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount   *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize     *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber   *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	MountTargets *DescribeMountTargetsResponseMountTargets `json:"MountTargets" xml:"MountTargets" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount   *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize     *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber   *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	MountTargets *DescribeMountTargetsResponseMountTargets `json:"MountTargets,omitempty" xml:"MountTargets,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeMountTargetsResponse) String() string {
@@ -3868,7 +3880,7 @@ func (s *DescribeMountTargetsResponse) SetMountTargets(v *DescribeMountTargetsRe
 }
 
 type DescribeMountTargetsResponseMountTargets struct {
-	MountTarget []*DescribeMountTargetsResponseMountTargetsMountTarget `json:"MountTarget" xml:"MountTarget" require:"true" type:"Repeated"`
+	MountTarget []*DescribeMountTargetsResponseMountTargetsMountTarget `json:"MountTarget,omitempty" xml:"MountTarget,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeMountTargetsResponseMountTargets) String() string {
@@ -3885,12 +3897,12 @@ func (s *DescribeMountTargetsResponseMountTargets) SetMountTarget(v []*DescribeM
 }
 
 type DescribeMountTargetsResponseMountTargetsMountTarget struct {
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain" require:"true"`
-	NetworkType       *string `json:"NetworkType" xml:"NetworkType" require:"true"`
-	VpcId             *string `json:"VpcId" xml:"VpcId" require:"true"`
-	VswId             *string `json:"VswId" xml:"VswId" require:"true"`
-	AccessGroup       *string `json:"AccessGroup" xml:"AccessGroup" require:"true"`
-	Status            *string `json:"Status" xml:"Status" require:"true"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty" require:"true"`
+	NetworkType       *string `json:"NetworkType,omitempty" xml:"NetworkType,omitempty" require:"true"`
+	VpcId             *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	VswId             *string `json:"VswId,omitempty" xml:"VswId,omitempty" require:"true"`
+	AccessGroup       *string `json:"AccessGroup,omitempty" xml:"AccessGroup,omitempty" require:"true"`
+	Status            *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s DescribeMountTargetsResponseMountTargetsMountTarget) String() string {
@@ -3932,11 +3944,11 @@ func (s *DescribeMountTargetsResponseMountTargetsMountTarget) SetStatus(v string
 }
 
 type DescribeFileSystemsRequest struct {
-	FileSystemId   *string `json:"FileSystemId" xml:"FileSystemId"`
-	FileSystemType *string `json:"FileSystemType" xml:"FileSystemType"`
-	VpcId          *string `json:"VpcId" xml:"VpcId"`
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
+	FileSystemId   *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty"`
+	FileSystemType *string `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty"`
+	VpcId          *string `json:"VpcId,omitempty" xml:"VpcId,omitempty"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeFileSystemsRequest) String() string {
@@ -3973,11 +3985,11 @@ func (s *DescribeFileSystemsRequest) SetPageNumber(v int) *DescribeFileSystemsRe
 }
 
 type DescribeFileSystemsResponse struct {
-	RequestId   *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageSize    *int                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber  *int                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	FileSystems *DescribeFileSystemsResponseFileSystems `json:"FileSystems" xml:"FileSystems" require:"true" type:"Struct"`
+	RequestId   *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageSize    *int                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber  *int                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	FileSystems *DescribeFileSystemsResponseFileSystems `json:"FileSystems,omitempty" xml:"FileSystems,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeFileSystemsResponse) String() string {
@@ -4014,7 +4026,7 @@ func (s *DescribeFileSystemsResponse) SetFileSystems(v *DescribeFileSystemsRespo
 }
 
 type DescribeFileSystemsResponseFileSystems struct {
-	FileSystem []*DescribeFileSystemsResponseFileSystemsFileSystem `json:"FileSystem" xml:"FileSystem" require:"true" type:"Repeated"`
+	FileSystem []*DescribeFileSystemsResponseFileSystemsFileSystem `json:"FileSystem,omitempty" xml:"FileSystem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeFileSystemsResponseFileSystems) String() string {
@@ -4031,31 +4043,31 @@ func (s *DescribeFileSystemsResponseFileSystems) SetFileSystem(v []*DescribeFile
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystem struct {
-	FileSystemId          *string                                                            `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Description           *string                                                            `json:"Description" xml:"Description" require:"true"`
-	CreateTime            *string                                                            `json:"CreateTime" xml:"CreateTime" require:"true"`
-	ExpiredTime           *string                                                            `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
-	RegionId              *string                                                            `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId                *string                                                            `json:"ZoneId" xml:"ZoneId" require:"true"`
-	ProtocolType          *string                                                            `json:"ProtocolType" xml:"ProtocolType" require:"true"`
-	StorageType           *string                                                            `json:"StorageType" xml:"StorageType" require:"true"`
-	FileSystemType        *string                                                            `json:"FileSystemType" xml:"FileSystemType" require:"true"`
-	EncryptType           *int                                                               `json:"EncryptType" xml:"EncryptType" require:"true"`
-	MeteredSize           *int64                                                             `json:"MeteredSize" xml:"MeteredSize" require:"true"`
-	MeteredIASize         *int64                                                             `json:"MeteredIASize" xml:"MeteredIASize" require:"true"`
-	Bandwidth             *int64                                                             `json:"Bandwidth" xml:"Bandwidth" require:"true"`
-	Capacity              *int64                                                             `json:"Capacity" xml:"Capacity" require:"true"`
-	AutoSnapshotPolicyId  *string                                                            `json:"AutoSnapshotPolicyId" xml:"AutoSnapshotPolicyId" require:"true"`
-	Status                *string                                                            `json:"Status" xml:"Status" require:"true"`
-	ChargeType            *string                                                            `json:"ChargeType" xml:"ChargeType" require:"true"`
-	MountTargetCountLimit *int64                                                             `json:"MountTargetCountLimit" xml:"MountTargetCountLimit" require:"true"`
-	NasNamespaceId        *string                                                            `json:"NasNamespaceId" xml:"NasNamespaceId" require:"true"`
-	KMSKeyId              *string                                                            `json:"KMSKeyId" xml:"KMSKeyId" require:"true"`
-	Version               *string                                                            `json:"Version" xml:"Version" require:"true"`
-	MountTargets          *DescribeFileSystemsResponseFileSystemsFileSystemMountTargets      `json:"MountTargets" xml:"MountTargets" require:"true" type:"Struct"`
-	Packages              *DescribeFileSystemsResponseFileSystemsFileSystemPackages          `json:"Packages" xml:"Packages" require:"true" type:"Struct"`
-	Ldap                  *DescribeFileSystemsResponseFileSystemsFileSystemLdap              `json:"Ldap" xml:"Ldap" require:"true" type:"Struct"`
-	SupportedFeatures     *DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures `json:"SupportedFeatures" xml:"SupportedFeatures" require:"true" type:"Struct"`
+	FileSystemId          *string                                                            `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Description           *string                                                            `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateTime            *string                                                            `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	ExpiredTime           *string                                                            `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
+	RegionId              *string                                                            `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId                *string                                                            `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	ProtocolType          *string                                                            `json:"ProtocolType,omitempty" xml:"ProtocolType,omitempty" require:"true"`
+	StorageType           *string                                                            `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
+	FileSystemType        *string                                                            `json:"FileSystemType,omitempty" xml:"FileSystemType,omitempty" require:"true"`
+	EncryptType           *int                                                               `json:"EncryptType,omitempty" xml:"EncryptType,omitempty" require:"true"`
+	MeteredSize           *int64                                                             `json:"MeteredSize,omitempty" xml:"MeteredSize,omitempty" require:"true"`
+	MeteredIASize         *int64                                                             `json:"MeteredIASize,omitempty" xml:"MeteredIASize,omitempty" require:"true"`
+	Bandwidth             *int64                                                             `json:"Bandwidth,omitempty" xml:"Bandwidth,omitempty" require:"true"`
+	Capacity              *int64                                                             `json:"Capacity,omitempty" xml:"Capacity,omitempty" require:"true"`
+	AutoSnapshotPolicyId  *string                                                            `json:"AutoSnapshotPolicyId,omitempty" xml:"AutoSnapshotPolicyId,omitempty" require:"true"`
+	Status                *string                                                            `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	ChargeType            *string                                                            `json:"ChargeType,omitempty" xml:"ChargeType,omitempty" require:"true"`
+	MountTargetCountLimit *int64                                                             `json:"MountTargetCountLimit,omitempty" xml:"MountTargetCountLimit,omitempty" require:"true"`
+	NasNamespaceId        *string                                                            `json:"NasNamespaceId,omitempty" xml:"NasNamespaceId,omitempty" require:"true"`
+	KMSKeyId              *string                                                            `json:"KMSKeyId,omitempty" xml:"KMSKeyId,omitempty" require:"true"`
+	Version               *string                                                            `json:"Version,omitempty" xml:"Version,omitempty" require:"true"`
+	MountTargets          *DescribeFileSystemsResponseFileSystemsFileSystemMountTargets      `json:"MountTargets,omitempty" xml:"MountTargets,omitempty" require:"true" type:"Struct"`
+	Packages              *DescribeFileSystemsResponseFileSystemsFileSystemPackages          `json:"Packages,omitempty" xml:"Packages,omitempty" require:"true" type:"Struct"`
+	Ldap                  *DescribeFileSystemsResponseFileSystemsFileSystemLdap              `json:"Ldap,omitempty" xml:"Ldap,omitempty" require:"true" type:"Struct"`
+	SupportedFeatures     *DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures `json:"SupportedFeatures,omitempty" xml:"SupportedFeatures,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystem) String() string {
@@ -4192,7 +4204,7 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystem) SetSupportedFeatures(
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemMountTargets struct {
-	MountTarget []*DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget `json:"MountTarget" xml:"MountTarget" require:"true" type:"Repeated"`
+	MountTarget []*DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget `json:"MountTarget,omitempty" xml:"MountTarget,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystemMountTargets) String() string {
@@ -4209,12 +4221,12 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemMountTargets) SetMountT
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget struct {
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain" require:"true"`
-	NetworkType       *string `json:"NetworkType" xml:"NetworkType" require:"true"`
-	VpcId             *string `json:"VpcId" xml:"VpcId" require:"true"`
-	VswId             *string `json:"VswId" xml:"VswId" require:"true"`
-	AccessGroupName   *string `json:"AccessGroupName" xml:"AccessGroupName" require:"true"`
-	Status            *string `json:"Status" xml:"Status" require:"true"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty" require:"true"`
+	NetworkType       *string `json:"NetworkType,omitempty" xml:"NetworkType,omitempty" require:"true"`
+	VpcId             *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	VswId             *string `json:"VswId,omitempty" xml:"VswId,omitempty" require:"true"`
+	AccessGroupName   *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty" require:"true"`
+	Status            *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget) String() string {
@@ -4256,7 +4268,7 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemMountTargetsMountTarget
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemPackages struct {
-	Package []*DescribeFileSystemsResponseFileSystemsFileSystemPackagesPackage `json:"Package" xml:"Package" require:"true" type:"Repeated"`
+	Package []*DescribeFileSystemsResponseFileSystemsFileSystemPackagesPackage `json:"Package,omitempty" xml:"Package,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystemPackages) String() string {
@@ -4273,11 +4285,11 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemPackages) SetPackage(v 
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemPackagesPackage struct {
-	PackageId   *string `json:"PackageId" xml:"PackageId" require:"true"`
-	PackageType *string `json:"PackageType" xml:"PackageType" require:"true"`
-	Size        *int64  `json:"Size" xml:"Size" require:"true"`
-	StartTime   *string `json:"StartTime" xml:"StartTime" require:"true"`
-	ExpiredTime *string `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
+	PackageId   *string `json:"PackageId,omitempty" xml:"PackageId,omitempty" require:"true"`
+	PackageType *string `json:"PackageType,omitempty" xml:"PackageType,omitempty" require:"true"`
+	Size        *int64  `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	ExpiredTime *string `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystemPackagesPackage) String() string {
@@ -4314,9 +4326,9 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemPackagesPackage) SetExp
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemLdap struct {
-	BindDN     *string `json:"BindDN" xml:"BindDN" require:"true"`
-	URI        *string `json:"URI" xml:"URI" require:"true"`
-	SearchBase *string `json:"SearchBase" xml:"SearchBase" require:"true"`
+	BindDN     *string `json:"BindDN,omitempty" xml:"BindDN,omitempty" require:"true"`
+	URI        *string `json:"URI,omitempty" xml:"URI,omitempty" require:"true"`
+	SearchBase *string `json:"SearchBase,omitempty" xml:"SearchBase,omitempty" require:"true"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystemLdap) String() string {
@@ -4343,7 +4355,7 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemLdap) SetSearchBase(v s
 }
 
 type DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures struct {
-	SupportedFeature []*string `json:"SupportedFeature" xml:"SupportedFeature" require:"true" type:"Repeated"`
+	SupportedFeature []*string `json:"SupportedFeature,omitempty" xml:"SupportedFeature,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures) String() string {
@@ -4360,10 +4372,10 @@ func (s *DescribeFileSystemsResponseFileSystemsFileSystemSupportedFeatures) SetS
 }
 
 type ModifyMountTargetRequest struct {
-	FileSystemId      *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	MountTargetDomain *string `json:"MountTargetDomain" xml:"MountTargetDomain" require:"true"`
-	AccessGroupName   *string `json:"AccessGroupName" xml:"AccessGroupName"`
-	Status            *string `json:"Status" xml:"Status"`
+	FileSystemId      *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	MountTargetDomain *string `json:"MountTargetDomain,omitempty" xml:"MountTargetDomain,omitempty" require:"true"`
+	AccessGroupName   *string `json:"AccessGroupName,omitempty" xml:"AccessGroupName,omitempty"`
+	Status            *string `json:"Status,omitempty" xml:"Status,omitempty"`
 }
 
 func (s ModifyMountTargetRequest) String() string {
@@ -4395,7 +4407,7 @@ func (s *ModifyMountTargetRequest) SetStatus(v string) *ModifyMountTargetRequest
 }
 
 type ModifyMountTargetResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyMountTargetResponse) String() string {
@@ -4412,8 +4424,8 @@ func (s *ModifyMountTargetResponse) SetRequestId(v string) *ModifyMountTargetRes
 }
 
 type ModifyFileSystemRequest struct {
-	FileSystemId *string `json:"FileSystemId" xml:"FileSystemId" require:"true"`
-	Description  *string `json:"Description" xml:"Description"`
+	FileSystemId *string `json:"FileSystemId,omitempty" xml:"FileSystemId,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s ModifyFileSystemRequest) String() string {
@@ -4435,7 +4447,7 @@ func (s *ModifyFileSystemRequest) SetDescription(v string) *ModifyFileSystemRequ
 }
 
 type ModifyFileSystemResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyFileSystemResponse) String() string {
@@ -4590,7 +4602,7 @@ func (client *Client) DescribeLifecyclePoliciesWithOptions(request *DescribeLife
 		return _result, _err
 	}
 	_result = &DescribeLifecyclePoliciesResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeLifecyclePolicies"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-06-26"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeLifecyclePolicies"), tea.String("HTTPS"), tea.String("GET"), tea.String("2017-06-26"), tea.String("AK"), tea.ToMap(request), nil, runtime)
 	if _err != nil {
 		return _result, _err
 	}
