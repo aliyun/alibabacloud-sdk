@@ -9,12 +9,7 @@ import (
 )
 
 type DescribeDBClusterAuditLogCollectorRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAuditLogCollectorRequest) String() string {
@@ -25,39 +20,14 @@ func (s DescribeDBClusterAuditLogCollectorRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterAuditLogCollectorRequest) SetAccessKeyId(v string) *DescribeDBClusterAuditLogCollectorRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAuditLogCollectorRequest) SetOwnerId(v int64) *DescribeDBClusterAuditLogCollectorRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAuditLogCollectorRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterAuditLogCollectorRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterAuditLogCollectorRequest) SetResourceOwnerId(v int64) *DescribeDBClusterAuditLogCollectorRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DescribeDBClusterAuditLogCollectorRequest) SetDBClusterId(v string) *DescribeDBClusterAuditLogCollectorRequest {
 	s.DBClusterId = &v
 	return s
 }
 
-func (s *DescribeDBClusterAuditLogCollectorRequest) SetOwnerAccount(v string) *DescribeDBClusterAuditLogCollectorRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 type DescribeDBClusterAuditLogCollectorResponse struct {
-	CollectorStatus *string `json:"CollectorStatus" xml:"CollectorStatus" require:"true"`
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
+	CollectorStatus *string `json:"CollectorStatus,omitempty" xml:"CollectorStatus,omitempty" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAuditLogCollectorResponse) String() string {
@@ -79,13 +49,8 @@ func (s *DescribeDBClusterAuditLogCollectorResponse) SetRequestId(v string) *Des
 }
 
 type ModifyDBClusterAuditLogCollectorRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	CollectorStatus      *string `json:"CollectorStatus" xml:"CollectorStatus" require:"true"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	CollectorStatus *string `json:"CollectorStatus,omitempty" xml:"CollectorStatus,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterAuditLogCollectorRequest) String() string {
@@ -94,26 +59,6 @@ func (s ModifyDBClusterAuditLogCollectorRequest) String() string {
 
 func (s ModifyDBClusterAuditLogCollectorRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterAuditLogCollectorRequest) SetAccessKeyId(v string) *ModifyDBClusterAuditLogCollectorRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterAuditLogCollectorRequest) SetOwnerId(v int64) *ModifyDBClusterAuditLogCollectorRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterAuditLogCollectorRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterAuditLogCollectorRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterAuditLogCollectorRequest) SetResourceOwnerId(v int64) *ModifyDBClusterAuditLogCollectorRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ModifyDBClusterAuditLogCollectorRequest) SetDBClusterId(v string) *ModifyDBClusterAuditLogCollectorRequest {
@@ -126,13 +71,8 @@ func (s *ModifyDBClusterAuditLogCollectorRequest) SetCollectorStatus(v string) *
 	return s
 }
 
-func (s *ModifyDBClusterAuditLogCollectorRequest) SetOwnerAccount(v string) *ModifyDBClusterAuditLogCollectorRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 type ModifyDBClusterAuditLogCollectorResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterAuditLogCollectorResponse) String() string {
@@ -149,19 +89,14 @@ func (s *ModifyDBClusterAuditLogCollectorResponse) SetRequestId(v string) *Modif
 }
 
 type DescribeDetachedBackupsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	BackupId             *string `json:"BackupId" xml:"BackupId"`
-	BackupStatus         *string `json:"BackupStatus" xml:"BackupStatus"`
-	BackupMode           *string `json:"BackupMode" xml:"BackupMode"`
-	StartTime            *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime              *string `json:"EndTime" xml:"EndTime" require:"true"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	BackupId     *string `json:"BackupId,omitempty" xml:"BackupId,omitempty"`
+	BackupStatus *string `json:"BackupStatus,omitempty" xml:"BackupStatus,omitempty"`
+	BackupMode   *string `json:"BackupMode,omitempty" xml:"BackupMode,omitempty"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime      *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageSize     *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber   *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeDetachedBackupsRequest) String() string {
@@ -170,31 +105,6 @@ func (s DescribeDetachedBackupsRequest) String() string {
 
 func (s DescribeDetachedBackupsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDetachedBackupsRequest) SetAccessKeyId(v string) *DescribeDetachedBackupsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDetachedBackupsRequest) SetOwnerId(v int64) *DescribeDetachedBackupsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDetachedBackupsRequest) SetResourceOwnerAccount(v string) *DescribeDetachedBackupsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDetachedBackupsRequest) SetResourceOwnerId(v int64) *DescribeDetachedBackupsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDetachedBackupsRequest) SetOwnerAccount(v string) *DescribeDetachedBackupsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeDetachedBackupsRequest) SetDBClusterId(v string) *DescribeDetachedBackupsRequest {
@@ -238,11 +148,11 @@ func (s *DescribeDetachedBackupsRequest) SetPageNumber(v int) *DescribeDetachedB
 }
 
 type DescribeDetachedBackupsResponse struct {
-	RequestId        *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalRecordCount *string                               `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageNumber       *string                               `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageRecordCount  *string                               `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeDetachedBackupsResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalRecordCount *string                               `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageNumber       *string                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageRecordCount  *string                               `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeDetachedBackupsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDetachedBackupsResponse) String() string {
@@ -279,7 +189,7 @@ func (s *DescribeDetachedBackupsResponse) SetItems(v *DescribeDetachedBackupsRes
 }
 
 type DescribeDetachedBackupsResponseItems struct {
-	Backup []*DescribeDetachedBackupsResponseItemsBackup `json:"Backup" xml:"Backup" require:"true" type:"Repeated"`
+	Backup []*DescribeDetachedBackupsResponseItemsBackup `json:"Backup,omitempty" xml:"Backup,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDetachedBackupsResponseItems) String() string {
@@ -296,19 +206,19 @@ func (s *DescribeDetachedBackupsResponseItems) SetBackup(v []*DescribeDetachedBa
 }
 
 type DescribeDetachedBackupsResponseItemsBackup struct {
-	BackupId        *string `json:"BackupId" xml:"BackupId" require:"true"`
-	DBClusterId     *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	BackupStatus    *string `json:"BackupStatus" xml:"BackupStatus" require:"true"`
-	BackupStartTime *string `json:"BackupStartTime" xml:"BackupStartTime" require:"true"`
-	BackupEndTime   *string `json:"BackupEndTime" xml:"BackupEndTime" require:"true"`
-	BackupType      *string `json:"BackupType" xml:"BackupType" require:"true"`
-	BackupMode      *string `json:"BackupMode" xml:"BackupMode" require:"true"`
-	BackupMethod    *string `json:"BackupMethod" xml:"BackupMethod" require:"true"`
-	StoreStatus     *string `json:"StoreStatus" xml:"StoreStatus" require:"true"`
-	BackupSetSize   *string `json:"BackupSetSize" xml:"BackupSetSize" require:"true"`
-	ConsistentTime  *string `json:"ConsistentTime" xml:"ConsistentTime" require:"true"`
-	BackupsLevel    *string `json:"BackupsLevel" xml:"BackupsLevel" require:"true"`
-	IsAvail         *string `json:"IsAvail" xml:"IsAvail" require:"true"`
+	BackupId        *string `json:"BackupId,omitempty" xml:"BackupId,omitempty" require:"true"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	BackupStatus    *string `json:"BackupStatus,omitempty" xml:"BackupStatus,omitempty" require:"true"`
+	BackupStartTime *string `json:"BackupStartTime,omitempty" xml:"BackupStartTime,omitempty" require:"true"`
+	BackupEndTime   *string `json:"BackupEndTime,omitempty" xml:"BackupEndTime,omitempty" require:"true"`
+	BackupType      *string `json:"BackupType,omitempty" xml:"BackupType,omitempty" require:"true"`
+	BackupMode      *string `json:"BackupMode,omitempty" xml:"BackupMode,omitempty" require:"true"`
+	BackupMethod    *string `json:"BackupMethod,omitempty" xml:"BackupMethod,omitempty" require:"true"`
+	StoreStatus     *string `json:"StoreStatus,omitempty" xml:"StoreStatus,omitempty" require:"true"`
+	BackupSetSize   *string `json:"BackupSetSize,omitempty" xml:"BackupSetSize,omitempty" require:"true"`
+	ConsistentTime  *string `json:"ConsistentTime,omitempty" xml:"ConsistentTime,omitempty" require:"true"`
+	BackupsLevel    *string `json:"BackupsLevel,omitempty" xml:"BackupsLevel,omitempty" require:"true"`
+	IsAvail         *string `json:"IsAvail,omitempty" xml:"IsAvail,omitempty" require:"true"`
 }
 
 func (s DescribeDetachedBackupsResponseItemsBackup) String() string {
@@ -385,19 +295,14 @@ func (s *DescribeDetachedBackupsResponseItemsBackup) SetIsAvail(v string) *Descr
 }
 
 type DescribeDBClustersWithBackupsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	DBClusterIds         *string `json:"DBClusterIds" xml:"DBClusterIds"`
-	DBClusterDescription *string `json:"DBClusterDescription" xml:"DBClusterDescription"`
-	DBType               *string `json:"DBType" xml:"DBType"`
-	IsDeleted            *int    `json:"IsDeleted" xml:"IsDeleted"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
-	DBVersion            *string `json:"DBVersion" xml:"DBVersion"`
+	RegionId             *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DBClusterIds         *string `json:"DBClusterIds,omitempty" xml:"DBClusterIds,omitempty"`
+	DBClusterDescription *string `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty"`
+	DBType               *string `json:"DBType,omitempty" xml:"DBType,omitempty"`
+	IsDeleted            *int    `json:"IsDeleted,omitempty" xml:"IsDeleted,omitempty"`
+	PageSize             *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber           *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	DBVersion            *string `json:"DBVersion,omitempty" xml:"DBVersion,omitempty"`
 }
 
 func (s DescribeDBClustersWithBackupsRequest) String() string {
@@ -406,31 +311,6 @@ func (s DescribeDBClustersWithBackupsRequest) String() string {
 
 func (s DescribeDBClustersWithBackupsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDBClustersWithBackupsRequest) SetAccessKeyId(v string) *DescribeDBClustersWithBackupsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClustersWithBackupsRequest) SetOwnerId(v int64) *DescribeDBClustersWithBackupsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClustersWithBackupsRequest) SetResourceOwnerAccount(v string) *DescribeDBClustersWithBackupsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClustersWithBackupsRequest) SetResourceOwnerId(v int64) *DescribeDBClustersWithBackupsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClustersWithBackupsRequest) SetOwnerAccount(v string) *DescribeDBClustersWithBackupsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeDBClustersWithBackupsRequest) SetRegionId(v string) *DescribeDBClustersWithBackupsRequest {
@@ -474,11 +354,11 @@ func (s *DescribeDBClustersWithBackupsRequest) SetDBVersion(v string) *DescribeD
 }
 
 type DescribeDBClustersWithBackupsResponse struct {
-	RequestId        *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber       *int                                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	TotalRecordCount *int                                        `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageRecordCount  *int                                        `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeDBClustersWithBackupsResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber       *int                                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	TotalRecordCount *int                                        `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageRecordCount  *int                                        `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeDBClustersWithBackupsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClustersWithBackupsResponse) String() string {
@@ -515,7 +395,7 @@ func (s *DescribeDBClustersWithBackupsResponse) SetItems(v *DescribeDBClustersWi
 }
 
 type DescribeDBClustersWithBackupsResponseItems struct {
-	DBCluster []*DescribeDBClustersWithBackupsResponseItemsDBCluster `json:"DBCluster" xml:"DBCluster" require:"true" type:"Repeated"`
+	DBCluster []*DescribeDBClustersWithBackupsResponseItemsDBCluster `json:"DBCluster,omitempty" xml:"DBCluster,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClustersWithBackupsResponseItems) String() string {
@@ -532,25 +412,25 @@ func (s *DescribeDBClustersWithBackupsResponseItems) SetDBCluster(v []*DescribeD
 }
 
 type DescribeDBClustersWithBackupsResponseItemsDBCluster struct {
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBClusterDescription *string `json:"DBClusterDescription" xml:"DBClusterDescription" require:"true"`
-	PayType              *string `json:"PayType" xml:"PayType" require:"true"`
-	DBClusterNetworkType *string `json:"DBClusterNetworkType" xml:"DBClusterNetworkType" require:"true"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId               *string `json:"ZoneId" xml:"ZoneId" require:"true"`
-	ExpireTime           *string `json:"ExpireTime" xml:"ExpireTime" require:"true"`
-	Expired              *string `json:"Expired" xml:"Expired" require:"true"`
-	DBClusterStatus      *string `json:"DBClusterStatus" xml:"DBClusterStatus" require:"true"`
-	Engine               *string `json:"Engine" xml:"Engine" require:"true"`
-	DBType               *string `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion            *string `json:"DBVersion" xml:"DBVersion" require:"true"`
-	LockMode             *string `json:"LockMode" xml:"LockMode" require:"true"`
-	DeletionLock         *int    `json:"DeletionLock" xml:"DeletionLock" require:"true"`
-	CreateTime           *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	VpcId                *string `json:"VpcId" xml:"VpcId" require:"true"`
-	IsDeleted            *int    `json:"IsDeleted" xml:"IsDeleted" require:"true"`
-	DeletedTime          *string `json:"DeletedTime" xml:"DeletedTime" require:"true"`
-	DBNodeClass          *string `json:"DBNodeClass" xml:"DBNodeClass" require:"true"`
+	DBClusterId          *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBClusterDescription *string `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty" require:"true"`
+	PayType              *string `json:"PayType,omitempty" xml:"PayType,omitempty" require:"true"`
+	DBClusterNetworkType *string `json:"DBClusterNetworkType,omitempty" xml:"DBClusterNetworkType,omitempty" require:"true"`
+	RegionId             *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId               *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	ExpireTime           *string `json:"ExpireTime,omitempty" xml:"ExpireTime,omitempty" require:"true"`
+	Expired              *string `json:"Expired,omitempty" xml:"Expired,omitempty" require:"true"`
+	DBClusterStatus      *string `json:"DBClusterStatus,omitempty" xml:"DBClusterStatus,omitempty" require:"true"`
+	Engine               *string `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	DBType               *string `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion            *string `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	LockMode             *string `json:"LockMode,omitempty" xml:"LockMode,omitempty" require:"true"`
+	DeletionLock         *int    `json:"DeletionLock,omitempty" xml:"DeletionLock,omitempty" require:"true"`
+	CreateTime           *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	VpcId                *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	IsDeleted            *int    `json:"IsDeleted,omitempty" xml:"IsDeleted,omitempty" require:"true"`
+	DeletedTime          *string `json:"DeletedTime,omitempty" xml:"DeletedTime,omitempty" require:"true"`
+	DBNodeClass          *string `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty" require:"true"`
 }
 
 func (s DescribeDBClustersWithBackupsResponseItemsDBCluster) String() string {
@@ -657,12 +537,7 @@ func (s *DescribeDBClustersWithBackupsResponseItemsDBCluster) SetDBNodeClass(v s
 }
 
 type DescribeLogBackupPolicyRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeLogBackupPolicyRequest) String() string {
@@ -673,40 +548,15 @@ func (s DescribeLogBackupPolicyRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeLogBackupPolicyRequest) SetAccessKeyId(v string) *DescribeLogBackupPolicyRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeLogBackupPolicyRequest) SetOwnerId(v int64) *DescribeLogBackupPolicyRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeLogBackupPolicyRequest) SetResourceOwnerAccount(v string) *DescribeLogBackupPolicyRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeLogBackupPolicyRequest) SetResourceOwnerId(v int64) *DescribeLogBackupPolicyRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeLogBackupPolicyRequest) SetOwnerAccount(v string) *DescribeLogBackupPolicyRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeLogBackupPolicyRequest) SetDBClusterId(v string) *DescribeLogBackupPolicyRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeLogBackupPolicyResponse struct {
-	RequestId                *string `json:"RequestId" xml:"RequestId" require:"true"`
-	EnableBackupLog          *int    `json:"EnableBackupLog" xml:"EnableBackupLog" require:"true"`
-	LogBackupRetentionPeriod *int    `json:"LogBackupRetentionPeriod" xml:"LogBackupRetentionPeriod" require:"true"`
+	RequestId                *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	EnableBackupLog          *int    `json:"EnableBackupLog,omitempty" xml:"EnableBackupLog,omitempty" require:"true"`
+	LogBackupRetentionPeriod *int    `json:"LogBackupRetentionPeriod,omitempty" xml:"LogBackupRetentionPeriod,omitempty" require:"true"`
 }
 
 func (s DescribeLogBackupPolicyResponse) String() string {
@@ -733,13 +583,8 @@ func (s *DescribeLogBackupPolicyResponse) SetLogBackupRetentionPeriod(v int) *De
 }
 
 type ModifyLogBackupPolicyRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount             *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId              *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	LogBackupRetentionPeriod *string `json:"LogBackupRetentionPeriod" xml:"LogBackupRetentionPeriod"`
+	DBClusterId              *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	LogBackupRetentionPeriod *string `json:"LogBackupRetentionPeriod,omitempty" xml:"LogBackupRetentionPeriod,omitempty"`
 }
 
 func (s ModifyLogBackupPolicyRequest) String() string {
@@ -748,31 +593,6 @@ func (s ModifyLogBackupPolicyRequest) String() string {
 
 func (s ModifyLogBackupPolicyRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyLogBackupPolicyRequest) SetAccessKeyId(v string) *ModifyLogBackupPolicyRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyLogBackupPolicyRequest) SetOwnerId(v int64) *ModifyLogBackupPolicyRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyLogBackupPolicyRequest) SetResourceOwnerAccount(v string) *ModifyLogBackupPolicyRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyLogBackupPolicyRequest) SetResourceOwnerId(v int64) *ModifyLogBackupPolicyRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyLogBackupPolicyRequest) SetOwnerAccount(v string) *ModifyLogBackupPolicyRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyLogBackupPolicyRequest) SetDBClusterId(v string) *ModifyLogBackupPolicyRequest {
@@ -786,7 +606,7 @@ func (s *ModifyLogBackupPolicyRequest) SetLogBackupRetentionPeriod(v string) *Mo
 }
 
 type ModifyLogBackupPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyLogBackupPolicyResponse) String() string {
@@ -803,13 +623,8 @@ func (s *ModifyLogBackupPolicyResponse) SetRequestId(v string) *ModifyLogBackupP
 }
 
 type ModifyDBClusterMonitorRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	Period               *string `json:"Period" xml:"Period" require:"true"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	Period      *string `json:"Period,omitempty" xml:"Period,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterMonitorRequest) String() string {
@@ -818,26 +633,6 @@ func (s ModifyDBClusterMonitorRequest) String() string {
 
 func (s ModifyDBClusterMonitorRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterMonitorRequest) SetAccessKeyId(v string) *ModifyDBClusterMonitorRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMonitorRequest) SetOwnerId(v int64) *ModifyDBClusterMonitorRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMonitorRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterMonitorRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterMonitorRequest) SetResourceOwnerId(v int64) *ModifyDBClusterMonitorRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ModifyDBClusterMonitorRequest) SetDBClusterId(v string) *ModifyDBClusterMonitorRequest {
@@ -850,13 +645,8 @@ func (s *ModifyDBClusterMonitorRequest) SetPeriod(v string) *ModifyDBClusterMoni
 	return s
 }
 
-func (s *ModifyDBClusterMonitorRequest) SetOwnerAccount(v string) *ModifyDBClusterMonitorRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 type ModifyDBClusterMonitorResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterMonitorResponse) String() string {
@@ -873,12 +663,7 @@ func (s *ModifyDBClusterMonitorResponse) SetRequestId(v string) *ModifyDBCluster
 }
 
 type DescribeDBClusterMonitorRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterMonitorRequest) String() string {
@@ -889,39 +674,14 @@ func (s DescribeDBClusterMonitorRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterMonitorRequest) SetAccessKeyId(v string) *DescribeDBClusterMonitorRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterMonitorRequest) SetOwnerId(v int64) *DescribeDBClusterMonitorRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterMonitorRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterMonitorRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterMonitorRequest) SetResourceOwnerId(v int64) *DescribeDBClusterMonitorRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DescribeDBClusterMonitorRequest) SetDBClusterId(v string) *DescribeDBClusterMonitorRequest {
 	s.DBClusterId = &v
 	return s
 }
 
-func (s *DescribeDBClusterMonitorRequest) SetOwnerAccount(v string) *DescribeDBClusterMonitorRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 type DescribeDBClusterMonitorResponse struct {
-	Period    *string `json:"Period" xml:"Period" require:"true"`
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Period    *string `json:"Period,omitempty" xml:"Period,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterMonitorResponse) String() string {
@@ -943,17 +703,12 @@ func (s *DescribeDBClusterMonitorResponse) SetRequestId(v string) *DescribeDBClu
 }
 
 type DescribeDBClusterAvailableResourcesRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	PayType              *string `json:"PayType" xml:"PayType" require:"true"`
-	DBType               *string `json:"DBType" xml:"DBType"`
-	DBVersion            *string `json:"DBVersion" xml:"DBVersion"`
-	DBNodeClass          *string `json:"DBNodeClass" xml:"DBNodeClass"`
-	RegionId             *string `json:"RegionId" xml:"RegionId"`
-	ZoneId               *string `json:"ZoneId" xml:"ZoneId"`
+	PayType     *string `json:"PayType,omitempty" xml:"PayType,omitempty" require:"true"`
+	DBType      *string `json:"DBType,omitempty" xml:"DBType,omitempty"`
+	DBVersion   *string `json:"DBVersion,omitempty" xml:"DBVersion,omitempty"`
+	DBNodeClass *string `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	ZoneId      *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
 }
 
 func (s DescribeDBClusterAvailableResourcesRequest) String() string {
@@ -962,31 +717,6 @@ func (s DescribeDBClusterAvailableResourcesRequest) String() string {
 
 func (s DescribeDBClusterAvailableResourcesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDBClusterAvailableResourcesRequest) SetAccessKeyId(v string) *DescribeDBClusterAvailableResourcesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAvailableResourcesRequest) SetOwnerId(v int64) *DescribeDBClusterAvailableResourcesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAvailableResourcesRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterAvailableResourcesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterAvailableResourcesRequest) SetResourceOwnerId(v int64) *DescribeDBClusterAvailableResourcesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAvailableResourcesRequest) SetOwnerAccount(v string) *DescribeDBClusterAvailableResourcesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeDBClusterAvailableResourcesRequest) SetPayType(v string) *DescribeDBClusterAvailableResourcesRequest {
@@ -1020,8 +750,8 @@ func (s *DescribeDBClusterAvailableResourcesRequest) SetZoneId(v string) *Descri
 }
 
 type DescribeDBClusterAvailableResourcesResponse struct {
-	RequestId      *string                                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	AvailableZones []*DescribeDBClusterAvailableResourcesResponseAvailableZones `json:"AvailableZones" xml:"AvailableZones" require:"true" type:"Repeated"`
+	RequestId      *string                                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AvailableZones []*DescribeDBClusterAvailableResourcesResponseAvailableZones `json:"AvailableZones,omitempty" xml:"AvailableZones,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterAvailableResourcesResponse) String() string {
@@ -1043,9 +773,9 @@ func (s *DescribeDBClusterAvailableResourcesResponse) SetAvailableZones(v []*Des
 }
 
 type DescribeDBClusterAvailableResourcesResponseAvailableZones struct {
-	RegionId         *string                                                                      `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId           *string                                                                      `json:"ZoneId" xml:"ZoneId" require:"true"`
-	SupportedEngines []*DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEngines `json:"SupportedEngines" xml:"SupportedEngines" require:"true" type:"Repeated"`
+	RegionId         *string                                                                      `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId           *string                                                                      `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	SupportedEngines []*DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEngines `json:"SupportedEngines,omitempty" xml:"SupportedEngines,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterAvailableResourcesResponseAvailableZones) String() string {
@@ -1072,8 +802,8 @@ func (s *DescribeDBClusterAvailableResourcesResponseAvailableZones) SetSupported
 }
 
 type DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEngines struct {
-	Engine             *string                                                                                        `json:"Engine" xml:"Engine" require:"true"`
-	AvailableResources []*DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEnginesAvailableResources `json:"AvailableResources" xml:"AvailableResources" require:"true" type:"Repeated"`
+	Engine             *string                                                                                        `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	AvailableResources []*DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEnginesAvailableResources `json:"AvailableResources,omitempty" xml:"AvailableResources,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEngines) String() string {
@@ -1095,8 +825,8 @@ func (s *DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEngin
 }
 
 type DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEnginesAvailableResources struct {
-	DBNodeClass *string `json:"DBNodeClass" xml:"DBNodeClass" require:"true"`
-	Category    *string `json:"Category" xml:"Category" require:"true"`
+	DBNodeClass *string `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty" require:"true"`
+	Category    *string `json:"Category,omitempty" xml:"Category,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEnginesAvailableResources) String() string {
@@ -1118,16 +848,11 @@ func (s *DescribeDBClusterAvailableResourcesResponseAvailableZonesSupportedEngin
 }
 
 type DescribeBackupLogsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	StartTime            *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime              *string `json:"EndTime" xml:"EndTime" require:"true"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime     *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageSize    *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber  *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeBackupLogsRequest) String() string {
@@ -1136,31 +861,6 @@ func (s DescribeBackupLogsRequest) String() string {
 
 func (s DescribeBackupLogsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeBackupLogsRequest) SetAccessKeyId(v string) *DescribeBackupLogsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeBackupLogsRequest) SetOwnerId(v int64) *DescribeBackupLogsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeBackupLogsRequest) SetResourceOwnerAccount(v string) *DescribeBackupLogsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeBackupLogsRequest) SetResourceOwnerId(v int64) *DescribeBackupLogsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeBackupLogsRequest) SetOwnerAccount(v string) *DescribeBackupLogsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeBackupLogsRequest) SetDBClusterId(v string) *DescribeBackupLogsRequest {
@@ -1189,11 +889,11 @@ func (s *DescribeBackupLogsRequest) SetPageNumber(v int) *DescribeBackupLogsRequ
 }
 
 type DescribeBackupLogsResponse struct {
-	RequestId        *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalRecordCount *string                          `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageNumber       *string                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageRecordCount  *string                          `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeBackupLogsResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalRecordCount *string                          `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageNumber       *string                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageRecordCount  *string                          `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeBackupLogsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeBackupLogsResponse) String() string {
@@ -1230,7 +930,7 @@ func (s *DescribeBackupLogsResponse) SetItems(v *DescribeBackupLogsResponseItems
 }
 
 type DescribeBackupLogsResponseItems struct {
-	BackupLog []*DescribeBackupLogsResponseItemsBackupLog `json:"BackupLog" xml:"BackupLog" require:"true" type:"Repeated"`
+	BackupLog []*DescribeBackupLogsResponseItemsBackupLog `json:"BackupLog,omitempty" xml:"BackupLog,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeBackupLogsResponseItems) String() string {
@@ -1247,14 +947,14 @@ func (s *DescribeBackupLogsResponseItems) SetBackupLog(v []*DescribeBackupLogsRe
 }
 
 type DescribeBackupLogsResponseItemsBackupLog struct {
-	BackupLogId          *string `json:"BackupLogId" xml:"BackupLogId" require:"true"`
-	BackupLogName        *string `json:"BackupLogName" xml:"BackupLogName" require:"true"`
-	BackupLogStartTime   *string `json:"BackupLogStartTime" xml:"BackupLogStartTime" require:"true"`
-	BackupLogEndTime     *string `json:"BackupLogEndTime" xml:"BackupLogEndTime" require:"true"`
-	BackupLogSize        *string `json:"BackupLogSize" xml:"BackupLogSize" require:"true"`
-	DownloadLink         *string `json:"DownloadLink" xml:"DownloadLink" require:"true"`
-	IntranetDownloadLink *string `json:"IntranetDownloadLink" xml:"IntranetDownloadLink" require:"true"`
-	LinkExpiredTime      *string `json:"LinkExpiredTime" xml:"LinkExpiredTime" require:"true"`
+	BackupLogId          *string `json:"BackupLogId,omitempty" xml:"BackupLogId,omitempty" require:"true"`
+	BackupLogName        *string `json:"BackupLogName,omitempty" xml:"BackupLogName,omitempty" require:"true"`
+	BackupLogStartTime   *string `json:"BackupLogStartTime,omitempty" xml:"BackupLogStartTime,omitempty" require:"true"`
+	BackupLogEndTime     *string `json:"BackupLogEndTime,omitempty" xml:"BackupLogEndTime,omitempty" require:"true"`
+	BackupLogSize        *string `json:"BackupLogSize,omitempty" xml:"BackupLogSize,omitempty" require:"true"`
+	DownloadLink         *string `json:"DownloadLink,omitempty" xml:"DownloadLink,omitempty" require:"true"`
+	IntranetDownloadLink *string `json:"IntranetDownloadLink,omitempty" xml:"IntranetDownloadLink,omitempty" require:"true"`
+	LinkExpiredTime      *string `json:"LinkExpiredTime,omitempty" xml:"LinkExpiredTime,omitempty" require:"true"`
 }
 
 func (s DescribeBackupLogsResponseItemsBackupLog) String() string {
@@ -1306,15 +1006,10 @@ func (s *DescribeBackupLogsResponseItemsBackupLog) SetLinkExpiredTime(v string) 
 }
 
 type ModifyDBClusterSSLRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	SSLEnabled           *string `json:"SSLEnabled" xml:"SSLEnabled" require:"true"`
-	DBEndpointId         *string `json:"DBEndpointId" xml:"DBEndpointId"`
-	NetType              *string `json:"NetType" xml:"NetType"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	SSLEnabled   *string `json:"SSLEnabled,omitempty" xml:"SSLEnabled,omitempty" require:"true"`
+	DBEndpointId *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty"`
+	NetType      *string `json:"NetType,omitempty" xml:"NetType,omitempty"`
 }
 
 func (s ModifyDBClusterSSLRequest) String() string {
@@ -1323,31 +1018,6 @@ func (s ModifyDBClusterSSLRequest) String() string {
 
 func (s ModifyDBClusterSSLRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterSSLRequest) SetAccessKeyId(v string) *ModifyDBClusterSSLRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterSSLRequest) SetOwnerId(v int64) *ModifyDBClusterSSLRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterSSLRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterSSLRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterSSLRequest) SetResourceOwnerId(v int64) *ModifyDBClusterSSLRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterSSLRequest) SetOwnerAccount(v string) *ModifyDBClusterSSLRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBClusterSSLRequest) SetDBClusterId(v string) *ModifyDBClusterSSLRequest {
@@ -1371,7 +1041,7 @@ func (s *ModifyDBClusterSSLRequest) SetNetType(v string) *ModifyDBClusterSSLRequ
 }
 
 type ModifyDBClusterSSLResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterSSLResponse) String() string {
@@ -1388,12 +1058,7 @@ func (s *ModifyDBClusterSSLResponse) SetRequestId(v string) *ModifyDBClusterSSLR
 }
 
 type DescribeDBClusterSSLRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterSSLRequest) String() string {
@@ -1404,39 +1069,14 @@ func (s DescribeDBClusterSSLRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterSSLRequest) SetAccessKeyId(v string) *DescribeDBClusterSSLRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterSSLRequest) SetOwnerId(v int64) *DescribeDBClusterSSLRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterSSLRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterSSLRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterSSLRequest) SetResourceOwnerId(v int64) *DescribeDBClusterSSLRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterSSLRequest) SetOwnerAccount(v string) *DescribeDBClusterSSLRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeDBClusterSSLRequest) SetDBClusterId(v string) *DescribeDBClusterSSLRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeDBClusterSSLResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Items     []*DescribeDBClusterSSLResponseItems `json:"Items" xml:"Items" require:"true" type:"Repeated"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Items     []*DescribeDBClusterSSLResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterSSLResponse) String() string {
@@ -1458,10 +1098,10 @@ func (s *DescribeDBClusterSSLResponse) SetItems(v []*DescribeDBClusterSSLRespons
 }
 
 type DescribeDBClusterSSLResponseItems struct {
-	DBEndpointId        *string `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	SSLEnabled          *string `json:"SSLEnabled" xml:"SSLEnabled" require:"true"`
-	SSLConnectionString *string `json:"SSLConnectionString" xml:"SSLConnectionString" require:"true"`
-	SSLExpireTime       *string `json:"SSLExpireTime" xml:"SSLExpireTime" require:"true"`
+	DBEndpointId        *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	SSLEnabled          *string `json:"SSLEnabled,omitempty" xml:"SSLEnabled,omitempty" require:"true"`
+	SSLConnectionString *string `json:"SSLConnectionString,omitempty" xml:"SSLConnectionString,omitempty" require:"true"`
+	SSLExpireTime       *string `json:"SSLExpireTime,omitempty" xml:"SSLExpireTime,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterSSLResponseItems) String() string {
@@ -1493,12 +1133,7 @@ func (s *DescribeDBClusterSSLResponseItems) SetSSLExpireTime(v string) *Describe
 }
 
 type DescribeDBClusterMigrationRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterMigrationRequest) String() string {
@@ -1509,49 +1144,24 @@ func (s DescribeDBClusterMigrationRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterMigrationRequest) SetAccessKeyId(v string) *DescribeDBClusterMigrationRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterMigrationRequest) SetOwnerId(v int64) *DescribeDBClusterMigrationRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterMigrationRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterMigrationRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterMigrationRequest) SetResourceOwnerId(v int64) *DescribeDBClusterMigrationRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterMigrationRequest) SetOwnerAccount(v string) *DescribeDBClusterMigrationRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeDBClusterMigrationRequest) SetDBClusterId(v string) *DescribeDBClusterMigrationRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeDBClusterMigrationResponse struct {
-	RequestId              *string                                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId            *string                                                    `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	SourceRDSDBInstanceId  *string                                                    `json:"SourceRDSDBInstanceId" xml:"SourceRDSDBInstanceId" require:"true"`
-	MigrationStatus        *string                                                    `json:"MigrationStatus" xml:"MigrationStatus" require:"true"`
-	Topologies             *string                                                    `json:"Topologies" xml:"Topologies" require:"true"`
-	DelayedSeconds         *int                                                       `json:"DelayedSeconds" xml:"DelayedSeconds" require:"true"`
-	ExpiredTime            *string                                                    `json:"ExpiredTime" xml:"ExpiredTime" require:"true"`
-	RdsReadWriteMode       *string                                                    `json:"RdsReadWriteMode" xml:"RdsReadWriteMode" require:"true"`
-	DBClusterReadWriteMode *string                                                    `json:"DBClusterReadWriteMode" xml:"DBClusterReadWriteMode" require:"true"`
-	Comment                *string                                                    `json:"Comment" xml:"Comment" require:"true"`
-	DBClusterEndpointList  []*DescribeDBClusterMigrationResponseDBClusterEndpointList `json:"DBClusterEndpointList" xml:"DBClusterEndpointList" require:"true" type:"Repeated"`
-	RdsEndpointList        []*DescribeDBClusterMigrationResponseRdsEndpointList       `json:"RdsEndpointList" xml:"RdsEndpointList" require:"true" type:"Repeated"`
+	RequestId              *string                                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId            *string                                                    `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	SourceRDSDBInstanceId  *string                                                    `json:"SourceRDSDBInstanceId,omitempty" xml:"SourceRDSDBInstanceId,omitempty" require:"true"`
+	MigrationStatus        *string                                                    `json:"MigrationStatus,omitempty" xml:"MigrationStatus,omitempty" require:"true"`
+	Topologies             *string                                                    `json:"Topologies,omitempty" xml:"Topologies,omitempty" require:"true"`
+	DelayedSeconds         *int                                                       `json:"DelayedSeconds,omitempty" xml:"DelayedSeconds,omitempty" require:"true"`
+	ExpiredTime            *string                                                    `json:"ExpiredTime,omitempty" xml:"ExpiredTime,omitempty" require:"true"`
+	RdsReadWriteMode       *string                                                    `json:"RdsReadWriteMode,omitempty" xml:"RdsReadWriteMode,omitempty" require:"true"`
+	DBClusterReadWriteMode *string                                                    `json:"DBClusterReadWriteMode,omitempty" xml:"DBClusterReadWriteMode,omitempty" require:"true"`
+	Comment                *string                                                    `json:"Comment,omitempty" xml:"Comment,omitempty" require:"true"`
+	DBClusterEndpointList  []*DescribeDBClusterMigrationResponseDBClusterEndpointList `json:"DBClusterEndpointList,omitempty" xml:"DBClusterEndpointList,omitempty" require:"true" type:"Repeated"`
+	RdsEndpointList        []*DescribeDBClusterMigrationResponseRdsEndpointList       `json:"RdsEndpointList,omitempty" xml:"RdsEndpointList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterMigrationResponse) String() string {
@@ -1623,9 +1233,9 @@ func (s *DescribeDBClusterMigrationResponse) SetRdsEndpointList(v []*DescribeDBC
 }
 
 type DescribeDBClusterMigrationResponseDBClusterEndpointList struct {
-	DBEndpointId *string                                                                `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	EndpointType *string                                                                `json:"EndpointType" xml:"EndpointType" require:"true"`
-	AddressItems []*DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems `json:"AddressItems" xml:"AddressItems" require:"true" type:"Repeated"`
+	DBEndpointId *string                                                                `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	EndpointType *string                                                                `json:"EndpointType,omitempty" xml:"EndpointType,omitempty" require:"true"`
+	AddressItems []*DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems `json:"AddressItems,omitempty" xml:"AddressItems,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterMigrationResponseDBClusterEndpointList) String() string {
@@ -1652,12 +1262,12 @@ func (s *DescribeDBClusterMigrationResponseDBClusterEndpointList) SetAddressItem
 }
 
 type DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems struct {
-	ConnectionString *string `json:"ConnectionString" xml:"ConnectionString" require:"true"`
-	IPAddress        *string `json:"IPAddress" xml:"IPAddress" require:"true"`
-	NetType          *string `json:"NetType" xml:"NetType" require:"true"`
-	Port             *string `json:"Port" xml:"Port" require:"true"`
-	VPCId            *string `json:"VPCId" xml:"VPCId" require:"true"`
-	VSwitchId        *string `json:"VSwitchId" xml:"VSwitchId" require:"true"`
+	ConnectionString *string `json:"ConnectionString,omitempty" xml:"ConnectionString,omitempty" require:"true"`
+	IPAddress        *string `json:"IPAddress,omitempty" xml:"IPAddress,omitempty" require:"true"`
+	NetType          *string `json:"NetType,omitempty" xml:"NetType,omitempty" require:"true"`
+	Port             *string `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	VPCId            *string `json:"VPCId,omitempty" xml:"VPCId,omitempty" require:"true"`
+	VSwitchId        *string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems) String() string {
@@ -1699,9 +1309,9 @@ func (s *DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems) Se
 }
 
 type DescribeDBClusterMigrationResponseRdsEndpointList struct {
-	DBEndpointId *string                                                          `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	EndpointType *string                                                          `json:"EndpointType" xml:"EndpointType" require:"true"`
-	AddressItems []*DescribeDBClusterMigrationResponseRdsEndpointListAddressItems `json:"AddressItems" xml:"AddressItems" require:"true" type:"Repeated"`
+	DBEndpointId *string                                                          `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	EndpointType *string                                                          `json:"EndpointType,omitempty" xml:"EndpointType,omitempty" require:"true"`
+	AddressItems []*DescribeDBClusterMigrationResponseRdsEndpointListAddressItems `json:"AddressItems,omitempty" xml:"AddressItems,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterMigrationResponseRdsEndpointList) String() string {
@@ -1728,12 +1338,12 @@ func (s *DescribeDBClusterMigrationResponseRdsEndpointList) SetAddressItems(v []
 }
 
 type DescribeDBClusterMigrationResponseRdsEndpointListAddressItems struct {
-	ConnectionString *string `json:"ConnectionString" xml:"ConnectionString" require:"true"`
-	IPAddress        *string `json:"IPAddress" xml:"IPAddress" require:"true"`
-	NetType          *string `json:"NetType" xml:"NetType" require:"true"`
-	Port             *string `json:"Port" xml:"Port" require:"true"`
-	VPCId            *string `json:"VPCId" xml:"VPCId" require:"true"`
-	VSwitchId        *string `json:"VSwitchId" xml:"VSwitchId" require:"true"`
+	ConnectionString *string `json:"ConnectionString,omitempty" xml:"ConnectionString,omitempty" require:"true"`
+	IPAddress        *string `json:"IPAddress,omitempty" xml:"IPAddress,omitempty" require:"true"`
+	NetType          *string `json:"NetType,omitempty" xml:"NetType,omitempty" require:"true"`
+	Port             *string `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	VPCId            *string `json:"VPCId,omitempty" xml:"VPCId,omitempty" require:"true"`
+	VSwitchId        *string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterMigrationResponseRdsEndpointListAddressItems) String() string {
@@ -1775,13 +1385,8 @@ func (s *DescribeDBClusterMigrationResponseRdsEndpointListAddressItems) SetVSwit
 }
 
 type CloseDBClusterMigrationRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	ContinueEnableBinlog *bool   `json:"ContinueEnableBinlog" xml:"ContinueEnableBinlog"`
+	DBClusterId          *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	ContinueEnableBinlog *bool   `json:"ContinueEnableBinlog,omitempty" xml:"ContinueEnableBinlog,omitempty"`
 }
 
 func (s CloseDBClusterMigrationRequest) String() string {
@@ -1790,31 +1395,6 @@ func (s CloseDBClusterMigrationRequest) String() string {
 
 func (s CloseDBClusterMigrationRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CloseDBClusterMigrationRequest) SetAccessKeyId(v string) *CloseDBClusterMigrationRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CloseDBClusterMigrationRequest) SetOwnerId(v int64) *CloseDBClusterMigrationRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CloseDBClusterMigrationRequest) SetResourceOwnerAccount(v string) *CloseDBClusterMigrationRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CloseDBClusterMigrationRequest) SetResourceOwnerId(v int64) *CloseDBClusterMigrationRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CloseDBClusterMigrationRequest) SetOwnerAccount(v string) *CloseDBClusterMigrationRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CloseDBClusterMigrationRequest) SetDBClusterId(v string) *CloseDBClusterMigrationRequest {
@@ -1828,7 +1408,7 @@ func (s *CloseDBClusterMigrationRequest) SetContinueEnableBinlog(v bool) *CloseD
 }
 
 type CloseDBClusterMigrationResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CloseDBClusterMigrationResponse) String() string {
@@ -1845,16 +1425,11 @@ func (s *CloseDBClusterMigrationResponse) SetRequestId(v string) *CloseDBCluster
 }
 
 type ModifyDBClusterMigrationRequest struct {
-	SecurityToken         *string `json:"SecurityToken" xml:"SecurityToken"`
-	AccessKeyId           *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId               *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount  *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId       *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount          *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId           *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	SourceRDSDBInstanceId *string `json:"SourceRDSDBInstanceId" xml:"SourceRDSDBInstanceId" require:"true"`
-	NewMasterInstanceId   *string `json:"NewMasterInstanceId" xml:"NewMasterInstanceId" require:"true"`
-	SwapConnectionString  *string `json:"SwapConnectionString" xml:"SwapConnectionString"`
+	SecurityToken         *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DBClusterId           *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	SourceRDSDBInstanceId *string `json:"SourceRDSDBInstanceId,omitempty" xml:"SourceRDSDBInstanceId,omitempty" require:"true"`
+	NewMasterInstanceId   *string `json:"NewMasterInstanceId,omitempty" xml:"NewMasterInstanceId,omitempty" require:"true"`
+	SwapConnectionString  *string `json:"SwapConnectionString,omitempty" xml:"SwapConnectionString,omitempty"`
 }
 
 func (s ModifyDBClusterMigrationRequest) String() string {
@@ -1867,31 +1442,6 @@ func (s ModifyDBClusterMigrationRequest) GoString() string {
 
 func (s *ModifyDBClusterMigrationRequest) SetSecurityToken(v string) *ModifyDBClusterMigrationRequest {
 	s.SecurityToken = &v
-	return s
-}
-
-func (s *ModifyDBClusterMigrationRequest) SetAccessKeyId(v string) *ModifyDBClusterMigrationRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMigrationRequest) SetOwnerId(v int64) *ModifyDBClusterMigrationRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMigrationRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterMigrationRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterMigrationRequest) SetResourceOwnerId(v int64) *ModifyDBClusterMigrationRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMigrationRequest) SetOwnerAccount(v string) *ModifyDBClusterMigrationRequest {
-	s.OwnerAccount = &v
 	return s
 }
 
@@ -1916,7 +1466,7 @@ func (s *ModifyDBClusterMigrationRequest) SetSwapConnectionString(v string) *Mod
 }
 
 type ModifyDBClusterMigrationResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterMigrationResponse) String() string {
@@ -1933,17 +1483,12 @@ func (s *ModifyDBClusterMigrationResponse) SetRequestId(v string) *ModifyDBClust
 }
 
 type ModifyAutoRenewAttributeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterIds         *string `json:"DBClusterIds" xml:"DBClusterIds" require:"true"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	RenewalStatus        *string `json:"RenewalStatus" xml:"RenewalStatus"`
-	Duration             *string `json:"Duration" xml:"Duration"`
-	PeriodUnit           *string `json:"PeriodUnit" xml:"PeriodUnit"`
-	ResourceGroupId      *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	DBClusterIds    *string `json:"DBClusterIds,omitempty" xml:"DBClusterIds,omitempty" require:"true"`
+	RegionId        *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RenewalStatus   *string `json:"RenewalStatus,omitempty" xml:"RenewalStatus,omitempty"`
+	Duration        *string `json:"Duration,omitempty" xml:"Duration,omitempty"`
+	PeriodUnit      *string `json:"PeriodUnit,omitempty" xml:"PeriodUnit,omitempty"`
+	ResourceGroupId *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s ModifyAutoRenewAttributeRequest) String() string {
@@ -1952,31 +1497,6 @@ func (s ModifyAutoRenewAttributeRequest) String() string {
 
 func (s ModifyAutoRenewAttributeRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyAutoRenewAttributeRequest) SetAccessKeyId(v string) *ModifyAutoRenewAttributeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyAutoRenewAttributeRequest) SetOwnerId(v int64) *ModifyAutoRenewAttributeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyAutoRenewAttributeRequest) SetResourceOwnerAccount(v string) *ModifyAutoRenewAttributeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyAutoRenewAttributeRequest) SetResourceOwnerId(v int64) *ModifyAutoRenewAttributeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyAutoRenewAttributeRequest) SetOwnerAccount(v string) *ModifyAutoRenewAttributeRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyAutoRenewAttributeRequest) SetDBClusterIds(v string) *ModifyAutoRenewAttributeRequest {
@@ -2010,7 +1530,7 @@ func (s *ModifyAutoRenewAttributeRequest) SetResourceGroupId(v string) *ModifyAu
 }
 
 type ModifyAutoRenewAttributeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAutoRenewAttributeResponse) String() string {
@@ -2027,15 +1547,10 @@ func (s *ModifyAutoRenewAttributeResponse) SetRequestId(v string) *ModifyAutoRen
 }
 
 type ModifyDBNodeClassRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	ModifyType           *string `json:"ModifyType" xml:"ModifyType" require:"true"`
-	DBNodeTargetClass    *string `json:"DBNodeTargetClass" xml:"DBNodeTargetClass" require:"true"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	DBClusterId       *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	ModifyType        *string `json:"ModifyType,omitempty" xml:"ModifyType,omitempty" require:"true"`
+	DBNodeTargetClass *string `json:"DBNodeTargetClass,omitempty" xml:"DBNodeTargetClass,omitempty" require:"true"`
+	ClientToken       *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s ModifyDBNodeClassRequest) String() string {
@@ -2044,31 +1559,6 @@ func (s ModifyDBNodeClassRequest) String() string {
 
 func (s ModifyDBNodeClassRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBNodeClassRequest) SetAccessKeyId(v string) *ModifyDBNodeClassRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBNodeClassRequest) SetOwnerId(v int64) *ModifyDBNodeClassRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBNodeClassRequest) SetResourceOwnerAccount(v string) *ModifyDBNodeClassRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBNodeClassRequest) SetResourceOwnerId(v int64) *ModifyDBNodeClassRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBNodeClassRequest) SetOwnerAccount(v string) *ModifyDBNodeClassRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBNodeClassRequest) SetDBClusterId(v string) *ModifyDBNodeClassRequest {
@@ -2092,9 +1582,9 @@ func (s *ModifyDBNodeClassRequest) SetClientToken(v string) *ModifyDBNodeClassRe
 }
 
 type ModifyDBNodeClassResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	OrderId     *string `json:"OrderId" xml:"OrderId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	OrderId     *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s ModifyDBNodeClassResponse) String() string {
@@ -2121,16 +1611,11 @@ func (s *ModifyDBNodeClassResponse) SetOrderId(v string) *ModifyDBNodeClassRespo
 }
 
 type DescribeAutoRenewAttributeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	DBClusterIds         *string `json:"DBClusterIds" xml:"DBClusterIds"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
-	ResourceGroupId      *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	RegionId        *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DBClusterIds    *string `json:"DBClusterIds,omitempty" xml:"DBClusterIds,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber      *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	ResourceGroupId *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s DescribeAutoRenewAttributeRequest) String() string {
@@ -2139,31 +1624,6 @@ func (s DescribeAutoRenewAttributeRequest) String() string {
 
 func (s DescribeAutoRenewAttributeRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeAutoRenewAttributeRequest) SetAccessKeyId(v string) *DescribeAutoRenewAttributeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeAutoRenewAttributeRequest) SetOwnerId(v int64) *DescribeAutoRenewAttributeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeAutoRenewAttributeRequest) SetResourceOwnerAccount(v string) *DescribeAutoRenewAttributeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeAutoRenewAttributeRequest) SetResourceOwnerId(v int64) *DescribeAutoRenewAttributeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeAutoRenewAttributeRequest) SetOwnerAccount(v string) *DescribeAutoRenewAttributeRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeAutoRenewAttributeRequest) SetRegionId(v string) *DescribeAutoRenewAttributeRequest {
@@ -2192,11 +1652,11 @@ func (s *DescribeAutoRenewAttributeRequest) SetResourceGroupId(v string) *Descri
 }
 
 type DescribeAutoRenewAttributeResponse struct {
-	RequestId        *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber       *int                                     `json:"PageNumber" xml:"PageNumber" require:"true"`
-	TotalRecordCount *int                                     `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageRecordCount  *int                                     `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeAutoRenewAttributeResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber       *int                                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	TotalRecordCount *int                                     `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageRecordCount  *int                                     `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeAutoRenewAttributeResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeAutoRenewAttributeResponse) String() string {
@@ -2233,7 +1693,7 @@ func (s *DescribeAutoRenewAttributeResponse) SetItems(v *DescribeAutoRenewAttrib
 }
 
 type DescribeAutoRenewAttributeResponseItems struct {
-	AutoRenewAttribute []*DescribeAutoRenewAttributeResponseItemsAutoRenewAttribute `json:"AutoRenewAttribute" xml:"AutoRenewAttribute" require:"true" type:"Repeated"`
+	AutoRenewAttribute []*DescribeAutoRenewAttributeResponseItemsAutoRenewAttribute `json:"AutoRenewAttribute,omitempty" xml:"AutoRenewAttribute,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAutoRenewAttributeResponseItems) String() string {
@@ -2250,12 +1710,12 @@ func (s *DescribeAutoRenewAttributeResponseItems) SetAutoRenewAttribute(v []*Des
 }
 
 type DescribeAutoRenewAttributeResponseItemsAutoRenewAttribute struct {
-	DBClusterId      *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	RegionId         *string `json:"RegionId" xml:"RegionId" require:"true"`
-	AutoRenewEnabled *bool   `json:"AutoRenewEnabled" xml:"AutoRenewEnabled" require:"true"`
-	Duration         *int    `json:"Duration" xml:"Duration" require:"true"`
-	PeriodUnit       *string `json:"PeriodUnit" xml:"PeriodUnit" require:"true"`
-	RenewalStatus    *string `json:"RenewalStatus" xml:"RenewalStatus" require:"true"`
+	DBClusterId      *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	AutoRenewEnabled *bool   `json:"AutoRenewEnabled,omitempty" xml:"AutoRenewEnabled,omitempty" require:"true"`
+	Duration         *int    `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	PeriodUnit       *string `json:"PeriodUnit,omitempty" xml:"PeriodUnit,omitempty" require:"true"`
+	RenewalStatus    *string `json:"RenewalStatus,omitempty" xml:"RenewalStatus,omitempty" require:"true"`
 }
 
 func (s DescribeAutoRenewAttributeResponseItemsAutoRenewAttribute) String() string {
@@ -2297,14 +1757,9 @@ func (s *DescribeAutoRenewAttributeResponseItemsAutoRenewAttribute) SetRenewalSt
 }
 
 type CreateDBNodesRequest struct {
-	AccessKeyId          *string                       `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64                        `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                       `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                        `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string                       `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string                       `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBNode               []*CreateDBNodesRequestDBNode `json:"DBNode" xml:"DBNode" require:"true" type:"Repeated"`
-	ClientToken          *string                       `json:"ClientToken" xml:"ClientToken"`
+	DBClusterId *string                       `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBNode      []*CreateDBNodesRequestDBNode `json:"DBNode,omitempty" xml:"DBNode,omitempty" require:"true" type:"Repeated"`
+	ClientToken *string                       `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s CreateDBNodesRequest) String() string {
@@ -2313,31 +1768,6 @@ func (s CreateDBNodesRequest) String() string {
 
 func (s CreateDBNodesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateDBNodesRequest) SetAccessKeyId(v string) *CreateDBNodesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateDBNodesRequest) SetOwnerId(v int64) *CreateDBNodesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateDBNodesRequest) SetResourceOwnerAccount(v string) *CreateDBNodesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateDBNodesRequest) SetResourceOwnerId(v int64) *CreateDBNodesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateDBNodesRequest) SetOwnerAccount(v string) *CreateDBNodesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateDBNodesRequest) SetDBClusterId(v string) *CreateDBNodesRequest {
@@ -2356,8 +1786,8 @@ func (s *CreateDBNodesRequest) SetClientToken(v string) *CreateDBNodesRequest {
 }
 
 type CreateDBNodesRequestDBNode struct {
-	TargetClass *string `json:"TargetClass" xml:"TargetClass" require:"true"`
-	ZoneId      *string `json:"ZoneId" xml:"ZoneId" require:"true"`
+	TargetClass *string `json:"TargetClass,omitempty" xml:"TargetClass,omitempty" require:"true"`
+	ZoneId      *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
 }
 
 func (s CreateDBNodesRequestDBNode) String() string {
@@ -2379,10 +1809,10 @@ func (s *CreateDBNodesRequestDBNode) SetZoneId(v string) *CreateDBNodesRequestDB
 }
 
 type CreateDBNodesResponse struct {
-	RequestId   *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId *string                         `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	OrderId     *string                         `json:"OrderId" xml:"OrderId" require:"true"`
-	DBNodeIds   *CreateDBNodesResponseDBNodeIds `json:"DBNodeIds" xml:"DBNodeIds" require:"true" type:"Struct"`
+	RequestId   *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId *string                         `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	OrderId     *string                         `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	DBNodeIds   *CreateDBNodesResponseDBNodeIds `json:"DBNodeIds,omitempty" xml:"DBNodeIds,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateDBNodesResponse) String() string {
@@ -2414,7 +1844,7 @@ func (s *CreateDBNodesResponse) SetDBNodeIds(v *CreateDBNodesResponseDBNodeIds) 
 }
 
 type CreateDBNodesResponseDBNodeIds struct {
-	DBNodeId []*string `json:"DBNodeId" xml:"DBNodeId" require:"true" type:"Repeated"`
+	DBNodeId []*string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateDBNodesResponseDBNodeIds) String() string {
@@ -2431,14 +1861,9 @@ func (s *CreateDBNodesResponseDBNodeIds) SetDBNodeId(v []*string) *CreateDBNodes
 }
 
 type DeleteDBNodesRequest struct {
-	AccessKeyId          *string   `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64    `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string   `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64    `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string   `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string   `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBNodeId             []*string `json:"DBNodeId" xml:"DBNodeId" require:"true" type:"Repeated"`
-	ClientToken          *string   `json:"ClientToken" xml:"ClientToken"`
+	DBClusterId *string   `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBNodeId    []*string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true" type:"Repeated"`
+	ClientToken *string   `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s DeleteDBNodesRequest) String() string {
@@ -2447,31 +1872,6 @@ func (s DeleteDBNodesRequest) String() string {
 
 func (s DeleteDBNodesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDBNodesRequest) SetAccessKeyId(v string) *DeleteDBNodesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteDBNodesRequest) SetOwnerId(v int64) *DeleteDBNodesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteDBNodesRequest) SetResourceOwnerAccount(v string) *DeleteDBNodesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteDBNodesRequest) SetResourceOwnerId(v int64) *DeleteDBNodesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteDBNodesRequest) SetOwnerAccount(v string) *DeleteDBNodesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteDBNodesRequest) SetDBClusterId(v string) *DeleteDBNodesRequest {
@@ -2490,9 +1890,9 @@ func (s *DeleteDBNodesRequest) SetClientToken(v string) *DeleteDBNodesRequest {
 }
 
 type DeleteDBNodesResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	OrderId     *string `json:"OrderId" xml:"OrderId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	OrderId     *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s DeleteDBNodesResponse) String() string {
@@ -2519,16 +1919,11 @@ func (s *DeleteDBNodesResponse) SetOrderId(v string) *DeleteDBNodesResponse {
 }
 
 type UntagResourcesRequest struct {
-	AccessKeyId          *string   `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64    `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string   `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64    `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string   `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	ResourceType         *string   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	ResourceId           []*string `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
-	TagKey               []*string `json:"TagKey" xml:"TagKey" type:"Repeated"`
-	All                  *bool     `json:"All" xml:"All"`
+	RegionId     *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceType *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceId   []*string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	TagKey       []*string `json:"TagKey,omitempty" xml:"TagKey,omitempty" type:"Repeated"`
+	All          *bool     `json:"All,omitempty" xml:"All,omitempty"`
 }
 
 func (s UntagResourcesRequest) String() string {
@@ -2537,31 +1932,6 @@ func (s UntagResourcesRequest) String() string {
 
 func (s UntagResourcesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UntagResourcesRequest) SetAccessKeyId(v string) *UntagResourcesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UntagResourcesRequest) SetOwnerId(v int64) *UntagResourcesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UntagResourcesRequest) SetResourceOwnerAccount(v string) *UntagResourcesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UntagResourcesRequest) SetResourceOwnerId(v int64) *UntagResourcesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *UntagResourcesRequest) SetOwnerAccount(v string) *UntagResourcesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *UntagResourcesRequest) SetRegionId(v string) *UntagResourcesRequest {
@@ -2590,7 +1960,7 @@ func (s *UntagResourcesRequest) SetAll(v bool) *UntagResourcesRequest {
 }
 
 type UntagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UntagResourcesResponse) String() string {
@@ -2607,15 +1977,10 @@ func (s *UntagResourcesResponse) SetRequestId(v string) *UntagResourcesResponse 
 }
 
 type TagResourcesRequest struct {
-	AccessKeyId          *string                   `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64                    `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                   `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                    `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string                   `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string                   `json:"RegionId" xml:"RegionId" require:"true"`
-	ResourceType         *string                   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	ResourceId           []*string                 `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
-	Tag                  []*TagResourcesRequestTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	RegionId     *string                   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceType *string                   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceId   []*string                 `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	Tag          []*TagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s TagResourcesRequest) String() string {
@@ -2624,31 +1989,6 @@ func (s TagResourcesRequest) String() string {
 
 func (s TagResourcesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *TagResourcesRequest) SetAccessKeyId(v string) *TagResourcesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *TagResourcesRequest) SetOwnerId(v int64) *TagResourcesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *TagResourcesRequest) SetResourceOwnerAccount(v string) *TagResourcesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *TagResourcesRequest) SetResourceOwnerId(v int64) *TagResourcesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *TagResourcesRequest) SetOwnerAccount(v string) *TagResourcesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *TagResourcesRequest) SetRegionId(v string) *TagResourcesRequest {
@@ -2672,8 +2012,8 @@ func (s *TagResourcesRequest) SetTag(v []*TagResourcesRequestTag) *TagResourcesR
 }
 
 type TagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s TagResourcesRequestTag) String() string {
@@ -2695,7 +2035,7 @@ func (s *TagResourcesRequestTag) SetValue(v string) *TagResourcesRequestTag {
 }
 
 type TagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s TagResourcesResponse) String() string {
@@ -2712,16 +2052,11 @@ func (s *TagResourcesResponse) SetRequestId(v string) *TagResourcesResponse {
 }
 
 type ListTagResourcesRequest struct {
-	AccessKeyId          *string                       `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64                        `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                       `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                        `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string                       `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string                       `json:"RegionId" xml:"RegionId" require:"true"`
-	ResourceType         *string                       `json:"ResourceType" xml:"ResourceType" require:"true"`
-	ResourceId           []*string                     `json:"ResourceId" xml:"ResourceId" type:"Repeated"`
-	Tag                  []*ListTagResourcesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	NextToken            *string                       `json:"NextToken" xml:"NextToken"`
+	RegionId     *string                       `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceType *string                       `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceId   []*string                     `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" type:"Repeated"`
+	Tag          []*ListTagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	NextToken    *string                       `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
 }
 
 func (s ListTagResourcesRequest) String() string {
@@ -2730,31 +2065,6 @@ func (s ListTagResourcesRequest) String() string {
 
 func (s ListTagResourcesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListTagResourcesRequest) SetAccessKeyId(v string) *ListTagResourcesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListTagResourcesRequest) SetOwnerId(v int64) *ListTagResourcesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListTagResourcesRequest) SetResourceOwnerAccount(v string) *ListTagResourcesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListTagResourcesRequest) SetResourceOwnerId(v int64) *ListTagResourcesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ListTagResourcesRequest) SetOwnerAccount(v string) *ListTagResourcesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ListTagResourcesRequest) SetRegionId(v string) *ListTagResourcesRequest {
@@ -2783,8 +2093,8 @@ func (s *ListTagResourcesRequest) SetNextToken(v string) *ListTagResourcesReques
 }
 
 type ListTagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ListTagResourcesRequestTag) String() string {
@@ -2806,9 +2116,9 @@ func (s *ListTagResourcesRequestTag) SetValue(v string) *ListTagResourcesRequest
 }
 
 type ListTagResourcesResponse struct {
-	RequestId    *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	NextToken    *string                               `json:"NextToken" xml:"NextToken" require:"true"`
-	TagResources *ListTagResourcesResponseTagResources `json:"TagResources" xml:"TagResources" require:"true" type:"Struct"`
+	RequestId    *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken    *string                               `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	TagResources *ListTagResourcesResponseTagResources `json:"TagResources,omitempty" xml:"TagResources,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListTagResourcesResponse) String() string {
@@ -2835,7 +2145,7 @@ func (s *ListTagResourcesResponse) SetTagResources(v *ListTagResourcesResponseTa
 }
 
 type ListTagResourcesResponseTagResources struct {
-	TagResource []*ListTagResourcesResponseTagResourcesTagResource `json:"TagResource" xml:"TagResource" require:"true" type:"Repeated"`
+	TagResource []*ListTagResourcesResponseTagResourcesTagResource `json:"TagResource,omitempty" xml:"TagResource,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTagResourcesResponseTagResources) String() string {
@@ -2852,10 +2162,10 @@ func (s *ListTagResourcesResponseTagResources) SetTagResource(v []*ListTagResour
 }
 
 type ListTagResourcesResponseTagResourcesTagResource struct {
-	TagKey       *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue     *string `json:"TagValue" xml:"TagValue" require:"true"`
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	ResourceId   *string `json:"ResourceId" xml:"ResourceId" require:"true"`
+	TagKey       *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue     *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceId   *string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
 }
 
 func (s ListTagResourcesResponseTagResourcesTagResource) String() string {
@@ -2887,17 +2197,13 @@ func (s *ListTagResourcesResponseTagResourcesTagResource) SetResourceId(v string
 }
 
 type ModifyDBEndpointAddressRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount             *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId              *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBEndpointId             *string `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	NetType                  *string `json:"NetType" xml:"NetType" require:"true"`
-	ConnectionStringPrefix   *string `json:"ConnectionStringPrefix" xml:"ConnectionStringPrefix"`
-	PrivateZoneAddressPrefix *string `json:"PrivateZoneAddressPrefix" xml:"PrivateZoneAddressPrefix"`
-	PrivateZoneName          *string `json:"PrivateZoneName" xml:"PrivateZoneName"`
+	DBClusterId              *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBEndpointId             *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	NetType                  *string `json:"NetType,omitempty" xml:"NetType,omitempty" require:"true"`
+	ConnectionStringPrefix   *string `json:"ConnectionStringPrefix,omitempty" xml:"ConnectionStringPrefix,omitempty"`
+	PrivateZoneAddressPrefix *string `json:"PrivateZoneAddressPrefix,omitempty" xml:"PrivateZoneAddressPrefix,omitempty"`
+	PrivateZoneName          *string `json:"PrivateZoneName,omitempty" xml:"PrivateZoneName,omitempty"`
+	Port                     *string `json:"Port,omitempty" xml:"Port,omitempty"`
 }
 
 func (s ModifyDBEndpointAddressRequest) String() string {
@@ -2906,31 +2212,6 @@ func (s ModifyDBEndpointAddressRequest) String() string {
 
 func (s ModifyDBEndpointAddressRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBEndpointAddressRequest) SetAccessKeyId(v string) *ModifyDBEndpointAddressRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBEndpointAddressRequest) SetOwnerId(v int64) *ModifyDBEndpointAddressRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBEndpointAddressRequest) SetResourceOwnerAccount(v string) *ModifyDBEndpointAddressRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBEndpointAddressRequest) SetResourceOwnerId(v int64) *ModifyDBEndpointAddressRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBEndpointAddressRequest) SetOwnerAccount(v string) *ModifyDBEndpointAddressRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBEndpointAddressRequest) SetDBClusterId(v string) *ModifyDBEndpointAddressRequest {
@@ -2963,8 +2244,13 @@ func (s *ModifyDBEndpointAddressRequest) SetPrivateZoneName(v string) *ModifyDBE
 	return s
 }
 
+func (s *ModifyDBEndpointAddressRequest) SetPort(v string) *ModifyDBEndpointAddressRequest {
+	s.Port = &v
+	return s
+}
+
 type ModifyDBEndpointAddressResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBEndpointAddressResponse) String() string {
@@ -2981,14 +2267,9 @@ func (s *ModifyDBEndpointAddressResponse) SetRequestId(v string) *ModifyDBEndpoi
 }
 
 type ModifyDBDescriptionRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName" require:"true"`
-	DBDescription        *string `json:"DBDescription" xml:"DBDescription" require:"true"`
+	DBClusterId   *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBName        *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	DBDescription *string `json:"DBDescription,omitempty" xml:"DBDescription,omitempty" require:"true"`
 }
 
 func (s ModifyDBDescriptionRequest) String() string {
@@ -2997,31 +2278,6 @@ func (s ModifyDBDescriptionRequest) String() string {
 
 func (s ModifyDBDescriptionRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBDescriptionRequest) SetAccessKeyId(v string) *ModifyDBDescriptionRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBDescriptionRequest) SetOwnerId(v int64) *ModifyDBDescriptionRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBDescriptionRequest) SetResourceOwnerAccount(v string) *ModifyDBDescriptionRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBDescriptionRequest) SetResourceOwnerId(v int64) *ModifyDBDescriptionRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBDescriptionRequest) SetOwnerAccount(v string) *ModifyDBDescriptionRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBDescriptionRequest) SetDBClusterId(v string) *ModifyDBDescriptionRequest {
@@ -3040,7 +2296,7 @@ func (s *ModifyDBDescriptionRequest) SetDBDescription(v string) *ModifyDBDescrip
 }
 
 type ModifyDBDescriptionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBDescriptionResponse) String() string {
@@ -3057,14 +2313,9 @@ func (s *ModifyDBDescriptionResponse) SetRequestId(v string) *ModifyDBDescriptio
 }
 
 type ModifyDBClusterParametersRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	Parameters           *string `json:"Parameters" xml:"Parameters" require:"true"`
-	EffectiveTime        *string `json:"EffectiveTime" xml:"EffectiveTime"`
+	DBClusterId   *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	Parameters    *string `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true"`
+	EffectiveTime *string `json:"EffectiveTime,omitempty" xml:"EffectiveTime,omitempty"`
 }
 
 func (s ModifyDBClusterParametersRequest) String() string {
@@ -3073,31 +2324,6 @@ func (s ModifyDBClusterParametersRequest) String() string {
 
 func (s ModifyDBClusterParametersRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterParametersRequest) SetAccessKeyId(v string) *ModifyDBClusterParametersRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterParametersRequest) SetOwnerId(v int64) *ModifyDBClusterParametersRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterParametersRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterParametersRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterParametersRequest) SetResourceOwnerId(v int64) *ModifyDBClusterParametersRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterParametersRequest) SetOwnerAccount(v string) *ModifyDBClusterParametersRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBClusterParametersRequest) SetDBClusterId(v string) *ModifyDBClusterParametersRequest {
@@ -3116,7 +2342,7 @@ func (s *ModifyDBClusterParametersRequest) SetEffectiveTime(v string) *ModifyDBC
 }
 
 type ModifyDBClusterParametersResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterParametersResponse) String() string {
@@ -3133,17 +2359,12 @@ func (s *ModifyDBClusterParametersResponse) SetRequestId(v string) *ModifyDBClus
 }
 
 type ModifyDBClusterEndpointRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBEndpointId         *string `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	Nodes                *string `json:"Nodes" xml:"Nodes"`
-	ReadWriteMode        *string `json:"ReadWriteMode" xml:"ReadWriteMode"`
-	AutoAddNewNodes      *string `json:"AutoAddNewNodes" xml:"AutoAddNewNodes"`
-	EndpointConfig       *string `json:"EndpointConfig" xml:"EndpointConfig"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBEndpointId    *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	Nodes           *string `json:"Nodes,omitempty" xml:"Nodes,omitempty"`
+	ReadWriteMode   *string `json:"ReadWriteMode,omitempty" xml:"ReadWriteMode,omitempty"`
+	AutoAddNewNodes *string `json:"AutoAddNewNodes,omitempty" xml:"AutoAddNewNodes,omitempty"`
+	EndpointConfig  *string `json:"EndpointConfig,omitempty" xml:"EndpointConfig,omitempty"`
 }
 
 func (s ModifyDBClusterEndpointRequest) String() string {
@@ -3152,31 +2373,6 @@ func (s ModifyDBClusterEndpointRequest) String() string {
 
 func (s ModifyDBClusterEndpointRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterEndpointRequest) SetAccessKeyId(v string) *ModifyDBClusterEndpointRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterEndpointRequest) SetOwnerId(v int64) *ModifyDBClusterEndpointRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterEndpointRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterEndpointRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterEndpointRequest) SetResourceOwnerId(v int64) *ModifyDBClusterEndpointRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterEndpointRequest) SetOwnerAccount(v string) *ModifyDBClusterEndpointRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBClusterEndpointRequest) SetDBClusterId(v string) *ModifyDBClusterEndpointRequest {
@@ -3210,7 +2406,7 @@ func (s *ModifyDBClusterEndpointRequest) SetEndpointConfig(v string) *ModifyDBCl
 }
 
 type ModifyDBClusterEndpointResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterEndpointResponse) String() string {
@@ -3227,14 +2423,9 @@ func (s *ModifyDBClusterEndpointResponse) SetRequestId(v string) *ModifyDBCluste
 }
 
 type ModifyAccountPasswordRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
-	NewAccountPassword   *string `json:"NewAccountPassword" xml:"NewAccountPassword" require:"true"`
+	DBClusterId        *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName        *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	NewAccountPassword *string `json:"NewAccountPassword,omitempty" xml:"NewAccountPassword,omitempty" require:"true"`
 }
 
 func (s ModifyAccountPasswordRequest) String() string {
@@ -3243,31 +2434,6 @@ func (s ModifyAccountPasswordRequest) String() string {
 
 func (s ModifyAccountPasswordRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyAccountPasswordRequest) SetAccessKeyId(v string) *ModifyAccountPasswordRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyAccountPasswordRequest) SetOwnerId(v int64) *ModifyAccountPasswordRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyAccountPasswordRequest) SetResourceOwnerAccount(v string) *ModifyAccountPasswordRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyAccountPasswordRequest) SetResourceOwnerId(v int64) *ModifyAccountPasswordRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyAccountPasswordRequest) SetOwnerAccount(v string) *ModifyAccountPasswordRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyAccountPasswordRequest) SetDBClusterId(v string) *ModifyAccountPasswordRequest {
@@ -3286,7 +2452,7 @@ func (s *ModifyAccountPasswordRequest) SetNewAccountPassword(v string) *ModifyAc
 }
 
 type ModifyAccountPasswordResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAccountPasswordResponse) String() string {
@@ -3303,11 +2469,10 @@ func (s *ModifyAccountPasswordResponse) SetRequestId(v string) *ModifyAccountPas
 }
 
 type DescribeDBClusterPerformanceRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	DBClusterId *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	Key         *string `json:"Key" xml:"Key" require:"true"`
-	StartTime   *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime     *string `json:"EndTime" xml:"EndTime" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	Key         *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime     *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterPerformanceRequest) String() string {
@@ -3316,11 +2481,6 @@ func (s DescribeDBClusterPerformanceRequest) String() string {
 
 func (s DescribeDBClusterPerformanceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDBClusterPerformanceRequest) SetAccessKeyId(v string) *DescribeDBClusterPerformanceRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDBClusterPerformanceRequest) SetDBClusterId(v string) *DescribeDBClusterPerformanceRequest {
@@ -3344,14 +2504,14 @@ func (s *DescribeDBClusterPerformanceRequest) SetEndTime(v string) *DescribeDBCl
 }
 
 type DescribeDBClusterPerformanceResponse struct {
-	RequestId       *string                                              `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId     *string                                              `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	Engine          *string                                              `json:"Engine" xml:"Engine" require:"true"`
-	DBType          *string                                              `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion       *string                                              `json:"DBVersion" xml:"DBVersion" require:"true"`
-	StartTime       *string                                              `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime         *string                                              `json:"EndTime" xml:"EndTime" require:"true"`
-	PerformanceKeys *DescribeDBClusterPerformanceResponsePerformanceKeys `json:"PerformanceKeys" xml:"PerformanceKeys" require:"true" type:"Struct"`
+	RequestId       *string                                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId     *string                                              `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	Engine          *string                                              `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	DBType          *string                                              `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion       *string                                              `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	StartTime       *string                                              `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime         *string                                              `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PerformanceKeys *DescribeDBClusterPerformanceResponsePerformanceKeys `json:"PerformanceKeys,omitempty" xml:"PerformanceKeys,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClusterPerformanceResponse) String() string {
@@ -3403,7 +2563,7 @@ func (s *DescribeDBClusterPerformanceResponse) SetPerformanceKeys(v *DescribeDBC
 }
 
 type DescribeDBClusterPerformanceResponsePerformanceKeys struct {
-	PerformanceItem []*DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItem `json:"PerformanceItem" xml:"PerformanceItem" require:"true" type:"Repeated"`
+	PerformanceItem []*DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItem `json:"PerformanceItem,omitempty" xml:"PerformanceItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterPerformanceResponsePerformanceKeys) String() string {
@@ -3420,10 +2580,10 @@ func (s *DescribeDBClusterPerformanceResponsePerformanceKeys) SetPerformanceItem
 }
 
 type DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItem struct {
-	DBNodeId    *string                                                                   `json:"DBNodeId" xml:"DBNodeId" require:"true"`
-	Measurement *string                                                                   `json:"Measurement" xml:"Measurement" require:"true"`
-	MetricName  *string                                                                   `json:"MetricName" xml:"MetricName" require:"true"`
-	Points      *DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPoints `json:"Points" xml:"Points" require:"true" type:"Struct"`
+	DBNodeId    *string                                                                   `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
+	Measurement *string                                                                   `json:"Measurement,omitempty" xml:"Measurement,omitempty" require:"true"`
+	MetricName  *string                                                                   `json:"MetricName,omitempty" xml:"MetricName,omitempty" require:"true"`
+	Points      *DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPoints `json:"Points,omitempty" xml:"Points,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItem) String() string {
@@ -3455,7 +2615,7 @@ func (s *DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItem) Set
 }
 
 type DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPoints struct {
-	PerformanceItemValue []*DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue `json:"PerformanceItemValue" xml:"PerformanceItemValue" require:"true" type:"Repeated"`
+	PerformanceItemValue []*DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue `json:"PerformanceItemValue,omitempty" xml:"PerformanceItemValue,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPoints) String() string {
@@ -3472,8 +2632,8 @@ func (s *DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPoint
 }
 
 type DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue struct {
-	Value     *string `json:"Value" xml:"Value" require:"true"`
-	Timestamp *int64  `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Value     *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	Timestamp *int64  `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue) String() string {
@@ -3495,12 +2655,7 @@ func (s *DescribeDBClusterPerformanceResponsePerformanceKeysPerformanceItemPoint
 }
 
 type DescribeDBClusterParametersRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterParametersRequest) String() string {
@@ -3511,42 +2666,17 @@ func (s DescribeDBClusterParametersRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterParametersRequest) SetAccessKeyId(v string) *DescribeDBClusterParametersRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterParametersRequest) SetOwnerId(v int64) *DescribeDBClusterParametersRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterParametersRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterParametersRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterParametersRequest) SetResourceOwnerId(v int64) *DescribeDBClusterParametersRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterParametersRequest) SetOwnerAccount(v string) *DescribeDBClusterParametersRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeDBClusterParametersRequest) SetDBClusterId(v string) *DescribeDBClusterParametersRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeDBClusterParametersResponse struct {
-	RequestId         *string                                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Engine            *string                                               `json:"Engine" xml:"Engine" require:"true"`
-	DBType            *string                                               `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion         *string                                               `json:"DBVersion" xml:"DBVersion" require:"true"`
-	RunningParameters *DescribeDBClusterParametersResponseRunningParameters `json:"RunningParameters" xml:"RunningParameters" require:"true" type:"Struct"`
+	RequestId         *string                                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Engine            *string                                               `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	DBType            *string                                               `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion         *string                                               `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	RunningParameters *DescribeDBClusterParametersResponseRunningParameters `json:"RunningParameters,omitempty" xml:"RunningParameters,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClusterParametersResponse) String() string {
@@ -3583,7 +2713,7 @@ func (s *DescribeDBClusterParametersResponse) SetRunningParameters(v *DescribeDB
 }
 
 type DescribeDBClusterParametersResponseRunningParameters struct {
-	Parameter []*DescribeDBClusterParametersResponseRunningParametersParameter `json:"Parameter" xml:"Parameter" require:"true" type:"Repeated"`
+	Parameter []*DescribeDBClusterParametersResponseRunningParametersParameter `json:"Parameter,omitempty" xml:"Parameter,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterParametersResponseRunningParameters) String() string {
@@ -3600,15 +2730,15 @@ func (s *DescribeDBClusterParametersResponseRunningParameters) SetParameter(v []
 }
 
 type DescribeDBClusterParametersResponseRunningParametersParameter struct {
-	ParameterName         *string `json:"ParameterName" xml:"ParameterName" require:"true"`
-	DataType              *string `json:"DataType" xml:"DataType" require:"true"`
-	DefaultParameterValue *string `json:"DefaultParameterValue" xml:"DefaultParameterValue" require:"true"`
-	ParameterValue        *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	IsModifiable          *bool   `json:"IsModifiable" xml:"IsModifiable" require:"true"`
-	ForceRestart          *bool   `json:"ForceRestart" xml:"ForceRestart" require:"true"`
-	ParameterStatus       *string `json:"ParameterStatus" xml:"ParameterStatus" require:"true"`
-	CheckingCode          *string `json:"CheckingCode" xml:"CheckingCode" require:"true"`
-	ParameterDescription  *string `json:"ParameterDescription" xml:"ParameterDescription" require:"true"`
+	ParameterName         *string `json:"ParameterName,omitempty" xml:"ParameterName,omitempty" require:"true"`
+	DataType              *string `json:"DataType,omitempty" xml:"DataType,omitempty" require:"true"`
+	DefaultParameterValue *string `json:"DefaultParameterValue,omitempty" xml:"DefaultParameterValue,omitempty" require:"true"`
+	ParameterValue        *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	IsModifiable          *bool   `json:"IsModifiable,omitempty" xml:"IsModifiable,omitempty" require:"true"`
+	ForceRestart          *bool   `json:"ForceRestart,omitempty" xml:"ForceRestart,omitempty" require:"true"`
+	ParameterStatus       *string `json:"ParameterStatus,omitempty" xml:"ParameterStatus,omitempty" require:"true"`
+	CheckingCode          *string `json:"CheckingCode,omitempty" xml:"CheckingCode,omitempty" require:"true"`
+	ParameterDescription  *string `json:"ParameterDescription,omitempty" xml:"ParameterDescription,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterParametersResponseRunningParametersParameter) String() string {
@@ -3665,13 +2795,8 @@ func (s *DescribeDBClusterParametersResponseRunningParametersParameter) SetParam
 }
 
 type DescribeDBClusterEndpointsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBEndpointId         *string `json:"DBEndpointId" xml:"DBEndpointId"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBEndpointId *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty"`
 }
 
 func (s DescribeDBClusterEndpointsRequest) String() string {
@@ -3680,31 +2805,6 @@ func (s DescribeDBClusterEndpointsRequest) String() string {
 
 func (s DescribeDBClusterEndpointsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDBClusterEndpointsRequest) SetAccessKeyId(v string) *DescribeDBClusterEndpointsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterEndpointsRequest) SetOwnerId(v int64) *DescribeDBClusterEndpointsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterEndpointsRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterEndpointsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterEndpointsRequest) SetResourceOwnerId(v int64) *DescribeDBClusterEndpointsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterEndpointsRequest) SetOwnerAccount(v string) *DescribeDBClusterEndpointsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeDBClusterEndpointsRequest) SetDBClusterId(v string) *DescribeDBClusterEndpointsRequest {
@@ -3718,8 +2818,8 @@ func (s *DescribeDBClusterEndpointsRequest) SetDBEndpointId(v string) *DescribeD
 }
 
 type DescribeDBClusterEndpointsResponse struct {
-	RequestId *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Items     []*DescribeDBClusterEndpointsResponseItems `json:"Items" xml:"Items" require:"true" type:"Repeated"`
+	RequestId *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Items     []*DescribeDBClusterEndpointsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterEndpointsResponse) String() string {
@@ -3741,13 +2841,14 @@ func (s *DescribeDBClusterEndpointsResponse) SetItems(v []*DescribeDBClusterEndp
 }
 
 type DescribeDBClusterEndpointsResponseItems struct {
-	DBEndpointId    *string                                                `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	EndpointType    *string                                                `json:"EndpointType" xml:"EndpointType" require:"true"`
-	Nodes           *string                                                `json:"Nodes" xml:"Nodes" require:"true"`
-	ReadWriteMode   *string                                                `json:"ReadWriteMode" xml:"ReadWriteMode" require:"true"`
-	AutoAddNewNodes *string                                                `json:"AutoAddNewNodes" xml:"AutoAddNewNodes" require:"true"`
-	EndpointConfig  *string                                                `json:"EndpointConfig" xml:"EndpointConfig" require:"true"`
-	AddressItems    []*DescribeDBClusterEndpointsResponseItemsAddressItems `json:"AddressItems" xml:"AddressItems" require:"true" type:"Repeated"`
+	DBEndpointId    *string                                                `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	EndpointType    *string                                                `json:"EndpointType,omitempty" xml:"EndpointType,omitempty" require:"true"`
+	Nodes           *string                                                `json:"Nodes,omitempty" xml:"Nodes,omitempty" require:"true"`
+	ReadWriteMode   *string                                                `json:"ReadWriteMode,omitempty" xml:"ReadWriteMode,omitempty" require:"true"`
+	AutoAddNewNodes *string                                                `json:"AutoAddNewNodes,omitempty" xml:"AutoAddNewNodes,omitempty" require:"true"`
+	EndpointConfig  *string                                                `json:"EndpointConfig,omitempty" xml:"EndpointConfig,omitempty" require:"true"`
+	NodeWithRoles   *string                                                `json:"NodeWithRoles,omitempty" xml:"NodeWithRoles,omitempty" require:"true"`
+	AddressItems    []*DescribeDBClusterEndpointsResponseItemsAddressItems `json:"AddressItems,omitempty" xml:"AddressItems,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterEndpointsResponseItems) String() string {
@@ -3788,20 +2889,25 @@ func (s *DescribeDBClusterEndpointsResponseItems) SetEndpointConfig(v string) *D
 	return s
 }
 
+func (s *DescribeDBClusterEndpointsResponseItems) SetNodeWithRoles(v string) *DescribeDBClusterEndpointsResponseItems {
+	s.NodeWithRoles = &v
+	return s
+}
+
 func (s *DescribeDBClusterEndpointsResponseItems) SetAddressItems(v []*DescribeDBClusterEndpointsResponseItemsAddressItems) *DescribeDBClusterEndpointsResponseItems {
 	s.AddressItems = v
 	return s
 }
 
 type DescribeDBClusterEndpointsResponseItemsAddressItems struct {
-	ConnectionString            *string `json:"ConnectionString" xml:"ConnectionString" require:"true"`
-	IPAddress                   *string `json:"IPAddress" xml:"IPAddress" require:"true"`
-	NetType                     *string `json:"NetType" xml:"NetType" require:"true"`
-	Port                        *string `json:"Port" xml:"Port" require:"true"`
-	VPCId                       *string `json:"VPCId" xml:"VPCId" require:"true"`
-	VSwitchId                   *string `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	VpcInstanceId               *string `json:"VpcInstanceId" xml:"VpcInstanceId" require:"true"`
-	PrivateZoneConnectionString *string `json:"PrivateZoneConnectionString" xml:"PrivateZoneConnectionString" require:"true"`
+	ConnectionString            *string `json:"ConnectionString,omitempty" xml:"ConnectionString,omitempty" require:"true"`
+	IPAddress                   *string `json:"IPAddress,omitempty" xml:"IPAddress,omitempty" require:"true"`
+	NetType                     *string `json:"NetType,omitempty" xml:"NetType,omitempty" require:"true"`
+	Port                        *string `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	VPCId                       *string `json:"VPCId,omitempty" xml:"VPCId,omitempty" require:"true"`
+	VSwitchId                   *string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
+	VpcInstanceId               *string `json:"VpcInstanceId,omitempty" xml:"VpcInstanceId,omitempty" require:"true"`
+	PrivateZoneConnectionString *string `json:"PrivateZoneConnectionString,omitempty" xml:"PrivateZoneConnectionString,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterEndpointsResponseItemsAddressItems) String() string {
@@ -3853,14 +2959,9 @@ func (s *DescribeDBClusterEndpointsResponseItemsAddressItems) SetPrivateZoneConn
 }
 
 type DeleteDBEndpointAddressRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBEndpointId         *string `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	NetType              *string `json:"NetType" xml:"NetType" require:"true"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBEndpointId *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	NetType      *string `json:"NetType,omitempty" xml:"NetType,omitempty" require:"true"`
 }
 
 func (s DeleteDBEndpointAddressRequest) String() string {
@@ -3869,31 +2970,6 @@ func (s DeleteDBEndpointAddressRequest) String() string {
 
 func (s DeleteDBEndpointAddressRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDBEndpointAddressRequest) SetAccessKeyId(v string) *DeleteDBEndpointAddressRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteDBEndpointAddressRequest) SetOwnerId(v int64) *DeleteDBEndpointAddressRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteDBEndpointAddressRequest) SetResourceOwnerAccount(v string) *DeleteDBEndpointAddressRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteDBEndpointAddressRequest) SetResourceOwnerId(v int64) *DeleteDBEndpointAddressRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteDBEndpointAddressRequest) SetOwnerAccount(v string) *DeleteDBEndpointAddressRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteDBEndpointAddressRequest) SetDBClusterId(v string) *DeleteDBEndpointAddressRequest {
@@ -3912,7 +2988,7 @@ func (s *DeleteDBEndpointAddressRequest) SetNetType(v string) *DeleteDBEndpointA
 }
 
 type DeleteDBEndpointAddressResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteDBEndpointAddressResponse) String() string {
@@ -3929,13 +3005,8 @@ func (s *DeleteDBEndpointAddressResponse) SetRequestId(v string) *DeleteDBEndpoi
 }
 
 type DeleteDBClusterEndpointRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBEndpointId         *string `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBEndpointId *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
 }
 
 func (s DeleteDBClusterEndpointRequest) String() string {
@@ -3944,31 +3015,6 @@ func (s DeleteDBClusterEndpointRequest) String() string {
 
 func (s DeleteDBClusterEndpointRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDBClusterEndpointRequest) SetAccessKeyId(v string) *DeleteDBClusterEndpointRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteDBClusterEndpointRequest) SetOwnerId(v int64) *DeleteDBClusterEndpointRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteDBClusterEndpointRequest) SetResourceOwnerAccount(v string) *DeleteDBClusterEndpointRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteDBClusterEndpointRequest) SetResourceOwnerId(v int64) *DeleteDBClusterEndpointRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteDBClusterEndpointRequest) SetOwnerAccount(v string) *DeleteDBClusterEndpointRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteDBClusterEndpointRequest) SetDBClusterId(v string) *DeleteDBClusterEndpointRequest {
@@ -3982,7 +3028,7 @@ func (s *DeleteDBClusterEndpointRequest) SetDBEndpointId(v string) *DeleteDBClus
 }
 
 type DeleteDBClusterEndpointResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteDBClusterEndpointResponse) String() string {
@@ -3999,15 +3045,10 @@ func (s *DeleteDBClusterEndpointResponse) SetRequestId(v string) *DeleteDBCluste
 }
 
 type CreateDBEndpointAddressRequest struct {
-	AccessKeyId            *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount   *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId        *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount           *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId            *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBEndpointId           *string `json:"DBEndpointId" xml:"DBEndpointId" require:"true"`
-	ConnectionStringPrefix *string `json:"ConnectionStringPrefix" xml:"ConnectionStringPrefix"`
-	NetType                *string `json:"NetType" xml:"NetType" require:"true"`
+	DBClusterId            *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBEndpointId           *string `json:"DBEndpointId,omitempty" xml:"DBEndpointId,omitempty" require:"true"`
+	ConnectionStringPrefix *string `json:"ConnectionStringPrefix,omitempty" xml:"ConnectionStringPrefix,omitempty"`
+	NetType                *string `json:"NetType,omitempty" xml:"NetType,omitempty" require:"true"`
 }
 
 func (s CreateDBEndpointAddressRequest) String() string {
@@ -4016,31 +3057,6 @@ func (s CreateDBEndpointAddressRequest) String() string {
 
 func (s CreateDBEndpointAddressRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateDBEndpointAddressRequest) SetAccessKeyId(v string) *CreateDBEndpointAddressRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateDBEndpointAddressRequest) SetOwnerId(v int64) *CreateDBEndpointAddressRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateDBEndpointAddressRequest) SetResourceOwnerAccount(v string) *CreateDBEndpointAddressRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateDBEndpointAddressRequest) SetResourceOwnerId(v int64) *CreateDBEndpointAddressRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateDBEndpointAddressRequest) SetOwnerAccount(v string) *CreateDBEndpointAddressRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateDBEndpointAddressRequest) SetDBClusterId(v string) *CreateDBEndpointAddressRequest {
@@ -4064,7 +3080,7 @@ func (s *CreateDBEndpointAddressRequest) SetNetType(v string) *CreateDBEndpointA
 }
 
 type CreateDBEndpointAddressResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateDBEndpointAddressResponse) String() string {
@@ -4081,18 +3097,13 @@ func (s *CreateDBEndpointAddressResponse) SetRequestId(v string) *CreateDBEndpoi
 }
 
 type CreateDBClusterEndpointRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	EndpointType         *string `json:"EndpointType" xml:"EndpointType" require:"true"`
-	Nodes                *string `json:"Nodes" xml:"Nodes"`
-	ReadWriteMode        *string `json:"ReadWriteMode" xml:"ReadWriteMode"`
-	AutoAddNewNodes      *string `json:"AutoAddNewNodes" xml:"AutoAddNewNodes"`
-	EndpointConfig       *string `json:"EndpointConfig" xml:"EndpointConfig"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	EndpointType    *string `json:"EndpointType,omitempty" xml:"EndpointType,omitempty" require:"true"`
+	Nodes           *string `json:"Nodes,omitempty" xml:"Nodes,omitempty"`
+	ReadWriteMode   *string `json:"ReadWriteMode,omitempty" xml:"ReadWriteMode,omitempty"`
+	AutoAddNewNodes *string `json:"AutoAddNewNodes,omitempty" xml:"AutoAddNewNodes,omitempty"`
+	EndpointConfig  *string `json:"EndpointConfig,omitempty" xml:"EndpointConfig,omitempty"`
+	ClientToken     *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s CreateDBClusterEndpointRequest) String() string {
@@ -4101,31 +3112,6 @@ func (s CreateDBClusterEndpointRequest) String() string {
 
 func (s CreateDBClusterEndpointRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateDBClusterEndpointRequest) SetAccessKeyId(v string) *CreateDBClusterEndpointRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateDBClusterEndpointRequest) SetOwnerId(v int64) *CreateDBClusterEndpointRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateDBClusterEndpointRequest) SetResourceOwnerAccount(v string) *CreateDBClusterEndpointRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateDBClusterEndpointRequest) SetResourceOwnerId(v int64) *CreateDBClusterEndpointRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateDBClusterEndpointRequest) SetOwnerAccount(v string) *CreateDBClusterEndpointRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateDBClusterEndpointRequest) SetDBClusterId(v string) *CreateDBClusterEndpointRequest {
@@ -4164,7 +3150,7 @@ func (s *CreateDBClusterEndpointRequest) SetClientToken(v string) *CreateDBClust
 }
 
 type CreateDBClusterEndpointResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateDBClusterEndpointResponse) String() string {
@@ -4181,12 +3167,7 @@ func (s *CreateDBClusterEndpointResponse) SetRequestId(v string) *CreateDBCluste
 }
 
 type RestartDBNodeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBNodeId             *string `json:"DBNodeId" xml:"DBNodeId" require:"true"`
+	DBNodeId *string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
 }
 
 func (s RestartDBNodeRequest) String() string {
@@ -4197,38 +3178,13 @@ func (s RestartDBNodeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RestartDBNodeRequest) SetAccessKeyId(v string) *RestartDBNodeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *RestartDBNodeRequest) SetOwnerId(v int64) *RestartDBNodeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *RestartDBNodeRequest) SetResourceOwnerAccount(v string) *RestartDBNodeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *RestartDBNodeRequest) SetResourceOwnerId(v int64) *RestartDBNodeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *RestartDBNodeRequest) SetOwnerAccount(v string) *RestartDBNodeRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *RestartDBNodeRequest) SetDBNodeId(v string) *RestartDBNodeRequest {
 	s.DBNodeId = &v
 	return s
 }
 
 type RestartDBNodeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RestartDBNodeResponse) String() string {
@@ -4245,12 +3201,11 @@ func (s *RestartDBNodeResponse) SetRequestId(v string) *RestartDBNodeResponse {
 }
 
 type DescribeDBNodePerformanceRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	DBNodeId    *string `json:"DBNodeId" xml:"DBNodeId" require:"true"`
-	Key         *string `json:"Key" xml:"Key" require:"true"`
-	StartTime   *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime     *string `json:"EndTime" xml:"EndTime" require:"true"`
-	DBClusterId *string `json:"DBClusterId" xml:"DBClusterId"`
+	DBNodeId    *string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
+	Key         *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime     *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty"`
 }
 
 func (s DescribeDBNodePerformanceRequest) String() string {
@@ -4259,11 +3214,6 @@ func (s DescribeDBNodePerformanceRequest) String() string {
 
 func (s DescribeDBNodePerformanceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDBNodePerformanceRequest) SetAccessKeyId(v string) *DescribeDBNodePerformanceRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDBNodePerformanceRequest) SetDBNodeId(v string) *DescribeDBNodePerformanceRequest {
@@ -4292,14 +3242,14 @@ func (s *DescribeDBNodePerformanceRequest) SetDBClusterId(v string) *DescribeDBN
 }
 
 type DescribeDBNodePerformanceResponse struct {
-	RequestId       *string                                           `json:"RequestId" xml:"RequestId" require:"true"`
-	DBNodeId        *string                                           `json:"DBNodeId" xml:"DBNodeId" require:"true"`
-	Engine          *string                                           `json:"Engine" xml:"Engine" require:"true"`
-	DBType          *string                                           `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion       *string                                           `json:"DBVersion" xml:"DBVersion" require:"true"`
-	StartTime       *string                                           `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime         *string                                           `json:"EndTime" xml:"EndTime" require:"true"`
-	PerformanceKeys *DescribeDBNodePerformanceResponsePerformanceKeys `json:"PerformanceKeys" xml:"PerformanceKeys" require:"true" type:"Struct"`
+	RequestId       *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBNodeId        *string                                           `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
+	Engine          *string                                           `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	DBType          *string                                           `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion       *string                                           `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	StartTime       *string                                           `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime         *string                                           `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PerformanceKeys *DescribeDBNodePerformanceResponsePerformanceKeys `json:"PerformanceKeys,omitempty" xml:"PerformanceKeys,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBNodePerformanceResponse) String() string {
@@ -4351,7 +3301,7 @@ func (s *DescribeDBNodePerformanceResponse) SetPerformanceKeys(v *DescribeDBNode
 }
 
 type DescribeDBNodePerformanceResponsePerformanceKeys struct {
-	PerformanceItem []*DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItem `json:"PerformanceItem" xml:"PerformanceItem" require:"true" type:"Repeated"`
+	PerformanceItem []*DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItem `json:"PerformanceItem,omitempty" xml:"PerformanceItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBNodePerformanceResponsePerformanceKeys) String() string {
@@ -4368,9 +3318,9 @@ func (s *DescribeDBNodePerformanceResponsePerformanceKeys) SetPerformanceItem(v 
 }
 
 type DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItem struct {
-	MetricName  *string                                                                `json:"MetricName" xml:"MetricName" require:"true"`
-	Measurement *string                                                                `json:"Measurement" xml:"Measurement" require:"true"`
-	Points      *DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPoints `json:"Points" xml:"Points" require:"true" type:"Struct"`
+	MetricName  *string                                                                `json:"MetricName,omitempty" xml:"MetricName,omitempty" require:"true"`
+	Measurement *string                                                                `json:"Measurement,omitempty" xml:"Measurement,omitempty" require:"true"`
+	Points      *DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPoints `json:"Points,omitempty" xml:"Points,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItem) String() string {
@@ -4397,7 +3347,7 @@ func (s *DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItem) SetPoi
 }
 
 type DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPoints struct {
-	PerformanceItemValue []*DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue `json:"PerformanceItemValue" xml:"PerformanceItemValue" require:"true" type:"Repeated"`
+	PerformanceItemValue []*DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue `json:"PerformanceItemValue,omitempty" xml:"PerformanceItemValue,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPoints) String() string {
@@ -4414,8 +3364,8 @@ func (s *DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPoints) 
 }
 
 type DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue struct {
-	Value     *string `json:"Value" xml:"Value" require:"true"`
-	Timestamp *int64  `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Value     *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	Timestamp *int64  `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPointsPerformanceItemValue) String() string {
@@ -4437,18 +3387,13 @@ func (s *DescribeDBNodePerformanceResponsePerformanceKeysPerformanceItemPointsPe
 }
 
 type ModifyDBClusterAccessWhitelistRequest struct {
-	AccessKeyId               *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                   *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount      *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId           *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount              *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId               *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	SecurityIps               *string `json:"SecurityIps" xml:"SecurityIps"`
-	DBClusterIPArrayName      *string `json:"DBClusterIPArrayName" xml:"DBClusterIPArrayName"`
-	DBClusterIPArrayAttribute *string `json:"DBClusterIPArrayAttribute" xml:"DBClusterIPArrayAttribute"`
-	WhiteListType             *string `json:"WhiteListType" xml:"WhiteListType"`
-	SecurityGroupIds          *string `json:"SecurityGroupIds" xml:"SecurityGroupIds"`
-	ModifyMode                *string `json:"ModifyMode" xml:"ModifyMode"`
+	DBClusterId               *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	SecurityIps               *string `json:"SecurityIps,omitempty" xml:"SecurityIps,omitempty"`
+	DBClusterIPArrayName      *string `json:"DBClusterIPArrayName,omitempty" xml:"DBClusterIPArrayName,omitempty"`
+	DBClusterIPArrayAttribute *string `json:"DBClusterIPArrayAttribute,omitempty" xml:"DBClusterIPArrayAttribute,omitempty"`
+	WhiteListType             *string `json:"WhiteListType,omitempty" xml:"WhiteListType,omitempty"`
+	SecurityGroupIds          *string `json:"SecurityGroupIds,omitempty" xml:"SecurityGroupIds,omitempty"`
+	ModifyMode                *string `json:"ModifyMode,omitempty" xml:"ModifyMode,omitempty"`
 }
 
 func (s ModifyDBClusterAccessWhitelistRequest) String() string {
@@ -4457,31 +3402,6 @@ func (s ModifyDBClusterAccessWhitelistRequest) String() string {
 
 func (s ModifyDBClusterAccessWhitelistRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterAccessWhitelistRequest) SetAccessKeyId(v string) *ModifyDBClusterAccessWhitelistRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterAccessWhitelistRequest) SetOwnerId(v int64) *ModifyDBClusterAccessWhitelistRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterAccessWhitelistRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterAccessWhitelistRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterAccessWhitelistRequest) SetResourceOwnerId(v int64) *ModifyDBClusterAccessWhitelistRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterAccessWhitelistRequest) SetOwnerAccount(v string) *ModifyDBClusterAccessWhitelistRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBClusterAccessWhitelistRequest) SetDBClusterId(v string) *ModifyDBClusterAccessWhitelistRequest {
@@ -4520,7 +3440,7 @@ func (s *ModifyDBClusterAccessWhitelistRequest) SetModifyMode(v string) *ModifyD
 }
 
 type ModifyDBClusterAccessWhitelistResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterAccessWhitelistResponse) String() string {
@@ -4537,12 +3457,7 @@ func (s *ModifyDBClusterAccessWhitelistResponse) SetRequestId(v string) *ModifyD
 }
 
 type DescribeDBClusterAccessWhitelistRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAccessWhitelistRequest) String() string {
@@ -4553,40 +3468,15 @@ func (s DescribeDBClusterAccessWhitelistRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterAccessWhitelistRequest) SetAccessKeyId(v string) *DescribeDBClusterAccessWhitelistRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAccessWhitelistRequest) SetOwnerId(v int64) *DescribeDBClusterAccessWhitelistRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAccessWhitelistRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterAccessWhitelistRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterAccessWhitelistRequest) SetResourceOwnerId(v int64) *DescribeDBClusterAccessWhitelistRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAccessWhitelistRequest) SetOwnerAccount(v string) *DescribeDBClusterAccessWhitelistRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeDBClusterAccessWhitelistRequest) SetDBClusterId(v string) *DescribeDBClusterAccessWhitelistRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeDBClusterAccessWhitelistResponse struct {
-	RequestId               *string                                                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Items                   *DescribeDBClusterAccessWhitelistResponseItems                   `json:"Items" xml:"Items" require:"true" type:"Struct"`
-	DBClusterSecurityGroups *DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroups `json:"DBClusterSecurityGroups" xml:"DBClusterSecurityGroups" require:"true" type:"Struct"`
+	RequestId               *string                                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Items                   *DescribeDBClusterAccessWhitelistResponseItems                   `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
+	DBClusterSecurityGroups *DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroups `json:"DBClusterSecurityGroups,omitempty" xml:"DBClusterSecurityGroups,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClusterAccessWhitelistResponse) String() string {
@@ -4613,7 +3503,7 @@ func (s *DescribeDBClusterAccessWhitelistResponse) SetDBClusterSecurityGroups(v 
 }
 
 type DescribeDBClusterAccessWhitelistResponseItems struct {
-	DBClusterIPArray []*DescribeDBClusterAccessWhitelistResponseItemsDBClusterIPArray `json:"DBClusterIPArray" xml:"DBClusterIPArray" require:"true" type:"Repeated"`
+	DBClusterIPArray []*DescribeDBClusterAccessWhitelistResponseItemsDBClusterIPArray `json:"DBClusterIPArray,omitempty" xml:"DBClusterIPArray,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterAccessWhitelistResponseItems) String() string {
@@ -4630,9 +3520,9 @@ func (s *DescribeDBClusterAccessWhitelistResponseItems) SetDBClusterIPArray(v []
 }
 
 type DescribeDBClusterAccessWhitelistResponseItemsDBClusterIPArray struct {
-	DBClusterIPArrayName      *string `json:"DBClusterIPArrayName" xml:"DBClusterIPArrayName" require:"true"`
-	DBClusterIPArrayAttribute *string `json:"DBClusterIPArrayAttribute" xml:"DBClusterIPArrayAttribute" require:"true"`
-	SecurityIps               *string `json:"SecurityIps" xml:"SecurityIps" require:"true"`
+	DBClusterIPArrayName      *string `json:"DBClusterIPArrayName,omitempty" xml:"DBClusterIPArrayName,omitempty" require:"true"`
+	DBClusterIPArrayAttribute *string `json:"DBClusterIPArrayAttribute,omitempty" xml:"DBClusterIPArrayAttribute,omitempty" require:"true"`
+	SecurityIps               *string `json:"SecurityIps,omitempty" xml:"SecurityIps,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAccessWhitelistResponseItemsDBClusterIPArray) String() string {
@@ -4659,7 +3549,7 @@ func (s *DescribeDBClusterAccessWhitelistResponseItemsDBClusterIPArray) SetSecur
 }
 
 type DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroups struct {
-	DBClusterSecurityGroup []*DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroupsDBClusterSecurityGroup `json:"DBClusterSecurityGroup" xml:"DBClusterSecurityGroup" require:"true" type:"Repeated"`
+	DBClusterSecurityGroup []*DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroupsDBClusterSecurityGroup `json:"DBClusterSecurityGroup,omitempty" xml:"DBClusterSecurityGroup,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroups) String() string {
@@ -4676,8 +3566,8 @@ func (s *DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroups) SetDBC
 }
 
 type DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroupsDBClusterSecurityGroup struct {
-	SecurityGroupId   *string `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	SecurityGroupName *string `json:"SecurityGroupName" xml:"SecurityGroupName" require:"true"`
+	SecurityGroupId   *string `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	SecurityGroupName *string `json:"SecurityGroupName,omitempty" xml:"SecurityGroupName,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroupsDBClusterSecurityGroup) String() string {
@@ -4699,13 +3589,8 @@ func (s *DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroupsDBCluste
 }
 
 type ModifyDBClusterMaintainTimeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	MaintainTime         *string `json:"MaintainTime" xml:"MaintainTime" require:"true"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	MaintainTime *string `json:"MaintainTime,omitempty" xml:"MaintainTime,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterMaintainTimeRequest) String() string {
@@ -4714,31 +3599,6 @@ func (s ModifyDBClusterMaintainTimeRequest) String() string {
 
 func (s ModifyDBClusterMaintainTimeRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterMaintainTimeRequest) SetAccessKeyId(v string) *ModifyDBClusterMaintainTimeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMaintainTimeRequest) SetOwnerId(v int64) *ModifyDBClusterMaintainTimeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMaintainTimeRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterMaintainTimeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterMaintainTimeRequest) SetResourceOwnerId(v int64) *ModifyDBClusterMaintainTimeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterMaintainTimeRequest) SetOwnerAccount(v string) *ModifyDBClusterMaintainTimeRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBClusterMaintainTimeRequest) SetDBClusterId(v string) *ModifyDBClusterMaintainTimeRequest {
@@ -4752,7 +3612,7 @@ func (s *ModifyDBClusterMaintainTimeRequest) SetMaintainTime(v string) *ModifyDB
 }
 
 type ModifyDBClusterMaintainTimeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterMaintainTimeResponse) String() string {
@@ -4769,14 +3629,9 @@ func (s *ModifyDBClusterMaintainTimeResponse) SetRequestId(v string) *ModifyDBCl
 }
 
 type RevokeAccountPrivilegeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	DBName      *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
 }
 
 func (s RevokeAccountPrivilegeRequest) String() string {
@@ -4785,31 +3640,6 @@ func (s RevokeAccountPrivilegeRequest) String() string {
 
 func (s RevokeAccountPrivilegeRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RevokeAccountPrivilegeRequest) SetAccessKeyId(v string) *RevokeAccountPrivilegeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *RevokeAccountPrivilegeRequest) SetOwnerId(v int64) *RevokeAccountPrivilegeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *RevokeAccountPrivilegeRequest) SetResourceOwnerAccount(v string) *RevokeAccountPrivilegeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *RevokeAccountPrivilegeRequest) SetResourceOwnerId(v int64) *RevokeAccountPrivilegeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *RevokeAccountPrivilegeRequest) SetOwnerAccount(v string) *RevokeAccountPrivilegeRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *RevokeAccountPrivilegeRequest) SetDBClusterId(v string) *RevokeAccountPrivilegeRequest {
@@ -4828,7 +3658,7 @@ func (s *RevokeAccountPrivilegeRequest) SetDBName(v string) *RevokeAccountPrivil
 }
 
 type RevokeAccountPrivilegeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RevokeAccountPrivilegeResponse) String() string {
@@ -4845,14 +3675,9 @@ func (s *RevokeAccountPrivilegeResponse) SetRequestId(v string) *RevokeAccountPr
 }
 
 type ResetAccountRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
-	AccountPassword      *string `json:"AccountPassword" xml:"AccountPassword" require:"true"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName     *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	AccountPassword *string `json:"AccountPassword,omitempty" xml:"AccountPassword,omitempty" require:"true"`
 }
 
 func (s ResetAccountRequest) String() string {
@@ -4861,31 +3686,6 @@ func (s ResetAccountRequest) String() string {
 
 func (s ResetAccountRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ResetAccountRequest) SetAccessKeyId(v string) *ResetAccountRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ResetAccountRequest) SetOwnerId(v int64) *ResetAccountRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ResetAccountRequest) SetResourceOwnerAccount(v string) *ResetAccountRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ResetAccountRequest) SetResourceOwnerId(v int64) *ResetAccountRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ResetAccountRequest) SetOwnerAccount(v string) *ResetAccountRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ResetAccountRequest) SetDBClusterId(v string) *ResetAccountRequest {
@@ -4904,7 +3704,7 @@ func (s *ResetAccountRequest) SetAccountPassword(v string) *ResetAccountRequest 
 }
 
 type ResetAccountResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ResetAccountResponse) String() string {
@@ -4921,15 +3721,10 @@ func (s *ResetAccountResponse) SetRequestId(v string) *ResetAccountResponse {
 }
 
 type GrantAccountPrivilegeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName" require:"true"`
-	AccountPrivilege     *string `json:"AccountPrivilege" xml:"AccountPrivilege" require:"true"`
+	DBClusterId      *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName      *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	DBName           *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	AccountPrivilege *string `json:"AccountPrivilege,omitempty" xml:"AccountPrivilege,omitempty" require:"true"`
 }
 
 func (s GrantAccountPrivilegeRequest) String() string {
@@ -4938,31 +3733,6 @@ func (s GrantAccountPrivilegeRequest) String() string {
 
 func (s GrantAccountPrivilegeRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GrantAccountPrivilegeRequest) SetAccessKeyId(v string) *GrantAccountPrivilegeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GrantAccountPrivilegeRequest) SetOwnerId(v int64) *GrantAccountPrivilegeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GrantAccountPrivilegeRequest) SetResourceOwnerAccount(v string) *GrantAccountPrivilegeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GrantAccountPrivilegeRequest) SetResourceOwnerId(v int64) *GrantAccountPrivilegeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GrantAccountPrivilegeRequest) SetOwnerAccount(v string) *GrantAccountPrivilegeRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *GrantAccountPrivilegeRequest) SetDBClusterId(v string) *GrantAccountPrivilegeRequest {
@@ -4986,7 +3756,7 @@ func (s *GrantAccountPrivilegeRequest) SetAccountPrivilege(v string) *GrantAccou
 }
 
 type GrantAccountPrivilegeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s GrantAccountPrivilegeResponse) String() string {
@@ -5003,13 +3773,8 @@ func (s *GrantAccountPrivilegeResponse) SetRequestId(v string) *GrantAccountPriv
 }
 
 type DescribeDatabasesRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBName      *string `json:"DBName,omitempty" xml:"DBName,omitempty"`
 }
 
 func (s DescribeDatabasesRequest) String() string {
@@ -5018,31 +3783,6 @@ func (s DescribeDatabasesRequest) String() string {
 
 func (s DescribeDatabasesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDatabasesRequest) SetAccessKeyId(v string) *DescribeDatabasesRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDatabasesRequest) SetOwnerId(v int64) *DescribeDatabasesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDatabasesRequest) SetResourceOwnerAccount(v string) *DescribeDatabasesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDatabasesRequest) SetResourceOwnerId(v int64) *DescribeDatabasesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDatabasesRequest) SetOwnerAccount(v string) *DescribeDatabasesRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeDatabasesRequest) SetDBClusterId(v string) *DescribeDatabasesRequest {
@@ -5056,8 +3796,8 @@ func (s *DescribeDatabasesRequest) SetDBName(v string) *DescribeDatabasesRequest
 }
 
 type DescribeDatabasesResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Databases *DescribeDatabasesResponseDatabases `json:"Databases" xml:"Databases" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Databases *DescribeDatabasesResponseDatabases `json:"Databases,omitempty" xml:"Databases,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDatabasesResponse) String() string {
@@ -5079,7 +3819,7 @@ func (s *DescribeDatabasesResponse) SetDatabases(v *DescribeDatabasesResponseDat
 }
 
 type DescribeDatabasesResponseDatabases struct {
-	Database []*DescribeDatabasesResponseDatabasesDatabase `json:"Database" xml:"Database" require:"true" type:"Repeated"`
+	Database []*DescribeDatabasesResponseDatabasesDatabase `json:"Database,omitempty" xml:"Database,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDatabasesResponseDatabases) String() string {
@@ -5096,12 +3836,12 @@ func (s *DescribeDatabasesResponseDatabases) SetDatabase(v []*DescribeDatabasesR
 }
 
 type DescribeDatabasesResponseDatabasesDatabase struct {
-	DBName           *string                                             `json:"DBName" xml:"DBName" require:"true"`
-	DBStatus         *string                                             `json:"DBStatus" xml:"DBStatus" require:"true"`
-	DBDescription    *string                                             `json:"DBDescription" xml:"DBDescription" require:"true"`
-	CharacterSetName *string                                             `json:"CharacterSetName" xml:"CharacterSetName" require:"true"`
-	Engine           *string                                             `json:"Engine" xml:"Engine" require:"true"`
-	Accounts         *DescribeDatabasesResponseDatabasesDatabaseAccounts `json:"Accounts" xml:"Accounts" require:"true" type:"Struct"`
+	DBName           *string                                             `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	DBStatus         *string                                             `json:"DBStatus,omitempty" xml:"DBStatus,omitempty" require:"true"`
+	DBDescription    *string                                             `json:"DBDescription,omitempty" xml:"DBDescription,omitempty" require:"true"`
+	CharacterSetName *string                                             `json:"CharacterSetName,omitempty" xml:"CharacterSetName,omitempty" require:"true"`
+	Engine           *string                                             `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	Accounts         *DescribeDatabasesResponseDatabasesDatabaseAccounts `json:"Accounts,omitempty" xml:"Accounts,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDatabasesResponseDatabasesDatabase) String() string {
@@ -5143,7 +3883,7 @@ func (s *DescribeDatabasesResponseDatabasesDatabase) SetAccounts(v *DescribeData
 }
 
 type DescribeDatabasesResponseDatabasesDatabaseAccounts struct {
-	Account []*DescribeDatabasesResponseDatabasesDatabaseAccountsAccount `json:"Account" xml:"Account" require:"true" type:"Repeated"`
+	Account []*DescribeDatabasesResponseDatabasesDatabaseAccountsAccount `json:"Account,omitempty" xml:"Account,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDatabasesResponseDatabasesDatabaseAccounts) String() string {
@@ -5160,10 +3900,10 @@ func (s *DescribeDatabasesResponseDatabasesDatabaseAccounts) SetAccount(v []*Des
 }
 
 type DescribeDatabasesResponseDatabasesDatabaseAccountsAccount struct {
-	AccountName      *string `json:"AccountName" xml:"AccountName" require:"true"`
-	AccountStatus    *string `json:"AccountStatus" xml:"AccountStatus" require:"true"`
-	AccountPrivilege *string `json:"AccountPrivilege" xml:"AccountPrivilege" require:"true"`
-	PrivilegeStatus  *string `json:"PrivilegeStatus" xml:"PrivilegeStatus" require:"true"`
+	AccountName      *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	AccountStatus    *string `json:"AccountStatus,omitempty" xml:"AccountStatus,omitempty" require:"true"`
+	AccountPrivilege *string `json:"AccountPrivilege,omitempty" xml:"AccountPrivilege,omitempty" require:"true"`
+	PrivilegeStatus  *string `json:"PrivilegeStatus,omitempty" xml:"PrivilegeStatus,omitempty" require:"true"`
 }
 
 func (s DescribeDatabasesResponseDatabasesDatabaseAccountsAccount) String() string {
@@ -5195,13 +3935,8 @@ func (s *DescribeDatabasesResponseDatabasesDatabaseAccountsAccount) SetPrivilege
 }
 
 type DeleteDatabaseRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBName      *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
 }
 
 func (s DeleteDatabaseRequest) String() string {
@@ -5210,31 +3945,6 @@ func (s DeleteDatabaseRequest) String() string {
 
 func (s DeleteDatabaseRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDatabaseRequest) SetAccessKeyId(v string) *DeleteDatabaseRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteDatabaseRequest) SetOwnerId(v int64) *DeleteDatabaseRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteDatabaseRequest) SetResourceOwnerAccount(v string) *DeleteDatabaseRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteDatabaseRequest) SetResourceOwnerId(v int64) *DeleteDatabaseRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteDatabaseRequest) SetOwnerAccount(v string) *DeleteDatabaseRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteDatabaseRequest) SetDBClusterId(v string) *DeleteDatabaseRequest {
@@ -5248,7 +3958,7 @@ func (s *DeleteDatabaseRequest) SetDBName(v string) *DeleteDatabaseRequest {
 }
 
 type DeleteDatabaseResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteDatabaseResponse) String() string {
@@ -5265,13 +3975,8 @@ func (s *DeleteDatabaseResponse) SetRequestId(v string) *DeleteDatabaseResponse 
 }
 
 type DeleteAccountRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
 }
 
 func (s DeleteAccountRequest) String() string {
@@ -5280,31 +3985,6 @@ func (s DeleteAccountRequest) String() string {
 
 func (s DeleteAccountRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteAccountRequest) SetAccessKeyId(v string) *DeleteAccountRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteAccountRequest) SetOwnerId(v int64) *DeleteAccountRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteAccountRequest) SetResourceOwnerAccount(v string) *DeleteAccountRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteAccountRequest) SetResourceOwnerId(v int64) *DeleteAccountRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteAccountRequest) SetOwnerAccount(v string) *DeleteAccountRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteAccountRequest) SetDBClusterId(v string) *DeleteAccountRequest {
@@ -5318,7 +3998,7 @@ func (s *DeleteAccountRequest) SetAccountName(v string) *DeleteAccountRequest {
 }
 
 type DeleteAccountResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAccountResponse) String() string {
@@ -5335,19 +4015,14 @@ func (s *DeleteAccountResponse) SetRequestId(v string) *DeleteAccountResponse {
 }
 
 type CreateDatabaseRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName" require:"true"`
-	CharacterSetName     *string `json:"CharacterSetName" xml:"CharacterSetName" require:"true"`
-	DBDescription        *string `json:"DBDescription" xml:"DBDescription"`
-	AccountName          *string `json:"AccountName" xml:"AccountName"`
-	AccountPrivilege     *string `json:"AccountPrivilege" xml:"AccountPrivilege"`
-	Collate              *string `json:"Collate" xml:"Collate"`
-	Ctype                *string `json:"Ctype" xml:"Ctype"`
+	DBClusterId      *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBName           *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	CharacterSetName *string `json:"CharacterSetName,omitempty" xml:"CharacterSetName,omitempty" require:"true"`
+	DBDescription    *string `json:"DBDescription,omitempty" xml:"DBDescription,omitempty"`
+	AccountName      *string `json:"AccountName,omitempty" xml:"AccountName,omitempty"`
+	AccountPrivilege *string `json:"AccountPrivilege,omitempty" xml:"AccountPrivilege,omitempty"`
+	Collate          *string `json:"Collate,omitempty" xml:"Collate,omitempty"`
+	Ctype            *string `json:"Ctype,omitempty" xml:"Ctype,omitempty"`
 }
 
 func (s CreateDatabaseRequest) String() string {
@@ -5356,31 +4031,6 @@ func (s CreateDatabaseRequest) String() string {
 
 func (s CreateDatabaseRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateDatabaseRequest) SetAccessKeyId(v string) *CreateDatabaseRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateDatabaseRequest) SetOwnerId(v int64) *CreateDatabaseRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateDatabaseRequest) SetResourceOwnerAccount(v string) *CreateDatabaseRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateDatabaseRequest) SetResourceOwnerId(v int64) *CreateDatabaseRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateDatabaseRequest) SetOwnerAccount(v string) *CreateDatabaseRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateDatabaseRequest) SetDBClusterId(v string) *CreateDatabaseRequest {
@@ -5424,7 +4074,7 @@ func (s *CreateDatabaseRequest) SetCtype(v string) *CreateDatabaseRequest {
 }
 
 type CreateDatabaseResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateDatabaseResponse) String() string {
@@ -5441,13 +4091,8 @@ func (s *CreateDatabaseResponse) SetRequestId(v string) *CreateDatabaseResponse 
 }
 
 type DeleteBackupRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	BackupId             *string `json:"BackupId" xml:"BackupId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	BackupId    *string `json:"BackupId,omitempty" xml:"BackupId,omitempty" require:"true"`
 }
 
 func (s DeleteBackupRequest) String() string {
@@ -5456,31 +4101,6 @@ func (s DeleteBackupRequest) String() string {
 
 func (s DeleteBackupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteBackupRequest) SetAccessKeyId(v string) *DeleteBackupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteBackupRequest) SetOwnerId(v int64) *DeleteBackupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteBackupRequest) SetResourceOwnerAccount(v string) *DeleteBackupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteBackupRequest) SetResourceOwnerId(v int64) *DeleteBackupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteBackupRequest) SetOwnerAccount(v string) *DeleteBackupRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteBackupRequest) SetDBClusterId(v string) *DeleteBackupRequest {
@@ -5494,7 +4114,7 @@ func (s *DeleteBackupRequest) SetBackupId(v string) *DeleteBackupRequest {
 }
 
 type DeleteBackupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteBackupResponse) String() string {
@@ -5511,18 +4131,13 @@ func (s *DeleteBackupResponse) SetRequestId(v string) *DeleteBackupResponse {
 }
 
 type DescribeSlowLogsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	StartTime            *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime              *string `json:"EndTime" xml:"EndTime" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime     *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	DBName      *string `json:"DBName,omitempty" xml:"DBName,omitempty"`
+	PageSize    *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber  *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeSlowLogsRequest) String() string {
@@ -5531,31 +4146,6 @@ func (s DescribeSlowLogsRequest) String() string {
 
 func (s DescribeSlowLogsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeSlowLogsRequest) SetAccessKeyId(v string) *DescribeSlowLogsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeSlowLogsRequest) SetOwnerId(v int64) *DescribeSlowLogsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeSlowLogsRequest) SetResourceOwnerAccount(v string) *DescribeSlowLogsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeSlowLogsRequest) SetResourceOwnerId(v int64) *DescribeSlowLogsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeSlowLogsRequest) SetOwnerAccount(v string) *DescribeSlowLogsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeSlowLogsRequest) SetRegionId(v string) *DescribeSlowLogsRequest {
@@ -5594,15 +4184,15 @@ func (s *DescribeSlowLogsRequest) SetPageNumber(v int) *DescribeSlowLogsRequest 
 }
 
 type DescribeSlowLogsResponse struct {
-	RequestId        *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId      *string                        `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	StartTime        *string                        `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime          *string                        `json:"EndTime" xml:"EndTime" require:"true"`
-	Engine           *string                        `json:"Engine" xml:"Engine" require:"true"`
-	TotalRecordCount *int                           `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageNumber       *int                           `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageRecordCount  *int                           `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeSlowLogsResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId      *string                        `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	StartTime        *string                        `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime          *string                        `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Engine           *string                        `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	TotalRecordCount *int                           `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageNumber       *int                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageRecordCount  *int                           `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeSlowLogsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSlowLogsResponse) String() string {
@@ -5659,7 +4249,7 @@ func (s *DescribeSlowLogsResponse) SetItems(v *DescribeSlowLogsResponseItems) *D
 }
 
 type DescribeSlowLogsResponseItems struct {
-	SQLSlowLog []*DescribeSlowLogsResponseItemsSQLSlowLog `json:"SQLSlowLog" xml:"SQLSlowLog" require:"true" type:"Repeated"`
+	SQLSlowLog []*DescribeSlowLogsResponseItemsSQLSlowLog `json:"SQLSlowLog,omitempty" xml:"SQLSlowLog,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSlowLogsResponseItems) String() string {
@@ -5676,20 +4266,20 @@ func (s *DescribeSlowLogsResponseItems) SetSQLSlowLog(v []*DescribeSlowLogsRespo
 }
 
 type DescribeSlowLogsResponseItemsSQLSlowLog struct {
-	DBNodeId             *string `json:"DBNodeId" xml:"DBNodeId" require:"true"`
-	ParseMaxRowCount     *int64  `json:"ParseMaxRowCount" xml:"ParseMaxRowCount" require:"true"`
-	TotalLockTimes       *int64  `json:"TotalLockTimes" xml:"TotalLockTimes" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName" require:"true"`
-	MaxExecutionTime     *int64  `json:"MaxExecutionTime" xml:"MaxExecutionTime" require:"true"`
-	SQLHASH              *string `json:"SQLHASH" xml:"SQLHASH" require:"true"`
-	SQLText              *string `json:"SQLText" xml:"SQLText" require:"true"`
-	CreateTime           *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	TotalExecutionTimes  *int64  `json:"TotalExecutionTimes" xml:"TotalExecutionTimes" require:"true"`
-	ReturnTotalRowCounts *int64  `json:"ReturnTotalRowCounts" xml:"ReturnTotalRowCounts" require:"true"`
-	TotalExecutionCounts *int64  `json:"TotalExecutionCounts" xml:"TotalExecutionCounts" require:"true"`
-	MaxLockTime          *int64  `json:"MaxLockTime" xml:"MaxLockTime" require:"true"`
-	ReturnMaxRowCount    *int64  `json:"ReturnMaxRowCount" xml:"ReturnMaxRowCount" require:"true"`
-	ParseTotalRowCounts  *int64  `json:"ParseTotalRowCounts" xml:"ParseTotalRowCounts" require:"true"`
+	DBNodeId             *string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
+	ParseMaxRowCount     *int64  `json:"ParseMaxRowCount,omitempty" xml:"ParseMaxRowCount,omitempty" require:"true"`
+	TotalLockTimes       *int64  `json:"TotalLockTimes,omitempty" xml:"TotalLockTimes,omitempty" require:"true"`
+	DBName               *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	MaxExecutionTime     *int64  `json:"MaxExecutionTime,omitempty" xml:"MaxExecutionTime,omitempty" require:"true"`
+	SQLHASH              *string `json:"SQLHASH,omitempty" xml:"SQLHASH,omitempty" require:"true"`
+	SQLText              *string `json:"SQLText,omitempty" xml:"SQLText,omitempty" require:"true"`
+	CreateTime           *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	TotalExecutionTimes  *int64  `json:"TotalExecutionTimes,omitempty" xml:"TotalExecutionTimes,omitempty" require:"true"`
+	ReturnTotalRowCounts *int64  `json:"ReturnTotalRowCounts,omitempty" xml:"ReturnTotalRowCounts,omitempty" require:"true"`
+	TotalExecutionCounts *int64  `json:"TotalExecutionCounts,omitempty" xml:"TotalExecutionCounts,omitempty" require:"true"`
+	MaxLockTime          *int64  `json:"MaxLockTime,omitempty" xml:"MaxLockTime,omitempty" require:"true"`
+	ReturnMaxRowCount    *int64  `json:"ReturnMaxRowCount,omitempty" xml:"ReturnMaxRowCount,omitempty" require:"true"`
+	ParseTotalRowCounts  *int64  `json:"ParseTotalRowCounts,omitempty" xml:"ParseTotalRowCounts,omitempty" require:"true"`
 }
 
 func (s DescribeSlowLogsResponseItemsSQLSlowLog) String() string {
@@ -5771,19 +4361,14 @@ func (s *DescribeSlowLogsResponseItemsSQLSlowLog) SetParseTotalRowCounts(v int64
 }
 
 type DescribeSlowLogRecordsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string `json:"RegionId" xml:"RegionId" require:"true"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	StartTime            *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime              *string `json:"EndTime" xml:"EndTime" require:"true"`
-	DBName               *string `json:"DBName" xml:"DBName"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
-	SQLHASH              *string `json:"SQLHASH" xml:"SQLHASH"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime     *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	DBName      *string `json:"DBName,omitempty" xml:"DBName,omitempty"`
+	PageSize    *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber  *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	SQLHASH     *string `json:"SQLHASH,omitempty" xml:"SQLHASH,omitempty"`
 }
 
 func (s DescribeSlowLogRecordsRequest) String() string {
@@ -5792,31 +4377,6 @@ func (s DescribeSlowLogRecordsRequest) String() string {
 
 func (s DescribeSlowLogRecordsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeSlowLogRecordsRequest) SetAccessKeyId(v string) *DescribeSlowLogRecordsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeSlowLogRecordsRequest) SetOwnerId(v int64) *DescribeSlowLogRecordsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeSlowLogRecordsRequest) SetResourceOwnerAccount(v string) *DescribeSlowLogRecordsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeSlowLogRecordsRequest) SetResourceOwnerId(v int64) *DescribeSlowLogRecordsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeSlowLogRecordsRequest) SetOwnerAccount(v string) *DescribeSlowLogRecordsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeSlowLogRecordsRequest) SetRegionId(v string) *DescribeSlowLogRecordsRequest {
@@ -5860,13 +4420,13 @@ func (s *DescribeSlowLogRecordsRequest) SetSQLHASH(v string) *DescribeSlowLogRec
 }
 
 type DescribeSlowLogRecordsResponse struct {
-	RequestId        *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId      *string                              `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	Engine           *string                              `json:"Engine" xml:"Engine" require:"true"`
-	TotalRecordCount *int                                 `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageNumber       *int                                 `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageRecordCount  *int                                 `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeSlowLogRecordsResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId      *string                              `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	Engine           *string                              `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	TotalRecordCount *int                                 `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageNumber       *int                                 `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageRecordCount  *int                                 `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeSlowLogRecordsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSlowLogRecordsResponse) String() string {
@@ -5913,7 +4473,7 @@ func (s *DescribeSlowLogRecordsResponse) SetItems(v *DescribeSlowLogRecordsRespo
 }
 
 type DescribeSlowLogRecordsResponseItems struct {
-	SQLSlowRecord []*DescribeSlowLogRecordsResponseItemsSQLSlowRecord `json:"SQLSlowRecord" xml:"SQLSlowRecord" require:"true" type:"Repeated"`
+	SQLSlowRecord []*DescribeSlowLogRecordsResponseItemsSQLSlowRecord `json:"SQLSlowRecord,omitempty" xml:"SQLSlowRecord,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSlowLogRecordsResponseItems) String() string {
@@ -5930,15 +4490,15 @@ func (s *DescribeSlowLogRecordsResponseItems) SetSQLSlowRecord(v []*DescribeSlow
 }
 
 type DescribeSlowLogRecordsResponseItemsSQLSlowRecord struct {
-	HostAddress        *string `json:"HostAddress" xml:"HostAddress" require:"true"`
-	DBName             *string `json:"DBName" xml:"DBName" require:"true"`
-	SQLText            *string `json:"SQLText" xml:"SQLText" require:"true"`
-	QueryTimes         *int64  `json:"QueryTimes" xml:"QueryTimes" require:"true"`
-	LockTimes          *int64  `json:"LockTimes" xml:"LockTimes" require:"true"`
-	ParseRowCounts     *int64  `json:"ParseRowCounts" xml:"ParseRowCounts" require:"true"`
-	ReturnRowCounts    *int64  `json:"ReturnRowCounts" xml:"ReturnRowCounts" require:"true"`
-	ExecutionStartTime *string `json:"ExecutionStartTime" xml:"ExecutionStartTime" require:"true"`
-	DBNodeId           *string `json:"DBNodeId" xml:"DBNodeId" require:"true"`
+	HostAddress        *string `json:"HostAddress,omitempty" xml:"HostAddress,omitempty" require:"true"`
+	DBName             *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	SQLText            *string `json:"SQLText,omitempty" xml:"SQLText,omitempty" require:"true"`
+	QueryTimes         *int64  `json:"QueryTimes,omitempty" xml:"QueryTimes,omitempty" require:"true"`
+	LockTimes          *int64  `json:"LockTimes,omitempty" xml:"LockTimes,omitempty" require:"true"`
+	ParseRowCounts     *int64  `json:"ParseRowCounts,omitempty" xml:"ParseRowCounts,omitempty" require:"true"`
+	ReturnRowCounts    *int64  `json:"ReturnRowCounts,omitempty" xml:"ReturnRowCounts,omitempty" require:"true"`
+	ExecutionStartTime *string `json:"ExecutionStartTime,omitempty" xml:"ExecutionStartTime,omitempty" require:"true"`
+	DBNodeId           *string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
 }
 
 func (s DescribeSlowLogRecordsResponseItemsSQLSlowRecord) String() string {
@@ -5995,14 +4555,9 @@ func (s *DescribeSlowLogRecordsResponseItemsSQLSlowRecord) SetDBNodeId(v string)
 }
 
 type FailoverDBClusterRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	TargetDBNodeId       *string `json:"TargetDBNodeId" xml:"TargetDBNodeId"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
+	DBClusterId    *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	TargetDBNodeId *string `json:"TargetDBNodeId,omitempty" xml:"TargetDBNodeId,omitempty"`
+	ClientToken    *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s FailoverDBClusterRequest) String() string {
@@ -6011,31 +4566,6 @@ func (s FailoverDBClusterRequest) String() string {
 
 func (s FailoverDBClusterRequest) GoString() string {
 	return s.String()
-}
-
-func (s *FailoverDBClusterRequest) SetAccessKeyId(v string) *FailoverDBClusterRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *FailoverDBClusterRequest) SetOwnerId(v int64) *FailoverDBClusterRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *FailoverDBClusterRequest) SetResourceOwnerAccount(v string) *FailoverDBClusterRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *FailoverDBClusterRequest) SetResourceOwnerId(v int64) *FailoverDBClusterRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *FailoverDBClusterRequest) SetOwnerAccount(v string) *FailoverDBClusterRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *FailoverDBClusterRequest) SetDBClusterId(v string) *FailoverDBClusterRequest {
@@ -6054,7 +4584,7 @@ func (s *FailoverDBClusterRequest) SetClientToken(v string) *FailoverDBClusterRe
 }
 
 type FailoverDBClusterResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s FailoverDBClusterResponse) String() string {
@@ -6071,13 +4601,8 @@ func (s *FailoverDBClusterResponse) SetRequestId(v string) *FailoverDBClusterRes
 }
 
 type ModifyDBClusterDescriptionRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBClusterDescription *string `json:"DBClusterDescription" xml:"DBClusterDescription" require:"true"`
+	DBClusterId          *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBClusterDescription *string `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterDescriptionRequest) String() string {
@@ -6086,31 +4611,6 @@ func (s ModifyDBClusterDescriptionRequest) String() string {
 
 func (s ModifyDBClusterDescriptionRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyDBClusterDescriptionRequest) SetAccessKeyId(v string) *ModifyDBClusterDescriptionRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyDBClusterDescriptionRequest) SetOwnerId(v int64) *ModifyDBClusterDescriptionRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterDescriptionRequest) SetResourceOwnerAccount(v string) *ModifyDBClusterDescriptionRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyDBClusterDescriptionRequest) SetResourceOwnerId(v int64) *ModifyDBClusterDescriptionRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyDBClusterDescriptionRequest) SetOwnerAccount(v string) *ModifyDBClusterDescriptionRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyDBClusterDescriptionRequest) SetDBClusterId(v string) *ModifyDBClusterDescriptionRequest {
@@ -6124,7 +4624,7 @@ func (s *ModifyDBClusterDescriptionRequest) SetDBClusterDescription(v string) *M
 }
 
 type ModifyDBClusterDescriptionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyDBClusterDescriptionResponse) String() string {
@@ -6141,14 +4641,9 @@ func (s *ModifyDBClusterDescriptionResponse) SetRequestId(v string) *ModifyDBClu
 }
 
 type ModifyAccountDescriptionRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
-	AccountDescription   *string `json:"AccountDescription" xml:"AccountDescription" require:"true"`
+	DBClusterId        *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName        *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	AccountDescription *string `json:"AccountDescription,omitempty" xml:"AccountDescription,omitempty" require:"true"`
 }
 
 func (s ModifyAccountDescriptionRequest) String() string {
@@ -6157,31 +4652,6 @@ func (s ModifyAccountDescriptionRequest) String() string {
 
 func (s ModifyAccountDescriptionRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyAccountDescriptionRequest) SetAccessKeyId(v string) *ModifyAccountDescriptionRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyAccountDescriptionRequest) SetOwnerId(v int64) *ModifyAccountDescriptionRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyAccountDescriptionRequest) SetResourceOwnerAccount(v string) *ModifyAccountDescriptionRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyAccountDescriptionRequest) SetResourceOwnerId(v int64) *ModifyAccountDescriptionRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyAccountDescriptionRequest) SetOwnerAccount(v string) *ModifyAccountDescriptionRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyAccountDescriptionRequest) SetDBClusterId(v string) *ModifyAccountDescriptionRequest {
@@ -6200,7 +4670,7 @@ func (s *ModifyAccountDescriptionRequest) SetAccountDescription(v string) *Modif
 }
 
 type ModifyAccountDescriptionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyAccountDescriptionResponse) String() string {
@@ -6217,11 +4687,6 @@ func (s *ModifyAccountDescriptionResponse) SetRequestId(v string) *ModifyAccount
 }
 
 type DescribeRegionsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -6232,34 +4697,9 @@ func (s DescribeRegionsRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeRegionsRequest) SetAccessKeyId(v string) *DescribeRegionsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetOwnerId(v int64) *DescribeRegionsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetResourceOwnerAccount(v string) *DescribeRegionsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetResourceOwnerId(v int64) *DescribeRegionsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeRegionsRequest) SetOwnerAccount(v string) *DescribeRegionsRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 type DescribeRegionsResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Regions   *DescribeRegionsResponseRegions `json:"Regions" xml:"Regions" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Regions   *DescribeRegionsResponseRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -6281,7 +4721,7 @@ func (s *DescribeRegionsResponse) SetRegions(v *DescribeRegionsResponseRegions) 
 }
 
 type DescribeRegionsResponseRegions struct {
-	Region []*DescribeRegionsResponseRegionsRegion `json:"Region" xml:"Region" require:"true" type:"Repeated"`
+	Region []*DescribeRegionsResponseRegionsRegion `json:"Region,omitempty" xml:"Region,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -6298,8 +4738,8 @@ func (s *DescribeRegionsResponseRegions) SetRegion(v []*DescribeRegionsResponseR
 }
 
 type DescribeRegionsResponseRegionsRegion struct {
-	RegionId *string                                    `json:"RegionId" xml:"RegionId" require:"true"`
-	Zones    *DescribeRegionsResponseRegionsRegionZones `json:"Zones" xml:"Zones" require:"true" type:"Struct"`
+	RegionId *string                                    `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Zones    *DescribeRegionsResponseRegionsRegionZones `json:"Zones,omitempty" xml:"Zones,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRegionsResponseRegionsRegion) String() string {
@@ -6321,7 +4761,7 @@ func (s *DescribeRegionsResponseRegionsRegion) SetZones(v *DescribeRegionsRespon
 }
 
 type DescribeRegionsResponseRegionsRegionZones struct {
-	Zone []*DescribeRegionsResponseRegionsRegionZonesZone `json:"Zone" xml:"Zone" require:"true" type:"Repeated"`
+	Zone []*DescribeRegionsResponseRegionsRegionZonesZone `json:"Zone,omitempty" xml:"Zone,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegionsRegionZones) String() string {
@@ -6338,8 +4778,8 @@ func (s *DescribeRegionsResponseRegionsRegionZones) SetZone(v []*DescribeRegions
 }
 
 type DescribeRegionsResponseRegionsRegionZonesZone struct {
-	ZoneId     *string `json:"ZoneId" xml:"ZoneId" require:"true"`
-	VpcEnabled *bool   `json:"VpcEnabled" xml:"VpcEnabled" require:"true"`
+	ZoneId     *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	VpcEnabled *bool   `json:"VpcEnabled,omitempty" xml:"VpcEnabled,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponseRegionsRegionZonesZone) String() string {
@@ -6361,13 +4801,8 @@ func (s *DescribeRegionsResponseRegionsRegionZonesZone) SetVpcEnabled(v bool) *D
 }
 
 type DescribeAccountsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName *string `json:"AccountName,omitempty" xml:"AccountName,omitempty"`
 }
 
 func (s DescribeAccountsRequest) String() string {
@@ -6376,31 +4811,6 @@ func (s DescribeAccountsRequest) String() string {
 
 func (s DescribeAccountsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeAccountsRequest) SetAccessKeyId(v string) *DescribeAccountsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeAccountsRequest) SetOwnerId(v int64) *DescribeAccountsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeAccountsRequest) SetResourceOwnerAccount(v string) *DescribeAccountsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeAccountsRequest) SetResourceOwnerId(v int64) *DescribeAccountsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeAccountsRequest) SetOwnerAccount(v string) *DescribeAccountsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeAccountsRequest) SetDBClusterId(v string) *DescribeAccountsRequest {
@@ -6414,8 +4824,8 @@ func (s *DescribeAccountsRequest) SetAccountName(v string) *DescribeAccountsRequ
 }
 
 type DescribeAccountsResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Accounts  []*DescribeAccountsResponseAccounts `json:"Accounts" xml:"Accounts" require:"true" type:"Repeated"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Accounts  []*DescribeAccountsResponseAccounts `json:"Accounts,omitempty" xml:"Accounts,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAccountsResponse) String() string {
@@ -6437,14 +4847,14 @@ func (s *DescribeAccountsResponse) SetAccounts(v []*DescribeAccountsResponseAcco
 }
 
 type DescribeAccountsResponseAccounts struct {
-	AccountName              *string                                               `json:"AccountName" xml:"AccountName" require:"true"`
-	AccountStatus            *string                                               `json:"AccountStatus" xml:"AccountStatus" require:"true"`
-	AccountDescription       *string                                               `json:"AccountDescription" xml:"AccountDescription" require:"true"`
-	AccountType              *string                                               `json:"AccountType" xml:"AccountType" require:"true"`
-	AccountLockState         *string                                               `json:"AccountLockState" xml:"AccountLockState" require:"true"`
-	PrivilegeExceeded        *string                                               `json:"PrivilegeExceeded" xml:"PrivilegeExceeded" require:"true"`
-	AccountPasswordValidTime *string                                               `json:"AccountPasswordValidTime" xml:"AccountPasswordValidTime" require:"true"`
-	DatabasePrivileges       []*DescribeAccountsResponseAccountsDatabasePrivileges `json:"DatabasePrivileges" xml:"DatabasePrivileges" require:"true" type:"Repeated"`
+	AccountName              *string                                               `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	AccountStatus            *string                                               `json:"AccountStatus,omitempty" xml:"AccountStatus,omitempty" require:"true"`
+	AccountDescription       *string                                               `json:"AccountDescription,omitempty" xml:"AccountDescription,omitempty" require:"true"`
+	AccountType              *string                                               `json:"AccountType,omitempty" xml:"AccountType,omitempty" require:"true"`
+	AccountLockState         *string                                               `json:"AccountLockState,omitempty" xml:"AccountLockState,omitempty" require:"true"`
+	PrivilegeExceeded        *string                                               `json:"PrivilegeExceeded,omitempty" xml:"PrivilegeExceeded,omitempty" require:"true"`
+	AccountPasswordValidTime *string                                               `json:"AccountPasswordValidTime,omitempty" xml:"AccountPasswordValidTime,omitempty" require:"true"`
+	DatabasePrivileges       []*DescribeAccountsResponseAccountsDatabasePrivileges `json:"DatabasePrivileges,omitempty" xml:"DatabasePrivileges,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeAccountsResponseAccounts) String() string {
@@ -6496,8 +4906,8 @@ func (s *DescribeAccountsResponseAccounts) SetDatabasePrivileges(v []*DescribeAc
 }
 
 type DescribeAccountsResponseAccountsDatabasePrivileges struct {
-	DBName           *string `json:"DBName" xml:"DBName" require:"true"`
-	AccountPrivilege *string `json:"AccountPrivilege" xml:"AccountPrivilege" require:"true"`
+	DBName           *string `json:"DBName,omitempty" xml:"DBName,omitempty" require:"true"`
+	AccountPrivilege *string `json:"AccountPrivilege,omitempty" xml:"AccountPrivilege,omitempty" require:"true"`
 }
 
 func (s DescribeAccountsResponseAccountsDatabasePrivileges) String() string {
@@ -6519,13 +4929,8 @@ func (s *DescribeAccountsResponseAccountsDatabasePrivileges) SetAccountPrivilege
 }
 
 type DeleteDBClusterRequest struct {
-	AccessKeyId                            *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                                *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount                   *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId                        *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount                           *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId                            *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	BackupRetentionPolicyOnClusterDeletion *string `json:"BackupRetentionPolicyOnClusterDeletion" xml:"BackupRetentionPolicyOnClusterDeletion"`
+	DBClusterId                            *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	BackupRetentionPolicyOnClusterDeletion *string `json:"BackupRetentionPolicyOnClusterDeletion,omitempty" xml:"BackupRetentionPolicyOnClusterDeletion,omitempty"`
 }
 
 func (s DeleteDBClusterRequest) String() string {
@@ -6534,31 +4939,6 @@ func (s DeleteDBClusterRequest) String() string {
 
 func (s DeleteDBClusterRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDBClusterRequest) SetAccessKeyId(v string) *DeleteDBClusterRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteDBClusterRequest) SetOwnerId(v int64) *DeleteDBClusterRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteDBClusterRequest) SetResourceOwnerAccount(v string) *DeleteDBClusterRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteDBClusterRequest) SetResourceOwnerId(v int64) *DeleteDBClusterRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteDBClusterRequest) SetOwnerAccount(v string) *DeleteDBClusterRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteDBClusterRequest) SetDBClusterId(v string) *DeleteDBClusterRequest {
@@ -6572,7 +4952,7 @@ func (s *DeleteDBClusterRequest) SetBackupRetentionPolicyOnClusterDeletion(v str
 }
 
 type DeleteDBClusterResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteDBClusterResponse) String() string {
@@ -6589,32 +4969,27 @@ func (s *DeleteDBClusterResponse) SetRequestId(v string) *DeleteDBClusterRespons
 }
 
 type CreateDBClusterRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ZoneId               *string `json:"ZoneId" xml:"ZoneId"`
-	DBType               *string `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion            *string `json:"DBVersion" xml:"DBVersion" require:"true"`
-	DBNodeClass          *string `json:"DBNodeClass" xml:"DBNodeClass" require:"true"`
-	ClusterNetworkType   *string `json:"ClusterNetworkType" xml:"ClusterNetworkType"`
-	DBClusterDescription *string `json:"DBClusterDescription" xml:"DBClusterDescription"`
-	PayType              *string `json:"PayType" xml:"PayType" require:"true"`
-	AutoRenew            *bool   `json:"AutoRenew" xml:"AutoRenew"`
-	Period               *string `json:"Period" xml:"Period"`
-	UsedTime             *string `json:"UsedTime" xml:"UsedTime"`
-	VPCId                *string `json:"VPCId" xml:"VPCId"`
-	VSwitchId            *string `json:"VSwitchId" xml:"VSwitchId"`
-	CreationOption       *string `json:"CreationOption" xml:"CreationOption"`
-	SourceResourceId     *string `json:"SourceResourceId" xml:"SourceResourceId"`
-	CloneDataPoint       *string `json:"CloneDataPoint" xml:"CloneDataPoint"`
-	ClientToken          *string `json:"ClientToken" xml:"ClientToken"`
-	ResourceGroupId      *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	SecurityIPList       *string `json:"SecurityIPList" xml:"SecurityIPList"`
-	TDEStatus            *bool   `json:"TDEStatus" xml:"TDEStatus"`
-	GDNId                *string `json:"GDNId" xml:"GDNId"`
-	CreationCategory     *string `json:"CreationCategory" xml:"CreationCategory"`
+	ZoneId               *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty"`
+	DBType               *string `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion            *string `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	DBNodeClass          *string `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty" require:"true"`
+	ClusterNetworkType   *string `json:"ClusterNetworkType,omitempty" xml:"ClusterNetworkType,omitempty"`
+	DBClusterDescription *string `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty"`
+	PayType              *string `json:"PayType,omitempty" xml:"PayType,omitempty" require:"true"`
+	AutoRenew            *bool   `json:"AutoRenew,omitempty" xml:"AutoRenew,omitempty"`
+	Period               *string `json:"Period,omitempty" xml:"Period,omitempty"`
+	UsedTime             *string `json:"UsedTime,omitempty" xml:"UsedTime,omitempty"`
+	VPCId                *string `json:"VPCId,omitempty" xml:"VPCId,omitempty"`
+	VSwitchId            *string `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty"`
+	CreationOption       *string `json:"CreationOption,omitempty" xml:"CreationOption,omitempty"`
+	SourceResourceId     *string `json:"SourceResourceId,omitempty" xml:"SourceResourceId,omitempty"`
+	CloneDataPoint       *string `json:"CloneDataPoint,omitempty" xml:"CloneDataPoint,omitempty"`
+	ClientToken          *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	ResourceGroupId      *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	SecurityIPList       *string `json:"SecurityIPList,omitempty" xml:"SecurityIPList,omitempty"`
+	TDEStatus            *bool   `json:"TDEStatus,omitempty" xml:"TDEStatus,omitempty"`
+	GDNId                *string `json:"GDNId,omitempty" xml:"GDNId,omitempty"`
+	CreationCategory     *string `json:"CreationCategory,omitempty" xml:"CreationCategory,omitempty"`
 }
 
 func (s CreateDBClusterRequest) String() string {
@@ -6623,31 +4998,6 @@ func (s CreateDBClusterRequest) String() string {
 
 func (s CreateDBClusterRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateDBClusterRequest) SetAccessKeyId(v string) *CreateDBClusterRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateDBClusterRequest) SetOwnerId(v int64) *CreateDBClusterRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateDBClusterRequest) SetResourceOwnerAccount(v string) *CreateDBClusterRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateDBClusterRequest) SetResourceOwnerId(v int64) *CreateDBClusterRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateDBClusterRequest) SetOwnerAccount(v string) *CreateDBClusterRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateDBClusterRequest) SetZoneId(v string) *CreateDBClusterRequest {
@@ -6756,10 +5106,10 @@ func (s *CreateDBClusterRequest) SetCreationCategory(v string) *CreateDBClusterR
 }
 
 type CreateDBClusterResponse struct {
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DBClusterId     *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	OrderId         *string `json:"OrderId" xml:"OrderId" require:"true"`
-	ResourceGroupId *string `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	OrderId         *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	ResourceGroupId *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
 }
 
 func (s CreateDBClusterResponse) String() string {
@@ -6791,12 +5141,7 @@ func (s *CreateDBClusterResponse) SetResourceGroupId(v string) *CreateDBClusterR
 }
 
 type CreateBackupRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s CreateBackupRequest) String() string {
@@ -6807,39 +5152,14 @@ func (s CreateBackupRequest) GoString() string {
 	return s.String()
 }
 
-func (s *CreateBackupRequest) SetAccessKeyId(v string) *CreateBackupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateBackupRequest) SetOwnerId(v int64) *CreateBackupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateBackupRequest) SetResourceOwnerAccount(v string) *CreateBackupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateBackupRequest) SetResourceOwnerId(v int64) *CreateBackupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateBackupRequest) SetOwnerAccount(v string) *CreateBackupRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *CreateBackupRequest) SetDBClusterId(v string) *CreateBackupRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type CreateBackupResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	BackupJobId *string `json:"BackupJobId" xml:"BackupJobId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	BackupJobId *string `json:"BackupJobId,omitempty" xml:"BackupJobId,omitempty" require:"true"`
 }
 
 func (s CreateBackupResponse) String() string {
@@ -6861,18 +5181,13 @@ func (s *CreateBackupResponse) SetBackupJobId(v string) *CreateBackupResponse {
 }
 
 type CreateAccountRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	AccountName          *string `json:"AccountName" xml:"AccountName" require:"true"`
-	AccountPassword      *string `json:"AccountPassword" xml:"AccountPassword" require:"true"`
-	AccountType          *string `json:"AccountType" xml:"AccountType"`
-	AccountDescription   *string `json:"AccountDescription" xml:"AccountDescription"`
-	DBName               *string `json:"DBName" xml:"DBName"`
-	AccountPrivilege     *string `json:"AccountPrivilege" xml:"AccountPrivilege"`
+	DBClusterId        *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	AccountName        *string `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	AccountPassword    *string `json:"AccountPassword,omitempty" xml:"AccountPassword,omitempty" require:"true"`
+	AccountType        *string `json:"AccountType,omitempty" xml:"AccountType,omitempty"`
+	AccountDescription *string `json:"AccountDescription,omitempty" xml:"AccountDescription,omitempty"`
+	DBName             *string `json:"DBName,omitempty" xml:"DBName,omitempty"`
+	AccountPrivilege   *string `json:"AccountPrivilege,omitempty" xml:"AccountPrivilege,omitempty"`
 }
 
 func (s CreateAccountRequest) String() string {
@@ -6881,31 +5196,6 @@ func (s CreateAccountRequest) String() string {
 
 func (s CreateAccountRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateAccountRequest) SetAccessKeyId(v string) *CreateAccountRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateAccountRequest) SetOwnerId(v int64) *CreateAccountRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateAccountRequest) SetResourceOwnerAccount(v string) *CreateAccountRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateAccountRequest) SetResourceOwnerId(v int64) *CreateAccountRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *CreateAccountRequest) SetOwnerAccount(v string) *CreateAccountRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *CreateAccountRequest) SetDBClusterId(v string) *CreateAccountRequest {
@@ -6944,7 +5234,7 @@ func (s *CreateAccountRequest) SetAccountPrivilege(v string) *CreateAccountReque
 }
 
 type CreateAccountResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateAccountResponse) String() string {
@@ -6961,19 +5251,14 @@ func (s *CreateAccountResponse) SetRequestId(v string) *CreateAccountResponse {
 }
 
 type DescribeBackupsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	BackupId             *string `json:"BackupId" xml:"BackupId"`
-	BackupStatus         *string `json:"BackupStatus" xml:"BackupStatus"`
-	BackupMode           *string `json:"BackupMode" xml:"BackupMode"`
-	StartTime            *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime              *string `json:"EndTime" xml:"EndTime" require:"true"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
+	DBClusterId  *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	BackupId     *string `json:"BackupId,omitempty" xml:"BackupId,omitempty"`
+	BackupStatus *string `json:"BackupStatus,omitempty" xml:"BackupStatus,omitempty"`
+	BackupMode   *string `json:"BackupMode,omitempty" xml:"BackupMode,omitempty"`
+	StartTime    *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime      *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageSize     *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber   *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeBackupsRequest) String() string {
@@ -6982,31 +5267,6 @@ func (s DescribeBackupsRequest) String() string {
 
 func (s DescribeBackupsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeBackupsRequest) SetAccessKeyId(v string) *DescribeBackupsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeBackupsRequest) SetOwnerId(v int64) *DescribeBackupsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeBackupsRequest) SetResourceOwnerAccount(v string) *DescribeBackupsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeBackupsRequest) SetResourceOwnerId(v int64) *DescribeBackupsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeBackupsRequest) SetOwnerAccount(v string) *DescribeBackupsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeBackupsRequest) SetDBClusterId(v string) *DescribeBackupsRequest {
@@ -7050,11 +5310,11 @@ func (s *DescribeBackupsRequest) SetPageNumber(v int) *DescribeBackupsRequest {
 }
 
 type DescribeBackupsResponse struct {
-	RequestId        *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalRecordCount *string                       `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageNumber       *string                       `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageRecordCount  *string                       `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeBackupsResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalRecordCount *string                       `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageNumber       *string                       `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageRecordCount  *string                       `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeBackupsResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeBackupsResponse) String() string {
@@ -7091,7 +5351,7 @@ func (s *DescribeBackupsResponse) SetItems(v *DescribeBackupsResponseItems) *Des
 }
 
 type DescribeBackupsResponseItems struct {
-	Backup []*DescribeBackupsResponseItemsBackup `json:"Backup" xml:"Backup" require:"true" type:"Repeated"`
+	Backup []*DescribeBackupsResponseItemsBackup `json:"Backup,omitempty" xml:"Backup,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeBackupsResponseItems) String() string {
@@ -7108,19 +5368,19 @@ func (s *DescribeBackupsResponseItems) SetBackup(v []*DescribeBackupsResponseIte
 }
 
 type DescribeBackupsResponseItemsBackup struct {
-	BackupId        *string `json:"BackupId" xml:"BackupId" require:"true"`
-	DBClusterId     *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	BackupStatus    *string `json:"BackupStatus" xml:"BackupStatus" require:"true"`
-	BackupStartTime *string `json:"BackupStartTime" xml:"BackupStartTime" require:"true"`
-	BackupEndTime   *string `json:"BackupEndTime" xml:"BackupEndTime" require:"true"`
-	BackupType      *string `json:"BackupType" xml:"BackupType" require:"true"`
-	BackupMode      *string `json:"BackupMode" xml:"BackupMode" require:"true"`
-	BackupMethod    *string `json:"BackupMethod" xml:"BackupMethod" require:"true"`
-	StoreStatus     *string `json:"StoreStatus" xml:"StoreStatus" require:"true"`
-	BackupSetSize   *string `json:"BackupSetSize" xml:"BackupSetSize" require:"true"`
-	ConsistentTime  *string `json:"ConsistentTime" xml:"ConsistentTime" require:"true"`
-	BackupsLevel    *string `json:"BackupsLevel" xml:"BackupsLevel" require:"true"`
-	IsAvail         *string `json:"IsAvail" xml:"IsAvail" require:"true"`
+	BackupId        *string `json:"BackupId,omitempty" xml:"BackupId,omitempty" require:"true"`
+	DBClusterId     *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	BackupStatus    *string `json:"BackupStatus,omitempty" xml:"BackupStatus,omitempty" require:"true"`
+	BackupStartTime *string `json:"BackupStartTime,omitempty" xml:"BackupStartTime,omitempty" require:"true"`
+	BackupEndTime   *string `json:"BackupEndTime,omitempty" xml:"BackupEndTime,omitempty" require:"true"`
+	BackupType      *string `json:"BackupType,omitempty" xml:"BackupType,omitempty" require:"true"`
+	BackupMode      *string `json:"BackupMode,omitempty" xml:"BackupMode,omitempty" require:"true"`
+	BackupMethod    *string `json:"BackupMethod,omitempty" xml:"BackupMethod,omitempty" require:"true"`
+	StoreStatus     *string `json:"StoreStatus,omitempty" xml:"StoreStatus,omitempty" require:"true"`
+	BackupSetSize   *string `json:"BackupSetSize,omitempty" xml:"BackupSetSize,omitempty" require:"true"`
+	ConsistentTime  *string `json:"ConsistentTime,omitempty" xml:"ConsistentTime,omitempty" require:"true"`
+	BackupsLevel    *string `json:"BackupsLevel,omitempty" xml:"BackupsLevel,omitempty" require:"true"`
+	IsAvail         *string `json:"IsAvail,omitempty" xml:"IsAvail,omitempty" require:"true"`
 }
 
 func (s DescribeBackupsResponseItemsBackup) String() string {
@@ -7197,17 +5457,12 @@ func (s *DescribeBackupsResponseItemsBackup) SetIsAvail(v string) *DescribeBacku
 }
 
 type ModifyBackupPolicyRequest struct {
-	AccessKeyId                            *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                                *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount                   *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId                        *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount                           *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId                            *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	PreferredBackupTime                    *string `json:"PreferredBackupTime" xml:"PreferredBackupTime"`
-	PreferredBackupPeriod                  *string `json:"PreferredBackupPeriod" xml:"PreferredBackupPeriod"`
-	DataLevel1BackupRetentionPeriod        *string `json:"DataLevel1BackupRetentionPeriod" xml:"DataLevel1BackupRetentionPeriod"`
-	DataLevel2BackupRetentionPeriod        *string `json:"DataLevel2BackupRetentionPeriod" xml:"DataLevel2BackupRetentionPeriod"`
-	BackupRetentionPolicyOnClusterDeletion *string `json:"BackupRetentionPolicyOnClusterDeletion" xml:"BackupRetentionPolicyOnClusterDeletion"`
+	DBClusterId                            *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	PreferredBackupTime                    *string `json:"PreferredBackupTime,omitempty" xml:"PreferredBackupTime,omitempty"`
+	PreferredBackupPeriod                  *string `json:"PreferredBackupPeriod,omitempty" xml:"PreferredBackupPeriod,omitempty"`
+	DataLevel1BackupRetentionPeriod        *string `json:"DataLevel1BackupRetentionPeriod,omitempty" xml:"DataLevel1BackupRetentionPeriod,omitempty"`
+	DataLevel2BackupRetentionPeriod        *string `json:"DataLevel2BackupRetentionPeriod,omitempty" xml:"DataLevel2BackupRetentionPeriod,omitempty"`
+	BackupRetentionPolicyOnClusterDeletion *string `json:"BackupRetentionPolicyOnClusterDeletion,omitempty" xml:"BackupRetentionPolicyOnClusterDeletion,omitempty"`
 }
 
 func (s ModifyBackupPolicyRequest) String() string {
@@ -7216,31 +5471,6 @@ func (s ModifyBackupPolicyRequest) String() string {
 
 func (s ModifyBackupPolicyRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyBackupPolicyRequest) SetAccessKeyId(v string) *ModifyBackupPolicyRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifyBackupPolicyRequest) SetOwnerId(v int64) *ModifyBackupPolicyRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifyBackupPolicyRequest) SetResourceOwnerAccount(v string) *ModifyBackupPolicyRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifyBackupPolicyRequest) SetResourceOwnerId(v int64) *ModifyBackupPolicyRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ModifyBackupPolicyRequest) SetOwnerAccount(v string) *ModifyBackupPolicyRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *ModifyBackupPolicyRequest) SetDBClusterId(v string) *ModifyBackupPolicyRequest {
@@ -7274,7 +5504,7 @@ func (s *ModifyBackupPolicyRequest) SetBackupRetentionPolicyOnClusterDeletion(v 
 }
 
 type ModifyBackupPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ModifyBackupPolicyResponse) String() string {
@@ -7291,12 +5521,7 @@ func (s *ModifyBackupPolicyResponse) SetRequestId(v string) *ModifyBackupPolicyR
 }
 
 type DescribeBackupPolicyRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeBackupPolicyRequest) String() string {
@@ -7307,45 +5532,20 @@ func (s DescribeBackupPolicyRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeBackupPolicyRequest) SetAccessKeyId(v string) *DescribeBackupPolicyRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeBackupPolicyRequest) SetOwnerId(v int64) *DescribeBackupPolicyRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeBackupPolicyRequest) SetResourceOwnerAccount(v string) *DescribeBackupPolicyRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeBackupPolicyRequest) SetResourceOwnerId(v int64) *DescribeBackupPolicyRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeBackupPolicyRequest) SetOwnerAccount(v string) *DescribeBackupPolicyRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeBackupPolicyRequest) SetDBClusterId(v string) *DescribeBackupPolicyRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeBackupPolicyResponse struct {
-	RequestId                              *string `json:"RequestId" xml:"RequestId" require:"true"`
-	BackupRetentionPeriod                  *int    `json:"BackupRetentionPeriod" xml:"BackupRetentionPeriod" require:"true"`
-	PreferredNextBackupTime                *string `json:"PreferredNextBackupTime" xml:"PreferredNextBackupTime" require:"true"`
-	PreferredBackupTime                    *string `json:"PreferredBackupTime" xml:"PreferredBackupTime" require:"true"`
-	PreferredBackupPeriod                  *string `json:"PreferredBackupPeriod" xml:"PreferredBackupPeriod" require:"true"`
-	DataLevel1BackupRetentionPeriod        *string `json:"DataLevel1BackupRetentionPeriod" xml:"DataLevel1BackupRetentionPeriod" require:"true"`
-	DataLevel2BackupRetentionPeriod        *string `json:"DataLevel2BackupRetentionPeriod" xml:"DataLevel2BackupRetentionPeriod" require:"true"`
-	BackupRetentionPolicyOnClusterDeletion *string `json:"BackupRetentionPolicyOnClusterDeletion" xml:"BackupRetentionPolicyOnClusterDeletion" require:"true"`
+	RequestId                              *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	BackupRetentionPeriod                  *int    `json:"BackupRetentionPeriod,omitempty" xml:"BackupRetentionPeriod,omitempty" require:"true"`
+	PreferredNextBackupTime                *string `json:"PreferredNextBackupTime,omitempty" xml:"PreferredNextBackupTime,omitempty" require:"true"`
+	PreferredBackupTime                    *string `json:"PreferredBackupTime,omitempty" xml:"PreferredBackupTime,omitempty" require:"true"`
+	PreferredBackupPeriod                  *string `json:"PreferredBackupPeriod,omitempty" xml:"PreferredBackupPeriod,omitempty" require:"true"`
+	DataLevel1BackupRetentionPeriod        *string `json:"DataLevel1BackupRetentionPeriod,omitempty" xml:"DataLevel1BackupRetentionPeriod,omitempty" require:"true"`
+	DataLevel2BackupRetentionPeriod        *string `json:"DataLevel2BackupRetentionPeriod,omitempty" xml:"DataLevel2BackupRetentionPeriod,omitempty" require:"true"`
+	BackupRetentionPolicyOnClusterDeletion *string `json:"BackupRetentionPolicyOnClusterDeletion,omitempty" xml:"BackupRetentionPolicyOnClusterDeletion,omitempty" require:"true"`
 }
 
 func (s DescribeBackupPolicyResponse) String() string {
@@ -7397,20 +5597,15 @@ func (s *DescribeBackupPolicyResponse) SetBackupRetentionPolicyOnClusterDeletion
 }
 
 type DescribeDBClustersRequest struct {
-	AccessKeyId          *string                         `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64                          `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                         `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                          `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string                         `json:"OwnerAccount" xml:"OwnerAccount"`
-	RegionId             *string                         `json:"RegionId" xml:"RegionId" require:"true"`
-	DBClusterIds         *string                         `json:"DBClusterIds" xml:"DBClusterIds"`
-	DBClusterDescription *string                         `json:"DBClusterDescription" xml:"DBClusterDescription"`
-	DBClusterStatus      *string                         `json:"DBClusterStatus" xml:"DBClusterStatus"`
-	DBType               *string                         `json:"DBType" xml:"DBType"`
-	Tag                  []*DescribeDBClustersRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	PageSize             *int                            `json:"PageSize" xml:"PageSize"`
-	PageNumber           *int                            `json:"PageNumber" xml:"PageNumber"`
-	ResourceGroupId      *string                         `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	RegionId             *string                         `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DBClusterIds         *string                         `json:"DBClusterIds,omitempty" xml:"DBClusterIds,omitempty"`
+	DBClusterDescription *string                         `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty"`
+	DBClusterStatus      *string                         `json:"DBClusterStatus,omitempty" xml:"DBClusterStatus,omitempty"`
+	DBType               *string                         `json:"DBType,omitempty" xml:"DBType,omitempty"`
+	Tag                  []*DescribeDBClustersRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	PageSize             *int                            `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber           *int                            `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	ResourceGroupId      *string                         `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s DescribeDBClustersRequest) String() string {
@@ -7419,31 +5614,6 @@ func (s DescribeDBClustersRequest) String() string {
 
 func (s DescribeDBClustersRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDBClustersRequest) SetAccessKeyId(v string) *DescribeDBClustersRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClustersRequest) SetOwnerId(v int64) *DescribeDBClustersRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClustersRequest) SetResourceOwnerAccount(v string) *DescribeDBClustersRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClustersRequest) SetResourceOwnerId(v int64) *DescribeDBClustersRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClustersRequest) SetOwnerAccount(v string) *DescribeDBClustersRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DescribeDBClustersRequest) SetRegionId(v string) *DescribeDBClustersRequest {
@@ -7492,8 +5662,8 @@ func (s *DescribeDBClustersRequest) SetResourceGroupId(v string) *DescribeDBClus
 }
 
 type DescribeDBClustersRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeDBClustersRequestTag) String() string {
@@ -7515,11 +5685,11 @@ func (s *DescribeDBClustersRequestTag) SetValue(v string) *DescribeDBClustersReq
 }
 
 type DescribeDBClustersResponse struct {
-	RequestId        *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber       *int                             `json:"PageNumber" xml:"PageNumber" require:"true"`
-	TotalRecordCount *int                             `json:"TotalRecordCount" xml:"TotalRecordCount" require:"true"`
-	PageRecordCount  *int                             `json:"PageRecordCount" xml:"PageRecordCount" require:"true"`
-	Items            *DescribeDBClustersResponseItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	RequestId        *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber       *int                             `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	TotalRecordCount *int                             `json:"TotalRecordCount,omitempty" xml:"TotalRecordCount,omitempty" require:"true"`
+	PageRecordCount  *int                             `json:"PageRecordCount,omitempty" xml:"PageRecordCount,omitempty" require:"true"`
+	Items            *DescribeDBClustersResponseItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClustersResponse) String() string {
@@ -7556,7 +5726,7 @@ func (s *DescribeDBClustersResponse) SetItems(v *DescribeDBClustersResponseItems
 }
 
 type DescribeDBClustersResponseItems struct {
-	DBCluster []*DescribeDBClustersResponseItemsDBCluster `json:"DBCluster" xml:"DBCluster" require:"true" type:"Repeated"`
+	DBCluster []*DescribeDBClustersResponseItemsDBCluster `json:"DBCluster,omitempty" xml:"DBCluster,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClustersResponseItems) String() string {
@@ -7573,28 +5743,28 @@ func (s *DescribeDBClustersResponseItems) SetDBCluster(v []*DescribeDBClustersRe
 }
 
 type DescribeDBClustersResponseItemsDBCluster struct {
-	DBClusterId          *string                                          `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBClusterDescription *string                                          `json:"DBClusterDescription" xml:"DBClusterDescription" require:"true"`
-	PayType              *string                                          `json:"PayType" xml:"PayType" require:"true"`
-	DBClusterNetworkType *string                                          `json:"DBClusterNetworkType" xml:"DBClusterNetworkType" require:"true"`
-	RegionId             *string                                          `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId               *string                                          `json:"ZoneId" xml:"ZoneId" require:"true"`
-	ExpireTime           *string                                          `json:"ExpireTime" xml:"ExpireTime" require:"true"`
-	Expired              *string                                          `json:"Expired" xml:"Expired" require:"true"`
-	DBClusterStatus      *string                                          `json:"DBClusterStatus" xml:"DBClusterStatus" require:"true"`
-	Engine               *string                                          `json:"Engine" xml:"Engine" require:"true"`
-	DBType               *string                                          `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion            *string                                          `json:"DBVersion" xml:"DBVersion" require:"true"`
-	LockMode             *string                                          `json:"LockMode" xml:"LockMode" require:"true"`
-	DeletionLock         *int                                             `json:"DeletionLock" xml:"DeletionLock" require:"true"`
-	CreateTime           *string                                          `json:"CreateTime" xml:"CreateTime" require:"true"`
-	VpcId                *string                                          `json:"VpcId" xml:"VpcId" require:"true"`
-	DBNodeNumber         *int                                             `json:"DBNodeNumber" xml:"DBNodeNumber" require:"true"`
-	DBNodeClass          *string                                          `json:"DBNodeClass" xml:"DBNodeClass" require:"true"`
-	StorageUsed          *int64                                           `json:"StorageUsed" xml:"StorageUsed" require:"true"`
-	ResourceGroupId      *string                                          `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	DBNodes              *DescribeDBClustersResponseItemsDBClusterDBNodes `json:"DBNodes" xml:"DBNodes" require:"true" type:"Struct"`
-	Tags                 *DescribeDBClustersResponseItemsDBClusterTags    `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
+	DBClusterId          *string                                          `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBClusterDescription *string                                          `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty" require:"true"`
+	PayType              *string                                          `json:"PayType,omitempty" xml:"PayType,omitempty" require:"true"`
+	DBClusterNetworkType *string                                          `json:"DBClusterNetworkType,omitempty" xml:"DBClusterNetworkType,omitempty" require:"true"`
+	RegionId             *string                                          `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId               *string                                          `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	ExpireTime           *string                                          `json:"ExpireTime,omitempty" xml:"ExpireTime,omitempty" require:"true"`
+	Expired              *string                                          `json:"Expired,omitempty" xml:"Expired,omitempty" require:"true"`
+	DBClusterStatus      *string                                          `json:"DBClusterStatus,omitempty" xml:"DBClusterStatus,omitempty" require:"true"`
+	Engine               *string                                          `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	DBType               *string                                          `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion            *string                                          `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	LockMode             *string                                          `json:"LockMode,omitempty" xml:"LockMode,omitempty" require:"true"`
+	DeletionLock         *int                                             `json:"DeletionLock,omitempty" xml:"DeletionLock,omitempty" require:"true"`
+	CreateTime           *string                                          `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	VpcId                *string                                          `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	DBNodeNumber         *int                                             `json:"DBNodeNumber,omitempty" xml:"DBNodeNumber,omitempty" require:"true"`
+	DBNodeClass          *string                                          `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty" require:"true"`
+	StorageUsed          *int64                                           `json:"StorageUsed,omitempty" xml:"StorageUsed,omitempty" require:"true"`
+	ResourceGroupId      *string                                          `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	DBNodes              *DescribeDBClustersResponseItemsDBClusterDBNodes `json:"DBNodes,omitempty" xml:"DBNodes,omitempty" require:"true" type:"Struct"`
+	Tags                 *DescribeDBClustersResponseItemsDBClusterTags    `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDBClustersResponseItemsDBCluster) String() string {
@@ -7716,7 +5886,7 @@ func (s *DescribeDBClustersResponseItemsDBCluster) SetTags(v *DescribeDBClusters
 }
 
 type DescribeDBClustersResponseItemsDBClusterDBNodes struct {
-	DBNode []*DescribeDBClustersResponseItemsDBClusterDBNodesDBNode `json:"DBNode" xml:"DBNode" require:"true" type:"Repeated"`
+	DBNode []*DescribeDBClustersResponseItemsDBClusterDBNodesDBNode `json:"DBNode,omitempty" xml:"DBNode,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClustersResponseItemsDBClusterDBNodes) String() string {
@@ -7733,11 +5903,11 @@ func (s *DescribeDBClustersResponseItemsDBClusterDBNodes) SetDBNode(v []*Describ
 }
 
 type DescribeDBClustersResponseItemsDBClusterDBNodesDBNode struct {
-	DBNodeId    *string `json:"DBNodeId" xml:"DBNodeId" require:"true"`
-	DBNodeClass *string `json:"DBNodeClass" xml:"DBNodeClass" require:"true"`
-	DBNodeRole  *string `json:"DBNodeRole" xml:"DBNodeRole" require:"true"`
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ZoneId      *string `json:"ZoneId" xml:"ZoneId" require:"true"`
+	DBNodeId    *string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
+	DBNodeClass *string `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty" require:"true"`
+	DBNodeRole  *string `json:"DBNodeRole,omitempty" xml:"DBNodeRole,omitempty" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ZoneId      *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClustersResponseItemsDBClusterDBNodesDBNode) String() string {
@@ -7774,7 +5944,7 @@ func (s *DescribeDBClustersResponseItemsDBClusterDBNodesDBNode) SetZoneId(v stri
 }
 
 type DescribeDBClustersResponseItemsDBClusterTags struct {
-	Tag []*DescribeDBClustersResponseItemsDBClusterTagsTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	Tag []*DescribeDBClustersResponseItemsDBClusterTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClustersResponseItemsDBClusterTags) String() string {
@@ -7791,8 +5961,8 @@ func (s *DescribeDBClustersResponseItemsDBClusterTags) SetTag(v []*DescribeDBClu
 }
 
 type DescribeDBClustersResponseItemsDBClusterTagsTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeDBClustersResponseItemsDBClusterTagsTag) String() string {
@@ -7814,12 +5984,7 @@ func (s *DescribeDBClustersResponseItemsDBClusterTagsTag) SetValue(v string) *De
 }
 
 type DescribeDBClusterAttributeRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	DBClusterId          *string `json:"DBClusterId" xml:"DBClusterId" require:"true"`
+	DBClusterId *string `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAttributeRequest) String() string {
@@ -7830,64 +5995,39 @@ func (s DescribeDBClusterAttributeRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeDBClusterAttributeRequest) SetAccessKeyId(v string) *DescribeDBClusterAttributeRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAttributeRequest) SetOwnerId(v int64) *DescribeDBClusterAttributeRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAttributeRequest) SetResourceOwnerAccount(v string) *DescribeDBClusterAttributeRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DescribeDBClusterAttributeRequest) SetResourceOwnerId(v int64) *DescribeDBClusterAttributeRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DescribeDBClusterAttributeRequest) SetOwnerAccount(v string) *DescribeDBClusterAttributeRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DescribeDBClusterAttributeRequest) SetDBClusterId(v string) *DescribeDBClusterAttributeRequest {
 	s.DBClusterId = &v
 	return s
 }
 
 type DescribeDBClusterAttributeResponse struct {
-	RequestId                 *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	RegionId                  *string                                      `json:"RegionId" xml:"RegionId" require:"true"`
-	DBClusterNetworkType      *string                                      `json:"DBClusterNetworkType" xml:"DBClusterNetworkType" require:"true"`
-	VPCId                     *string                                      `json:"VPCId" xml:"VPCId" require:"true"`
-	VSwitchId                 *string                                      `json:"VSwitchId" xml:"VSwitchId" require:"true"`
-	PayType                   *string                                      `json:"PayType" xml:"PayType" require:"true"`
-	DBClusterId               *string                                      `json:"DBClusterId" xml:"DBClusterId" require:"true"`
-	DBClusterStatus           *string                                      `json:"DBClusterStatus" xml:"DBClusterStatus" require:"true"`
-	DBClusterDescription      *string                                      `json:"DBClusterDescription" xml:"DBClusterDescription" require:"true"`
-	Engine                    *string                                      `json:"Engine" xml:"Engine" require:"true"`
-	DBType                    *string                                      `json:"DBType" xml:"DBType" require:"true"`
-	DBVersion                 *string                                      `json:"DBVersion" xml:"DBVersion" require:"true"`
-	LockMode                  *string                                      `json:"LockMode" xml:"LockMode" require:"true"`
-	DeletionLock              *int                                         `json:"DeletionLock" xml:"DeletionLock" require:"true"`
-	CreationTime              *string                                      `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ExpireTime                *string                                      `json:"ExpireTime" xml:"ExpireTime" require:"true"`
-	Expired                   *string                                      `json:"Expired" xml:"Expired" require:"true"`
-	MaintainTime              *string                                      `json:"MaintainTime" xml:"MaintainTime" require:"true"`
-	StorageUsed               *int64                                       `json:"StorageUsed" xml:"StorageUsed" require:"true"`
-	StorageMax                *int64                                       `json:"StorageMax" xml:"StorageMax" require:"true"`
-	ZoneIds                   *string                                      `json:"ZoneIds" xml:"ZoneIds" require:"true"`
-	SQLSize                   *int64                                       `json:"SQLSize" xml:"SQLSize" require:"true"`
-	IsLatestVersion           *bool                                        `json:"IsLatestVersion" xml:"IsLatestVersion" require:"true"`
-	ResourceGroupId           *string                                      `json:"ResourceGroupId" xml:"ResourceGroupId" require:"true"`
-	DataLevel1BackupChainSize *int64                                       `json:"DataLevel1BackupChainSize" xml:"DataLevel1BackupChainSize" require:"true"`
-	Tags                      []*DescribeDBClusterAttributeResponseTags    `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
-	DBNodes                   []*DescribeDBClusterAttributeResponseDBNodes `json:"DBNodes" xml:"DBNodes" require:"true" type:"Repeated"`
+	RequestId                 *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RegionId                  *string                                      `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DBClusterNetworkType      *string                                      `json:"DBClusterNetworkType,omitempty" xml:"DBClusterNetworkType,omitempty" require:"true"`
+	VPCId                     *string                                      `json:"VPCId,omitempty" xml:"VPCId,omitempty" require:"true"`
+	VSwitchId                 *string                                      `json:"VSwitchId,omitempty" xml:"VSwitchId,omitempty" require:"true"`
+	PayType                   *string                                      `json:"PayType,omitempty" xml:"PayType,omitempty" require:"true"`
+	DBClusterId               *string                                      `json:"DBClusterId,omitempty" xml:"DBClusterId,omitempty" require:"true"`
+	DBClusterStatus           *string                                      `json:"DBClusterStatus,omitempty" xml:"DBClusterStatus,omitempty" require:"true"`
+	DBClusterDescription      *string                                      `json:"DBClusterDescription,omitempty" xml:"DBClusterDescription,omitempty" require:"true"`
+	Engine                    *string                                      `json:"Engine,omitempty" xml:"Engine,omitempty" require:"true"`
+	DBType                    *string                                      `json:"DBType,omitempty" xml:"DBType,omitempty" require:"true"`
+	DBVersion                 *string                                      `json:"DBVersion,omitempty" xml:"DBVersion,omitempty" require:"true"`
+	LockMode                  *string                                      `json:"LockMode,omitempty" xml:"LockMode,omitempty" require:"true"`
+	DeletionLock              *int                                         `json:"DeletionLock,omitempty" xml:"DeletionLock,omitempty" require:"true"`
+	CreationTime              *string                                      `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ExpireTime                *string                                      `json:"ExpireTime,omitempty" xml:"ExpireTime,omitempty" require:"true"`
+	Expired                   *string                                      `json:"Expired,omitempty" xml:"Expired,omitempty" require:"true"`
+	MaintainTime              *string                                      `json:"MaintainTime,omitempty" xml:"MaintainTime,omitempty" require:"true"`
+	StorageUsed               *int64                                       `json:"StorageUsed,omitempty" xml:"StorageUsed,omitempty" require:"true"`
+	StorageMax                *int64                                       `json:"StorageMax,omitempty" xml:"StorageMax,omitempty" require:"true"`
+	ZoneIds                   *string                                      `json:"ZoneIds,omitempty" xml:"ZoneIds,omitempty" require:"true"`
+	SQLSize                   *int64                                       `json:"SQLSize,omitempty" xml:"SQLSize,omitempty" require:"true"`
+	IsLatestVersion           *bool                                        `json:"IsLatestVersion,omitempty" xml:"IsLatestVersion,omitempty" require:"true"`
+	ResourceGroupId           *string                                      `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	DataLevel1BackupChainSize *int64                                       `json:"DataLevel1BackupChainSize,omitempty" xml:"DataLevel1BackupChainSize,omitempty" require:"true"`
+	Tags                      []*DescribeDBClusterAttributeResponseTags    `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
+	DBNodes                   []*DescribeDBClusterAttributeResponseDBNodes `json:"DBNodes,omitempty" xml:"DBNodes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDBClusterAttributeResponse) String() string {
@@ -8034,8 +6174,8 @@ func (s *DescribeDBClusterAttributeResponse) SetDBNodes(v []*DescribeDBClusterAt
 }
 
 type DescribeDBClusterAttributeResponseTags struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAttributeResponseTags) String() string {
@@ -8057,15 +6197,15 @@ func (s *DescribeDBClusterAttributeResponseTags) SetValue(v string) *DescribeDBC
 }
 
 type DescribeDBClusterAttributeResponseDBNodes struct {
-	DBNodeId         *string `json:"DBNodeId" xml:"DBNodeId" require:"true"`
-	ZoneId           *string `json:"ZoneId" xml:"ZoneId" require:"true"`
-	DBNodeStatus     *string `json:"DBNodeStatus" xml:"DBNodeStatus" require:"true"`
-	CreationTime     *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	DBNodeClass      *string `json:"DBNodeClass" xml:"DBNodeClass" require:"true"`
-	DBNodeRole       *string `json:"DBNodeRole" xml:"DBNodeRole" require:"true"`
-	MaxIOPS          *int    `json:"MaxIOPS" xml:"MaxIOPS" require:"true"`
-	MaxConnections   *int    `json:"MaxConnections" xml:"MaxConnections" require:"true"`
-	FailoverPriority *int    `json:"FailoverPriority" xml:"FailoverPriority" require:"true"`
+	DBNodeId         *string `json:"DBNodeId,omitempty" xml:"DBNodeId,omitempty" require:"true"`
+	ZoneId           *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
+	DBNodeStatus     *string `json:"DBNodeStatus,omitempty" xml:"DBNodeStatus,omitempty" require:"true"`
+	CreationTime     *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	DBNodeClass      *string `json:"DBNodeClass,omitempty" xml:"DBNodeClass,omitempty" require:"true"`
+	DBNodeRole       *string `json:"DBNodeRole,omitempty" xml:"DBNodeRole,omitempty" require:"true"`
+	MaxIOPS          *int    `json:"MaxIOPS,omitempty" xml:"MaxIOPS,omitempty" require:"true"`
+	MaxConnections   *int    `json:"MaxConnections,omitempty" xml:"MaxConnections,omitempty" require:"true"`
+	FailoverPriority *int    `json:"FailoverPriority,omitempty" xml:"FailoverPriority,omitempty" require:"true"`
 }
 
 func (s DescribeDBClusterAttributeResponseDBNodes) String() string {
