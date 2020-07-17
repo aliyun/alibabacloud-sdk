@@ -9,7 +9,7 @@ import (
 )
 
 type GetDatasetRequest struct {
-	DatasetId *int64 `json:"DatasetId" xml:"DatasetId" require:"true"`
+	DatasetId *int64 `json:"DatasetId,omitempty" xml:"DatasetId,omitempty" require:"true"`
 }
 
 func (s GetDatasetRequest) String() string {
@@ -26,12 +26,12 @@ func (s *GetDatasetRequest) SetDatasetId(v int64) *GetDatasetRequest {
 }
 
 type GetDatasetResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	ErrMsg    *string                 `json:"ErrMsg" xml:"ErrMsg" require:"true"`
-	ErrCode   *int                    `json:"ErrCode" xml:"ErrCode" require:"true"`
-	Success   *bool                   `json:"Success" xml:"Success" require:"true"`
-	Code      *string                 `json:"Code" xml:"Code" require:"true"`
-	Data      *GetDatasetResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ErrMsg    *string                 `json:"ErrMsg,omitempty" xml:"ErrMsg,omitempty" require:"true"`
+	ErrCode   *int                    `json:"ErrCode,omitempty" xml:"ErrCode,omitempty" require:"true"`
+	Success   *bool                   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *GetDatasetResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetDatasetResponse) String() string {
@@ -73,24 +73,24 @@ func (s *GetDatasetResponse) SetData(v *GetDatasetResponseData) *GetDatasetRespo
 }
 
 type GetDatasetResponseData struct {
-	Id             *int64                   `json:"Id" xml:"Id" require:"true"`
-	UserId         *string                  `json:"UserId" xml:"UserId" require:"true"`
-	OwnerId        *string                  `json:"OwnerId" xml:"OwnerId" require:"true"`
-	Name           *string                  `json:"Name" xml:"Name" require:"true"`
-	StorageType    *string                  `json:"StorageType" xml:"StorageType" require:"true"`
-	RegisterType   *string                  `json:"RegisterType" xml:"RegisterType" require:"true"`
-	StoragePath    *string                  `json:"StoragePath" xml:"StoragePath" require:"true"`
-	DataType       *string                  `json:"DataType" xml:"DataType" require:"true"`
-	SourcePath     *string                  `json:"SourcePath" xml:"SourcePath" require:"true"`
-	Status         *string                  `json:"Status" xml:"Status" require:"true"`
-	GmtCreate      *string                  `json:"GmtCreate" xml:"GmtCreate" require:"true"`
-	UtcCreate      *string                  `json:"UtcCreate" xml:"UtcCreate" require:"true"`
-	GmtModified    *string                  `json:"GmtModified" xml:"GmtModified" require:"true"`
-	UtcModified    *int64                   `json:"UtcModified" xml:"UtcModified" require:"true"`
-	Uid            *string                  `json:"Uid" xml:"Uid" require:"true"`
-	TaskId         *int64                   `json:"TaskId" xml:"TaskId" require:"true"`
-	TmpDownloadUrl *string                  `json:"TmpDownloadUrl" xml:"TmpDownloadUrl" require:"true"`
-	Tags           []map[string]interface{} `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
+	Id             *int64                   `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	UserId         *string                  `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	OwnerId        *string                  `json:"OwnerId,omitempty" xml:"OwnerId,omitempty" require:"true"`
+	Name           *string                  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	StorageType    *string                  `json:"StorageType,omitempty" xml:"StorageType,omitempty" require:"true"`
+	RegisterType   *string                  `json:"RegisterType,omitempty" xml:"RegisterType,omitempty" require:"true"`
+	StoragePath    *string                  `json:"StoragePath,omitempty" xml:"StoragePath,omitempty" require:"true"`
+	DataType       *string                  `json:"DataType,omitempty" xml:"DataType,omitempty" require:"true"`
+	SourcePath     *string                  `json:"SourcePath,omitempty" xml:"SourcePath,omitempty" require:"true"`
+	Status         *string                  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	GmtCreate      *string                  `json:"GmtCreate,omitempty" xml:"GmtCreate,omitempty" require:"true"`
+	UtcCreate      *string                  `json:"UtcCreate,omitempty" xml:"UtcCreate,omitempty" require:"true"`
+	GmtModified    *string                  `json:"GmtModified,omitempty" xml:"GmtModified,omitempty" require:"true"`
+	UtcModified    *int64                   `json:"UtcModified,omitempty" xml:"UtcModified,omitempty" require:"true"`
+	Uid            *string                  `json:"Uid,omitempty" xml:"Uid,omitempty" require:"true"`
+	TaskId         *int64                   `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	TmpDownloadUrl *string                  `json:"TmpDownloadUrl,omitempty" xml:"TmpDownloadUrl,omitempty" require:"true"`
+	Tags           []map[string]interface{} `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetDatasetResponseData) String() string {
@@ -192,9 +192,9 @@ func (s *GetDatasetResponseData) SetTags(v []map[string]interface{}) *GetDataset
 }
 
 type ListDatasetsRequest struct {
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize" require:"true"`
-	NameLike   *string `json:"NameLike" xml:"NameLike"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	NameLike   *string `json:"NameLike,omitempty" xml:"NameLike,omitempty"`
 }
 
 func (s ListDatasetsRequest) String() string {
@@ -221,12 +221,12 @@ func (s *ListDatasetsRequest) SetNameLike(v string) *ListDatasetsRequest {
 }
 
 type ListDatasetsResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	ErrMsg    *string                   `json:"ErrMsg" xml:"ErrMsg" require:"true"`
-	ErrCode   *int                      `json:"ErrCode" xml:"ErrCode" require:"true"`
-	Success   *bool                     `json:"Success" xml:"Success" require:"true"`
-	Code      *string                   `json:"Code" xml:"Code" require:"true"`
-	Data      *ListDatasetsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ErrMsg    *string                   `json:"ErrMsg,omitempty" xml:"ErrMsg,omitempty" require:"true"`
+	ErrCode   *int                      `json:"ErrCode,omitempty" xml:"ErrCode,omitempty" require:"true"`
+	Success   *bool                     `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                   `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Data      *ListDatasetsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListDatasetsResponse) String() string {
@@ -268,11 +268,11 @@ func (s *ListDatasetsResponse) SetData(v *ListDatasetsResponseData) *ListDataset
 }
 
 type ListDatasetsResponseData struct {
-	PageIndex  *int                     `json:"PageIndex" xml:"PageIndex" require:"true"`
-	PageSize   *int                     `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalNum   *int                     `json:"TotalNum" xml:"TotalNum" require:"true"`
-	TotalPages *int                     `json:"TotalPages" xml:"TotalPages" require:"true"`
-	Data       []map[string]interface{} `json:"Data" xml:"Data" require:"true" type:"Repeated"`
+	PageIndex  *int                     `json:"PageIndex,omitempty" xml:"PageIndex,omitempty" require:"true"`
+	PageSize   *int                     `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalNum   *int                     `json:"TotalNum,omitempty" xml:"TotalNum,omitempty" require:"true"`
+	TotalPages *int                     `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	Data       []map[string]interface{} `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListDatasetsResponseData) String() string {
