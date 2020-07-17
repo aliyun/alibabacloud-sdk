@@ -8,9 +8,319 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type GetRegisteredServiceEndpointsRequest struct {
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	Namespace     *string `json:"Namespace,omitempty" xml:"Namespace,omitempty" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+}
+
+func (s GetRegisteredServiceEndpointsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServiceEndpointsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServiceEndpointsRequest) SetServiceMeshId(v string) *GetRegisteredServiceEndpointsRequest {
+	s.ServiceMeshId = &v
+	return s
+}
+
+func (s *GetRegisteredServiceEndpointsRequest) SetNamespace(v string) *GetRegisteredServiceEndpointsRequest {
+	s.Namespace = &v
+	return s
+}
+
+func (s *GetRegisteredServiceEndpointsRequest) SetName(v string) *GetRegisteredServiceEndpointsRequest {
+	s.Name = &v
+	return s
+}
+
+type GetRegisteredServiceEndpointsResponse struct {
+	RequestId        *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ServiceEndpoints []*GetRegisteredServiceEndpointsResponseServiceEndpoints `json:"ServiceEndpoints,omitempty" xml:"ServiceEndpoints,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetRegisteredServiceEndpointsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServiceEndpointsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServiceEndpointsResponse) SetRequestId(v string) *GetRegisteredServiceEndpointsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetRegisteredServiceEndpointsResponse) SetServiceEndpoints(v []*GetRegisteredServiceEndpointsResponseServiceEndpoints) *GetRegisteredServiceEndpointsResponse {
+	s.ServiceEndpoints = v
+	return s
+}
+
+type GetRegisteredServiceEndpointsResponseServiceEndpoints struct {
+	Address   *string `json:"Address,omitempty" xml:"Address,omitempty" require:"true"`
+	ClusterId *string `json:"ClusterId,omitempty" xml:"ClusterId,omitempty" require:"true"`
+}
+
+func (s GetRegisteredServiceEndpointsResponseServiceEndpoints) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServiceEndpointsResponseServiceEndpoints) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServiceEndpointsResponseServiceEndpoints) SetAddress(v string) *GetRegisteredServiceEndpointsResponseServiceEndpoints {
+	s.Address = &v
+	return s
+}
+
+func (s *GetRegisteredServiceEndpointsResponseServiceEndpoints) SetClusterId(v string) *GetRegisteredServiceEndpointsResponseServiceEndpoints {
+	s.ClusterId = &v
+	return s
+}
+
+type GetServiceMeshSlbRequest struct {
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+}
+
+func (s GetServiceMeshSlbRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetServiceMeshSlbRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetServiceMeshSlbRequest) SetServiceMeshId(v string) *GetServiceMeshSlbRequest {
+	s.ServiceMeshId = &v
+	return s
+}
+
+type GetServiceMeshSlbResponse struct {
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      []*GetServiceMeshSlbResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetServiceMeshSlbResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetServiceMeshSlbResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetServiceMeshSlbResponse) SetRequestId(v string) *GetServiceMeshSlbResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetServiceMeshSlbResponse) SetData(v []*GetServiceMeshSlbResponseData) *GetServiceMeshSlbResponse {
+	s.Data = v
+	return s
+}
+
+type GetServiceMeshSlbResponseData struct {
+	LoadBalancerId     *string `json:"LoadBalancerId,omitempty" xml:"LoadBalancerId,omitempty" require:"true"`
+	Status             *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	ServerHealthStatus *string `json:"ServerHealthStatus,omitempty" xml:"ServerHealthStatus,omitempty" require:"true"`
+}
+
+func (s GetServiceMeshSlbResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetServiceMeshSlbResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *GetServiceMeshSlbResponseData) SetLoadBalancerId(v string) *GetServiceMeshSlbResponseData {
+	s.LoadBalancerId = &v
+	return s
+}
+
+func (s *GetServiceMeshSlbResponseData) SetStatus(v string) *GetServiceMeshSlbResponseData {
+	s.Status = &v
+	return s
+}
+
+func (s *GetServiceMeshSlbResponseData) SetServerHealthStatus(v string) *GetServiceMeshSlbResponseData {
+	s.ServerHealthStatus = &v
+	return s
+}
+
+type GetRegisteredServicesRequest struct {
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	Namespace     *string `json:"Namespace,omitempty" xml:"Namespace,omitempty" require:"true"`
+}
+
+func (s GetRegisteredServicesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServicesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServicesRequest) SetServiceMeshId(v string) *GetRegisteredServicesRequest {
+	s.ServiceMeshId = &v
+	return s
+}
+
+func (s *GetRegisteredServicesRequest) SetNamespace(v string) *GetRegisteredServicesRequest {
+	s.Namespace = &v
+	return s
+}
+
+type GetRegisteredServicesResponse struct {
+	RequestId *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Services  []*string `json:"Services,omitempty" xml:"Services,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetRegisteredServicesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServicesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServicesResponse) SetRequestId(v string) *GetRegisteredServicesResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetRegisteredServicesResponse) SetServices(v []*string) *GetRegisteredServicesResponse {
+	s.Services = v
+	return s
+}
+
+type GetDiagnosisRequest struct {
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+}
+
+func (s GetDiagnosisRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetDiagnosisRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetDiagnosisRequest) SetServiceMeshId(v string) *GetDiagnosisRequest {
+	s.ServiceMeshId = &v
+	return s
+}
+
+type GetDiagnosisResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Result    *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+}
+
+func (s GetDiagnosisResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetDiagnosisResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetDiagnosisResponse) SetRequestId(v string) *GetDiagnosisResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetDiagnosisResponse) SetResult(v string) *GetDiagnosisResponse {
+	s.Result = &v
+	return s
+}
+
+type GetRegisteredServiceNamespacesRequest struct {
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+}
+
+func (s GetRegisteredServiceNamespacesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServiceNamespacesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServiceNamespacesRequest) SetServiceMeshId(v string) *GetRegisteredServiceNamespacesRequest {
+	s.ServiceMeshId = &v
+	return s
+}
+
+type GetRegisteredServiceNamespacesResponse struct {
+	RequestId  *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Namespaces []*string `json:"Namespaces,omitempty" xml:"Namespaces,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetRegisteredServiceNamespacesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetRegisteredServiceNamespacesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetRegisteredServiceNamespacesResponse) SetRequestId(v string) *GetRegisteredServiceNamespacesResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetRegisteredServiceNamespacesResponse) SetNamespaces(v []*string) *GetRegisteredServiceNamespacesResponse {
+	s.Namespaces = v
+	return s
+}
+
+type RunDiagnosisRequest struct {
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+}
+
+func (s RunDiagnosisRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RunDiagnosisRequest) GoString() string {
+	return s.String()
+}
+
+func (s *RunDiagnosisRequest) SetServiceMeshId(v string) *RunDiagnosisRequest {
+	s.ServiceMeshId = &v
+	return s
+}
+
+type RunDiagnosisResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Result    *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+}
+
+func (s RunDiagnosisResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s RunDiagnosisResponse) GoString() string {
+	return s.String()
+}
+
+func (s *RunDiagnosisResponse) SetRequestId(v string) *RunDiagnosisResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *RunDiagnosisResponse) SetResult(v string) *RunDiagnosisResponse {
+	s.Result = &v
+	return s
+}
+
 type RemoveClusterFromServiceMeshRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	ClusterId     *string `json:"ClusterId" xml:"ClusterId" require:"true"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	ClusterId     *string `json:"ClusterId,omitempty" xml:"ClusterId,omitempty" require:"true"`
 }
 
 func (s RemoveClusterFromServiceMeshRequest) String() string {
@@ -32,9 +342,9 @@ func (s *RemoveClusterFromServiceMeshRequest) SetClusterId(v string) *RemoveClus
 }
 
 type RemoveClusterFromServiceMeshResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s RemoveClusterFromServiceMeshResponse) String() string {
@@ -61,8 +371,8 @@ func (s *RemoveClusterFromServiceMeshResponse) SetMessage(v string) *RemoveClust
 }
 
 type AddClusterIntoServiceMeshRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	ClusterId     *string `json:"ClusterId" xml:"ClusterId" require:"true"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	ClusterId     *string `json:"ClusterId,omitempty" xml:"ClusterId,omitempty" require:"true"`
 }
 
 func (s AddClusterIntoServiceMeshRequest) String() string {
@@ -84,9 +394,9 @@ func (s *AddClusterIntoServiceMeshRequest) SetClusterId(v string) *AddClusterInt
 }
 
 type AddClusterIntoServiceMeshResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s AddClusterIntoServiceMeshResponse) String() string {
@@ -113,9 +423,9 @@ func (s *AddClusterIntoServiceMeshResponse) SetMessage(v string) *AddClusterInto
 }
 
 type UpdateIstioInjectionConfigRequest struct {
-	ServiceMeshId        *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	Namespace            *string `json:"Namespace" xml:"Namespace" require:"true"`
-	EnableIstioInjection *bool   `json:"EnableIstioInjection" xml:"EnableIstioInjection" require:"true"`
+	ServiceMeshId        *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	Namespace            *string `json:"Namespace,omitempty" xml:"Namespace,omitempty" require:"true"`
+	EnableIstioInjection *bool   `json:"EnableIstioInjection,omitempty" xml:"EnableIstioInjection,omitempty" require:"true"`
 }
 
 func (s UpdateIstioInjectionConfigRequest) String() string {
@@ -142,7 +452,7 @@ func (s *UpdateIstioInjectionConfigRequest) SetEnableIstioInjection(v bool) *Upd
 }
 
 type UpdateIstioInjectionConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateIstioInjectionConfigResponse) String() string {
@@ -159,7 +469,7 @@ func (s *UpdateIstioInjectionConfigResponse) SetRequestId(v string) *UpdateIstio
 }
 
 type DescribeGuestClusterAccessLogDashboardsRequest struct {
-	K8sClusterId *string `json:"K8sClusterId" xml:"K8sClusterId" require:"true"`
+	K8sClusterId *string `json:"K8sClusterId,omitempty" xml:"K8sClusterId,omitempty" require:"true"`
 }
 
 func (s DescribeGuestClusterAccessLogDashboardsRequest) String() string {
@@ -176,9 +486,9 @@ func (s *DescribeGuestClusterAccessLogDashboardsRequest) SetK8sClusterId(v strin
 }
 
 type DescribeGuestClusterAccessLogDashboardsResponse struct {
-	RequestId    *string                                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	K8sClusterId *string                                                      `json:"K8sClusterId" xml:"K8sClusterId" require:"true"`
-	Dashboards   []*DescribeGuestClusterAccessLogDashboardsResponseDashboards `json:"Dashboards" xml:"Dashboards" require:"true" type:"Repeated"`
+	RequestId    *string                                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	K8sClusterId *string                                                      `json:"K8sClusterId,omitempty" xml:"K8sClusterId,omitempty" require:"true"`
+	Dashboards   []*DescribeGuestClusterAccessLogDashboardsResponseDashboards `json:"Dashboards,omitempty" xml:"Dashboards,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGuestClusterAccessLogDashboardsResponse) String() string {
@@ -205,8 +515,8 @@ func (s *DescribeGuestClusterAccessLogDashboardsResponse) SetDashboards(v []*Des
 }
 
 type DescribeGuestClusterAccessLogDashboardsResponseDashboards struct {
-	Title *string `json:"Title" xml:"Title" require:"true"`
-	Url   *string `json:"Url" xml:"Url" require:"true"`
+	Title *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Url   *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s DescribeGuestClusterAccessLogDashboardsResponseDashboards) String() string {
@@ -228,9 +538,9 @@ func (s *DescribeGuestClusterAccessLogDashboardsResponseDashboards) SetUrl(v str
 }
 
 type DescribeClusterPrometheusRequest struct {
-	ServiceMeshId      *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
-	K8sClusterId       *string `json:"K8sClusterId" xml:"K8sClusterId"`
-	K8sClusterRegionId *string `json:"K8sClusterRegionId" xml:"K8sClusterRegionId"`
+	ServiceMeshId      *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
+	K8sClusterId       *string `json:"K8sClusterId,omitempty" xml:"K8sClusterId,omitempty"`
+	K8sClusterRegionId *string `json:"K8sClusterRegionId,omitempty" xml:"K8sClusterRegionId,omitempty"`
 }
 
 func (s DescribeClusterPrometheusRequest) String() string {
@@ -257,8 +567,8 @@ func (s *DescribeClusterPrometheusRequest) SetK8sClusterRegionId(v string) *Desc
 }
 
 type DescribeClusterPrometheusResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Prometheus *string `json:"Prometheus" xml:"Prometheus" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Prometheus *string `json:"Prometheus,omitempty" xml:"Prometheus,omitempty" require:"true"`
 }
 
 func (s DescribeClusterPrometheusResponse) String() string {
@@ -280,8 +590,8 @@ func (s *DescribeClusterPrometheusResponse) SetPrometheus(v string) *DescribeClu
 }
 
 type DescribeClusterGrafanaRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
-	K8sClusterId  *string `json:"K8sClusterId" xml:"K8sClusterId"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
+	K8sClusterId  *string `json:"K8sClusterId,omitempty" xml:"K8sClusterId,omitempty"`
 }
 
 func (s DescribeClusterGrafanaRequest) String() string {
@@ -303,8 +613,8 @@ func (s *DescribeClusterGrafanaRequest) SetK8sClusterId(v string) *DescribeClust
 }
 
 type DescribeClusterGrafanaResponse struct {
-	RequestId  *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Dashboards []*DescribeClusterGrafanaResponseDashboards `json:"Dashboards" xml:"Dashboards" require:"true" type:"Repeated"`
+	RequestId  *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Dashboards []*DescribeClusterGrafanaResponseDashboards `json:"Dashboards,omitempty" xml:"Dashboards,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClusterGrafanaResponse) String() string {
@@ -326,8 +636,8 @@ func (s *DescribeClusterGrafanaResponse) SetDashboards(v []*DescribeClusterGrafa
 }
 
 type DescribeClusterGrafanaResponseDashboards struct {
-	Url   *string `json:"Url" xml:"Url" require:"true"`
-	Title *string `json:"Title" xml:"Title" require:"true"`
+	Url   *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	Title *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
 }
 
 func (s DescribeClusterGrafanaResponseDashboards) String() string {
@@ -349,7 +659,7 @@ func (s *DescribeClusterGrafanaResponseDashboards) SetTitle(v string) *DescribeC
 }
 
 type DescribeRegionsRequest struct {
-	AcceptLanguage *string `json:"AcceptLanguage" xml:"AcceptLanguage"`
+	AcceptLanguage *string `json:"AcceptLanguage,omitempty" xml:"AcceptLanguage,omitempty"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -366,8 +676,8 @@ func (s *DescribeRegionsRequest) SetAcceptLanguage(v string) *DescribeRegionsReq
 }
 
 type DescribeRegionsResponse struct {
-	RequestId         *string `json:"RequestId" xml:"RequestId" require:"true"`
-	BusinessLocations *string `json:"BusinessLocations" xml:"BusinessLocations" require:"true"`
+	RequestId         *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	BusinessLocations *string `json:"BusinessLocations,omitempty" xml:"BusinessLocations,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -389,7 +699,7 @@ func (s *DescribeRegionsResponse) SetBusinessLocations(v string) *DescribeRegion
 }
 
 type DescribeCensRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
 }
 
 func (s DescribeCensRequest) String() string {
@@ -406,8 +716,8 @@ func (s *DescribeCensRequest) SetServiceMeshId(v string) *DescribeCensRequest {
 }
 
 type DescribeCensResponse struct {
-	RequestId *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	Clusters  []*string `json:"Clusters" xml:"Clusters" require:"true" type:"Repeated"`
+	RequestId *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Clusters  []*string `json:"Clusters,omitempty" xml:"Clusters,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeCensResponse) String() string {
@@ -429,7 +739,7 @@ func (s *DescribeCensResponse) SetClusters(v []*string) *DescribeCensResponse {
 }
 
 type DescribeClustersInServiceMeshRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
 }
 
 func (s DescribeClustersInServiceMeshRequest) String() string {
@@ -446,8 +756,8 @@ func (s *DescribeClustersInServiceMeshRequest) SetServiceMeshId(v string) *Descr
 }
 
 type DescribeClustersInServiceMeshResponse struct {
-	RequestId *string                                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Clusters  []*DescribeClustersInServiceMeshResponseClusters `json:"Clusters" xml:"Clusters" require:"true" type:"Repeated"`
+	RequestId *string                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Clusters  []*DescribeClustersInServiceMeshResponseClusters `json:"Clusters,omitempty" xml:"Clusters,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeClustersInServiceMeshResponse) String() string {
@@ -469,18 +779,18 @@ func (s *DescribeClustersInServiceMeshResponse) SetClusters(v []*DescribeCluster
 }
 
 type DescribeClustersInServiceMeshResponseClusters struct {
-	ClusterId     *string `json:"ClusterId" xml:"ClusterId" require:"true"`
-	ClusterType   *string `json:"ClusterType" xml:"ClusterType" require:"true"`
-	CreationTime  *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ErrorMessage  *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	RegionId      *string `json:"RegionId" xml:"RegionId" require:"true"`
-	State         *string `json:"State" xml:"State" require:"true"`
-	UpdateTime    *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	Version       *string `json:"Version" xml:"Version" require:"true"`
-	VpcId         *string `json:"VpcId" xml:"VpcId" require:"true"`
-	SgId          *string `json:"SgId" xml:"SgId" require:"true"`
-	ClusterDomain *string `json:"ClusterDomain" xml:"ClusterDomain" require:"true"`
+	ClusterId     *string `json:"ClusterId,omitempty" xml:"ClusterId,omitempty" require:"true"`
+	ClusterType   *string `json:"ClusterType,omitempty" xml:"ClusterType,omitempty" require:"true"`
+	CreationTime  *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ErrorMessage  *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RegionId      *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	State         *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	UpdateTime    *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	Version       *string `json:"Version,omitempty" xml:"Version,omitempty" require:"true"`
+	VpcId         *string `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	SgId          *string `json:"SgId,omitempty" xml:"SgId,omitempty" require:"true"`
+	ClusterDomain *string `json:"ClusterDomain,omitempty" xml:"ClusterDomain,omitempty" require:"true"`
 }
 
 func (s DescribeClustersInServiceMeshResponseClusters) String() string {
@@ -552,7 +862,7 @@ func (s *DescribeClustersInServiceMeshResponseClusters) SetClusterDomain(v strin
 }
 
 type DescribeIngressGatewaysRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
 }
 
 func (s DescribeIngressGatewaysRequest) String() string {
@@ -569,8 +879,8 @@ func (s *DescribeIngressGatewaysRequest) SetServiceMeshId(v string) *DescribeIng
 }
 
 type DescribeIngressGatewaysResponse struct {
-	RequestId       *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	IngressGateways []map[string]interface{} `json:"IngressGateways" xml:"IngressGateways" require:"true" type:"Repeated"`
+	RequestId       *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IngressGateways []map[string]interface{} `json:"IngressGateways,omitempty" xml:"IngressGateways,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeIngressGatewaysResponse) String() string {
@@ -592,7 +902,7 @@ func (s *DescribeIngressGatewaysResponse) SetIngressGateways(v []map[string]inte
 }
 
 type DescribeUpgradeVersionRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
 }
 
 func (s DescribeUpgradeVersionRequest) String() string {
@@ -609,8 +919,8 @@ func (s *DescribeUpgradeVersionRequest) SetServiceMeshId(v string) *DescribeUpgr
 }
 
 type DescribeUpgradeVersionResponse struct {
-	RequestId *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	Version   *DescribeUpgradeVersionResponseVersion `json:"Version" xml:"Version" require:"true" type:"Struct"`
+	RequestId *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Version   *DescribeUpgradeVersionResponseVersion `json:"Version,omitempty" xml:"Version,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeUpgradeVersionResponse) String() string {
@@ -632,9 +942,9 @@ func (s *DescribeUpgradeVersionResponse) SetVersion(v *DescribeUpgradeVersionRes
 }
 
 type DescribeUpgradeVersionResponseVersion struct {
-	IstioVersion         *string `json:"IstioVersion" xml:"IstioVersion" require:"true"`
-	IstioOperatorVersion *string `json:"IstioOperatorVersion" xml:"IstioOperatorVersion" require:"true"`
-	KubernetesVersion    *string `json:"KubernetesVersion" xml:"KubernetesVersion" require:"true"`
+	IstioVersion         *string `json:"IstioVersion,omitempty" xml:"IstioVersion,omitempty" require:"true"`
+	IstioOperatorVersion *string `json:"IstioOperatorVersion,omitempty" xml:"IstioOperatorVersion,omitempty" require:"true"`
+	KubernetesVersion    *string `json:"KubernetesVersion,omitempty" xml:"KubernetesVersion,omitempty" require:"true"`
 }
 
 func (s DescribeUpgradeVersionResponseVersion) String() string {
@@ -661,20 +971,20 @@ func (s *DescribeUpgradeVersionResponseVersion) SetKubernetesVersion(v string) *
 }
 
 type UpdateMeshFeatureRequest struct {
-	ServiceMeshId         *string  `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	Tracing               *bool    `json:"Tracing" xml:"Tracing"`
-	TraceSampling         *float32 `json:"TraceSampling" xml:"TraceSampling"`
-	LocalityLoadBalancing *bool    `json:"LocalityLoadBalancing" xml:"LocalityLoadBalancing"`
-	Telemetry             *bool    `json:"Telemetry" xml:"Telemetry"`
-	OpenAgentPolicy       *bool    `json:"OpenAgentPolicy" xml:"OpenAgentPolicy"`
-	OPALogLevel           *string  `json:"OPALogLevel" xml:"OPALogLevel"`
-	OPARequestCPU         *string  `json:"OPARequestCPU" xml:"OPARequestCPU"`
-	OPARequestMemory      *string  `json:"OPARequestMemory" xml:"OPARequestMemory"`
-	OPALimitCPU           *string  `json:"OPALimitCPU" xml:"OPALimitCPU"`
-	OPALimitMemory        *string  `json:"OPALimitMemory" xml:"OPALimitMemory"`
-	EnableAudit           *bool    `json:"EnableAudit" xml:"EnableAudit"`
-	AuditProject          *string  `json:"AuditProject" xml:"AuditProject"`
-	ClusterDomain         *string  `json:"ClusterDomain" xml:"ClusterDomain"`
+	ServiceMeshId         *string  `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	Tracing               *bool    `json:"Tracing,omitempty" xml:"Tracing,omitempty"`
+	TraceSampling         *float32 `json:"TraceSampling,omitempty" xml:"TraceSampling,omitempty"`
+	LocalityLoadBalancing *bool    `json:"LocalityLoadBalancing,omitempty" xml:"LocalityLoadBalancing,omitempty"`
+	Telemetry             *bool    `json:"Telemetry,omitempty" xml:"Telemetry,omitempty"`
+	OpenAgentPolicy       *bool    `json:"OpenAgentPolicy,omitempty" xml:"OpenAgentPolicy,omitempty"`
+	OPALogLevel           *string  `json:"OPALogLevel,omitempty" xml:"OPALogLevel,omitempty"`
+	OPARequestCPU         *string  `json:"OPARequestCPU,omitempty" xml:"OPARequestCPU,omitempty"`
+	OPARequestMemory      *string  `json:"OPARequestMemory,omitempty" xml:"OPARequestMemory,omitempty"`
+	OPALimitCPU           *string  `json:"OPALimitCPU,omitempty" xml:"OPALimitCPU,omitempty"`
+	OPALimitMemory        *string  `json:"OPALimitMemory,omitempty" xml:"OPALimitMemory,omitempty"`
+	EnableAudit           *bool    `json:"EnableAudit,omitempty" xml:"EnableAudit,omitempty"`
+	AuditProject          *string  `json:"AuditProject,omitempty" xml:"AuditProject,omitempty"`
+	ClusterDomain         *string  `json:"ClusterDomain,omitempty" xml:"ClusterDomain,omitempty"`
 }
 
 func (s UpdateMeshFeatureRequest) String() string {
@@ -756,7 +1066,7 @@ func (s *UpdateMeshFeatureRequest) SetClusterDomain(v string) *UpdateMeshFeature
 }
 
 type UpdateMeshFeatureResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateMeshFeatureResponse) String() string {
@@ -773,7 +1083,7 @@ func (s *UpdateMeshFeatureResponse) SetRequestId(v string) *UpdateMeshFeatureRes
 }
 
 type UpgradeMeshVersionRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty"`
 }
 
 func (s UpgradeMeshVersionRequest) String() string {
@@ -790,7 +1100,7 @@ func (s *UpgradeMeshVersionRequest) SetServiceMeshId(v string) *UpgradeMeshVersi
 }
 
 type UpgradeMeshVersionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpgradeMeshVersionResponse) String() string {
@@ -818,8 +1128,8 @@ func (s DescribeServiceMeshesRequest) GoString() string {
 }
 
 type DescribeServiceMeshesResponse struct {
-	RequestId     *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	ServiceMeshes []*DescribeServiceMeshesResponseServiceMeshes `json:"ServiceMeshes" xml:"ServiceMeshes" require:"true" type:"Repeated"`
+	RequestId     *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ServiceMeshes []*DescribeServiceMeshesResponseServiceMeshes `json:"ServiceMeshes,omitempty" xml:"ServiceMeshes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceMeshesResponse) String() string {
@@ -841,10 +1151,10 @@ func (s *DescribeServiceMeshesResponse) SetServiceMeshes(v []*DescribeServiceMes
 }
 
 type DescribeServiceMeshesResponseServiceMeshes struct {
-	Endpoints       *DescribeServiceMeshesResponseServiceMeshesEndpoints       `json:"Endpoints" xml:"Endpoints" require:"true" type:"Struct"`
-	ServiceMeshInfo *DescribeServiceMeshesResponseServiceMeshesServiceMeshInfo `json:"ServiceMeshInfo" xml:"ServiceMeshInfo" require:"true" type:"Struct"`
-	Spec            *DescribeServiceMeshesResponseServiceMeshesSpec            `json:"Spec" xml:"Spec" require:"true" type:"Struct"`
-	Clusters        []*string                                                  `json:"Clusters" xml:"Clusters" require:"true" type:"Repeated"`
+	Endpoints       *DescribeServiceMeshesResponseServiceMeshesEndpoints       `json:"Endpoints,omitempty" xml:"Endpoints,omitempty" require:"true" type:"Struct"`
+	ServiceMeshInfo *DescribeServiceMeshesResponseServiceMeshesServiceMeshInfo `json:"ServiceMeshInfo,omitempty" xml:"ServiceMeshInfo,omitempty" require:"true" type:"Struct"`
+	Spec            *DescribeServiceMeshesResponseServiceMeshesSpec            `json:"Spec,omitempty" xml:"Spec,omitempty" require:"true" type:"Struct"`
+	Clusters        []*string                                                  `json:"Clusters,omitempty" xml:"Clusters,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshes) String() string {
@@ -876,11 +1186,11 @@ func (s *DescribeServiceMeshesResponseServiceMeshes) SetClusters(v []*string) *D
 }
 
 type DescribeServiceMeshesResponseServiceMeshesEndpoints struct {
-	IntranetApiServerEndpoint *string `json:"IntranetApiServerEndpoint" xml:"IntranetApiServerEndpoint" require:"true"`
-	IntranetPilotEndpoint     *string `json:"IntranetPilotEndpoint" xml:"IntranetPilotEndpoint" require:"true"`
-	PublicApiServerEndpoint   *string `json:"PublicApiServerEndpoint" xml:"PublicApiServerEndpoint" require:"true"`
-	PublicPilotEndpoint       *string `json:"PublicPilotEndpoint" xml:"PublicPilotEndpoint" require:"true"`
-	ReverseTunnelEndpoint     *string `json:"ReverseTunnelEndpoint" xml:"ReverseTunnelEndpoint" require:"true"`
+	IntranetApiServerEndpoint *string `json:"IntranetApiServerEndpoint,omitempty" xml:"IntranetApiServerEndpoint,omitempty" require:"true"`
+	IntranetPilotEndpoint     *string `json:"IntranetPilotEndpoint,omitempty" xml:"IntranetPilotEndpoint,omitempty" require:"true"`
+	PublicApiServerEndpoint   *string `json:"PublicApiServerEndpoint,omitempty" xml:"PublicApiServerEndpoint,omitempty" require:"true"`
+	PublicPilotEndpoint       *string `json:"PublicPilotEndpoint,omitempty" xml:"PublicPilotEndpoint,omitempty" require:"true"`
+	ReverseTunnelEndpoint     *string `json:"ReverseTunnelEndpoint,omitempty" xml:"ReverseTunnelEndpoint,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshesEndpoints) String() string {
@@ -917,14 +1227,14 @@ func (s *DescribeServiceMeshesResponseServiceMeshesEndpoints) SetReverseTunnelEn
 }
 
 type DescribeServiceMeshesResponseServiceMeshesServiceMeshInfo struct {
-	CreationTime  *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ErrorMessage  *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	RegionId      *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	State         *string `json:"State" xml:"State" require:"true"`
-	UpdateTime    *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	Version       *string `json:"Version" xml:"Version" require:"true"`
+	CreationTime  *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ErrorMessage  *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RegionId      *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	State         *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	UpdateTime    *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	Version       *string `json:"Version,omitempty" xml:"Version,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshesServiceMeshInfo) String() string {
@@ -976,9 +1286,9 @@ func (s *DescribeServiceMeshesResponseServiceMeshesServiceMeshInfo) SetVersion(v
 }
 
 type DescribeServiceMeshesResponseServiceMeshesSpec struct {
-	LoadBalancer *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer `json:"LoadBalancer" xml:"LoadBalancer" require:"true" type:"Struct"`
-	MeshConfig   *DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig   `json:"MeshConfig" xml:"MeshConfig" require:"true" type:"Struct"`
-	Network      *DescribeServiceMeshesResponseServiceMeshesSpecNetwork      `json:"Network" xml:"Network" require:"true" type:"Struct"`
+	LoadBalancer *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer `json:"LoadBalancer,omitempty" xml:"LoadBalancer,omitempty" require:"true" type:"Struct"`
+	MeshConfig   *DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig   `json:"MeshConfig,omitempty" xml:"MeshConfig,omitempty" require:"true" type:"Struct"`
+	Network      *DescribeServiceMeshesResponseServiceMeshesSpecNetwork      `json:"Network,omitempty" xml:"Network,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshesSpec) String() string {
@@ -1005,10 +1315,10 @@ func (s *DescribeServiceMeshesResponseServiceMeshesSpec) SetNetwork(v *DescribeS
 }
 
 type DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer struct {
-	ApiServerLoadbalancerId   *string `json:"ApiServerLoadbalancerId" xml:"ApiServerLoadbalancerId" require:"true"`
-	ApiServerPublicEip        *bool   `json:"ApiServerPublicEip" xml:"ApiServerPublicEip" require:"true"`
-	PilotPublicEip            *bool   `json:"PilotPublicEip" xml:"PilotPublicEip" require:"true"`
-	PilotPublicLoadbalancerId *string `json:"PilotPublicLoadbalancerId" xml:"PilotPublicLoadbalancerId" require:"true"`
+	ApiServerLoadbalancerId   *string `json:"ApiServerLoadbalancerId,omitempty" xml:"ApiServerLoadbalancerId,omitempty" require:"true"`
+	ApiServerPublicEip        *bool   `json:"ApiServerPublicEip,omitempty" xml:"ApiServerPublicEip,omitempty" require:"true"`
+	PilotPublicEip            *bool   `json:"PilotPublicEip,omitempty" xml:"PilotPublicEip,omitempty" require:"true"`
+	PilotPublicLoadbalancerId *string `json:"PilotPublicLoadbalancerId,omitempty" xml:"PilotPublicLoadbalancerId,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) String() string {
@@ -1040,11 +1350,11 @@ func (s *DescribeServiceMeshesResponseServiceMeshesSpecLoadBalancer) SetPilotPub
 }
 
 type DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig struct {
-	Mtls                  *bool   `json:"Mtls" xml:"Mtls" require:"true"`
-	OutboundTrafficPolicy *string `json:"OutboundTrafficPolicy" xml:"OutboundTrafficPolicy" require:"true"`
-	StrictMtls            *bool   `json:"StrictMtls" xml:"StrictMtls" require:"true"`
-	Tracing               *bool   `json:"Tracing" xml:"Tracing" require:"true"`
-	Telemetry             *bool   `json:"Telemetry" xml:"Telemetry" require:"true"`
+	Mtls                  *bool   `json:"Mtls,omitempty" xml:"Mtls,omitempty" require:"true"`
+	OutboundTrafficPolicy *string `json:"OutboundTrafficPolicy,omitempty" xml:"OutboundTrafficPolicy,omitempty" require:"true"`
+	StrictMtls            *bool   `json:"StrictMtls,omitempty" xml:"StrictMtls,omitempty" require:"true"`
+	Tracing               *bool   `json:"Tracing,omitempty" xml:"Tracing,omitempty" require:"true"`
+	Telemetry             *bool   `json:"Telemetry,omitempty" xml:"Telemetry,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig) String() string {
@@ -1081,9 +1391,9 @@ func (s *DescribeServiceMeshesResponseServiceMeshesSpecMeshConfig) SetTelemetry(
 }
 
 type DescribeServiceMeshesResponseServiceMeshesSpecNetwork struct {
-	SecurityGroupId *string   `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	VpcId           *string   `json:"VpcId" xml:"VpcId" require:"true"`
-	VSwitches       []*string `json:"VSwitches" xml:"VSwitches" require:"true" type:"Repeated"`
+	SecurityGroupId *string   `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	VpcId           *string   `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	VSwitches       []*string `json:"VSwitches,omitempty" xml:"VSwitches,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceMeshesResponseServiceMeshesSpecNetwork) String() string {
@@ -1110,7 +1420,7 @@ func (s *DescribeServiceMeshesResponseServiceMeshesSpecNetwork) SetVSwitches(v [
 }
 
 type DescribeServiceMeshDetailRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailRequest) String() string {
@@ -1127,8 +1437,8 @@ func (s *DescribeServiceMeshDetailRequest) SetServiceMeshId(v string) *DescribeS
 }
 
 type DescribeServiceMeshDetailResponse struct {
-	RequestId   *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	ServiceMesh *DescribeServiceMeshDetailResponseServiceMesh `json:"ServiceMesh" xml:"ServiceMesh" require:"true" type:"Struct"`
+	RequestId   *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ServiceMesh *DescribeServiceMeshDetailResponseServiceMesh `json:"ServiceMesh,omitempty" xml:"ServiceMesh,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceMeshDetailResponse) String() string {
@@ -1150,10 +1460,10 @@ func (s *DescribeServiceMeshDetailResponse) SetServiceMesh(v *DescribeServiceMes
 }
 
 type DescribeServiceMeshDetailResponseServiceMesh struct {
-	Endpoints       *DescribeServiceMeshDetailResponseServiceMeshEndpoints       `json:"Endpoints" xml:"Endpoints" require:"true" type:"Struct"`
-	ServiceMeshInfo *DescribeServiceMeshDetailResponseServiceMeshServiceMeshInfo `json:"ServiceMeshInfo" xml:"ServiceMeshInfo" require:"true" type:"Struct"`
-	Spec            *DescribeServiceMeshDetailResponseServiceMeshSpec            `json:"Spec" xml:"Spec" require:"true" type:"Struct"`
-	Clusters        []*string                                                    `json:"Clusters" xml:"Clusters" require:"true" type:"Repeated"`
+	Endpoints       *DescribeServiceMeshDetailResponseServiceMeshEndpoints       `json:"Endpoints,omitempty" xml:"Endpoints,omitempty" require:"true" type:"Struct"`
+	ServiceMeshInfo *DescribeServiceMeshDetailResponseServiceMeshServiceMeshInfo `json:"ServiceMeshInfo,omitempty" xml:"ServiceMeshInfo,omitempty" require:"true" type:"Struct"`
+	Spec            *DescribeServiceMeshDetailResponseServiceMeshSpec            `json:"Spec,omitempty" xml:"Spec,omitempty" require:"true" type:"Struct"`
+	Clusters        []*string                                                    `json:"Clusters,omitempty" xml:"Clusters,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMesh) String() string {
@@ -1185,10 +1495,10 @@ func (s *DescribeServiceMeshDetailResponseServiceMesh) SetClusters(v []*string) 
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshEndpoints struct {
-	IntranetApiServerEndpoint *string `json:"IntranetApiServerEndpoint" xml:"IntranetApiServerEndpoint" require:"true"`
-	IntranetPilotEndpoint     *string `json:"IntranetPilotEndpoint" xml:"IntranetPilotEndpoint" require:"true"`
-	PublicApiServerEndpoint   *string `json:"PublicApiServerEndpoint" xml:"PublicApiServerEndpoint" require:"true"`
-	PublicPilotEndpoint       *string `json:"PublicPilotEndpoint" xml:"PublicPilotEndpoint" require:"true"`
+	IntranetApiServerEndpoint *string `json:"IntranetApiServerEndpoint,omitempty" xml:"IntranetApiServerEndpoint,omitempty" require:"true"`
+	IntranetPilotEndpoint     *string `json:"IntranetPilotEndpoint,omitempty" xml:"IntranetPilotEndpoint,omitempty" require:"true"`
+	PublicApiServerEndpoint   *string `json:"PublicApiServerEndpoint,omitempty" xml:"PublicApiServerEndpoint,omitempty" require:"true"`
+	PublicPilotEndpoint       *string `json:"PublicPilotEndpoint,omitempty" xml:"PublicPilotEndpoint,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshEndpoints) String() string {
@@ -1220,14 +1530,14 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshEndpoints) SetPublicPilotEn
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshServiceMeshInfo struct {
-	CreationTime  *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ErrorMessage  *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	RegionId      *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	State         *string `json:"State" xml:"State" require:"true"`
-	UpdateTime    *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	Version       *string `json:"Version" xml:"Version" require:"true"`
+	CreationTime  *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ErrorMessage  *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RegionId      *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	State         *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+	UpdateTime    *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	Version       *string `json:"Version,omitempty" xml:"Version,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshServiceMeshInfo) String() string {
@@ -1279,9 +1589,9 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshServiceMeshInfo) SetVersion
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpec struct {
-	LoadBalancer *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer `json:"LoadBalancer" xml:"LoadBalancer" require:"true" type:"Struct"`
-	MeshConfig   *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig   `json:"MeshConfig" xml:"MeshConfig" require:"true" type:"Struct"`
-	Network      *DescribeServiceMeshDetailResponseServiceMeshSpecNetwork      `json:"Network" xml:"Network" require:"true" type:"Struct"`
+	LoadBalancer *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer `json:"LoadBalancer,omitempty" xml:"LoadBalancer,omitempty" require:"true" type:"Struct"`
+	MeshConfig   *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig   `json:"MeshConfig,omitempty" xml:"MeshConfig,omitempty" require:"true" type:"Struct"`
+	Network      *DescribeServiceMeshDetailResponseServiceMeshSpecNetwork      `json:"Network,omitempty" xml:"Network,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpec) String() string {
@@ -1308,10 +1618,10 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpec) SetNetwork(v *Describ
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer struct {
-	ApiServerLoadbalancerId   *string `json:"ApiServerLoadbalancerId" xml:"ApiServerLoadbalancerId" require:"true"`
-	ApiServerPublicEip        *bool   `json:"ApiServerPublicEip" xml:"ApiServerPublicEip" require:"true"`
-	PilotPublicEip            *bool   `json:"PilotPublicEip" xml:"PilotPublicEip" require:"true"`
-	PilotPublicLoadbalancerId *string `json:"PilotPublicLoadbalancerId" xml:"PilotPublicLoadbalancerId" require:"true"`
+	ApiServerLoadbalancerId   *string `json:"ApiServerLoadbalancerId,omitempty" xml:"ApiServerLoadbalancerId,omitempty" require:"true"`
+	ApiServerPublicEip        *bool   `json:"ApiServerPublicEip,omitempty" xml:"ApiServerPublicEip,omitempty" require:"true"`
+	PilotPublicEip            *bool   `json:"PilotPublicEip,omitempty" xml:"PilotPublicEip,omitempty" require:"true"`
+	PilotPublicLoadbalancerId *string `json:"PilotPublicLoadbalancerId,omitempty" xml:"PilotPublicLoadbalancerId,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) String() string {
@@ -1343,12 +1653,12 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecLoadBalancer) SetPilotP
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig struct {
-	EnableLocalityLB *bool                                                            `json:"EnableLocalityLB" xml:"EnableLocalityLB" require:"true"`
-	Telemetry        *bool                                                            `json:"Telemetry" xml:"Telemetry" require:"true"`
-	Tracing          *bool                                                            `json:"Tracing" xml:"Tracing" require:"true"`
-	Pilot            *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot `json:"Pilot" xml:"Pilot" require:"true" type:"Struct"`
-	OPA              *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA   `json:"OPA" xml:"OPA" require:"true" type:"Struct"`
-	Audit            *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit `json:"Audit" xml:"Audit" require:"true" type:"Struct"`
+	EnableLocalityLB *bool                                                            `json:"EnableLocalityLB,omitempty" xml:"EnableLocalityLB,omitempty" require:"true"`
+	Telemetry        *bool                                                            `json:"Telemetry,omitempty" xml:"Telemetry,omitempty" require:"true"`
+	Tracing          *bool                                                            `json:"Tracing,omitempty" xml:"Tracing,omitempty" require:"true"`
+	Pilot            *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot `json:"Pilot,omitempty" xml:"Pilot,omitempty" require:"true" type:"Struct"`
+	OPA              *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA   `json:"OPA,omitempty" xml:"OPA,omitempty" require:"true" type:"Struct"`
+	Audit            *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit `json:"Audit,omitempty" xml:"Audit,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig) String() string {
@@ -1390,7 +1700,7 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfig) SetAudit(v 
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot struct {
-	TraceSampling *float32 `json:"TraceSampling" xml:"TraceSampling" require:"true"`
+	TraceSampling *float32 `json:"TraceSampling,omitempty" xml:"TraceSampling,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot) String() string {
@@ -1407,12 +1717,12 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigPilot) SetTra
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA struct {
-	Enabled       *bool   `json:"Enabled" xml:"Enabled" require:"true"`
-	LogLevel      *string `json:"LogLevel" xml:"LogLevel" require:"true"`
-	RequestCPU    *string `json:"RequestCPU" xml:"RequestCPU" require:"true"`
-	RequestMemory *string `json:"RequestMemory" xml:"RequestMemory" require:"true"`
-	LimitCPU      *string `json:"LimitCPU" xml:"LimitCPU" require:"true"`
-	LimitMemory   *string `json:"LimitMemory" xml:"LimitMemory" require:"true"`
+	Enabled       *bool   `json:"Enabled,omitempty" xml:"Enabled,omitempty" require:"true"`
+	LogLevel      *string `json:"LogLevel,omitempty" xml:"LogLevel,omitempty" require:"true"`
+	RequestCPU    *string `json:"RequestCPU,omitempty" xml:"RequestCPU,omitempty" require:"true"`
+	RequestMemory *string `json:"RequestMemory,omitempty" xml:"RequestMemory,omitempty" require:"true"`
+	LimitCPU      *string `json:"LimitCPU,omitempty" xml:"LimitCPU,omitempty" require:"true"`
+	LimitMemory   *string `json:"LimitMemory,omitempty" xml:"LimitMemory,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA) String() string {
@@ -1454,8 +1764,8 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigOPA) SetLimit
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit struct {
-	Enabled *bool   `json:"Enabled" xml:"Enabled" require:"true"`
-	Project *string `json:"Project" xml:"Project" require:"true"`
+	Enabled *bool   `json:"Enabled,omitempty" xml:"Enabled,omitempty" require:"true"`
+	Project *string `json:"Project,omitempty" xml:"Project,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit) String() string {
@@ -1477,9 +1787,9 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecMeshConfigAudit) SetPro
 }
 
 type DescribeServiceMeshDetailResponseServiceMeshSpecNetwork struct {
-	SecurityGroupId *string   `json:"SecurityGroupId" xml:"SecurityGroupId" require:"true"`
-	VpcId           *string   `json:"VpcId" xml:"VpcId" require:"true"`
-	VSwitches       []*string `json:"VSwitches" xml:"VSwitches" require:"true" type:"Repeated"`
+	SecurityGroupId *string   `json:"SecurityGroupId,omitempty" xml:"SecurityGroupId,omitempty" require:"true"`
+	VpcId           *string   `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	VSwitches       []*string `json:"VSwitches,omitempty" xml:"VSwitches,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceMeshDetailResponseServiceMeshSpecNetwork) String() string {
@@ -1506,8 +1816,8 @@ func (s *DescribeServiceMeshDetailResponseServiceMeshSpecNetwork) SetVSwitches(v
 }
 
 type DescribeServiceMeshKubeconfigRequest struct {
-	ServiceMeshId    *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	PrivateIpAddress *bool   `json:"PrivateIpAddress" xml:"PrivateIpAddress"`
+	ServiceMeshId    *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	PrivateIpAddress *bool   `json:"PrivateIpAddress,omitempty" xml:"PrivateIpAddress,omitempty"`
 }
 
 func (s DescribeServiceMeshKubeconfigRequest) String() string {
@@ -1529,8 +1839,8 @@ func (s *DescribeServiceMeshKubeconfigRequest) SetPrivateIpAddress(v bool) *Desc
 }
 
 type DescribeServiceMeshKubeconfigResponse struct {
-	Kubeconfig *string `json:"Kubeconfig" xml:"Kubeconfig" require:"true"`
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
+	Kubeconfig *string `json:"Kubeconfig,omitempty" xml:"Kubeconfig,omitempty" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DescribeServiceMeshKubeconfigResponse) String() string {
@@ -1552,25 +1862,33 @@ func (s *DescribeServiceMeshKubeconfigResponse) SetRequestId(v string) *Describe
 }
 
 type CreateServiceMeshRequest struct {
-	RegionId              *string  `json:"RegionId" xml:"RegionId" require:"true"`
-	IstioVersion          *string  `json:"IstioVersion" xml:"IstioVersion"`
-	VpcId                 *string  `json:"VpcId" xml:"VpcId" require:"true"`
-	ApiServerPublicEip    *bool    `json:"ApiServerPublicEip" xml:"ApiServerPublicEip"`
-	PilotPublicEip        *bool    `json:"PilotPublicEip" xml:"PilotPublicEip"`
-	Tracing               *bool    `json:"Tracing" xml:"Tracing"`
-	Name                  *string  `json:"Name" xml:"Name"`
-	VSwitches             *string  `json:"VSwitches" xml:"VSwitches"`
-	TraceSampling         *float32 `json:"TraceSampling" xml:"TraceSampling"`
-	LocalityLoadBalancing *bool    `json:"LocalityLoadBalancing" xml:"LocalityLoadBalancing"`
-	Telemetry             *bool    `json:"Telemetry" xml:"Telemetry"`
-	OpenAgentPolicy       *bool    `json:"OpenAgentPolicy" xml:"OpenAgentPolicy"`
-	OPALogLevel           *string  `json:"OPALogLevel" xml:"OPALogLevel"`
-	OPARequestCPU         *string  `json:"OPARequestCPU" xml:"OPARequestCPU"`
-	OPARequestMemory      *string  `json:"OPARequestMemory" xml:"OPARequestMemory"`
-	OPALimitCPU           *string  `json:"OPALimitCPU" xml:"OPALimitCPU"`
-	OPALimitMemory        *string  `json:"OPALimitMemory" xml:"OPALimitMemory"`
-	EnableAudit           *bool    `json:"EnableAudit" xml:"EnableAudit"`
-	AuditProject          *string  `json:"AuditProject" xml:"AuditProject"`
+	RegionId              *string  `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	IstioVersion          *string  `json:"IstioVersion,omitempty" xml:"IstioVersion,omitempty"`
+	VpcId                 *string  `json:"VpcId,omitempty" xml:"VpcId,omitempty" require:"true"`
+	ApiServerPublicEip    *bool    `json:"ApiServerPublicEip,omitempty" xml:"ApiServerPublicEip,omitempty"`
+	PilotPublicEip        *bool    `json:"PilotPublicEip,omitempty" xml:"PilotPublicEip,omitempty"`
+	Tracing               *bool    `json:"Tracing,omitempty" xml:"Tracing,omitempty"`
+	Name                  *string  `json:"Name,omitempty" xml:"Name,omitempty"`
+	VSwitches             *string  `json:"VSwitches,omitempty" xml:"VSwitches,omitempty"`
+	TraceSampling         *float32 `json:"TraceSampling,omitempty" xml:"TraceSampling,omitempty"`
+	LocalityLoadBalancing *bool    `json:"LocalityLoadBalancing,omitempty" xml:"LocalityLoadBalancing,omitempty"`
+	Telemetry             *bool    `json:"Telemetry,omitempty" xml:"Telemetry,omitempty"`
+	OpenAgentPolicy       *bool    `json:"OpenAgentPolicy,omitempty" xml:"OpenAgentPolicy,omitempty"`
+	OPALogLevel           *string  `json:"OPALogLevel,omitempty" xml:"OPALogLevel,omitempty"`
+	OPARequestCPU         *string  `json:"OPARequestCPU,omitempty" xml:"OPARequestCPU,omitempty"`
+	OPARequestMemory      *string  `json:"OPARequestMemory,omitempty" xml:"OPARequestMemory,omitempty"`
+	OPALimitCPU           *string  `json:"OPALimitCPU,omitempty" xml:"OPALimitCPU,omitempty"`
+	OPALimitMemory        *string  `json:"OPALimitMemory,omitempty" xml:"OPALimitMemory,omitempty"`
+	EnableAudit           *bool    `json:"EnableAudit,omitempty" xml:"EnableAudit,omitempty"`
+	AuditProject          *string  `json:"AuditProject,omitempty" xml:"AuditProject,omitempty"`
+	ProxyRequestCPU       *string  `json:"ProxyRequestCPU,omitempty" xml:"ProxyRequestCPU,omitempty"`
+	ProxyRequestMemory    *string  `json:"ProxyRequestMemory,omitempty" xml:"ProxyRequestMemory,omitempty"`
+	ProxyLimitCPU         *string  `json:"ProxyLimitCPU,omitempty" xml:"ProxyLimitCPU,omitempty"`
+	ProxyLimitMemory      *string  `json:"ProxyLimitMemory,omitempty" xml:"ProxyLimitMemory,omitempty"`
+	IncludeIPRanges       *string  `json:"IncludeIPRanges,omitempty" xml:"IncludeIPRanges,omitempty"`
+	ExcludeIPRanges       *string  `json:"ExcludeIPRanges,omitempty" xml:"ExcludeIPRanges,omitempty"`
+	ExcludeOutboundPorts  *string  `json:"ExcludeOutboundPorts,omitempty" xml:"ExcludeOutboundPorts,omitempty"`
+	ExcludeInboundPorts   *string  `json:"ExcludeInboundPorts,omitempty" xml:"ExcludeInboundPorts,omitempty"`
 }
 
 func (s CreateServiceMeshRequest) String() string {
@@ -1676,9 +1994,49 @@ func (s *CreateServiceMeshRequest) SetAuditProject(v string) *CreateServiceMeshR
 	return s
 }
 
+func (s *CreateServiceMeshRequest) SetProxyRequestCPU(v string) *CreateServiceMeshRequest {
+	s.ProxyRequestCPU = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetProxyRequestMemory(v string) *CreateServiceMeshRequest {
+	s.ProxyRequestMemory = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetProxyLimitCPU(v string) *CreateServiceMeshRequest {
+	s.ProxyLimitCPU = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetProxyLimitMemory(v string) *CreateServiceMeshRequest {
+	s.ProxyLimitMemory = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetIncludeIPRanges(v string) *CreateServiceMeshRequest {
+	s.IncludeIPRanges = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetExcludeIPRanges(v string) *CreateServiceMeshRequest {
+	s.ExcludeIPRanges = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetExcludeOutboundPorts(v string) *CreateServiceMeshRequest {
+	s.ExcludeOutboundPorts = &v
+	return s
+}
+
+func (s *CreateServiceMeshRequest) SetExcludeInboundPorts(v string) *CreateServiceMeshRequest {
+	s.ExcludeInboundPorts = &v
+	return s
+}
+
 type CreateServiceMeshResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
 }
 
 func (s CreateServiceMeshResponse) String() string {
@@ -1700,8 +2058,8 @@ func (s *CreateServiceMeshResponse) SetServiceMeshId(v string) *CreateServiceMes
 }
 
 type DeleteServiceMeshRequest struct {
-	ServiceMeshId *string `json:"ServiceMeshId" xml:"ServiceMeshId" require:"true"`
-	Force         *bool   `json:"Force" xml:"Force"`
+	ServiceMeshId *string `json:"ServiceMeshId,omitempty" xml:"ServiceMeshId,omitempty" require:"true"`
+	Force         *bool   `json:"Force,omitempty" xml:"Force,omitempty"`
 }
 
 func (s DeleteServiceMeshRequest) String() string {
@@ -1723,7 +2081,7 @@ func (s *DeleteServiceMeshRequest) SetForce(v bool) *DeleteServiceMeshRequest {
 }
 
 type DeleteServiceMeshResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteServiceMeshResponse) String() string {
@@ -1765,6 +2123,156 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) GetRegisteredServiceEndpointsWithOptions(request *GetRegisteredServiceEndpointsRequest, runtime *util.RuntimeOptions) (_result *GetRegisteredServiceEndpointsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetRegisteredServiceEndpointsResponse{}
+	_body, _err := client.DoRequest(tea.String("GetRegisteredServiceEndpoints"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetRegisteredServiceEndpoints(request *GetRegisteredServiceEndpointsRequest) (_result *GetRegisteredServiceEndpointsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetRegisteredServiceEndpointsResponse{}
+	_body, _err := client.GetRegisteredServiceEndpointsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetServiceMeshSlbWithOptions(request *GetServiceMeshSlbRequest, runtime *util.RuntimeOptions) (_result *GetServiceMeshSlbResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetServiceMeshSlbResponse{}
+	_body, _err := client.DoRequest(tea.String("GetServiceMeshSlb"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetServiceMeshSlb(request *GetServiceMeshSlbRequest) (_result *GetServiceMeshSlbResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetServiceMeshSlbResponse{}
+	_body, _err := client.GetServiceMeshSlbWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetRegisteredServicesWithOptions(request *GetRegisteredServicesRequest, runtime *util.RuntimeOptions) (_result *GetRegisteredServicesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetRegisteredServicesResponse{}
+	_body, _err := client.DoRequest(tea.String("GetRegisteredServices"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetRegisteredServices(request *GetRegisteredServicesRequest) (_result *GetRegisteredServicesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetRegisteredServicesResponse{}
+	_body, _err := client.GetRegisteredServicesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetDiagnosisWithOptions(request *GetDiagnosisRequest, runtime *util.RuntimeOptions) (_result *GetDiagnosisResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetDiagnosisResponse{}
+	_body, _err := client.DoRequest(tea.String("GetDiagnosis"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetDiagnosis(request *GetDiagnosisRequest) (_result *GetDiagnosisResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetDiagnosisResponse{}
+	_body, _err := client.GetDiagnosisWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetRegisteredServiceNamespacesWithOptions(request *GetRegisteredServiceNamespacesRequest, runtime *util.RuntimeOptions) (_result *GetRegisteredServiceNamespacesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetRegisteredServiceNamespacesResponse{}
+	_body, _err := client.DoRequest(tea.String("GetRegisteredServiceNamespaces"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetRegisteredServiceNamespaces(request *GetRegisteredServiceNamespacesRequest) (_result *GetRegisteredServiceNamespacesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetRegisteredServiceNamespacesResponse{}
+	_body, _err := client.GetRegisteredServiceNamespacesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) RunDiagnosisWithOptions(request *RunDiagnosisRequest, runtime *util.RuntimeOptions) (_result *RunDiagnosisResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &RunDiagnosisResponse{}
+	_body, _err := client.DoRequest(tea.String("RunDiagnosis"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-01-11"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) RunDiagnosis(request *RunDiagnosisRequest) (_result *RunDiagnosisResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &RunDiagnosisResponse{}
+	_body, _err := client.RunDiagnosisWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) RemoveClusterFromServiceMeshWithOptions(request *RemoveClusterFromServiceMeshRequest, runtime *util.RuntimeOptions) (_result *RemoveClusterFromServiceMeshResponse, _err error) {
