@@ -9,8 +9,8 @@ import (
 )
 
 type GetAccessKeyLastUsedRequest struct {
-	UserName        *string `json:"UserName" xml:"UserName"`
-	UserAccessKeyId *string `json:"UserAccessKeyId" xml:"UserAccessKeyId"`
+	UserName        *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	UserAccessKeyId *string `json:"UserAccessKeyId,omitempty" xml:"UserAccessKeyId,omitempty"`
 }
 
 func (s GetAccessKeyLastUsedRequest) String() string {
@@ -32,8 +32,8 @@ func (s *GetAccessKeyLastUsedRequest) SetUserAccessKeyId(v string) *GetAccessKey
 }
 
 type GetAccessKeyLastUsedResponse struct {
-	RequestId         *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	AccessKeyLastUsed *GetAccessKeyLastUsedResponseAccessKeyLastUsed `json:"AccessKeyLastUsed" xml:"AccessKeyLastUsed" require:"true" type:"Struct"`
+	RequestId         *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AccessKeyLastUsed *GetAccessKeyLastUsedResponseAccessKeyLastUsed `json:"AccessKeyLastUsed,omitempty" xml:"AccessKeyLastUsed,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAccessKeyLastUsedResponse) String() string {
@@ -55,7 +55,7 @@ func (s *GetAccessKeyLastUsedResponse) SetAccessKeyLastUsed(v *GetAccessKeyLastU
 }
 
 type GetAccessKeyLastUsedResponseAccessKeyLastUsed struct {
-	LastUsedDate *string `json:"LastUsedDate" xml:"LastUsedDate" require:"true"`
+	LastUsedDate *string `json:"LastUsedDate,omitempty" xml:"LastUsedDate,omitempty" require:"true"`
 }
 
 func (s GetAccessKeyLastUsedResponseAccessKeyLastUsed) String() string {
@@ -72,8 +72,8 @@ func (s *GetAccessKeyLastUsedResponseAccessKeyLastUsed) SetLastUsedDate(v string
 }
 
 type ChangePasswordRequest struct {
-	OldPassword *string `json:"OldPassword" xml:"OldPassword"`
-	NewPassword *string `json:"NewPassword" xml:"NewPassword"`
+	OldPassword *string `json:"OldPassword,omitempty" xml:"OldPassword,omitempty"`
+	NewPassword *string `json:"NewPassword,omitempty" xml:"NewPassword,omitempty"`
 }
 
 func (s ChangePasswordRequest) String() string {
@@ -95,7 +95,7 @@ func (s *ChangePasswordRequest) SetNewPassword(v string) *ChangePasswordRequest 
 }
 
 type ChangePasswordResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ChangePasswordResponse) String() string {
@@ -112,9 +112,9 @@ func (s *ChangePasswordResponse) SetRequestId(v string) *ChangePasswordResponse 
 }
 
 type UpdateRoleRequest struct {
-	RoleName                    *string `json:"RoleName" xml:"RoleName"`
-	NewAssumeRolePolicyDocument *string `json:"NewAssumeRolePolicyDocument" xml:"NewAssumeRolePolicyDocument"`
-	NewMaxSessionDuration       *int64  `json:"NewMaxSessionDuration" xml:"NewMaxSessionDuration"`
+	RoleName                    *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
+	NewAssumeRolePolicyDocument *string `json:"NewAssumeRolePolicyDocument,omitempty" xml:"NewAssumeRolePolicyDocument,omitempty"`
+	NewMaxSessionDuration       *int64  `json:"NewMaxSessionDuration,omitempty" xml:"NewMaxSessionDuration,omitempty"`
 }
 
 func (s UpdateRoleRequest) String() string {
@@ -141,8 +141,8 @@ func (s *UpdateRoleRequest) SetNewMaxSessionDuration(v int64) *UpdateRoleRequest
 }
 
 type UpdateRoleResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Role      *UpdateRoleResponseRole `json:"Role" xml:"Role" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Role      *UpdateRoleResponseRole `json:"Role,omitempty" xml:"Role,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateRoleResponse) String() string {
@@ -164,14 +164,14 @@ func (s *UpdateRoleResponse) SetRole(v *UpdateRoleResponseRole) *UpdateRoleRespo
 }
 
 type UpdateRoleResponseRole struct {
-	RoleId                   *string `json:"RoleId" xml:"RoleId" require:"true"`
-	RoleName                 *string `json:"RoleName" xml:"RoleName" require:"true"`
-	Arn                      *string `json:"Arn" xml:"Arn" require:"true"`
-	Description              *string `json:"Description" xml:"Description" require:"true"`
-	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument" xml:"AssumeRolePolicyDocument" require:"true"`
-	CreateDate               *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate               *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
-	MaxSessionDuration       *int64  `json:"MaxSessionDuration" xml:"MaxSessionDuration" require:"true"`
+	RoleId                   *string `json:"RoleId,omitempty" xml:"RoleId,omitempty" require:"true"`
+	RoleName                 *string `json:"RoleName,omitempty" xml:"RoleName,omitempty" require:"true"`
+	Arn                      *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Description              *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument,omitempty" xml:"AssumeRolePolicyDocument,omitempty" require:"true"`
+	CreateDate               *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate               *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
+	MaxSessionDuration       *int64  `json:"MaxSessionDuration,omitempty" xml:"MaxSessionDuration,omitempty" require:"true"`
 }
 
 func (s UpdateRoleResponseRole) String() string {
@@ -223,13 +223,13 @@ func (s *UpdateRoleResponseRole) SetMaxSessionDuration(v int64) *UpdateRoleRespo
 }
 
 type SetSecurityPreferenceRequest struct {
-	EnableSaveMFATicket         *bool   `json:"EnableSaveMFATicket" xml:"EnableSaveMFATicket"`
-	AllowUserToChangePassword   *bool   `json:"AllowUserToChangePassword" xml:"AllowUserToChangePassword"`
-	AllowUserToManageAccessKeys *bool   `json:"AllowUserToManageAccessKeys" xml:"AllowUserToManageAccessKeys"`
-	AllowUserToManagePublicKeys *bool   `json:"AllowUserToManagePublicKeys" xml:"AllowUserToManagePublicKeys"`
-	AllowUserToManageMFADevices *bool   `json:"AllowUserToManageMFADevices" xml:"AllowUserToManageMFADevices"`
-	LoginSessionDuration        *int    `json:"LoginSessionDuration" xml:"LoginSessionDuration"`
-	LoginNetworkMasks           *string `json:"LoginNetworkMasks" xml:"LoginNetworkMasks"`
+	EnableSaveMFATicket         *bool   `json:"EnableSaveMFATicket,omitempty" xml:"EnableSaveMFATicket,omitempty"`
+	AllowUserToChangePassword   *bool   `json:"AllowUserToChangePassword,omitempty" xml:"AllowUserToChangePassword,omitempty"`
+	AllowUserToManageAccessKeys *bool   `json:"AllowUserToManageAccessKeys,omitempty" xml:"AllowUserToManageAccessKeys,omitempty"`
+	AllowUserToManagePublicKeys *bool   `json:"AllowUserToManagePublicKeys,omitempty" xml:"AllowUserToManagePublicKeys,omitempty"`
+	AllowUserToManageMFADevices *bool   `json:"AllowUserToManageMFADevices,omitempty" xml:"AllowUserToManageMFADevices,omitempty"`
+	LoginSessionDuration        *int    `json:"LoginSessionDuration,omitempty" xml:"LoginSessionDuration,omitempty"`
+	LoginNetworkMasks           *string `json:"LoginNetworkMasks,omitempty" xml:"LoginNetworkMasks,omitempty"`
 }
 
 func (s SetSecurityPreferenceRequest) String() string {
@@ -276,8 +276,8 @@ func (s *SetSecurityPreferenceRequest) SetLoginNetworkMasks(v string) *SetSecuri
 }
 
 type SetSecurityPreferenceResponse struct {
-	RequestId          *string                                          `json:"RequestId" xml:"RequestId" require:"true"`
-	SecurityPreference *SetSecurityPreferenceResponseSecurityPreference `json:"SecurityPreference" xml:"SecurityPreference" require:"true" type:"Struct"`
+	RequestId          *string                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecurityPreference *SetSecurityPreferenceResponseSecurityPreference `json:"SecurityPreference,omitempty" xml:"SecurityPreference,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SetSecurityPreferenceResponse) String() string {
@@ -299,10 +299,10 @@ func (s *SetSecurityPreferenceResponse) SetSecurityPreference(v *SetSecurityPref
 }
 
 type SetSecurityPreferenceResponseSecurityPreference struct {
-	LoginProfilePreference *SetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference `json:"LoginProfilePreference" xml:"LoginProfilePreference" require:"true" type:"Struct"`
-	AccessKeyPreference    *SetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference    `json:"AccessKeyPreference" xml:"AccessKeyPreference" require:"true" type:"Struct"`
-	PublicKeyPreference    *SetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference    `json:"PublicKeyPreference" xml:"PublicKeyPreference" require:"true" type:"Struct"`
-	MFAPreference          *SetSecurityPreferenceResponseSecurityPreferenceMFAPreference          `json:"MFAPreference" xml:"MFAPreference" require:"true" type:"Struct"`
+	LoginProfilePreference *SetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference `json:"LoginProfilePreference,omitempty" xml:"LoginProfilePreference,omitempty" require:"true" type:"Struct"`
+	AccessKeyPreference    *SetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference    `json:"AccessKeyPreference,omitempty" xml:"AccessKeyPreference,omitempty" require:"true" type:"Struct"`
+	PublicKeyPreference    *SetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference    `json:"PublicKeyPreference,omitempty" xml:"PublicKeyPreference,omitempty" require:"true" type:"Struct"`
+	MFAPreference          *SetSecurityPreferenceResponseSecurityPreferenceMFAPreference          `json:"MFAPreference,omitempty" xml:"MFAPreference,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SetSecurityPreferenceResponseSecurityPreference) String() string {
@@ -334,10 +334,10 @@ func (s *SetSecurityPreferenceResponseSecurityPreference) SetMFAPreference(v *Se
 }
 
 type SetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference struct {
-	EnableSaveMFATicket       *bool   `json:"EnableSaveMFATicket" xml:"EnableSaveMFATicket" require:"true"`
-	AllowUserToChangePassword *bool   `json:"AllowUserToChangePassword" xml:"AllowUserToChangePassword" require:"true"`
-	LoginSessionDuration      *int    `json:"LoginSessionDuration" xml:"LoginSessionDuration" require:"true"`
-	LoginNetworkMasks         *string `json:"LoginNetworkMasks" xml:"LoginNetworkMasks" require:"true"`
+	EnableSaveMFATicket       *bool   `json:"EnableSaveMFATicket,omitempty" xml:"EnableSaveMFATicket,omitempty" require:"true"`
+	AllowUserToChangePassword *bool   `json:"AllowUserToChangePassword,omitempty" xml:"AllowUserToChangePassword,omitempty" require:"true"`
+	LoginSessionDuration      *int    `json:"LoginSessionDuration,omitempty" xml:"LoginSessionDuration,omitempty" require:"true"`
+	LoginNetworkMasks         *string `json:"LoginNetworkMasks,omitempty" xml:"LoginNetworkMasks,omitempty" require:"true"`
 }
 
 func (s SetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference) String() string {
@@ -369,7 +369,7 @@ func (s *SetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference) 
 }
 
 type SetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference struct {
-	AllowUserToManageAccessKeys *bool `json:"AllowUserToManageAccessKeys" xml:"AllowUserToManageAccessKeys" require:"true"`
+	AllowUserToManageAccessKeys *bool `json:"AllowUserToManageAccessKeys,omitempty" xml:"AllowUserToManageAccessKeys,omitempty" require:"true"`
 }
 
 func (s SetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference) String() string {
@@ -386,7 +386,7 @@ func (s *SetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference) Set
 }
 
 type SetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference struct {
-	AllowUserToManagePublicKeys *bool `json:"AllowUserToManagePublicKeys" xml:"AllowUserToManagePublicKeys" require:"true"`
+	AllowUserToManagePublicKeys *bool `json:"AllowUserToManagePublicKeys,omitempty" xml:"AllowUserToManagePublicKeys,omitempty" require:"true"`
 }
 
 func (s SetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference) String() string {
@@ -403,7 +403,7 @@ func (s *SetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference) Set
 }
 
 type SetSecurityPreferenceResponseSecurityPreferenceMFAPreference struct {
-	AllowUserToManageMFADevices *bool `json:"AllowUserToManageMFADevices" xml:"AllowUserToManageMFADevices" require:"true"`
+	AllowUserToManageMFADevices *bool `json:"AllowUserToManageMFADevices,omitempty" xml:"AllowUserToManageMFADevices,omitempty" require:"true"`
 }
 
 func (s SetSecurityPreferenceResponseSecurityPreferenceMFAPreference) String() string {
@@ -420,8 +420,8 @@ func (s *SetSecurityPreferenceResponseSecurityPreferenceMFAPreference) SetAllowU
 }
 
 type ListRolesRequest struct {
-	Marker   *string `json:"Marker" xml:"Marker"`
-	MaxItems *int    `json:"MaxItems" xml:"MaxItems"`
+	Marker   *string `json:"Marker,omitempty" xml:"Marker,omitempty"`
+	MaxItems *int    `json:"MaxItems,omitempty" xml:"MaxItems,omitempty"`
 }
 
 func (s ListRolesRequest) String() string {
@@ -443,10 +443,10 @@ func (s *ListRolesRequest) SetMaxItems(v int) *ListRolesRequest {
 }
 
 type ListRolesResponse struct {
-	RequestId   *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	IsTruncated *bool                   `json:"IsTruncated" xml:"IsTruncated" require:"true"`
-	Marker      *string                 `json:"Marker" xml:"Marker" require:"true"`
-	Roles       *ListRolesResponseRoles `json:"Roles" xml:"Roles" require:"true" type:"Struct"`
+	RequestId   *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IsTruncated *bool                   `json:"IsTruncated,omitempty" xml:"IsTruncated,omitempty" require:"true"`
+	Marker      *string                 `json:"Marker,omitempty" xml:"Marker,omitempty" require:"true"`
+	Roles       *ListRolesResponseRoles `json:"Roles,omitempty" xml:"Roles,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListRolesResponse) String() string {
@@ -478,7 +478,7 @@ func (s *ListRolesResponse) SetRoles(v *ListRolesResponseRoles) *ListRolesRespon
 }
 
 type ListRolesResponseRoles struct {
-	Role []*ListRolesResponseRolesRole `json:"Role" xml:"Role" require:"true" type:"Repeated"`
+	Role []*ListRolesResponseRolesRole `json:"Role,omitempty" xml:"Role,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListRolesResponseRoles) String() string {
@@ -495,13 +495,13 @@ func (s *ListRolesResponseRoles) SetRole(v []*ListRolesResponseRolesRole) *ListR
 }
 
 type ListRolesResponseRolesRole struct {
-	RoleId             *string `json:"RoleId" xml:"RoleId" require:"true"`
-	RoleName           *string `json:"RoleName" xml:"RoleName" require:"true"`
-	Arn                *string `json:"Arn" xml:"Arn" require:"true"`
-	Description        *string `json:"Description" xml:"Description" require:"true"`
-	CreateDate         *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate         *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
-	MaxSessionDuration *int64  `json:"MaxSessionDuration" xml:"MaxSessionDuration" require:"true"`
+	RoleId             *string `json:"RoleId,omitempty" xml:"RoleId,omitempty" require:"true"`
+	RoleName           *string `json:"RoleName,omitempty" xml:"RoleName,omitempty" require:"true"`
+	Arn                *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Description        *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateDate         *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate         *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
+	MaxSessionDuration *int64  `json:"MaxSessionDuration,omitempty" xml:"MaxSessionDuration,omitempty" require:"true"`
 }
 
 func (s ListRolesResponseRolesRole) String() string {
@@ -548,7 +548,7 @@ func (s *ListRolesResponseRolesRole) SetMaxSessionDuration(v int64) *ListRolesRe
 }
 
 type ListPoliciesForRoleRequest struct {
-	RoleName *string `json:"RoleName" xml:"RoleName"`
+	RoleName *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
 }
 
 func (s ListPoliciesForRoleRequest) String() string {
@@ -565,8 +565,8 @@ func (s *ListPoliciesForRoleRequest) SetRoleName(v string) *ListPoliciesForRoleR
 }
 
 type ListPoliciesForRoleResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Policies  *ListPoliciesForRoleResponsePolicies `json:"Policies" xml:"Policies" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Policies  *ListPoliciesForRoleResponsePolicies `json:"Policies,omitempty" xml:"Policies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListPoliciesForRoleResponse) String() string {
@@ -588,7 +588,7 @@ func (s *ListPoliciesForRoleResponse) SetPolicies(v *ListPoliciesForRoleResponse
 }
 
 type ListPoliciesForRoleResponsePolicies struct {
-	Policy []*ListPoliciesForRoleResponsePoliciesPolicy `json:"Policy" xml:"Policy" require:"true" type:"Repeated"`
+	Policy []*ListPoliciesForRoleResponsePoliciesPolicy `json:"Policy,omitempty" xml:"Policy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListPoliciesForRoleResponsePolicies) String() string {
@@ -605,11 +605,11 @@ func (s *ListPoliciesForRoleResponsePolicies) SetPolicy(v []*ListPoliciesForRole
 }
 
 type ListPoliciesForRoleResponsePoliciesPolicy struct {
-	PolicyName     *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType     *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	DefaultVersion *string `json:"DefaultVersion" xml:"DefaultVersion" require:"true"`
-	AttachDate     *string `json:"AttachDate" xml:"AttachDate" require:"true"`
+	PolicyName     *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType     *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DefaultVersion *string `json:"DefaultVersion,omitempty" xml:"DefaultVersion,omitempty" require:"true"`
+	AttachDate     *string `json:"AttachDate,omitempty" xml:"AttachDate,omitempty" require:"true"`
 }
 
 func (s ListPoliciesForRoleResponsePoliciesPolicy) String() string {
@@ -657,8 +657,8 @@ func (s GetSecurityPreferenceRequest) GoString() string {
 }
 
 type GetSecurityPreferenceResponse struct {
-	RequestId          *string                                          `json:"RequestId" xml:"RequestId" require:"true"`
-	SecurityPreference *GetSecurityPreferenceResponseSecurityPreference `json:"SecurityPreference" xml:"SecurityPreference" require:"true" type:"Struct"`
+	RequestId          *string                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecurityPreference *GetSecurityPreferenceResponseSecurityPreference `json:"SecurityPreference,omitempty" xml:"SecurityPreference,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetSecurityPreferenceResponse) String() string {
@@ -680,10 +680,10 @@ func (s *GetSecurityPreferenceResponse) SetSecurityPreference(v *GetSecurityPref
 }
 
 type GetSecurityPreferenceResponseSecurityPreference struct {
-	LoginProfilePreference *GetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference `json:"LoginProfilePreference" xml:"LoginProfilePreference" require:"true" type:"Struct"`
-	AccessKeyPreference    *GetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference    `json:"AccessKeyPreference" xml:"AccessKeyPreference" require:"true" type:"Struct"`
-	PublicKeyPreference    *GetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference    `json:"PublicKeyPreference" xml:"PublicKeyPreference" require:"true" type:"Struct"`
-	MFAPreference          *GetSecurityPreferenceResponseSecurityPreferenceMFAPreference          `json:"MFAPreference" xml:"MFAPreference" require:"true" type:"Struct"`
+	LoginProfilePreference *GetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference `json:"LoginProfilePreference,omitempty" xml:"LoginProfilePreference,omitempty" require:"true" type:"Struct"`
+	AccessKeyPreference    *GetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference    `json:"AccessKeyPreference,omitempty" xml:"AccessKeyPreference,omitempty" require:"true" type:"Struct"`
+	PublicKeyPreference    *GetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference    `json:"PublicKeyPreference,omitempty" xml:"PublicKeyPreference,omitempty" require:"true" type:"Struct"`
+	MFAPreference          *GetSecurityPreferenceResponseSecurityPreferenceMFAPreference          `json:"MFAPreference,omitempty" xml:"MFAPreference,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetSecurityPreferenceResponseSecurityPreference) String() string {
@@ -715,10 +715,10 @@ func (s *GetSecurityPreferenceResponseSecurityPreference) SetMFAPreference(v *Ge
 }
 
 type GetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference struct {
-	EnableSaveMFATicket       *bool   `json:"EnableSaveMFATicket" xml:"EnableSaveMFATicket" require:"true"`
-	AllowUserToChangePassword *bool   `json:"AllowUserToChangePassword" xml:"AllowUserToChangePassword" require:"true"`
-	LoginSessionDuration      *int    `json:"LoginSessionDuration" xml:"LoginSessionDuration" require:"true"`
-	LoginNetworkMasks         *string `json:"LoginNetworkMasks" xml:"LoginNetworkMasks" require:"true"`
+	EnableSaveMFATicket       *bool   `json:"EnableSaveMFATicket,omitempty" xml:"EnableSaveMFATicket,omitempty" require:"true"`
+	AllowUserToChangePassword *bool   `json:"AllowUserToChangePassword,omitempty" xml:"AllowUserToChangePassword,omitempty" require:"true"`
+	LoginSessionDuration      *int    `json:"LoginSessionDuration,omitempty" xml:"LoginSessionDuration,omitempty" require:"true"`
+	LoginNetworkMasks         *string `json:"LoginNetworkMasks,omitempty" xml:"LoginNetworkMasks,omitempty" require:"true"`
 }
 
 func (s GetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference) String() string {
@@ -750,7 +750,7 @@ func (s *GetSecurityPreferenceResponseSecurityPreferenceLoginProfilePreference) 
 }
 
 type GetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference struct {
-	AllowUserToManageAccessKeys *bool `json:"AllowUserToManageAccessKeys" xml:"AllowUserToManageAccessKeys" require:"true"`
+	AllowUserToManageAccessKeys *bool `json:"AllowUserToManageAccessKeys,omitempty" xml:"AllowUserToManageAccessKeys,omitempty" require:"true"`
 }
 
 func (s GetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference) String() string {
@@ -767,7 +767,7 @@ func (s *GetSecurityPreferenceResponseSecurityPreferenceAccessKeyPreference) Set
 }
 
 type GetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference struct {
-	AllowUserToManagePublicKeys *bool `json:"AllowUserToManagePublicKeys" xml:"AllowUserToManagePublicKeys" require:"true"`
+	AllowUserToManagePublicKeys *bool `json:"AllowUserToManagePublicKeys,omitempty" xml:"AllowUserToManagePublicKeys,omitempty" require:"true"`
 }
 
 func (s GetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference) String() string {
@@ -784,7 +784,7 @@ func (s *GetSecurityPreferenceResponseSecurityPreferencePublicKeyPreference) Set
 }
 
 type GetSecurityPreferenceResponseSecurityPreferenceMFAPreference struct {
-	AllowUserToManageMFADevices *bool `json:"AllowUserToManageMFADevices" xml:"AllowUserToManageMFADevices" require:"true"`
+	AllowUserToManageMFADevices *bool `json:"AllowUserToManageMFADevices,omitempty" xml:"AllowUserToManageMFADevices,omitempty" require:"true"`
 }
 
 func (s GetSecurityPreferenceResponseSecurityPreferenceMFAPreference) String() string {
@@ -801,7 +801,7 @@ func (s *GetSecurityPreferenceResponseSecurityPreferenceMFAPreference) SetAllowU
 }
 
 type GetRoleRequest struct {
-	RoleName *string `json:"RoleName" xml:"RoleName"`
+	RoleName *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
 }
 
 func (s GetRoleRequest) String() string {
@@ -818,8 +818,8 @@ func (s *GetRoleRequest) SetRoleName(v string) *GetRoleRequest {
 }
 
 type GetRoleResponse struct {
-	RequestId *string              `json:"RequestId" xml:"RequestId" require:"true"`
-	Role      *GetRoleResponseRole `json:"Role" xml:"Role" require:"true" type:"Struct"`
+	RequestId *string              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Role      *GetRoleResponseRole `json:"Role,omitempty" xml:"Role,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetRoleResponse) String() string {
@@ -841,14 +841,14 @@ func (s *GetRoleResponse) SetRole(v *GetRoleResponseRole) *GetRoleResponse {
 }
 
 type GetRoleResponseRole struct {
-	RoleId                   *string `json:"RoleId" xml:"RoleId" require:"true"`
-	RoleName                 *string `json:"RoleName" xml:"RoleName" require:"true"`
-	Arn                      *string `json:"Arn" xml:"Arn" require:"true"`
-	Description              *string `json:"Description" xml:"Description" require:"true"`
-	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument" xml:"AssumeRolePolicyDocument" require:"true"`
-	CreateDate               *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate               *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
-	MaxSessionDuration       *int64  `json:"MaxSessionDuration" xml:"MaxSessionDuration" require:"true"`
+	RoleId                   *string `json:"RoleId,omitempty" xml:"RoleId,omitempty" require:"true"`
+	RoleName                 *string `json:"RoleName,omitempty" xml:"RoleName,omitempty" require:"true"`
+	Arn                      *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Description              *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument,omitempty" xml:"AssumeRolePolicyDocument,omitempty" require:"true"`
+	CreateDate               *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate               *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
+	MaxSessionDuration       *int64  `json:"MaxSessionDuration,omitempty" xml:"MaxSessionDuration,omitempty" require:"true"`
 }
 
 func (s GetRoleResponseRole) String() string {
@@ -900,9 +900,9 @@ func (s *GetRoleResponseRole) SetMaxSessionDuration(v int64) *GetRoleResponseRol
 }
 
 type DetachPolicyFromRoleRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	RoleName   *string `json:"RoleName" xml:"RoleName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	RoleName   *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
 }
 
 func (s DetachPolicyFromRoleRequest) String() string {
@@ -929,7 +929,7 @@ func (s *DetachPolicyFromRoleRequest) SetRoleName(v string) *DetachPolicyFromRol
 }
 
 type DetachPolicyFromRoleResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DetachPolicyFromRoleResponse) String() string {
@@ -946,7 +946,7 @@ func (s *DetachPolicyFromRoleResponse) SetRequestId(v string) *DetachPolicyFromR
 }
 
 type DeleteRoleRequest struct {
-	RoleName *string `json:"RoleName" xml:"RoleName"`
+	RoleName *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
 }
 
 func (s DeleteRoleRequest) String() string {
@@ -963,7 +963,7 @@ func (s *DeleteRoleRequest) SetRoleName(v string) *DeleteRoleRequest {
 }
 
 type DeleteRoleResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteRoleResponse) String() string {
@@ -980,10 +980,10 @@ func (s *DeleteRoleResponse) SetRequestId(v string) *DeleteRoleResponse {
 }
 
 type CreateRoleRequest struct {
-	RoleName                 *string `json:"RoleName" xml:"RoleName"`
-	Description              *string `json:"Description" xml:"Description"`
-	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument" xml:"AssumeRolePolicyDocument"`
-	MaxSessionDuration       *int64  `json:"MaxSessionDuration" xml:"MaxSessionDuration"`
+	RoleName                 *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
+	Description              *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument,omitempty" xml:"AssumeRolePolicyDocument,omitempty"`
+	MaxSessionDuration       *int64  `json:"MaxSessionDuration,omitempty" xml:"MaxSessionDuration,omitempty"`
 }
 
 func (s CreateRoleRequest) String() string {
@@ -1015,8 +1015,8 @@ func (s *CreateRoleRequest) SetMaxSessionDuration(v int64) *CreateRoleRequest {
 }
 
 type CreateRoleResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Role      *CreateRoleResponseRole `json:"Role" xml:"Role" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Role      *CreateRoleResponseRole `json:"Role,omitempty" xml:"Role,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateRoleResponse) String() string {
@@ -1038,13 +1038,13 @@ func (s *CreateRoleResponse) SetRole(v *CreateRoleResponseRole) *CreateRoleRespo
 }
 
 type CreateRoleResponseRole struct {
-	RoleId                   *string `json:"RoleId" xml:"RoleId" require:"true"`
-	RoleName                 *string `json:"RoleName" xml:"RoleName" require:"true"`
-	Arn                      *string `json:"Arn" xml:"Arn" require:"true"`
-	Description              *string `json:"Description" xml:"Description" require:"true"`
-	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument" xml:"AssumeRolePolicyDocument" require:"true"`
-	CreateDate               *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	MaxSessionDuration       *int64  `json:"MaxSessionDuration" xml:"MaxSessionDuration" require:"true"`
+	RoleId                   *string `json:"RoleId,omitempty" xml:"RoleId,omitempty" require:"true"`
+	RoleName                 *string `json:"RoleName,omitempty" xml:"RoleName,omitempty" require:"true"`
+	Arn                      *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Description              *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AssumeRolePolicyDocument *string `json:"AssumeRolePolicyDocument,omitempty" xml:"AssumeRolePolicyDocument,omitempty" require:"true"`
+	CreateDate               *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	MaxSessionDuration       *int64  `json:"MaxSessionDuration,omitempty" xml:"MaxSessionDuration,omitempty" require:"true"`
 }
 
 func (s CreateRoleResponseRole) String() string {
@@ -1091,9 +1091,9 @@ func (s *CreateRoleResponseRole) SetMaxSessionDuration(v int64) *CreateRoleRespo
 }
 
 type AttachPolicyToRoleRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	RoleName   *string `json:"RoleName" xml:"RoleName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	RoleName   *string `json:"RoleName,omitempty" xml:"RoleName,omitempty"`
 }
 
 func (s AttachPolicyToRoleRequest) String() string {
@@ -1120,7 +1120,7 @@ func (s *AttachPolicyToRoleRequest) SetRoleName(v string) *AttachPolicyToRoleReq
 }
 
 type AttachPolicyToRoleResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AttachPolicyToRoleResponse) String() string {
@@ -1137,7 +1137,7 @@ func (s *AttachPolicyToRoleResponse) SetRequestId(v string) *AttachPolicyToRoleR
 }
 
 type UnbindMFADeviceRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s UnbindMFADeviceRequest) String() string {
@@ -1154,8 +1154,8 @@ func (s *UnbindMFADeviceRequest) SetUserName(v string) *UnbindMFADeviceRequest {
 }
 
 type UnbindMFADeviceResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	MFADevice *UnbindMFADeviceResponseMFADevice `json:"MFADevice" xml:"MFADevice" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MFADevice *UnbindMFADeviceResponseMFADevice `json:"MFADevice,omitempty" xml:"MFADevice,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UnbindMFADeviceResponse) String() string {
@@ -1177,7 +1177,7 @@ func (s *UnbindMFADeviceResponse) SetMFADevice(v *UnbindMFADeviceResponseMFADevi
 }
 
 type UnbindMFADeviceResponseMFADevice struct {
-	SerialNumber *string `json:"SerialNumber" xml:"SerialNumber" require:"true"`
+	SerialNumber *string `json:"SerialNumber,omitempty" xml:"SerialNumber,omitempty" require:"true"`
 }
 
 func (s UnbindMFADeviceResponseMFADevice) String() string {
@@ -1205,8 +1205,8 @@ func (s ListVirtualMFADevicesRequest) GoString() string {
 }
 
 type ListVirtualMFADevicesResponse struct {
-	RequestId         *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	VirtualMFADevices *ListVirtualMFADevicesResponseVirtualMFADevices `json:"VirtualMFADevices" xml:"VirtualMFADevices" require:"true" type:"Struct"`
+	RequestId         *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VirtualMFADevices *ListVirtualMFADevicesResponseVirtualMFADevices `json:"VirtualMFADevices,omitempty" xml:"VirtualMFADevices,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListVirtualMFADevicesResponse) String() string {
@@ -1228,7 +1228,7 @@ func (s *ListVirtualMFADevicesResponse) SetVirtualMFADevices(v *ListVirtualMFADe
 }
 
 type ListVirtualMFADevicesResponseVirtualMFADevices struct {
-	VirtualMFADevice []*ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADevice `json:"VirtualMFADevice" xml:"VirtualMFADevice" require:"true" type:"Repeated"`
+	VirtualMFADevice []*ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADevice `json:"VirtualMFADevice,omitempty" xml:"VirtualMFADevice,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListVirtualMFADevicesResponseVirtualMFADevices) String() string {
@@ -1245,9 +1245,9 @@ func (s *ListVirtualMFADevicesResponseVirtualMFADevices) SetVirtualMFADevice(v [
 }
 
 type ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADevice struct {
-	SerialNumber *string                                                             `json:"SerialNumber" xml:"SerialNumber" require:"true"`
-	ActivateDate *string                                                             `json:"ActivateDate" xml:"ActivateDate" require:"true"`
-	User         *ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADeviceUser `json:"User" xml:"User" require:"true" type:"Struct"`
+	SerialNumber *string                                                             `json:"SerialNumber,omitempty" xml:"SerialNumber,omitempty" require:"true"`
+	ActivateDate *string                                                             `json:"ActivateDate,omitempty" xml:"ActivateDate,omitempty" require:"true"`
+	User         *ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADeviceUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADevice) String() string {
@@ -1274,9 +1274,9 @@ func (s *ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADevice) SetUser
 }
 
 type ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADeviceUser struct {
-	UserId      *string `json:"UserId" xml:"UserId" require:"true"`
-	UserName    *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName" require:"true"`
+	UserId      *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
 }
 
 func (s ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADeviceUser) String() string {
@@ -1303,7 +1303,7 @@ func (s *ListVirtualMFADevicesResponseVirtualMFADevicesVirtualMFADeviceUser) Set
 }
 
 type GetUserMFAInfoRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s GetUserMFAInfoRequest) String() string {
@@ -1320,8 +1320,8 @@ func (s *GetUserMFAInfoRequest) SetUserName(v string) *GetUserMFAInfoRequest {
 }
 
 type GetUserMFAInfoResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	MFADevice *GetUserMFAInfoResponseMFADevice `json:"MFADevice" xml:"MFADevice" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MFADevice *GetUserMFAInfoResponseMFADevice `json:"MFADevice,omitempty" xml:"MFADevice,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetUserMFAInfoResponse) String() string {
@@ -1343,7 +1343,7 @@ func (s *GetUserMFAInfoResponse) SetMFADevice(v *GetUserMFAInfoResponseMFADevice
 }
 
 type GetUserMFAInfoResponseMFADevice struct {
-	SerialNumber *string `json:"SerialNumber" xml:"SerialNumber" require:"true"`
+	SerialNumber *string `json:"SerialNumber,omitempty" xml:"SerialNumber,omitempty" require:"true"`
 }
 
 func (s GetUserMFAInfoResponseMFADevice) String() string {
@@ -1360,7 +1360,7 @@ func (s *GetUserMFAInfoResponseMFADevice) SetSerialNumber(v string) *GetUserMFAI
 }
 
 type DeleteVirtualMFADeviceRequest struct {
-	SerialNumber *string `json:"SerialNumber" xml:"SerialNumber"`
+	SerialNumber *string `json:"SerialNumber,omitempty" xml:"SerialNumber,omitempty"`
 }
 
 func (s DeleteVirtualMFADeviceRequest) String() string {
@@ -1377,7 +1377,7 @@ func (s *DeleteVirtualMFADeviceRequest) SetSerialNumber(v string) *DeleteVirtual
 }
 
 type DeleteVirtualMFADeviceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteVirtualMFADeviceResponse) String() string {
@@ -1394,7 +1394,7 @@ func (s *DeleteVirtualMFADeviceResponse) SetRequestId(v string) *DeleteVirtualMF
 }
 
 type CreateVirtualMFADeviceRequest struct {
-	VirtualMFADeviceName *string `json:"VirtualMFADeviceName" xml:"VirtualMFADeviceName"`
+	VirtualMFADeviceName *string `json:"VirtualMFADeviceName,omitempty" xml:"VirtualMFADeviceName,omitempty"`
 }
 
 func (s CreateVirtualMFADeviceRequest) String() string {
@@ -1411,8 +1411,8 @@ func (s *CreateVirtualMFADeviceRequest) SetVirtualMFADeviceName(v string) *Creat
 }
 
 type CreateVirtualMFADeviceResponse struct {
-	RequestId        *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	VirtualMFADevice *CreateVirtualMFADeviceResponseVirtualMFADevice `json:"VirtualMFADevice" xml:"VirtualMFADevice" require:"true" type:"Struct"`
+	RequestId        *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VirtualMFADevice *CreateVirtualMFADeviceResponseVirtualMFADevice `json:"VirtualMFADevice,omitempty" xml:"VirtualMFADevice,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateVirtualMFADeviceResponse) String() string {
@@ -1434,9 +1434,9 @@ func (s *CreateVirtualMFADeviceResponse) SetVirtualMFADevice(v *CreateVirtualMFA
 }
 
 type CreateVirtualMFADeviceResponseVirtualMFADevice struct {
-	SerialNumber     *string `json:"SerialNumber" xml:"SerialNumber" require:"true"`
-	Base32StringSeed *string `json:"Base32StringSeed" xml:"Base32StringSeed" require:"true"`
-	QRCodePNG        *string `json:"QRCodePNG" xml:"QRCodePNG" require:"true"`
+	SerialNumber     *string `json:"SerialNumber,omitempty" xml:"SerialNumber,omitempty" require:"true"`
+	Base32StringSeed *string `json:"Base32StringSeed,omitempty" xml:"Base32StringSeed,omitempty" require:"true"`
+	QRCodePNG        *string `json:"QRCodePNG,omitempty" xml:"QRCodePNG,omitempty" require:"true"`
 }
 
 func (s CreateVirtualMFADeviceResponseVirtualMFADevice) String() string {
@@ -1463,10 +1463,10 @@ func (s *CreateVirtualMFADeviceResponseVirtualMFADevice) SetQRCodePNG(v string) 
 }
 
 type BindMFADeviceRequest struct {
-	SerialNumber        *string `json:"SerialNumber" xml:"SerialNumber"`
-	UserName            *string `json:"UserName" xml:"UserName"`
-	AuthenticationCode1 *string `json:"AuthenticationCode1" xml:"AuthenticationCode1"`
-	AuthenticationCode2 *string `json:"AuthenticationCode2" xml:"AuthenticationCode2"`
+	SerialNumber        *string `json:"SerialNumber,omitempty" xml:"SerialNumber,omitempty"`
+	UserName            *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	AuthenticationCode1 *string `json:"AuthenticationCode1,omitempty" xml:"AuthenticationCode1,omitempty"`
+	AuthenticationCode2 *string `json:"AuthenticationCode2,omitempty" xml:"AuthenticationCode2,omitempty"`
 }
 
 func (s BindMFADeviceRequest) String() string {
@@ -1498,7 +1498,7 @@ func (s *BindMFADeviceRequest) SetAuthenticationCode2(v string) *BindMFADeviceRe
 }
 
 type BindMFADeviceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s BindMFADeviceResponse) String() string {
@@ -1515,10 +1515,10 @@ func (s *BindMFADeviceResponse) SetRequestId(v string) *BindMFADeviceResponse {
 }
 
 type UpdateLoginProfileRequest struct {
-	UserName              *string `json:"UserName" xml:"UserName"`
-	Password              *string `json:"Password" xml:"Password"`
-	PasswordResetRequired *bool   `json:"PasswordResetRequired" xml:"PasswordResetRequired"`
-	MFABindRequired       *bool   `json:"MFABindRequired" xml:"MFABindRequired"`
+	UserName              *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	Password              *string `json:"Password,omitempty" xml:"Password,omitempty"`
+	PasswordResetRequired *bool   `json:"PasswordResetRequired,omitempty" xml:"PasswordResetRequired,omitempty"`
+	MFABindRequired       *bool   `json:"MFABindRequired,omitempty" xml:"MFABindRequired,omitempty"`
 }
 
 func (s UpdateLoginProfileRequest) String() string {
@@ -1550,7 +1550,7 @@ func (s *UpdateLoginProfileRequest) SetMFABindRequired(v bool) *UpdateLoginProfi
 }
 
 type UpdateLoginProfileResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateLoginProfileResponse) String() string {
@@ -1567,7 +1567,7 @@ func (s *UpdateLoginProfileResponse) SetRequestId(v string) *UpdateLoginProfileR
 }
 
 type GetLoginProfileRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s GetLoginProfileRequest) String() string {
@@ -1584,8 +1584,8 @@ func (s *GetLoginProfileRequest) SetUserName(v string) *GetLoginProfileRequest {
 }
 
 type GetLoginProfileResponse struct {
-	RequestId    *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	LoginProfile *GetLoginProfileResponseLoginProfile `json:"LoginProfile" xml:"LoginProfile" require:"true" type:"Struct"`
+	RequestId    *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	LoginProfile *GetLoginProfileResponseLoginProfile `json:"LoginProfile,omitempty" xml:"LoginProfile,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetLoginProfileResponse) String() string {
@@ -1607,10 +1607,10 @@ func (s *GetLoginProfileResponse) SetLoginProfile(v *GetLoginProfileResponseLogi
 }
 
 type GetLoginProfileResponseLoginProfile struct {
-	UserName              *string `json:"UserName" xml:"UserName" require:"true"`
-	PasswordResetRequired *bool   `json:"PasswordResetRequired" xml:"PasswordResetRequired" require:"true"`
-	MFABindRequired       *bool   `json:"MFABindRequired" xml:"MFABindRequired" require:"true"`
-	CreateDate            *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	UserName              *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	PasswordResetRequired *bool   `json:"PasswordResetRequired,omitempty" xml:"PasswordResetRequired,omitempty" require:"true"`
+	MFABindRequired       *bool   `json:"MFABindRequired,omitempty" xml:"MFABindRequired,omitempty" require:"true"`
+	CreateDate            *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s GetLoginProfileResponseLoginProfile) String() string {
@@ -1642,7 +1642,7 @@ func (s *GetLoginProfileResponseLoginProfile) SetCreateDate(v string) *GetLoginP
 }
 
 type DeleteLoginProfileRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s DeleteLoginProfileRequest) String() string {
@@ -1659,7 +1659,7 @@ func (s *DeleteLoginProfileRequest) SetUserName(v string) *DeleteLoginProfileReq
 }
 
 type DeleteLoginProfileResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteLoginProfileResponse) String() string {
@@ -1676,10 +1676,10 @@ func (s *DeleteLoginProfileResponse) SetRequestId(v string) *DeleteLoginProfileR
 }
 
 type CreateLoginProfileRequest struct {
-	UserName              *string `json:"UserName" xml:"UserName"`
-	Password              *string `json:"Password" xml:"Password"`
-	PasswordResetRequired *bool   `json:"PasswordResetRequired" xml:"PasswordResetRequired"`
-	MFABindRequired       *bool   `json:"MFABindRequired" xml:"MFABindRequired"`
+	UserName              *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	Password              *string `json:"Password,omitempty" xml:"Password,omitempty"`
+	PasswordResetRequired *bool   `json:"PasswordResetRequired,omitempty" xml:"PasswordResetRequired,omitempty"`
+	MFABindRequired       *bool   `json:"MFABindRequired,omitempty" xml:"MFABindRequired,omitempty"`
 }
 
 func (s CreateLoginProfileRequest) String() string {
@@ -1711,8 +1711,8 @@ func (s *CreateLoginProfileRequest) SetMFABindRequired(v bool) *CreateLoginProfi
 }
 
 type CreateLoginProfileResponse struct {
-	RequestId    *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	LoginProfile *CreateLoginProfileResponseLoginProfile `json:"LoginProfile" xml:"LoginProfile" require:"true" type:"Struct"`
+	RequestId    *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	LoginProfile *CreateLoginProfileResponseLoginProfile `json:"LoginProfile,omitempty" xml:"LoginProfile,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateLoginProfileResponse) String() string {
@@ -1734,10 +1734,10 @@ func (s *CreateLoginProfileResponse) SetLoginProfile(v *CreateLoginProfileRespon
 }
 
 type CreateLoginProfileResponseLoginProfile struct {
-	UserName              *string `json:"UserName" xml:"UserName" require:"true"`
-	PasswordResetRequired *bool   `json:"PasswordResetRequired" xml:"PasswordResetRequired" require:"true"`
-	MFABindRequired       *bool   `json:"MFABindRequired" xml:"MFABindRequired" require:"true"`
-	CreateDate            *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	UserName              *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	PasswordResetRequired *bool   `json:"PasswordResetRequired,omitempty" xml:"PasswordResetRequired,omitempty" require:"true"`
+	MFABindRequired       *bool   `json:"MFABindRequired,omitempty" xml:"MFABindRequired,omitempty" require:"true"`
+	CreateDate            *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s CreateLoginProfileResponseLoginProfile) String() string {
@@ -1769,12 +1769,12 @@ func (s *CreateLoginProfileResponseLoginProfile) SetCreateDate(v string) *Create
 }
 
 type UpdateUserRequest struct {
-	UserName       *string `json:"UserName" xml:"UserName"`
-	NewUserName    *string `json:"NewUserName" xml:"NewUserName"`
-	NewDisplayName *string `json:"NewDisplayName" xml:"NewDisplayName"`
-	NewMobilePhone *string `json:"NewMobilePhone" xml:"NewMobilePhone"`
-	NewEmail       *string `json:"NewEmail" xml:"NewEmail"`
-	NewComments    *string `json:"NewComments" xml:"NewComments"`
+	UserName       *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	NewUserName    *string `json:"NewUserName,omitempty" xml:"NewUserName,omitempty"`
+	NewDisplayName *string `json:"NewDisplayName,omitempty" xml:"NewDisplayName,omitempty"`
+	NewMobilePhone *string `json:"NewMobilePhone,omitempty" xml:"NewMobilePhone,omitempty"`
+	NewEmail       *string `json:"NewEmail,omitempty" xml:"NewEmail,omitempty"`
+	NewComments    *string `json:"NewComments,omitempty" xml:"NewComments,omitempty"`
 }
 
 func (s UpdateUserRequest) String() string {
@@ -1816,8 +1816,8 @@ func (s *UpdateUserRequest) SetNewComments(v string) *UpdateUserRequest {
 }
 
 type UpdateUserResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	User      *UpdateUserResponseUser `json:"User" xml:"User" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	User      *UpdateUserResponseUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateUserResponse) String() string {
@@ -1839,14 +1839,14 @@ func (s *UpdateUserResponse) SetUser(v *UpdateUserResponseUser) *UpdateUserRespo
 }
 
 type UpdateUserResponseUser struct {
-	UserId      *string `json:"UserId" xml:"UserId" require:"true"`
-	UserName    *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName" require:"true"`
-	MobilePhone *string `json:"MobilePhone" xml:"MobilePhone" require:"true"`
-	Email       *string `json:"Email" xml:"Email" require:"true"`
-	Comments    *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate  *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate  *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
+	UserId      *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
+	MobilePhone *string `json:"MobilePhone,omitempty" xml:"MobilePhone,omitempty" require:"true"`
+	Email       *string `json:"Email,omitempty" xml:"Email,omitempty" require:"true"`
+	Comments    *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate  *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate  *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
 }
 
 func (s UpdateUserResponseUser) String() string {
@@ -1898,8 +1898,8 @@ func (s *UpdateUserResponseUser) SetUpdateDate(v string) *UpdateUserResponseUser
 }
 
 type ListUsersRequest struct {
-	Marker   *string `json:"Marker" xml:"Marker"`
-	MaxItems *int    `json:"MaxItems" xml:"MaxItems"`
+	Marker   *string `json:"Marker,omitempty" xml:"Marker,omitempty"`
+	MaxItems *int    `json:"MaxItems,omitempty" xml:"MaxItems,omitempty"`
 }
 
 func (s ListUsersRequest) String() string {
@@ -1921,10 +1921,10 @@ func (s *ListUsersRequest) SetMaxItems(v int) *ListUsersRequest {
 }
 
 type ListUsersResponse struct {
-	RequestId   *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	IsTruncated *bool                   `json:"IsTruncated" xml:"IsTruncated" require:"true"`
-	Marker      *string                 `json:"Marker" xml:"Marker" require:"true"`
-	Users       *ListUsersResponseUsers `json:"Users" xml:"Users" require:"true" type:"Struct"`
+	RequestId   *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IsTruncated *bool                   `json:"IsTruncated,omitempty" xml:"IsTruncated,omitempty" require:"true"`
+	Marker      *string                 `json:"Marker,omitempty" xml:"Marker,omitempty" require:"true"`
+	Users       *ListUsersResponseUsers `json:"Users,omitempty" xml:"Users,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListUsersResponse) String() string {
@@ -1956,7 +1956,7 @@ func (s *ListUsersResponse) SetUsers(v *ListUsersResponseUsers) *ListUsersRespon
 }
 
 type ListUsersResponseUsers struct {
-	User []*ListUsersResponseUsersUser `json:"User" xml:"User" require:"true" type:"Repeated"`
+	User []*ListUsersResponseUsersUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListUsersResponseUsers) String() string {
@@ -1973,14 +1973,14 @@ func (s *ListUsersResponseUsers) SetUser(v []*ListUsersResponseUsersUser) *ListU
 }
 
 type ListUsersResponseUsersUser struct {
-	UserId      *string `json:"UserId" xml:"UserId" require:"true"`
-	UserName    *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName" require:"true"`
-	MobilePhone *string `json:"MobilePhone" xml:"MobilePhone" require:"true"`
-	Email       *string `json:"Email" xml:"Email" require:"true"`
-	Comments    *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate  *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate  *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
+	UserId      *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
+	MobilePhone *string `json:"MobilePhone,omitempty" xml:"MobilePhone,omitempty" require:"true"`
+	Email       *string `json:"Email,omitempty" xml:"Email,omitempty" require:"true"`
+	Comments    *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate  *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate  *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
 }
 
 func (s ListUsersResponseUsersUser) String() string {
@@ -2032,7 +2032,7 @@ func (s *ListUsersResponseUsersUser) SetUpdateDate(v string) *ListUsersResponseU
 }
 
 type GetUserRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s GetUserRequest) String() string {
@@ -2049,8 +2049,8 @@ func (s *GetUserRequest) SetUserName(v string) *GetUserRequest {
 }
 
 type GetUserResponse struct {
-	RequestId *string              `json:"RequestId" xml:"RequestId" require:"true"`
-	User      *GetUserResponseUser `json:"User" xml:"User" require:"true" type:"Struct"`
+	RequestId *string              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	User      *GetUserResponseUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetUserResponse) String() string {
@@ -2072,15 +2072,15 @@ func (s *GetUserResponse) SetUser(v *GetUserResponseUser) *GetUserResponse {
 }
 
 type GetUserResponseUser struct {
-	UserId        *string `json:"UserId" xml:"UserId" require:"true"`
-	UserName      *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName   *string `json:"DisplayName" xml:"DisplayName" require:"true"`
-	MobilePhone   *string `json:"MobilePhone" xml:"MobilePhone" require:"true"`
-	Email         *string `json:"Email" xml:"Email" require:"true"`
-	Comments      *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate    *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate    *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
-	LastLoginDate *string `json:"LastLoginDate" xml:"LastLoginDate" require:"true"`
+	UserId        *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserName      *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName   *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
+	MobilePhone   *string `json:"MobilePhone,omitempty" xml:"MobilePhone,omitempty" require:"true"`
+	Email         *string `json:"Email,omitempty" xml:"Email,omitempty" require:"true"`
+	Comments      *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate    *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate    *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
+	LastLoginDate *string `json:"LastLoginDate,omitempty" xml:"LastLoginDate,omitempty" require:"true"`
 }
 
 func (s GetUserResponseUser) String() string {
@@ -2137,7 +2137,7 @@ func (s *GetUserResponseUser) SetLastLoginDate(v string) *GetUserResponseUser {
 }
 
 type DeleteUserRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s DeleteUserRequest) String() string {
@@ -2154,7 +2154,7 @@ func (s *DeleteUserRequest) SetUserName(v string) *DeleteUserRequest {
 }
 
 type DeleteUserResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteUserResponse) String() string {
@@ -2171,11 +2171,11 @@ func (s *DeleteUserResponse) SetRequestId(v string) *DeleteUserResponse {
 }
 
 type CreateUserRequest struct {
-	UserName    *string `json:"UserName" xml:"UserName"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName"`
-	MobilePhone *string `json:"MobilePhone" xml:"MobilePhone"`
-	Email       *string `json:"Email" xml:"Email"`
-	Comments    *string `json:"Comments" xml:"Comments"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty"`
+	MobilePhone *string `json:"MobilePhone,omitempty" xml:"MobilePhone,omitempty"`
+	Email       *string `json:"Email,omitempty" xml:"Email,omitempty"`
+	Comments    *string `json:"Comments,omitempty" xml:"Comments,omitempty"`
 }
 
 func (s CreateUserRequest) String() string {
@@ -2212,8 +2212,8 @@ func (s *CreateUserRequest) SetComments(v string) *CreateUserRequest {
 }
 
 type CreateUserResponse struct {
-	RequestId *string                 `json:"RequestId" xml:"RequestId" require:"true"`
-	User      *CreateUserResponseUser `json:"User" xml:"User" require:"true" type:"Struct"`
+	RequestId *string                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	User      *CreateUserResponseUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateUserResponse) String() string {
@@ -2235,13 +2235,13 @@ func (s *CreateUserResponse) SetUser(v *CreateUserResponseUser) *CreateUserRespo
 }
 
 type CreateUserResponseUser struct {
-	UserId      *string `json:"UserId" xml:"UserId" require:"true"`
-	UserName    *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName" require:"true"`
-	MobilePhone *string `json:"MobilePhone" xml:"MobilePhone" require:"true"`
-	Email       *string `json:"Email" xml:"Email" require:"true"`
-	Comments    *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate  *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	UserId      *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
+	MobilePhone *string `json:"MobilePhone,omitempty" xml:"MobilePhone,omitempty" require:"true"`
+	Email       *string `json:"Email,omitempty" xml:"Email,omitempty" require:"true"`
+	Comments    *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate  *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s CreateUserResponseUser) String() string {
@@ -2288,9 +2288,9 @@ func (s *CreateUserResponseUser) SetCreateDate(v string) *CreateUserResponseUser
 }
 
 type UpdateAccessKeyRequest struct {
-	UserName        *string `json:"UserName" xml:"UserName"`
-	UserAccessKeyId *string `json:"UserAccessKeyId" xml:"UserAccessKeyId"`
-	Status          *string `json:"Status" xml:"Status"`
+	UserName        *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	UserAccessKeyId *string `json:"UserAccessKeyId,omitempty" xml:"UserAccessKeyId,omitempty"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty"`
 }
 
 func (s UpdateAccessKeyRequest) String() string {
@@ -2317,7 +2317,7 @@ func (s *UpdateAccessKeyRequest) SetStatus(v string) *UpdateAccessKeyRequest {
 }
 
 type UpdateAccessKeyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateAccessKeyResponse) String() string {
@@ -2334,7 +2334,7 @@ func (s *UpdateAccessKeyResponse) SetRequestId(v string) *UpdateAccessKeyRespons
 }
 
 type ListAccessKeysRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s ListAccessKeysRequest) String() string {
@@ -2351,8 +2351,8 @@ func (s *ListAccessKeysRequest) SetUserName(v string) *ListAccessKeysRequest {
 }
 
 type ListAccessKeysResponse struct {
-	RequestId  *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	AccessKeys *ListAccessKeysResponseAccessKeys `json:"AccessKeys" xml:"AccessKeys" require:"true" type:"Struct"`
+	RequestId  *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AccessKeys *ListAccessKeysResponseAccessKeys `json:"AccessKeys,omitempty" xml:"AccessKeys,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListAccessKeysResponse) String() string {
@@ -2374,7 +2374,7 @@ func (s *ListAccessKeysResponse) SetAccessKeys(v *ListAccessKeysResponseAccessKe
 }
 
 type ListAccessKeysResponseAccessKeys struct {
-	AccessKey []*ListAccessKeysResponseAccessKeysAccessKey `json:"AccessKey" xml:"AccessKey" require:"true" type:"Repeated"`
+	AccessKey []*ListAccessKeysResponseAccessKeysAccessKey `json:"AccessKey,omitempty" xml:"AccessKey,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAccessKeysResponseAccessKeys) String() string {
@@ -2391,9 +2391,9 @@ func (s *ListAccessKeysResponseAccessKeys) SetAccessKey(v []*ListAccessKeysRespo
 }
 
 type ListAccessKeysResponseAccessKeysAccessKey struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId" require:"true"`
-	Status      *string `json:"Status" xml:"Status" require:"true"`
-	CreateDate  *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	AccessKeyId *string `json:"AccessKeyId,omitempty" xml:"AccessKeyId,omitempty" require:"true"`
+	Status      *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	CreateDate  *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s ListAccessKeysResponseAccessKeysAccessKey) String() string {
@@ -2420,8 +2420,8 @@ func (s *ListAccessKeysResponseAccessKeysAccessKey) SetCreateDate(v string) *Lis
 }
 
 type DeleteAccessKeyRequest struct {
-	UserName        *string `json:"UserName" xml:"UserName"`
-	UserAccessKeyId *string `json:"UserAccessKeyId" xml:"UserAccessKeyId"`
+	UserName        *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	UserAccessKeyId *string `json:"UserAccessKeyId,omitempty" xml:"UserAccessKeyId,omitempty"`
 }
 
 func (s DeleteAccessKeyRequest) String() string {
@@ -2443,7 +2443,7 @@ func (s *DeleteAccessKeyRequest) SetUserAccessKeyId(v string) *DeleteAccessKeyRe
 }
 
 type DeleteAccessKeyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAccessKeyResponse) String() string {
@@ -2460,7 +2460,7 @@ func (s *DeleteAccessKeyResponse) SetRequestId(v string) *DeleteAccessKeyRespons
 }
 
 type CreateAccessKeyRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s CreateAccessKeyRequest) String() string {
@@ -2477,8 +2477,8 @@ func (s *CreateAccessKeyRequest) SetUserName(v string) *CreateAccessKeyRequest {
 }
 
 type CreateAccessKeyResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	AccessKey *CreateAccessKeyResponseAccessKey `json:"AccessKey" xml:"AccessKey" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AccessKey *CreateAccessKeyResponseAccessKey `json:"AccessKey,omitempty" xml:"AccessKey,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateAccessKeyResponse) String() string {
@@ -2500,10 +2500,10 @@ func (s *CreateAccessKeyResponse) SetAccessKey(v *CreateAccessKeyResponseAccessK
 }
 
 type CreateAccessKeyResponseAccessKey struct {
-	AccessKeyId     *string `json:"AccessKeyId" xml:"AccessKeyId" require:"true"`
-	AccessKeySecret *string `json:"AccessKeySecret" xml:"AccessKeySecret" require:"true"`
-	Status          *string `json:"Status" xml:"Status" require:"true"`
-	CreateDate      *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	AccessKeyId     *string `json:"AccessKeyId,omitempty" xml:"AccessKeyId,omitempty" require:"true"`
+	AccessKeySecret *string `json:"AccessKeySecret,omitempty" xml:"AccessKeySecret,omitempty" require:"true"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	CreateDate      *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s CreateAccessKeyResponseAccessKey) String() string {
@@ -2535,15 +2535,15 @@ func (s *CreateAccessKeyResponseAccessKey) SetCreateDate(v string) *CreateAccess
 }
 
 type SetPasswordPolicyRequest struct {
-	MinimumPasswordLength      *int  `json:"MinimumPasswordLength" xml:"MinimumPasswordLength"`
-	RequireLowercaseCharacters *bool `json:"RequireLowercaseCharacters" xml:"RequireLowercaseCharacters"`
-	RequireUppercaseCharacters *bool `json:"RequireUppercaseCharacters" xml:"RequireUppercaseCharacters"`
-	RequireNumbers             *bool `json:"RequireNumbers" xml:"RequireNumbers"`
-	RequireSymbols             *bool `json:"RequireSymbols" xml:"RequireSymbols"`
-	HardExpiry                 *bool `json:"HardExpiry" xml:"HardExpiry"`
-	MaxPasswordAge             *int  `json:"MaxPasswordAge" xml:"MaxPasswordAge"`
-	PasswordReusePrevention    *int  `json:"PasswordReusePrevention" xml:"PasswordReusePrevention"`
-	MaxLoginAttemps            *int  `json:"MaxLoginAttemps" xml:"MaxLoginAttemps"`
+	MinimumPasswordLength      *int  `json:"MinimumPasswordLength,omitempty" xml:"MinimumPasswordLength,omitempty"`
+	RequireLowercaseCharacters *bool `json:"RequireLowercaseCharacters,omitempty" xml:"RequireLowercaseCharacters,omitempty"`
+	RequireUppercaseCharacters *bool `json:"RequireUppercaseCharacters,omitempty" xml:"RequireUppercaseCharacters,omitempty"`
+	RequireNumbers             *bool `json:"RequireNumbers,omitempty" xml:"RequireNumbers,omitempty"`
+	RequireSymbols             *bool `json:"RequireSymbols,omitempty" xml:"RequireSymbols,omitempty"`
+	HardExpiry                 *bool `json:"HardExpiry,omitempty" xml:"HardExpiry,omitempty"`
+	MaxPasswordAge             *int  `json:"MaxPasswordAge,omitempty" xml:"MaxPasswordAge,omitempty"`
+	PasswordReusePrevention    *int  `json:"PasswordReusePrevention,omitempty" xml:"PasswordReusePrevention,omitempty"`
+	MaxLoginAttemps            *int  `json:"MaxLoginAttemps,omitempty" xml:"MaxLoginAttemps,omitempty"`
 }
 
 func (s SetPasswordPolicyRequest) String() string {
@@ -2600,8 +2600,8 @@ func (s *SetPasswordPolicyRequest) SetMaxLoginAttemps(v int) *SetPasswordPolicyR
 }
 
 type SetPasswordPolicyResponse struct {
-	RequestId      *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	PasswordPolicy *SetPasswordPolicyResponsePasswordPolicy `json:"PasswordPolicy" xml:"PasswordPolicy" require:"true" type:"Struct"`
+	RequestId      *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PasswordPolicy *SetPasswordPolicyResponsePasswordPolicy `json:"PasswordPolicy,omitempty" xml:"PasswordPolicy,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SetPasswordPolicyResponse) String() string {
@@ -2623,15 +2623,15 @@ func (s *SetPasswordPolicyResponse) SetPasswordPolicy(v *SetPasswordPolicyRespon
 }
 
 type SetPasswordPolicyResponsePasswordPolicy struct {
-	MinimumPasswordLength      *int  `json:"MinimumPasswordLength" xml:"MinimumPasswordLength" require:"true"`
-	RequireLowercaseCharacters *bool `json:"RequireLowercaseCharacters" xml:"RequireLowercaseCharacters" require:"true"`
-	RequireUppercaseCharacters *bool `json:"RequireUppercaseCharacters" xml:"RequireUppercaseCharacters" require:"true"`
-	RequireNumbers             *bool `json:"RequireNumbers" xml:"RequireNumbers" require:"true"`
-	RequireSymbols             *bool `json:"RequireSymbols" xml:"RequireSymbols" require:"true"`
-	HardExpiry                 *bool `json:"HardExpiry" xml:"HardExpiry" require:"true"`
-	MaxPasswordAge             *int  `json:"MaxPasswordAge" xml:"MaxPasswordAge" require:"true"`
-	PasswordReusePrevention    *int  `json:"PasswordReusePrevention" xml:"PasswordReusePrevention" require:"true"`
-	MaxLoginAttemps            *int  `json:"MaxLoginAttemps" xml:"MaxLoginAttemps" require:"true"`
+	MinimumPasswordLength      *int  `json:"MinimumPasswordLength,omitempty" xml:"MinimumPasswordLength,omitempty" require:"true"`
+	RequireLowercaseCharacters *bool `json:"RequireLowercaseCharacters,omitempty" xml:"RequireLowercaseCharacters,omitempty" require:"true"`
+	RequireUppercaseCharacters *bool `json:"RequireUppercaseCharacters,omitempty" xml:"RequireUppercaseCharacters,omitempty" require:"true"`
+	RequireNumbers             *bool `json:"RequireNumbers,omitempty" xml:"RequireNumbers,omitempty" require:"true"`
+	RequireSymbols             *bool `json:"RequireSymbols,omitempty" xml:"RequireSymbols,omitempty" require:"true"`
+	HardExpiry                 *bool `json:"HardExpiry,omitempty" xml:"HardExpiry,omitempty" require:"true"`
+	MaxPasswordAge             *int  `json:"MaxPasswordAge,omitempty" xml:"MaxPasswordAge,omitempty" require:"true"`
+	PasswordReusePrevention    *int  `json:"PasswordReusePrevention,omitempty" xml:"PasswordReusePrevention,omitempty" require:"true"`
+	MaxLoginAttemps            *int  `json:"MaxLoginAttemps,omitempty" xml:"MaxLoginAttemps,omitempty" require:"true"`
 }
 
 func (s SetPasswordPolicyResponsePasswordPolicy) String() string {
@@ -2688,7 +2688,7 @@ func (s *SetPasswordPolicyResponsePasswordPolicy) SetMaxLoginAttemps(v int) *Set
 }
 
 type SetAccountAliasRequest struct {
-	AccountAlias *string `json:"AccountAlias" xml:"AccountAlias"`
+	AccountAlias *string `json:"AccountAlias,omitempty" xml:"AccountAlias,omitempty"`
 }
 
 func (s SetAccountAliasRequest) String() string {
@@ -2705,7 +2705,7 @@ func (s *SetAccountAliasRequest) SetAccountAlias(v string) *SetAccountAliasReque
 }
 
 type SetAccountAliasResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetAccountAliasResponse) String() string {
@@ -2733,8 +2733,8 @@ func (s GetPasswordPolicyRequest) GoString() string {
 }
 
 type GetPasswordPolicyResponse struct {
-	RequestId      *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	PasswordPolicy *GetPasswordPolicyResponsePasswordPolicy `json:"PasswordPolicy" xml:"PasswordPolicy" require:"true" type:"Struct"`
+	RequestId      *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PasswordPolicy *GetPasswordPolicyResponsePasswordPolicy `json:"PasswordPolicy,omitempty" xml:"PasswordPolicy,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPasswordPolicyResponse) String() string {
@@ -2756,15 +2756,15 @@ func (s *GetPasswordPolicyResponse) SetPasswordPolicy(v *GetPasswordPolicyRespon
 }
 
 type GetPasswordPolicyResponsePasswordPolicy struct {
-	MinimumPasswordLength      *int  `json:"MinimumPasswordLength" xml:"MinimumPasswordLength" require:"true"`
-	RequireLowercaseCharacters *bool `json:"RequireLowercaseCharacters" xml:"RequireLowercaseCharacters" require:"true"`
-	RequireUppercaseCharacters *bool `json:"RequireUppercaseCharacters" xml:"RequireUppercaseCharacters" require:"true"`
-	RequireNumbers             *bool `json:"RequireNumbers" xml:"RequireNumbers" require:"true"`
-	RequireSymbols             *bool `json:"RequireSymbols" xml:"RequireSymbols" require:"true"`
-	HardExpiry                 *bool `json:"HardExpiry" xml:"HardExpiry" require:"true"`
-	MaxPasswordAge             *int  `json:"MaxPasswordAge" xml:"MaxPasswordAge" require:"true"`
-	PasswordReusePrevention    *int  `json:"PasswordReusePrevention" xml:"PasswordReusePrevention" require:"true"`
-	MaxLoginAttemps            *int  `json:"MaxLoginAttemps" xml:"MaxLoginAttemps" require:"true"`
+	MinimumPasswordLength      *int  `json:"MinimumPasswordLength,omitempty" xml:"MinimumPasswordLength,omitempty" require:"true"`
+	RequireLowercaseCharacters *bool `json:"RequireLowercaseCharacters,omitempty" xml:"RequireLowercaseCharacters,omitempty" require:"true"`
+	RequireUppercaseCharacters *bool `json:"RequireUppercaseCharacters,omitempty" xml:"RequireUppercaseCharacters,omitempty" require:"true"`
+	RequireNumbers             *bool `json:"RequireNumbers,omitempty" xml:"RequireNumbers,omitempty" require:"true"`
+	RequireSymbols             *bool `json:"RequireSymbols,omitempty" xml:"RequireSymbols,omitempty" require:"true"`
+	HardExpiry                 *bool `json:"HardExpiry,omitempty" xml:"HardExpiry,omitempty" require:"true"`
+	MaxPasswordAge             *int  `json:"MaxPasswordAge,omitempty" xml:"MaxPasswordAge,omitempty" require:"true"`
+	PasswordReusePrevention    *int  `json:"PasswordReusePrevention,omitempty" xml:"PasswordReusePrevention,omitempty" require:"true"`
+	MaxLoginAttemps            *int  `json:"MaxLoginAttemps,omitempty" xml:"MaxLoginAttemps,omitempty" require:"true"`
 }
 
 func (s GetPasswordPolicyResponsePasswordPolicy) String() string {
@@ -2832,8 +2832,8 @@ func (s GetAccountAliasRequest) GoString() string {
 }
 
 type GetAccountAliasResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AccountAlias *string `json:"AccountAlias" xml:"AccountAlias" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AccountAlias *string `json:"AccountAlias,omitempty" xml:"AccountAlias,omitempty" require:"true"`
 }
 
 func (s GetAccountAliasResponse) String() string {
@@ -2866,7 +2866,7 @@ func (s ClearAccountAliasRequest) GoString() string {
 }
 
 type ClearAccountAliasResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ClearAccountAliasResponse) String() string {
@@ -2883,8 +2883,8 @@ func (s *ClearAccountAliasResponse) SetRequestId(v string) *ClearAccountAliasRes
 }
 
 type SetDefaultPolicyVersionRequest struct {
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	VersionId  *string `json:"VersionId" xml:"VersionId"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	VersionId  *string `json:"VersionId,omitempty" xml:"VersionId,omitempty"`
 }
 
 func (s SetDefaultPolicyVersionRequest) String() string {
@@ -2906,7 +2906,7 @@ func (s *SetDefaultPolicyVersionRequest) SetVersionId(v string) *SetDefaultPolic
 }
 
 type SetDefaultPolicyVersionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDefaultPolicyVersionResponse) String() string {
@@ -2923,8 +2923,8 @@ func (s *SetDefaultPolicyVersionResponse) SetRequestId(v string) *SetDefaultPoli
 }
 
 type ListPolicyVersionsRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
 }
 
 func (s ListPolicyVersionsRequest) String() string {
@@ -2946,8 +2946,8 @@ func (s *ListPolicyVersionsRequest) SetPolicyName(v string) *ListPolicyVersionsR
 }
 
 type ListPolicyVersionsResponse struct {
-	RequestId      *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	PolicyVersions *ListPolicyVersionsResponsePolicyVersions `json:"PolicyVersions" xml:"PolicyVersions" require:"true" type:"Struct"`
+	RequestId      *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PolicyVersions *ListPolicyVersionsResponsePolicyVersions `json:"PolicyVersions,omitempty" xml:"PolicyVersions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListPolicyVersionsResponse) String() string {
@@ -2969,7 +2969,7 @@ func (s *ListPolicyVersionsResponse) SetPolicyVersions(v *ListPolicyVersionsResp
 }
 
 type ListPolicyVersionsResponsePolicyVersions struct {
-	PolicyVersion []*ListPolicyVersionsResponsePolicyVersionsPolicyVersion `json:"PolicyVersion" xml:"PolicyVersion" require:"true" type:"Repeated"`
+	PolicyVersion []*ListPolicyVersionsResponsePolicyVersionsPolicyVersion `json:"PolicyVersion,omitempty" xml:"PolicyVersion,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListPolicyVersionsResponsePolicyVersions) String() string {
@@ -2986,10 +2986,10 @@ func (s *ListPolicyVersionsResponsePolicyVersions) SetPolicyVersion(v []*ListPol
 }
 
 type ListPolicyVersionsResponsePolicyVersionsPolicyVersion struct {
-	VersionId        *string `json:"VersionId" xml:"VersionId" require:"true"`
-	IsDefaultVersion *bool   `json:"IsDefaultVersion" xml:"IsDefaultVersion" require:"true"`
-	PolicyDocument   *string `json:"PolicyDocument" xml:"PolicyDocument" require:"true"`
-	CreateDate       *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	VersionId        *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	IsDefaultVersion *bool   `json:"IsDefaultVersion,omitempty" xml:"IsDefaultVersion,omitempty" require:"true"`
+	PolicyDocument   *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty" require:"true"`
+	CreateDate       *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s ListPolicyVersionsResponsePolicyVersionsPolicyVersion) String() string {
@@ -3021,9 +3021,9 @@ func (s *ListPolicyVersionsResponsePolicyVersionsPolicyVersion) SetCreateDate(v 
 }
 
 type GetPolicyVersionRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	VersionId  *string `json:"VersionId" xml:"VersionId"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	VersionId  *string `json:"VersionId,omitempty" xml:"VersionId,omitempty"`
 }
 
 func (s GetPolicyVersionRequest) String() string {
@@ -3050,8 +3050,8 @@ func (s *GetPolicyVersionRequest) SetVersionId(v string) *GetPolicyVersionReques
 }
 
 type GetPolicyVersionResponse struct {
-	RequestId     *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	PolicyVersion *GetPolicyVersionResponsePolicyVersion `json:"PolicyVersion" xml:"PolicyVersion" require:"true" type:"Struct"`
+	RequestId     *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PolicyVersion *GetPolicyVersionResponsePolicyVersion `json:"PolicyVersion,omitempty" xml:"PolicyVersion,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPolicyVersionResponse) String() string {
@@ -3073,10 +3073,10 @@ func (s *GetPolicyVersionResponse) SetPolicyVersion(v *GetPolicyVersionResponseP
 }
 
 type GetPolicyVersionResponsePolicyVersion struct {
-	VersionId        *string `json:"VersionId" xml:"VersionId" require:"true"`
-	IsDefaultVersion *bool   `json:"IsDefaultVersion" xml:"IsDefaultVersion" require:"true"`
-	PolicyDocument   *string `json:"PolicyDocument" xml:"PolicyDocument" require:"true"`
-	CreateDate       *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	VersionId        *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	IsDefaultVersion *bool   `json:"IsDefaultVersion,omitempty" xml:"IsDefaultVersion,omitempty" require:"true"`
+	PolicyDocument   *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty" require:"true"`
+	CreateDate       *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s GetPolicyVersionResponsePolicyVersion) String() string {
@@ -3108,8 +3108,8 @@ func (s *GetPolicyVersionResponsePolicyVersion) SetCreateDate(v string) *GetPoli
 }
 
 type DeletePolicyVersionRequest struct {
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	VersionId  *string `json:"VersionId" xml:"VersionId"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	VersionId  *string `json:"VersionId,omitempty" xml:"VersionId,omitempty"`
 }
 
 func (s DeletePolicyVersionRequest) String() string {
@@ -3131,7 +3131,7 @@ func (s *DeletePolicyVersionRequest) SetVersionId(v string) *DeletePolicyVersion
 }
 
 type DeletePolicyVersionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeletePolicyVersionResponse) String() string {
@@ -3148,10 +3148,10 @@ func (s *DeletePolicyVersionResponse) SetRequestId(v string) *DeletePolicyVersio
 }
 
 type CreatePolicyVersionRequest struct {
-	PolicyName     *string `json:"PolicyName" xml:"PolicyName"`
-	PolicyDocument *string `json:"PolicyDocument" xml:"PolicyDocument"`
-	SetAsDefault   *bool   `json:"SetAsDefault" xml:"SetAsDefault"`
-	RotateStrategy *string `json:"RotateStrategy" xml:"RotateStrategy"`
+	PolicyName     *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	PolicyDocument *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty"`
+	SetAsDefault   *bool   `json:"SetAsDefault,omitempty" xml:"SetAsDefault,omitempty"`
+	RotateStrategy *string `json:"RotateStrategy,omitempty" xml:"RotateStrategy,omitempty"`
 }
 
 func (s CreatePolicyVersionRequest) String() string {
@@ -3183,8 +3183,8 @@ func (s *CreatePolicyVersionRequest) SetRotateStrategy(v string) *CreatePolicyVe
 }
 
 type CreatePolicyVersionResponse struct {
-	RequestId     *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	PolicyVersion *CreatePolicyVersionResponsePolicyVersion `json:"PolicyVersion" xml:"PolicyVersion" require:"true" type:"Struct"`
+	RequestId     *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PolicyVersion *CreatePolicyVersionResponsePolicyVersion `json:"PolicyVersion,omitempty" xml:"PolicyVersion,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreatePolicyVersionResponse) String() string {
@@ -3206,10 +3206,10 @@ func (s *CreatePolicyVersionResponse) SetPolicyVersion(v *CreatePolicyVersionRes
 }
 
 type CreatePolicyVersionResponsePolicyVersion struct {
-	VersionId        *string `json:"VersionId" xml:"VersionId" require:"true"`
-	IsDefaultVersion *bool   `json:"IsDefaultVersion" xml:"IsDefaultVersion" require:"true"`
-	PolicyDocument   *string `json:"PolicyDocument" xml:"PolicyDocument" require:"true"`
-	CreateDate       *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	VersionId        *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	IsDefaultVersion *bool   `json:"IsDefaultVersion,omitempty" xml:"IsDefaultVersion,omitempty" require:"true"`
+	PolicyDocument   *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty" require:"true"`
+	CreateDate       *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s CreatePolicyVersionResponsePolicyVersion) String() string {
@@ -3241,7 +3241,7 @@ func (s *CreatePolicyVersionResponsePolicyVersion) SetCreateDate(v string) *Crea
 }
 
 type ListPoliciesForUserRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s ListPoliciesForUserRequest) String() string {
@@ -3258,8 +3258,8 @@ func (s *ListPoliciesForUserRequest) SetUserName(v string) *ListPoliciesForUserR
 }
 
 type ListPoliciesForUserResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Policies  *ListPoliciesForUserResponsePolicies `json:"Policies" xml:"Policies" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Policies  *ListPoliciesForUserResponsePolicies `json:"Policies,omitempty" xml:"Policies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListPoliciesForUserResponse) String() string {
@@ -3281,7 +3281,7 @@ func (s *ListPoliciesForUserResponse) SetPolicies(v *ListPoliciesForUserResponse
 }
 
 type ListPoliciesForUserResponsePolicies struct {
-	Policy []*ListPoliciesForUserResponsePoliciesPolicy `json:"Policy" xml:"Policy" require:"true" type:"Repeated"`
+	Policy []*ListPoliciesForUserResponsePoliciesPolicy `json:"Policy,omitempty" xml:"Policy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListPoliciesForUserResponsePolicies) String() string {
@@ -3298,11 +3298,11 @@ func (s *ListPoliciesForUserResponsePolicies) SetPolicy(v []*ListPoliciesForUser
 }
 
 type ListPoliciesForUserResponsePoliciesPolicy struct {
-	PolicyName     *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType     *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	DefaultVersion *string `json:"DefaultVersion" xml:"DefaultVersion" require:"true"`
-	AttachDate     *string `json:"AttachDate" xml:"AttachDate" require:"true"`
+	PolicyName     *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType     *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DefaultVersion *string `json:"DefaultVersion,omitempty" xml:"DefaultVersion,omitempty" require:"true"`
+	AttachDate     *string `json:"AttachDate,omitempty" xml:"AttachDate,omitempty" require:"true"`
 }
 
 func (s ListPoliciesForUserResponsePoliciesPolicy) String() string {
@@ -3339,7 +3339,7 @@ func (s *ListPoliciesForUserResponsePoliciesPolicy) SetAttachDate(v string) *Lis
 }
 
 type ListPoliciesForGroupRequest struct {
-	GroupName *string `json:"GroupName" xml:"GroupName"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s ListPoliciesForGroupRequest) String() string {
@@ -3356,8 +3356,8 @@ func (s *ListPoliciesForGroupRequest) SetGroupName(v string) *ListPoliciesForGro
 }
 
 type ListPoliciesForGroupResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Policies  *ListPoliciesForGroupResponsePolicies `json:"Policies" xml:"Policies" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Policies  *ListPoliciesForGroupResponsePolicies `json:"Policies,omitempty" xml:"Policies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListPoliciesForGroupResponse) String() string {
@@ -3379,7 +3379,7 @@ func (s *ListPoliciesForGroupResponse) SetPolicies(v *ListPoliciesForGroupRespon
 }
 
 type ListPoliciesForGroupResponsePolicies struct {
-	Policy []*ListPoliciesForGroupResponsePoliciesPolicy `json:"Policy" xml:"Policy" require:"true" type:"Repeated"`
+	Policy []*ListPoliciesForGroupResponsePoliciesPolicy `json:"Policy,omitempty" xml:"Policy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListPoliciesForGroupResponsePolicies) String() string {
@@ -3396,11 +3396,11 @@ func (s *ListPoliciesForGroupResponsePolicies) SetPolicy(v []*ListPoliciesForGro
 }
 
 type ListPoliciesForGroupResponsePoliciesPolicy struct {
-	PolicyName     *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType     *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	DefaultVersion *string `json:"DefaultVersion" xml:"DefaultVersion" require:"true"`
-	AttachDate     *string `json:"AttachDate" xml:"AttachDate" require:"true"`
+	PolicyName     *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType     *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DefaultVersion *string `json:"DefaultVersion,omitempty" xml:"DefaultVersion,omitempty" require:"true"`
+	AttachDate     *string `json:"AttachDate,omitempty" xml:"AttachDate,omitempty" require:"true"`
 }
 
 func (s ListPoliciesForGroupResponsePoliciesPolicy) String() string {
@@ -3437,8 +3437,8 @@ func (s *ListPoliciesForGroupResponsePoliciesPolicy) SetAttachDate(v string) *Li
 }
 
 type ListEntitiesForPolicyRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
 }
 
 func (s ListEntitiesForPolicyRequest) String() string {
@@ -3460,10 +3460,10 @@ func (s *ListEntitiesForPolicyRequest) SetPolicyName(v string) *ListEntitiesForP
 }
 
 type ListEntitiesForPolicyResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Groups    *ListEntitiesForPolicyResponseGroups `json:"Groups" xml:"Groups" require:"true" type:"Struct"`
-	Users     *ListEntitiesForPolicyResponseUsers  `json:"Users" xml:"Users" require:"true" type:"Struct"`
-	Roles     *ListEntitiesForPolicyResponseRoles  `json:"Roles" xml:"Roles" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Groups    *ListEntitiesForPolicyResponseGroups `json:"Groups,omitempty" xml:"Groups,omitempty" require:"true" type:"Struct"`
+	Users     *ListEntitiesForPolicyResponseUsers  `json:"Users,omitempty" xml:"Users,omitempty" require:"true" type:"Struct"`
+	Roles     *ListEntitiesForPolicyResponseRoles  `json:"Roles,omitempty" xml:"Roles,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListEntitiesForPolicyResponse) String() string {
@@ -3495,7 +3495,7 @@ func (s *ListEntitiesForPolicyResponse) SetRoles(v *ListEntitiesForPolicyRespons
 }
 
 type ListEntitiesForPolicyResponseGroups struct {
-	Group []*ListEntitiesForPolicyResponseGroupsGroup `json:"Group" xml:"Group" require:"true" type:"Repeated"`
+	Group []*ListEntitiesForPolicyResponseGroupsGroup `json:"Group,omitempty" xml:"Group,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListEntitiesForPolicyResponseGroups) String() string {
@@ -3512,9 +3512,9 @@ func (s *ListEntitiesForPolicyResponseGroups) SetGroup(v []*ListEntitiesForPolic
 }
 
 type ListEntitiesForPolicyResponseGroupsGroup struct {
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Comments   *string `json:"Comments" xml:"Comments" require:"true"`
-	AttachDate *string `json:"AttachDate" xml:"AttachDate" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Comments   *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	AttachDate *string `json:"AttachDate,omitempty" xml:"AttachDate,omitempty" require:"true"`
 }
 
 func (s ListEntitiesForPolicyResponseGroupsGroup) String() string {
@@ -3541,7 +3541,7 @@ func (s *ListEntitiesForPolicyResponseGroupsGroup) SetAttachDate(v string) *List
 }
 
 type ListEntitiesForPolicyResponseUsers struct {
-	User []*ListEntitiesForPolicyResponseUsersUser `json:"User" xml:"User" require:"true" type:"Repeated"`
+	User []*ListEntitiesForPolicyResponseUsersUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListEntitiesForPolicyResponseUsers) String() string {
@@ -3558,10 +3558,10 @@ func (s *ListEntitiesForPolicyResponseUsers) SetUser(v []*ListEntitiesForPolicyR
 }
 
 type ListEntitiesForPolicyResponseUsersUser struct {
-	UserId      *string `json:"UserId" xml:"UserId" require:"true"`
-	UserName    *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName" require:"true"`
-	AttachDate  *string `json:"AttachDate" xml:"AttachDate" require:"true"`
+	UserId      *string `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
+	AttachDate  *string `json:"AttachDate,omitempty" xml:"AttachDate,omitempty" require:"true"`
 }
 
 func (s ListEntitiesForPolicyResponseUsersUser) String() string {
@@ -3593,7 +3593,7 @@ func (s *ListEntitiesForPolicyResponseUsersUser) SetAttachDate(v string) *ListEn
 }
 
 type ListEntitiesForPolicyResponseRoles struct {
-	Role []*ListEntitiesForPolicyResponseRolesRole `json:"Role" xml:"Role" require:"true" type:"Repeated"`
+	Role []*ListEntitiesForPolicyResponseRolesRole `json:"Role,omitempty" xml:"Role,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListEntitiesForPolicyResponseRoles) String() string {
@@ -3610,11 +3610,11 @@ func (s *ListEntitiesForPolicyResponseRoles) SetRole(v []*ListEntitiesForPolicyR
 }
 
 type ListEntitiesForPolicyResponseRolesRole struct {
-	RoleId      *string `json:"RoleId" xml:"RoleId" require:"true"`
-	RoleName    *string `json:"RoleName" xml:"RoleName" require:"true"`
-	Arn         *string `json:"Arn" xml:"Arn" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
-	AttachDate  *string `json:"AttachDate" xml:"AttachDate" require:"true"`
+	RoleId      *string `json:"RoleId,omitempty" xml:"RoleId,omitempty" require:"true"`
+	RoleName    *string `json:"RoleName,omitempty" xml:"RoleName,omitempty" require:"true"`
+	Arn         *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	AttachDate  *string `json:"AttachDate,omitempty" xml:"AttachDate,omitempty" require:"true"`
 }
 
 func (s ListEntitiesForPolicyResponseRolesRole) String() string {
@@ -3651,9 +3651,9 @@ func (s *ListEntitiesForPolicyResponseRolesRole) SetAttachDate(v string) *ListEn
 }
 
 type DetachPolicyFromUserRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	UserName   *string `json:"UserName" xml:"UserName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	UserName   *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s DetachPolicyFromUserRequest) String() string {
@@ -3680,7 +3680,7 @@ func (s *DetachPolicyFromUserRequest) SetUserName(v string) *DetachPolicyFromUse
 }
 
 type DetachPolicyFromUserResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DetachPolicyFromUserResponse) String() string {
@@ -3697,9 +3697,9 @@ func (s *DetachPolicyFromUserResponse) SetRequestId(v string) *DetachPolicyFromU
 }
 
 type DetachPolicyFromGroupRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	GroupName  *string `json:"GroupName" xml:"GroupName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s DetachPolicyFromGroupRequest) String() string {
@@ -3726,7 +3726,7 @@ func (s *DetachPolicyFromGroupRequest) SetGroupName(v string) *DetachPolicyFromG
 }
 
 type DetachPolicyFromGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DetachPolicyFromGroupResponse) String() string {
@@ -3743,9 +3743,9 @@ func (s *DetachPolicyFromGroupResponse) SetRequestId(v string) *DetachPolicyFrom
 }
 
 type AttachPolicyToUserRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	UserName   *string `json:"UserName" xml:"UserName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	UserName   *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s AttachPolicyToUserRequest) String() string {
@@ -3772,7 +3772,7 @@ func (s *AttachPolicyToUserRequest) SetUserName(v string) *AttachPolicyToUserReq
 }
 
 type AttachPolicyToUserResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AttachPolicyToUserResponse) String() string {
@@ -3789,9 +3789,9 @@ func (s *AttachPolicyToUserResponse) SetRequestId(v string) *AttachPolicyToUserR
 }
 
 type AttachPolicyToGroupRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
-	GroupName  *string `json:"GroupName" xml:"GroupName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s AttachPolicyToGroupRequest) String() string {
@@ -3818,7 +3818,7 @@ func (s *AttachPolicyToGroupRequest) SetGroupName(v string) *AttachPolicyToGroup
 }
 
 type AttachPolicyToGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AttachPolicyToGroupResponse) String() string {
@@ -3835,9 +3835,9 @@ func (s *AttachPolicyToGroupResponse) SetRequestId(v string) *AttachPolicyToGrou
 }
 
 type ListPoliciesRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	Marker     *string `json:"Marker" xml:"Marker"`
-	MaxItems   *int    `json:"MaxItems" xml:"MaxItems"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	Marker     *string `json:"Marker,omitempty" xml:"Marker,omitempty"`
+	MaxItems   *int    `json:"MaxItems,omitempty" xml:"MaxItems,omitempty"`
 }
 
 func (s ListPoliciesRequest) String() string {
@@ -3864,10 +3864,10 @@ func (s *ListPoliciesRequest) SetMaxItems(v int) *ListPoliciesRequest {
 }
 
 type ListPoliciesResponse struct {
-	RequestId   *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	IsTruncated *bool                         `json:"IsTruncated" xml:"IsTruncated" require:"true"`
-	Marker      *string                       `json:"Marker" xml:"Marker" require:"true"`
-	Policies    *ListPoliciesResponsePolicies `json:"Policies" xml:"Policies" require:"true" type:"Struct"`
+	RequestId   *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IsTruncated *bool                         `json:"IsTruncated,omitempty" xml:"IsTruncated,omitempty" require:"true"`
+	Marker      *string                       `json:"Marker,omitempty" xml:"Marker,omitempty" require:"true"`
+	Policies    *ListPoliciesResponsePolicies `json:"Policies,omitempty" xml:"Policies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListPoliciesResponse) String() string {
@@ -3899,7 +3899,7 @@ func (s *ListPoliciesResponse) SetPolicies(v *ListPoliciesResponsePolicies) *Lis
 }
 
 type ListPoliciesResponsePolicies struct {
-	Policy []*ListPoliciesResponsePoliciesPolicy `json:"Policy" xml:"Policy" require:"true" type:"Repeated"`
+	Policy []*ListPoliciesResponsePoliciesPolicy `json:"Policy,omitempty" xml:"Policy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListPoliciesResponsePolicies) String() string {
@@ -3916,13 +3916,13 @@ func (s *ListPoliciesResponsePolicies) SetPolicy(v []*ListPoliciesResponsePolici
 }
 
 type ListPoliciesResponsePoliciesPolicy struct {
-	PolicyName      *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType      *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	Description     *string `json:"Description" xml:"Description" require:"true"`
-	DefaultVersion  *string `json:"DefaultVersion" xml:"DefaultVersion" require:"true"`
-	CreateDate      *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate      *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
-	AttachmentCount *int    `json:"AttachmentCount" xml:"AttachmentCount" require:"true"`
+	PolicyName      *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType      *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DefaultVersion  *string `json:"DefaultVersion,omitempty" xml:"DefaultVersion,omitempty" require:"true"`
+	CreateDate      *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate      *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
+	AttachmentCount *int    `json:"AttachmentCount,omitempty" xml:"AttachmentCount,omitempty" require:"true"`
 }
 
 func (s ListPoliciesResponsePoliciesPolicy) String() string {
@@ -3969,8 +3969,8 @@ func (s *ListPoliciesResponsePoliciesPolicy) SetAttachmentCount(v int) *ListPoli
 }
 
 type GetPolicyRequest struct {
-	PolicyType *string `json:"PolicyType" xml:"PolicyType"`
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
+	PolicyType *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
 }
 
 func (s GetPolicyRequest) String() string {
@@ -3992,9 +3992,9 @@ func (s *GetPolicyRequest) SetPolicyName(v string) *GetPolicyRequest {
 }
 
 type GetPolicyResponse struct {
-	RequestId            *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	Policy               *GetPolicyResponsePolicy               `json:"Policy" xml:"Policy" require:"true" type:"Struct"`
-	DefaultPolicyVersion *GetPolicyResponseDefaultPolicyVersion `json:"DefaultPolicyVersion" xml:"DefaultPolicyVersion" require:"true" type:"Struct"`
+	RequestId            *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Policy               *GetPolicyResponsePolicy               `json:"Policy,omitempty" xml:"Policy,omitempty" require:"true" type:"Struct"`
+	DefaultPolicyVersion *GetPolicyResponseDefaultPolicyVersion `json:"DefaultPolicyVersion,omitempty" xml:"DefaultPolicyVersion,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPolicyResponse) String() string {
@@ -4021,14 +4021,14 @@ func (s *GetPolicyResponse) SetDefaultPolicyVersion(v *GetPolicyResponseDefaultP
 }
 
 type GetPolicyResponsePolicy struct {
-	PolicyName      *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType      *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	Description     *string `json:"Description" xml:"Description" require:"true"`
-	DefaultVersion  *string `json:"DefaultVersion" xml:"DefaultVersion" require:"true"`
-	PolicyDocument  *string `json:"PolicyDocument" xml:"PolicyDocument" require:"true"`
-	CreateDate      *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate      *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
-	AttachmentCount *int    `json:"AttachmentCount" xml:"AttachmentCount" require:"true"`
+	PolicyName      *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType      *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DefaultVersion  *string `json:"DefaultVersion,omitempty" xml:"DefaultVersion,omitempty" require:"true"`
+	PolicyDocument  *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty" require:"true"`
+	CreateDate      *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate      *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
+	AttachmentCount *int    `json:"AttachmentCount,omitempty" xml:"AttachmentCount,omitempty" require:"true"`
 }
 
 func (s GetPolicyResponsePolicy) String() string {
@@ -4080,10 +4080,10 @@ func (s *GetPolicyResponsePolicy) SetAttachmentCount(v int) *GetPolicyResponsePo
 }
 
 type GetPolicyResponseDefaultPolicyVersion struct {
-	VersionId        *string `json:"VersionId" xml:"VersionId" require:"true"`
-	IsDefaultVersion *bool   `json:"IsDefaultVersion" xml:"IsDefaultVersion" require:"true"`
-	PolicyDocument   *string `json:"PolicyDocument" xml:"PolicyDocument" require:"true"`
-	CreateDate       *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	VersionId        *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	IsDefaultVersion *bool   `json:"IsDefaultVersion,omitempty" xml:"IsDefaultVersion,omitempty" require:"true"`
+	PolicyDocument   *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty" require:"true"`
+	CreateDate       *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s GetPolicyResponseDefaultPolicyVersion) String() string {
@@ -4115,7 +4115,7 @@ func (s *GetPolicyResponseDefaultPolicyVersion) SetCreateDate(v string) *GetPoli
 }
 
 type DeletePolicyRequest struct {
-	PolicyName *string `json:"PolicyName" xml:"PolicyName"`
+	PolicyName *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
 }
 
 func (s DeletePolicyRequest) String() string {
@@ -4132,7 +4132,7 @@ func (s *DeletePolicyRequest) SetPolicyName(v string) *DeletePolicyRequest {
 }
 
 type DeletePolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeletePolicyResponse) String() string {
@@ -4149,9 +4149,9 @@ func (s *DeletePolicyResponse) SetRequestId(v string) *DeletePolicyResponse {
 }
 
 type CreatePolicyRequest struct {
-	PolicyName     *string `json:"PolicyName" xml:"PolicyName"`
-	Description    *string `json:"Description" xml:"Description"`
-	PolicyDocument *string `json:"PolicyDocument" xml:"PolicyDocument"`
+	PolicyName     *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	PolicyDocument *string `json:"PolicyDocument,omitempty" xml:"PolicyDocument,omitempty"`
 }
 
 func (s CreatePolicyRequest) String() string {
@@ -4178,8 +4178,8 @@ func (s *CreatePolicyRequest) SetPolicyDocument(v string) *CreatePolicyRequest {
 }
 
 type CreatePolicyResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Policy    *CreatePolicyResponsePolicy `json:"Policy" xml:"Policy" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Policy    *CreatePolicyResponsePolicy `json:"Policy,omitempty" xml:"Policy,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreatePolicyResponse) String() string {
@@ -4201,11 +4201,11 @@ func (s *CreatePolicyResponse) SetPolicy(v *CreatePolicyResponsePolicy) *CreateP
 }
 
 type CreatePolicyResponsePolicy struct {
-	PolicyName     *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType     *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	Description    *string `json:"Description" xml:"Description" require:"true"`
-	DefaultVersion *string `json:"DefaultVersion" xml:"DefaultVersion" require:"true"`
-	CreateDate     *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	PolicyName     *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType     *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	Description    *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DefaultVersion *string `json:"DefaultVersion,omitempty" xml:"DefaultVersion,omitempty" require:"true"`
+	CreateDate     *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s CreatePolicyResponsePolicy) String() string {
@@ -4242,8 +4242,8 @@ func (s *CreatePolicyResponsePolicy) SetCreateDate(v string) *CreatePolicyRespon
 }
 
 type RemoveUserFromGroupRequest struct {
-	UserName  *string `json:"UserName" xml:"UserName"`
-	GroupName *string `json:"GroupName" xml:"GroupName"`
+	UserName  *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s RemoveUserFromGroupRequest) String() string {
@@ -4265,7 +4265,7 @@ func (s *RemoveUserFromGroupRequest) SetGroupName(v string) *RemoveUserFromGroup
 }
 
 type RemoveUserFromGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RemoveUserFromGroupResponse) String() string {
@@ -4282,9 +4282,9 @@ func (s *RemoveUserFromGroupResponse) SetRequestId(v string) *RemoveUserFromGrou
 }
 
 type ListUsersForGroupRequest struct {
-	GroupName *string `json:"GroupName" xml:"GroupName"`
-	Marker    *string `json:"Marker" xml:"Marker"`
-	MaxItems  *int    `json:"MaxItems" xml:"MaxItems"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
+	Marker    *string `json:"Marker,omitempty" xml:"Marker,omitempty"`
+	MaxItems  *int    `json:"MaxItems,omitempty" xml:"MaxItems,omitempty"`
 }
 
 func (s ListUsersForGroupRequest) String() string {
@@ -4311,10 +4311,10 @@ func (s *ListUsersForGroupRequest) SetMaxItems(v int) *ListUsersForGroupRequest 
 }
 
 type ListUsersForGroupResponse struct {
-	RequestId   *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	IsTruncated *bool                           `json:"IsTruncated" xml:"IsTruncated" require:"true"`
-	Marker      *string                         `json:"Marker" xml:"Marker" require:"true"`
-	Users       *ListUsersForGroupResponseUsers `json:"Users" xml:"Users" require:"true" type:"Struct"`
+	RequestId   *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IsTruncated *bool                           `json:"IsTruncated,omitempty" xml:"IsTruncated,omitempty" require:"true"`
+	Marker      *string                         `json:"Marker,omitempty" xml:"Marker,omitempty" require:"true"`
+	Users       *ListUsersForGroupResponseUsers `json:"Users,omitempty" xml:"Users,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListUsersForGroupResponse) String() string {
@@ -4346,7 +4346,7 @@ func (s *ListUsersForGroupResponse) SetUsers(v *ListUsersForGroupResponseUsers) 
 }
 
 type ListUsersForGroupResponseUsers struct {
-	User []*ListUsersForGroupResponseUsersUser `json:"User" xml:"User" require:"true" type:"Repeated"`
+	User []*ListUsersForGroupResponseUsersUser `json:"User,omitempty" xml:"User,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListUsersForGroupResponseUsers) String() string {
@@ -4363,9 +4363,9 @@ func (s *ListUsersForGroupResponseUsers) SetUser(v []*ListUsersForGroupResponseU
 }
 
 type ListUsersForGroupResponseUsersUser struct {
-	UserName    *string `json:"UserName" xml:"UserName" require:"true"`
-	DisplayName *string `json:"DisplayName" xml:"DisplayName" require:"true"`
-	JoinDate    *string `json:"JoinDate" xml:"JoinDate" require:"true"`
+	UserName    *string `json:"UserName,omitempty" xml:"UserName,omitempty" require:"true"`
+	DisplayName *string `json:"DisplayName,omitempty" xml:"DisplayName,omitempty" require:"true"`
+	JoinDate    *string `json:"JoinDate,omitempty" xml:"JoinDate,omitempty" require:"true"`
 }
 
 func (s ListUsersForGroupResponseUsersUser) String() string {
@@ -4392,7 +4392,7 @@ func (s *ListUsersForGroupResponseUsersUser) SetJoinDate(v string) *ListUsersFor
 }
 
 type ListGroupsForUserRequest struct {
-	UserName *string `json:"UserName" xml:"UserName"`
+	UserName *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
 }
 
 func (s ListGroupsForUserRequest) String() string {
@@ -4409,8 +4409,8 @@ func (s *ListGroupsForUserRequest) SetUserName(v string) *ListGroupsForUserReque
 }
 
 type ListGroupsForUserResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Groups    *ListGroupsForUserResponseGroups `json:"Groups" xml:"Groups" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Groups    *ListGroupsForUserResponseGroups `json:"Groups,omitempty" xml:"Groups,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListGroupsForUserResponse) String() string {
@@ -4432,7 +4432,7 @@ func (s *ListGroupsForUserResponse) SetGroups(v *ListGroupsForUserResponseGroups
 }
 
 type ListGroupsForUserResponseGroups struct {
-	Group []*ListGroupsForUserResponseGroupsGroup `json:"Group" xml:"Group" require:"true" type:"Repeated"`
+	Group []*ListGroupsForUserResponseGroupsGroup `json:"Group,omitempty" xml:"Group,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListGroupsForUserResponseGroups) String() string {
@@ -4449,9 +4449,9 @@ func (s *ListGroupsForUserResponseGroups) SetGroup(v []*ListGroupsForUserRespons
 }
 
 type ListGroupsForUserResponseGroupsGroup struct {
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Comments  *string `json:"Comments" xml:"Comments" require:"true"`
-	JoinDate  *string `json:"JoinDate" xml:"JoinDate" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Comments  *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	JoinDate  *string `json:"JoinDate,omitempty" xml:"JoinDate,omitempty" require:"true"`
 }
 
 func (s ListGroupsForUserResponseGroupsGroup) String() string {
@@ -4478,8 +4478,8 @@ func (s *ListGroupsForUserResponseGroupsGroup) SetJoinDate(v string) *ListGroups
 }
 
 type AddUserToGroupRequest struct {
-	UserName  *string `json:"UserName" xml:"UserName"`
-	GroupName *string `json:"GroupName" xml:"GroupName"`
+	UserName  *string `json:"UserName,omitempty" xml:"UserName,omitempty"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s AddUserToGroupRequest) String() string {
@@ -4501,7 +4501,7 @@ func (s *AddUserToGroupRequest) SetGroupName(v string) *AddUserToGroupRequest {
 }
 
 type AddUserToGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AddUserToGroupResponse) String() string {
@@ -4518,9 +4518,9 @@ func (s *AddUserToGroupResponse) SetRequestId(v string) *AddUserToGroupResponse 
 }
 
 type UpdateGroupRequest struct {
-	GroupName    *string `json:"GroupName" xml:"GroupName"`
-	NewGroupName *string `json:"NewGroupName" xml:"NewGroupName"`
-	NewComments  *string `json:"NewComments" xml:"NewComments"`
+	GroupName    *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
+	NewGroupName *string `json:"NewGroupName,omitempty" xml:"NewGroupName,omitempty"`
+	NewComments  *string `json:"NewComments,omitempty" xml:"NewComments,omitempty"`
 }
 
 func (s UpdateGroupRequest) String() string {
@@ -4547,8 +4547,8 @@ func (s *UpdateGroupRequest) SetNewComments(v string) *UpdateGroupRequest {
 }
 
 type UpdateGroupResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Group     *UpdateGroupResponseGroup `json:"Group" xml:"Group" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Group     *UpdateGroupResponseGroup `json:"Group,omitempty" xml:"Group,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateGroupResponse) String() string {
@@ -4570,10 +4570,10 @@ func (s *UpdateGroupResponse) SetGroup(v *UpdateGroupResponseGroup) *UpdateGroup
 }
 
 type UpdateGroupResponseGroup struct {
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Comments   *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Comments   *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
 }
 
 func (s UpdateGroupResponseGroup) String() string {
@@ -4605,8 +4605,8 @@ func (s *UpdateGroupResponseGroup) SetUpdateDate(v string) *UpdateGroupResponseG
 }
 
 type ListGroupsRequest struct {
-	Marker   *string `json:"Marker" xml:"Marker"`
-	MaxItems *int    `json:"MaxItems" xml:"MaxItems"`
+	Marker   *string `json:"Marker,omitempty" xml:"Marker,omitempty"`
+	MaxItems *int    `json:"MaxItems,omitempty" xml:"MaxItems,omitempty"`
 }
 
 func (s ListGroupsRequest) String() string {
@@ -4628,10 +4628,10 @@ func (s *ListGroupsRequest) SetMaxItems(v int) *ListGroupsRequest {
 }
 
 type ListGroupsResponse struct {
-	RequestId   *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	IsTruncated *bool                     `json:"IsTruncated" xml:"IsTruncated" require:"true"`
-	Marker      *string                   `json:"Marker" xml:"Marker" require:"true"`
-	Groups      *ListGroupsResponseGroups `json:"Groups" xml:"Groups" require:"true" type:"Struct"`
+	RequestId   *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IsTruncated *bool                     `json:"IsTruncated,omitempty" xml:"IsTruncated,omitempty" require:"true"`
+	Marker      *string                   `json:"Marker,omitempty" xml:"Marker,omitempty" require:"true"`
+	Groups      *ListGroupsResponseGroups `json:"Groups,omitempty" xml:"Groups,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListGroupsResponse) String() string {
@@ -4663,7 +4663,7 @@ func (s *ListGroupsResponse) SetGroups(v *ListGroupsResponseGroups) *ListGroupsR
 }
 
 type ListGroupsResponseGroups struct {
-	Group []*ListGroupsResponseGroupsGroup `json:"Group" xml:"Group" require:"true" type:"Repeated"`
+	Group []*ListGroupsResponseGroupsGroup `json:"Group,omitempty" xml:"Group,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListGroupsResponseGroups) String() string {
@@ -4680,10 +4680,10 @@ func (s *ListGroupsResponseGroups) SetGroup(v []*ListGroupsResponseGroupsGroup) 
 }
 
 type ListGroupsResponseGroupsGroup struct {
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Comments   *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Comments   *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
 }
 
 func (s ListGroupsResponseGroupsGroup) String() string {
@@ -4715,7 +4715,7 @@ func (s *ListGroupsResponseGroupsGroup) SetUpdateDate(v string) *ListGroupsRespo
 }
 
 type GetGroupRequest struct {
-	GroupName *string `json:"GroupName" xml:"GroupName"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s GetGroupRequest) String() string {
@@ -4732,8 +4732,8 @@ func (s *GetGroupRequest) SetGroupName(v string) *GetGroupRequest {
 }
 
 type GetGroupResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Group     *GetGroupResponseGroup `json:"Group" xml:"Group" require:"true" type:"Struct"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Group     *GetGroupResponseGroup `json:"Group,omitempty" xml:"Group,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetGroupResponse) String() string {
@@ -4755,10 +4755,10 @@ func (s *GetGroupResponse) SetGroup(v *GetGroupResponseGroup) *GetGroupResponse 
 }
 
 type GetGroupResponseGroup struct {
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Comments   *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate *string `json:"CreateDate" xml:"CreateDate" require:"true"`
-	UpdateDate *string `json:"UpdateDate" xml:"UpdateDate" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Comments   *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
+	UpdateDate *string `json:"UpdateDate,omitempty" xml:"UpdateDate,omitempty" require:"true"`
 }
 
 func (s GetGroupResponseGroup) String() string {
@@ -4790,7 +4790,7 @@ func (s *GetGroupResponseGroup) SetUpdateDate(v string) *GetGroupResponseGroup {
 }
 
 type DeleteGroupRequest struct {
-	GroupName *string `json:"GroupName" xml:"GroupName"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
 }
 
 func (s DeleteGroupRequest) String() string {
@@ -4807,7 +4807,7 @@ func (s *DeleteGroupRequest) SetGroupName(v string) *DeleteGroupRequest {
 }
 
 type DeleteGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteGroupResponse) String() string {
@@ -4824,8 +4824,8 @@ func (s *DeleteGroupResponse) SetRequestId(v string) *DeleteGroupResponse {
 }
 
 type CreateGroupRequest struct {
-	GroupName *string `json:"GroupName" xml:"GroupName"`
-	Comments  *string `json:"Comments" xml:"Comments"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty"`
+	Comments  *string `json:"Comments,omitempty" xml:"Comments,omitempty"`
 }
 
 func (s CreateGroupRequest) String() string {
@@ -4847,8 +4847,8 @@ func (s *CreateGroupRequest) SetComments(v string) *CreateGroupRequest {
 }
 
 type CreateGroupResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Group     *CreateGroupResponseGroup `json:"Group" xml:"Group" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Group     *CreateGroupResponseGroup `json:"Group,omitempty" xml:"Group,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateGroupResponse) String() string {
@@ -4870,9 +4870,9 @@ func (s *CreateGroupResponse) SetGroup(v *CreateGroupResponseGroup) *CreateGroup
 }
 
 type CreateGroupResponseGroup struct {
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Comments   *string `json:"Comments" xml:"Comments" require:"true"`
-	CreateDate *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Comments   *string `json:"Comments,omitempty" xml:"Comments,omitempty" require:"true"`
+	CreateDate *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s CreateGroupResponseGroup) String() string {
