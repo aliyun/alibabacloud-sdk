@@ -9,7 +9,7 @@ import (
 )
 
 type CreateChangeSetRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s CreateChangeSetRequest) String() string {
@@ -26,7 +26,7 @@ func (s *CreateChangeSetRequest) SetHeaders(v map[string]*string) *CreateChangeS
 }
 
 type CreateChangeSetResponseBody struct {
-	Dummy *string `json:"Dummy" xml:"Dummy" require:"true"`
+	Dummy *string `json:"Dummy,omitempty" xml:"Dummy,omitempty" require:"true"`
 }
 
 func (s CreateChangeSetResponseBody) String() string {
@@ -43,8 +43,8 @@ func (s *CreateChangeSetResponseBody) SetDummy(v string) *CreateChangeSetRespons
 }
 
 type CreateChangeSetResponse struct {
-	Headers map[string]*string           `json:"headers" xml:"headers" require:"true"`
-	Body    *CreateChangeSetResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string           `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *CreateChangeSetResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s CreateChangeSetResponse) String() string {
@@ -66,7 +66,7 @@ func (s *CreateChangeSetResponse) SetBody(v *CreateChangeSetResponseBody) *Creat
 }
 
 type DescribeChangeSetDetailRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeChangeSetDetailRequest) String() string {
@@ -83,7 +83,7 @@ func (s *DescribeChangeSetDetailRequest) SetHeaders(v map[string]*string) *Descr
 }
 
 type DescribeChangeSetDetailResponseBody struct {
-	Dummy *string `json:"Dummy" xml:"Dummy" require:"true"`
+	Dummy *string `json:"Dummy,omitempty" xml:"Dummy,omitempty" require:"true"`
 }
 
 func (s DescribeChangeSetDetailResponseBody) String() string {
@@ -100,8 +100,8 @@ func (s *DescribeChangeSetDetailResponseBody) SetDummy(v string) *DescribeChange
 }
 
 type DescribeChangeSetDetailResponse struct {
-	Headers map[string]*string                   `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeChangeSetDetailResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string                   `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeChangeSetDetailResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeChangeSetDetailResponse) String() string {
@@ -123,7 +123,7 @@ func (s *DescribeChangeSetDetailResponse) SetBody(v *DescribeChangeSetDetailResp
 }
 
 type DescribeChangeSetsRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeChangeSetsRequest) String() string {
@@ -140,7 +140,7 @@ func (s *DescribeChangeSetsRequest) SetHeaders(v map[string]*string) *DescribeCh
 }
 
 type DescribeChangeSetsResponseBody struct {
-	Dummy *string `json:"Dummy" xml:"Dummy" require:"true"`
+	Dummy *string `json:"Dummy,omitempty" xml:"Dummy,omitempty" require:"true"`
 }
 
 func (s DescribeChangeSetsResponseBody) String() string {
@@ -157,8 +157,8 @@ func (s *DescribeChangeSetsResponseBody) SetDummy(v string) *DescribeChangeSetsR
 }
 
 type DescribeChangeSetsResponse struct {
-	Headers map[string]*string              `json:"headers" xml:"headers" require:"true"`
-	Body    *DescribeChangeSetsResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string              `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DescribeChangeSetsResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DescribeChangeSetsResponse) String() string {
@@ -180,7 +180,7 @@ func (s *DescribeChangeSetsResponse) SetBody(v *DescribeChangeSetsResponseBody) 
 }
 
 type ExecuteChangeSetRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s ExecuteChangeSetRequest) String() string {
@@ -197,7 +197,7 @@ func (s *ExecuteChangeSetRequest) SetHeaders(v map[string]*string) *ExecuteChang
 }
 
 type ExecuteChangeSetResponseBody struct {
-	Dummy *string `json:"Dummy" xml:"Dummy" require:"true"`
+	Dummy *string `json:"Dummy,omitempty" xml:"Dummy,omitempty" require:"true"`
 }
 
 func (s ExecuteChangeSetResponseBody) String() string {
@@ -214,8 +214,8 @@ func (s *ExecuteChangeSetResponseBody) SetDummy(v string) *ExecuteChangeSetRespo
 }
 
 type ExecuteChangeSetResponse struct {
-	Headers map[string]*string            `json:"headers" xml:"headers" require:"true"`
-	Body    *ExecuteChangeSetResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string            `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *ExecuteChangeSetResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s ExecuteChangeSetResponse) String() string {
@@ -237,7 +237,7 @@ func (s *ExecuteChangeSetResponse) SetBody(v *ExecuteChangeSetResponseBody) *Exe
 }
 
 type DeleteChangeSetRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DeleteChangeSetRequest) String() string {
@@ -254,7 +254,7 @@ func (s *DeleteChangeSetRequest) SetHeaders(v map[string]*string) *DeleteChangeS
 }
 
 type DeleteChangeSetResponseBody struct {
-	Dummy *string `json:"Dummy" xml:"Dummy" require:"true"`
+	Dummy *string `json:"Dummy,omitempty" xml:"Dummy,omitempty" require:"true"`
 }
 
 func (s DeleteChangeSetResponseBody) String() string {
@@ -271,8 +271,8 @@ func (s *DeleteChangeSetResponseBody) SetDummy(v string) *DeleteChangeSetRespons
 }
 
 type DeleteChangeSetResponse struct {
-	Headers map[string]*string           `json:"headers" xml:"headers" require:"true"`
-	Body    *DeleteChangeSetResponseBody `json:"body" xml:"body" require:"true"`
+	Headers map[string]*string           `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DeleteChangeSetResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
 }
 
 func (s DeleteChangeSetResponse) String() string {
@@ -294,7 +294,7 @@ func (s *DeleteChangeSetResponse) SetBody(v *DeleteChangeSetResponseBody) *Delet
 }
 
 type ContinueCreateStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s ContinueCreateStackRequest) String() string {
@@ -311,7 +311,7 @@ func (s *ContinueCreateStackRequest) SetHeaders(v map[string]*string) *ContinueC
 }
 
 type ContinueCreateStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s ContinueCreateStackResponse) String() string {
@@ -328,7 +328,7 @@ func (s *ContinueCreateStackResponse) SetHeaders(v map[string]*string) *Continue
 }
 
 type CancelUpdateStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s CancelUpdateStackRequest) String() string {
@@ -345,7 +345,7 @@ func (s *CancelUpdateStackRequest) SetHeaders(v map[string]*string) *CancelUpdat
 }
 
 type CancelUpdateStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s CancelUpdateStackResponse) String() string {
@@ -362,7 +362,7 @@ func (s *CancelUpdateStackResponse) SetHeaders(v map[string]*string) *CancelUpda
 }
 
 type GetStackPolicyRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s GetStackPolicyRequest) String() string {
@@ -379,7 +379,7 @@ func (s *GetStackPolicyRequest) SetHeaders(v map[string]*string) *GetStackPolicy
 }
 
 type GetStackPolicyResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s GetStackPolicyResponse) String() string {
@@ -396,7 +396,7 @@ func (s *GetStackPolicyResponse) SetHeaders(v map[string]*string) *GetStackPolic
 }
 
 type SetStackPolicyRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s SetStackPolicyRequest) String() string {
@@ -413,7 +413,7 @@ func (s *SetStackPolicyRequest) SetHeaders(v map[string]*string) *SetStackPolicy
 }
 
 type SetStackPolicyResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s SetStackPolicyResponse) String() string {
@@ -430,7 +430,7 @@ func (s *SetStackPolicyResponse) SetHeaders(v map[string]*string) *SetStackPolic
 }
 
 type UpdateStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s UpdateStackRequest) String() string {
@@ -447,7 +447,7 @@ func (s *UpdateStackRequest) SetHeaders(v map[string]*string) *UpdateStackReques
 }
 
 type UpdateStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s UpdateStackResponse) String() string {
@@ -464,11 +464,11 @@ func (s *UpdateStackResponse) SetHeaders(v map[string]*string) *UpdateStackRespo
 }
 
 type WaitConditionsQuery struct {
-	Stackname *string `json:"stackname" xml:"stackname" require:"true"`
-	Stackid   *string `json:"stackid" xml:"stackid" require:"true"`
-	Resource  *string `json:"resource" xml:"resource" require:"true"`
-	Expire    *string `json:"expire" xml:"expire" require:"true"`
-	Signature *string `json:"signature" xml:"signature" require:"true"`
+	Stackname *string `json:"stackname,omitempty" xml:"stackname,omitempty" require:"true"`
+	Stackid   *string `json:"stackid,omitempty" xml:"stackid,omitempty" require:"true"`
+	Resource  *string `json:"resource,omitempty" xml:"resource,omitempty" require:"true"`
+	Expire    *string `json:"expire,omitempty" xml:"expire,omitempty" require:"true"`
+	Signature *string `json:"signature,omitempty" xml:"signature,omitempty" require:"true"`
 }
 
 func (s WaitConditionsQuery) String() string {
@@ -505,8 +505,8 @@ func (s *WaitConditionsQuery) SetSignature(v string) *WaitConditionsQuery {
 }
 
 type WaitConditionsRequest struct {
-	Headers map[string]*string   `json:"headers" xml:"headers"`
-	Query   *WaitConditionsQuery `json:"query" xml:"query" require:"true"`
+	Headers map[string]*string   `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *WaitConditionsQuery `json:"query,omitempty" xml:"query,omitempty" require:"true"`
 }
 
 func (s WaitConditionsRequest) String() string {
@@ -528,7 +528,7 @@ func (s *WaitConditionsRequest) SetQuery(v *WaitConditionsQuery) *WaitConditions
 }
 
 type WaitConditionsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s WaitConditionsResponse) String() string {
@@ -545,7 +545,7 @@ func (s *WaitConditionsResponse) SetHeaders(v map[string]*string) *WaitCondition
 }
 
 type InquiryStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s InquiryStackRequest) String() string {
@@ -562,7 +562,7 @@ func (s *InquiryStackRequest) SetHeaders(v map[string]*string) *InquiryStackRequ
 }
 
 type InquiryStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s InquiryStackResponse) String() string {
@@ -579,7 +579,7 @@ func (s *InquiryStackResponse) SetHeaders(v map[string]*string) *InquiryStackRes
 }
 
 type PreviewStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s PreviewStackRequest) String() string {
@@ -596,7 +596,7 @@ func (s *PreviewStackRequest) SetHeaders(v map[string]*string) *PreviewStackRequ
 }
 
 type PreviewStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s PreviewStackResponse) String() string {
@@ -613,7 +613,7 @@ func (s *PreviewStackResponse) SetHeaders(v map[string]*string) *PreviewStackRes
 }
 
 type DoActionsRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DoActionsRequest) String() string {
@@ -630,7 +630,7 @@ func (s *DoActionsRequest) SetHeaders(v map[string]*string) *DoActionsRequest {
 }
 
 type DoActionsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DoActionsResponse) String() string {
@@ -647,7 +647,7 @@ func (s *DoActionsResponse) SetHeaders(v map[string]*string) *DoActionsResponse 
 }
 
 type DescribeRegionsRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -664,7 +664,7 @@ func (s *DescribeRegionsRequest) SetHeaders(v map[string]*string) *DescribeRegio
 }
 
 type DescribeRegionsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -681,11 +681,11 @@ func (s *DescribeRegionsResponse) SetHeaders(v map[string]*string) *DescribeRegi
 }
 
 type DescribeEventsQuery struct {
-	ResourceStatus *string `json:"ResourceStatus" xml:"ResourceStatus"`
-	ResourceName   *string `json:"ResourceName" xml:"ResourceName"`
-	ResourceType   *string `json:"ResourceType" xml:"ResourceType"`
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
+	ResourceStatus *string `json:"ResourceStatus,omitempty" xml:"ResourceStatus,omitempty"`
+	ResourceName   *string `json:"ResourceName,omitempty" xml:"ResourceName,omitempty"`
+	ResourceType   *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeEventsQuery) String() string {
@@ -722,8 +722,8 @@ func (s *DescribeEventsQuery) SetPageNumber(v int) *DescribeEventsQuery {
 }
 
 type DescribeEventsRequest struct {
-	Headers map[string]*string   `json:"headers" xml:"headers"`
-	Query   *DescribeEventsQuery `json:"query" xml:"query"`
+	Headers map[string]*string   `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeEventsQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeEventsRequest) String() string {
@@ -745,7 +745,7 @@ func (s *DescribeEventsRequest) SetQuery(v *DescribeEventsQuery) *DescribeEvents
 }
 
 type DescribeEventsResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeEventsResponse) String() string {
@@ -762,7 +762,7 @@ func (s *DescribeEventsResponse) SetHeaders(v map[string]*string) *DescribeEvent
 }
 
 type DeleteStackQuery struct {
-	RegionId *string `json:"RegionId" xml:"RegionId"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
 }
 
 func (s DeleteStackQuery) String() string {
@@ -779,8 +779,8 @@ func (s *DeleteStackQuery) SetRegionId(v string) *DeleteStackQuery {
 }
 
 type DeleteStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
-	Query   *DeleteStackQuery  `json:"query" xml:"query"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DeleteStackQuery  `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DeleteStackRequest) String() string {
@@ -802,7 +802,7 @@ func (s *DeleteStackRequest) SetQuery(v *DeleteStackQuery) *DeleteStackRequest {
 }
 
 type DeleteStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DeleteStackResponse) String() string {
@@ -819,7 +819,7 @@ func (s *DeleteStackResponse) SetHeaders(v map[string]*string) *DeleteStackRespo
 }
 
 type CreateStacksRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s CreateStacksRequest) String() string {
@@ -836,7 +836,7 @@ func (s *CreateStacksRequest) SetHeaders(v map[string]*string) *CreateStacksRequ
 }
 
 type CreateStacksResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s CreateStacksResponse) String() string {
@@ -853,7 +853,7 @@ func (s *CreateStacksResponse) SetHeaders(v map[string]*string) *CreateStacksRes
 }
 
 type AbandonStackRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s AbandonStackRequest) String() string {
@@ -870,7 +870,7 @@ func (s *AbandonStackRequest) SetHeaders(v map[string]*string) *AbandonStackRequ
 }
 
 type AbandonStackResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s AbandonStackResponse) String() string {
@@ -887,7 +887,7 @@ func (s *AbandonStackResponse) SetHeaders(v map[string]*string) *AbandonStackRes
 }
 
 type DescribeResourceTypesQuery struct {
-	SupportStatus *string `json:"SupportStatus" xml:"SupportStatus"`
+	SupportStatus *string `json:"SupportStatus,omitempty" xml:"SupportStatus,omitempty"`
 }
 
 func (s DescribeResourceTypesQuery) String() string {
@@ -904,8 +904,8 @@ func (s *DescribeResourceTypesQuery) SetSupportStatus(v string) *DescribeResourc
 }
 
 type DescribeResourceTypesRequest struct {
-	Headers map[string]*string          `json:"headers" xml:"headers"`
-	Query   *DescribeResourceTypesQuery `json:"query" xml:"query"`
+	Headers map[string]*string          `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeResourceTypesQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeResourceTypesRequest) String() string {
@@ -927,7 +927,7 @@ func (s *DescribeResourceTypesRequest) SetQuery(v *DescribeResourceTypesQuery) *
 }
 
 type DescribeResourceTypesResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeResourceTypesResponse) String() string {
@@ -944,7 +944,7 @@ func (s *DescribeResourceTypesResponse) SetHeaders(v map[string]*string) *Descri
 }
 
 type DescribeResourceTypeDetailRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeResourceTypeDetailRequest) String() string {
@@ -961,7 +961,7 @@ func (s *DescribeResourceTypeDetailRequest) SetHeaders(v map[string]*string) *De
 }
 
 type DescribeResourceTypeDetailResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeResourceTypeDetailResponse) String() string {
@@ -978,7 +978,7 @@ func (s *DescribeResourceTypeDetailResponse) SetHeaders(v map[string]*string) *D
 }
 
 type DescribeResourcesRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeResourcesRequest) String() string {
@@ -995,7 +995,7 @@ func (s *DescribeResourcesRequest) SetHeaders(v map[string]*string) *DescribeRes
 }
 
 type DescribeResourcesResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeResourcesResponse) String() string {
@@ -1012,7 +1012,7 @@ func (s *DescribeResourcesResponse) SetHeaders(v map[string]*string) *DescribeRe
 }
 
 type DescribeResourceDetailRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeResourceDetailRequest) String() string {
@@ -1029,7 +1029,7 @@ func (s *DescribeResourceDetailRequest) SetHeaders(v map[string]*string) *Descri
 }
 
 type DescribeResourceDetailResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeResourceDetailResponse) String() string {
@@ -1046,7 +1046,7 @@ func (s *DescribeResourceDetailResponse) SetHeaders(v map[string]*string) *Descr
 }
 
 type DescribeResourceTypeTemplateRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeResourceTypeTemplateRequest) String() string {
@@ -1063,7 +1063,7 @@ func (s *DescribeResourceTypeTemplateRequest) SetHeaders(v map[string]*string) *
 }
 
 type DescribeResourceTypeTemplateResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeResourceTypeTemplateResponse) String() string {
@@ -1080,11 +1080,11 @@ func (s *DescribeResourceTypeTemplateResponse) SetHeaders(v map[string]*string) 
 }
 
 type DescribeStacksQuery struct {
-	Status     *string `json:"Status" xml:"Status"`
-	Name       *string `json:"Name" xml:"Name"`
-	StackId    *string `json:"StackId" xml:"StackId"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	Name       *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	StackId    *string `json:"StackId,omitempty" xml:"StackId,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s DescribeStacksQuery) String() string {
@@ -1121,8 +1121,8 @@ func (s *DescribeStacksQuery) SetPageNumber(v int) *DescribeStacksQuery {
 }
 
 type DescribeStacksRequest struct {
-	Headers map[string]*string   `json:"headers" xml:"headers"`
-	Query   *DescribeStacksQuery `json:"query" xml:"query"`
+	Headers map[string]*string   `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *DescribeStacksQuery `json:"query,omitempty" xml:"query,omitempty"`
 }
 
 func (s DescribeStacksRequest) String() string {
@@ -1144,7 +1144,7 @@ func (s *DescribeStacksRequest) SetQuery(v *DescribeStacksQuery) *DescribeStacks
 }
 
 type DescribeStacksResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeStacksResponse) String() string {
@@ -1161,7 +1161,7 @@ func (s *DescribeStacksResponse) SetHeaders(v map[string]*string) *DescribeStack
 }
 
 type DescribeStackDetailRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeStackDetailRequest) String() string {
@@ -1178,7 +1178,7 @@ func (s *DescribeStackDetailRequest) SetHeaders(v map[string]*string) *DescribeS
 }
 
 type DescribeStackDetailResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeStackDetailResponse) String() string {
@@ -1195,7 +1195,7 @@ func (s *DescribeStackDetailResponse) SetHeaders(v map[string]*string) *Describe
 }
 
 type ValidateTemplateRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s ValidateTemplateRequest) String() string {
@@ -1212,7 +1212,7 @@ func (s *ValidateTemplateRequest) SetHeaders(v map[string]*string) *ValidateTemp
 }
 
 type ValidateTemplateResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s ValidateTemplateResponse) String() string {
@@ -1229,7 +1229,7 @@ func (s *ValidateTemplateResponse) SetHeaders(v map[string]*string) *ValidateTem
 }
 
 type DescribeTemplateRequest struct {
-	Headers map[string]*string `json:"headers" xml:"headers"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
 }
 
 func (s DescribeTemplateRequest) String() string {
@@ -1246,7 +1246,7 @@ func (s *DescribeTemplateRequest) SetHeaders(v map[string]*string) *DescribeTemp
 }
 
 type DescribeTemplateResponse struct {
-	Headers map[string]*string `json:"headers" xml:"headers" require:"true"`
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
 }
 
 func (s DescribeTemplateResponse) String() string {
@@ -1282,7 +1282,7 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.EndpointHost, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.EndpointHost)
+	client.EndpointHost, _err = client.GetEndpoint(tea.String("ros"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.EndpointHost)
 	if _err != nil {
 		return _err
 	}
