@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"

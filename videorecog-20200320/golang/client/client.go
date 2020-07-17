@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -15,7 +15,7 @@ import (
 )
 
 type DetectVideoShotRequest struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s DetectVideoShotRequest) String() string {
@@ -32,8 +32,8 @@ func (s *DetectVideoShotRequest) SetVideoUrl(v string) *DetectVideoShotRequest {
 }
 
 type DetectVideoShotResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *DetectVideoShotResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *DetectVideoShotResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DetectVideoShotResponse) String() string {
@@ -55,7 +55,7 @@ func (s *DetectVideoShotResponse) SetData(v *DetectVideoShotResponseData) *Detec
 }
 
 type DetectVideoShotResponseData struct {
-	ShotFrameIds []*int `json:"ShotFrameIds" xml:"ShotFrameIds" require:"true" type:"Repeated"`
+	ShotFrameIds []*int `json:"ShotFrameIds,omitempty" xml:"ShotFrameIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectVideoShotResponseData) String() string {
@@ -72,7 +72,7 @@ func (s *DetectVideoShotResponseData) SetShotFrameIds(v []*int) *DetectVideoShot
 }
 
 type DetectVideoShotAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
 }
 
 func (s DetectVideoShotAdvanceRequest) String() string {
@@ -89,8 +89,8 @@ func (s *DetectVideoShotAdvanceRequest) SetVideoUrlObject(v io.Reader) *DetectVi
 }
 
 type GenerateVideoCoverRequest struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	IsGif    *bool   `json:"IsGif" xml:"IsGif" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	IsGif    *bool   `json:"IsGif,omitempty" xml:"IsGif,omitempty" require:"true"`
 }
 
 func (s GenerateVideoCoverRequest) String() string {
@@ -112,8 +112,8 @@ func (s *GenerateVideoCoverRequest) SetIsGif(v bool) *GenerateVideoCoverRequest 
 }
 
 type GenerateVideoCoverResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GenerateVideoCoverResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GenerateVideoCoverResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GenerateVideoCoverResponse) String() string {
@@ -135,7 +135,7 @@ func (s *GenerateVideoCoverResponse) SetData(v *GenerateVideoCoverResponseData) 
 }
 
 type GenerateVideoCoverResponseData struct {
-	Outputs []*GenerateVideoCoverResponseDataOutputs `json:"Outputs" xml:"Outputs" require:"true" type:"Repeated"`
+	Outputs []*GenerateVideoCoverResponseDataOutputs `json:"Outputs,omitempty" xml:"Outputs,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GenerateVideoCoverResponseData) String() string {
@@ -152,8 +152,8 @@ func (s *GenerateVideoCoverResponseData) SetOutputs(v []*GenerateVideoCoverRespo
 }
 
 type GenerateVideoCoverResponseDataOutputs struct {
-	ImageURL   *string  `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+	ImageURL   *string  `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Confidence *float32 `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
 }
 
 func (s GenerateVideoCoverResponseDataOutputs) String() string {
@@ -175,8 +175,8 @@ func (s *GenerateVideoCoverResponseDataOutputs) SetConfidence(v float32) *Genera
 }
 
 type GenerateVideoCoverAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	IsGif          *bool     `json:"IsGif" xml:"IsGif" require:"true"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	IsGif          *bool     `json:"IsGif,omitempty" xml:"IsGif,omitempty" require:"true"`
 }
 
 func (s GenerateVideoCoverAdvanceRequest) String() string {
@@ -198,7 +198,7 @@ func (s *GenerateVideoCoverAdvanceRequest) SetIsGif(v bool) *GenerateVideoCoverA
 }
 
 type GetAsyncJobResultRequest struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultRequest) String() string {
@@ -215,8 +215,8 @@ func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest 
 }
 
 type GetAsyncJobResultResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAsyncJobResultResponse) String() string {
@@ -238,11 +238,11 @@ func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *G
 }
 
 type GetAsyncJobResultResponseData struct {
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Result       *string `json:"Result" xml:"Result" require:"true"`
-	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Result       *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultResponseData) String() string {
@@ -298,7 +298,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("videorecog"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -349,7 +349,7 @@ func (client *Client) DetectVideoShotAdvance(request *DetectVideoShotAdvanceRequ
 		Product:  tea.String("videorecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -447,7 +447,7 @@ func (client *Client) GenerateVideoCoverAdvance(request *GenerateVideoCoverAdvan
 		Product:  tea.String("videorecog"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

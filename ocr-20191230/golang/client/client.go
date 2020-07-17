@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -15,7 +15,7 @@ import (
 )
 
 type GetAsyncJobResultRequest struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultRequest) String() string {
@@ -32,8 +32,8 @@ func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest 
 }
 
 type GetAsyncJobResultResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAsyncJobResultResponse) String() string {
@@ -55,11 +55,11 @@ func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *G
 }
 
 type GetAsyncJobResultResponseData struct {
-	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	Result       *string `json:"Result" xml:"Result" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Result       *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultResponseData) String() string {
@@ -96,9 +96,9 @@ func (s *GetAsyncJobResultResponseData) SetStatus(v string) *GetAsyncJobResultRe
 }
 
 type TrimDocumentRequest struct {
-	FileURL    *string `json:"FileURL" xml:"FileURL" require:"true"`
-	FileType   *string `json:"FileType" xml:"FileType" require:"true"`
-	OutputType *string `json:"OutputType" xml:"OutputType" require:"true"`
+	FileURL    *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
+	FileType   *string `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
+	OutputType *string `json:"OutputType,omitempty" xml:"OutputType,omitempty" require:"true"`
 }
 
 func (s TrimDocumentRequest) String() string {
@@ -125,8 +125,8 @@ func (s *TrimDocumentRequest) SetOutputType(v string) *TrimDocumentRequest {
 }
 
 type TrimDocumentResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *TrimDocumentResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *TrimDocumentResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s TrimDocumentResponse) String() string {
@@ -148,7 +148,7 @@ func (s *TrimDocumentResponse) SetData(v *TrimDocumentResponseData) *TrimDocumen
 }
 
 type TrimDocumentResponseData struct {
-	Content *string `json:"Content" xml:"Content" require:"true"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s TrimDocumentResponseData) String() string {
@@ -165,9 +165,9 @@ func (s *TrimDocumentResponseData) SetContent(v string) *TrimDocumentResponseDat
 }
 
 type TrimDocumentAdvanceRequest struct {
-	FileURLObject io.Reader `json:"FileURLObject" xml:"FileURLObject" require:"true"`
-	FileType      *string   `json:"FileType" xml:"FileType" require:"true"`
-	OutputType    *string   `json:"OutputType" xml:"OutputType" require:"true"`
+	FileURLObject io.Reader `json:"FileURLObject,omitempty" xml:"FileURLObject,omitempty" require:"true"`
+	FileType      *string   `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
+	OutputType    *string   `json:"OutputType,omitempty" xml:"OutputType,omitempty" require:"true"`
 }
 
 func (s TrimDocumentAdvanceRequest) String() string {
@@ -194,7 +194,7 @@ func (s *TrimDocumentAdvanceRequest) SetOutputType(v string) *TrimDocumentAdvanc
 }
 
 type RecognizeChinapassportRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeChinapassportRequest) String() string {
@@ -211,8 +211,8 @@ func (s *RecognizeChinapassportRequest) SetImageURL(v string) *RecognizeChinapas
 }
 
 type RecognizeChinapassportResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeChinapassportResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeChinapassportResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeChinapassportResponse) String() string {
@@ -234,28 +234,28 @@ func (s *RecognizeChinapassportResponse) SetData(v *RecognizeChinapassportRespon
 }
 
 type RecognizeChinapassportResponseData struct {
-	Authority      *string `json:"Authority" xml:"Authority" require:"true"`
-	BirthDate      *string `json:"BirthDate" xml:"BirthDate" require:"true"`
-	BirthDay       *string `json:"BirthDay" xml:"BirthDay" require:"true"`
-	BirthPlace     *string `json:"BirthPlace" xml:"BirthPlace" require:"true"`
-	BirthPlaceRaw  *string `json:"BirthPlaceRaw" xml:"BirthPlaceRaw" require:"true"`
-	Country        *string `json:"Country" xml:"Country" require:"true"`
-	ExpiryDate     *string `json:"ExpiryDate" xml:"ExpiryDate" require:"true"`
-	ExpiryDay      *string `json:"ExpiryDay" xml:"ExpiryDay" require:"true"`
-	IssueDate      *string `json:"IssueDate" xml:"IssueDate" require:"true"`
-	IssuePlace     *string `json:"IssuePlace" xml:"IssuePlace" require:"true"`
-	IssuePlaceRaw  *string `json:"IssuePlaceRaw" xml:"IssuePlaceRaw" require:"true"`
-	LineZero       *string `json:"LineZero" xml:"LineZero" require:"true"`
-	LineOne        *string `json:"LineOne" xml:"LineOne" require:"true"`
-	Name           *string `json:"Name" xml:"Name" require:"true"`
-	NameChinese    *string `json:"NameChinese" xml:"NameChinese" require:"true"`
-	NameChineseRaw *string `json:"NameChineseRaw" xml:"NameChineseRaw" require:"true"`
-	PassportNo     *string `json:"PassportNo" xml:"PassportNo" require:"true"`
-	PersonId       *string `json:"PersonId" xml:"PersonId" require:"true"`
-	Sex            *string `json:"Sex" xml:"Sex" require:"true"`
-	SourceCountry  *string `json:"SourceCountry" xml:"SourceCountry" require:"true"`
-	Success        *bool   `json:"Success" xml:"Success" require:"true"`
-	Type           *string `json:"Type" xml:"Type" require:"true"`
+	Authority      *string `json:"Authority,omitempty" xml:"Authority,omitempty" require:"true"`
+	BirthDate      *string `json:"BirthDate,omitempty" xml:"BirthDate,omitempty" require:"true"`
+	BirthDay       *string `json:"BirthDay,omitempty" xml:"BirthDay,omitempty" require:"true"`
+	BirthPlace     *string `json:"BirthPlace,omitempty" xml:"BirthPlace,omitempty" require:"true"`
+	BirthPlaceRaw  *string `json:"BirthPlaceRaw,omitempty" xml:"BirthPlaceRaw,omitempty" require:"true"`
+	Country        *string `json:"Country,omitempty" xml:"Country,omitempty" require:"true"`
+	ExpiryDate     *string `json:"ExpiryDate,omitempty" xml:"ExpiryDate,omitempty" require:"true"`
+	ExpiryDay      *string `json:"ExpiryDay,omitempty" xml:"ExpiryDay,omitempty" require:"true"`
+	IssueDate      *string `json:"IssueDate,omitempty" xml:"IssueDate,omitempty" require:"true"`
+	IssuePlace     *string `json:"IssuePlace,omitempty" xml:"IssuePlace,omitempty" require:"true"`
+	IssuePlaceRaw  *string `json:"IssuePlaceRaw,omitempty" xml:"IssuePlaceRaw,omitempty" require:"true"`
+	LineZero       *string `json:"LineZero,omitempty" xml:"LineZero,omitempty" require:"true"`
+	LineOne        *string `json:"LineOne,omitempty" xml:"LineOne,omitempty" require:"true"`
+	Name           *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	NameChinese    *string `json:"NameChinese,omitempty" xml:"NameChinese,omitempty" require:"true"`
+	NameChineseRaw *string `json:"NameChineseRaw,omitempty" xml:"NameChineseRaw,omitempty" require:"true"`
+	PassportNo     *string `json:"PassportNo,omitempty" xml:"PassportNo,omitempty" require:"true"`
+	PersonId       *string `json:"PersonId,omitempty" xml:"PersonId,omitempty" require:"true"`
+	Sex            *string `json:"Sex,omitempty" xml:"Sex,omitempty" require:"true"`
+	SourceCountry  *string `json:"SourceCountry,omitempty" xml:"SourceCountry,omitempty" require:"true"`
+	Success        *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Type           *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s RecognizeChinapassportResponseData) String() string {
@@ -377,7 +377,7 @@ func (s *RecognizeChinapassportResponseData) SetType(v string) *RecognizeChinapa
 }
 
 type RecognizeChinapassportAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeChinapassportAdvanceRequest) String() string {
@@ -394,7 +394,7 @@ func (s *RecognizeChinapassportAdvanceRequest) SetImageURLObject(v io.Reader) *R
 }
 
 type RecognizeVerificationcodeRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeVerificationcodeRequest) String() string {
@@ -411,8 +411,8 @@ func (s *RecognizeVerificationcodeRequest) SetImageURL(v string) *RecognizeVerif
 }
 
 type RecognizeVerificationcodeResponse struct {
-	RequestId *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVerificationcodeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVerificationcodeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVerificationcodeResponse) String() string {
@@ -434,7 +434,7 @@ func (s *RecognizeVerificationcodeResponse) SetData(v *RecognizeVerificationcode
 }
 
 type RecognizeVerificationcodeResponseData struct {
-	Content *string `json:"Content" xml:"Content" require:"true"`
+	Content *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s RecognizeVerificationcodeResponseData) String() string {
@@ -451,7 +451,7 @@ func (s *RecognizeVerificationcodeResponseData) SetContent(v string) *RecognizeV
 }
 
 type RecognizeVerificationcodeAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeVerificationcodeAdvanceRequest) String() string {
@@ -468,7 +468,7 @@ func (s *RecognizeVerificationcodeAdvanceRequest) SetImageURLObject(v io.Reader)
 }
 
 type RecognizePassportMRZRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizePassportMRZRequest) String() string {
@@ -485,8 +485,8 @@ func (s *RecognizePassportMRZRequest) SetImageURL(v string) *RecognizePassportMR
 }
 
 type RecognizePassportMRZResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizePassportMRZResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizePassportMRZResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizePassportMRZResponse) String() string {
@@ -508,7 +508,7 @@ func (s *RecognizePassportMRZResponse) SetData(v *RecognizePassportMRZResponseDa
 }
 
 type RecognizePassportMRZResponseData struct {
-	Regions []*RecognizePassportMRZResponseDataRegions `json:"Regions" xml:"Regions" require:"true" type:"Repeated"`
+	Regions []*RecognizePassportMRZResponseDataRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePassportMRZResponseData) String() string {
@@ -525,11 +525,11 @@ func (s *RecognizePassportMRZResponseData) SetRegions(v []*RecognizePassportMRZR
 }
 
 type RecognizePassportMRZResponseDataRegions struct {
-	Name             *string    `json:"Name" xml:"Name" require:"true"`
-	RecognitionScore *float32   `json:"RecognitionScore" xml:"RecognitionScore" require:"true"`
-	Content          *string    `json:"Content" xml:"Content" require:"true"`
-	DetectionScore   *float32   `json:"DetectionScore" xml:"DetectionScore" require:"true"`
-	BandBoxes        []*float32 `json:"BandBoxes" xml:"BandBoxes" require:"true" type:"Repeated"`
+	Name             *string    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RecognitionScore *float32   `json:"RecognitionScore,omitempty" xml:"RecognitionScore,omitempty" require:"true"`
+	Content          *string    `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	DetectionScore   *float32   `json:"DetectionScore,omitempty" xml:"DetectionScore,omitempty" require:"true"`
+	BandBoxes        []*float32 `json:"BandBoxes,omitempty" xml:"BandBoxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizePassportMRZResponseDataRegions) String() string {
@@ -566,7 +566,7 @@ func (s *RecognizePassportMRZResponseDataRegions) SetBandBoxes(v []*float32) *Re
 }
 
 type RecognizePassportMRZAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizePassportMRZAdvanceRequest) String() string {
@@ -583,7 +583,7 @@ func (s *RecognizePassportMRZAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 }
 
 type RecognizeTakeoutOrderRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeTakeoutOrderRequest) String() string {
@@ -600,8 +600,8 @@ func (s *RecognizeTakeoutOrderRequest) SetImageURL(v string) *RecognizeTakeoutOr
 }
 
 type RecognizeTakeoutOrderResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeTakeoutOrderResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeTakeoutOrderResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTakeoutOrderResponse) String() string {
@@ -623,7 +623,7 @@ func (s *RecognizeTakeoutOrderResponse) SetData(v *RecognizeTakeoutOrderResponse
 }
 
 type RecognizeTakeoutOrderResponseData struct {
-	Elements []*RecognizeTakeoutOrderResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizeTakeoutOrderResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTakeoutOrderResponseData) String() string {
@@ -640,10 +640,10 @@ func (s *RecognizeTakeoutOrderResponseData) SetElements(v []*RecognizeTakeoutOrd
 }
 
 type RecognizeTakeoutOrderResponseDataElements struct {
-	Score *float32 `json:"Score" xml:"Score" require:"true"`
-	Name  *string  `json:"Name" xml:"Name" require:"true"`
-	Value *string  `json:"Value" xml:"Value" require:"true"`
-	Boxes []*int   `json:"Boxes" xml:"Boxes" require:"true" type:"Repeated"`
+	Score *float32 `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Name  *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string  `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	Boxes []*int   `json:"Boxes,omitempty" xml:"Boxes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTakeoutOrderResponseDataElements) String() string {
@@ -675,7 +675,7 @@ func (s *RecognizeTakeoutOrderResponseDataElements) SetBoxes(v []*int) *Recogniz
 }
 
 type RecognizeTakeoutOrderAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeTakeoutOrderAdvanceRequest) String() string {
@@ -692,7 +692,7 @@ func (s *RecognizeTakeoutOrderAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 }
 
 type RecognizeQrCodeRequest struct {
-	Tasks []*RecognizeQrCodeRequestTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Repeated"`
+	Tasks []*RecognizeQrCodeRequestTasks `json:"Tasks,omitempty" xml:"Tasks,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeQrCodeRequest) String() string {
@@ -709,7 +709,7 @@ func (s *RecognizeQrCodeRequest) SetTasks(v []*RecognizeQrCodeRequestTasks) *Rec
 }
 
 type RecognizeQrCodeRequestTasks struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeQrCodeRequestTasks) String() string {
@@ -726,8 +726,8 @@ func (s *RecognizeQrCodeRequestTasks) SetImageURL(v string) *RecognizeQrCodeRequ
 }
 
 type RecognizeQrCodeResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeQrCodeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeQrCodeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeQrCodeResponse) String() string {
@@ -749,7 +749,7 @@ func (s *RecognizeQrCodeResponse) SetData(v *RecognizeQrCodeResponseData) *Recog
 }
 
 type RecognizeQrCodeResponseData struct {
-	Elements []*RecognizeQrCodeResponseDataElements `json:"Elements" xml:"Elements" require:"true" type:"Repeated"`
+	Elements []*RecognizeQrCodeResponseDataElements `json:"Elements,omitempty" xml:"Elements,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeQrCodeResponseData) String() string {
@@ -766,9 +766,9 @@ func (s *RecognizeQrCodeResponseData) SetElements(v []*RecognizeQrCodeResponseDa
 }
 
 type RecognizeQrCodeResponseDataElements struct {
-	TaskId   *string                                       `json:"TaskId" xml:"TaskId" require:"true"`
-	ImageURL *string                                       `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Results  []*RecognizeQrCodeResponseDataElementsResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	TaskId   *string                                       `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	ImageURL *string                                       `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Results  []*RecognizeQrCodeResponseDataElementsResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeQrCodeResponseDataElements) String() string {
@@ -795,10 +795,10 @@ func (s *RecognizeQrCodeResponseDataElements) SetResults(v []*RecognizeQrCodeRes
 }
 
 type RecognizeQrCodeResponseDataElementsResults struct {
-	Label       *string   `json:"Label" xml:"Label" require:"true"`
-	Suggestion  *string   `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Rate        *float32  `json:"Rate" xml:"Rate" require:"true"`
-	QrCodesData []*string `json:"QrCodesData" xml:"QrCodesData" require:"true" type:"Repeated"`
+	Label       *string   `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion  *string   `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Rate        *float32  `json:"Rate,omitempty" xml:"Rate,omitempty" require:"true"`
+	QrCodesData []*string `json:"QrCodesData,omitempty" xml:"QrCodesData,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeQrCodeResponseDataElementsResults) String() string {
@@ -830,8 +830,8 @@ func (s *RecognizeQrCodeResponseDataElementsResults) SetQrCodesData(v []*string)
 }
 
 type RecognizeVATInvoiceRequest struct {
-	FileURL  *string `json:"FileURL" xml:"FileURL" require:"true"`
-	FileType *string `json:"FileType" xml:"FileType" require:"true"`
+	FileURL  *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
+	FileType *string `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
 }
 
 func (s RecognizeVATInvoiceRequest) String() string {
@@ -853,8 +853,8 @@ func (s *RecognizeVATInvoiceRequest) SetFileType(v string) *RecognizeVATInvoiceR
 }
 
 type RecognizeVATInvoiceResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVATInvoiceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVATInvoiceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVATInvoiceResponse) String() string {
@@ -876,8 +876,8 @@ func (s *RecognizeVATInvoiceResponse) SetData(v *RecognizeVATInvoiceResponseData
 }
 
 type RecognizeVATInvoiceResponseData struct {
-	Content *RecognizeVATInvoiceResponseDataContent `json:"Content" xml:"Content" require:"true" type:"Struct"`
-	Box     *RecognizeVATInvoiceResponseDataBox     `json:"Box" xml:"Box" require:"true" type:"Struct"`
+	Content *RecognizeVATInvoiceResponseDataContent `json:"Content,omitempty" xml:"Content,omitempty" require:"true" type:"Struct"`
+	Box     *RecognizeVATInvoiceResponseDataBox     `json:"Box,omitempty" xml:"Box,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVATInvoiceResponseData) String() string {
@@ -899,25 +899,25 @@ func (s *RecognizeVATInvoiceResponseData) SetBox(v *RecognizeVATInvoiceResponseD
 }
 
 type RecognizeVATInvoiceResponseDataContent struct {
-	InvoiceCode      *string `json:"InvoiceCode" xml:"InvoiceCode" require:"true"`
-	InvoiceNo        *string `json:"InvoiceNo" xml:"InvoiceNo" require:"true"`
-	InvoiceDate      *string `json:"InvoiceDate" xml:"InvoiceDate" require:"true"`
-	AntiFakeCode     *string `json:"AntiFakeCode" xml:"AntiFakeCode" require:"true"`
-	PayerName        *string `json:"PayerName" xml:"PayerName" require:"true"`
-	PayerRegisterNo  *string `json:"PayerRegisterNo" xml:"PayerRegisterNo" require:"true"`
-	PayerAddress     *string `json:"PayerAddress" xml:"PayerAddress" require:"true"`
-	PayerBankName    *string `json:"PayerBankName" xml:"PayerBankName" require:"true"`
-	WithoutTaxAmount *string `json:"WithoutTaxAmount" xml:"WithoutTaxAmount" require:"true"`
-	TaxAmount        *string `json:"TaxAmount" xml:"TaxAmount" require:"true"`
-	SumAmount        *string `json:"SumAmount" xml:"SumAmount" require:"true"`
-	InvoiceAmount    *string `json:"InvoiceAmount" xml:"InvoiceAmount" require:"true"`
-	PayeeName        *string `json:"PayeeName" xml:"PayeeName" require:"true"`
-	PayeeRegisterNo  *string `json:"PayeeRegisterNo" xml:"PayeeRegisterNo" require:"true"`
-	PayeeAddress     *string `json:"PayeeAddress" xml:"PayeeAddress" require:"true"`
-	PayeeBankName    *string `json:"PayeeBankName" xml:"PayeeBankName" require:"true"`
-	Payee            *string `json:"Payee" xml:"Payee" require:"true"`
-	Checker          *string `json:"Checker" xml:"Checker" require:"true"`
-	Clerk            *string `json:"Clerk" xml:"Clerk" require:"true"`
+	InvoiceCode      *string `json:"InvoiceCode,omitempty" xml:"InvoiceCode,omitempty" require:"true"`
+	InvoiceNo        *string `json:"InvoiceNo,omitempty" xml:"InvoiceNo,omitempty" require:"true"`
+	InvoiceDate      *string `json:"InvoiceDate,omitempty" xml:"InvoiceDate,omitempty" require:"true"`
+	AntiFakeCode     *string `json:"AntiFakeCode,omitempty" xml:"AntiFakeCode,omitempty" require:"true"`
+	PayerName        *string `json:"PayerName,omitempty" xml:"PayerName,omitempty" require:"true"`
+	PayerRegisterNo  *string `json:"PayerRegisterNo,omitempty" xml:"PayerRegisterNo,omitempty" require:"true"`
+	PayerAddress     *string `json:"PayerAddress,omitempty" xml:"PayerAddress,omitempty" require:"true"`
+	PayerBankName    *string `json:"PayerBankName,omitempty" xml:"PayerBankName,omitempty" require:"true"`
+	WithoutTaxAmount *string `json:"WithoutTaxAmount,omitempty" xml:"WithoutTaxAmount,omitempty" require:"true"`
+	TaxAmount        *string `json:"TaxAmount,omitempty" xml:"TaxAmount,omitempty" require:"true"`
+	SumAmount        *string `json:"SumAmount,omitempty" xml:"SumAmount,omitempty" require:"true"`
+	InvoiceAmount    *string `json:"InvoiceAmount,omitempty" xml:"InvoiceAmount,omitempty" require:"true"`
+	PayeeName        *string `json:"PayeeName,omitempty" xml:"PayeeName,omitempty" require:"true"`
+	PayeeRegisterNo  *string `json:"PayeeRegisterNo,omitempty" xml:"PayeeRegisterNo,omitempty" require:"true"`
+	PayeeAddress     *string `json:"PayeeAddress,omitempty" xml:"PayeeAddress,omitempty" require:"true"`
+	PayeeBankName    *string `json:"PayeeBankName,omitempty" xml:"PayeeBankName,omitempty" require:"true"`
+	Payee            *string `json:"Payee,omitempty" xml:"Payee,omitempty" require:"true"`
+	Checker          *string `json:"Checker,omitempty" xml:"Checker,omitempty" require:"true"`
+	Clerk            *string `json:"Clerk,omitempty" xml:"Clerk,omitempty" require:"true"`
 }
 
 func (s RecognizeVATInvoiceResponseDataContent) String() string {
@@ -1024,25 +1024,25 @@ func (s *RecognizeVATInvoiceResponseDataContent) SetClerk(v string) *RecognizeVA
 }
 
 type RecognizeVATInvoiceResponseDataBox struct {
-	InvoiceCodes      []*float32 `json:"InvoiceCodes" xml:"InvoiceCodes" require:"true" type:"Repeated"`
-	InvoiceNoes       []*float32 `json:"InvoiceNoes" xml:"InvoiceNoes" require:"true" type:"Repeated"`
-	InvoiceDates      []*float32 `json:"InvoiceDates" xml:"InvoiceDates" require:"true" type:"Repeated"`
-	InvoiceFakeCodes  []*float32 `json:"InvoiceFakeCodes" xml:"InvoiceFakeCodes" require:"true" type:"Repeated"`
-	PayerNames        []*float32 `json:"PayerNames" xml:"PayerNames" require:"true" type:"Repeated"`
-	PayerRegisterNoes []*float32 `json:"PayerRegisterNoes" xml:"PayerRegisterNoes" require:"true" type:"Repeated"`
-	PayerAddresses    []*float32 `json:"PayerAddresses" xml:"PayerAddresses" require:"true" type:"Repeated"`
-	PayerBankNames    []*float32 `json:"PayerBankNames" xml:"PayerBankNames" require:"true" type:"Repeated"`
-	WithoutTaxAmounts []*float32 `json:"WithoutTaxAmounts" xml:"WithoutTaxAmounts" require:"true" type:"Repeated"`
-	TaxAmounts        []*float32 `json:"TaxAmounts" xml:"TaxAmounts" require:"true" type:"Repeated"`
-	SumAmounts        []*float32 `json:"SumAmounts" xml:"SumAmounts" require:"true" type:"Repeated"`
-	InvoiceAmounts    []*float32 `json:"InvoiceAmounts" xml:"InvoiceAmounts" require:"true" type:"Repeated"`
-	PayeeNames        []*float32 `json:"PayeeNames" xml:"PayeeNames" require:"true" type:"Repeated"`
-	PayeeRegisterNoes []*float32 `json:"PayeeRegisterNoes" xml:"PayeeRegisterNoes" require:"true" type:"Repeated"`
-	PayeeAddresses    []*float32 `json:"PayeeAddresses" xml:"PayeeAddresses" require:"true" type:"Repeated"`
-	PayeeBankNames    []*float32 `json:"PayeeBankNames" xml:"PayeeBankNames" require:"true" type:"Repeated"`
-	Payees            []*float32 `json:"Payees" xml:"Payees" require:"true" type:"Repeated"`
-	Checkers          []*float32 `json:"Checkers" xml:"Checkers" require:"true" type:"Repeated"`
-	Clerks            []*float32 `json:"Clerks" xml:"Clerks" require:"true" type:"Repeated"`
+	InvoiceCodes      []*float32 `json:"InvoiceCodes,omitempty" xml:"InvoiceCodes,omitempty" require:"true" type:"Repeated"`
+	InvoiceNoes       []*float32 `json:"InvoiceNoes,omitempty" xml:"InvoiceNoes,omitempty" require:"true" type:"Repeated"`
+	InvoiceDates      []*float32 `json:"InvoiceDates,omitempty" xml:"InvoiceDates,omitempty" require:"true" type:"Repeated"`
+	InvoiceFakeCodes  []*float32 `json:"InvoiceFakeCodes,omitempty" xml:"InvoiceFakeCodes,omitempty" require:"true" type:"Repeated"`
+	PayerNames        []*float32 `json:"PayerNames,omitempty" xml:"PayerNames,omitempty" require:"true" type:"Repeated"`
+	PayerRegisterNoes []*float32 `json:"PayerRegisterNoes,omitempty" xml:"PayerRegisterNoes,omitempty" require:"true" type:"Repeated"`
+	PayerAddresses    []*float32 `json:"PayerAddresses,omitempty" xml:"PayerAddresses,omitempty" require:"true" type:"Repeated"`
+	PayerBankNames    []*float32 `json:"PayerBankNames,omitempty" xml:"PayerBankNames,omitempty" require:"true" type:"Repeated"`
+	WithoutTaxAmounts []*float32 `json:"WithoutTaxAmounts,omitempty" xml:"WithoutTaxAmounts,omitempty" require:"true" type:"Repeated"`
+	TaxAmounts        []*float32 `json:"TaxAmounts,omitempty" xml:"TaxAmounts,omitempty" require:"true" type:"Repeated"`
+	SumAmounts        []*float32 `json:"SumAmounts,omitempty" xml:"SumAmounts,omitempty" require:"true" type:"Repeated"`
+	InvoiceAmounts    []*float32 `json:"InvoiceAmounts,omitempty" xml:"InvoiceAmounts,omitempty" require:"true" type:"Repeated"`
+	PayeeNames        []*float32 `json:"PayeeNames,omitempty" xml:"PayeeNames,omitempty" require:"true" type:"Repeated"`
+	PayeeRegisterNoes []*float32 `json:"PayeeRegisterNoes,omitempty" xml:"PayeeRegisterNoes,omitempty" require:"true" type:"Repeated"`
+	PayeeAddresses    []*float32 `json:"PayeeAddresses,omitempty" xml:"PayeeAddresses,omitempty" require:"true" type:"Repeated"`
+	PayeeBankNames    []*float32 `json:"PayeeBankNames,omitempty" xml:"PayeeBankNames,omitempty" require:"true" type:"Repeated"`
+	Payees            []*float32 `json:"Payees,omitempty" xml:"Payees,omitempty" require:"true" type:"Repeated"`
+	Checkers          []*float32 `json:"Checkers,omitempty" xml:"Checkers,omitempty" require:"true" type:"Repeated"`
+	Clerks            []*float32 `json:"Clerks,omitempty" xml:"Clerks,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeVATInvoiceResponseDataBox) String() string {
@@ -1149,8 +1149,8 @@ func (s *RecognizeVATInvoiceResponseDataBox) SetClerks(v []*float32) *RecognizeV
 }
 
 type RecognizeVATInvoiceAdvanceRequest struct {
-	FileURLObject io.Reader `json:"FileURLObject" xml:"FileURLObject" require:"true"`
-	FileType      *string   `json:"FileType" xml:"FileType" require:"true"`
+	FileURLObject io.Reader `json:"FileURLObject,omitempty" xml:"FileURLObject,omitempty" require:"true"`
+	FileType      *string   `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
 }
 
 func (s RecognizeVATInvoiceAdvanceRequest) String() string {
@@ -1172,9 +1172,9 @@ func (s *RecognizeVATInvoiceAdvanceRequest) SetFileType(v string) *RecognizeVATI
 }
 
 type RecognizeCharacterRequest struct {
-	ImageURL          *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	MinHeight         *int    `json:"MinHeight" xml:"MinHeight" require:"true"`
-	OutputProbability *bool   `json:"OutputProbability" xml:"OutputProbability" require:"true"`
+	ImageURL          *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	MinHeight         *int    `json:"MinHeight,omitempty" xml:"MinHeight,omitempty" require:"true"`
+	OutputProbability *bool   `json:"OutputProbability,omitempty" xml:"OutputProbability,omitempty" require:"true"`
 }
 
 func (s RecognizeCharacterRequest) String() string {
@@ -1201,8 +1201,8 @@ func (s *RecognizeCharacterRequest) SetOutputProbability(v bool) *RecognizeChara
 }
 
 type RecognizeCharacterResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeCharacterResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeCharacterResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeCharacterResponse) String() string {
@@ -1224,7 +1224,7 @@ func (s *RecognizeCharacterResponse) SetData(v *RecognizeCharacterResponseData) 
 }
 
 type RecognizeCharacterResponseData struct {
-	Results []*RecognizeCharacterResponseDataResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	Results []*RecognizeCharacterResponseDataResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeCharacterResponseData) String() string {
@@ -1241,9 +1241,9 @@ func (s *RecognizeCharacterResponseData) SetResults(v []*RecognizeCharacterRespo
 }
 
 type RecognizeCharacterResponseDataResults struct {
-	Probability    *float32                                             `json:"Probability" xml:"Probability" require:"true"`
-	Text           *string                                              `json:"Text" xml:"Text" require:"true"`
-	TextRectangles *RecognizeCharacterResponseDataResultsTextRectangles `json:"TextRectangles" xml:"TextRectangles" require:"true" type:"Struct"`
+	Probability    *float32                                             `json:"Probability,omitempty" xml:"Probability,omitempty" require:"true"`
+	Text           *string                                              `json:"Text,omitempty" xml:"Text,omitempty" require:"true"`
+	TextRectangles *RecognizeCharacterResponseDataResultsTextRectangles `json:"TextRectangles,omitempty" xml:"TextRectangles,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeCharacterResponseDataResults) String() string {
@@ -1270,11 +1270,11 @@ func (s *RecognizeCharacterResponseDataResults) SetTextRectangles(v *RecognizeCh
 }
 
 type RecognizeCharacterResponseDataResultsTextRectangles struct {
-	Angle  *int `json:"Angle" xml:"Angle" require:"true"`
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
+	Angle  *int `json:"Angle,omitempty" xml:"Angle,omitempty" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s RecognizeCharacterResponseDataResultsTextRectangles) String() string {
@@ -1311,9 +1311,9 @@ func (s *RecognizeCharacterResponseDataResultsTextRectangles) SetHeight(v int) *
 }
 
 type RecognizeCharacterAdvanceRequest struct {
-	ImageURLObject    io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	MinHeight         *int      `json:"MinHeight" xml:"MinHeight" require:"true"`
-	OutputProbability *bool     `json:"OutputProbability" xml:"OutputProbability" require:"true"`
+	ImageURLObject    io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	MinHeight         *int      `json:"MinHeight,omitempty" xml:"MinHeight,omitempty" require:"true"`
+	OutputProbability *bool     `json:"OutputProbability,omitempty" xml:"OutputProbability,omitempty" require:"true"`
 }
 
 func (s RecognizeCharacterAdvanceRequest) String() string {
@@ -1340,7 +1340,7 @@ func (s *RecognizeCharacterAdvanceRequest) SetOutputProbability(v bool) *Recogni
 }
 
 type RecognizeTaxiInvoiceRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeTaxiInvoiceRequest) String() string {
@@ -1357,8 +1357,8 @@ func (s *RecognizeTaxiInvoiceRequest) SetImageURL(v string) *RecognizeTaxiInvoic
 }
 
 type RecognizeTaxiInvoiceResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeTaxiInvoiceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeTaxiInvoiceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTaxiInvoiceResponse) String() string {
@@ -1380,7 +1380,7 @@ func (s *RecognizeTaxiInvoiceResponse) SetData(v *RecognizeTaxiInvoiceResponseDa
 }
 
 type RecognizeTaxiInvoiceResponseData struct {
-	Invoices []*RecognizeTaxiInvoiceResponseDataInvoices `json:"Invoices" xml:"Invoices" require:"true" type:"Repeated"`
+	Invoices []*RecognizeTaxiInvoiceResponseDataInvoices `json:"Invoices,omitempty" xml:"Invoices,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTaxiInvoiceResponseData) String() string {
@@ -1397,9 +1397,9 @@ func (s *RecognizeTaxiInvoiceResponseData) SetInvoices(v []*RecognizeTaxiInvoice
 }
 
 type RecognizeTaxiInvoiceResponseDataInvoices struct {
-	RotateType *int                                                `json:"RotateType" xml:"RotateType" require:"true"`
-	Items      []*RecognizeTaxiInvoiceResponseDataInvoicesItems    `json:"Items" xml:"Items" require:"true" type:"Repeated"`
-	InvoiceRoi *RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi `json:"InvoiceRoi" xml:"InvoiceRoi" require:"true" type:"Struct"`
+	RotateType *int                                                `json:"RotateType,omitempty" xml:"RotateType,omitempty" require:"true"`
+	Items      []*RecognizeTaxiInvoiceResponseDataInvoicesItems    `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Repeated"`
+	InvoiceRoi *RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi `json:"InvoiceRoi,omitempty" xml:"InvoiceRoi,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTaxiInvoiceResponseDataInvoices) String() string {
@@ -1426,8 +1426,8 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoices) SetInvoiceRoi(v *RecognizeTax
 }
 
 type RecognizeTaxiInvoiceResponseDataInvoicesItems struct {
-	Text    *string                                               `json:"Text" xml:"Text" require:"true"`
-	ItemRoi *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi `json:"ItemRoi" xml:"ItemRoi" require:"true" type:"Struct"`
+	Text    *string                                               `json:"Text,omitempty" xml:"Text,omitempty" require:"true"`
+	ItemRoi *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi `json:"ItemRoi,omitempty" xml:"ItemRoi,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTaxiInvoiceResponseDataInvoicesItems) String() string {
@@ -1449,9 +1449,9 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoicesItems) SetItemRoi(v *RecognizeT
 }
 
 type RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi struct {
-	Angle  *float32                                                    `json:"Angle" xml:"Angle" require:"true"`
-	Center *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter `json:"Center" xml:"Center" require:"true" type:"Struct"`
-	Size   *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize   `json:"Size" xml:"Size" require:"true" type:"Struct"`
+	Angle  *float32                                                    `json:"Angle,omitempty" xml:"Angle,omitempty" require:"true"`
+	Center *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter `json:"Center,omitempty" xml:"Center,omitempty" require:"true" type:"Struct"`
+	Size   *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize   `json:"Size,omitempty" xml:"Size,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi) String() string {
@@ -1478,8 +1478,8 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoi) SetSize(v *Recogn
 }
 
 type RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter struct {
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
 }
 
 func (s RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter) String() string {
@@ -1501,8 +1501,8 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiCenter) SetY(v floa
 }
 
 type RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize struct {
-	H *float32 `json:"H" xml:"H" require:"true"`
-	W *float32 `json:"W" xml:"W" require:"true"`
+	H *float32 `json:"H,omitempty" xml:"H,omitempty" require:"true"`
+	W *float32 `json:"W,omitempty" xml:"W,omitempty" require:"true"`
 }
 
 func (s RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize) String() string {
@@ -1524,10 +1524,10 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoicesItemsItemRoiSize) SetW(v float3
 }
 
 type RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi struct {
-	H *float32 `json:"H" xml:"H" require:"true"`
-	W *float32 `json:"W" xml:"W" require:"true"`
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	H *float32 `json:"H,omitempty" xml:"H,omitempty" require:"true"`
+	W *float32 `json:"W,omitempty" xml:"W,omitempty" require:"true"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
 }
 
 func (s RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi) String() string {
@@ -1559,7 +1559,7 @@ func (s *RecognizeTaxiInvoiceResponseDataInvoicesInvoiceRoi) SetY(v float32) *Re
 }
 
 type RecognizeTaxiInvoiceAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeTaxiInvoiceAdvanceRequest) String() string {
@@ -1576,8 +1576,8 @@ func (s *RecognizeTaxiInvoiceAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 }
 
 type RecognizeIdentityCardRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side     *string `json:"Side" xml:"Side" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Side     *string `json:"Side,omitempty" xml:"Side,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardRequest) String() string {
@@ -1599,8 +1599,8 @@ func (s *RecognizeIdentityCardRequest) SetSide(v string) *RecognizeIdentityCardR
 }
 
 type RecognizeIdentityCardResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeIdentityCardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeIdentityCardResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeIdentityCardResponse) String() string {
@@ -1622,8 +1622,8 @@ func (s *RecognizeIdentityCardResponse) SetData(v *RecognizeIdentityCardResponse
 }
 
 type RecognizeIdentityCardResponseData struct {
-	FrontResult *RecognizeIdentityCardResponseDataFrontResult `json:"FrontResult" xml:"FrontResult" require:"true" type:"Struct"`
-	BackResult  *RecognizeIdentityCardResponseDataBackResult  `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
+	FrontResult *RecognizeIdentityCardResponseDataFrontResult `json:"FrontResult,omitempty" xml:"FrontResult,omitempty" require:"true" type:"Struct"`
+	BackResult  *RecognizeIdentityCardResponseDataBackResult  `json:"BackResult,omitempty" xml:"BackResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeIdentityCardResponseData) String() string {
@@ -1645,15 +1645,15 @@ func (s *RecognizeIdentityCardResponseData) SetBackResult(v *RecognizeIdentityCa
 }
 
 type RecognizeIdentityCardResponseDataFrontResult struct {
-	Address          *string                                                         `json:"Address" xml:"Address" require:"true"`
-	Name             *string                                                         `json:"Name" xml:"Name" require:"true"`
-	Nationality      *string                                                         `json:"Nationality" xml:"Nationality" require:"true"`
-	IDNumber         *string                                                         `json:"IDNumber" xml:"IDNumber" require:"true"`
-	Gender           *string                                                         `json:"Gender" xml:"Gender" require:"true"`
-	BirthDate        *string                                                         `json:"BirthDate" xml:"BirthDate" require:"true"`
-	CardAreas        []*RecognizeIdentityCardResponseDataFrontResultCardAreas        `json:"CardAreas" xml:"CardAreas" require:"true" type:"Repeated"`
-	FaceRectVertices []*RecognizeIdentityCardResponseDataFrontResultFaceRectVertices `json:"FaceRectVertices" xml:"FaceRectVertices" require:"true" type:"Repeated"`
-	FaceRectangle    *RecognizeIdentityCardResponseDataFrontResultFaceRectangle      `json:"FaceRectangle" xml:"FaceRectangle" require:"true" type:"Struct"`
+	Address          *string                                                         `json:"Address,omitempty" xml:"Address,omitempty" require:"true"`
+	Name             *string                                                         `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Nationality      *string                                                         `json:"Nationality,omitempty" xml:"Nationality,omitempty" require:"true"`
+	IDNumber         *string                                                         `json:"IDNumber,omitempty" xml:"IDNumber,omitempty" require:"true"`
+	Gender           *string                                                         `json:"Gender,omitempty" xml:"Gender,omitempty" require:"true"`
+	BirthDate        *string                                                         `json:"BirthDate,omitempty" xml:"BirthDate,omitempty" require:"true"`
+	CardAreas        []*RecognizeIdentityCardResponseDataFrontResultCardAreas        `json:"CardAreas,omitempty" xml:"CardAreas,omitempty" require:"true" type:"Repeated"`
+	FaceRectVertices []*RecognizeIdentityCardResponseDataFrontResultFaceRectVertices `json:"FaceRectVertices,omitempty" xml:"FaceRectVertices,omitempty" require:"true" type:"Repeated"`
+	FaceRectangle    *RecognizeIdentityCardResponseDataFrontResultFaceRectangle      `json:"FaceRectangle,omitempty" xml:"FaceRectangle,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeIdentityCardResponseDataFrontResult) String() string {
@@ -1710,8 +1710,8 @@ func (s *RecognizeIdentityCardResponseDataFrontResult) SetFaceRectangle(v *Recog
 }
 
 type RecognizeIdentityCardResponseDataFrontResultCardAreas struct {
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardResponseDataFrontResultCardAreas) String() string {
@@ -1733,8 +1733,8 @@ func (s *RecognizeIdentityCardResponseDataFrontResultCardAreas) SetY(v float32) 
 }
 
 type RecognizeIdentityCardResponseDataFrontResultFaceRectVertices struct {
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardResponseDataFrontResultFaceRectVertices) String() string {
@@ -1756,9 +1756,9 @@ func (s *RecognizeIdentityCardResponseDataFrontResultFaceRectVertices) SetY(v fl
 }
 
 type RecognizeIdentityCardResponseDataFrontResultFaceRectangle struct {
-	Angle  *float32                                                         `json:"Angle" xml:"Angle" require:"true"`
-	Center *RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter `json:"Center" xml:"Center" require:"true" type:"Struct"`
-	Size   *RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize   `json:"Size" xml:"Size" require:"true" type:"Struct"`
+	Angle  *float32                                                         `json:"Angle,omitempty" xml:"Angle,omitempty" require:"true"`
+	Center *RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter `json:"Center,omitempty" xml:"Center,omitempty" require:"true" type:"Struct"`
+	Size   *RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize   `json:"Size,omitempty" xml:"Size,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeIdentityCardResponseDataFrontResultFaceRectangle) String() string {
@@ -1785,8 +1785,8 @@ func (s *RecognizeIdentityCardResponseDataFrontResultFaceRectangle) SetSize(v *R
 }
 
 type RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter struct {
-	X *float32 `json:"X" xml:"X" require:"true"`
-	Y *float32 `json:"Y" xml:"Y" require:"true"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter) String() string {
@@ -1808,8 +1808,8 @@ func (s *RecognizeIdentityCardResponseDataFrontResultFaceRectangleCenter) SetY(v
 }
 
 type RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize struct {
-	Height *float32 `json:"Height" xml:"Height" require:"true"`
-	Width  *float32 `json:"Width" xml:"Width" require:"true"`
+	Height *float32 `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *float32 `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize) String() string {
@@ -1831,9 +1831,9 @@ func (s *RecognizeIdentityCardResponseDataFrontResultFaceRectangleSize) SetWidth
 }
 
 type RecognizeIdentityCardResponseDataBackResult struct {
-	StartDate *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate   *string `json:"EndDate" xml:"EndDate" require:"true"`
-	Issue     *string `json:"Issue" xml:"Issue" require:"true"`
+	StartDate *string `json:"StartDate,omitempty" xml:"StartDate,omitempty" require:"true"`
+	EndDate   *string `json:"EndDate,omitempty" xml:"EndDate,omitempty" require:"true"`
+	Issue     *string `json:"Issue,omitempty" xml:"Issue,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardResponseDataBackResult) String() string {
@@ -1860,8 +1860,8 @@ func (s *RecognizeIdentityCardResponseDataBackResult) SetIssue(v string) *Recogn
 }
 
 type RecognizeIdentityCardAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	Side           *string   `json:"Side" xml:"Side" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	Side           *string   `json:"Side,omitempty" xml:"Side,omitempty" require:"true"`
 }
 
 func (s RecognizeIdentityCardAdvanceRequest) String() string {
@@ -1883,7 +1883,7 @@ func (s *RecognizeIdentityCardAdvanceRequest) SetSide(v string) *RecognizeIdenti
 }
 
 type RecognizeLicensePlateRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeLicensePlateRequest) String() string {
@@ -1900,8 +1900,8 @@ func (s *RecognizeLicensePlateRequest) SetImageURL(v string) *RecognizeLicensePl
 }
 
 type RecognizeLicensePlateResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeLicensePlateResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeLicensePlateResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeLicensePlateResponse) String() string {
@@ -1923,7 +1923,7 @@ func (s *RecognizeLicensePlateResponse) SetData(v *RecognizeLicensePlateResponse
 }
 
 type RecognizeLicensePlateResponseData struct {
-	Plates []*RecognizeLicensePlateResponseDataPlates `json:"Plates" xml:"Plates" require:"true" type:"Repeated"`
+	Plates []*RecognizeLicensePlateResponseDataPlates `json:"Plates,omitempty" xml:"Plates,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeLicensePlateResponseData) String() string {
@@ -1940,11 +1940,11 @@ func (s *RecognizeLicensePlateResponseData) SetPlates(v []*RecognizeLicensePlate
 }
 
 type RecognizeLicensePlateResponseDataPlates struct {
-	Confidence          *float32                                    `json:"Confidence" xml:"Confidence" require:"true"`
-	PlateNumber         *string                                     `json:"PlateNumber" xml:"PlateNumber" require:"true"`
-	PlateType           *string                                     `json:"PlateType" xml:"PlateType" require:"true"`
-	PlateTypeConfidence *float32                                    `json:"PlateTypeConfidence" xml:"PlateTypeConfidence" require:"true"`
-	Roi                 *RecognizeLicensePlateResponseDataPlatesRoi `json:"Roi" xml:"Roi" require:"true" type:"Struct"`
+	Confidence          *float32                                    `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
+	PlateNumber         *string                                     `json:"PlateNumber,omitempty" xml:"PlateNumber,omitempty" require:"true"`
+	PlateType           *string                                     `json:"PlateType,omitempty" xml:"PlateType,omitempty" require:"true"`
+	PlateTypeConfidence *float32                                    `json:"PlateTypeConfidence,omitempty" xml:"PlateTypeConfidence,omitempty" require:"true"`
+	Roi                 *RecognizeLicensePlateResponseDataPlatesRoi `json:"Roi,omitempty" xml:"Roi,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeLicensePlateResponseDataPlates) String() string {
@@ -1981,10 +1981,10 @@ func (s *RecognizeLicensePlateResponseDataPlates) SetRoi(v *RecognizeLicensePlat
 }
 
 type RecognizeLicensePlateResponseDataPlatesRoi struct {
-	H *int `json:"H" xml:"H" require:"true"`
-	W *int `json:"W" xml:"W" require:"true"`
-	X *int `json:"X" xml:"X" require:"true"`
-	Y *int `json:"Y" xml:"Y" require:"true"`
+	H *int `json:"H,omitempty" xml:"H,omitempty" require:"true"`
+	W *int `json:"W,omitempty" xml:"W,omitempty" require:"true"`
+	X *int `json:"X,omitempty" xml:"X,omitempty" require:"true"`
+	Y *int `json:"Y,omitempty" xml:"Y,omitempty" require:"true"`
 }
 
 func (s RecognizeLicensePlateResponseDataPlatesRoi) String() string {
@@ -2016,7 +2016,7 @@ func (s *RecognizeLicensePlateResponseDataPlatesRoi) SetY(v int) *RecognizeLicen
 }
 
 type RecognizeLicensePlateAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeLicensePlateAdvanceRequest) String() string {
@@ -2033,12 +2033,12 @@ func (s *RecognizeLicensePlateAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 }
 
 type RecognizeTableRequest struct {
-	ImageURL        *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	OutputFormat    *string `json:"OutputFormat" xml:"OutputFormat" require:"true"`
-	UseFinanceModel *bool   `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
-	AssureDirection *bool   `json:"AssureDirection" xml:"AssureDirection" require:"true"`
-	HasLine         *bool   `json:"HasLine" xml:"HasLine" require:"true"`
-	SkipDetection   *bool   `json:"SkipDetection" xml:"SkipDetection" require:"true"`
+	ImageURL        *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	OutputFormat    *string `json:"OutputFormat,omitempty" xml:"OutputFormat,omitempty" require:"true"`
+	UseFinanceModel *bool   `json:"UseFinanceModel,omitempty" xml:"UseFinanceModel,omitempty" require:"true"`
+	AssureDirection *bool   `json:"AssureDirection,omitempty" xml:"AssureDirection,omitempty" require:"true"`
+	HasLine         *bool   `json:"HasLine,omitempty" xml:"HasLine,omitempty" require:"true"`
+	SkipDetection   *bool   `json:"SkipDetection,omitempty" xml:"SkipDetection,omitempty" require:"true"`
 }
 
 func (s RecognizeTableRequest) String() string {
@@ -2080,8 +2080,8 @@ func (s *RecognizeTableRequest) SetSkipDetection(v bool) *RecognizeTableRequest 
 }
 
 type RecognizeTableResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeTableResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeTableResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTableResponse) String() string {
@@ -2103,8 +2103,8 @@ func (s *RecognizeTableResponse) SetData(v *RecognizeTableResponseData) *Recogni
 }
 
 type RecognizeTableResponseData struct {
-	FileContent *string                             `json:"FileContent" xml:"FileContent" require:"true"`
-	Tables      []*RecognizeTableResponseDataTables `json:"Tables" xml:"Tables" require:"true" type:"Repeated"`
+	FileContent *string                             `json:"FileContent,omitempty" xml:"FileContent,omitempty" require:"true"`
+	Tables      []*RecognizeTableResponseDataTables `json:"Tables,omitempty" xml:"Tables,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseData) String() string {
@@ -2126,9 +2126,9 @@ func (s *RecognizeTableResponseData) SetTables(v []*RecognizeTableResponseDataTa
 }
 
 type RecognizeTableResponseDataTables struct {
-	Head      *string                                      `json:"Head" xml:"Head" require:"true"`
-	Tail      *string                                      `json:"Tail" xml:"Tail" require:"true"`
-	TableRows []*RecognizeTableResponseDataTablesTableRows `json:"TableRows" xml:"TableRows" require:"true" type:"Repeated"`
+	Head      *string                                      `json:"Head,omitempty" xml:"Head,omitempty" require:"true"`
+	Tail      *string                                      `json:"Tail,omitempty" xml:"Tail,omitempty" require:"true"`
+	TableRows []*RecognizeTableResponseDataTablesTableRows `json:"TableRows,omitempty" xml:"TableRows,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseDataTables) String() string {
@@ -2155,7 +2155,7 @@ func (s *RecognizeTableResponseDataTables) SetTableRows(v []*RecognizeTableRespo
 }
 
 type RecognizeTableResponseDataTablesTableRows struct {
-	TableColumns []*RecognizeTableResponseDataTablesTableRowsTableColumns `json:"TableColumns" xml:"TableColumns" require:"true" type:"Repeated"`
+	TableColumns []*RecognizeTableResponseDataTablesTableRowsTableColumns `json:"TableColumns,omitempty" xml:"TableColumns,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseDataTablesTableRows) String() string {
@@ -2172,13 +2172,13 @@ func (s *RecognizeTableResponseDataTablesTableRows) SetTableColumns(v []*Recogni
 }
 
 type RecognizeTableResponseDataTablesTableRowsTableColumns struct {
-	StartColumn *int      `json:"StartColumn" xml:"StartColumn" require:"true"`
-	StartRow    *int      `json:"StartRow" xml:"StartRow" require:"true"`
-	EndColumn   *int      `json:"EndColumn" xml:"EndColumn" require:"true"`
-	EndRow      *int      `json:"EndRow" xml:"EndRow" require:"true"`
-	Height      *int      `json:"Height" xml:"Height" require:"true"`
-	Width       *int      `json:"Width" xml:"Width" require:"true"`
-	Texts       []*string `json:"Texts" xml:"Texts" require:"true" type:"Repeated"`
+	StartColumn *int      `json:"StartColumn,omitempty" xml:"StartColumn,omitempty" require:"true"`
+	StartRow    *int      `json:"StartRow,omitempty" xml:"StartRow,omitempty" require:"true"`
+	EndColumn   *int      `json:"EndColumn,omitempty" xml:"EndColumn,omitempty" require:"true"`
+	EndRow      *int      `json:"EndRow,omitempty" xml:"EndRow,omitempty" require:"true"`
+	Height      *int      `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width       *int      `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Texts       []*string `json:"Texts,omitempty" xml:"Texts,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeTableResponseDataTablesTableRowsTableColumns) String() string {
@@ -2225,12 +2225,12 @@ func (s *RecognizeTableResponseDataTablesTableRowsTableColumns) SetTexts(v []*st
 }
 
 type RecognizeTableAdvanceRequest struct {
-	ImageURLObject  io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	OutputFormat    *string   `json:"OutputFormat" xml:"OutputFormat" require:"true"`
-	UseFinanceModel *bool     `json:"UseFinanceModel" xml:"UseFinanceModel" require:"true"`
-	AssureDirection *bool     `json:"AssureDirection" xml:"AssureDirection" require:"true"`
-	HasLine         *bool     `json:"HasLine" xml:"HasLine" require:"true"`
-	SkipDetection   *bool     `json:"SkipDetection" xml:"SkipDetection" require:"true"`
+	ImageURLObject  io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	OutputFormat    *string   `json:"OutputFormat,omitempty" xml:"OutputFormat,omitempty" require:"true"`
+	UseFinanceModel *bool     `json:"UseFinanceModel,omitempty" xml:"UseFinanceModel,omitempty" require:"true"`
+	AssureDirection *bool     `json:"AssureDirection,omitempty" xml:"AssureDirection,omitempty" require:"true"`
+	HasLine         *bool     `json:"HasLine,omitempty" xml:"HasLine,omitempty" require:"true"`
+	SkipDetection   *bool     `json:"SkipDetection,omitempty" xml:"SkipDetection,omitempty" require:"true"`
 }
 
 func (s RecognizeTableAdvanceRequest) String() string {
@@ -2272,8 +2272,8 @@ func (s *RecognizeTableAdvanceRequest) SetSkipDetection(v bool) *RecognizeTableA
 }
 
 type RecognizeDrivingLicenseRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side     *string `json:"Side" xml:"Side" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Side     *string `json:"Side,omitempty" xml:"Side,omitempty" require:"true"`
 }
 
 func (s RecognizeDrivingLicenseRequest) String() string {
@@ -2295,8 +2295,8 @@ func (s *RecognizeDrivingLicenseRequest) SetSide(v string) *RecognizeDrivingLice
 }
 
 type RecognizeDrivingLicenseResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeDrivingLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeDrivingLicenseResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeDrivingLicenseResponse) String() string {
@@ -2318,8 +2318,8 @@ func (s *RecognizeDrivingLicenseResponse) SetData(v *RecognizeDrivingLicenseResp
 }
 
 type RecognizeDrivingLicenseResponseData struct {
-	FaceResult *RecognizeDrivingLicenseResponseDataFaceResult `json:"FaceResult" xml:"FaceResult" require:"true" type:"Struct"`
-	BackResult *RecognizeDrivingLicenseResponseDataBackResult `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
+	FaceResult *RecognizeDrivingLicenseResponseDataFaceResult `json:"FaceResult,omitempty" xml:"FaceResult,omitempty" require:"true" type:"Struct"`
+	BackResult *RecognizeDrivingLicenseResponseDataBackResult `json:"BackResult,omitempty" xml:"BackResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeDrivingLicenseResponseData) String() string {
@@ -2341,16 +2341,16 @@ func (s *RecognizeDrivingLicenseResponseData) SetBackResult(v *RecognizeDrivingL
 }
 
 type RecognizeDrivingLicenseResponseDataFaceResult struct {
-	PlateNumber  *string `json:"PlateNumber" xml:"PlateNumber" require:"true"`
-	VehicleType  *string `json:"VehicleType" xml:"VehicleType" require:"true"`
-	Owner        *string `json:"Owner" xml:"Owner" require:"true"`
-	UseCharacter *string `json:"UseCharacter" xml:"UseCharacter" require:"true"`
-	Address      *string `json:"Address" xml:"Address" require:"true"`
-	Model        *string `json:"Model" xml:"Model" require:"true"`
-	Vin          *string `json:"Vin" xml:"Vin" require:"true"`
-	EngineNumber *string `json:"EngineNumber" xml:"EngineNumber" require:"true"`
-	RegisterDate *string `json:"RegisterDate" xml:"RegisterDate" require:"true"`
-	IssueDate    *string `json:"IssueDate" xml:"IssueDate" require:"true"`
+	PlateNumber  *string `json:"PlateNumber,omitempty" xml:"PlateNumber,omitempty" require:"true"`
+	VehicleType  *string `json:"VehicleType,omitempty" xml:"VehicleType,omitempty" require:"true"`
+	Owner        *string `json:"Owner,omitempty" xml:"Owner,omitempty" require:"true"`
+	UseCharacter *string `json:"UseCharacter,omitempty" xml:"UseCharacter,omitempty" require:"true"`
+	Address      *string `json:"Address,omitempty" xml:"Address,omitempty" require:"true"`
+	Model        *string `json:"Model,omitempty" xml:"Model,omitempty" require:"true"`
+	Vin          *string `json:"Vin,omitempty" xml:"Vin,omitempty" require:"true"`
+	EngineNumber *string `json:"EngineNumber,omitempty" xml:"EngineNumber,omitempty" require:"true"`
+	RegisterDate *string `json:"RegisterDate,omitempty" xml:"RegisterDate,omitempty" require:"true"`
+	IssueDate    *string `json:"IssueDate,omitempty" xml:"IssueDate,omitempty" require:"true"`
 }
 
 func (s RecognizeDrivingLicenseResponseDataFaceResult) String() string {
@@ -2412,16 +2412,16 @@ func (s *RecognizeDrivingLicenseResponseDataFaceResult) SetIssueDate(v string) *
 }
 
 type RecognizeDrivingLicenseResponseDataBackResult struct {
-	ApprovedPassengerCapacity *string `json:"ApprovedPassengerCapacity" xml:"ApprovedPassengerCapacity" require:"true"`
-	ApprovedLoad              *string `json:"ApprovedLoad" xml:"ApprovedLoad" require:"true"`
-	FileNumber                *string `json:"FileNumber" xml:"FileNumber" require:"true"`
-	GrossMass                 *string `json:"GrossMass" xml:"GrossMass" require:"true"`
-	EnergyType                *string `json:"EnergyType" xml:"EnergyType" require:"true"`
-	InspectionRecord          *string `json:"InspectionRecord" xml:"InspectionRecord" require:"true"`
-	OverallDimension          *string `json:"OverallDimension" xml:"OverallDimension" require:"true"`
-	TractionMass              *string `json:"TractionMass" xml:"TractionMass" require:"true"`
-	UnladenMass               *string `json:"UnladenMass" xml:"UnladenMass" require:"true"`
-	PlateNumber               *string `json:"PlateNumber" xml:"PlateNumber" require:"true"`
+	ApprovedPassengerCapacity *string `json:"ApprovedPassengerCapacity,omitempty" xml:"ApprovedPassengerCapacity,omitempty" require:"true"`
+	ApprovedLoad              *string `json:"ApprovedLoad,omitempty" xml:"ApprovedLoad,omitempty" require:"true"`
+	FileNumber                *string `json:"FileNumber,omitempty" xml:"FileNumber,omitempty" require:"true"`
+	GrossMass                 *string `json:"GrossMass,omitempty" xml:"GrossMass,omitempty" require:"true"`
+	EnergyType                *string `json:"EnergyType,omitempty" xml:"EnergyType,omitempty" require:"true"`
+	InspectionRecord          *string `json:"InspectionRecord,omitempty" xml:"InspectionRecord,omitempty" require:"true"`
+	OverallDimension          *string `json:"OverallDimension,omitempty" xml:"OverallDimension,omitempty" require:"true"`
+	TractionMass              *string `json:"TractionMass,omitempty" xml:"TractionMass,omitempty" require:"true"`
+	UnladenMass               *string `json:"UnladenMass,omitempty" xml:"UnladenMass,omitempty" require:"true"`
+	PlateNumber               *string `json:"PlateNumber,omitempty" xml:"PlateNumber,omitempty" require:"true"`
 }
 
 func (s RecognizeDrivingLicenseResponseDataBackResult) String() string {
@@ -2483,8 +2483,8 @@ func (s *RecognizeDrivingLicenseResponseDataBackResult) SetPlateNumber(v string)
 }
 
 type RecognizeDrivingLicenseAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	Side           *string   `json:"Side" xml:"Side" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	Side           *string   `json:"Side,omitempty" xml:"Side,omitempty" require:"true"`
 }
 
 func (s RecognizeDrivingLicenseAdvanceRequest) String() string {
@@ -2506,7 +2506,7 @@ func (s *RecognizeDrivingLicenseAdvanceRequest) SetSide(v string) *RecognizeDriv
 }
 
 type RecognizeBankCardRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeBankCardRequest) String() string {
@@ -2523,8 +2523,8 @@ func (s *RecognizeBankCardRequest) SetImageURL(v string) *RecognizeBankCardReque
 }
 
 type RecognizeBankCardResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeBankCardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeBankCardResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeBankCardResponse) String() string {
@@ -2546,9 +2546,9 @@ func (s *RecognizeBankCardResponse) SetData(v *RecognizeBankCardResponseData) *R
 }
 
 type RecognizeBankCardResponseData struct {
-	BankName   *string `json:"BankName" xml:"BankName" require:"true"`
-	CardNumber *string `json:"CardNumber" xml:"CardNumber" require:"true"`
-	ValidDate  *string `json:"ValidDate" xml:"ValidDate" require:"true"`
+	BankName   *string `json:"BankName,omitempty" xml:"BankName,omitempty" require:"true"`
+	CardNumber *string `json:"CardNumber,omitempty" xml:"CardNumber,omitempty" require:"true"`
+	ValidDate  *string `json:"ValidDate,omitempty" xml:"ValidDate,omitempty" require:"true"`
 }
 
 func (s RecognizeBankCardResponseData) String() string {
@@ -2575,7 +2575,7 @@ func (s *RecognizeBankCardResponseData) SetValidDate(v string) *RecognizeBankCar
 }
 
 type RecognizeBankCardAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeBankCardAdvanceRequest) String() string {
@@ -2592,7 +2592,7 @@ func (s *RecognizeBankCardAdvanceRequest) SetImageURLObject(v io.Reader) *Recogn
 }
 
 type RecognizeTrainTicketRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeTrainTicketRequest) String() string {
@@ -2609,8 +2609,8 @@ func (s *RecognizeTrainTicketRequest) SetImageURL(v string) *RecognizeTrainTicke
 }
 
 type RecognizeTrainTicketResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeTrainTicketResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeTrainTicketResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeTrainTicketResponse) String() string {
@@ -2632,14 +2632,14 @@ func (s *RecognizeTrainTicketResponse) SetData(v *RecognizeTrainTicketResponseDa
 }
 
 type RecognizeTrainTicketResponseData struct {
-	Date             *string  `json:"Date" xml:"Date" require:"true"`
-	Destination      *string  `json:"Destination" xml:"Destination" require:"true"`
-	Level            *string  `json:"Level" xml:"Level" require:"true"`
-	Number           *string  `json:"Number" xml:"Number" require:"true"`
-	Name             *string  `json:"Name" xml:"Name" require:"true"`
-	DepartureStation *string  `json:"DepartureStation" xml:"DepartureStation" require:"true"`
-	Seat             *string  `json:"Seat" xml:"Seat" require:"true"`
-	Price            *float32 `json:"Price" xml:"Price" require:"true"`
+	Date             *string  `json:"Date,omitempty" xml:"Date,omitempty" require:"true"`
+	Destination      *string  `json:"Destination,omitempty" xml:"Destination,omitempty" require:"true"`
+	Level            *string  `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	Number           *string  `json:"Number,omitempty" xml:"Number,omitempty" require:"true"`
+	Name             *string  `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	DepartureStation *string  `json:"DepartureStation,omitempty" xml:"DepartureStation,omitempty" require:"true"`
+	Seat             *string  `json:"Seat,omitempty" xml:"Seat,omitempty" require:"true"`
+	Price            *float32 `json:"Price,omitempty" xml:"Price,omitempty" require:"true"`
 }
 
 func (s RecognizeTrainTicketResponseData) String() string {
@@ -2691,7 +2691,7 @@ func (s *RecognizeTrainTicketResponseData) SetPrice(v float32) *RecognizeTrainTi
 }
 
 type RecognizeTrainTicketAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeTrainTicketAdvanceRequest) String() string {
@@ -2708,8 +2708,8 @@ func (s *RecognizeTrainTicketAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 }
 
 type RecognizeDriverLicenseRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	Side     *string `json:"Side" xml:"Side" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	Side     *string `json:"Side,omitempty" xml:"Side,omitempty" require:"true"`
 }
 
 func (s RecognizeDriverLicenseRequest) String() string {
@@ -2731,8 +2731,8 @@ func (s *RecognizeDriverLicenseRequest) SetSide(v string) *RecognizeDriverLicens
 }
 
 type RecognizeDriverLicenseResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeDriverLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeDriverLicenseResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeDriverLicenseResponse) String() string {
@@ -2754,8 +2754,8 @@ func (s *RecognizeDriverLicenseResponse) SetData(v *RecognizeDriverLicenseRespon
 }
 
 type RecognizeDriverLicenseResponseData struct {
-	FaceResult *RecognizeDriverLicenseResponseDataFaceResult `json:"FaceResult" xml:"FaceResult" require:"true" type:"Struct"`
-	BackResult *RecognizeDriverLicenseResponseDataBackResult `json:"BackResult" xml:"BackResult" require:"true" type:"Struct"`
+	FaceResult *RecognizeDriverLicenseResponseDataFaceResult `json:"FaceResult,omitempty" xml:"FaceResult,omitempty" require:"true" type:"Struct"`
+	BackResult *RecognizeDriverLicenseResponseDataBackResult `json:"BackResult,omitempty" xml:"BackResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeDriverLicenseResponseData) String() string {
@@ -2777,14 +2777,14 @@ func (s *RecognizeDriverLicenseResponseData) SetBackResult(v *RecognizeDriverLic
 }
 
 type RecognizeDriverLicenseResponseDataFaceResult struct {
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	LicenseNumber *string `json:"LicenseNumber" xml:"LicenseNumber" require:"true"`
-	VehicleType   *string `json:"VehicleType" xml:"VehicleType" require:"true"`
-	StartDate     *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate       *string `json:"EndDate" xml:"EndDate" require:"true"`
-	IssueDate     *string `json:"IssueDate" xml:"IssueDate" require:"true"`
-	Address       *string `json:"Address" xml:"Address" require:"true"`
-	Gender        *string `json:"Gender" xml:"Gender" require:"true"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	LicenseNumber *string `json:"LicenseNumber,omitempty" xml:"LicenseNumber,omitempty" require:"true"`
+	VehicleType   *string `json:"VehicleType,omitempty" xml:"VehicleType,omitempty" require:"true"`
+	StartDate     *string `json:"StartDate,omitempty" xml:"StartDate,omitempty" require:"true"`
+	EndDate       *string `json:"EndDate,omitempty" xml:"EndDate,omitempty" require:"true"`
+	IssueDate     *string `json:"IssueDate,omitempty" xml:"IssueDate,omitempty" require:"true"`
+	Address       *string `json:"Address,omitempty" xml:"Address,omitempty" require:"true"`
+	Gender        *string `json:"Gender,omitempty" xml:"Gender,omitempty" require:"true"`
 }
 
 func (s RecognizeDriverLicenseResponseDataFaceResult) String() string {
@@ -2836,7 +2836,7 @@ func (s *RecognizeDriverLicenseResponseDataFaceResult) SetGender(v string) *Reco
 }
 
 type RecognizeDriverLicenseResponseDataBackResult struct {
-	ArchiveNumber *string `json:"ArchiveNumber" xml:"ArchiveNumber" require:"true"`
+	ArchiveNumber *string `json:"ArchiveNumber,omitempty" xml:"ArchiveNumber,omitempty" require:"true"`
 }
 
 func (s RecognizeDriverLicenseResponseDataBackResult) String() string {
@@ -2853,8 +2853,8 @@ func (s *RecognizeDriverLicenseResponseDataBackResult) SetArchiveNumber(v string
 }
 
 type RecognizeDriverLicenseAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
-	Side           *string   `json:"Side" xml:"Side" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
+	Side           *string   `json:"Side,omitempty" xml:"Side,omitempty" require:"true"`
 }
 
 func (s RecognizeDriverLicenseAdvanceRequest) String() string {
@@ -2876,7 +2876,7 @@ func (s *RecognizeDriverLicenseAdvanceRequest) SetSide(v string) *RecognizeDrive
 }
 
 type RecognizeAccountPageRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageRequest) String() string {
@@ -2893,8 +2893,8 @@ func (s *RecognizeAccountPageRequest) SetImageURL(v string) *RecognizeAccountPag
 }
 
 type RecognizeAccountPageResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeAccountPageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeAccountPageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeAccountPageResponse) String() string {
@@ -2916,20 +2916,20 @@ func (s *RecognizeAccountPageResponse) SetData(v *RecognizeAccountPageResponseDa
 }
 
 type RecognizeAccountPageResponseData struct {
-	Angle               *float32                                               `json:"Angle" xml:"Angle" require:"true"`
-	Name                *string                                                `json:"Name" xml:"Name" require:"true"`
-	Gender              *string                                                `json:"Gender" xml:"Gender" require:"true"`
-	Relation            *string                                                `json:"Relation" xml:"Relation" require:"true"`
-	BirthPlace          *string                                                `json:"BirthPlace" xml:"BirthPlace" require:"true"`
-	Nationality         *string                                                `json:"Nationality" xml:"Nationality" require:"true"`
-	NativePlace         *string                                                `json:"NativePlace" xml:"NativePlace" require:"true"`
-	BirthDate           *string                                                `json:"BirthDate" xml:"BirthDate" require:"true"`
-	IDNumber            *string                                                `json:"IDNumber" xml:"IDNumber" require:"true"`
-	InvalidStampAreas   []*RecognizeAccountPageResponseDataInvalidStampAreas   `json:"InvalidStampAreas" xml:"InvalidStampAreas" require:"true" type:"Repeated"`
-	UndertakeStampAreas []*RecognizeAccountPageResponseDataUndertakeStampAreas `json:"UndertakeStampAreas" xml:"UndertakeStampAreas" require:"true" type:"Repeated"`
-	RegisterStampAreas  []*RecognizeAccountPageResponseDataRegisterStampAreas  `json:"RegisterStampAreas" xml:"RegisterStampAreas" require:"true" type:"Repeated"`
-	OtherStampAreas     []*RecognizeAccountPageResponseDataOtherStampAreas     `json:"OtherStampAreas" xml:"OtherStampAreas" require:"true" type:"Repeated"`
-	TitleArea           *RecognizeAccountPageResponseDataTitleArea             `json:"TitleArea" xml:"TitleArea" require:"true" type:"Struct"`
+	Angle               *float32                                               `json:"Angle,omitempty" xml:"Angle,omitempty" require:"true"`
+	Name                *string                                                `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Gender              *string                                                `json:"Gender,omitempty" xml:"Gender,omitempty" require:"true"`
+	Relation            *string                                                `json:"Relation,omitempty" xml:"Relation,omitempty" require:"true"`
+	BirthPlace          *string                                                `json:"BirthPlace,omitempty" xml:"BirthPlace,omitempty" require:"true"`
+	Nationality         *string                                                `json:"Nationality,omitempty" xml:"Nationality,omitempty" require:"true"`
+	NativePlace         *string                                                `json:"NativePlace,omitempty" xml:"NativePlace,omitempty" require:"true"`
+	BirthDate           *string                                                `json:"BirthDate,omitempty" xml:"BirthDate,omitempty" require:"true"`
+	IDNumber            *string                                                `json:"IDNumber,omitempty" xml:"IDNumber,omitempty" require:"true"`
+	InvalidStampAreas   []*RecognizeAccountPageResponseDataInvalidStampAreas   `json:"InvalidStampAreas,omitempty" xml:"InvalidStampAreas,omitempty" require:"true" type:"Repeated"`
+	UndertakeStampAreas []*RecognizeAccountPageResponseDataUndertakeStampAreas `json:"UndertakeStampAreas,omitempty" xml:"UndertakeStampAreas,omitempty" require:"true" type:"Repeated"`
+	RegisterStampAreas  []*RecognizeAccountPageResponseDataRegisterStampAreas  `json:"RegisterStampAreas,omitempty" xml:"RegisterStampAreas,omitempty" require:"true" type:"Repeated"`
+	OtherStampAreas     []*RecognizeAccountPageResponseDataOtherStampAreas     `json:"OtherStampAreas,omitempty" xml:"OtherStampAreas,omitempty" require:"true" type:"Repeated"`
+	TitleArea           *RecognizeAccountPageResponseDataTitleArea             `json:"TitleArea,omitempty" xml:"TitleArea,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeAccountPageResponseData) String() string {
@@ -3011,10 +3011,10 @@ func (s *RecognizeAccountPageResponseData) SetTitleArea(v *RecognizeAccountPageR
 }
 
 type RecognizeAccountPageResponseDataInvalidStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageResponseDataInvalidStampAreas) String() string {
@@ -3046,10 +3046,10 @@ func (s *RecognizeAccountPageResponseDataInvalidStampAreas) SetWidth(v int) *Rec
 }
 
 type RecognizeAccountPageResponseDataUndertakeStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageResponseDataUndertakeStampAreas) String() string {
@@ -3081,10 +3081,10 @@ func (s *RecognizeAccountPageResponseDataUndertakeStampAreas) SetWidth(v int) *R
 }
 
 type RecognizeAccountPageResponseDataRegisterStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageResponseDataRegisterStampAreas) String() string {
@@ -3116,10 +3116,10 @@ func (s *RecognizeAccountPageResponseDataRegisterStampAreas) SetWidth(v int) *Re
 }
 
 type RecognizeAccountPageResponseDataOtherStampAreas struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageResponseDataOtherStampAreas) String() string {
@@ -3151,10 +3151,10 @@ func (s *RecognizeAccountPageResponseDataOtherStampAreas) SetWidth(v int) *Recog
 }
 
 type RecognizeAccountPageResponseDataTitleArea struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageResponseDataTitleArea) String() string {
@@ -3186,7 +3186,7 @@ func (s *RecognizeAccountPageResponseDataTitleArea) SetWidth(v int) *RecognizeAc
 }
 
 type RecognizeAccountPageAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeAccountPageAdvanceRequest) String() string {
@@ -3203,7 +3203,7 @@ func (s *RecognizeAccountPageAdvanceRequest) SetImageURLObject(v io.Reader) *Rec
 }
 
 type RecognizeStampRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeStampRequest) String() string {
@@ -3220,8 +3220,8 @@ func (s *RecognizeStampRequest) SetImageURL(v string) *RecognizeStampRequest {
 }
 
 type RecognizeStampResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeStampResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeStampResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeStampResponse) String() string {
@@ -3243,7 +3243,7 @@ func (s *RecognizeStampResponse) SetData(v *RecognizeStampResponseData) *Recogni
 }
 
 type RecognizeStampResponseData struct {
-	Results []*RecognizeStampResponseDataResults `json:"Results" xml:"Results" require:"true" type:"Repeated"`
+	Results []*RecognizeStampResponseDataResults `json:"Results,omitempty" xml:"Results,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeStampResponseData) String() string {
@@ -3260,9 +3260,9 @@ func (s *RecognizeStampResponseData) SetResults(v []*RecognizeStampResponseDataR
 }
 
 type RecognizeStampResponseDataResults struct {
-	GeneralText []*RecognizeStampResponseDataResultsGeneralText `json:"GeneralText" xml:"GeneralText" require:"true" type:"Repeated"`
-	Roi         *RecognizeStampResponseDataResultsRoi           `json:"Roi" xml:"Roi" require:"true" type:"Struct"`
-	Text        *RecognizeStampResponseDataResultsText          `json:"Text" xml:"Text" require:"true" type:"Struct"`
+	GeneralText []*RecognizeStampResponseDataResultsGeneralText `json:"GeneralText,omitempty" xml:"GeneralText,omitempty" require:"true" type:"Repeated"`
+	Roi         *RecognizeStampResponseDataResultsRoi           `json:"Roi,omitempty" xml:"Roi,omitempty" require:"true" type:"Struct"`
+	Text        *RecognizeStampResponseDataResultsText          `json:"Text,omitempty" xml:"Text,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeStampResponseDataResults) String() string {
@@ -3289,8 +3289,8 @@ func (s *RecognizeStampResponseDataResults) SetText(v *RecognizeStampResponseDat
 }
 
 type RecognizeStampResponseDataResultsGeneralText struct {
-	Content    *string  `json:"Content" xml:"Content" require:"true"`
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+	Content    *string  `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	Confidence *float32 `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
 }
 
 func (s RecognizeStampResponseDataResultsGeneralText) String() string {
@@ -3312,10 +3312,10 @@ func (s *RecognizeStampResponseDataResultsGeneralText) SetConfidence(v float32) 
 }
 
 type RecognizeStampResponseDataResultsRoi struct {
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
 }
 
 func (s RecognizeStampResponseDataResultsRoi) String() string {
@@ -3347,8 +3347,8 @@ func (s *RecognizeStampResponseDataResultsRoi) SetHeight(v int) *RecognizeStampR
 }
 
 type RecognizeStampResponseDataResultsText struct {
-	Content    *string  `json:"Content" xml:"Content" require:"true"`
-	Confidence *float32 `json:"Confidence" xml:"Confidence" require:"true"`
+	Content    *string  `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	Confidence *float32 `json:"Confidence,omitempty" xml:"Confidence,omitempty" require:"true"`
 }
 
 func (s RecognizeStampResponseDataResultsText) String() string {
@@ -3370,7 +3370,7 @@ func (s *RecognizeStampResponseDataResultsText) SetConfidence(v float32) *Recogn
 }
 
 type RecognizeStampAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeStampAdvanceRequest) String() string {
@@ -3387,7 +3387,7 @@ func (s *RecognizeStampAdvanceRequest) SetImageURLObject(v io.Reader) *Recognize
 }
 
 type RecognizeBusinessCardRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessCardRequest) String() string {
@@ -3404,8 +3404,8 @@ func (s *RecognizeBusinessCardRequest) SetImageURL(v string) *RecognizeBusinessC
 }
 
 type RecognizeBusinessCardResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeBusinessCardResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeBusinessCardResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeBusinessCardResponse) String() string {
@@ -3427,14 +3427,14 @@ func (s *RecognizeBusinessCardResponse) SetData(v *RecognizeBusinessCardResponse
 }
 
 type RecognizeBusinessCardResponseData struct {
-	Name               *string   `json:"Name" xml:"Name" require:"true"`
-	Companies          []*string `json:"Companies" xml:"Companies" require:"true" type:"Repeated"`
-	Departments        []*string `json:"Departments" xml:"Departments" require:"true" type:"Repeated"`
-	Titles             []*string `json:"Titles" xml:"Titles" require:"true" type:"Repeated"`
-	CellPhoneNumbers   []*string `json:"CellPhoneNumbers" xml:"CellPhoneNumbers" require:"true" type:"Repeated"`
-	OfficePhoneNumbers []*string `json:"OfficePhoneNumbers" xml:"OfficePhoneNumbers" require:"true" type:"Repeated"`
-	Addresses          []*string `json:"Addresses" xml:"Addresses" require:"true" type:"Repeated"`
-	Emails             []*string `json:"Emails" xml:"Emails" require:"true" type:"Repeated"`
+	Name               *string   `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Companies          []*string `json:"Companies,omitempty" xml:"Companies,omitempty" require:"true" type:"Repeated"`
+	Departments        []*string `json:"Departments,omitempty" xml:"Departments,omitempty" require:"true" type:"Repeated"`
+	Titles             []*string `json:"Titles,omitempty" xml:"Titles,omitempty" require:"true" type:"Repeated"`
+	CellPhoneNumbers   []*string `json:"CellPhoneNumbers,omitempty" xml:"CellPhoneNumbers,omitempty" require:"true" type:"Repeated"`
+	OfficePhoneNumbers []*string `json:"OfficePhoneNumbers,omitempty" xml:"OfficePhoneNumbers,omitempty" require:"true" type:"Repeated"`
+	Addresses          []*string `json:"Addresses,omitempty" xml:"Addresses,omitempty" require:"true" type:"Repeated"`
+	Emails             []*string `json:"Emails,omitempty" xml:"Emails,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RecognizeBusinessCardResponseData) String() string {
@@ -3486,7 +3486,7 @@ func (s *RecognizeBusinessCardResponseData) SetEmails(v []*string) *RecognizeBus
 }
 
 type RecognizeBusinessCardAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessCardAdvanceRequest) String() string {
@@ -3503,7 +3503,7 @@ func (s *RecognizeBusinessCardAdvanceRequest) SetImageURLObject(v io.Reader) *Re
 }
 
 type RecognizeVINCodeRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeVINCodeRequest) String() string {
@@ -3520,8 +3520,8 @@ func (s *RecognizeVINCodeRequest) SetImageURL(v string) *RecognizeVINCodeRequest
 }
 
 type RecognizeVINCodeResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeVINCodeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeVINCodeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeVINCodeResponse) String() string {
@@ -3543,7 +3543,7 @@ func (s *RecognizeVINCodeResponse) SetData(v *RecognizeVINCodeResponseData) *Rec
 }
 
 type RecognizeVINCodeResponseData struct {
-	VinCode *string `json:"VinCode" xml:"VinCode" require:"true"`
+	VinCode *string `json:"VinCode,omitempty" xml:"VinCode,omitempty" require:"true"`
 }
 
 func (s RecognizeVINCodeResponseData) String() string {
@@ -3560,7 +3560,7 @@ func (s *RecognizeVINCodeResponseData) SetVinCode(v string) *RecognizeVINCodeRes
 }
 
 type RecognizeVINCodeAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeVINCodeAdvanceRequest) String() string {
@@ -3577,7 +3577,7 @@ func (s *RecognizeVINCodeAdvanceRequest) SetImageURLObject(v io.Reader) *Recogni
 }
 
 type RecognizeBusinessLicenseRequest struct {
-	ImageURL *string `json:"ImageURL" xml:"ImageURL" require:"true"`
+	ImageURL *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseRequest) String() string {
@@ -3594,8 +3594,8 @@ func (s *RecognizeBusinessLicenseRequest) SetImageURL(v string) *RecognizeBusine
 }
 
 type RecognizeBusinessLicenseResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *RecognizeBusinessLicenseResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *RecognizeBusinessLicenseResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeBusinessLicenseResponse) String() string {
@@ -3617,20 +3617,20 @@ func (s *RecognizeBusinessLicenseResponse) SetData(v *RecognizeBusinessLicenseRe
 }
 
 type RecognizeBusinessLicenseResponseData struct {
-	Angle          *string                                     `json:"Angle" xml:"Angle" require:"true"`
-	RegisterNumber *string                                     `json:"RegisterNumber" xml:"RegisterNumber" require:"true"`
-	Name           *string                                     `json:"Name" xml:"Name" require:"true"`
-	Type           *string                                     `json:"Type" xml:"Type" require:"true"`
-	LegalPerson    *string                                     `json:"LegalPerson" xml:"LegalPerson" require:"true"`
-	EstablishDate  *string                                     `json:"EstablishDate" xml:"EstablishDate" require:"true"`
-	ValidPeriod    *string                                     `json:"ValidPeriod" xml:"ValidPeriod" require:"true"`
-	Address        *string                                     `json:"Address" xml:"Address" require:"true"`
-	Capital        *string                                     `json:"Capital" xml:"Capital" require:"true"`
-	Business       *string                                     `json:"Business" xml:"Business" require:"true"`
-	Emblem         *RecognizeBusinessLicenseResponseDataEmblem `json:"Emblem" xml:"Emblem" require:"true" type:"Struct"`
-	Title          *RecognizeBusinessLicenseResponseDataTitle  `json:"Title" xml:"Title" require:"true" type:"Struct"`
-	Stamp          *RecognizeBusinessLicenseResponseDataStamp  `json:"Stamp" xml:"Stamp" require:"true" type:"Struct"`
-	QRCode         *RecognizeBusinessLicenseResponseDataQRCode `json:"QRCode" xml:"QRCode" require:"true" type:"Struct"`
+	Angle          *string                                     `json:"Angle,omitempty" xml:"Angle,omitempty" require:"true"`
+	RegisterNumber *string                                     `json:"RegisterNumber,omitempty" xml:"RegisterNumber,omitempty" require:"true"`
+	Name           *string                                     `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Type           *string                                     `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	LegalPerson    *string                                     `json:"LegalPerson,omitempty" xml:"LegalPerson,omitempty" require:"true"`
+	EstablishDate  *string                                     `json:"EstablishDate,omitempty" xml:"EstablishDate,omitempty" require:"true"`
+	ValidPeriod    *string                                     `json:"ValidPeriod,omitempty" xml:"ValidPeriod,omitempty" require:"true"`
+	Address        *string                                     `json:"Address,omitempty" xml:"Address,omitempty" require:"true"`
+	Capital        *string                                     `json:"Capital,omitempty" xml:"Capital,omitempty" require:"true"`
+	Business       *string                                     `json:"Business,omitempty" xml:"Business,omitempty" require:"true"`
+	Emblem         *RecognizeBusinessLicenseResponseDataEmblem `json:"Emblem,omitempty" xml:"Emblem,omitempty" require:"true" type:"Struct"`
+	Title          *RecognizeBusinessLicenseResponseDataTitle  `json:"Title,omitempty" xml:"Title,omitempty" require:"true" type:"Struct"`
+	Stamp          *RecognizeBusinessLicenseResponseDataStamp  `json:"Stamp,omitempty" xml:"Stamp,omitempty" require:"true" type:"Struct"`
+	QRCode         *RecognizeBusinessLicenseResponseDataQRCode `json:"QRCode,omitempty" xml:"QRCode,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RecognizeBusinessLicenseResponseData) String() string {
@@ -3712,10 +3712,10 @@ func (s *RecognizeBusinessLicenseResponseData) SetQRCode(v *RecognizeBusinessLic
 }
 
 type RecognizeBusinessLicenseResponseDataEmblem struct {
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseResponseDataEmblem) String() string {
@@ -3747,10 +3747,10 @@ func (s *RecognizeBusinessLicenseResponseDataEmblem) SetWidth(v int) *RecognizeB
 }
 
 type RecognizeBusinessLicenseResponseDataTitle struct {
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseResponseDataTitle) String() string {
@@ -3782,10 +3782,10 @@ func (s *RecognizeBusinessLicenseResponseDataTitle) SetWidth(v int) *RecognizeBu
 }
 
 type RecognizeBusinessLicenseResponseDataStamp struct {
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseResponseDataStamp) String() string {
@@ -3817,10 +3817,10 @@ func (s *RecognizeBusinessLicenseResponseDataStamp) SetWidth(v int) *RecognizeBu
 }
 
 type RecognizeBusinessLicenseResponseDataQRCode struct {
-	Top    *int `json:"Top" xml:"Top" require:"true"`
-	Left   *int `json:"Left" xml:"Left" require:"true"`
-	Height *int `json:"Height" xml:"Height" require:"true"`
-	Width  *int `json:"Width" xml:"Width" require:"true"`
+	Top    *int `json:"Top,omitempty" xml:"Top,omitempty" require:"true"`
+	Left   *int `json:"Left,omitempty" xml:"Left,omitempty" require:"true"`
+	Height *int `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width  *int `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseResponseDataQRCode) String() string {
@@ -3852,7 +3852,7 @@ func (s *RecognizeBusinessLicenseResponseDataQRCode) SetWidth(v int) *RecognizeB
 }
 
 type RecognizeBusinessLicenseAdvanceRequest struct {
-	ImageURLObject io.Reader `json:"ImageURLObject" xml:"ImageURLObject" require:"true"`
+	ImageURLObject io.Reader `json:"ImageURLObject,omitempty" xml:"ImageURLObject,omitempty" require:"true"`
 }
 
 func (s RecognizeBusinessLicenseAdvanceRequest) String() string {
@@ -3888,7 +3888,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("ocr"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -3953,7 +3953,7 @@ func (client *Client) TrimDocumentAdvance(request *TrimDocumentAdvanceRequest, r
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4051,7 +4051,7 @@ func (client *Client) RecognizeChinapassportAdvance(request *RecognizeChinapassp
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4149,7 +4149,7 @@ func (client *Client) RecognizeVerificationcodeAdvance(request *RecognizeVerific
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4247,7 +4247,7 @@ func (client *Client) RecognizePassportMRZAdvance(request *RecognizePassportMRZA
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4345,7 +4345,7 @@ func (client *Client) RecognizeTakeoutOrderAdvance(request *RecognizeTakeoutOrde
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4457,7 +4457,7 @@ func (client *Client) RecognizeVATInvoiceAdvance(request *RecognizeVATInvoiceAdv
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4555,7 +4555,7 @@ func (client *Client) RecognizeCharacterAdvance(request *RecognizeCharacterAdvan
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4653,7 +4653,7 @@ func (client *Client) RecognizeTaxiInvoiceAdvance(request *RecognizeTaxiInvoiceA
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4751,7 +4751,7 @@ func (client *Client) RecognizeIdentityCardAdvance(request *RecognizeIdentityCar
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4849,7 +4849,7 @@ func (client *Client) RecognizeLicensePlateAdvance(request *RecognizeLicensePlat
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4947,7 +4947,7 @@ func (client *Client) RecognizeTableAdvance(request *RecognizeTableAdvanceReques
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5045,7 +5045,7 @@ func (client *Client) RecognizeDrivingLicenseAdvance(request *RecognizeDrivingLi
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5143,7 +5143,7 @@ func (client *Client) RecognizeBankCardAdvance(request *RecognizeBankCardAdvance
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5241,7 +5241,7 @@ func (client *Client) RecognizeTrainTicketAdvance(request *RecognizeTrainTicketA
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5339,7 +5339,7 @@ func (client *Client) RecognizeDriverLicenseAdvance(request *RecognizeDriverLice
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5437,7 +5437,7 @@ func (client *Client) RecognizeAccountPageAdvance(request *RecognizeAccountPageA
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5535,7 +5535,7 @@ func (client *Client) RecognizeStampAdvance(request *RecognizeStampAdvanceReques
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5633,7 +5633,7 @@ func (client *Client) RecognizeBusinessCardAdvance(request *RecognizeBusinessCar
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5694,7 +5694,7 @@ func (client *Client) RecognizeVINCode(request *RecognizeVINCodeRequest, runtime
 		return _result, _err
 	}
 	_result = &RecognizeVINCodeResponse{}
-	_body, _err := client.DoRequest(tea.String("RecognizeVINCode"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("RecognizeVINCode"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-12-30"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5731,7 +5731,7 @@ func (client *Client) RecognizeVINCodeAdvance(request *RecognizeVINCodeAdvanceRe
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -5829,7 +5829,7 @@ func (client *Client) RecognizeBusinessLicenseAdvance(request *RecognizeBusiness
 		Product:  tea.String("ocr"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

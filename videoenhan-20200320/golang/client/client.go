@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -15,17 +15,17 @@ import (
 )
 
 type GenerateVideoRequest struct {
-	FileList         []*GenerateVideoRequestFileList `json:"FileList" xml:"FileList" require:"true" type:"Repeated"`
-	Scene            *string                         `json:"Scene" xml:"Scene"`
-	Width            *int                            `json:"Width" xml:"Width"`
-	Height           *int                            `json:"Height" xml:"Height"`
-	Style            *string                         `json:"Style" xml:"Style"`
-	Duration         *float32                        `json:"Duration" xml:"Duration"`
-	DurationAdaption *bool                           `json:"DurationAdaption" xml:"DurationAdaption"`
-	TransitionStyle  *string                         `json:"TransitionStyle" xml:"TransitionStyle"`
-	SmartEffect      *bool                           `json:"SmartEffect" xml:"SmartEffect"`
-	PuzzleEffect     *bool                           `json:"PuzzleEffect" xml:"PuzzleEffect"`
-	Mute             *bool                           `json:"Mute" xml:"Mute"`
+	FileList         []*GenerateVideoRequestFileList `json:"FileList,omitempty" xml:"FileList,omitempty" require:"true" type:"Repeated"`
+	Scene            *string                         `json:"Scene,omitempty" xml:"Scene,omitempty"`
+	Width            *int                            `json:"Width,omitempty" xml:"Width,omitempty"`
+	Height           *int                            `json:"Height,omitempty" xml:"Height,omitempty"`
+	Style            *string                         `json:"Style,omitempty" xml:"Style,omitempty"`
+	Duration         *float32                        `json:"Duration,omitempty" xml:"Duration,omitempty"`
+	DurationAdaption *bool                           `json:"DurationAdaption,omitempty" xml:"DurationAdaption,omitempty"`
+	TransitionStyle  *string                         `json:"TransitionStyle,omitempty" xml:"TransitionStyle,omitempty"`
+	SmartEffect      *bool                           `json:"SmartEffect,omitempty" xml:"SmartEffect,omitempty"`
+	PuzzleEffect     *bool                           `json:"PuzzleEffect,omitempty" xml:"PuzzleEffect,omitempty"`
+	Mute             *bool                           `json:"Mute,omitempty" xml:"Mute,omitempty"`
 }
 
 func (s GenerateVideoRequest) String() string {
@@ -92,9 +92,9 @@ func (s *GenerateVideoRequest) SetMute(v bool) *GenerateVideoRequest {
 }
 
 type GenerateVideoRequestFileList struct {
-	FileUrl  *string `json:"FileUrl" xml:"FileUrl" require:"true"`
-	FileName *string `json:"FileName" xml:"FileName" require:"true"`
-	Type     *string `json:"Type" xml:"Type" require:"true"`
+	FileUrl  *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty" require:"true"`
+	FileName *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s GenerateVideoRequestFileList) String() string {
@@ -121,8 +121,8 @@ func (s *GenerateVideoRequestFileList) SetType(v string) *GenerateVideoRequestFi
 }
 
 type GenerateVideoResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GenerateVideoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GenerateVideoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GenerateVideoResponse) String() string {
@@ -144,8 +144,8 @@ func (s *GenerateVideoResponse) SetData(v *GenerateVideoResponseData) *GenerateV
 }
 
 type GenerateVideoResponseData struct {
-	VideoUrl      *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	VideoCoverUrl *string `json:"VideoCoverUrl" xml:"VideoCoverUrl" require:"true"`
+	VideoUrl      *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	VideoCoverUrl *string `json:"VideoCoverUrl,omitempty" xml:"VideoCoverUrl,omitempty" require:"true"`
 }
 
 func (s GenerateVideoResponseData) String() string {
@@ -167,7 +167,7 @@ func (s *GenerateVideoResponseData) SetVideoCoverUrl(v string) *GenerateVideoRes
 }
 
 type GetAsyncJobResultRequest struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultRequest) String() string {
@@ -184,8 +184,8 @@ func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest 
 }
 
 type GetAsyncJobResultResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAsyncJobResultResponse) String() string {
@@ -207,11 +207,11 @@ func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *G
 }
 
 type GetAsyncJobResultResponseData struct {
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Result       *string `json:"Result" xml:"Result" require:"true"`
-	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Result       *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultResponseData) String() string {
@@ -248,8 +248,8 @@ func (s *GetAsyncJobResultResponseData) SetErrorMessage(v string) *GetAsyncJobRe
 }
 
 type SuperResolveVideoRequest struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	BitRate  *int    `json:"BitRate" xml:"BitRate"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	BitRate  *int    `json:"BitRate,omitempty" xml:"BitRate,omitempty"`
 }
 
 func (s SuperResolveVideoRequest) String() string {
@@ -271,8 +271,8 @@ func (s *SuperResolveVideoRequest) SetBitRate(v int) *SuperResolveVideoRequest {
 }
 
 type SuperResolveVideoResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SuperResolveVideoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SuperResolveVideoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SuperResolveVideoResponse) String() string {
@@ -294,7 +294,7 @@ func (s *SuperResolveVideoResponse) SetData(v *SuperResolveVideoResponseData) *S
 }
 
 type SuperResolveVideoResponseData struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s SuperResolveVideoResponseData) String() string {
@@ -311,8 +311,8 @@ func (s *SuperResolveVideoResponseData) SetVideoUrl(v string) *SuperResolveVideo
 }
 
 type SuperResolveVideoAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	BitRate        *int      `json:"BitRate" xml:"BitRate"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	BitRate        *int      `json:"BitRate,omitempty" xml:"BitRate,omitempty"`
 }
 
 func (s SuperResolveVideoAdvanceRequest) String() string {
@@ -334,8 +334,8 @@ func (s *SuperResolveVideoAdvanceRequest) SetBitRate(v int) *SuperResolveVideoAd
 }
 
 type EraseVideoLogoRequest struct {
-	VideoUrl *string                       `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	Boxes    []*EraseVideoLogoRequestBoxes `json:"Boxes" xml:"Boxes" type:"Repeated"`
+	VideoUrl *string                       `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	Boxes    []*EraseVideoLogoRequestBoxes `json:"Boxes,omitempty" xml:"Boxes,omitempty" type:"Repeated"`
 }
 
 func (s EraseVideoLogoRequest) String() string {
@@ -357,10 +357,10 @@ func (s *EraseVideoLogoRequest) SetBoxes(v []*EraseVideoLogoRequestBoxes) *Erase
 }
 
 type EraseVideoLogoRequestBoxes struct {
-	H *float32 `json:"H" xml:"H"`
-	W *float32 `json:"W" xml:"W"`
-	X *float32 `json:"X" xml:"X"`
-	Y *float32 `json:"Y" xml:"Y"`
+	H *float32 `json:"H,omitempty" xml:"H,omitempty"`
+	W *float32 `json:"W,omitempty" xml:"W,omitempty"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty"`
 }
 
 func (s EraseVideoLogoRequestBoxes) String() string {
@@ -392,8 +392,8 @@ func (s *EraseVideoLogoRequestBoxes) SetY(v float32) *EraseVideoLogoRequestBoxes
 }
 
 type EraseVideoLogoResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *EraseVideoLogoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *EraseVideoLogoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s EraseVideoLogoResponse) String() string {
@@ -415,7 +415,7 @@ func (s *EraseVideoLogoResponse) SetData(v *EraseVideoLogoResponseData) *EraseVi
 }
 
 type EraseVideoLogoResponseData struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s EraseVideoLogoResponseData) String() string {
@@ -432,8 +432,8 @@ func (s *EraseVideoLogoResponseData) SetVideoUrl(v string) *EraseVideoLogoRespon
 }
 
 type EraseVideoLogoAdvanceRequest struct {
-	VideoUrlObject io.Reader                            `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	Boxes          []*EraseVideoLogoAdvanceRequestBoxes `json:"Boxes" xml:"Boxes" type:"Repeated"`
+	VideoUrlObject io.Reader                            `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	Boxes          []*EraseVideoLogoAdvanceRequestBoxes `json:"Boxes,omitempty" xml:"Boxes,omitempty" type:"Repeated"`
 }
 
 func (s EraseVideoLogoAdvanceRequest) String() string {
@@ -455,10 +455,10 @@ func (s *EraseVideoLogoAdvanceRequest) SetBoxes(v []*EraseVideoLogoAdvanceReques
 }
 
 type EraseVideoLogoAdvanceRequestBoxes struct {
-	H *float32 `json:"H" xml:"H"`
-	W *float32 `json:"W" xml:"W"`
-	X *float32 `json:"X" xml:"X"`
-	Y *float32 `json:"Y" xml:"Y"`
+	H *float32 `json:"H,omitempty" xml:"H,omitempty"`
+	W *float32 `json:"W,omitempty" xml:"W,omitempty"`
+	X *float32 `json:"X,omitempty" xml:"X,omitempty"`
+	Y *float32 `json:"Y,omitempty" xml:"Y,omitempty"`
 }
 
 func (s EraseVideoLogoAdvanceRequestBoxes) String() string {
@@ -490,11 +490,11 @@ func (s *EraseVideoLogoAdvanceRequestBoxes) SetY(v float32) *EraseVideoLogoAdvan
 }
 
 type EraseVideoSubtitlesRequest struct {
-	VideoUrl *string  `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	BX       *float32 `json:"BX" xml:"BX"`
-	BY       *float32 `json:"BY" xml:"BY"`
-	BW       *float32 `json:"BW" xml:"BW"`
-	BH       *float32 `json:"BH" xml:"BH"`
+	VideoUrl *string  `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	BX       *float32 `json:"BX,omitempty" xml:"BX,omitempty"`
+	BY       *float32 `json:"BY,omitempty" xml:"BY,omitempty"`
+	BW       *float32 `json:"BW,omitempty" xml:"BW,omitempty"`
+	BH       *float32 `json:"BH,omitempty" xml:"BH,omitempty"`
 }
 
 func (s EraseVideoSubtitlesRequest) String() string {
@@ -531,8 +531,8 @@ func (s *EraseVideoSubtitlesRequest) SetBH(v float32) *EraseVideoSubtitlesReques
 }
 
 type EraseVideoSubtitlesResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *EraseVideoSubtitlesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *EraseVideoSubtitlesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s EraseVideoSubtitlesResponse) String() string {
@@ -554,7 +554,7 @@ func (s *EraseVideoSubtitlesResponse) SetData(v *EraseVideoSubtitlesResponseData
 }
 
 type EraseVideoSubtitlesResponseData struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s EraseVideoSubtitlesResponseData) String() string {
@@ -571,11 +571,11 @@ func (s *EraseVideoSubtitlesResponseData) SetVideoUrl(v string) *EraseVideoSubti
 }
 
 type EraseVideoSubtitlesAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	BX             *float32  `json:"BX" xml:"BX"`
-	BY             *float32  `json:"BY" xml:"BY"`
-	BW             *float32  `json:"BW" xml:"BW"`
-	BH             *float32  `json:"BH" xml:"BH"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	BX             *float32  `json:"BX,omitempty" xml:"BX,omitempty"`
+	BY             *float32  `json:"BY,omitempty" xml:"BY,omitempty"`
+	BW             *float32  `json:"BW,omitempty" xml:"BW,omitempty"`
+	BH             *float32  `json:"BH,omitempty" xml:"BH,omitempty"`
 }
 
 func (s EraseVideoSubtitlesAdvanceRequest) String() string {
@@ -612,10 +612,10 @@ func (s *EraseVideoSubtitlesAdvanceRequest) SetBH(v float32) *EraseVideoSubtitle
 }
 
 type AbstractEcommerceVideoRequest struct {
-	VideoUrl *string  `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	Duration *float32 `json:"Duration" xml:"Duration" require:"true"`
-	Width    *int     `json:"Width" xml:"Width"`
-	Height   *int     `json:"Height" xml:"Height"`
+	VideoUrl *string  `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	Duration *float32 `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Width    *int     `json:"Width,omitempty" xml:"Width,omitempty"`
+	Height   *int     `json:"Height,omitempty" xml:"Height,omitempty"`
 }
 
 func (s AbstractEcommerceVideoRequest) String() string {
@@ -647,8 +647,8 @@ func (s *AbstractEcommerceVideoRequest) SetHeight(v int) *AbstractEcommerceVideo
 }
 
 type AbstractEcommerceVideoResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AbstractEcommerceVideoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AbstractEcommerceVideoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AbstractEcommerceVideoResponse) String() string {
@@ -670,8 +670,8 @@ func (s *AbstractEcommerceVideoResponse) SetData(v *AbstractEcommerceVideoRespon
 }
 
 type AbstractEcommerceVideoResponseData struct {
-	VideoUrl      *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	VideoCoverUrl *string `json:"VideoCoverUrl" xml:"VideoCoverUrl" require:"true"`
+	VideoUrl      *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	VideoCoverUrl *string `json:"VideoCoverUrl,omitempty" xml:"VideoCoverUrl,omitempty" require:"true"`
 }
 
 func (s AbstractEcommerceVideoResponseData) String() string {
@@ -693,10 +693,10 @@ func (s *AbstractEcommerceVideoResponseData) SetVideoCoverUrl(v string) *Abstrac
 }
 
 type AbstractEcommerceVideoAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	Duration       *float32  `json:"Duration" xml:"Duration" require:"true"`
-	Width          *int      `json:"Width" xml:"Width"`
-	Height         *int      `json:"Height" xml:"Height"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	Duration       *float32  `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Width          *int      `json:"Width,omitempty" xml:"Width,omitempty"`
+	Height         *int      `json:"Height,omitempty" xml:"Height,omitempty"`
 }
 
 func (s AbstractEcommerceVideoAdvanceRequest) String() string {
@@ -728,8 +728,8 @@ func (s *AbstractEcommerceVideoAdvanceRequest) SetHeight(v int) *AbstractEcommer
 }
 
 type AbstractFilmVideoRequest struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	Length   *int    `json:"Length" xml:"Length" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	Length   *int    `json:"Length,omitempty" xml:"Length,omitempty" require:"true"`
 }
 
 func (s AbstractFilmVideoRequest) String() string {
@@ -751,8 +751,8 @@ func (s *AbstractFilmVideoRequest) SetLength(v int) *AbstractFilmVideoRequest {
 }
 
 type AbstractFilmVideoResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AbstractFilmVideoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AbstractFilmVideoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AbstractFilmVideoResponse) String() string {
@@ -774,7 +774,7 @@ func (s *AbstractFilmVideoResponse) SetData(v *AbstractFilmVideoResponseData) *A
 }
 
 type AbstractFilmVideoResponseData struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s AbstractFilmVideoResponseData) String() string {
@@ -791,8 +791,8 @@ func (s *AbstractFilmVideoResponseData) SetVideoUrl(v string) *AbstractFilmVideo
 }
 
 type AbstractFilmVideoAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	Length         *int      `json:"Length" xml:"Length" require:"true"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	Length         *int      `json:"Length,omitempty" xml:"Length,omitempty" require:"true"`
 }
 
 func (s AbstractFilmVideoAdvanceRequest) String() string {
@@ -814,11 +814,11 @@ func (s *AbstractFilmVideoAdvanceRequest) SetLength(v int) *AbstractFilmVideoAdv
 }
 
 type AdjustVideoColorRequest struct {
-	VideoUrl     *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
-	VideoBitrate *string `json:"VideoBitrate" xml:"VideoBitrate"`
-	VideoCodec   *string `json:"VideoCodec" xml:"VideoCodec"`
-	VideoFormat  *string `json:"VideoFormat" xml:"VideoFormat"`
-	Mode         *string `json:"Mode" xml:"Mode" require:"true"`
+	VideoUrl     *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
+	VideoBitrate *string `json:"VideoBitrate,omitempty" xml:"VideoBitrate,omitempty"`
+	VideoCodec   *string `json:"VideoCodec,omitempty" xml:"VideoCodec,omitempty"`
+	VideoFormat  *string `json:"VideoFormat,omitempty" xml:"VideoFormat,omitempty"`
+	Mode         *string `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
 }
 
 func (s AdjustVideoColorRequest) String() string {
@@ -855,8 +855,8 @@ func (s *AdjustVideoColorRequest) SetMode(v string) *AdjustVideoColorRequest {
 }
 
 type AdjustVideoColorResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *AdjustVideoColorResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *AdjustVideoColorResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AdjustVideoColorResponse) String() string {
@@ -878,7 +878,7 @@ func (s *AdjustVideoColorResponse) SetData(v *AdjustVideoColorResponseData) *Adj
 }
 
 type AdjustVideoColorResponseData struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s AdjustVideoColorResponseData) String() string {
@@ -895,11 +895,11 @@ func (s *AdjustVideoColorResponseData) SetVideoUrl(v string) *AdjustVideoColorRe
 }
 
 type AdjustVideoColorAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
-	VideoBitrate   *string   `json:"VideoBitrate" xml:"VideoBitrate"`
-	VideoCodec     *string   `json:"VideoCodec" xml:"VideoCodec"`
-	VideoFormat    *string   `json:"VideoFormat" xml:"VideoFormat"`
-	Mode           *string   `json:"Mode" xml:"Mode" require:"true"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
+	VideoBitrate   *string   `json:"VideoBitrate,omitempty" xml:"VideoBitrate,omitempty"`
+	VideoCodec     *string   `json:"VideoCodec,omitempty" xml:"VideoCodec,omitempty"`
+	VideoFormat    *string   `json:"VideoFormat,omitempty" xml:"VideoFormat,omitempty"`
+	Mode           *string   `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
 }
 
 func (s AdjustVideoColorAdvanceRequest) String() string {
@@ -955,7 +955,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("videoenhan"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -1034,7 +1034,7 @@ func (client *Client) SuperResolveVideoAdvance(request *SuperResolveVideoAdvance
 		Product:  tea.String("videoenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1132,7 +1132,7 @@ func (client *Client) EraseVideoLogoAdvance(request *EraseVideoLogoAdvanceReques
 		Product:  tea.String("videoenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1230,7 +1230,7 @@ func (client *Client) EraseVideoSubtitlesAdvance(request *EraseVideoSubtitlesAdv
 		Product:  tea.String("videoenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1328,7 +1328,7 @@ func (client *Client) AbstractEcommerceVideoAdvance(request *AbstractEcommerceVi
 		Product:  tea.String("videoenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1426,7 +1426,7 @@ func (client *Client) AbstractFilmVideoAdvance(request *AbstractFilmVideoAdvance
 		Product:  tea.String("videoenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -1524,7 +1524,7 @@ func (client *Client) AdjustVideoColorAdvance(request *AdjustVideoColorAdvanceRe
 		Product:  tea.String("videoenhan"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}

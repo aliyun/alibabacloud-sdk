@@ -2,8 +2,8 @@
 package client
 
 import (
-	openplatform "github.com/alibabacloud-go/OpenPlatform-20191219/client"
 	endpointutil "github.com/alibabacloud-go/endpoint-util/service"
+	openplatform "github.com/alibabacloud-go/openplatform-20191219/client"
 	fileform "github.com/alibabacloud-go/tea-fileform/service"
 	oss "github.com/alibabacloud-go/tea-oss-sdk/client"
 	ossutil "github.com/alibabacloud-go/tea-oss-utils/service"
@@ -15,7 +15,7 @@ import (
 )
 
 type SegmentVideoBodyRequest struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s SegmentVideoBodyRequest) String() string {
@@ -32,8 +32,8 @@ func (s *SegmentVideoBodyRequest) SetVideoUrl(v string) *SegmentVideoBodyRequest
 }
 
 type SegmentVideoBodyResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *SegmentVideoBodyResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *SegmentVideoBodyResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SegmentVideoBodyResponse) String() string {
@@ -55,7 +55,7 @@ func (s *SegmentVideoBodyResponse) SetData(v *SegmentVideoBodyResponseData) *Seg
 }
 
 type SegmentVideoBodyResponseData struct {
-	VideoUrl *string `json:"VideoUrl" xml:"VideoUrl" require:"true"`
+	VideoUrl *string `json:"VideoUrl,omitempty" xml:"VideoUrl,omitempty" require:"true"`
 }
 
 func (s SegmentVideoBodyResponseData) String() string {
@@ -72,7 +72,7 @@ func (s *SegmentVideoBodyResponseData) SetVideoUrl(v string) *SegmentVideoBodyRe
 }
 
 type SegmentVideoBodyAdvanceRequest struct {
-	VideoUrlObject io.Reader `json:"VideoUrlObject" xml:"VideoUrlObject" require:"true"`
+	VideoUrlObject io.Reader `json:"VideoUrlObject,omitempty" xml:"VideoUrlObject,omitempty" require:"true"`
 }
 
 func (s SegmentVideoBodyAdvanceRequest) String() string {
@@ -89,7 +89,7 @@ func (s *SegmentVideoBodyAdvanceRequest) SetVideoUrlObject(v io.Reader) *Segment
 }
 
 type GetAsyncJobResultRequest struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultRequest) String() string {
@@ -106,8 +106,8 @@ func (s *GetAsyncJobResultRequest) SetJobId(v string) *GetAsyncJobResultRequest 
 }
 
 type GetAsyncJobResultResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Data      *GetAsyncJobResultResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Data      *GetAsyncJobResultResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAsyncJobResultResponse) String() string {
@@ -129,11 +129,11 @@ func (s *GetAsyncJobResultResponse) SetData(v *GetAsyncJobResultResponseData) *G
 }
 
 type GetAsyncJobResultResponseData struct {
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Result       *string `json:"Result" xml:"Result" require:"true"`
-	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Result       *string `json:"Result,omitempty" xml:"Result,omitempty" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
 }
 
 func (s GetAsyncJobResultResponseData) String() string {
@@ -189,7 +189,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("videoseg"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -240,7 +240,7 @@ func (client *Client) SegmentVideoBodyAdvance(request *SegmentVideoBodyAdvanceRe
 		Product:  tea.String("videoseg"),
 		RegionId: client.RegionId,
 	}
-	authResponse, _err := authClient.AuthorizeFileUpload(authRequest, runtime)
+	authResponse, _err := authClient.AuthorizeFileUploadWithOptions(authRequest, runtime)
 	if _err != nil {
 		return _result, _err
 	}
