@@ -3,34 +3,19 @@ from Tea.model import TeaModel
 
 
 class DescribeDBClusterAuditLogCollectorRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, dbcluster_id=None, owner_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
-        self.owner_account = owner_account
 
     def validate(self):
         self.validate_required(self.dbcluster_id, 'dbcluster_id')
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['DBClusterId'] = self.dbcluster_id
-        result['OwnerAccount'] = self.owner_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.dbcluster_id = map.get('DBClusterId')
-        self.owner_account = map.get('OwnerAccount')
         return self
 
 
@@ -56,14 +41,9 @@ class DescribeDBClusterAuditLogCollectorResponse(TeaModel):
 
 
 class ModifyDBClusterAuditLogCollectorRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, dbcluster_id=None, collector_status=None, owner_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, dbcluster_id=None, collector_status=None):
         self.dbcluster_id = dbcluster_id
         self.collector_status = collector_status
-        self.owner_account = owner_account
 
     def validate(self):
         self.validate_required(self.dbcluster_id, 'dbcluster_id')
@@ -71,23 +51,13 @@ class ModifyDBClusterAuditLogCollectorRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['DBClusterId'] = self.dbcluster_id
         result['CollectorStatus'] = self.collector_status
-        result['OwnerAccount'] = self.owner_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.dbcluster_id = map.get('DBClusterId')
         self.collector_status = map.get('CollectorStatus')
-        self.owner_account = map.get('OwnerAccount')
         return self
 
 
@@ -109,12 +79,7 @@ class ModifyDBClusterAuditLogCollectorResponse(TeaModel):
 
 
 class DescribeDetachedBackupsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, backup_id=None, backup_status=None, backup_mode=None, start_time=None, end_time=None, page_size=None, page_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, backup_id=None, backup_status=None, backup_mode=None, start_time=None, end_time=None, page_size=None, page_number=None):
         self.dbcluster_id = dbcluster_id
         self.backup_id = backup_id
         self.backup_status = backup_status
@@ -131,11 +96,6 @@ class DescribeDetachedBackupsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['BackupId'] = self.backup_id
         result['BackupStatus'] = self.backup_status
@@ -147,11 +107,6 @@ class DescribeDetachedBackupsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.backup_id = map.get('BackupId')
         self.backup_status = map.get('BackupStatus')
@@ -301,15 +256,8 @@ class DescribeDetachedBackupsResponseItems(TeaModel):
         else:
             self.backup = None
         return self
-
-
 class DescribeDBClustersWithBackupsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, dbcluster_ids=None, dbcluster_description=None, dbtype=None, is_deleted=None, page_size=None, page_number=None, dbversion=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, dbcluster_ids=None, dbcluster_description=None, dbtype=None, is_deleted=None, page_size=None, page_number=None, dbversion=None):
         self.region_id = region_id
         self.dbcluster_ids = dbcluster_ids
         self.dbcluster_description = dbcluster_description
@@ -324,11 +272,6 @@ class DescribeDBClustersWithBackupsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['DBClusterIds'] = self.dbcluster_ids
         result['DBClusterDescription'] = self.dbcluster_description
@@ -340,11 +283,6 @@ class DescribeDBClustersWithBackupsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.dbcluster_ids = map.get('DBClusterIds')
         self.dbcluster_description = map.get('DBClusterDescription')
@@ -518,15 +456,8 @@ class DescribeDBClustersWithBackupsResponseItems(TeaModel):
         else:
             self.dbcluster = None
         return self
-
-
 class DescribeLogBackupPolicyRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -534,20 +465,10 @@ class DescribeLogBackupPolicyRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -578,12 +499,7 @@ class DescribeLogBackupPolicyResponse(TeaModel):
 
 
 class ModifyLogBackupPolicyRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, log_backup_retention_period=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, log_backup_retention_period=None):
         self.dbcluster_id = dbcluster_id
         self.log_backup_retention_period = log_backup_retention_period
 
@@ -592,21 +508,11 @@ class ModifyLogBackupPolicyRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['LogBackupRetentionPeriod'] = self.log_backup_retention_period
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.log_backup_retention_period = map.get('LogBackupRetentionPeriod')
         return self
@@ -630,14 +536,9 @@ class ModifyLogBackupPolicyResponse(TeaModel):
 
 
 class ModifyDBClusterMonitorRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, dbcluster_id=None, period=None, owner_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, dbcluster_id=None, period=None):
         self.dbcluster_id = dbcluster_id
         self.period = period
-        self.owner_account = owner_account
 
     def validate(self):
         self.validate_required(self.dbcluster_id, 'dbcluster_id')
@@ -645,23 +546,13 @@ class ModifyDBClusterMonitorRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['DBClusterId'] = self.dbcluster_id
         result['Period'] = self.period
-        result['OwnerAccount'] = self.owner_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.dbcluster_id = map.get('DBClusterId')
         self.period = map.get('Period')
-        self.owner_account = map.get('OwnerAccount')
         return self
 
 
@@ -683,34 +574,19 @@ class ModifyDBClusterMonitorResponse(TeaModel):
 
 
 class DescribeDBClusterMonitorRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, dbcluster_id=None, owner_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
-        self.owner_account = owner_account
 
     def validate(self):
         self.validate_required(self.dbcluster_id, 'dbcluster_id')
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
         result['DBClusterId'] = self.dbcluster_id
-        result['OwnerAccount'] = self.owner_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
         self.dbcluster_id = map.get('DBClusterId')
-        self.owner_account = map.get('OwnerAccount')
         return self
 
 
@@ -736,12 +612,7 @@ class DescribeDBClusterMonitorResponse(TeaModel):
 
 
 class DescribeDBClusterAvailableResourcesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, pay_type=None, dbtype=None, dbversion=None, dbnode_class=None, region_id=None, zone_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, pay_type=None, dbtype=None, dbversion=None, dbnode_class=None, region_id=None, zone_id=None):
         self.pay_type = pay_type
         self.dbtype = dbtype
         self.dbversion = dbversion
@@ -754,11 +625,6 @@ class DescribeDBClusterAvailableResourcesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['PayType'] = self.pay_type
         result['DBType'] = self.dbtype
         result['DBVersion'] = self.dbversion
@@ -768,11 +634,6 @@ class DescribeDBClusterAvailableResourcesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.pay_type = map.get('PayType')
         self.dbtype = map.get('DBType')
         self.dbversion = map.get('DBVersion')
@@ -916,15 +777,8 @@ class DescribeDBClusterAvailableResourcesResponseAvailableZones(TeaModel):
         else:
             self.supported_engines = None
         return self
-
-
 class DescribeBackupLogsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, start_time=None, end_time=None, page_size=None, page_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, start_time=None, end_time=None, page_size=None, page_number=None):
         self.dbcluster_id = dbcluster_id
         self.start_time = start_time
         self.end_time = end_time
@@ -938,11 +792,6 @@ class DescribeBackupLogsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['StartTime'] = self.start_time
         result['EndTime'] = self.end_time
@@ -951,11 +800,6 @@ class DescribeBackupLogsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.start_time = map.get('StartTime')
         self.end_time = map.get('EndTime')
@@ -1082,15 +926,8 @@ class DescribeBackupLogsResponseItems(TeaModel):
         else:
             self.backup_log = None
         return self
-
-
 class ModifyDBClusterSSLRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, sslenabled=None, dbendpoint_id=None, net_type=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, sslenabled=None, dbendpoint_id=None, net_type=None):
         self.dbcluster_id = dbcluster_id
         self.sslenabled = sslenabled
         self.dbendpoint_id = dbendpoint_id
@@ -1102,11 +939,6 @@ class ModifyDBClusterSSLRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['SSLEnabled'] = self.sslenabled
         result['DBEndpointId'] = self.dbendpoint_id
@@ -1114,11 +946,6 @@ class ModifyDBClusterSSLRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.sslenabled = map.get('SSLEnabled')
         self.dbendpoint_id = map.get('DBEndpointId')
@@ -1144,12 +971,7 @@ class ModifyDBClusterSSLResponse(TeaModel):
 
 
 class DescribeDBClusterSSLRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -1157,20 +979,10 @@ class DescribeDBClusterSSLRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -1239,15 +1051,8 @@ class DescribeDBClusterSSLResponseItems(TeaModel):
         self.sslconnection_string = map.get('SSLConnectionString')
         self.sslexpire_time = map.get('SSLExpireTime')
         return self
-
-
 class DescribeDBClusterMigrationRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -1255,20 +1060,10 @@ class DescribeDBClusterMigrationRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -1367,13 +1162,13 @@ class DescribeDBClusterMigrationResponse(TeaModel):
 
 
 class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems(TeaModel):
-    def __init__(self, connection_string=None, ipaddress=None, net_type=None, port=None, vpcid=None, vswitch_id=None):
+    def __init__(self, connection_string=None, ipaddress=None, net_type=None, port=None, vpcid=None, v_switch_id=None):
         self.connection_string = connection_string
         self.ipaddress = ipaddress
         self.net_type = net_type
         self.port = port
         self.vpcid = vpcid
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
 
     def validate(self):
         self.validate_required(self.connection_string, 'connection_string')
@@ -1381,7 +1176,7 @@ class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems(TeaMod
         self.validate_required(self.net_type, 'net_type')
         self.validate_required(self.port, 'port')
         self.validate_required(self.vpcid, 'vpcid')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
 
     def to_map(self):
         result = {}
@@ -1390,7 +1185,7 @@ class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems(TeaMod
         result['NetType'] = self.net_type
         result['Port'] = self.port
         result['VPCId'] = self.vpcid
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         return result
 
     def from_map(self, map={}):
@@ -1399,7 +1194,7 @@ class DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems(TeaMod
         self.net_type = map.get('NetType')
         self.port = map.get('Port')
         self.vpcid = map.get('VPCId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         return self
 
 
@@ -1445,13 +1240,13 @@ class DescribeDBClusterMigrationResponseDBClusterEndpointList(TeaModel):
 
 
 class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems(TeaModel):
-    def __init__(self, connection_string=None, ipaddress=None, net_type=None, port=None, vpcid=None, vswitch_id=None):
+    def __init__(self, connection_string=None, ipaddress=None, net_type=None, port=None, vpcid=None, v_switch_id=None):
         self.connection_string = connection_string
         self.ipaddress = ipaddress
         self.net_type = net_type
         self.port = port
         self.vpcid = vpcid
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
 
     def validate(self):
         self.validate_required(self.connection_string, 'connection_string')
@@ -1459,7 +1254,7 @@ class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems(TeaModel):
         self.validate_required(self.net_type, 'net_type')
         self.validate_required(self.port, 'port')
         self.validate_required(self.vpcid, 'vpcid')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
 
     def to_map(self):
         result = {}
@@ -1468,7 +1263,7 @@ class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems(TeaModel):
         result['NetType'] = self.net_type
         result['Port'] = self.port
         result['VPCId'] = self.vpcid
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         return result
 
     def from_map(self, map={}):
@@ -1477,7 +1272,7 @@ class DescribeDBClusterMigrationResponseRdsEndpointListAddressItems(TeaModel):
         self.net_type = map.get('NetType')
         self.port = map.get('Port')
         self.vpcid = map.get('VPCId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         return self
 
 
@@ -1520,15 +1315,8 @@ class DescribeDBClusterMigrationResponseRdsEndpointList(TeaModel):
         else:
             self.address_items = None
         return self
-
-
 class CloseDBClusterMigrationRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, continue_enable_binlog=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, continue_enable_binlog=None):
         self.dbcluster_id = dbcluster_id
         self.continue_enable_binlog = continue_enable_binlog
 
@@ -1537,21 +1325,11 @@ class CloseDBClusterMigrationRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['ContinueEnableBinlog'] = self.continue_enable_binlog
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.continue_enable_binlog = map.get('ContinueEnableBinlog')
         return self
@@ -1575,13 +1353,8 @@ class CloseDBClusterMigrationResponse(TeaModel):
 
 
 class ModifyDBClusterMigrationRequest(TeaModel):
-    def __init__(self, security_token=None, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, source_rdsdbinstance_id=None, new_master_instance_id=None, swap_connection_string=None):
+    def __init__(self, security_token=None, dbcluster_id=None, source_rdsdbinstance_id=None, new_master_instance_id=None, swap_connection_string=None):
         self.security_token = security_token
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
         self.dbcluster_id = dbcluster_id
         self.source_rdsdbinstance_id = source_rdsdbinstance_id
         self.new_master_instance_id = new_master_instance_id
@@ -1595,11 +1368,6 @@ class ModifyDBClusterMigrationRequest(TeaModel):
     def to_map(self):
         result = {}
         result['SecurityToken'] = self.security_token
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['SourceRDSDBInstanceId'] = self.source_rdsdbinstance_id
         result['NewMasterInstanceId'] = self.new_master_instance_id
@@ -1608,11 +1376,6 @@ class ModifyDBClusterMigrationRequest(TeaModel):
 
     def from_map(self, map={}):
         self.security_token = map.get('SecurityToken')
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.source_rdsdbinstance_id = map.get('SourceRDSDBInstanceId')
         self.new_master_instance_id = map.get('NewMasterInstanceId')
@@ -1638,12 +1401,7 @@ class ModifyDBClusterMigrationResponse(TeaModel):
 
 
 class ModifyAutoRenewAttributeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_ids=None, region_id=None, renewal_status=None, duration=None, period_unit=None, resource_group_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_ids=None, region_id=None, renewal_status=None, duration=None, period_unit=None, resource_group_id=None):
         self.dbcluster_ids = dbcluster_ids
         self.region_id = region_id
         self.renewal_status = renewal_status
@@ -1657,11 +1415,6 @@ class ModifyAutoRenewAttributeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterIds'] = self.dbcluster_ids
         result['RegionId'] = self.region_id
         result['RenewalStatus'] = self.renewal_status
@@ -1671,11 +1424,6 @@ class ModifyAutoRenewAttributeRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_ids = map.get('DBClusterIds')
         self.region_id = map.get('RegionId')
         self.renewal_status = map.get('RenewalStatus')
@@ -1703,12 +1451,7 @@ class ModifyAutoRenewAttributeResponse(TeaModel):
 
 
 class ModifyDBNodeClassRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, modify_type=None, dbnode_target_class=None, client_token=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, modify_type=None, dbnode_target_class=None, client_token=None):
         self.dbcluster_id = dbcluster_id
         self.modify_type = modify_type
         self.dbnode_target_class = dbnode_target_class
@@ -1721,11 +1464,6 @@ class ModifyDBNodeClassRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['ModifyType'] = self.modify_type
         result['DBNodeTargetClass'] = self.dbnode_target_class
@@ -1733,11 +1471,6 @@ class ModifyDBNodeClassRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.modify_type = map.get('ModifyType')
         self.dbnode_target_class = map.get('DBNodeTargetClass')
@@ -1771,12 +1504,7 @@ class ModifyDBNodeClassResponse(TeaModel):
 
 
 class DescribeAutoRenewAttributeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, dbcluster_ids=None, page_size=None, page_number=None, resource_group_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, dbcluster_ids=None, page_size=None, page_number=None, resource_group_id=None):
         self.region_id = region_id
         self.dbcluster_ids = dbcluster_ids
         self.page_size = page_size
@@ -1788,11 +1516,6 @@ class DescribeAutoRenewAttributeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['DBClusterIds'] = self.dbcluster_ids
         result['PageSize'] = self.page_size
@@ -1801,11 +1524,6 @@ class DescribeAutoRenewAttributeRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.dbcluster_ids = map.get('DBClusterIds')
         self.page_size = map.get('PageSize')
@@ -1924,15 +1642,8 @@ class DescribeAutoRenewAttributeResponseItems(TeaModel):
         else:
             self.auto_renew_attribute = None
         return self
-
-
 class CreateDBNodesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbnode=None, client_token=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbnode=None, client_token=None):
         self.dbcluster_id = dbcluster_id
         self.dbnode = []
         self.client_token = client_token
@@ -1947,11 +1658,6 @@ class CreateDBNodesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBNode'] = []
         if self.dbnode is not None:
@@ -1963,11 +1669,6 @@ class CreateDBNodesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbnode = []
         if map.get('DBNode') is not None:
@@ -2000,8 +1701,6 @@ class CreateDBNodesRequestDBNode(TeaModel):
         self.target_class = map.get('TargetClass')
         self.zone_id = map.get('ZoneId')
         return self
-
-
 class CreateDBNodesResponse(TeaModel):
     def __init__(self, request_id=None, dbcluster_id=None, order_id=None, dbnode_ids=None):
         self.request_id = request_id
@@ -2065,15 +1764,8 @@ class CreateDBNodesResponseDBNodeIds(TeaModel):
         else:
             self.dbnode_id = None
         return self
-
-
 class DeleteDBNodesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbnode_id=None, client_token=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbnode_id=None, client_token=None):
         self.dbcluster_id = dbcluster_id
         self.dbnode_id = []
         self.client_token = client_token
@@ -2084,11 +1776,6 @@ class DeleteDBNodesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBNodeId'] = []
         if self.dbnode_id is not None:
@@ -2100,11 +1787,6 @@ class DeleteDBNodesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbnode_id = []
         if map.get('DBNodeId') is not None:
@@ -2142,12 +1824,7 @@ class DeleteDBNodesResponse(TeaModel):
 
 
 class UntagResourcesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, resource_type=None, resource_id=None, tag_key=None, all=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, resource_type=None, resource_id=None, tag_key=None, all=None):
         self.region_id = region_id
         self.resource_type = resource_type
         self.resource_id = []
@@ -2161,11 +1838,6 @@ class UntagResourcesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ResourceType'] = self.resource_type
         result['ResourceId'] = []
@@ -2184,11 +1856,6 @@ class UntagResourcesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.resource_type = map.get('ResourceType')
         self.resource_id = []
@@ -2225,12 +1892,7 @@ class UntagResourcesResponse(TeaModel):
 
 
 class TagResourcesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, resource_type=None, resource_id=None, tag=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, resource_type=None, resource_id=None, tag=None):
         self.region_id = region_id
         self.resource_type = resource_type
         self.resource_id = []
@@ -2248,11 +1910,6 @@ class TagResourcesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ResourceType'] = self.resource_type
         result['ResourceId'] = []
@@ -2270,11 +1927,6 @@ class TagResourcesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.resource_type = map.get('ResourceType')
         self.resource_id = []
@@ -2313,8 +1965,6 @@ class TagResourcesRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class TagResourcesResponse(TeaModel):
     def __init__(self, request_id=None):
         self.request_id = request_id
@@ -2333,12 +1983,7 @@ class TagResourcesResponse(TeaModel):
 
 
 class ListTagResourcesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, resource_type=None, resource_id=None, tag=None, next_token=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, resource_type=None, resource_id=None, tag=None, next_token=None):
         self.region_id = region_id
         self.resource_type = resource_type
         self.resource_id = []
@@ -2355,11 +2000,6 @@ class ListTagResourcesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['ResourceType'] = self.resource_type
         result['ResourceId'] = []
@@ -2378,11 +2018,6 @@ class ListTagResourcesRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.resource_type = map.get('ResourceType')
         self.resource_id = []
@@ -2422,8 +2057,6 @@ class ListTagResourcesRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class ListTagResourcesResponse(TeaModel):
     def __init__(self, request_id=None, next_token=None, tag_resources=None):
         self.request_id = request_id
@@ -2518,21 +2151,15 @@ class ListTagResourcesResponseTagResources(TeaModel):
         else:
             self.tag_resource = None
         return self
-
-
 class ModifyDBEndpointAddressRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbendpoint_id=None, net_type=None, connection_string_prefix=None, private_zone_address_prefix=None, private_zone_name=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbendpoint_id=None, net_type=None, connection_string_prefix=None, private_zone_address_prefix=None, private_zone_name=None, port=None):
         self.dbcluster_id = dbcluster_id
         self.dbendpoint_id = dbendpoint_id
         self.net_type = net_type
         self.connection_string_prefix = connection_string_prefix
         self.private_zone_address_prefix = private_zone_address_prefix
         self.private_zone_name = private_zone_name
+        self.port = port
 
     def validate(self):
         self.validate_required(self.dbcluster_id, 'dbcluster_id')
@@ -2541,31 +2168,23 @@ class ModifyDBEndpointAddressRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBEndpointId'] = self.dbendpoint_id
         result['NetType'] = self.net_type
         result['ConnectionStringPrefix'] = self.connection_string_prefix
         result['PrivateZoneAddressPrefix'] = self.private_zone_address_prefix
         result['PrivateZoneName'] = self.private_zone_name
+        result['Port'] = self.port
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbendpoint_id = map.get('DBEndpointId')
         self.net_type = map.get('NetType')
         self.connection_string_prefix = map.get('ConnectionStringPrefix')
         self.private_zone_address_prefix = map.get('PrivateZoneAddressPrefix')
         self.private_zone_name = map.get('PrivateZoneName')
+        self.port = map.get('Port')
         return self
 
 
@@ -2587,12 +2206,7 @@ class ModifyDBEndpointAddressResponse(TeaModel):
 
 
 class ModifyDBDescriptionRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbname=None, dbdescription=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbname=None, dbdescription=None):
         self.dbcluster_id = dbcluster_id
         self.dbname = dbname
         self.dbdescription = dbdescription
@@ -2604,22 +2218,12 @@ class ModifyDBDescriptionRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBName'] = self.dbname
         result['DBDescription'] = self.dbdescription
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbname = map.get('DBName')
         self.dbdescription = map.get('DBDescription')
@@ -2644,12 +2248,7 @@ class ModifyDBDescriptionResponse(TeaModel):
 
 
 class ModifyDBClusterParametersRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, parameters=None, effective_time=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, parameters=None, effective_time=None):
         self.dbcluster_id = dbcluster_id
         self.parameters = parameters
         self.effective_time = effective_time
@@ -2660,22 +2259,12 @@ class ModifyDBClusterParametersRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['Parameters'] = self.parameters
         result['EffectiveTime'] = self.effective_time
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.parameters = map.get('Parameters')
         self.effective_time = map.get('EffectiveTime')
@@ -2700,12 +2289,7 @@ class ModifyDBClusterParametersResponse(TeaModel):
 
 
 class ModifyDBClusterEndpointRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbendpoint_id=None, nodes=None, read_write_mode=None, auto_add_new_nodes=None, endpoint_config=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbendpoint_id=None, nodes=None, read_write_mode=None, auto_add_new_nodes=None, endpoint_config=None):
         self.dbcluster_id = dbcluster_id
         self.dbendpoint_id = dbendpoint_id
         self.nodes = nodes
@@ -2719,11 +2303,6 @@ class ModifyDBClusterEndpointRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBEndpointId'] = self.dbendpoint_id
         result['Nodes'] = self.nodes
@@ -2733,11 +2312,6 @@ class ModifyDBClusterEndpointRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbendpoint_id = map.get('DBEndpointId')
         self.nodes = map.get('Nodes')
@@ -2765,12 +2339,7 @@ class ModifyDBClusterEndpointResponse(TeaModel):
 
 
 class ModifyAccountPasswordRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None, new_account_password=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None, new_account_password=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
         self.new_account_password = new_account_password
@@ -2782,22 +2351,12 @@ class ModifyAccountPasswordRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         result['NewAccountPassword'] = self.new_account_password
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         self.new_account_password = map.get('NewAccountPassword')
@@ -2822,8 +2381,7 @@ class ModifyAccountPasswordResponse(TeaModel):
 
 
 class DescribeDBClusterPerformanceRequest(TeaModel):
-    def __init__(self, access_key_id=None, dbcluster_id=None, key=None, start_time=None, end_time=None):
-        self.access_key_id = access_key_id
+    def __init__(self, dbcluster_id=None, key=None, start_time=None, end_time=None):
         self.dbcluster_id = dbcluster_id
         self.key = key
         self.start_time = start_time
@@ -2837,7 +2395,6 @@ class DescribeDBClusterPerformanceRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
         result['DBClusterId'] = self.dbcluster_id
         result['Key'] = self.key
         result['StartTime'] = self.start_time
@@ -2845,7 +2402,6 @@ class DescribeDBClusterPerformanceRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
         self.dbcluster_id = map.get('DBClusterId')
         self.key = map.get('Key')
         self.start_time = map.get('StartTime')
@@ -3030,15 +2586,8 @@ class DescribeDBClusterPerformanceResponsePerformanceKeys(TeaModel):
         else:
             self.performance_item = None
         return self
-
-
 class DescribeDBClusterParametersRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -3046,20 +2595,10 @@ class DescribeDBClusterParametersRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -3186,15 +2725,8 @@ class DescribeDBClusterParametersResponseRunningParameters(TeaModel):
         else:
             self.parameter = None
         return self
-
-
 class DescribeDBClusterEndpointsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbendpoint_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbendpoint_id=None):
         self.dbcluster_id = dbcluster_id
         self.dbendpoint_id = dbendpoint_id
 
@@ -3203,21 +2735,11 @@ class DescribeDBClusterEndpointsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBEndpointId'] = self.dbendpoint_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbendpoint_id = map.get('DBEndpointId')
         return self
@@ -3261,13 +2783,13 @@ class DescribeDBClusterEndpointsResponse(TeaModel):
 
 
 class DescribeDBClusterEndpointsResponseItemsAddressItems(TeaModel):
-    def __init__(self, connection_string=None, ipaddress=None, net_type=None, port=None, vpcid=None, vswitch_id=None, vpc_instance_id=None, private_zone_connection_string=None):
+    def __init__(self, connection_string=None, ipaddress=None, net_type=None, port=None, vpcid=None, v_switch_id=None, vpc_instance_id=None, private_zone_connection_string=None):
         self.connection_string = connection_string
         self.ipaddress = ipaddress
         self.net_type = net_type
         self.port = port
         self.vpcid = vpcid
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.vpc_instance_id = vpc_instance_id
         self.private_zone_connection_string = private_zone_connection_string
 
@@ -3277,7 +2799,7 @@ class DescribeDBClusterEndpointsResponseItemsAddressItems(TeaModel):
         self.validate_required(self.net_type, 'net_type')
         self.validate_required(self.port, 'port')
         self.validate_required(self.vpcid, 'vpcid')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
         self.validate_required(self.vpc_instance_id, 'vpc_instance_id')
         self.validate_required(self.private_zone_connection_string, 'private_zone_connection_string')
 
@@ -3288,7 +2810,7 @@ class DescribeDBClusterEndpointsResponseItemsAddressItems(TeaModel):
         result['NetType'] = self.net_type
         result['Port'] = self.port
         result['VPCId'] = self.vpcid
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['VpcInstanceId'] = self.vpc_instance_id
         result['PrivateZoneConnectionString'] = self.private_zone_connection_string
         return result
@@ -3299,20 +2821,21 @@ class DescribeDBClusterEndpointsResponseItemsAddressItems(TeaModel):
         self.net_type = map.get('NetType')
         self.port = map.get('Port')
         self.vpcid = map.get('VPCId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.vpc_instance_id = map.get('VpcInstanceId')
         self.private_zone_connection_string = map.get('PrivateZoneConnectionString')
         return self
 
 
 class DescribeDBClusterEndpointsResponseItems(TeaModel):
-    def __init__(self, dbendpoint_id=None, endpoint_type=None, nodes=None, read_write_mode=None, auto_add_new_nodes=None, endpoint_config=None, address_items=None):
+    def __init__(self, dbendpoint_id=None, endpoint_type=None, nodes=None, read_write_mode=None, auto_add_new_nodes=None, endpoint_config=None, node_with_roles=None, address_items=None):
         self.dbendpoint_id = dbendpoint_id
         self.endpoint_type = endpoint_type
         self.nodes = nodes
         self.read_write_mode = read_write_mode
         self.auto_add_new_nodes = auto_add_new_nodes
         self.endpoint_config = endpoint_config
+        self.node_with_roles = node_with_roles
         self.address_items = []
 
     def validate(self):
@@ -3322,6 +2845,7 @@ class DescribeDBClusterEndpointsResponseItems(TeaModel):
         self.validate_required(self.read_write_mode, 'read_write_mode')
         self.validate_required(self.auto_add_new_nodes, 'auto_add_new_nodes')
         self.validate_required(self.endpoint_config, 'endpoint_config')
+        self.validate_required(self.node_with_roles, 'node_with_roles')
         self.validate_required(self.address_items, 'address_items')
         if self.address_items:
             for k in self.address_items:
@@ -3336,6 +2860,7 @@ class DescribeDBClusterEndpointsResponseItems(TeaModel):
         result['ReadWriteMode'] = self.read_write_mode
         result['AutoAddNewNodes'] = self.auto_add_new_nodes
         result['EndpointConfig'] = self.endpoint_config
+        result['NodeWithRoles'] = self.node_with_roles
         result['AddressItems'] = []
         if self.address_items is not None:
             for k in self.address_items:
@@ -3351,6 +2876,7 @@ class DescribeDBClusterEndpointsResponseItems(TeaModel):
         self.read_write_mode = map.get('ReadWriteMode')
         self.auto_add_new_nodes = map.get('AutoAddNewNodes')
         self.endpoint_config = map.get('EndpointConfig')
+        self.node_with_roles = map.get('NodeWithRoles')
         self.address_items = []
         if map.get('AddressItems') is not None:
             for k in map.get('AddressItems'):
@@ -3360,15 +2886,8 @@ class DescribeDBClusterEndpointsResponseItems(TeaModel):
         else:
             self.address_items = None
         return self
-
-
 class DeleteDBEndpointAddressRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbendpoint_id=None, net_type=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbendpoint_id=None, net_type=None):
         self.dbcluster_id = dbcluster_id
         self.dbendpoint_id = dbendpoint_id
         self.net_type = net_type
@@ -3380,22 +2899,12 @@ class DeleteDBEndpointAddressRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBEndpointId'] = self.dbendpoint_id
         result['NetType'] = self.net_type
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbendpoint_id = map.get('DBEndpointId')
         self.net_type = map.get('NetType')
@@ -3420,12 +2929,7 @@ class DeleteDBEndpointAddressResponse(TeaModel):
 
 
 class DeleteDBClusterEndpointRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbendpoint_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbendpoint_id=None):
         self.dbcluster_id = dbcluster_id
         self.dbendpoint_id = dbendpoint_id
 
@@ -3435,21 +2939,11 @@ class DeleteDBClusterEndpointRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBEndpointId'] = self.dbendpoint_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbendpoint_id = map.get('DBEndpointId')
         return self
@@ -3473,12 +2967,7 @@ class DeleteDBClusterEndpointResponse(TeaModel):
 
 
 class CreateDBEndpointAddressRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbendpoint_id=None, connection_string_prefix=None, net_type=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbendpoint_id=None, connection_string_prefix=None, net_type=None):
         self.dbcluster_id = dbcluster_id
         self.dbendpoint_id = dbendpoint_id
         self.connection_string_prefix = connection_string_prefix
@@ -3491,11 +2980,6 @@ class CreateDBEndpointAddressRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBEndpointId'] = self.dbendpoint_id
         result['ConnectionStringPrefix'] = self.connection_string_prefix
@@ -3503,11 +2987,6 @@ class CreateDBEndpointAddressRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbendpoint_id = map.get('DBEndpointId')
         self.connection_string_prefix = map.get('ConnectionStringPrefix')
@@ -3533,12 +3012,7 @@ class CreateDBEndpointAddressResponse(TeaModel):
 
 
 class CreateDBClusterEndpointRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, endpoint_type=None, nodes=None, read_write_mode=None, auto_add_new_nodes=None, endpoint_config=None, client_token=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, endpoint_type=None, nodes=None, read_write_mode=None, auto_add_new_nodes=None, endpoint_config=None, client_token=None):
         self.dbcluster_id = dbcluster_id
         self.endpoint_type = endpoint_type
         self.nodes = nodes
@@ -3553,11 +3027,6 @@ class CreateDBClusterEndpointRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['EndpointType'] = self.endpoint_type
         result['Nodes'] = self.nodes
@@ -3568,11 +3037,6 @@ class CreateDBClusterEndpointRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.endpoint_type = map.get('EndpointType')
         self.nodes = map.get('Nodes')
@@ -3601,12 +3065,7 @@ class CreateDBClusterEndpointResponse(TeaModel):
 
 
 class RestartDBNodeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbnode_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbnode_id=None):
         self.dbnode_id = dbnode_id
 
     def validate(self):
@@ -3614,20 +3073,10 @@ class RestartDBNodeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBNodeId'] = self.dbnode_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbnode_id = map.get('DBNodeId')
         return self
 
@@ -3650,8 +3099,7 @@ class RestartDBNodeResponse(TeaModel):
 
 
 class DescribeDBNodePerformanceRequest(TeaModel):
-    def __init__(self, access_key_id=None, dbnode_id=None, key=None, start_time=None, end_time=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
+    def __init__(self, dbnode_id=None, key=None, start_time=None, end_time=None, dbcluster_id=None):
         self.dbnode_id = dbnode_id
         self.key = key
         self.start_time = start_time
@@ -3666,7 +3114,6 @@ class DescribeDBNodePerformanceRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
         result['DBNodeId'] = self.dbnode_id
         result['Key'] = self.key
         result['StartTime'] = self.start_time
@@ -3675,7 +3122,6 @@ class DescribeDBNodePerformanceRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
         self.dbnode_id = map.get('DBNodeId')
         self.key = map.get('Key')
         self.start_time = map.get('StartTime')
@@ -3857,15 +3303,8 @@ class DescribeDBNodePerformanceResponsePerformanceKeys(TeaModel):
         else:
             self.performance_item = None
         return self
-
-
 class ModifyDBClusterAccessWhitelistRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, security_ips=None, dbcluster_iparray_name=None, dbcluster_iparray_attribute=None, white_list_type=None, security_group_ids=None, modify_mode=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, security_ips=None, dbcluster_iparray_name=None, dbcluster_iparray_attribute=None, white_list_type=None, security_group_ids=None, modify_mode=None):
         self.dbcluster_id = dbcluster_id
         self.security_ips = security_ips
         self.dbcluster_iparray_name = dbcluster_iparray_name
@@ -3879,11 +3318,6 @@ class ModifyDBClusterAccessWhitelistRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['SecurityIps'] = self.security_ips
         result['DBClusterIPArrayName'] = self.dbcluster_iparray_name
@@ -3894,11 +3328,6 @@ class ModifyDBClusterAccessWhitelistRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.security_ips = map.get('SecurityIps')
         self.dbcluster_iparray_name = map.get('DBClusterIPArrayName')
@@ -3927,12 +3356,7 @@ class ModifyDBClusterAccessWhitelistResponse(TeaModel):
 
 
 class DescribeDBClusterAccessWhitelistRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -3940,20 +3364,10 @@ class DescribeDBClusterAccessWhitelistRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -4111,15 +3525,8 @@ class DescribeDBClusterAccessWhitelistResponseDBClusterSecurityGroups(TeaModel):
         else:
             self.dbcluster_security_group = None
         return self
-
-
 class ModifyDBClusterMaintainTimeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, maintain_time=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, maintain_time=None):
         self.dbcluster_id = dbcluster_id
         self.maintain_time = maintain_time
 
@@ -4129,21 +3536,11 @@ class ModifyDBClusterMaintainTimeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['MaintainTime'] = self.maintain_time
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.maintain_time = map.get('MaintainTime')
         return self
@@ -4167,12 +3564,7 @@ class ModifyDBClusterMaintainTimeResponse(TeaModel):
 
 
 class RevokeAccountPrivilegeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None, dbname=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None, dbname=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
         self.dbname = dbname
@@ -4184,22 +3576,12 @@ class RevokeAccountPrivilegeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         result['DBName'] = self.dbname
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         self.dbname = map.get('DBName')
@@ -4224,12 +3606,7 @@ class RevokeAccountPrivilegeResponse(TeaModel):
 
 
 class ResetAccountRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None, account_password=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None, account_password=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
         self.account_password = account_password
@@ -4241,22 +3618,12 @@ class ResetAccountRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         result['AccountPassword'] = self.account_password
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         self.account_password = map.get('AccountPassword')
@@ -4281,12 +3648,7 @@ class ResetAccountResponse(TeaModel):
 
 
 class GrantAccountPrivilegeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None, dbname=None, account_privilege=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None, dbname=None, account_privilege=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
         self.dbname = dbname
@@ -4300,11 +3662,6 @@ class GrantAccountPrivilegeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         result['DBName'] = self.dbname
@@ -4312,11 +3669,6 @@ class GrantAccountPrivilegeRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         self.dbname = map.get('DBName')
@@ -4342,12 +3694,7 @@ class GrantAccountPrivilegeResponse(TeaModel):
 
 
 class DescribeDatabasesRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbname=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbname=None):
         self.dbcluster_id = dbcluster_id
         self.dbname = dbname
 
@@ -4356,21 +3703,11 @@ class DescribeDatabasesRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBName'] = self.dbname
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbname = map.get('DBName')
         return self
@@ -4545,15 +3882,8 @@ class DescribeDatabasesResponseDatabases(TeaModel):
         else:
             self.database = None
         return self
-
-
 class DeleteDatabaseRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbname=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbname=None):
         self.dbcluster_id = dbcluster_id
         self.dbname = dbname
 
@@ -4563,21 +3893,11 @@ class DeleteDatabaseRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBName'] = self.dbname
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbname = map.get('DBName')
         return self
@@ -4601,12 +3921,7 @@ class DeleteDatabaseResponse(TeaModel):
 
 
 class DeleteAccountRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
 
@@ -4616,21 +3931,11 @@ class DeleteAccountRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         return self
@@ -4654,12 +3959,7 @@ class DeleteAccountResponse(TeaModel):
 
 
 class CreateDatabaseRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbname=None, character_set_name=None, dbdescription=None, account_name=None, account_privilege=None, collate=None, ctype=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbname=None, character_set_name=None, dbdescription=None, account_name=None, account_privilege=None, collate=None, ctype=None):
         self.dbcluster_id = dbcluster_id
         self.dbname = dbname
         self.character_set_name = character_set_name
@@ -4676,11 +3976,6 @@ class CreateDatabaseRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBName'] = self.dbname
         result['CharacterSetName'] = self.character_set_name
@@ -4692,11 +3987,6 @@ class CreateDatabaseRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbname = map.get('DBName')
         self.character_set_name = map.get('CharacterSetName')
@@ -4726,12 +4016,7 @@ class CreateDatabaseResponse(TeaModel):
 
 
 class DeleteBackupRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, backup_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, backup_id=None):
         self.dbcluster_id = dbcluster_id
         self.backup_id = backup_id
 
@@ -4741,21 +4026,11 @@ class DeleteBackupRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['BackupId'] = self.backup_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.backup_id = map.get('BackupId')
         return self
@@ -4779,12 +4054,7 @@ class DeleteBackupResponse(TeaModel):
 
 
 class DescribeSlowLogsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, dbcluster_id=None, start_time=None, end_time=None, dbname=None, page_size=None, page_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, dbcluster_id=None, start_time=None, end_time=None, dbname=None, page_size=None, page_number=None):
         self.region_id = region_id
         self.dbcluster_id = dbcluster_id
         self.start_time = start_time
@@ -4801,11 +4071,6 @@ class DescribeSlowLogsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['DBClusterId'] = self.dbcluster_id
         result['StartTime'] = self.start_time
@@ -4816,11 +4081,6 @@ class DescribeSlowLogsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.dbcluster_id = map.get('DBClusterId')
         self.start_time = map.get('StartTime')
@@ -4989,15 +4249,8 @@ class DescribeSlowLogsResponseItems(TeaModel):
         else:
             self.sqlslow_log = None
         return self
-
-
 class DescribeSlowLogRecordsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, dbcluster_id=None, start_time=None, end_time=None, dbname=None, page_size=None, page_number=None, _sqlhash=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, dbcluster_id=None, start_time=None, end_time=None, dbname=None, page_size=None, page_number=None, _sqlhash=None):
         self.region_id = region_id
         self.dbcluster_id = dbcluster_id
         self.start_time = start_time
@@ -5015,11 +4268,6 @@ class DescribeSlowLogRecordsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['DBClusterId'] = self.dbcluster_id
         result['StartTime'] = self.start_time
@@ -5031,11 +4279,6 @@ class DescribeSlowLogRecordsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.dbcluster_id = map.get('DBClusterId')
         self.start_time = map.get('StartTime')
@@ -5177,15 +4420,8 @@ class DescribeSlowLogRecordsResponseItems(TeaModel):
         else:
             self.sqlslow_record = None
         return self
-
-
 class FailoverDBClusterRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, target_dbnode_id=None, client_token=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, target_dbnode_id=None, client_token=None):
         self.dbcluster_id = dbcluster_id
         self.target_dbnode_id = target_dbnode_id
         self.client_token = client_token
@@ -5195,22 +4431,12 @@ class FailoverDBClusterRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['TargetDBNodeId'] = self.target_dbnode_id
         result['ClientToken'] = self.client_token
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.target_dbnode_id = map.get('TargetDBNodeId')
         self.client_token = map.get('ClientToken')
@@ -5235,12 +4461,7 @@ class FailoverDBClusterResponse(TeaModel):
 
 
 class ModifyDBClusterDescriptionRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, dbcluster_description=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, dbcluster_description=None):
         self.dbcluster_id = dbcluster_id
         self.dbcluster_description = dbcluster_description
 
@@ -5250,21 +4471,11 @@ class ModifyDBClusterDescriptionRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['DBClusterDescription'] = self.dbcluster_description
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbcluster_description = map.get('DBClusterDescription')
         return self
@@ -5288,12 +4499,7 @@ class ModifyDBClusterDescriptionResponse(TeaModel):
 
 
 class ModifyAccountDescriptionRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None, account_description=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None, account_description=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
         self.account_description = account_description
@@ -5305,22 +4511,12 @@ class ModifyAccountDescriptionRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         result['AccountDescription'] = self.account_description
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         self.account_description = map.get('AccountDescription')
@@ -5345,31 +4541,17 @@ class ModifyAccountDescriptionResponse(TeaModel):
 
 
 class DescribeRegionsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self):
+        pass
 
     def validate(self):
         pass
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         return self
 
 
@@ -5518,15 +4700,8 @@ class DescribeRegionsResponseRegions(TeaModel):
         else:
             self.region = None
         return self
-
-
 class DescribeAccountsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
 
@@ -5535,21 +4710,11 @@ class DescribeAccountsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         return self
@@ -5672,15 +4837,8 @@ class DescribeAccountsResponseAccounts(TeaModel):
         else:
             self.database_privileges = None
         return self
-
-
 class DeleteDBClusterRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, backup_retention_policy_on_cluster_deletion=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, backup_retention_policy_on_cluster_deletion=None):
         self.dbcluster_id = dbcluster_id
         self.backup_retention_policy_on_cluster_deletion = backup_retention_policy_on_cluster_deletion
 
@@ -5689,21 +4847,11 @@ class DeleteDBClusterRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['BackupRetentionPolicyOnClusterDeletion'] = self.backup_retention_policy_on_cluster_deletion
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.backup_retention_policy_on_cluster_deletion = map.get('BackupRetentionPolicyOnClusterDeletion')
         return self
@@ -5727,12 +4875,7 @@ class DeleteDBClusterResponse(TeaModel):
 
 
 class CreateDBClusterRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, zone_id=None, dbtype=None, dbversion=None, dbnode_class=None, cluster_network_type=None, dbcluster_description=None, pay_type=None, auto_renew=None, period=None, used_time=None, vpcid=None, vswitch_id=None, creation_option=None, source_resource_id=None, clone_data_point=None, client_token=None, resource_group_id=None, security_iplist=None, tdestatus=None, gdnid=None, creation_category=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, zone_id=None, dbtype=None, dbversion=None, dbnode_class=None, cluster_network_type=None, dbcluster_description=None, pay_type=None, auto_renew=None, period=None, used_time=None, vpcid=None, v_switch_id=None, creation_option=None, source_resource_id=None, clone_data_point=None, client_token=None, resource_group_id=None, security_iplist=None, tdestatus=None, gdnid=None, creation_category=None):
         self.zone_id = zone_id
         self.dbtype = dbtype
         self.dbversion = dbversion
@@ -5744,7 +4887,7 @@ class CreateDBClusterRequest(TeaModel):
         self.period = period
         self.used_time = used_time
         self.vpcid = vpcid
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.creation_option = creation_option
         self.source_resource_id = source_resource_id
         self.clone_data_point = clone_data_point
@@ -5763,11 +4906,6 @@ class CreateDBClusterRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['ZoneId'] = self.zone_id
         result['DBType'] = self.dbtype
         result['DBVersion'] = self.dbversion
@@ -5779,7 +4917,7 @@ class CreateDBClusterRequest(TeaModel):
         result['Period'] = self.period
         result['UsedTime'] = self.used_time
         result['VPCId'] = self.vpcid
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['CreationOption'] = self.creation_option
         result['SourceResourceId'] = self.source_resource_id
         result['CloneDataPoint'] = self.clone_data_point
@@ -5792,11 +4930,6 @@ class CreateDBClusterRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.zone_id = map.get('ZoneId')
         self.dbtype = map.get('DBType')
         self.dbversion = map.get('DBVersion')
@@ -5808,7 +4941,7 @@ class CreateDBClusterRequest(TeaModel):
         self.period = map.get('Period')
         self.used_time = map.get('UsedTime')
         self.vpcid = map.get('VPCId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.creation_option = map.get('CreationOption')
         self.source_resource_id = map.get('SourceResourceId')
         self.clone_data_point = map.get('CloneDataPoint')
@@ -5851,12 +4984,7 @@ class CreateDBClusterResponse(TeaModel):
 
 
 class CreateBackupRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -5864,20 +4992,10 @@ class CreateBackupRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -5904,12 +5022,7 @@ class CreateBackupResponse(TeaModel):
 
 
 class CreateAccountRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, account_name=None, account_password=None, account_type=None, account_description=None, dbname=None, account_privilege=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, account_name=None, account_password=None, account_type=None, account_description=None, dbname=None, account_privilege=None):
         self.dbcluster_id = dbcluster_id
         self.account_name = account_name
         self.account_password = account_password
@@ -5925,11 +5038,6 @@ class CreateAccountRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['AccountName'] = self.account_name
         result['AccountPassword'] = self.account_password
@@ -5940,11 +5048,6 @@ class CreateAccountRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.account_name = map.get('AccountName')
         self.account_password = map.get('AccountPassword')
@@ -5973,12 +5076,7 @@ class CreateAccountResponse(TeaModel):
 
 
 class DescribeBackupsRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, backup_id=None, backup_status=None, backup_mode=None, start_time=None, end_time=None, page_size=None, page_number=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, backup_id=None, backup_status=None, backup_mode=None, start_time=None, end_time=None, page_size=None, page_number=None):
         self.dbcluster_id = dbcluster_id
         self.backup_id = backup_id
         self.backup_status = backup_status
@@ -5995,11 +5093,6 @@ class DescribeBackupsRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['BackupId'] = self.backup_id
         result['BackupStatus'] = self.backup_status
@@ -6011,11 +5104,6 @@ class DescribeBackupsRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.backup_id = map.get('BackupId')
         self.backup_status = map.get('BackupStatus')
@@ -6165,15 +5253,8 @@ class DescribeBackupsResponseItems(TeaModel):
         else:
             self.backup = None
         return self
-
-
 class ModifyBackupPolicyRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None, preferred_backup_time=None, preferred_backup_period=None, data_level_1backup_retention_period=None, data_level_2backup_retention_period=None, backup_retention_policy_on_cluster_deletion=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None, preferred_backup_time=None, preferred_backup_period=None, data_level_1backup_retention_period=None, data_level_2backup_retention_period=None, backup_retention_policy_on_cluster_deletion=None):
         self.dbcluster_id = dbcluster_id
         self.preferred_backup_time = preferred_backup_time
         self.preferred_backup_period = preferred_backup_period
@@ -6186,11 +5267,6 @@ class ModifyBackupPolicyRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         result['PreferredBackupTime'] = self.preferred_backup_time
         result['PreferredBackupPeriod'] = self.preferred_backup_period
@@ -6200,11 +5276,6 @@ class ModifyBackupPolicyRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         self.preferred_backup_time = map.get('PreferredBackupTime')
         self.preferred_backup_period = map.get('PreferredBackupPeriod')
@@ -6232,12 +5303,7 @@ class ModifyBackupPolicyResponse(TeaModel):
 
 
 class DescribeBackupPolicyRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -6245,20 +5311,10 @@ class DescribeBackupPolicyRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
@@ -6309,12 +5365,7 @@ class DescribeBackupPolicyResponse(TeaModel):
 
 
 class DescribeDBClustersRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, region_id=None, dbcluster_ids=None, dbcluster_description=None, dbcluster_status=None, dbtype=None, tag=None, page_size=None, page_number=None, resource_group_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, region_id=None, dbcluster_ids=None, dbcluster_description=None, dbcluster_status=None, dbtype=None, tag=None, page_size=None, page_number=None, resource_group_id=None):
         self.region_id = region_id
         self.dbcluster_ids = dbcluster_ids
         self.dbcluster_description = dbcluster_description
@@ -6334,11 +5385,6 @@ class DescribeDBClustersRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['RegionId'] = self.region_id
         result['DBClusterIds'] = self.dbcluster_ids
         result['DBClusterDescription'] = self.dbcluster_description
@@ -6356,11 +5402,6 @@ class DescribeDBClustersRequest(TeaModel):
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.region_id = map.get('RegionId')
         self.dbcluster_ids = map.get('DBClusterIds')
         self.dbcluster_description = map.get('DBClusterDescription')
@@ -6399,8 +5440,6 @@ class DescribeDBClustersRequestTag(TeaModel):
         self.key = map.get('Key')
         self.value = map.get('Value')
         return self
-
-
 class DescribeDBClustersResponse(TeaModel):
     def __init__(self, request_id=None, page_number=None, total_record_count=None, page_record_count=None, items=None):
         self.request_id = request_id
@@ -6713,15 +5752,8 @@ class DescribeDBClustersResponseItems(TeaModel):
         else:
             self.dbcluster = None
         return self
-
-
 class DescribeDBClusterAttributeRequest(TeaModel):
-    def __init__(self, access_key_id=None, owner_id=None, resource_owner_account=None, resource_owner_id=None, owner_account=None, dbcluster_id=None):
-        self.access_key_id = access_key_id
-        self.owner_id = owner_id
-        self.resource_owner_account = resource_owner_account
-        self.resource_owner_id = resource_owner_id
-        self.owner_account = owner_account
+    def __init__(self, dbcluster_id=None):
         self.dbcluster_id = dbcluster_id
 
     def validate(self):
@@ -6729,31 +5761,21 @@ class DescribeDBClusterAttributeRequest(TeaModel):
 
     def to_map(self):
         result = {}
-        result['AccessKeyId'] = self.access_key_id
-        result['OwnerId'] = self.owner_id
-        result['ResourceOwnerAccount'] = self.resource_owner_account
-        result['ResourceOwnerId'] = self.resource_owner_id
-        result['OwnerAccount'] = self.owner_account
         result['DBClusterId'] = self.dbcluster_id
         return result
 
     def from_map(self, map={}):
-        self.access_key_id = map.get('AccessKeyId')
-        self.owner_id = map.get('OwnerId')
-        self.resource_owner_account = map.get('ResourceOwnerAccount')
-        self.resource_owner_id = map.get('ResourceOwnerId')
-        self.owner_account = map.get('OwnerAccount')
         self.dbcluster_id = map.get('DBClusterId')
         return self
 
 
 class DescribeDBClusterAttributeResponse(TeaModel):
-    def __init__(self, request_id=None, region_id=None, dbcluster_network_type=None, vpcid=None, vswitch_id=None, pay_type=None, dbcluster_id=None, dbcluster_status=None, dbcluster_description=None, engine=None, dbtype=None, dbversion=None, lock_mode=None, deletion_lock=None, creation_time=None, expire_time=None, expired=None, maintain_time=None, storage_used=None, storage_max=None, zone_ids=None, sqlsize=None, is_latest_version=None, resource_group_id=None, data_level_1backup_chain_size=None, tags=None, dbnodes=None):
+    def __init__(self, request_id=None, region_id=None, dbcluster_network_type=None, vpcid=None, v_switch_id=None, pay_type=None, dbcluster_id=None, dbcluster_status=None, dbcluster_description=None, engine=None, dbtype=None, dbversion=None, lock_mode=None, deletion_lock=None, creation_time=None, expire_time=None, expired=None, maintain_time=None, storage_used=None, storage_max=None, zone_ids=None, sqlsize=None, is_latest_version=None, resource_group_id=None, data_level_1backup_chain_size=None, tags=None, dbnodes=None):
         self.request_id = request_id
         self.region_id = region_id
         self.dbcluster_network_type = dbcluster_network_type
         self.vpcid = vpcid
-        self.vswitch_id = vswitch_id
+        self.v_switch_id = v_switch_id
         self.pay_type = pay_type
         self.dbcluster_id = dbcluster_id
         self.dbcluster_status = dbcluster_status
@@ -6782,7 +5804,7 @@ class DescribeDBClusterAttributeResponse(TeaModel):
         self.validate_required(self.region_id, 'region_id')
         self.validate_required(self.dbcluster_network_type, 'dbcluster_network_type')
         self.validate_required(self.vpcid, 'vpcid')
-        self.validate_required(self.vswitch_id, 'vswitch_id')
+        self.validate_required(self.v_switch_id, 'v_switch_id')
         self.validate_required(self.pay_type, 'pay_type')
         self.validate_required(self.dbcluster_id, 'dbcluster_id')
         self.validate_required(self.dbcluster_status, 'dbcluster_status')
@@ -6820,7 +5842,7 @@ class DescribeDBClusterAttributeResponse(TeaModel):
         result['RegionId'] = self.region_id
         result['DBClusterNetworkType'] = self.dbcluster_network_type
         result['VPCId'] = self.vpcid
-        result['VSwitchId'] = self.vswitch_id
+        result['VSwitchId'] = self.v_switch_id
         result['PayType'] = self.pay_type
         result['DBClusterId'] = self.dbcluster_id
         result['DBClusterStatus'] = self.dbcluster_status
@@ -6860,7 +5882,7 @@ class DescribeDBClusterAttributeResponse(TeaModel):
         self.region_id = map.get('RegionId')
         self.dbcluster_network_type = map.get('DBClusterNetworkType')
         self.vpcid = map.get('VPCId')
-        self.vswitch_id = map.get('VSwitchId')
+        self.v_switch_id = map.get('VSwitchId')
         self.pay_type = map.get('PayType')
         self.dbcluster_id = map.get('DBClusterId')
         self.dbcluster_status = map.get('DBClusterStatus')
