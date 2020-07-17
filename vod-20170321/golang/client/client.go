@@ -8,14 +8,620 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type ListDynamicImageRequest struct {
+	VideoId *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+}
+
+func (s ListDynamicImageRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListDynamicImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListDynamicImageRequest) SetVideoId(v string) *ListDynamicImageRequest {
+	s.VideoId = &v
+	return s
+}
+
+type ListDynamicImageResponse struct {
+	RequestId        *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DynamicImageList []*ListDynamicImageResponseDynamicImageList `json:"DynamicImageList,omitempty" xml:"DynamicImageList,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListDynamicImageResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListDynamicImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListDynamicImageResponse) SetRequestId(v string) *ListDynamicImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListDynamicImageResponse) SetDynamicImageList(v []*ListDynamicImageResponseDynamicImageList) *ListDynamicImageResponse {
+	s.DynamicImageList = v
+	return s
+}
+
+type ListDynamicImageResponseDynamicImageList struct {
+	VideoId        *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	DynamicImageId *string `json:"DynamicImageId,omitempty" xml:"DynamicImageId,omitempty" require:"true"`
+	JobId          *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	FileURL        *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
+	Width          *string `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height         *string `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Duration       *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Format         *string `json:"Format,omitempty" xml:"Format,omitempty" require:"true"`
+	FileSize       *string `json:"FileSize,omitempty" xml:"FileSize,omitempty" require:"true"`
+	Fps            *string `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	CreationTime   *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+}
+
+func (s ListDynamicImageResponseDynamicImageList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListDynamicImageResponseDynamicImageList) GoString() string {
+	return s.String()
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetVideoId(v string) *ListDynamicImageResponseDynamicImageList {
+	s.VideoId = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetDynamicImageId(v string) *ListDynamicImageResponseDynamicImageList {
+	s.DynamicImageId = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetJobId(v string) *ListDynamicImageResponseDynamicImageList {
+	s.JobId = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetFileURL(v string) *ListDynamicImageResponseDynamicImageList {
+	s.FileURL = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetWidth(v string) *ListDynamicImageResponseDynamicImageList {
+	s.Width = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetHeight(v string) *ListDynamicImageResponseDynamicImageList {
+	s.Height = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetDuration(v string) *ListDynamicImageResponseDynamicImageList {
+	s.Duration = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetFormat(v string) *ListDynamicImageResponseDynamicImageList {
+	s.Format = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetFileSize(v string) *ListDynamicImageResponseDynamicImageList {
+	s.FileSize = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetFps(v string) *ListDynamicImageResponseDynamicImageList {
+	s.Fps = &v
+	return s
+}
+
+func (s *ListDynamicImageResponseDynamicImageList) SetCreationTime(v string) *ListDynamicImageResponseDynamicImageList {
+	s.CreationTime = &v
+	return s
+}
+
+type DeleteDynamicImageRequest struct {
+	VideoId         *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	DynamicImageIds *string `json:"DynamicImageIds,omitempty" xml:"DynamicImageIds,omitempty"`
+}
+
+func (s DeleteDynamicImageRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteDynamicImageRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteDynamicImageRequest) SetVideoId(v string) *DeleteDynamicImageRequest {
+	s.VideoId = &v
+	return s
+}
+
+func (s *DeleteDynamicImageRequest) SetDynamicImageIds(v string) *DeleteDynamicImageRequest {
+	s.DynamicImageIds = &v
+	return s
+}
+
+type DeleteDynamicImageResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s DeleteDynamicImageResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteDynamicImageResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteDynamicImageResponse) SetRequestId(v string) *DeleteDynamicImageResponse {
+	s.RequestId = &v
+	return s
+}
+
+type DescribeVodUserTagsRequest struct {
+}
+
+func (s DescribeVodUserTagsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodUserTagsRequest) GoString() string {
+	return s.String()
+}
+
+type DescribeVodUserTagsResponse struct {
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Tags      []*DescribeVodUserTagsResponseTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeVodUserTagsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodUserTagsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodUserTagsResponse) SetRequestId(v string) *DescribeVodUserTagsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeVodUserTagsResponse) SetTags(v []*DescribeVodUserTagsResponseTags) *DescribeVodUserTagsResponse {
+	s.Tags = v
+	return s
+}
+
+type DescribeVodUserTagsResponseTags struct {
+	Key   *string   `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value []*string `json:"Value,omitempty" xml:"Value,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeVodUserTagsResponseTags) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodUserTagsResponseTags) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodUserTagsResponseTags) SetKey(v string) *DescribeVodUserTagsResponseTags {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeVodUserTagsResponseTags) SetValue(v []*string) *DescribeVodUserTagsResponseTags {
+	s.Value = v
+	return s
+}
+
+type DescribeVodTagResourcesRequest struct {
+	ResourceId   []*string                            `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	ResourceType *string                              `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag          []*DescribeVodTagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+}
+
+func (s DescribeVodTagResourcesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodTagResourcesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodTagResourcesRequest) SetResourceId(v []*string) *DescribeVodTagResourcesRequest {
+	s.ResourceId = v
+	return s
+}
+
+func (s *DescribeVodTagResourcesRequest) SetResourceType(v string) *DescribeVodTagResourcesRequest {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *DescribeVodTagResourcesRequest) SetTag(v []*DescribeVodTagResourcesRequestTag) *DescribeVodTagResourcesRequest {
+	s.Tag = v
+	return s
+}
+
+type DescribeVodTagResourcesRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
+}
+
+func (s DescribeVodTagResourcesRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodTagResourcesRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodTagResourcesRequestTag) SetKey(v string) *DescribeVodTagResourcesRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeVodTagResourcesRequestTag) SetValue(v string) *DescribeVodTagResourcesRequestTag {
+	s.Value = &v
+	return s
+}
+
+type DescribeVodTagResourcesResponse struct {
+	RequestId    *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TagResources []*DescribeVodTagResourcesResponseTagResources `json:"TagResources,omitempty" xml:"TagResources,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeVodTagResourcesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodTagResourcesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodTagResourcesResponse) SetRequestId(v string) *DescribeVodTagResourcesResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeVodTagResourcesResponse) SetTagResources(v []*DescribeVodTagResourcesResponseTagResources) *DescribeVodTagResourcesResponse {
+	s.TagResources = v
+	return s
+}
+
+type DescribeVodTagResourcesResponseTagResources struct {
+	ResourceId *string                                           `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
+	Tag        []*DescribeVodTagResourcesResponseTagResourcesTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeVodTagResourcesResponseTagResources) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodTagResourcesResponseTagResources) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodTagResourcesResponseTagResources) SetResourceId(v string) *DescribeVodTagResourcesResponseTagResources {
+	s.ResourceId = &v
+	return s
+}
+
+func (s *DescribeVodTagResourcesResponseTagResources) SetTag(v []*DescribeVodTagResourcesResponseTagResourcesTag) *DescribeVodTagResourcesResponseTagResources {
+	s.Tag = v
+	return s
+}
+
+type DescribeVodTagResourcesResponseTagResourcesTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+}
+
+func (s DescribeVodTagResourcesResponseTagResourcesTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodTagResourcesResponseTagResourcesTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodTagResourcesResponseTagResourcesTag) SetKey(v string) *DescribeVodTagResourcesResponseTagResourcesTag {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeVodTagResourcesResponseTagResourcesTag) SetValue(v string) *DescribeVodTagResourcesResponseTagResourcesTag {
+	s.Value = &v
+	return s
+}
+
+type CreateMediaDNALibRequest struct {
+	LibRegion *string `json:"LibRegion,omitempty" xml:"LibRegion,omitempty" require:"true"`
+	ModelType *string `json:"ModelType,omitempty" xml:"ModelType,omitempty"`
+}
+
+func (s CreateMediaDNALibRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateMediaDNALibRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateMediaDNALibRequest) SetLibRegion(v string) *CreateMediaDNALibRequest {
+	s.LibRegion = &v
+	return s
+}
+
+func (s *CreateMediaDNALibRequest) SetModelType(v string) *CreateMediaDNALibRequest {
+	s.ModelType = &v
+	return s
+}
+
+type CreateMediaDNALibResponse struct {
+	RequestId    *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AIDNALibInfo *CreateMediaDNALibResponseAIDNALibInfo `json:"AIDNALibInfo,omitempty" xml:"AIDNALibInfo,omitempty" require:"true" type:"Struct"`
+}
+
+func (s CreateMediaDNALibResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateMediaDNALibResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateMediaDNALibResponse) SetRequestId(v string) *CreateMediaDNALibResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *CreateMediaDNALibResponse) SetAIDNALibInfo(v *CreateMediaDNALibResponseAIDNALibInfo) *CreateMediaDNALibResponse {
+	s.AIDNALibInfo = v
+	return s
+}
+
+type CreateMediaDNALibResponseAIDNALibInfo struct {
+	FpDBId    *string `json:"FpDBId,omitempty" xml:"FpDBId,omitempty" require:"true"`
+	ModelType *string `json:"ModelType,omitempty" xml:"ModelType,omitempty" require:"true"`
+	State     *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+}
+
+func (s CreateMediaDNALibResponseAIDNALibInfo) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateMediaDNALibResponseAIDNALibInfo) GoString() string {
+	return s.String()
+}
+
+func (s *CreateMediaDNALibResponseAIDNALibInfo) SetFpDBId(v string) *CreateMediaDNALibResponseAIDNALibInfo {
+	s.FpDBId = &v
+	return s
+}
+
+func (s *CreateMediaDNALibResponseAIDNALibInfo) SetModelType(v string) *CreateMediaDNALibResponseAIDNALibInfo {
+	s.ModelType = &v
+	return s
+}
+
+func (s *CreateMediaDNALibResponseAIDNALibInfo) SetState(v string) *CreateMediaDNALibResponseAIDNALibInfo {
+	s.State = &v
+	return s
+}
+
+type ListMediaDNALibsRequest struct {
+	LibRegion *string `json:"LibRegion,omitempty" xml:"LibRegion,omitempty" require:"true"`
+}
+
+func (s ListMediaDNALibsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMediaDNALibsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListMediaDNALibsRequest) SetLibRegion(v string) *ListMediaDNALibsRequest {
+	s.LibRegion = &v
+	return s
+}
+
+type ListMediaDNALibsResponse struct {
+	RequestId        *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AIDNALibInfoList *ListMediaDNALibsResponseAIDNALibInfoList `json:"AIDNALibInfoList,omitempty" xml:"AIDNALibInfoList,omitempty" require:"true" type:"Struct"`
+}
+
+func (s ListMediaDNALibsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMediaDNALibsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListMediaDNALibsResponse) SetRequestId(v string) *ListMediaDNALibsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListMediaDNALibsResponse) SetAIDNALibInfoList(v *ListMediaDNALibsResponseAIDNALibInfoList) *ListMediaDNALibsResponse {
+	s.AIDNALibInfoList = v
+	return s
+}
+
+type ListMediaDNALibsResponseAIDNALibInfoList struct {
+	AIDNALibInfo []*ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo `json:"AIDNALibInfo,omitempty" xml:"AIDNALibInfo,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s ListMediaDNALibsResponseAIDNALibInfoList) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMediaDNALibsResponseAIDNALibInfoList) GoString() string {
+	return s.String()
+}
+
+func (s *ListMediaDNALibsResponseAIDNALibInfoList) SetAIDNALibInfo(v []*ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo) *ListMediaDNALibsResponseAIDNALibInfoList {
+	s.AIDNALibInfo = v
+	return s
+}
+
+type ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo struct {
+	FpDBId    *string `json:"FpDBId,omitempty" xml:"FpDBId,omitempty" require:"true"`
+	ModelType *string `json:"ModelType,omitempty" xml:"ModelType,omitempty" require:"true"`
+	State     *string `json:"State,omitempty" xml:"State,omitempty" require:"true"`
+}
+
+func (s ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo) GoString() string {
+	return s.String()
+}
+
+func (s *ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo) SetFpDBId(v string) *ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo {
+	s.FpDBId = &v
+	return s
+}
+
+func (s *ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo) SetModelType(v string) *ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo {
+	s.ModelType = &v
+	return s
+}
+
+func (s *ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo) SetState(v string) *ListMediaDNALibsResponseAIDNALibInfoListAIDNALibInfo {
+	s.State = &v
+	return s
+}
+
+type UnTagVodResourcesRequest struct {
+	ResourceId   []*string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	ResourceType *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	TagKey       []*string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s UnTagVodResourcesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UnTagVodResourcesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *UnTagVodResourcesRequest) SetResourceId(v []*string) *UnTagVodResourcesRequest {
+	s.ResourceId = v
+	return s
+}
+
+func (s *UnTagVodResourcesRequest) SetResourceType(v string) *UnTagVodResourcesRequest {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *UnTagVodResourcesRequest) SetTagKey(v []*string) *UnTagVodResourcesRequest {
+	s.TagKey = v
+	return s
+}
+
+type UnTagVodResourcesResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s UnTagVodResourcesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s UnTagVodResourcesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *UnTagVodResourcesResponse) SetRequestId(v string) *UnTagVodResourcesResponse {
+	s.RequestId = &v
+	return s
+}
+
+type TagVodResourcesRequest struct {
+	ResourceId   []*string                    `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	ResourceType *string                      `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag          []*TagVodResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s TagVodResourcesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TagVodResourcesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *TagVodResourcesRequest) SetResourceId(v []*string) *TagVodResourcesRequest {
+	s.ResourceId = v
+	return s
+}
+
+func (s *TagVodResourcesRequest) SetResourceType(v string) *TagVodResourcesRequest {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *TagVodResourcesRequest) SetTag(v []*TagVodResourcesRequestTag) *TagVodResourcesRequest {
+	s.Tag = v
+	return s
+}
+
+type TagVodResourcesRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
+}
+
+func (s TagVodResourcesRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TagVodResourcesRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *TagVodResourcesRequestTag) SetKey(v string) *TagVodResourcesRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *TagVodResourcesRequestTag) SetValue(v string) *TagVodResourcesRequestTag {
+	s.Value = &v
+	return s
+}
+
+type TagVodResourcesResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s TagVodResourcesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s TagVodResourcesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *TagVodResourcesResponse) SetRequestId(v string) *TagVodResourcesResponse {
+	s.RequestId = &v
+	return s
+}
+
 type SubmitMediaDNADeleteJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
-	FpDBId               *string `json:"FpDBId" xml:"FpDBId"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	FpDBId  *string `json:"FpDBId,omitempty" xml:"FpDBId,omitempty"`
 }
 
 func (s SubmitMediaDNADeleteJobRequest) String() string {
@@ -24,31 +630,6 @@ func (s SubmitMediaDNADeleteJobRequest) String() string {
 
 func (s SubmitMediaDNADeleteJobRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitMediaDNADeleteJobRequest) SetAccessKeyId(v string) *SubmitMediaDNADeleteJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitMediaDNADeleteJobRequest) SetOwnerId(v string) *SubmitMediaDNADeleteJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitMediaDNADeleteJobRequest) SetResourceOwnerId(v string) *SubmitMediaDNADeleteJobRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *SubmitMediaDNADeleteJobRequest) SetResourceOwnerAccount(v string) *SubmitMediaDNADeleteJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitMediaDNADeleteJobRequest) SetOwnerAccount(v string) *SubmitMediaDNADeleteJobRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *SubmitMediaDNADeleteJobRequest) SetMediaId(v string) *SubmitMediaDNADeleteJobRequest {
@@ -62,9 +643,9 @@ func (s *SubmitMediaDNADeleteJobRequest) SetFpDBId(v string) *SubmitMediaDNADele
 }
 
 type SubmitMediaDNADeleteJobResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaId   *string `json:"MediaId" xml:"MediaId" require:"true"`
-	JobId     *string `json:"JobId" xml:"JobId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaId   *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	JobId     *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s SubmitMediaDNADeleteJobResponse) String() string {
@@ -91,12 +672,7 @@ func (s *SubmitMediaDNADeleteJobResponse) SetJobId(v string) *SubmitMediaDNADele
 }
 
 type ListMediaDNADeleteJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	JobIds               *string `json:"JobIds" xml:"JobIds" require:"true"`
+	JobIds *string `json:"JobIds,omitempty" xml:"JobIds,omitempty" require:"true"`
 }
 
 func (s ListMediaDNADeleteJobRequest) String() string {
@@ -107,40 +683,15 @@ func (s ListMediaDNADeleteJobRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ListMediaDNADeleteJobRequest) SetAccessKeyId(v string) *ListMediaDNADeleteJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListMediaDNADeleteJobRequest) SetOwnerId(v string) *ListMediaDNADeleteJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListMediaDNADeleteJobRequest) SetResourceOwnerId(v string) *ListMediaDNADeleteJobRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ListMediaDNADeleteJobRequest) SetResourceOwnerAccount(v string) *ListMediaDNADeleteJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListMediaDNADeleteJobRequest) SetOwnerAccount(v string) *ListMediaDNADeleteJobRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *ListMediaDNADeleteJobRequest) SetJobIds(v string) *ListMediaDNADeleteJobRequest {
 	s.JobIds = &v
 	return s
 }
 
 type ListMediaDNADeleteJobResponse struct {
-	RequestId        *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	AIJobList        *ListMediaDNADeleteJobResponseAIJobList        `json:"AIJobList" xml:"AIJobList" require:"true" type:"Struct"`
-	NonExistAIJobIds *ListMediaDNADeleteJobResponseNonExistAIJobIds `json:"NonExistAIJobIds" xml:"NonExistAIJobIds" require:"true" type:"Struct"`
+	RequestId        *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AIJobList        *ListMediaDNADeleteJobResponseAIJobList        `json:"AIJobList,omitempty" xml:"AIJobList,omitempty" require:"true" type:"Struct"`
+	NonExistAIJobIds *ListMediaDNADeleteJobResponseNonExistAIJobIds `json:"NonExistAIJobIds,omitempty" xml:"NonExistAIJobIds,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListMediaDNADeleteJobResponse) String() string {
@@ -167,7 +718,7 @@ func (s *ListMediaDNADeleteJobResponse) SetNonExistAIJobIds(v *ListMediaDNADelet
 }
 
 type ListMediaDNADeleteJobResponseAIJobList struct {
-	AIJob []*ListMediaDNADeleteJobResponseAIJobListAIJob `json:"AIJob" xml:"AIJob" require:"true" type:"Repeated"`
+	AIJob []*ListMediaDNADeleteJobResponseAIJobListAIJob `json:"AIJob,omitempty" xml:"AIJob,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListMediaDNADeleteJobResponseAIJobList) String() string {
@@ -184,12 +735,12 @@ func (s *ListMediaDNADeleteJobResponseAIJobList) SetAIJob(v []*ListMediaDNADelet
 }
 
 type ListMediaDNADeleteJobResponseAIJobListAIJob struct {
-	JobId   *string `json:"JobId" xml:"JobId" require:"true"`
-	MediaId *string `json:"MediaId" xml:"MediaId" require:"true"`
-	Status  *string `json:"Status" xml:"Status" require:"true"`
-	Code    *string `json:"Code" xml:"Code" require:"true"`
-	Message *string `json:"Message" xml:"Message" require:"true"`
-	FpDBId  *string `json:"FpDBId" xml:"FpDBId" require:"true"`
+	JobId   *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Status  *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Code    *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	FpDBId  *string `json:"FpDBId,omitempty" xml:"FpDBId,omitempty" require:"true"`
 }
 
 func (s ListMediaDNADeleteJobResponseAIJobListAIJob) String() string {
@@ -231,7 +782,7 @@ func (s *ListMediaDNADeleteJobResponseAIJobListAIJob) SetFpDBId(v string) *ListM
 }
 
 type ListMediaDNADeleteJobResponseNonExistAIJobIds struct {
-	String []*string `json:"String" xml:"String" require:"true" type:"Repeated"`
+	String []*string `json:"String,omitempty" xml:"String,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListMediaDNADeleteJobResponseNonExistAIJobIds) String() string {
@@ -248,13 +799,8 @@ func (s *ListMediaDNADeleteJobResponseNonExistAIJobIds) SetString(v []*string) *
 }
 
 type GetMediaAuditAudioResultDetailRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	PageNo  *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
 }
 
 func (s GetMediaAuditAudioResultDetailRequest) String() string {
@@ -263,31 +809,6 @@ func (s GetMediaAuditAudioResultDetailRequest) String() string {
 
 func (s GetMediaAuditAudioResultDetailRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetMediaAuditAudioResultDetailRequest) SetAccessKeyId(v string) *GetMediaAuditAudioResultDetailRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetMediaAuditAudioResultDetailRequest) SetOwnerId(v string) *GetMediaAuditAudioResultDetailRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMediaAuditAudioResultDetailRequest) SetResourceOwnerId(v string) *GetMediaAuditAudioResultDetailRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetMediaAuditAudioResultDetailRequest) SetResourceOwnerAccount(v string) *GetMediaAuditAudioResultDetailRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMediaAuditAudioResultDetailRequest) SetOwnerAccount(v string) *GetMediaAuditAudioResultDetailRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *GetMediaAuditAudioResultDetailRequest) SetMediaId(v string) *GetMediaAuditAudioResultDetailRequest {
@@ -301,8 +822,8 @@ func (s *GetMediaAuditAudioResultDetailRequest) SetPageNo(v int) *GetMediaAuditA
 }
 
 type GetMediaAuditAudioResultDetailResponse struct {
-	RequestId                   *string                                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaAuditAudioResultDetail *GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetail `json:"MediaAuditAudioResultDetail" xml:"MediaAuditAudioResultDetail" require:"true" type:"Struct"`
+	RequestId                   *string                                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaAuditAudioResultDetail *GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetail `json:"MediaAuditAudioResultDetail,omitempty" xml:"MediaAuditAudioResultDetail,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaAuditAudioResultDetailResponse) String() string {
@@ -324,9 +845,9 @@ func (s *GetMediaAuditAudioResultDetailResponse) SetMediaAuditAudioResultDetail(
 }
 
 type GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetail struct {
-	Total     *int                                                                     `json:"Total" xml:"Total" require:"true"`
-	PageTotal *int                                                                     `json:"PageTotal" xml:"PageTotal" require:"true"`
-	List      []*GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetailList `json:"List" xml:"List" require:"true" type:"Repeated"`
+	Total     *int                                                                     `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	PageTotal *int                                                                     `json:"PageTotal,omitempty" xml:"PageTotal,omitempty" require:"true"`
+	List      []*GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetailList `json:"List,omitempty" xml:"List,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetail) String() string {
@@ -353,10 +874,10 @@ func (s *GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetail) SetL
 }
 
 type GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetailList struct {
-	StartTime *int64  `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *int64  `json:"EndTime" xml:"EndTime" require:"true"`
-	Text      *string `json:"Text" xml:"Text" require:"true"`
-	Label     *string `json:"Label" xml:"Label" require:"true"`
+	StartTime *int64  `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *int64  `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Text      *string `json:"Text,omitempty" xml:"Text,omitempty" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetailList) String() string {
@@ -388,13 +909,9 @@ func (s *GetMediaAuditAudioResultDetailResponseMediaAuditAudioResultDetailList) 
 }
 
 type SubmitDynamicImageJobRequest struct {
-	AccessKeyId            *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount   *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId        *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId                *string `json:"VideoId" xml:"VideoId" require:"true"`
-	DynamicImageTemplateId *string `json:"DynamicImageTemplateId" xml:"DynamicImageTemplateId" require:"true"`
-	OverrideParams         *string `json:"OverrideParams" xml:"OverrideParams"`
+	VideoId                *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	DynamicImageTemplateId *string `json:"DynamicImageTemplateId,omitempty" xml:"DynamicImageTemplateId,omitempty" require:"true"`
+	OverrideParams         *string `json:"OverrideParams,omitempty" xml:"OverrideParams,omitempty"`
 }
 
 func (s SubmitDynamicImageJobRequest) String() string {
@@ -403,26 +920,6 @@ func (s SubmitDynamicImageJobRequest) String() string {
 
 func (s SubmitDynamicImageJobRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitDynamicImageJobRequest) SetAccessKeyId(v string) *SubmitDynamicImageJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitDynamicImageJobRequest) SetOwnerId(v int64) *SubmitDynamicImageJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitDynamicImageJobRequest) SetResourceOwnerAccount(v string) *SubmitDynamicImageJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitDynamicImageJobRequest) SetResourceOwnerId(v int64) *SubmitDynamicImageJobRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SubmitDynamicImageJobRequest) SetVideoId(v string) *SubmitDynamicImageJobRequest {
@@ -441,8 +938,8 @@ func (s *SubmitDynamicImageJobRequest) SetOverrideParams(v string) *SubmitDynami
 }
 
 type SubmitDynamicImageJobResponse struct {
-	RequestId       *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	DynamicImageJob *SubmitDynamicImageJobResponseDynamicImageJob `json:"DynamicImageJob" xml:"DynamicImageJob" require:"true" type:"Struct"`
+	RequestId       *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DynamicImageJob *SubmitDynamicImageJobResponseDynamicImageJob `json:"DynamicImageJob,omitempty" xml:"DynamicImageJob,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SubmitDynamicImageJobResponse) String() string {
@@ -464,7 +961,7 @@ func (s *SubmitDynamicImageJobResponse) SetDynamicImageJob(v *SubmitDynamicImage
 }
 
 type SubmitDynamicImageJobResponseDynamicImageJob struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s SubmitDynamicImageJobResponseDynamicImageJob) String() string {
@@ -481,12 +978,9 @@ func (s *SubmitDynamicImageJobResponseDynamicImageJob) SetJobId(v string) *Submi
 }
 
 type SubmitWorkflowJobRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	WorkflowId           *string `json:"WorkflowId" xml:"WorkflowId" require:"true"`
-	MediaId              *string `json:"MediaId" xml:"MediaId"`
-	FileUrl              *string `json:"FileUrl" xml:"FileUrl"`
+	WorkflowId *string `json:"WorkflowId,omitempty" xml:"WorkflowId,omitempty" require:"true"`
+	MediaId    *string `json:"MediaId,omitempty" xml:"MediaId,omitempty"`
+	FileUrl    *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty"`
 }
 
 func (s SubmitWorkflowJobRequest) String() string {
@@ -495,21 +989,6 @@ func (s SubmitWorkflowJobRequest) String() string {
 
 func (s SubmitWorkflowJobRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitWorkflowJobRequest) SetOwnerId(v int64) *SubmitWorkflowJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitWorkflowJobRequest) SetResourceOwnerAccount(v string) *SubmitWorkflowJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitWorkflowJobRequest) SetResourceOwnerId(v int64) *SubmitWorkflowJobRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SubmitWorkflowJobRequest) SetWorkflowId(v string) *SubmitWorkflowJobRequest {
@@ -528,7 +1007,7 @@ func (s *SubmitWorkflowJobRequest) SetFileUrl(v string) *SubmitWorkflowJobReques
 }
 
 type SubmitWorkflowJobResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SubmitWorkflowJobResponse) String() string {
@@ -545,12 +1024,7 @@ func (s *SubmitWorkflowJobResponse) SetRequestId(v string) *SubmitWorkflowJobRes
 }
 
 type GetAIVideoTagResultRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
 }
 
 func (s GetAIVideoTagResultRequest) String() string {
@@ -561,39 +1035,14 @@ func (s GetAIVideoTagResultRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetAIVideoTagResultRequest) SetAccessKeyId(v string) *GetAIVideoTagResultRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetAIVideoTagResultRequest) SetOwnerId(v string) *GetAIVideoTagResultRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetAIVideoTagResultRequest) SetResourceOwnerId(v string) *GetAIVideoTagResultRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetAIVideoTagResultRequest) SetResourceOwnerAccount(v string) *GetAIVideoTagResultRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetAIVideoTagResultRequest) SetOwnerAccount(v string) *GetAIVideoTagResultRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *GetAIVideoTagResultRequest) SetMediaId(v string) *GetAIVideoTagResultRequest {
 	s.MediaId = &v
 	return s
 }
 
 type GetAIVideoTagResultResponse struct {
-	RequestId      *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	VideoTagResult *GetAIVideoTagResultResponseVideoTagResult `json:"VideoTagResult" xml:"VideoTagResult" require:"true" type:"Struct"`
+	RequestId      *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VideoTagResult *GetAIVideoTagResultResponseVideoTagResult `json:"VideoTagResult,omitempty" xml:"VideoTagResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAIVideoTagResultResponse) String() string {
@@ -615,11 +1064,11 @@ func (s *GetAIVideoTagResultResponse) SetVideoTagResult(v *GetAIVideoTagResultRe
 }
 
 type GetAIVideoTagResultResponseVideoTagResult struct {
-	Category []*GetAIVideoTagResultResponseVideoTagResultCategory `json:"Category" xml:"Category" require:"true" type:"Repeated"`
-	Person   []*GetAIVideoTagResultResponseVideoTagResultPerson   `json:"Person" xml:"Person" require:"true" type:"Repeated"`
-	Time     []*GetAIVideoTagResultResponseVideoTagResultTime     `json:"Time" xml:"Time" require:"true" type:"Repeated"`
-	Location []*GetAIVideoTagResultResponseVideoTagResultLocation `json:"Location" xml:"Location" require:"true" type:"Repeated"`
-	Keyword  []*GetAIVideoTagResultResponseVideoTagResultKeyword  `json:"Keyword" xml:"Keyword" require:"true" type:"Repeated"`
+	Category []*GetAIVideoTagResultResponseVideoTagResultCategory `json:"Category,omitempty" xml:"Category,omitempty" require:"true" type:"Repeated"`
+	Person   []*GetAIVideoTagResultResponseVideoTagResultPerson   `json:"Person,omitempty" xml:"Person,omitempty" require:"true" type:"Repeated"`
+	Time     []*GetAIVideoTagResultResponseVideoTagResultTime     `json:"Time,omitempty" xml:"Time,omitempty" require:"true" type:"Repeated"`
+	Location []*GetAIVideoTagResultResponseVideoTagResultLocation `json:"Location,omitempty" xml:"Location,omitempty" require:"true" type:"Repeated"`
+	Keyword  []*GetAIVideoTagResultResponseVideoTagResultKeyword  `json:"Keyword,omitempty" xml:"Keyword,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIVideoTagResultResponseVideoTagResult) String() string {
@@ -656,7 +1105,7 @@ func (s *GetAIVideoTagResultResponseVideoTagResult) SetKeyword(v []*GetAIVideoTa
 }
 
 type GetAIVideoTagResultResponseVideoTagResultCategory struct {
-	Tag *string `json:"Tag" xml:"Tag" require:"true"`
+	Tag *string `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
 }
 
 func (s GetAIVideoTagResultResponseVideoTagResultCategory) String() string {
@@ -673,9 +1122,9 @@ func (s *GetAIVideoTagResultResponseVideoTagResultCategory) SetTag(v string) *Ge
 }
 
 type GetAIVideoTagResultResponseVideoTagResultPerson struct {
-	FaceUrl *string   `json:"FaceUrl" xml:"FaceUrl" require:"true"`
-	Tag     *string   `json:"Tag" xml:"Tag" require:"true"`
-	Times   []*string `json:"Times" xml:"Times" require:"true" type:"Repeated"`
+	FaceUrl *string   `json:"FaceUrl,omitempty" xml:"FaceUrl,omitempty" require:"true"`
+	Tag     *string   `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	Times   []*string `json:"Times,omitempty" xml:"Times,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIVideoTagResultResponseVideoTagResultPerson) String() string {
@@ -702,8 +1151,8 @@ func (s *GetAIVideoTagResultResponseVideoTagResultPerson) SetTimes(v []*string) 
 }
 
 type GetAIVideoTagResultResponseVideoTagResultTime struct {
-	Tag   *string   `json:"Tag" xml:"Tag" require:"true"`
-	Times []*string `json:"Times" xml:"Times" require:"true" type:"Repeated"`
+	Tag   *string   `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	Times []*string `json:"Times,omitempty" xml:"Times,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIVideoTagResultResponseVideoTagResultTime) String() string {
@@ -725,8 +1174,8 @@ func (s *GetAIVideoTagResultResponseVideoTagResultTime) SetTimes(v []*string) *G
 }
 
 type GetAIVideoTagResultResponseVideoTagResultLocation struct {
-	Tag   *string   `json:"Tag" xml:"Tag" require:"true"`
-	Times []*string `json:"Times" xml:"Times" require:"true" type:"Repeated"`
+	Tag   *string   `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	Times []*string `json:"Times,omitempty" xml:"Times,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIVideoTagResultResponseVideoTagResultLocation) String() string {
@@ -748,8 +1197,8 @@ func (s *GetAIVideoTagResultResponseVideoTagResultLocation) SetTimes(v []*string
 }
 
 type GetAIVideoTagResultResponseVideoTagResultKeyword struct {
-	Tag   *string   `json:"Tag" xml:"Tag" require:"true"`
-	Times []*string `json:"Times" xml:"Times" require:"true" type:"Repeated"`
+	Tag   *string   `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	Times []*string `json:"Times,omitempty" xml:"Times,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIVideoTagResultResponseVideoTagResultKeyword) String() string {
@@ -771,13 +1220,9 @@ func (s *GetAIVideoTagResultResponseVideoTagResultKeyword) SetTimes(v []*string)
 }
 
 type GetUploadDetailsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	MediaIds             *string `json:"MediaIds" xml:"MediaIds" require:"true"`
-	MediaType            *string `json:"MediaType" xml:"MediaType"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	MediaIds            *string `json:"MediaIds,omitempty" xml:"MediaIds,omitempty" require:"true"`
+	MediaType           *string `json:"MediaType,omitempty" xml:"MediaType,omitempty"`
 }
 
 func (s GetUploadDetailsRequest) String() string {
@@ -786,26 +1231,6 @@ func (s GetUploadDetailsRequest) String() string {
 
 func (s GetUploadDetailsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetUploadDetailsRequest) SetAccessKeyId(v string) *GetUploadDetailsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetUploadDetailsRequest) SetOwnerId(v int64) *GetUploadDetailsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetUploadDetailsRequest) SetResourceOwnerAccount(v string) *GetUploadDetailsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetUploadDetailsRequest) SetResourceOwnerId(v int64) *GetUploadDetailsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetUploadDetailsRequest) SetResourceRealOwnerId(v int64) *GetUploadDetailsRequest {
@@ -824,10 +1249,10 @@ func (s *GetUploadDetailsRequest) SetMediaType(v string) *GetUploadDetailsReques
 }
 
 type GetUploadDetailsResponse struct {
-	RequestId         *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	UploadDetails     []*GetUploadDetailsResponseUploadDetails `json:"UploadDetails" xml:"UploadDetails" require:"true" type:"Repeated"`
-	NonExistMediaIds  []*string                                `json:"NonExistMediaIds" xml:"NonExistMediaIds" require:"true" type:"Repeated"`
-	ForbiddenMediaIds []*string                                `json:"ForbiddenMediaIds" xml:"ForbiddenMediaIds" require:"true" type:"Repeated"`
+	RequestId         *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UploadDetails     []*GetUploadDetailsResponseUploadDetails `json:"UploadDetails,omitempty" xml:"UploadDetails,omitempty" require:"true" type:"Repeated"`
+	NonExistMediaIds  []*string                                `json:"NonExistMediaIds,omitempty" xml:"NonExistMediaIds,omitempty" require:"true" type:"Repeated"`
+	ForbiddenMediaIds []*string                                `json:"ForbiddenMediaIds,omitempty" xml:"ForbiddenMediaIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetUploadDetailsResponse) String() string {
@@ -859,19 +1284,19 @@ func (s *GetUploadDetailsResponse) SetForbiddenMediaIds(v []*string) *GetUploadD
 }
 
 type GetUploadDetailsResponseUploadDetails struct {
-	MediaId          *string  `json:"MediaId" xml:"MediaId" require:"true"`
-	Title            *string  `json:"Title" xml:"Title" require:"true"`
-	FileSize         *int64   `json:"FileSize" xml:"FileSize" require:"true"`
-	Status           *string  `json:"Status" xml:"Status" require:"true"`
-	UploadStatus     *string  `json:"UploadStatus" xml:"UploadStatus" require:"true"`
-	CreationTime     *string  `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string  `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	CompletionTime   *string  `json:"CompletionTime" xml:"CompletionTime" require:"true"`
-	UploadSize       *int64   `json:"UploadSize" xml:"UploadSize" require:"true"`
-	UploadRatio      *float32 `json:"UploadRatio" xml:"UploadRatio" require:"true"`
-	UploadIP         *string  `json:"UploadIP" xml:"UploadIP" require:"true"`
-	UploadSource     *string  `json:"UploadSource" xml:"UploadSource" require:"true"`
-	DeviceModel      *string  `json:"DeviceModel" xml:"DeviceModel" require:"true"`
+	MediaId          *string  `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Title            *string  `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	FileSize         *int64   `json:"FileSize,omitempty" xml:"FileSize,omitempty" require:"true"`
+	Status           *string  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	UploadStatus     *string  `json:"UploadStatus,omitempty" xml:"UploadStatus,omitempty" require:"true"`
+	CreationTime     *string  `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string  `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	CompletionTime   *string  `json:"CompletionTime,omitempty" xml:"CompletionTime,omitempty" require:"true"`
+	UploadSize       *int64   `json:"UploadSize,omitempty" xml:"UploadSize,omitempty" require:"true"`
+	UploadRatio      *float32 `json:"UploadRatio,omitempty" xml:"UploadRatio,omitempty" require:"true"`
+	UploadIP         *string  `json:"UploadIP,omitempty" xml:"UploadIP,omitempty" require:"true"`
+	UploadSource     *string  `json:"UploadSource,omitempty" xml:"UploadSource,omitempty" require:"true"`
+	DeviceModel      *string  `json:"DeviceModel,omitempty" xml:"DeviceModel,omitempty" require:"true"`
 }
 
 func (s GetUploadDetailsResponseUploadDetails) String() string {
@@ -948,12 +1373,11 @@ func (s *GetUploadDetailsResponseUploadDetails) SetDeviceModel(v string) *GetUpl
 }
 
 type DescribeVodStorageDataRequest struct {
-	OwnerId     *int64  `json:"OwnerId" xml:"OwnerId"`
-	StartTime   *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime     *string `json:"EndTime" xml:"EndTime" require:"true"`
-	Region      *string `json:"Region" xml:"Region"`
-	StorageType *string `json:"StorageType" xml:"StorageType"`
-	Storage     *string `json:"Storage" xml:"Storage"`
+	StartTime   *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime     *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Region      *string `json:"Region,omitempty" xml:"Region,omitempty"`
+	StorageType *string `json:"StorageType,omitempty" xml:"StorageType,omitempty"`
+	Storage     *string `json:"Storage,omitempty" xml:"Storage,omitempty"`
 }
 
 func (s DescribeVodStorageDataRequest) String() string {
@@ -962,11 +1386,6 @@ func (s DescribeVodStorageDataRequest) String() string {
 
 func (s DescribeVodStorageDataRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodStorageDataRequest) SetOwnerId(v int64) *DescribeVodStorageDataRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodStorageDataRequest) SetStartTime(v string) *DescribeVodStorageDataRequest {
@@ -995,9 +1414,9 @@ func (s *DescribeVodStorageDataRequest) SetStorage(v string) *DescribeVodStorage
 }
 
 type DescribeVodStorageDataResponse struct {
-	RequestId    *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	DataInterval *string                                    `json:"DataInterval" xml:"DataInterval" require:"true"`
-	StorageData  *DescribeVodStorageDataResponseStorageData `json:"StorageData" xml:"StorageData" require:"true" type:"Struct"`
+	RequestId    *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DataInterval *string                                    `json:"DataInterval,omitempty" xml:"DataInterval,omitempty" require:"true"`
+	StorageData  *DescribeVodStorageDataResponseStorageData `json:"StorageData,omitempty" xml:"StorageData,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodStorageDataResponse) String() string {
@@ -1024,7 +1443,7 @@ func (s *DescribeVodStorageDataResponse) SetStorageData(v *DescribeVodStorageDat
 }
 
 type DescribeVodStorageDataResponseStorageData struct {
-	StorageDataItem []*DescribeVodStorageDataResponseStorageDataStorageDataItem `json:"StorageDataItem" xml:"StorageDataItem" require:"true" type:"Repeated"`
+	StorageDataItem []*DescribeVodStorageDataResponseStorageDataStorageDataItem `json:"StorageDataItem,omitempty" xml:"StorageDataItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodStorageDataResponseStorageData) String() string {
@@ -1041,9 +1460,9 @@ func (s *DescribeVodStorageDataResponseStorageData) SetStorageDataItem(v []*Desc
 }
 
 type DescribeVodStorageDataResponseStorageDataStorageDataItem struct {
-	TimeStamp          *string `json:"TimeStamp" xml:"TimeStamp" require:"true"`
-	StorageUtilization *string `json:"StorageUtilization" xml:"StorageUtilization" require:"true"`
-	NetworkOut         *string `json:"NetworkOut" xml:"NetworkOut" require:"true"`
+	TimeStamp          *string `json:"TimeStamp,omitempty" xml:"TimeStamp,omitempty" require:"true"`
+	StorageUtilization *string `json:"StorageUtilization,omitempty" xml:"StorageUtilization,omitempty" require:"true"`
+	NetworkOut         *string `json:"NetworkOut,omitempty" xml:"NetworkOut,omitempty" require:"true"`
 }
 
 func (s DescribeVodStorageDataResponseStorageDataStorageDataItem) String() string {
@@ -1070,11 +1489,10 @@ func (s *DescribeVodStorageDataResponseStorageDataStorageDataItem) SetNetworkOut
 }
 
 type DescribeVodAIDataRequest struct {
-	OwnerId   *int64  `json:"OwnerId" xml:"OwnerId"`
-	StartTime *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *string `json:"EndTime" xml:"EndTime" require:"true"`
-	Region    *string `json:"Region" xml:"Region"`
-	AIType    *string `json:"AIType" xml:"AIType"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Region    *string `json:"Region,omitempty" xml:"Region,omitempty"`
+	AIType    *string `json:"AIType,omitempty" xml:"AIType,omitempty"`
 }
 
 func (s DescribeVodAIDataRequest) String() string {
@@ -1083,11 +1501,6 @@ func (s DescribeVodAIDataRequest) String() string {
 
 func (s DescribeVodAIDataRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodAIDataRequest) SetOwnerId(v int64) *DescribeVodAIDataRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodAIDataRequest) SetStartTime(v string) *DescribeVodAIDataRequest {
@@ -1111,9 +1524,9 @@ func (s *DescribeVodAIDataRequest) SetAIType(v string) *DescribeVodAIDataRequest
 }
 
 type DescribeVodAIDataResponse struct {
-	RequestId    *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	DataInterval *string                          `json:"DataInterval" xml:"DataInterval" require:"true"`
-	AIData       *DescribeVodAIDataResponseAIData `json:"AIData" xml:"AIData" require:"true" type:"Struct"`
+	RequestId    *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DataInterval *string                          `json:"DataInterval,omitempty" xml:"DataInterval,omitempty" require:"true"`
+	AIData       *DescribeVodAIDataResponseAIData `json:"AIData,omitempty" xml:"AIData,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodAIDataResponse) String() string {
@@ -1140,7 +1553,7 @@ func (s *DescribeVodAIDataResponse) SetAIData(v *DescribeVodAIDataResponseAIData
 }
 
 type DescribeVodAIDataResponseAIData struct {
-	AIDataItem []*DescribeVodAIDataResponseAIDataAIDataItem `json:"AIDataItem" xml:"AIDataItem" require:"true" type:"Repeated"`
+	AIDataItem []*DescribeVodAIDataResponseAIDataAIDataItem `json:"AIDataItem,omitempty" xml:"AIDataItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodAIDataResponseAIData) String() string {
@@ -1157,8 +1570,8 @@ func (s *DescribeVodAIDataResponseAIData) SetAIDataItem(v []*DescribeVodAIDataRe
 }
 
 type DescribeVodAIDataResponseAIDataAIDataItem struct {
-	TimeStamp *string                                        `json:"TimeStamp" xml:"TimeStamp" require:"true"`
-	Data      *DescribeVodAIDataResponseAIDataAIDataItemData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	TimeStamp *string                                        `json:"TimeStamp,omitempty" xml:"TimeStamp,omitempty" require:"true"`
+	Data      *DescribeVodAIDataResponseAIDataAIDataItemData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodAIDataResponseAIDataAIDataItem) String() string {
@@ -1180,7 +1593,7 @@ func (s *DescribeVodAIDataResponseAIDataAIDataItem) SetData(v *DescribeVodAIData
 }
 
 type DescribeVodAIDataResponseAIDataAIDataItemData struct {
-	DataItem []*DescribeVodAIDataResponseAIDataAIDataItemDataDataItem `json:"DataItem" xml:"DataItem" require:"true" type:"Repeated"`
+	DataItem []*DescribeVodAIDataResponseAIDataAIDataItemDataDataItem `json:"DataItem,omitempty" xml:"DataItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodAIDataResponseAIDataAIDataItemData) String() string {
@@ -1197,8 +1610,8 @@ func (s *DescribeVodAIDataResponseAIDataAIDataItemData) SetDataItem(v []*Describ
 }
 
 type DescribeVodAIDataResponseAIDataAIDataItemDataDataItem struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeVodAIDataResponseAIDataAIDataItemDataDataItem) String() string {
@@ -1220,13 +1633,12 @@ func (s *DescribeVodAIDataResponseAIDataAIDataItemDataDataItem) SetValue(v strin
 }
 
 type DescribeVodTranscodeDataRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	StartTime     *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime       *string `json:"EndTime" xml:"EndTime" require:"true"`
-	Region        *string `json:"Region" xml:"Region"`
-	Interval      *string `json:"Interval" xml:"Interval"`
-	Storage       *string `json:"Storage" xml:"Storage"`
-	Specification *string `json:"Specification" xml:"Specification"`
+	StartTime     *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime       *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Region        *string `json:"Region,omitempty" xml:"Region,omitempty"`
+	Interval      *string `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	Storage       *string `json:"Storage,omitempty" xml:"Storage,omitempty"`
+	Specification *string `json:"Specification,omitempty" xml:"Specification,omitempty"`
 }
 
 func (s DescribeVodTranscodeDataRequest) String() string {
@@ -1235,11 +1647,6 @@ func (s DescribeVodTranscodeDataRequest) String() string {
 
 func (s DescribeVodTranscodeDataRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodTranscodeDataRequest) SetOwnerId(v int64) *DescribeVodTranscodeDataRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodTranscodeDataRequest) SetStartTime(v string) *DescribeVodTranscodeDataRequest {
@@ -1273,9 +1680,9 @@ func (s *DescribeVodTranscodeDataRequest) SetSpecification(v string) *DescribeVo
 }
 
 type DescribeVodTranscodeDataResponse struct {
-	RequestId     *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	DataInterval  *string                                        `json:"DataInterval" xml:"DataInterval" require:"true"`
-	TranscodeData *DescribeVodTranscodeDataResponseTranscodeData `json:"TranscodeData" xml:"TranscodeData" require:"true" type:"Struct"`
+	RequestId     *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DataInterval  *string                                        `json:"DataInterval,omitempty" xml:"DataInterval,omitempty" require:"true"`
+	TranscodeData *DescribeVodTranscodeDataResponseTranscodeData `json:"TranscodeData,omitempty" xml:"TranscodeData,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodTranscodeDataResponse) String() string {
@@ -1302,7 +1709,7 @@ func (s *DescribeVodTranscodeDataResponse) SetTranscodeData(v *DescribeVodTransc
 }
 
 type DescribeVodTranscodeDataResponseTranscodeData struct {
-	TranscodeDataItem []*DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItem `json:"TranscodeDataItem" xml:"TranscodeDataItem" require:"true" type:"Repeated"`
+	TranscodeDataItem []*DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItem `json:"TranscodeDataItem,omitempty" xml:"TranscodeDataItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodTranscodeDataResponseTranscodeData) String() string {
@@ -1319,8 +1726,8 @@ func (s *DescribeVodTranscodeDataResponseTranscodeData) SetTranscodeDataItem(v [
 }
 
 type DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItem struct {
-	TimeStamp *string                                                             `json:"TimeStamp" xml:"TimeStamp" require:"true"`
-	Data      *DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	TimeStamp *string                                                             `json:"TimeStamp,omitempty" xml:"TimeStamp,omitempty" require:"true"`
+	Data      *DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItem) String() string {
@@ -1342,7 +1749,7 @@ func (s *DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItem) SetData
 }
 
 type DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemData struct {
-	DataItem []*DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemDataDataItem `json:"DataItem" xml:"DataItem" require:"true" type:"Repeated"`
+	DataItem []*DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemDataDataItem `json:"DataItem,omitempty" xml:"DataItem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemData) String() string {
@@ -1359,8 +1766,8 @@ func (s *DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemData) Set
 }
 
 type DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemDataDataItem struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemDataDataItem) String() string {
@@ -1382,14 +1789,9 @@ func (s *DescribeVodTranscodeDataResponseTranscodeDataTranscodeDataItemDataDataI
 }
 
 type DeleteMultipartUploadRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
-	MediaType            *string `json:"MediaType" xml:"MediaType" require:"true"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	MediaId             *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	MediaType           *string `json:"MediaType,omitempty" xml:"MediaType,omitempty" require:"true"`
 }
 
 func (s DeleteMultipartUploadRequest) String() string {
@@ -1398,31 +1800,6 @@ func (s DeleteMultipartUploadRequest) String() string {
 
 func (s DeleteMultipartUploadRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteMultipartUploadRequest) SetAccessKeyId(v string) *DeleteMultipartUploadRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteMultipartUploadRequest) SetOwnerId(v string) *DeleteMultipartUploadRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteMultipartUploadRequest) SetResourceOwnerId(v string) *DeleteMultipartUploadRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteMultipartUploadRequest) SetResourceOwnerAccount(v string) *DeleteMultipartUploadRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteMultipartUploadRequest) SetOwnerAccount(v string) *DeleteMultipartUploadRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteMultipartUploadRequest) SetResourceRealOwnerId(v int64) *DeleteMultipartUploadRequest {
@@ -1441,7 +1818,7 @@ func (s *DeleteMultipartUploadRequest) SetMediaType(v string) *DeleteMultipartUp
 }
 
 type DeleteMultipartUploadResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteMultipartUploadResponse) String() string {
@@ -1458,14 +1835,10 @@ func (s *DeleteMultipartUploadResponse) SetRequestId(v string) *DeleteMultipartU
 }
 
 type GetAttachedMediaInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	MediaIds             *string `json:"MediaIds" xml:"MediaIds" require:"true"`
-	AuthTimeout          *int64  `json:"AuthTimeout" xml:"AuthTimeout"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	OutputType           *string `json:"OutputType" xml:"OutputType"`
+	MediaIds            *string `json:"MediaIds,omitempty" xml:"MediaIds,omitempty" require:"true"`
+	AuthTimeout         *int64  `json:"AuthTimeout,omitempty" xml:"AuthTimeout,omitempty"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	OutputType          *string `json:"OutputType,omitempty" xml:"OutputType,omitempty"`
 }
 
 func (s GetAttachedMediaInfoRequest) String() string {
@@ -1474,26 +1847,6 @@ func (s GetAttachedMediaInfoRequest) String() string {
 
 func (s GetAttachedMediaInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetAttachedMediaInfoRequest) SetAccessKeyId(v string) *GetAttachedMediaInfoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetAttachedMediaInfoRequest) SetOwnerId(v int64) *GetAttachedMediaInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetAttachedMediaInfoRequest) SetResourceOwnerAccount(v string) *GetAttachedMediaInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetAttachedMediaInfoRequest) SetResourceOwnerId(v int64) *GetAttachedMediaInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetAttachedMediaInfoRequest) SetMediaIds(v string) *GetAttachedMediaInfoRequest {
@@ -1517,9 +1870,9 @@ func (s *GetAttachedMediaInfoRequest) SetOutputType(v string) *GetAttachedMediaI
 }
 
 type GetAttachedMediaInfoResponse struct {
-	RequestId         *string                                          `json:"RequestId" xml:"RequestId" require:"true"`
-	AttachedMediaList []*GetAttachedMediaInfoResponseAttachedMediaList `json:"AttachedMediaList" xml:"AttachedMediaList" require:"true" type:"Repeated"`
-	NonExistMediaIds  []*string                                        `json:"NonExistMediaIds" xml:"NonExistMediaIds" require:"true" type:"Repeated"`
+	RequestId         *string                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AttachedMediaList []*GetAttachedMediaInfoResponseAttachedMediaList `json:"AttachedMediaList,omitempty" xml:"AttachedMediaList,omitempty" require:"true" type:"Repeated"`
+	NonExistMediaIds  []*string                                        `json:"NonExistMediaIds,omitempty" xml:"NonExistMediaIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAttachedMediaInfoResponse) String() string {
@@ -1546,22 +1899,22 @@ func (s *GetAttachedMediaInfoResponse) SetNonExistMediaIds(v []*string) *GetAtta
 }
 
 type GetAttachedMediaInfoResponseAttachedMediaList struct {
-	MediaId          *string                                                    `json:"MediaId" xml:"MediaId" require:"true"`
-	Title            *string                                                    `json:"Title" xml:"Title" require:"true"`
-	Type             *string                                                    `json:"Type" xml:"Type" require:"true"`
-	Tags             *string                                                    `json:"Tags" xml:"Tags" require:"true"`
-	URL              *string                                                    `json:"URL" xml:"URL" require:"true"`
-	Description      *string                                                    `json:"Description" xml:"Description" require:"true"`
-	FileSize         *int64                                                     `json:"FileSize" xml:"FileSize" require:"true"`
-	StorageLocation  *string                                                    `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	CreationTime     *string                                                    `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string                                                    `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	AppId            *string                                                    `json:"AppId" xml:"AppId" require:"true"`
-	Status           *string                                                    `json:"Status" xml:"Status" require:"true"`
-	OnlineStatus     *string                                                    `json:"OnlineStatus" xml:"OnlineStatus" require:"true"`
-	Icon             *string                                                    `json:"Icon" xml:"Icon" require:"true"`
-	RegionId         *string                                                    `json:"RegionId" xml:"RegionId" require:"true"`
-	Categories       []*GetAttachedMediaInfoResponseAttachedMediaListCategories `json:"Categories" xml:"Categories" require:"true" type:"Repeated"`
+	MediaId          *string                                                    `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Title            *string                                                    `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Type             *string                                                    `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Tags             *string                                                    `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	URL              *string                                                    `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
+	Description      *string                                                    `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	FileSize         *int64                                                     `json:"FileSize,omitempty" xml:"FileSize,omitempty" require:"true"`
+	StorageLocation  *string                                                    `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	CreationTime     *string                                                    `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string                                                    `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	AppId            *string                                                    `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Status           *string                                                    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	OnlineStatus     *string                                                    `json:"OnlineStatus,omitempty" xml:"OnlineStatus,omitempty" require:"true"`
+	Icon             *string                                                    `json:"Icon,omitempty" xml:"Icon,omitempty" require:"true"`
+	RegionId         *string                                                    `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Categories       []*GetAttachedMediaInfoResponseAttachedMediaListCategories `json:"Categories,omitempty" xml:"Categories,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAttachedMediaInfoResponseAttachedMediaList) String() string {
@@ -1653,10 +2006,10 @@ func (s *GetAttachedMediaInfoResponseAttachedMediaList) SetCategories(v []*GetAt
 }
 
 type GetAttachedMediaInfoResponseAttachedMediaListCategories struct {
-	CateId   *int64  `json:"CateId" xml:"CateId" require:"true"`
-	CateName *string `json:"CateName" xml:"CateName" require:"true"`
-	Level    *int64  `json:"Level" xml:"Level" require:"true"`
-	ParentId *int64  `json:"ParentId" xml:"ParentId" require:"true"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Level    *int64  `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	ParentId *int64  `json:"ParentId,omitempty" xml:"ParentId,omitempty" require:"true"`
 }
 
 func (s GetAttachedMediaInfoResponseAttachedMediaListCategories) String() string {
@@ -1688,11 +2041,7 @@ func (s *GetAttachedMediaInfoResponseAttachedMediaListCategories) SetParentId(v 
 }
 
 type DeleteAttachedMediaRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	MediaIds             *string `json:"MediaIds" xml:"MediaIds"`
+	MediaIds *string `json:"MediaIds,omitempty" xml:"MediaIds,omitempty"`
 }
 
 func (s DeleteAttachedMediaRequest) String() string {
@@ -1703,34 +2052,14 @@ func (s DeleteAttachedMediaRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteAttachedMediaRequest) SetAccessKeyId(v string) *DeleteAttachedMediaRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteAttachedMediaRequest) SetOwnerId(v int64) *DeleteAttachedMediaRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteAttachedMediaRequest) SetResourceOwnerAccount(v string) *DeleteAttachedMediaRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteAttachedMediaRequest) SetResourceOwnerId(v int64) *DeleteAttachedMediaRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteAttachedMediaRequest) SetMediaIds(v string) *DeleteAttachedMediaRequest {
 	s.MediaIds = &v
 	return s
 }
 
 type DeleteAttachedMediaResponse struct {
-	RequestId        *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistMediaIds []*string `json:"NonExistMediaIds" xml:"NonExistMediaIds" require:"true" type:"Repeated"`
+	RequestId        *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistMediaIds []*string `json:"NonExistMediaIds,omitempty" xml:"NonExistMediaIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DeleteAttachedMediaResponse) String() string {
@@ -1752,12 +2081,8 @@ func (s *DeleteAttachedMediaResponse) SetNonExistMediaIds(v []*string) *DeleteAt
 }
 
 type UpdateAttachedMediaInfosRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	UpdateContent        *string `json:"UpdateContent" xml:"UpdateContent" require:"true"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	UpdateContent       *string `json:"UpdateContent,omitempty" xml:"UpdateContent,omitempty" require:"true"`
 }
 
 func (s UpdateAttachedMediaInfosRequest) String() string {
@@ -1766,26 +2091,6 @@ func (s UpdateAttachedMediaInfosRequest) String() string {
 
 func (s UpdateAttachedMediaInfosRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateAttachedMediaInfosRequest) SetAccessKeyId(v string) *UpdateAttachedMediaInfosRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UpdateAttachedMediaInfosRequest) SetOwnerId(v int64) *UpdateAttachedMediaInfosRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateAttachedMediaInfosRequest) SetResourceOwnerAccount(v string) *UpdateAttachedMediaInfosRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateAttachedMediaInfosRequest) SetResourceOwnerId(v int64) *UpdateAttachedMediaInfosRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateAttachedMediaInfosRequest) SetResourceRealOwnerId(v int64) *UpdateAttachedMediaInfosRequest {
@@ -1799,8 +2104,8 @@ func (s *UpdateAttachedMediaInfosRequest) SetUpdateContent(v string) *UpdateAtta
 }
 
 type UpdateAttachedMediaInfosResponse struct {
-	RequestId        *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistMediaIds []*string `json:"NonExistMediaIds" xml:"NonExistMediaIds" require:"true" type:"Repeated"`
+	RequestId        *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistMediaIds []*string `json:"NonExistMediaIds,omitempty" xml:"NonExistMediaIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateAttachedMediaInfosResponse) String() string {
@@ -1822,13 +2127,10 @@ func (s *UpdateAttachedMediaInfosResponse) SetNonExistMediaIds(v []*string) *Upd
 }
 
 type AttachAppPolicyToIdentityRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	IdentityType         *string `json:"IdentityType" xml:"IdentityType" require:"true"`
-	IdentityName         *string `json:"IdentityName" xml:"IdentityName" require:"true"`
-	AppId                *string `json:"AppId" xml:"AppId"`
-	PolicyNames          *string `json:"PolicyNames" xml:"PolicyNames" require:"true"`
+	IdentityType *string `json:"IdentityType,omitempty" xml:"IdentityType,omitempty" require:"true"`
+	IdentityName *string `json:"IdentityName,omitempty" xml:"IdentityName,omitempty" require:"true"`
+	AppId        *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	PolicyNames  *string `json:"PolicyNames,omitempty" xml:"PolicyNames,omitempty" require:"true"`
 }
 
 func (s AttachAppPolicyToIdentityRequest) String() string {
@@ -1837,21 +2139,6 @@ func (s AttachAppPolicyToIdentityRequest) String() string {
 
 func (s AttachAppPolicyToIdentityRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AttachAppPolicyToIdentityRequest) SetOwnerId(v int64) *AttachAppPolicyToIdentityRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AttachAppPolicyToIdentityRequest) SetResourceOwnerAccount(v string) *AttachAppPolicyToIdentityRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AttachAppPolicyToIdentityRequest) SetResourceOwnerId(v int64) *AttachAppPolicyToIdentityRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AttachAppPolicyToIdentityRequest) SetIdentityType(v string) *AttachAppPolicyToIdentityRequest {
@@ -1875,9 +2162,9 @@ func (s *AttachAppPolicyToIdentityRequest) SetPolicyNames(v string) *AttachAppPo
 }
 
 type AttachAppPolicyToIdentityResponse struct {
-	RequestId           *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistPolicyNames []*string `json:"NonExistPolicyNames" xml:"NonExistPolicyNames" require:"true" type:"Repeated"`
-	FailedPolicyNames   []*string `json:"FailedPolicyNames" xml:"FailedPolicyNames" require:"true" type:"Repeated"`
+	RequestId           *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistPolicyNames []*string `json:"NonExistPolicyNames,omitempty" xml:"NonExistPolicyNames,omitempty" require:"true" type:"Repeated"`
+	FailedPolicyNames   []*string `json:"FailedPolicyNames,omitempty" xml:"FailedPolicyNames,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s AttachAppPolicyToIdentityResponse) String() string {
@@ -1904,13 +2191,10 @@ func (s *AttachAppPolicyToIdentityResponse) SetFailedPolicyNames(v []*string) *A
 }
 
 type DetachAppPolicyFromIdentityRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	IdentityType         *string `json:"IdentityType" xml:"IdentityType" require:"true"`
-	IdentityName         *string `json:"IdentityName" xml:"IdentityName" require:"true"`
-	AppId                *string `json:"AppId" xml:"AppId"`
-	PolicyNames          *string `json:"PolicyNames" xml:"PolicyNames" require:"true"`
+	IdentityType *string `json:"IdentityType,omitempty" xml:"IdentityType,omitempty" require:"true"`
+	IdentityName *string `json:"IdentityName,omitempty" xml:"IdentityName,omitempty" require:"true"`
+	AppId        *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	PolicyNames  *string `json:"PolicyNames,omitempty" xml:"PolicyNames,omitempty" require:"true"`
 }
 
 func (s DetachAppPolicyFromIdentityRequest) String() string {
@@ -1919,21 +2203,6 @@ func (s DetachAppPolicyFromIdentityRequest) String() string {
 
 func (s DetachAppPolicyFromIdentityRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DetachAppPolicyFromIdentityRequest) SetOwnerId(v int64) *DetachAppPolicyFromIdentityRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DetachAppPolicyFromIdentityRequest) SetResourceOwnerAccount(v string) *DetachAppPolicyFromIdentityRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DetachAppPolicyFromIdentityRequest) SetResourceOwnerId(v int64) *DetachAppPolicyFromIdentityRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *DetachAppPolicyFromIdentityRequest) SetIdentityType(v string) *DetachAppPolicyFromIdentityRequest {
@@ -1957,9 +2226,9 @@ func (s *DetachAppPolicyFromIdentityRequest) SetPolicyNames(v string) *DetachApp
 }
 
 type DetachAppPolicyFromIdentityResponse struct {
-	RequestId           *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistPolicyNames []*string `json:"NonExistPolicyNames" xml:"NonExistPolicyNames" require:"true" type:"Repeated"`
-	FailedPolicyNames   []*string `json:"FailedPolicyNames" xml:"FailedPolicyNames" require:"true" type:"Repeated"`
+	RequestId           *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistPolicyNames []*string `json:"NonExistPolicyNames,omitempty" xml:"NonExistPolicyNames,omitempty" require:"true" type:"Repeated"`
+	FailedPolicyNames   []*string `json:"FailedPolicyNames,omitempty" xml:"FailedPolicyNames,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetachAppPolicyFromIdentityResponse) String() string {
@@ -1986,12 +2255,9 @@ func (s *DetachAppPolicyFromIdentityResponse) SetFailedPolicyNames(v []*string) 
 }
 
 type ListAppPoliciesForIdentityRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	IdentityType         *string `json:"IdentityType" xml:"IdentityType"`
-	IdentityName         *string `json:"IdentityName" xml:"IdentityName"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	IdentityType *string `json:"IdentityType,omitempty" xml:"IdentityType,omitempty"`
+	IdentityName *string `json:"IdentityName,omitempty" xml:"IdentityName,omitempty"`
+	AppId        *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s ListAppPoliciesForIdentityRequest) String() string {
@@ -2000,21 +2266,6 @@ func (s ListAppPoliciesForIdentityRequest) String() string {
 
 func (s ListAppPoliciesForIdentityRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListAppPoliciesForIdentityRequest) SetOwnerId(v int64) *ListAppPoliciesForIdentityRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListAppPoliciesForIdentityRequest) SetResourceOwnerAccount(v string) *ListAppPoliciesForIdentityRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListAppPoliciesForIdentityRequest) SetResourceOwnerId(v int64) *ListAppPoliciesForIdentityRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListAppPoliciesForIdentityRequest) SetIdentityType(v string) *ListAppPoliciesForIdentityRequest {
@@ -2033,8 +2284,8 @@ func (s *ListAppPoliciesForIdentityRequest) SetAppId(v string) *ListAppPoliciesF
 }
 
 type ListAppPoliciesForIdentityResponse struct {
-	RequestId     *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	AppPolicyList []*ListAppPoliciesForIdentityResponseAppPolicyList `json:"AppPolicyList" xml:"AppPolicyList" require:"true" type:"Repeated"`
+	RequestId     *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AppPolicyList []*ListAppPoliciesForIdentityResponseAppPolicyList `json:"AppPolicyList,omitempty" xml:"AppPolicyList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAppPoliciesForIdentityResponse) String() string {
@@ -2056,13 +2307,13 @@ func (s *ListAppPoliciesForIdentityResponse) SetAppPolicyList(v []*ListAppPolici
 }
 
 type ListAppPoliciesForIdentityResponseAppPolicyList struct {
-	AppId            *string `json:"AppId" xml:"AppId" require:"true"`
-	CreationTime     *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	PolicyName       *string `json:"PolicyName" xml:"PolicyName" require:"true"`
-	PolicyType       *string `json:"PolicyType" xml:"PolicyType" require:"true"`
-	PolicyValue      *string `json:"PolicyValue" xml:"PolicyValue" require:"true"`
-	Description      *string `json:"Description" xml:"Description" require:"true"`
-	ModificationTime *string `json:"ModificationTime" xml:"ModificationTime" require:"true"`
+	AppId            *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	CreationTime     *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	PolicyName       *string `json:"PolicyName,omitempty" xml:"PolicyName,omitempty" require:"true"`
+	PolicyType       *string `json:"PolicyType,omitempty" xml:"PolicyType,omitempty" require:"true"`
+	PolicyValue      *string `json:"PolicyValue,omitempty" xml:"PolicyValue,omitempty" require:"true"`
+	Description      *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ModificationTime *string `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
 }
 
 func (s ListAppPoliciesForIdentityResponseAppPolicyList) String() string {
@@ -2109,12 +2360,8 @@ func (s *ListAppPoliciesForIdentityResponseAppPolicyList) SetModificationTime(v 
 }
 
 type CreateAppInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	AppName              *string `json:"AppName" xml:"AppName"`
-	Description          *string `json:"Description" xml:"Description"`
+	AppName     *string `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s CreateAppInfoRequest) String() string {
@@ -2123,26 +2370,6 @@ func (s CreateAppInfoRequest) String() string {
 
 func (s CreateAppInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateAppInfoRequest) SetAccessKeyId(v string) *CreateAppInfoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateAppInfoRequest) SetOwnerId(v int64) *CreateAppInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateAppInfoRequest) SetResourceOwnerAccount(v string) *CreateAppInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateAppInfoRequest) SetResourceOwnerId(v int64) *CreateAppInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *CreateAppInfoRequest) SetAppName(v string) *CreateAppInfoRequest {
@@ -2156,8 +2383,8 @@ func (s *CreateAppInfoRequest) SetDescription(v string) *CreateAppInfoRequest {
 }
 
 type CreateAppInfoResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AppId     *string `json:"AppId" xml:"AppId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AppId     *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s CreateAppInfoResponse) String() string {
@@ -2179,11 +2406,7 @@ func (s *CreateAppInfoResponse) SetAppId(v string) *CreateAppInfoResponse {
 }
 
 type GetAppInfosRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	AppIds               *string `json:"AppIds" xml:"AppIds" require:"true"`
+	AppIds *string `json:"AppIds,omitempty" xml:"AppIds,omitempty" require:"true"`
 }
 
 func (s GetAppInfosRequest) String() string {
@@ -2194,35 +2417,15 @@ func (s GetAppInfosRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetAppInfosRequest) SetAccessKeyId(v string) *GetAppInfosRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetAppInfosRequest) SetOwnerId(v int64) *GetAppInfosRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetAppInfosRequest) SetResourceOwnerAccount(v string) *GetAppInfosRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetAppInfosRequest) SetResourceOwnerId(v int64) *GetAppInfosRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetAppInfosRequest) SetAppIds(v string) *GetAppInfosRequest {
 	s.AppIds = &v
 	return s
 }
 
 type GetAppInfosResponse struct {
-	RequestId      *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	AppInfoList    []*GetAppInfosResponseAppInfoList `json:"AppInfoList" xml:"AppInfoList" require:"true" type:"Repeated"`
-	NonExistAppIds []*string                         `json:"NonExistAppIds" xml:"NonExistAppIds" require:"true" type:"Repeated"`
+	RequestId      *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AppInfoList    []*GetAppInfosResponseAppInfoList `json:"AppInfoList,omitempty" xml:"AppInfoList,omitempty" require:"true" type:"Repeated"`
+	NonExistAppIds []*string                         `json:"NonExistAppIds,omitempty" xml:"NonExistAppIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAppInfosResponse) String() string {
@@ -2249,13 +2452,13 @@ func (s *GetAppInfosResponse) SetNonExistAppIds(v []*string) *GetAppInfosRespons
 }
 
 type GetAppInfosResponseAppInfoList struct {
-	AppId            *string `json:"AppId" xml:"AppId" require:"true"`
-	AppName          *string `json:"AppName" xml:"AppName" require:"true"`
-	Type             *string `json:"Type" xml:"Type" require:"true"`
-	Description      *string `json:"Description" xml:"Description" require:"true"`
-	Status           *string `json:"Status" xml:"Status" require:"true"`
-	CreationTime     *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string `json:"ModificationTime" xml:"ModificationTime" require:"true"`
+	AppId            *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName          *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Type             *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Description      *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Status           *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	CreationTime     *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
 }
 
 func (s GetAppInfosResponseAppInfoList) String() string {
@@ -2302,14 +2505,10 @@ func (s *GetAppInfosResponseAppInfoList) SetModificationTime(v string) *GetAppIn
 }
 
 type UpdateAppInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	AppId                *string `json:"AppId" xml:"AppId"`
-	AppName              *string `json:"AppName" xml:"AppName"`
-	Description          *string `json:"Description" xml:"Description"`
-	Status               *string `json:"Status" xml:"Status"`
+	AppId       *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	AppName     *string `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	Status      *string `json:"Status,omitempty" xml:"Status,omitempty"`
 }
 
 func (s UpdateAppInfoRequest) String() string {
@@ -2318,26 +2517,6 @@ func (s UpdateAppInfoRequest) String() string {
 
 func (s UpdateAppInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateAppInfoRequest) SetAccessKeyId(v string) *UpdateAppInfoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UpdateAppInfoRequest) SetOwnerId(v int64) *UpdateAppInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateAppInfoRequest) SetResourceOwnerAccount(v string) *UpdateAppInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateAppInfoRequest) SetResourceOwnerId(v int64) *UpdateAppInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateAppInfoRequest) SetAppId(v string) *UpdateAppInfoRequest {
@@ -2361,7 +2540,7 @@ func (s *UpdateAppInfoRequest) SetStatus(v string) *UpdateAppInfoRequest {
 }
 
 type UpdateAppInfoResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateAppInfoResponse) String() string {
@@ -2378,11 +2557,7 @@ func (s *UpdateAppInfoResponse) SetRequestId(v string) *UpdateAppInfoResponse {
 }
 
 type DeleteAppInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	AppId *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s DeleteAppInfoRequest) String() string {
@@ -2393,33 +2568,13 @@ func (s DeleteAppInfoRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteAppInfoRequest) SetAccessKeyId(v string) *DeleteAppInfoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteAppInfoRequest) SetOwnerId(v int64) *DeleteAppInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteAppInfoRequest) SetResourceOwnerAccount(v string) *DeleteAppInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteAppInfoRequest) SetResourceOwnerId(v int64) *DeleteAppInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteAppInfoRequest) SetAppId(v string) *DeleteAppInfoRequest {
 	s.AppId = &v
 	return s
 }
 
 type DeleteAppInfoResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAppInfoResponse) String() string {
@@ -2436,13 +2591,9 @@ func (s *DeleteAppInfoResponse) SetRequestId(v string) *DeleteAppInfoResponse {
 }
 
 type ListAppInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Status               *string `json:"Status" xml:"Status"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
+	Status   *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	PageNo   *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListAppInfoRequest) String() string {
@@ -2451,26 +2602,6 @@ func (s ListAppInfoRequest) String() string {
 
 func (s ListAppInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListAppInfoRequest) SetAccessKeyId(v string) *ListAppInfoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListAppInfoRequest) SetOwnerId(v int64) *ListAppInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListAppInfoRequest) SetResourceOwnerAccount(v string) *ListAppInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListAppInfoRequest) SetResourceOwnerId(v int64) *ListAppInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListAppInfoRequest) SetStatus(v string) *ListAppInfoRequest {
@@ -2489,9 +2620,9 @@ func (s *ListAppInfoRequest) SetPageSize(v int) *ListAppInfoRequest {
 }
 
 type ListAppInfoResponse struct {
-	RequestId   *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Total       *int                              `json:"Total" xml:"Total" require:"true"`
-	AppInfoList []*ListAppInfoResponseAppInfoList `json:"AppInfoList" xml:"AppInfoList" require:"true" type:"Repeated"`
+	RequestId   *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Total       *int                              `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	AppInfoList []*ListAppInfoResponseAppInfoList `json:"AppInfoList,omitempty" xml:"AppInfoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAppInfoResponse) String() string {
@@ -2518,13 +2649,13 @@ func (s *ListAppInfoResponse) SetAppInfoList(v []*ListAppInfoResponseAppInfoList
 }
 
 type ListAppInfoResponseAppInfoList struct {
-	AppId            *string `json:"AppId" xml:"AppId" require:"true"`
-	AppName          *string `json:"AppName" xml:"AppName" require:"true"`
-	Type             *string `json:"Type" xml:"Type" require:"true"`
-	Description      *string `json:"Description" xml:"Description" require:"true"`
-	Status           *string `json:"Status" xml:"Status" require:"true"`
-	CreationTime     *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string `json:"ModificationTime" xml:"ModificationTime" require:"true"`
+	AppId            *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AppName          *string `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	Type             *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Description      *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Status           *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	CreationTime     *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
 }
 
 func (s ListAppInfoResponseAppInfoList) String() string {
@@ -2571,13 +2702,9 @@ func (s *ListAppInfoResponseAppInfoList) SetModificationTime(v string) *ListAppI
 }
 
 type MoveAppResourceRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TargetAppId          *string `json:"TargetAppId" xml:"TargetAppId" require:"true"`
-	ResourceType         *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	ResourceIds          *string `json:"ResourceIds" xml:"ResourceIds" require:"true"`
+	TargetAppId  *string `json:"TargetAppId,omitempty" xml:"TargetAppId,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceIds  *string `json:"ResourceIds,omitempty" xml:"ResourceIds,omitempty" require:"true"`
 }
 
 func (s MoveAppResourceRequest) String() string {
@@ -2586,26 +2713,6 @@ func (s MoveAppResourceRequest) String() string {
 
 func (s MoveAppResourceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *MoveAppResourceRequest) SetAccessKeyId(v string) *MoveAppResourceRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *MoveAppResourceRequest) SetOwnerId(v int64) *MoveAppResourceRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *MoveAppResourceRequest) SetResourceOwnerAccount(v string) *MoveAppResourceRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *MoveAppResourceRequest) SetResourceOwnerId(v int64) *MoveAppResourceRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *MoveAppResourceRequest) SetTargetAppId(v string) *MoveAppResourceRequest {
@@ -2624,9 +2731,9 @@ func (s *MoveAppResourceRequest) SetResourceIds(v string) *MoveAppResourceReques
 }
 
 type MoveAppResourceResponse struct {
-	RequestId           *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistResourceIds []*string `json:"NonExistResourceIds" xml:"NonExistResourceIds" require:"true" type:"Repeated"`
-	FailedResourceIds   []*string `json:"FailedResourceIds" xml:"FailedResourceIds" require:"true" type:"Repeated"`
+	RequestId           *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistResourceIds []*string `json:"NonExistResourceIds,omitempty" xml:"NonExistResourceIds,omitempty" require:"true" type:"Repeated"`
+	FailedResourceIds   []*string `json:"FailedResourceIds,omitempty" xml:"FailedResourceIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s MoveAppResourceResponse) String() string {
@@ -2653,13 +2760,8 @@ func (s *MoveAppResourceResponse) SetFailedResourceIds(v []*string) *MoveAppReso
 }
 
 type DeleteMessageCallbackRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	AppId               *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s DeleteMessageCallbackRequest) String() string {
@@ -2668,31 +2770,6 @@ func (s DeleteMessageCallbackRequest) String() string {
 
 func (s DeleteMessageCallbackRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteMessageCallbackRequest) SetAccessKeyId(v string) *DeleteMessageCallbackRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteMessageCallbackRequest) SetOwnerId(v string) *DeleteMessageCallbackRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteMessageCallbackRequest) SetResourceOwnerId(v string) *DeleteMessageCallbackRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteMessageCallbackRequest) SetResourceOwnerAccount(v string) *DeleteMessageCallbackRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteMessageCallbackRequest) SetOwnerAccount(v string) *DeleteMessageCallbackRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteMessageCallbackRequest) SetResourceRealOwnerId(v int64) *DeleteMessageCallbackRequest {
@@ -2706,7 +2783,7 @@ func (s *DeleteMessageCallbackRequest) SetAppId(v string) *DeleteMessageCallback
 }
 
 type DeleteMessageCallbackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteMessageCallbackResponse) String() string {
@@ -2723,11 +2800,7 @@ func (s *DeleteMessageCallbackResponse) SetRequestId(v string) *DeleteMessageCal
 }
 
 type GetTranscodeSummaryRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoIds             *string `json:"VideoIds" xml:"VideoIds" require:"true"`
+	VideoIds *string `json:"VideoIds,omitempty" xml:"VideoIds,omitempty" require:"true"`
 }
 
 func (s GetTranscodeSummaryRequest) String() string {
@@ -2738,35 +2811,15 @@ func (s GetTranscodeSummaryRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetTranscodeSummaryRequest) SetAccessKeyId(v string) *GetTranscodeSummaryRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetTranscodeSummaryRequest) SetOwnerId(v int64) *GetTranscodeSummaryRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetTranscodeSummaryRequest) SetResourceOwnerAccount(v string) *GetTranscodeSummaryRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetTranscodeSummaryRequest) SetResourceOwnerId(v int64) *GetTranscodeSummaryRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetTranscodeSummaryRequest) SetVideoIds(v string) *GetTranscodeSummaryRequest {
 	s.VideoIds = &v
 	return s
 }
 
 type GetTranscodeSummaryResponse struct {
-	RequestId            *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeSummaryList []*GetTranscodeSummaryResponseTranscodeSummaryList `json:"TranscodeSummaryList" xml:"TranscodeSummaryList" require:"true" type:"Repeated"`
-	NonExistVideoIds     []*string                                          `json:"NonExistVideoIds" xml:"NonExistVideoIds" require:"true" type:"Repeated"`
+	RequestId            *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeSummaryList []*GetTranscodeSummaryResponseTranscodeSummaryList `json:"TranscodeSummaryList,omitempty" xml:"TranscodeSummaryList,omitempty" require:"true" type:"Repeated"`
+	NonExistVideoIds     []*string                                          `json:"NonExistVideoIds,omitempty" xml:"NonExistVideoIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeSummaryResponse) String() string {
@@ -2793,13 +2846,13 @@ func (s *GetTranscodeSummaryResponse) SetNonExistVideoIds(v []*string) *GetTrans
 }
 
 type GetTranscodeSummaryResponseTranscodeSummaryList struct {
-	VideoId                     *string                                                                       `json:"VideoId" xml:"VideoId" require:"true"`
-	TranscodeStatus             *string                                                                       `json:"TranscodeStatus" xml:"TranscodeStatus" require:"true"`
-	CreationTime                *string                                                                       `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime                *string                                                                       `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	Trigger                     *string                                                                       `json:"Trigger" xml:"Trigger" require:"true"`
-	TranscodeTemplateGroupId    *string                                                                       `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
-	TranscodeJobInfoSummaryList []*GetTranscodeSummaryResponseTranscodeSummaryListTranscodeJobInfoSummaryList `json:"TranscodeJobInfoSummaryList" xml:"TranscodeJobInfoSummaryList" require:"true" type:"Repeated"`
+	VideoId                     *string                                                                       `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	TranscodeStatus             *string                                                                       `json:"TranscodeStatus,omitempty" xml:"TranscodeStatus,omitempty" require:"true"`
+	CreationTime                *string                                                                       `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime                *string                                                                       `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	Trigger                     *string                                                                       `json:"Trigger,omitempty" xml:"Trigger,omitempty" require:"true"`
+	TranscodeTemplateGroupId    *string                                                                       `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
+	TranscodeJobInfoSummaryList []*GetTranscodeSummaryResponseTranscodeSummaryListTranscodeJobInfoSummaryList `json:"TranscodeJobInfoSummaryList,omitempty" xml:"TranscodeJobInfoSummaryList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeSummaryResponseTranscodeSummaryList) String() string {
@@ -2846,23 +2899,23 @@ func (s *GetTranscodeSummaryResponseTranscodeSummaryList) SetTranscodeJobInfoSum
 }
 
 type GetTranscodeSummaryResponseTranscodeSummaryListTranscodeJobInfoSummaryList struct {
-	TranscodeTemplateId *string   `json:"TranscodeTemplateId" xml:"TranscodeTemplateId" require:"true"`
-	TranscodeJobStatus  *string   `json:"TranscodeJobStatus" xml:"TranscodeJobStatus" require:"true"`
-	CreationTime        *string   `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime        *string   `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	TranscodeProgress   *int64    `json:"TranscodeProgress" xml:"TranscodeProgress" require:"true"`
-	ErrorCode           *string   `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage        *string   `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	Definition          *string   `json:"Definition" xml:"Definition" require:"true"`
-	Encryption          *string   `json:"Encryption" xml:"Encryption" require:"true"`
-	Width               *string   `json:"Width" xml:"Width" require:"true"`
-	Height              *string   `json:"Height" xml:"Height" require:"true"`
-	Bitrate             *string   `json:"Bitrate" xml:"Bitrate" require:"true"`
-	Fps                 *string   `json:"Fps" xml:"Fps" require:"true"`
-	Format              *string   `json:"Format" xml:"Format" require:"true"`
-	Duration            *string   `json:"Duration" xml:"Duration" require:"true"`
-	Filesize            *int64    `json:"Filesize" xml:"Filesize" require:"true"`
-	WatermarkIdList     []*string `json:"WatermarkIdList" xml:"WatermarkIdList" require:"true" type:"Repeated"`
+	TranscodeTemplateId *string   `json:"TranscodeTemplateId,omitempty" xml:"TranscodeTemplateId,omitempty" require:"true"`
+	TranscodeJobStatus  *string   `json:"TranscodeJobStatus,omitempty" xml:"TranscodeJobStatus,omitempty" require:"true"`
+	CreationTime        *string   `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime        *string   `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	TranscodeProgress   *int64    `json:"TranscodeProgress,omitempty" xml:"TranscodeProgress,omitempty" require:"true"`
+	ErrorCode           *string   `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage        *string   `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Definition          *string   `json:"Definition,omitempty" xml:"Definition,omitempty" require:"true"`
+	Encryption          *string   `json:"Encryption,omitempty" xml:"Encryption,omitempty" require:"true"`
+	Width               *string   `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height              *string   `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Bitrate             *string   `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
+	Fps                 *string   `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	Format              *string   `json:"Format,omitempty" xml:"Format,omitempty" require:"true"`
+	Duration            *string   `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Filesize            *int64    `json:"Filesize,omitempty" xml:"Filesize,omitempty" require:"true"`
+	WatermarkIdList     []*string `json:"WatermarkIdList,omitempty" xml:"WatermarkIdList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeSummaryResponseTranscodeSummaryListTranscodeJobInfoSummaryList) String() string {
@@ -2959,15 +3012,11 @@ func (s *GetTranscodeSummaryResponseTranscodeSummaryListTranscodeJobInfoSummaryL
 }
 
 type ListTranscodeTaskRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	StartTime            *string `json:"StartTime" xml:"StartTime"`
-	EndTime              *string `json:"EndTime" xml:"EndTime"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
+	VideoId   *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	PageSize  *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNo    *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
 }
 
 func (s ListTranscodeTaskRequest) String() string {
@@ -2976,26 +3025,6 @@ func (s ListTranscodeTaskRequest) String() string {
 
 func (s ListTranscodeTaskRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListTranscodeTaskRequest) SetAccessKeyId(v string) *ListTranscodeTaskRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListTranscodeTaskRequest) SetOwnerId(v int64) *ListTranscodeTaskRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListTranscodeTaskRequest) SetResourceOwnerAccount(v string) *ListTranscodeTaskRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListTranscodeTaskRequest) SetResourceOwnerId(v int64) *ListTranscodeTaskRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListTranscodeTaskRequest) SetVideoId(v string) *ListTranscodeTaskRequest {
@@ -3024,8 +3053,8 @@ func (s *ListTranscodeTaskRequest) SetPageNo(v int) *ListTranscodeTaskRequest {
 }
 
 type ListTranscodeTaskResponse struct {
-	RequestId         *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTaskList []*ListTranscodeTaskResponseTranscodeTaskList `json:"TranscodeTaskList" xml:"TranscodeTaskList" require:"true" type:"Repeated"`
+	RequestId         *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTaskList []*ListTranscodeTaskResponseTranscodeTaskList `json:"TranscodeTaskList,omitempty" xml:"TranscodeTaskList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTranscodeTaskResponse) String() string {
@@ -3047,13 +3076,13 @@ func (s *ListTranscodeTaskResponse) SetTranscodeTaskList(v []*ListTranscodeTaskR
 }
 
 type ListTranscodeTaskResponseTranscodeTaskList struct {
-	TranscodeTaskId          *string `json:"TranscodeTaskId" xml:"TranscodeTaskId" require:"true"`
-	VideoId                  *string `json:"VideoId" xml:"VideoId" require:"true"`
-	TaskStatus               *string `json:"TaskStatus" xml:"TaskStatus" require:"true"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
-	CreationTime             *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime             *string `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	Trigger                  *string `json:"Trigger" xml:"Trigger" require:"true"`
+	TranscodeTaskId          *string `json:"TranscodeTaskId,omitempty" xml:"TranscodeTaskId,omitempty" require:"true"`
+	VideoId                  *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	TaskStatus               *string `json:"TaskStatus,omitempty" xml:"TaskStatus,omitempty" require:"true"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
+	CreationTime             *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime             *string `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	Trigger                  *string `json:"Trigger,omitempty" xml:"Trigger,omitempty" require:"true"`
 }
 
 func (s ListTranscodeTaskResponseTranscodeTaskList) String() string {
@@ -3100,11 +3129,7 @@ func (s *ListTranscodeTaskResponseTranscodeTaskList) SetTrigger(v string) *ListT
 }
 
 type GetTranscodeTaskRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TranscodeTaskId      *string `json:"TranscodeTaskId" xml:"TranscodeTaskId" require:"true"`
+	TranscodeTaskId *string `json:"TranscodeTaskId,omitempty" xml:"TranscodeTaskId,omitempty" require:"true"`
 }
 
 func (s GetTranscodeTaskRequest) String() string {
@@ -3115,34 +3140,14 @@ func (s GetTranscodeTaskRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetTranscodeTaskRequest) SetAccessKeyId(v string) *GetTranscodeTaskRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetTranscodeTaskRequest) SetOwnerId(v int64) *GetTranscodeTaskRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetTranscodeTaskRequest) SetResourceOwnerAccount(v string) *GetTranscodeTaskRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetTranscodeTaskRequest) SetResourceOwnerId(v int64) *GetTranscodeTaskRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetTranscodeTaskRequest) SetTranscodeTaskId(v string) *GetTranscodeTaskRequest {
 	s.TranscodeTaskId = &v
 	return s
 }
 
 type GetTranscodeTaskResponse struct {
-	RequestId     *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTask *GetTranscodeTaskResponseTranscodeTask `json:"TranscodeTask" xml:"TranscodeTask" require:"true" type:"Struct"`
+	RequestId     *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTask *GetTranscodeTaskResponseTranscodeTask `json:"TranscodeTask,omitempty" xml:"TranscodeTask,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTranscodeTaskResponse) String() string {
@@ -3164,14 +3169,14 @@ func (s *GetTranscodeTaskResponse) SetTranscodeTask(v *GetTranscodeTaskResponseT
 }
 
 type GetTranscodeTaskResponseTranscodeTask struct {
-	TranscodeTaskId          *string                                                      `json:"TranscodeTaskId" xml:"TranscodeTaskId" require:"true"`
-	VideoId                  *string                                                      `json:"VideoId" xml:"VideoId" require:"true"`
-	TaskStatus               *string                                                      `json:"TaskStatus" xml:"TaskStatus" require:"true"`
-	CreationTime             *string                                                      `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime             *string                                                      `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	Trigger                  *string                                                      `json:"Trigger" xml:"Trigger" require:"true"`
-	TranscodeTemplateGroupId *string                                                      `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
-	TranscodeJobInfoList     []*GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoList `json:"TranscodeJobInfoList" xml:"TranscodeJobInfoList" require:"true" type:"Repeated"`
+	TranscodeTaskId          *string                                                      `json:"TranscodeTaskId,omitempty" xml:"TranscodeTaskId,omitempty" require:"true"`
+	VideoId                  *string                                                      `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	TaskStatus               *string                                                      `json:"TaskStatus,omitempty" xml:"TaskStatus,omitempty" require:"true"`
+	CreationTime             *string                                                      `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime             *string                                                      `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	Trigger                  *string                                                      `json:"Trigger,omitempty" xml:"Trigger,omitempty" require:"true"`
+	TranscodeTemplateGroupId *string                                                      `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
+	TranscodeJobInfoList     []*GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoList `json:"TranscodeJobInfoList,omitempty" xml:"TranscodeJobInfoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeTaskResponseTranscodeTask) String() string {
@@ -3223,18 +3228,18 @@ func (s *GetTranscodeTaskResponseTranscodeTask) SetTranscodeJobInfoList(v []*Get
 }
 
 type GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoList struct {
-	TranscodeJobId      *string                                                              `json:"TranscodeJobId" xml:"TranscodeJobId" require:"true"`
-	TranscodeTemplateId *string                                                              `json:"TranscodeTemplateId" xml:"TranscodeTemplateId" require:"true"`
-	TranscodeJobStatus  *string                                                              `json:"TranscodeJobStatus" xml:"TranscodeJobStatus" require:"true"`
-	CreationTime        *string                                                              `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime        *string                                                              `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	TranscodeProgress   *int64                                                               `json:"TranscodeProgress" xml:"TranscodeProgress" require:"true"`
-	InputFileUrl        *string                                                              `json:"InputFileUrl" xml:"InputFileUrl" require:"true"`
-	Priority            *string                                                              `json:"Priority" xml:"Priority" require:"true"`
-	ErrorCode           *string                                                              `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage        *string                                                              `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	Definition          *string                                                              `json:"Definition" xml:"Definition" require:"true"`
-	OutputFile          *GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoListOutputFile `json:"OutputFile" xml:"OutputFile" require:"true" type:"Struct"`
+	TranscodeJobId      *string                                                              `json:"TranscodeJobId,omitempty" xml:"TranscodeJobId,omitempty" require:"true"`
+	TranscodeTemplateId *string                                                              `json:"TranscodeTemplateId,omitempty" xml:"TranscodeTemplateId,omitempty" require:"true"`
+	TranscodeJobStatus  *string                                                              `json:"TranscodeJobStatus,omitempty" xml:"TranscodeJobStatus,omitempty" require:"true"`
+	CreationTime        *string                                                              `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime        *string                                                              `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	TranscodeProgress   *int64                                                               `json:"TranscodeProgress,omitempty" xml:"TranscodeProgress,omitempty" require:"true"`
+	InputFileUrl        *string                                                              `json:"InputFileUrl,omitempty" xml:"InputFileUrl,omitempty" require:"true"`
+	Priority            *string                                                              `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
+	ErrorCode           *string                                                              `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage        *string                                                              `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	Definition          *string                                                              `json:"Definition,omitempty" xml:"Definition,omitempty" require:"true"`
+	OutputFile          *GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoListOutputFile `json:"OutputFile,omitempty" xml:"OutputFile,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoList) String() string {
@@ -3306,19 +3311,19 @@ func (s *GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoList) SetOutputFil
 }
 
 type GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoListOutputFile struct {
-	Width              *string   `json:"Width" xml:"Width" require:"true"`
-	Height             *string   `json:"Height" xml:"Height" require:"true"`
-	Bitrate            *string   `json:"Bitrate" xml:"Bitrate" require:"true"`
-	Fps                *string   `json:"Fps" xml:"Fps" require:"true"`
-	Format             *string   `json:"Format" xml:"Format" require:"true"`
-	Duration           *string   `json:"Duration" xml:"Duration" require:"true"`
-	Filesize           *int64    `json:"Filesize" xml:"Filesize" require:"true"`
-	Encryption         *string   `json:"Encryption" xml:"Encryption" require:"true"`
-	AudioStreamList    *string   `json:"AudioStreamList" xml:"AudioStreamList" require:"true"`
-	VideoStreamList    *string   `json:"VideoStreamList" xml:"VideoStreamList" require:"true"`
-	SubtitleStreamList *string   `json:"SubtitleStreamList" xml:"SubtitleStreamList" require:"true"`
-	OutputFileUrl      *string   `json:"OutputFileUrl" xml:"OutputFileUrl" require:"true"`
-	WatermarkIdList    []*string `json:"WatermarkIdList" xml:"WatermarkIdList" require:"true" type:"Repeated"`
+	Width              *string   `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height             *string   `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Bitrate            *string   `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
+	Fps                *string   `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	Format             *string   `json:"Format,omitempty" xml:"Format,omitempty" require:"true"`
+	Duration           *string   `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Filesize           *int64    `json:"Filesize,omitempty" xml:"Filesize,omitempty" require:"true"`
+	Encryption         *string   `json:"Encryption,omitempty" xml:"Encryption,omitempty" require:"true"`
+	AudioStreamList    *string   `json:"AudioStreamList,omitempty" xml:"AudioStreamList,omitempty" require:"true"`
+	VideoStreamList    *string   `json:"VideoStreamList,omitempty" xml:"VideoStreamList,omitempty" require:"true"`
+	SubtitleStreamList *string   `json:"SubtitleStreamList,omitempty" xml:"SubtitleStreamList,omitempty" require:"true"`
+	OutputFileUrl      *string   `json:"OutputFileUrl,omitempty" xml:"OutputFileUrl,omitempty" require:"true"`
+	WatermarkIdList    []*string `json:"WatermarkIdList,omitempty" xml:"WatermarkIdList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoListOutputFile) String() string {
@@ -3395,11 +3400,8 @@ func (s *GetTranscodeTaskResponseTranscodeTaskTranscodeJobInfoListOutputFile) Se
 }
 
 type GetURLUploadInfosRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	JobIds               *string `json:"JobIds" xml:"JobIds"`
-	UploadURLs           *string `json:"UploadURLs" xml:"UploadURLs"`
+	JobIds     *string `json:"JobIds,omitempty" xml:"JobIds,omitempty"`
+	UploadURLs *string `json:"UploadURLs,omitempty" xml:"UploadURLs,omitempty"`
 }
 
 func (s GetURLUploadInfosRequest) String() string {
@@ -3408,21 +3410,6 @@ func (s GetURLUploadInfosRequest) String() string {
 
 func (s GetURLUploadInfosRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetURLUploadInfosRequest) SetOwnerId(v int64) *GetURLUploadInfosRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetURLUploadInfosRequest) SetResourceOwnerAccount(v string) *GetURLUploadInfosRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetURLUploadInfosRequest) SetResourceOwnerId(v int64) *GetURLUploadInfosRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetURLUploadInfosRequest) SetJobIds(v string) *GetURLUploadInfosRequest {
@@ -3436,9 +3423,9 @@ func (s *GetURLUploadInfosRequest) SetUploadURLs(v string) *GetURLUploadInfosReq
 }
 
 type GetURLUploadInfosResponse struct {
-	RequestId         *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	URLUploadInfoList []*GetURLUploadInfosResponseURLUploadInfoList `json:"URLUploadInfoList" xml:"URLUploadInfoList" require:"true" type:"Repeated"`
-	NonExists         []*string                                     `json:"NonExists" xml:"NonExists" require:"true" type:"Repeated"`
+	RequestId         *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	URLUploadInfoList []*GetURLUploadInfosResponseURLUploadInfoList `json:"URLUploadInfoList,omitempty" xml:"URLUploadInfoList,omitempty" require:"true" type:"Repeated"`
+	NonExists         []*string                                     `json:"NonExists,omitempty" xml:"NonExists,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetURLUploadInfosResponse) String() string {
@@ -3465,16 +3452,16 @@ func (s *GetURLUploadInfosResponse) SetNonExists(v []*string) *GetURLUploadInfos
 }
 
 type GetURLUploadInfosResponseURLUploadInfoList struct {
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	UploadURL    *string `json:"UploadURL" xml:"UploadURL" require:"true"`
-	MediaId      *string `json:"MediaId" xml:"MediaId" require:"true"`
-	FileSize     *string `json:"FileSize" xml:"FileSize" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	UserData     *string `json:"UserData" xml:"UserData" require:"true"`
-	ErrorCode    *string `json:"ErrorCode" xml:"ErrorCode" require:"true"`
-	ErrorMessage *string `json:"ErrorMessage" xml:"ErrorMessage" require:"true"`
-	CreationTime *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime *string `json:"CompleteTime" xml:"CompleteTime" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	UploadURL    *string `json:"UploadURL,omitempty" xml:"UploadURL,omitempty" require:"true"`
+	MediaId      *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	FileSize     *string `json:"FileSize,omitempty" xml:"FileSize,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	UserData     *string `json:"UserData,omitempty" xml:"UserData,omitempty" require:"true"`
+	ErrorCode    *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	CreationTime *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime *string `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
 }
 
 func (s GetURLUploadInfosResponseURLUploadInfoList) String() string {
@@ -3536,14 +3523,10 @@ func (s *GetURLUploadInfosResponseURLUploadInfoList) SetCompleteTime(v string) *
 }
 
 type UpdateTranscodeTemplateGroupRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Name                     *string `json:"Name" xml:"Name"`
-	TranscodeTemplateList    *string `json:"TranscodeTemplateList" xml:"TranscodeTemplateList"`
-	Locked                   *string `json:"Locked" xml:"Locked"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
+	Name                     *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	TranscodeTemplateList    *string `json:"TranscodeTemplateList,omitempty" xml:"TranscodeTemplateList,omitempty"`
+	Locked                   *string `json:"Locked,omitempty" xml:"Locked,omitempty"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
 }
 
 func (s UpdateTranscodeTemplateGroupRequest) String() string {
@@ -3552,26 +3535,6 @@ func (s UpdateTranscodeTemplateGroupRequest) String() string {
 
 func (s UpdateTranscodeTemplateGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateTranscodeTemplateGroupRequest) SetAccessKeyId(v string) *UpdateTranscodeTemplateGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UpdateTranscodeTemplateGroupRequest) SetOwnerId(v int64) *UpdateTranscodeTemplateGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateTranscodeTemplateGroupRequest) SetResourceOwnerAccount(v string) *UpdateTranscodeTemplateGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateTranscodeTemplateGroupRequest) SetResourceOwnerId(v int64) *UpdateTranscodeTemplateGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateTranscodeTemplateGroupRequest) SetName(v string) *UpdateTranscodeTemplateGroupRequest {
@@ -3595,8 +3558,8 @@ func (s *UpdateTranscodeTemplateGroupRequest) SetTranscodeTemplateGroupId(v stri
 }
 
 type UpdateTranscodeTemplateGroupResponse struct {
-	RequestId                *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
+	RequestId                *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
 }
 
 func (s UpdateTranscodeTemplateGroupResponse) String() string {
@@ -3618,14 +3581,10 @@ func (s *UpdateTranscodeTemplateGroupResponse) SetTranscodeTemplateGroupId(v str
 }
 
 type AddTranscodeTemplateGroupRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Name                     *string `json:"Name" xml:"Name"`
-	TranscodeTemplateList    *string `json:"TranscodeTemplateList" xml:"TranscodeTemplateList"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId"`
-	AppId                    *string `json:"AppId" xml:"AppId"`
+	Name                     *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	TranscodeTemplateList    *string `json:"TranscodeTemplateList,omitempty" xml:"TranscodeTemplateList,omitempty"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty"`
+	AppId                    *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s AddTranscodeTemplateGroupRequest) String() string {
@@ -3634,26 +3593,6 @@ func (s AddTranscodeTemplateGroupRequest) String() string {
 
 func (s AddTranscodeTemplateGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddTranscodeTemplateGroupRequest) SetAccessKeyId(v string) *AddTranscodeTemplateGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *AddTranscodeTemplateGroupRequest) SetOwnerId(v int64) *AddTranscodeTemplateGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddTranscodeTemplateGroupRequest) SetResourceOwnerAccount(v string) *AddTranscodeTemplateGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddTranscodeTemplateGroupRequest) SetResourceOwnerId(v int64) *AddTranscodeTemplateGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AddTranscodeTemplateGroupRequest) SetName(v string) *AddTranscodeTemplateGroupRequest {
@@ -3677,8 +3616,8 @@ func (s *AddTranscodeTemplateGroupRequest) SetAppId(v string) *AddTranscodeTempl
 }
 
 type AddTranscodeTemplateGroupResponse struct {
-	RequestId                *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
+	RequestId                *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
 }
 
 func (s AddTranscodeTemplateGroupResponse) String() string {
@@ -3700,13 +3639,9 @@ func (s *AddTranscodeTemplateGroupResponse) SetTranscodeTemplateGroupId(v string
 }
 
 type DeleteTranscodeTemplateGroupRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
-	TranscodeTemplateIds     *string `json:"TranscodeTemplateIds" xml:"TranscodeTemplateIds"`
-	ForceDelGroup            *string `json:"ForceDelGroup" xml:"ForceDelGroup"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
+	TranscodeTemplateIds     *string `json:"TranscodeTemplateIds,omitempty" xml:"TranscodeTemplateIds,omitempty"`
+	ForceDelGroup            *string `json:"ForceDelGroup,omitempty" xml:"ForceDelGroup,omitempty"`
 }
 
 func (s DeleteTranscodeTemplateGroupRequest) String() string {
@@ -3715,26 +3650,6 @@ func (s DeleteTranscodeTemplateGroupRequest) String() string {
 
 func (s DeleteTranscodeTemplateGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteTranscodeTemplateGroupRequest) SetAccessKeyId(v string) *DeleteTranscodeTemplateGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteTranscodeTemplateGroupRequest) SetOwnerId(v int64) *DeleteTranscodeTemplateGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteTranscodeTemplateGroupRequest) SetResourceOwnerAccount(v string) *DeleteTranscodeTemplateGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteTranscodeTemplateGroupRequest) SetResourceOwnerId(v int64) *DeleteTranscodeTemplateGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *DeleteTranscodeTemplateGroupRequest) SetTranscodeTemplateGroupId(v string) *DeleteTranscodeTemplateGroupRequest {
@@ -3753,8 +3668,8 @@ func (s *DeleteTranscodeTemplateGroupRequest) SetForceDelGroup(v string) *Delete
 }
 
 type DeleteTranscodeTemplateGroupResponse struct {
-	RequestId                    *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistTranscodeTemplateIds []*string `json:"NonExistTranscodeTemplateIds" xml:"NonExistTranscodeTemplateIds" require:"true" type:"Repeated"`
+	RequestId                    *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistTranscodeTemplateIds []*string `json:"NonExistTranscodeTemplateIds,omitempty" xml:"NonExistTranscodeTemplateIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DeleteTranscodeTemplateGroupResponse) String() string {
@@ -3776,11 +3691,7 @@ func (s *DeleteTranscodeTemplateGroupResponse) SetNonExistTranscodeTemplateIds(v
 }
 
 type GetTranscodeTemplateGroupRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
 }
 
 func (s GetTranscodeTemplateGroupRequest) String() string {
@@ -3791,34 +3702,14 @@ func (s GetTranscodeTemplateGroupRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetTranscodeTemplateGroupRequest) SetAccessKeyId(v string) *GetTranscodeTemplateGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetTranscodeTemplateGroupRequest) SetOwnerId(v int64) *GetTranscodeTemplateGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetTranscodeTemplateGroupRequest) SetResourceOwnerAccount(v string) *GetTranscodeTemplateGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetTranscodeTemplateGroupRequest) SetResourceOwnerId(v int64) *GetTranscodeTemplateGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetTranscodeTemplateGroupRequest) SetTranscodeTemplateGroupId(v string) *GetTranscodeTemplateGroupRequest {
 	s.TranscodeTemplateGroupId = &v
 	return s
 }
 
 type GetTranscodeTemplateGroupResponse struct {
-	RequestId              *string                                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTemplateGroup *GetTranscodeTemplateGroupResponseTranscodeTemplateGroup `json:"TranscodeTemplateGroup" xml:"TranscodeTemplateGroup" require:"true" type:"Struct"`
+	RequestId              *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTemplateGroup *GetTranscodeTemplateGroupResponseTranscodeTemplateGroup `json:"TranscodeTemplateGroup,omitempty" xml:"TranscodeTemplateGroup,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetTranscodeTemplateGroupResponse) String() string {
@@ -3840,15 +3731,15 @@ func (s *GetTranscodeTemplateGroupResponse) SetTranscodeTemplateGroup(v *GetTran
 }
 
 type GetTranscodeTemplateGroupResponseTranscodeTemplateGroup struct {
-	CreationTime             *string                                                                         `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime               *string                                                                         `json:"ModifyTime" xml:"ModifyTime" require:"true"`
-	Name                     *string                                                                         `json:"Name" xml:"Name" require:"true"`
-	IsDefault                *string                                                                         `json:"IsDefault" xml:"IsDefault" require:"true"`
-	Locked                   *string                                                                         `json:"Locked" xml:"Locked" require:"true"`
-	TranscodeMode            *string                                                                         `json:"TranscodeMode" xml:"TranscodeMode" require:"true"`
-	AppId                    *string                                                                         `json:"AppId" xml:"AppId" require:"true"`
-	TranscodeTemplateGroupId *string                                                                         `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
-	TranscodeTemplateList    []*GetTranscodeTemplateGroupResponseTranscodeTemplateGroupTranscodeTemplateList `json:"TranscodeTemplateList" xml:"TranscodeTemplateList" require:"true" type:"Repeated"`
+	CreationTime             *string                                                                         `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime               *string                                                                         `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
+	Name                     *string                                                                         `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	IsDefault                *string                                                                         `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	Locked                   *string                                                                         `json:"Locked,omitempty" xml:"Locked,omitempty" require:"true"`
+	TranscodeMode            *string                                                                         `json:"TranscodeMode,omitempty" xml:"TranscodeMode,omitempty" require:"true"`
+	AppId                    *string                                                                         `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	TranscodeTemplateGroupId *string                                                                         `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
+	TranscodeTemplateList    []*GetTranscodeTemplateGroupResponseTranscodeTemplateGroupTranscodeTemplateList `json:"TranscodeTemplateList,omitempty" xml:"TranscodeTemplateList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeTemplateGroupResponseTranscodeTemplateGroup) String() string {
@@ -3905,25 +3796,25 @@ func (s *GetTranscodeTemplateGroupResponseTranscodeTemplateGroup) SetTranscodeTe
 }
 
 type GetTranscodeTemplateGroupResponseTranscodeTemplateGroupTranscodeTemplateList struct {
-	TranscodeTemplateId  *string   `json:"TranscodeTemplateId" xml:"TranscodeTemplateId" require:"true"`
-	Video                *string   `json:"Video" xml:"Video" require:"true"`
-	Audio                *string   `json:"Audio" xml:"Audio" require:"true"`
-	Container            *string   `json:"Container" xml:"Container" require:"true"`
-	MuxConfig            *string   `json:"MuxConfig" xml:"MuxConfig" require:"true"`
-	TransConfig          *string   `json:"TransConfig" xml:"TransConfig" require:"true"`
-	Definition           *string   `json:"Definition" xml:"Definition" require:"true"`
-	EncryptSetting       *string   `json:"EncryptSetting" xml:"EncryptSetting" require:"true"`
-	PackageSetting       *string   `json:"PackageSetting" xml:"PackageSetting" require:"true"`
-	SubtitleList         *string   `json:"SubtitleList" xml:"SubtitleList" require:"true"`
-	OpeningList          *string   `json:"OpeningList" xml:"OpeningList" require:"true"`
-	TailSlateList        *string   `json:"TailSlateList" xml:"TailSlateList" require:"true"`
-	TemplateName         *string   `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TranscodeFileRegular *string   `json:"TranscodeFileRegular" xml:"TranscodeFileRegular" require:"true"`
-	Clip                 *string   `json:"Clip" xml:"Clip" require:"true"`
-	Rotate               *string   `json:"Rotate" xml:"Rotate" require:"true"`
-	Type                 *string   `json:"Type" xml:"Type" require:"true"`
-	UserData             *string   `json:"UserData" xml:"UserData" require:"true"`
-	WatermarkIds         []*string `json:"WatermarkIds" xml:"WatermarkIds" require:"true" type:"Repeated"`
+	TranscodeTemplateId  *string   `json:"TranscodeTemplateId,omitempty" xml:"TranscodeTemplateId,omitempty" require:"true"`
+	Video                *string   `json:"Video,omitempty" xml:"Video,omitempty" require:"true"`
+	Audio                *string   `json:"Audio,omitempty" xml:"Audio,omitempty" require:"true"`
+	Container            *string   `json:"Container,omitempty" xml:"Container,omitempty" require:"true"`
+	MuxConfig            *string   `json:"MuxConfig,omitempty" xml:"MuxConfig,omitempty" require:"true"`
+	TransConfig          *string   `json:"TransConfig,omitempty" xml:"TransConfig,omitempty" require:"true"`
+	Definition           *string   `json:"Definition,omitempty" xml:"Definition,omitempty" require:"true"`
+	EncryptSetting       *string   `json:"EncryptSetting,omitempty" xml:"EncryptSetting,omitempty" require:"true"`
+	PackageSetting       *string   `json:"PackageSetting,omitempty" xml:"PackageSetting,omitempty" require:"true"`
+	SubtitleList         *string   `json:"SubtitleList,omitempty" xml:"SubtitleList,omitempty" require:"true"`
+	OpeningList          *string   `json:"OpeningList,omitempty" xml:"OpeningList,omitempty" require:"true"`
+	TailSlateList        *string   `json:"TailSlateList,omitempty" xml:"TailSlateList,omitempty" require:"true"`
+	TemplateName         *string   `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TranscodeFileRegular *string   `json:"TranscodeFileRegular,omitempty" xml:"TranscodeFileRegular,omitempty" require:"true"`
+	Clip                 *string   `json:"Clip,omitempty" xml:"Clip,omitempty" require:"true"`
+	Rotate               *string   `json:"Rotate,omitempty" xml:"Rotate,omitempty" require:"true"`
+	Type                 *string   `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	UserData             *string   `json:"UserData,omitempty" xml:"UserData,omitempty" require:"true"`
+	WatermarkIds         []*string `json:"WatermarkIds,omitempty" xml:"WatermarkIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetTranscodeTemplateGroupResponseTranscodeTemplateGroupTranscodeTemplateList) String() string {
@@ -4030,11 +3921,7 @@ func (s *GetTranscodeTemplateGroupResponseTranscodeTemplateGroupTranscodeTemplat
 }
 
 type SetDefaultTranscodeTemplateGroupRequest struct {
-	AccessKeyId              *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId                  *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount     *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId          *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
 }
 
 func (s SetDefaultTranscodeTemplateGroupRequest) String() string {
@@ -4045,33 +3932,13 @@ func (s SetDefaultTranscodeTemplateGroupRequest) GoString() string {
 	return s.String()
 }
 
-func (s *SetDefaultTranscodeTemplateGroupRequest) SetAccessKeyId(v string) *SetDefaultTranscodeTemplateGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SetDefaultTranscodeTemplateGroupRequest) SetOwnerId(v int64) *SetDefaultTranscodeTemplateGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SetDefaultTranscodeTemplateGroupRequest) SetResourceOwnerAccount(v string) *SetDefaultTranscodeTemplateGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SetDefaultTranscodeTemplateGroupRequest) SetResourceOwnerId(v int64) *SetDefaultTranscodeTemplateGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *SetDefaultTranscodeTemplateGroupRequest) SetTranscodeTemplateGroupId(v string) *SetDefaultTranscodeTemplateGroupRequest {
 	s.TranscodeTemplateGroupId = &v
 	return s
 }
 
 type SetDefaultTranscodeTemplateGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDefaultTranscodeTemplateGroupResponse) String() string {
@@ -4088,13 +3955,9 @@ func (s *SetDefaultTranscodeTemplateGroupResponse) SetRequestId(v string) *SetDe
 }
 
 type ListTranscodeTemplateGroupRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	PageSize *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNo   *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	AppId    *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s ListTranscodeTemplateGroupRequest) String() string {
@@ -4103,26 +3966,6 @@ func (s ListTranscodeTemplateGroupRequest) String() string {
 
 func (s ListTranscodeTemplateGroupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListTranscodeTemplateGroupRequest) SetAccessKeyId(v string) *ListTranscodeTemplateGroupRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListTranscodeTemplateGroupRequest) SetOwnerId(v int64) *ListTranscodeTemplateGroupRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListTranscodeTemplateGroupRequest) SetResourceOwnerAccount(v string) *ListTranscodeTemplateGroupRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListTranscodeTemplateGroupRequest) SetResourceOwnerId(v int64) *ListTranscodeTemplateGroupRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListTranscodeTemplateGroupRequest) SetPageSize(v int) *ListTranscodeTemplateGroupRequest {
@@ -4141,8 +3984,8 @@ func (s *ListTranscodeTemplateGroupRequest) SetAppId(v string) *ListTranscodeTem
 }
 
 type ListTranscodeTemplateGroupResponse struct {
-	RequestId                  *string                                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTemplateGroupList []*ListTranscodeTemplateGroupResponseTranscodeTemplateGroupList `json:"TranscodeTemplateGroupList" xml:"TranscodeTemplateGroupList" require:"true" type:"Repeated"`
+	RequestId                  *string                                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTemplateGroupList []*ListTranscodeTemplateGroupResponseTranscodeTemplateGroupList `json:"TranscodeTemplateGroupList,omitempty" xml:"TranscodeTemplateGroupList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTranscodeTemplateGroupResponse) String() string {
@@ -4164,14 +4007,14 @@ func (s *ListTranscodeTemplateGroupResponse) SetTranscodeTemplateGroupList(v []*
 }
 
 type ListTranscodeTemplateGroupResponseTranscodeTemplateGroupList struct {
-	CreationTime             *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime               *string `json:"ModifyTime" xml:"ModifyTime" require:"true"`
-	Name                     *string `json:"Name" xml:"Name" require:"true"`
-	IsDefault                *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	Locked                   *string `json:"Locked" xml:"Locked" require:"true"`
-	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId" xml:"TranscodeTemplateGroupId" require:"true"`
-	TranscodeMode            *string `json:"TranscodeMode" xml:"TranscodeMode" require:"true"`
-	AppId                    *string `json:"AppId" xml:"AppId" require:"true"`
+	CreationTime             *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime               *string `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
+	Name                     *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	IsDefault                *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	Locked                   *string `json:"Locked,omitempty" xml:"Locked,omitempty" require:"true"`
+	TranscodeTemplateGroupId *string `json:"TranscodeTemplateGroupId,omitempty" xml:"TranscodeTemplateGroupId,omitempty" require:"true"`
+	TranscodeMode            *string `json:"TranscodeMode,omitempty" xml:"TranscodeMode,omitempty" require:"true"`
+	AppId                    *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s ListTranscodeTemplateGroupResponseTranscodeTemplateGroupList) String() string {
@@ -4223,11 +4066,7 @@ func (s *ListTranscodeTemplateGroupResponseTranscodeTemplateGroupList) SetAppId(
 }
 
 type GetAIMediaAuditJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	JobId                *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobRequest) String() string {
@@ -4238,34 +4077,14 @@ func (s GetAIMediaAuditJobRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetAIMediaAuditJobRequest) SetAccessKeyId(v string) *GetAIMediaAuditJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetAIMediaAuditJobRequest) SetOwnerId(v string) *GetAIMediaAuditJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetAIMediaAuditJobRequest) SetResourceOwnerAccount(v string) *GetAIMediaAuditJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetAIMediaAuditJobRequest) SetResourceOwnerId(v int64) *GetAIMediaAuditJobRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetAIMediaAuditJobRequest) SetJobId(v string) *GetAIMediaAuditJobRequest {
 	s.JobId = &v
 	return s
 }
 
 type GetAIMediaAuditJobResponse struct {
-	RequestId     *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaAuditJob *GetAIMediaAuditJobResponseMediaAuditJob `json:"MediaAuditJob" xml:"MediaAuditJob" require:"true" type:"Struct"`
+	RequestId     *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaAuditJob *GetAIMediaAuditJobResponseMediaAuditJob `json:"MediaAuditJob,omitempty" xml:"MediaAuditJob,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAIMediaAuditJobResponse) String() string {
@@ -4287,15 +4106,15 @@ func (s *GetAIMediaAuditJobResponse) SetMediaAuditJob(v *GetAIMediaAuditJobRespo
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJob struct {
-	JobId        *string                                      `json:"JobId" xml:"JobId" require:"true"`
-	MediaId      *string                                      `json:"MediaId" xml:"MediaId" require:"true"`
-	Type         *string                                      `json:"Type" xml:"Type" require:"true"`
-	Status       *string                                      `json:"Status" xml:"Status" require:"true"`
-	Code         *string                                      `json:"Code" xml:"Code" require:"true"`
-	Message      *string                                      `json:"Message" xml:"Message" require:"true"`
-	CreationTime *string                                      `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime *string                                      `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	Data         *GetAIMediaAuditJobResponseMediaAuditJobData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	JobId        *string                                      `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	MediaId      *string                                      `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Type         *string                                      `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Status       *string                                      `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Code         *string                                      `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message      *string                                      `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	CreationTime *string                                      `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime *string                                      `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	Data         *GetAIMediaAuditJobResponseMediaAuditJobData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJob) String() string {
@@ -4352,12 +4171,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJob) SetData(v *GetAIMediaAuditJobR
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobData struct {
-	Suggestion      *string                                                   `json:"Suggestion" xml:"Suggestion" require:"true"`
-	AbnormalModules *string                                                   `json:"AbnormalModules" xml:"AbnormalModules" require:"true"`
-	Label           *string                                                   `json:"Label" xml:"Label" require:"true"`
-	ImageResult     []*GetAIMediaAuditJobResponseMediaAuditJobDataImageResult `json:"ImageResult" xml:"ImageResult" require:"true" type:"Repeated"`
-	TextResult      []*GetAIMediaAuditJobResponseMediaAuditJobDataTextResult  `json:"TextResult" xml:"TextResult" require:"true" type:"Repeated"`
-	VideoResult     *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResult   `json:"VideoResult" xml:"VideoResult" require:"true" type:"Struct"`
+	Suggestion      *string                                                   `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	AbnormalModules *string                                                   `json:"AbnormalModules,omitempty" xml:"AbnormalModules,omitempty" require:"true"`
+	Label           *string                                                   `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	ImageResult     []*GetAIMediaAuditJobResponseMediaAuditJobDataImageResult `json:"ImageResult,omitempty" xml:"ImageResult,omitempty" require:"true" type:"Repeated"`
+	TextResult      []*GetAIMediaAuditJobResponseMediaAuditJobDataTextResult  `json:"TextResult,omitempty" xml:"TextResult,omitempty" require:"true" type:"Repeated"`
+	VideoResult     *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResult   `json:"VideoResult,omitempty" xml:"VideoResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobData) String() string {
@@ -4399,11 +4218,11 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobData) SetVideoResult(v *GetAIMed
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataImageResult struct {
-	Suggestion *string                                                         `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label      *string                                                         `json:"Label" xml:"Label" require:"true"`
-	Type       *string                                                         `json:"Type" xml:"Type" require:"true"`
-	Url        *string                                                         `json:"Url" xml:"Url" require:"true"`
-	Result     []*GetAIMediaAuditJobResponseMediaAuditJobDataImageResultResult `json:"Result" xml:"Result" require:"true" type:"Repeated"`
+	Suggestion *string                                                         `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label      *string                                                         `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Type       *string                                                         `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Url        *string                                                         `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	Result     []*GetAIMediaAuditJobResponseMediaAuditJobDataImageResultResult `json:"Result,omitempty" xml:"Result,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataImageResult) String() string {
@@ -4440,10 +4259,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataImageResult) SetResult(v []*
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataImageResultResult struct {
-	Suggestion *string `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label      *string `json:"Label" xml:"Label" require:"true"`
-	Score      *string `json:"Score" xml:"Score" require:"true"`
-	Scene      *string `json:"Scene" xml:"Scene" require:"true"`
+	Suggestion *string `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label      *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score      *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Scene      *string `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataImageResultResult) String() string {
@@ -4475,12 +4294,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataImageResultResult) SetScene(
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataTextResult struct {
-	Suggestion *string `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label      *string `json:"Label" xml:"Label" require:"true"`
-	Score      *string `json:"Score" xml:"Score" require:"true"`
-	Scene      *string `json:"Scene" xml:"Scene" require:"true"`
-	Type       *string `json:"Type" xml:"Type" require:"true"`
-	Content    *string `json:"Content" xml:"Content" require:"true"`
+	Suggestion *string `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label      *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score      *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Scene      *string `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Content    *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataTextResult) String() string {
@@ -4522,13 +4341,13 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataTextResult) SetContent(v str
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResult struct {
-	Suggestion      *string                                                                `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label           *string                                                                `json:"Label" xml:"Label" require:"true"`
-	TerrorismResult *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResult `json:"TerrorismResult" xml:"TerrorismResult" require:"true" type:"Struct"`
-	PornResult      *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResult      `json:"PornResult" xml:"PornResult" require:"true" type:"Struct"`
-	AdResult        *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResult        `json:"AdResult" xml:"AdResult" require:"true" type:"Struct"`
-	LiveResult      *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResult      `json:"LiveResult" xml:"LiveResult" require:"true" type:"Struct"`
-	LogoResult      *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResult      `json:"LogoResult" xml:"LogoResult" require:"true" type:"Struct"`
+	Suggestion      *string                                                                `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label           *string                                                                `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	TerrorismResult *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResult `json:"TerrorismResult,omitempty" xml:"TerrorismResult,omitempty" require:"true" type:"Struct"`
+	PornResult      *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResult      `json:"PornResult,omitempty" xml:"PornResult,omitempty" require:"true" type:"Struct"`
+	AdResult        *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResult        `json:"AdResult,omitempty" xml:"AdResult,omitempty" require:"true" type:"Struct"`
+	LiveResult      *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResult      `json:"LiveResult,omitempty" xml:"LiveResult,omitempty" require:"true" type:"Struct"`
+	LogoResult      *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResult      `json:"LogoResult,omitempty" xml:"LogoResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResult) String() string {
@@ -4575,12 +4394,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResult) SetLogoResult(v
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResult struct {
-	Suggestion   *string                                                                             `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label        *string                                                                             `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                             `json:"MaxScore" xml:"MaxScore" require:"true"`
-	AverageScore *string                                                                             `json:"AverageScore" xml:"AverageScore" require:"true"`
-	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	Suggestion   *string                                                                             `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label        *string                                                                             `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                             `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	AverageScore *string                                                                             `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResult) String() string {
@@ -4622,8 +4441,8 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResult) 
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultCounterList struct {
-	Label *string `json:"Label" xml:"Label" require:"true"`
-	Count *int    `json:"Count" xml:"Count" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultCounterList) String() string {
@@ -4645,10 +4464,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultCo
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultTopList) String() string {
@@ -4680,12 +4499,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultTerrorismResultTo
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResult struct {
-	Suggestion   *string                                                                        `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label        *string                                                                        `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                        `json:"MaxScore" xml:"MaxScore" require:"true"`
-	AverageScore *string                                                                        `json:"AverageScore" xml:"AverageScore" require:"true"`
-	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	Suggestion   *string                                                                        `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label        *string                                                                        `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                        `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	AverageScore *string                                                                        `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResult) String() string {
@@ -4727,8 +4546,8 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResult) SetTo
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultCounterList struct {
-	Label *string `json:"Label" xml:"Label" require:"true"`
-	Count *int    `json:"Count" xml:"Count" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultCounterList) String() string {
@@ -4750,10 +4569,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultCounter
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultTopList) String() string {
@@ -4785,12 +4604,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultPornResultTopList
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResult struct {
-	Suggestion   *string                                                                      `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label        *string                                                                      `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                      `json:"MaxScore" xml:"MaxScore" require:"true"`
-	AverageScore *string                                                                      `json:"AverageScore" xml:"AverageScore" require:"true"`
-	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	Suggestion   *string                                                                      `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label        *string                                                                      `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                      `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	AverageScore *string                                                                      `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResult) String() string {
@@ -4832,8 +4651,8 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResult) SetTopL
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultCounterList struct {
-	Label *string `json:"Label" xml:"Label" require:"true"`
-	Count *int    `json:"Count" xml:"Count" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultCounterList) String() string {
@@ -4855,10 +4674,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultCounterLi
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultTopList) String() string {
@@ -4890,12 +4709,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultAdResultTopList) 
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResult struct {
-	Suggestion   *string                                                                        `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label        *string                                                                        `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                        `json:"MaxScore" xml:"MaxScore" require:"true"`
-	AverageScore *string                                                                        `json:"AverageScore" xml:"AverageScore" require:"true"`
-	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	Suggestion   *string                                                                        `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label        *string                                                                        `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                        `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	AverageScore *string                                                                        `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResult) String() string {
@@ -4937,8 +4756,8 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResult) SetTo
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultCounterList struct {
-	Label *string `json:"Label" xml:"Label" require:"true"`
-	Count *int    `json:"Count" xml:"Count" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultCounterList) String() string {
@@ -4960,10 +4779,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultCounter
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultTopList) String() string {
@@ -4995,12 +4814,12 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLiveResultTopList
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResult struct {
-	Suggestion   *string                                                                        `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Label        *string                                                                        `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                        `json:"MaxScore" xml:"MaxScore" require:"true"`
-	AverageScore *string                                                                        `json:"AverageScore" xml:"AverageScore" require:"true"`
-	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	Suggestion   *string                                                                        `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Label        *string                                                                        `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                        `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	AverageScore *string                                                                        `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	CounterList  []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResult) String() string {
@@ -5042,8 +4861,8 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResult) SetTo
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultCounterList struct {
-	Label *string `json:"Label" xml:"Label" require:"true"`
-	Count *int    `json:"Count" xml:"Count" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultCounterList) String() string {
@@ -5065,10 +4884,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultCounter
 }
 
 type GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultTopList) String() string {
@@ -5100,14 +4919,10 @@ func (s *GetAIMediaAuditJobResponseMediaAuditJobDataVideoResultLogoResultTopList
 }
 
 type SubmitAIMediaAuditJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
-	TemplateId           *string `json:"TemplateId" xml:"TemplateId"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	MediaType            *string `json:"MediaType" xml:"MediaType"`
+	MediaId    *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty"`
+	UserData   *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	MediaType  *string `json:"MediaType,omitempty" xml:"MediaType,omitempty"`
 }
 
 func (s SubmitAIMediaAuditJobRequest) String() string {
@@ -5116,26 +4931,6 @@ func (s SubmitAIMediaAuditJobRequest) String() string {
 
 func (s SubmitAIMediaAuditJobRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitAIMediaAuditJobRequest) SetAccessKeyId(v string) *SubmitAIMediaAuditJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitAIMediaAuditJobRequest) SetOwnerId(v string) *SubmitAIMediaAuditJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitAIMediaAuditJobRequest) SetResourceOwnerAccount(v string) *SubmitAIMediaAuditJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitAIMediaAuditJobRequest) SetResourceOwnerId(v int64) *SubmitAIMediaAuditJobRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SubmitAIMediaAuditJobRequest) SetMediaId(v string) *SubmitAIMediaAuditJobRequest {
@@ -5159,9 +4954,9 @@ func (s *SubmitAIMediaAuditJobRequest) SetMediaType(v string) *SubmitAIMediaAudi
 }
 
 type SubmitAIMediaAuditJobResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaId   *string `json:"MediaId" xml:"MediaId" require:"true"`
-	JobId     *string `json:"JobId" xml:"JobId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaId   *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	JobId     *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s SubmitAIMediaAuditJobResponse) String() string {
@@ -5188,12 +4983,8 @@ func (s *SubmitAIMediaAuditJobResponse) SetJobId(v string) *SubmitAIMediaAuditJo
 }
 
 type GetMediaAuditResultRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
+	MediaId             *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
 }
 
 func (s GetMediaAuditResultRequest) String() string {
@@ -5202,26 +4993,6 @@ func (s GetMediaAuditResultRequest) String() string {
 
 func (s GetMediaAuditResultRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetMediaAuditResultRequest) SetAccessKeyId(v string) *GetMediaAuditResultRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetMediaAuditResultRequest) SetOwnerId(v string) *GetMediaAuditResultRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMediaAuditResultRequest) SetResourceOwnerAccount(v string) *GetMediaAuditResultRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMediaAuditResultRequest) SetResourceOwnerId(v int64) *GetMediaAuditResultRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetMediaAuditResultRequest) SetMediaId(v string) *GetMediaAuditResultRequest {
@@ -5235,8 +5006,8 @@ func (s *GetMediaAuditResultRequest) SetResourceRealOwnerId(v int64) *GetMediaAu
 }
 
 type GetMediaAuditResultResponse struct {
-	RequestId        *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaAuditResult *GetMediaAuditResultResponseMediaAuditResult `json:"MediaAuditResult" xml:"MediaAuditResult" require:"true" type:"Struct"`
+	RequestId        *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaAuditResult *GetMediaAuditResultResponseMediaAuditResult `json:"MediaAuditResult,omitempty" xml:"MediaAuditResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaAuditResultResponse) String() string {
@@ -5258,13 +5029,13 @@ func (s *GetMediaAuditResultResponse) SetMediaAuditResult(v *GetMediaAuditResult
 }
 
 type GetMediaAuditResultResponseMediaAuditResult struct {
-	AbnormalModules *string                                                   `json:"AbnormalModules" xml:"AbnormalModules" require:"true"`
-	Label           *string                                                   `json:"Label" xml:"Label" require:"true"`
-	Suggestion      *string                                                   `json:"Suggestion" xml:"Suggestion" require:"true"`
-	AudioResult     []*GetMediaAuditResultResponseMediaAuditResultAudioResult `json:"AudioResult" xml:"AudioResult" require:"true" type:"Repeated"`
-	ImageResult     []*GetMediaAuditResultResponseMediaAuditResultImageResult `json:"ImageResult" xml:"ImageResult" require:"true" type:"Repeated"`
-	TextResult      []*GetMediaAuditResultResponseMediaAuditResultTextResult  `json:"TextResult" xml:"TextResult" require:"true" type:"Repeated"`
-	VideoResult     *GetMediaAuditResultResponseMediaAuditResultVideoResult   `json:"VideoResult" xml:"VideoResult" require:"true" type:"Struct"`
+	AbnormalModules *string                                                   `json:"AbnormalModules,omitempty" xml:"AbnormalModules,omitempty" require:"true"`
+	Label           *string                                                   `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion      *string                                                   `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	AudioResult     []*GetMediaAuditResultResponseMediaAuditResultAudioResult `json:"AudioResult,omitempty" xml:"AudioResult,omitempty" require:"true" type:"Repeated"`
+	ImageResult     []*GetMediaAuditResultResponseMediaAuditResultImageResult `json:"ImageResult,omitempty" xml:"ImageResult,omitempty" require:"true" type:"Repeated"`
+	TextResult      []*GetMediaAuditResultResponseMediaAuditResultTextResult  `json:"TextResult,omitempty" xml:"TextResult,omitempty" require:"true" type:"Repeated"`
+	VideoResult     *GetMediaAuditResultResponseMediaAuditResultVideoResult   `json:"VideoResult,omitempty" xml:"VideoResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResult) String() string {
@@ -5311,10 +5082,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResult) SetVideoResult(v *GetMedia
 }
 
 type GetMediaAuditResultResponseMediaAuditResultAudioResult struct {
-	Label      *string `json:"Label" xml:"Label" require:"true"`
-	Scene      *string `json:"Scene" xml:"Scene" require:"true"`
-	Score      *string `json:"Score" xml:"Score" require:"true"`
-	Suggestion *string `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Label      *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Scene      *string `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true"`
+	Score      *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Suggestion *string `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultAudioResult) String() string {
@@ -5346,11 +5117,11 @@ func (s *GetMediaAuditResultResponseMediaAuditResultAudioResult) SetSuggestion(v
 }
 
 type GetMediaAuditResultResponseMediaAuditResultImageResult struct {
-	Label      *string                                                         `json:"Label" xml:"Label" require:"true"`
-	Suggestion *string                                                         `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Type       *string                                                         `json:"Type" xml:"Type" require:"true"`
-	Url        *string                                                         `json:"Url" xml:"Url" require:"true"`
-	Result     []*GetMediaAuditResultResponseMediaAuditResultImageResultResult `json:"Result" xml:"Result" require:"true" type:"Repeated"`
+	Label      *string                                                         `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion *string                                                         `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Type       *string                                                         `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Url        *string                                                         `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	Result     []*GetMediaAuditResultResponseMediaAuditResultImageResultResult `json:"Result,omitempty" xml:"Result,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultImageResult) String() string {
@@ -5387,10 +5158,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResultImageResult) SetResult(v []*
 }
 
 type GetMediaAuditResultResponseMediaAuditResultImageResultResult struct {
-	Label      *string `json:"Label" xml:"Label" require:"true"`
-	Scene      *string `json:"Scene" xml:"Scene" require:"true"`
-	Score      *string `json:"Score" xml:"Score" require:"true"`
-	Suggestion *string `json:"Suggestion" xml:"Suggestion" require:"true"`
+	Label      *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Scene      *string `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true"`
+	Score      *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Suggestion *string `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultImageResultResult) String() string {
@@ -5422,12 +5193,12 @@ func (s *GetMediaAuditResultResponseMediaAuditResultImageResultResult) SetSugges
 }
 
 type GetMediaAuditResultResponseMediaAuditResultTextResult struct {
-	Content    *string `json:"Content" xml:"Content" require:"true"`
-	Label      *string `json:"Label" xml:"Label" require:"true"`
-	Scene      *string `json:"Scene" xml:"Scene" require:"true"`
-	Score      *string `json:"Score" xml:"Score" require:"true"`
-	Suggestion *string `json:"Suggestion" xml:"Suggestion" require:"true"`
-	Type       *string `json:"Type" xml:"Type" require:"true"`
+	Content    *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	Label      *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Scene      *string `json:"Scene,omitempty" xml:"Scene,omitempty" require:"true"`
+	Score      *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Suggestion *string `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultTextResult) String() string {
@@ -5469,13 +5240,13 @@ func (s *GetMediaAuditResultResponseMediaAuditResultTextResult) SetType(v string
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResult struct {
-	Label           *string                                                                `json:"Label" xml:"Label" require:"true"`
-	Suggestion      *string                                                                `json:"Suggestion" xml:"Suggestion" require:"true"`
-	PornResult      *GetMediaAuditResultResponseMediaAuditResultVideoResultPornResult      `json:"PornResult" xml:"PornResult" require:"true" type:"Struct"`
-	AdResult        *GetMediaAuditResultResponseMediaAuditResultVideoResultAdResult        `json:"AdResult" xml:"AdResult" require:"true" type:"Struct"`
-	LogoResult      *GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResult      `json:"LogoResult" xml:"LogoResult" require:"true" type:"Struct"`
-	LiveResult      *GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResult      `json:"LiveResult" xml:"LiveResult" require:"true" type:"Struct"`
-	TerrorismResult *GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResult `json:"TerrorismResult" xml:"TerrorismResult" require:"true" type:"Struct"`
+	Label           *string                                                                `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Suggestion      *string                                                                `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	PornResult      *GetMediaAuditResultResponseMediaAuditResultVideoResultPornResult      `json:"PornResult,omitempty" xml:"PornResult,omitempty" require:"true" type:"Struct"`
+	AdResult        *GetMediaAuditResultResponseMediaAuditResultVideoResultAdResult        `json:"AdResult,omitempty" xml:"AdResult,omitempty" require:"true" type:"Struct"`
+	LogoResult      *GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResult      `json:"LogoResult,omitempty" xml:"LogoResult,omitempty" require:"true" type:"Struct"`
+	LiveResult      *GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResult      `json:"LiveResult,omitempty" xml:"LiveResult,omitempty" require:"true" type:"Struct"`
+	TerrorismResult *GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResult `json:"TerrorismResult,omitempty" xml:"TerrorismResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResult) String() string {
@@ -5522,12 +5293,12 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResult) SetTerrorismRes
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultPornResult struct {
-	AverageScore *string                                                                        `json:"AverageScore" xml:"AverageScore" require:"true"`
-	Label        *string                                                                        `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                        `json:"MaxScore" xml:"MaxScore" require:"true"`
-	Suggestion   *string                                                                        `json:"Suggestion" xml:"Suggestion" require:"true"`
-	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	AverageScore *string                                                                        `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	Label        *string                                                                        `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                        `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	Suggestion   *string                                                                        `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultPornResult) String() string {
@@ -5569,8 +5340,8 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultPornResult) SetTo
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultCounterList struct {
-	Count *int    `json:"Count" xml:"Count" require:"true"`
-	Label *string `json:"Label" xml:"Label" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultCounterList) String() string {
@@ -5592,10 +5363,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultCounter
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultTopList) String() string {
@@ -5627,12 +5398,12 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultPornResultTopList
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultAdResult struct {
-	AverageScore *string                                                                      `json:"AverageScore" xml:"AverageScore" require:"true"`
-	Label        *string                                                                      `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                      `json:"MaxScore" xml:"MaxScore" require:"true"`
-	Suggestion   *string                                                                      `json:"Suggestion" xml:"Suggestion" require:"true"`
-	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	AverageScore *string                                                                      `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	Label        *string                                                                      `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                      `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	Suggestion   *string                                                                      `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultAdResult) String() string {
@@ -5674,8 +5445,8 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultAdResult) SetTopL
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultCounterList struct {
-	Count *int    `json:"Count" xml:"Count" require:"true"`
-	Label *string `json:"Label" xml:"Label" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultCounterList) String() string {
@@ -5697,10 +5468,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultCounterLi
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultTopList) String() string {
@@ -5732,12 +5503,12 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultAdResultTopList) 
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResult struct {
-	AverageScore *string                                                                        `json:"AverageScore" xml:"AverageScore" require:"true"`
-	Label        *string                                                                        `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                        `json:"MaxScore" xml:"MaxScore" require:"true"`
-	Suggestion   *string                                                                        `json:"Suggestion" xml:"Suggestion" require:"true"`
-	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	AverageScore *string                                                                        `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	Label        *string                                                                        `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                        `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	Suggestion   *string                                                                        `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResult) String() string {
@@ -5779,8 +5550,8 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResult) SetTo
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultCounterList struct {
-	Count *int    `json:"Count" xml:"Count" require:"true"`
-	Label *string `json:"Label" xml:"Label" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultCounterList) String() string {
@@ -5802,10 +5573,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultCounter
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultTopList) String() string {
@@ -5837,12 +5608,12 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultLogoResultTopList
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResult struct {
-	AverageScore *string                                                                        `json:"AverageScore" xml:"AverageScore" require:"true"`
-	Label        *string                                                                        `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                        `json:"MaxScore" xml:"MaxScore" require:"true"`
-	Suggestion   *string                                                                        `json:"Suggestion" xml:"Suggestion" require:"true"`
-	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	AverageScore *string                                                                        `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	Label        *string                                                                        `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                        `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	Suggestion   *string                                                                        `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResult) String() string {
@@ -5884,8 +5655,8 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResult) SetTo
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultCounterList struct {
-	Count *int    `json:"Count" xml:"Count" require:"true"`
-	Label *string `json:"Label" xml:"Label" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultCounterList) String() string {
@@ -5907,10 +5678,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultCounter
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultTopList) String() string {
@@ -5942,12 +5713,12 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultLiveResultTopList
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResult struct {
-	AverageScore *string                                                                             `json:"AverageScore" xml:"AverageScore" require:"true"`
-	Label        *string                                                                             `json:"Label" xml:"Label" require:"true"`
-	MaxScore     *string                                                                             `json:"MaxScore" xml:"MaxScore" require:"true"`
-	Suggestion   *string                                                                             `json:"Suggestion" xml:"Suggestion" require:"true"`
-	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultCounterList `json:"CounterList" xml:"CounterList" require:"true" type:"Repeated"`
-	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultTopList     `json:"TopList" xml:"TopList" require:"true" type:"Repeated"`
+	AverageScore *string                                                                             `json:"AverageScore,omitempty" xml:"AverageScore,omitempty" require:"true"`
+	Label        *string                                                                             `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	MaxScore     *string                                                                             `json:"MaxScore,omitempty" xml:"MaxScore,omitempty" require:"true"`
+	Suggestion   *string                                                                             `json:"Suggestion,omitempty" xml:"Suggestion,omitempty" require:"true"`
+	CounterList  []*GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultCounterList `json:"CounterList,omitempty" xml:"CounterList,omitempty" require:"true" type:"Repeated"`
+	TopList      []*GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultTopList     `json:"TopList,omitempty" xml:"TopList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResult) String() string {
@@ -5989,8 +5760,8 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResult) 
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultCounterList struct {
-	Count *int    `json:"Count" xml:"Count" require:"true"`
-	Label *string `json:"Label" xml:"Label" require:"true"`
+	Count *int    `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	Label *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultCounterList) String() string {
@@ -6012,10 +5783,10 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultCo
 }
 
 type GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultTopList struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url       *string `json:"Url" xml:"Url" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url       *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultTopList) String() string {
@@ -6047,12 +5818,8 @@ func (s *GetMediaAuditResultResponseMediaAuditResultVideoResultTerrorismResultTo
 }
 
 type GetMediaAuditResultDetailRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo" require:"true"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	PageNo  *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultDetailRequest) String() string {
@@ -6061,26 +5828,6 @@ func (s GetMediaAuditResultDetailRequest) String() string {
 
 func (s GetMediaAuditResultDetailRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetMediaAuditResultDetailRequest) SetAccessKeyId(v string) *GetMediaAuditResultDetailRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetMediaAuditResultDetailRequest) SetOwnerId(v string) *GetMediaAuditResultDetailRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMediaAuditResultDetailRequest) SetResourceOwnerAccount(v string) *GetMediaAuditResultDetailRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMediaAuditResultDetailRequest) SetResourceOwnerId(v int64) *GetMediaAuditResultDetailRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetMediaAuditResultDetailRequest) SetMediaId(v string) *GetMediaAuditResultDetailRequest {
@@ -6094,8 +5841,8 @@ func (s *GetMediaAuditResultDetailRequest) SetPageNo(v int) *GetMediaAuditResult
 }
 
 type GetMediaAuditResultDetailResponse struct {
-	RequestId              *string                                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaAuditResultDetail *GetMediaAuditResultDetailResponseMediaAuditResultDetail `json:"MediaAuditResultDetail" xml:"MediaAuditResultDetail" require:"true" type:"Struct"`
+	RequestId              *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaAuditResultDetail *GetMediaAuditResultDetailResponseMediaAuditResultDetail `json:"MediaAuditResultDetail,omitempty" xml:"MediaAuditResultDetail,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaAuditResultDetailResponse) String() string {
@@ -6117,8 +5864,8 @@ func (s *GetMediaAuditResultDetailResponse) SetMediaAuditResultDetail(v *GetMedi
 }
 
 type GetMediaAuditResultDetailResponseMediaAuditResultDetail struct {
-	Total *int                                                           `json:"Total" xml:"Total" require:"true"`
-	List  []*GetMediaAuditResultDetailResponseMediaAuditResultDetailList `json:"List" xml:"List" require:"true" type:"Repeated"`
+	Total *int                                                           `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	List  []*GetMediaAuditResultDetailResponseMediaAuditResultDetailList `json:"List,omitempty" xml:"List,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultDetailResponseMediaAuditResultDetail) String() string {
@@ -6140,18 +5887,18 @@ func (s *GetMediaAuditResultDetailResponseMediaAuditResultDetail) SetList(v []*G
 }
 
 type GetMediaAuditResultDetailResponseMediaAuditResultDetailList struct {
-	PornLabel      *string `json:"PornLabel" xml:"PornLabel" require:"true"`
-	PornScore      *string `json:"PornScore" xml:"PornScore" require:"true"`
-	TerrorismLabel *string `json:"TerrorismLabel" xml:"TerrorismLabel" require:"true"`
-	TerrorismScore *string `json:"TerrorismScore" xml:"TerrorismScore" require:"true"`
-	Timestamp      *string `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Url            *string `json:"Url" xml:"Url" require:"true"`
-	AdLabel        *string `json:"AdLabel" xml:"AdLabel" require:"true"`
-	AdScore        *string `json:"AdScore" xml:"AdScore" require:"true"`
-	LiveLabel      *string `json:"LiveLabel" xml:"LiveLabel" require:"true"`
-	LiveScore      *string `json:"LiveScore" xml:"LiveScore" require:"true"`
-	LogoLabel      *string `json:"LogoLabel" xml:"LogoLabel" require:"true"`
-	LogoScore      *string `json:"LogoScore" xml:"LogoScore" require:"true"`
+	PornLabel      *string `json:"PornLabel,omitempty" xml:"PornLabel,omitempty" require:"true"`
+	PornScore      *string `json:"PornScore,omitempty" xml:"PornScore,omitempty" require:"true"`
+	TerrorismLabel *string `json:"TerrorismLabel,omitempty" xml:"TerrorismLabel,omitempty" require:"true"`
+	TerrorismScore *string `json:"TerrorismScore,omitempty" xml:"TerrorismScore,omitempty" require:"true"`
+	Timestamp      *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Url            *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
+	AdLabel        *string `json:"AdLabel,omitempty" xml:"AdLabel,omitempty" require:"true"`
+	AdScore        *string `json:"AdScore,omitempty" xml:"AdScore,omitempty" require:"true"`
+	LiveLabel      *string `json:"LiveLabel,omitempty" xml:"LiveLabel,omitempty" require:"true"`
+	LiveScore      *string `json:"LiveScore,omitempty" xml:"LiveScore,omitempty" require:"true"`
+	LogoLabel      *string `json:"LogoLabel,omitempty" xml:"LogoLabel,omitempty" require:"true"`
+	LogoScore      *string `json:"LogoScore,omitempty" xml:"LogoScore,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultDetailResponseMediaAuditResultDetailList) String() string {
@@ -6223,11 +5970,7 @@ func (s *GetMediaAuditResultDetailResponseMediaAuditResultDetailList) SetLogoSco
 }
 
 type GetMediaAuditResultTimelineRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultTimelineRequest) String() string {
@@ -6238,34 +5981,14 @@ func (s GetMediaAuditResultTimelineRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetMediaAuditResultTimelineRequest) SetAccessKeyId(v string) *GetMediaAuditResultTimelineRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetMediaAuditResultTimelineRequest) SetOwnerId(v string) *GetMediaAuditResultTimelineRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMediaAuditResultTimelineRequest) SetResourceOwnerAccount(v string) *GetMediaAuditResultTimelineRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMediaAuditResultTimelineRequest) SetResourceOwnerId(v int64) *GetMediaAuditResultTimelineRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetMediaAuditResultTimelineRequest) SetMediaId(v string) *GetMediaAuditResultTimelineRequest {
 	s.MediaId = &v
 	return s
 }
 
 type GetMediaAuditResultTimelineResponse struct {
-	RequestId                *string                                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaAuditResultTimeline *GetMediaAuditResultTimelineResponseMediaAuditResultTimeline `json:"MediaAuditResultTimeline" xml:"MediaAuditResultTimeline" require:"true" type:"Struct"`
+	RequestId                *string                                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaAuditResultTimeline *GetMediaAuditResultTimelineResponseMediaAuditResultTimeline `json:"MediaAuditResultTimeline,omitempty" xml:"MediaAuditResultTimeline,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaAuditResultTimelineResponse) String() string {
@@ -6287,11 +6010,11 @@ func (s *GetMediaAuditResultTimelineResponse) SetMediaAuditResultTimeline(v *Get
 }
 
 type GetMediaAuditResultTimelineResponseMediaAuditResultTimeline struct {
-	Porn      []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelinePorn      `json:"Porn" xml:"Porn" require:"true" type:"Repeated"`
-	Terrorism []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineTerrorism `json:"Terrorism" xml:"Terrorism" require:"true" type:"Repeated"`
-	Logo      []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLogo      `json:"Logo" xml:"Logo" require:"true" type:"Repeated"`
-	Live      []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLive      `json:"Live" xml:"Live" require:"true" type:"Repeated"`
-	Ad        []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineAd        `json:"Ad" xml:"Ad" require:"true" type:"Repeated"`
+	Porn      []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelinePorn      `json:"Porn,omitempty" xml:"Porn,omitempty" require:"true" type:"Repeated"`
+	Terrorism []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineTerrorism `json:"Terrorism,omitempty" xml:"Terrorism,omitempty" require:"true" type:"Repeated"`
+	Logo      []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLogo      `json:"Logo,omitempty" xml:"Logo,omitempty" require:"true" type:"Repeated"`
+	Live      []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLive      `json:"Live,omitempty" xml:"Live,omitempty" require:"true" type:"Repeated"`
+	Ad        []*GetMediaAuditResultTimelineResponseMediaAuditResultTimelineAd        `json:"Ad,omitempty" xml:"Ad,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaAuditResultTimelineResponseMediaAuditResultTimeline) String() string {
@@ -6328,9 +6051,9 @@ func (s *GetMediaAuditResultTimelineResponseMediaAuditResultTimeline) SetAd(v []
 }
 
 type GetMediaAuditResultTimelineResponseMediaAuditResultTimelinePorn struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultTimelineResponseMediaAuditResultTimelinePorn) String() string {
@@ -6357,9 +6080,9 @@ func (s *GetMediaAuditResultTimelineResponseMediaAuditResultTimelinePorn) SetTim
 }
 
 type GetMediaAuditResultTimelineResponseMediaAuditResultTimelineTerrorism struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultTimelineResponseMediaAuditResultTimelineTerrorism) String() string {
@@ -6386,9 +6109,9 @@ func (s *GetMediaAuditResultTimelineResponseMediaAuditResultTimelineTerrorism) S
 }
 
 type GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLogo struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLogo) String() string {
@@ -6415,9 +6138,9 @@ func (s *GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLogo) SetTim
 }
 
 type GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLive struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLive) String() string {
@@ -6444,9 +6167,9 @@ func (s *GetMediaAuditResultTimelineResponseMediaAuditResultTimelineLive) SetTim
 }
 
 type GetMediaAuditResultTimelineResponseMediaAuditResultTimelineAd struct {
-	Label     *string `json:"Label" xml:"Label" require:"true"`
-	Score     *string `json:"Score" xml:"Score" require:"true"`
-	Timestamp *string `json:"Timestamp" xml:"Timestamp" require:"true"`
+	Label     *string `json:"Label,omitempty" xml:"Label,omitempty" require:"true"`
+	Score     *string `json:"Score,omitempty" xml:"Score,omitempty" require:"true"`
+	Timestamp *string `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
 }
 
 func (s GetMediaAuditResultTimelineResponseMediaAuditResultTimelineAd) String() string {
@@ -6473,12 +6196,9 @@ func (s *GetMediaAuditResultTimelineResponseMediaAuditResultTimelineAd) SetTimes
 }
 
 type AddAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateName         *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateType         *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateConfig       *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
+	TemplateName   *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateType   *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateConfig *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
 }
 
 func (s AddAITemplateRequest) String() string {
@@ -6487,21 +6207,6 @@ func (s AddAITemplateRequest) String() string {
 
 func (s AddAITemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddAITemplateRequest) SetOwnerId(v int64) *AddAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddAITemplateRequest) SetResourceOwnerAccount(v string) *AddAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddAITemplateRequest) SetResourceOwnerId(v int64) *AddAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AddAITemplateRequest) SetTemplateName(v string) *AddAITemplateRequest {
@@ -6520,8 +6225,8 @@ func (s *AddAITemplateRequest) SetTemplateConfig(v string) *AddAITemplateRequest
 }
 
 type AddAITemplateResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s AddAITemplateResponse) String() string {
@@ -6543,10 +6248,7 @@ func (s *AddAITemplateResponse) SetTemplateId(v string) *AddAITemplateResponse {
 }
 
 type DeleteAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateId           *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s DeleteAITemplateRequest) String() string {
@@ -6557,29 +6259,14 @@ func (s DeleteAITemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteAITemplateRequest) SetOwnerId(v int64) *DeleteAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteAITemplateRequest) SetResourceOwnerAccount(v string) *DeleteAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteAITemplateRequest) SetResourceOwnerId(v int64) *DeleteAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteAITemplateRequest) SetTemplateId(v string) *DeleteAITemplateRequest {
 	s.TemplateId = &v
 	return s
 }
 
 type DeleteAITemplateResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s DeleteAITemplateResponse) String() string {
@@ -6601,12 +6288,9 @@ func (s *DeleteAITemplateResponse) SetTemplateId(v string) *DeleteAITemplateResp
 }
 
 type UpdateAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateId           *string `json:"TemplateId" xml:"TemplateId" require:"true"`
-	TemplateName         *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateConfig       *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
+	TemplateId     *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
+	TemplateName   *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateConfig *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
 }
 
 func (s UpdateAITemplateRequest) String() string {
@@ -6615,21 +6299,6 @@ func (s UpdateAITemplateRequest) String() string {
 
 func (s UpdateAITemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateAITemplateRequest) SetOwnerId(v int64) *UpdateAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateAITemplateRequest) SetResourceOwnerAccount(v string) *UpdateAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateAITemplateRequest) SetResourceOwnerId(v int64) *UpdateAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateAITemplateRequest) SetTemplateId(v string) *UpdateAITemplateRequest {
@@ -6648,8 +6317,8 @@ func (s *UpdateAITemplateRequest) SetTemplateConfig(v string) *UpdateAITemplateR
 }
 
 type UpdateAITemplateResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s UpdateAITemplateResponse) String() string {
@@ -6671,10 +6340,7 @@ func (s *UpdateAITemplateResponse) SetTemplateId(v string) *UpdateAITemplateResp
 }
 
 type GetAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateId           *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s GetAITemplateRequest) String() string {
@@ -6685,29 +6351,14 @@ func (s GetAITemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetAITemplateRequest) SetOwnerId(v int64) *GetAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetAITemplateRequest) SetResourceOwnerAccount(v string) *GetAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetAITemplateRequest) SetResourceOwnerId(v int64) *GetAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetAITemplateRequest) SetTemplateId(v string) *GetAITemplateRequest {
 	s.TemplateId = &v
 	return s
 }
 
 type GetAITemplateResponse struct {
-	RequestId    *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateInfo *GetAITemplateResponseTemplateInfo `json:"TemplateInfo" xml:"TemplateInfo" require:"true" type:"Struct"`
+	RequestId    *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateInfo *GetAITemplateResponseTemplateInfo `json:"TemplateInfo,omitempty" xml:"TemplateInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetAITemplateResponse) String() string {
@@ -6729,14 +6380,14 @@ func (s *GetAITemplateResponse) SetTemplateInfo(v *GetAITemplateResponseTemplate
 }
 
 type GetAITemplateResponseTemplateInfo struct {
-	TemplateId     *string `json:"TemplateId" xml:"TemplateId" require:"true"`
-	TemplateType   *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateName   *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateConfig *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
-	Source         *string `json:"Source" xml:"Source" require:"true"`
-	IsDefault      *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	CreationTime   *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime     *string `json:"ModifyTime" xml:"ModifyTime" require:"true"`
+	TemplateId     *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
+	TemplateType   *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateName   *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateConfig *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
+	Source         *string `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	IsDefault      *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	CreationTime   *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime     *string `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
 }
 
 func (s GetAITemplateResponseTemplateInfo) String() string {
@@ -6788,10 +6439,7 @@ func (s *GetAITemplateResponseTemplateInfo) SetModifyTime(v string) *GetAITempla
 }
 
 type ListAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateType         *string `json:"TemplateType" xml:"TemplateType" require:"true"`
+	TemplateType *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
 }
 
 func (s ListAITemplateRequest) String() string {
@@ -6802,29 +6450,14 @@ func (s ListAITemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ListAITemplateRequest) SetOwnerId(v int64) *ListAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListAITemplateRequest) SetResourceOwnerAccount(v string) *ListAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListAITemplateRequest) SetResourceOwnerId(v int64) *ListAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *ListAITemplateRequest) SetTemplateType(v string) *ListAITemplateRequest {
 	s.TemplateType = &v
 	return s
 }
 
 type ListAITemplateResponse struct {
-	RequestId        *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateInfoList []*ListAITemplateResponseTemplateInfoList `json:"TemplateInfoList" xml:"TemplateInfoList" require:"true" type:"Repeated"`
+	RequestId        *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateInfoList []*ListAITemplateResponseTemplateInfoList `json:"TemplateInfoList,omitempty" xml:"TemplateInfoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAITemplateResponse) String() string {
@@ -6846,14 +6479,14 @@ func (s *ListAITemplateResponse) SetTemplateInfoList(v []*ListAITemplateResponse
 }
 
 type ListAITemplateResponseTemplateInfoList struct {
-	TemplateId     *string `json:"TemplateId" xml:"TemplateId" require:"true"`
-	TemplateType   *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateName   *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateConfig *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
-	Source         *string `json:"Source" xml:"Source" require:"true"`
-	IsDefault      *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	CreationTime   *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime     *string `json:"ModifyTime" xml:"ModifyTime" require:"true"`
+	TemplateId     *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
+	TemplateType   *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateName   *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateConfig *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
+	Source         *string `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	IsDefault      *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	CreationTime   *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime     *string `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
 }
 
 func (s ListAITemplateResponseTemplateInfoList) String() string {
@@ -6905,10 +6538,7 @@ func (s *ListAITemplateResponseTemplateInfoList) SetModifyTime(v string) *ListAI
 }
 
 type GetDefaultAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateType         *string `json:"TemplateType" xml:"TemplateType" require:"true"`
+	TemplateType *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
 }
 
 func (s GetDefaultAITemplateRequest) String() string {
@@ -6919,29 +6549,14 @@ func (s GetDefaultAITemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetDefaultAITemplateRequest) SetOwnerId(v int64) *GetDefaultAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetDefaultAITemplateRequest) SetResourceOwnerAccount(v string) *GetDefaultAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetDefaultAITemplateRequest) SetResourceOwnerId(v int64) *GetDefaultAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetDefaultAITemplateRequest) SetTemplateType(v string) *GetDefaultAITemplateRequest {
 	s.TemplateType = &v
 	return s
 }
 
 type GetDefaultAITemplateResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateInfo *GetDefaultAITemplateResponseTemplateInfo `json:"TemplateInfo" xml:"TemplateInfo" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateInfo *GetDefaultAITemplateResponseTemplateInfo `json:"TemplateInfo,omitempty" xml:"TemplateInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetDefaultAITemplateResponse) String() string {
@@ -6963,14 +6578,14 @@ func (s *GetDefaultAITemplateResponse) SetTemplateInfo(v *GetDefaultAITemplateRe
 }
 
 type GetDefaultAITemplateResponseTemplateInfo struct {
-	TemplateId     *string `json:"TemplateId" xml:"TemplateId" require:"true"`
-	TemplateType   *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateName   *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateConfig *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
-	Source         *string `json:"Source" xml:"Source" require:"true"`
-	IsDefault      *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	CreationTime   *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime     *string `json:"ModifyTime" xml:"ModifyTime" require:"true"`
+	TemplateId     *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
+	TemplateType   *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateName   *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateConfig *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
+	Source         *string `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	IsDefault      *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	CreationTime   *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime     *string `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
 }
 
 func (s GetDefaultAITemplateResponseTemplateInfo) String() string {
@@ -7022,10 +6637,7 @@ func (s *GetDefaultAITemplateResponseTemplateInfo) SetModifyTime(v string) *GetD
 }
 
 type SetDefaultAITemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateId           *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s SetDefaultAITemplateRequest) String() string {
@@ -7036,29 +6648,14 @@ func (s SetDefaultAITemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *SetDefaultAITemplateRequest) SetOwnerId(v int64) *SetDefaultAITemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SetDefaultAITemplateRequest) SetResourceOwnerAccount(v string) *SetDefaultAITemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SetDefaultAITemplateRequest) SetResourceOwnerId(v int64) *SetDefaultAITemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *SetDefaultAITemplateRequest) SetTemplateId(v string) *SetDefaultAITemplateRequest {
 	s.TemplateId = &v
 	return s
 }
 
 type SetDefaultAITemplateResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s SetDefaultAITemplateResponse) String() string {
@@ -7080,12 +6677,11 @@ func (s *SetDefaultAITemplateResponse) SetTemplateId(v string) *SetDefaultAITemp
 }
 
 type DescribeVodDomainLogRequest struct {
-	OwnerId    *int64  `json:"OwnerId" xml:"OwnerId"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	StartTime  *string `json:"StartTime" xml:"StartTime"`
-	EndTime    *string `json:"EndTime" xml:"EndTime"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	StartTime  *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime    *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s DescribeVodDomainLogRequest) String() string {
@@ -7094,11 +6690,6 @@ func (s DescribeVodDomainLogRequest) String() string {
 
 func (s DescribeVodDomainLogRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodDomainLogRequest) SetOwnerId(v int64) *DescribeVodDomainLogRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodDomainLogRequest) SetDomainName(v string) *DescribeVodDomainLogRequest {
@@ -7127,8 +6718,8 @@ func (s *DescribeVodDomainLogRequest) SetEndTime(v string) *DescribeVodDomainLog
 }
 
 type DescribeVodDomainLogResponse struct {
-	RequestId        *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainLogDetails *DescribeVodDomainLogResponseDomainLogDetails `json:"DomainLogDetails" xml:"DomainLogDetails" require:"true" type:"Struct"`
+	RequestId        *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainLogDetails *DescribeVodDomainLogResponseDomainLogDetails `json:"DomainLogDetails,omitempty" xml:"DomainLogDetails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainLogResponse) String() string {
@@ -7150,7 +6741,7 @@ func (s *DescribeVodDomainLogResponse) SetDomainLogDetails(v *DescribeVodDomainL
 }
 
 type DescribeVodDomainLogResponseDomainLogDetails struct {
-	DomainLogDetail []*DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetail `json:"DomainLogDetail" xml:"DomainLogDetail" require:"true" type:"Repeated"`
+	DomainLogDetail []*DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetail `json:"DomainLogDetail,omitempty" xml:"DomainLogDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainLogResponseDomainLogDetails) String() string {
@@ -7167,10 +6758,10 @@ func (s *DescribeVodDomainLogResponseDomainLogDetails) SetDomainLogDetail(v []*D
 }
 
 type DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetail struct {
-	DomainName *string                                                               `json:"DomainName" xml:"DomainName" require:"true"`
-	LogCount   *int64                                                                `json:"LogCount" xml:"LogCount" require:"true"`
-	LogInfos   *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfos  `json:"LogInfos" xml:"LogInfos" require:"true" type:"Struct"`
-	PageInfos  *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailPageInfos `json:"PageInfos" xml:"PageInfos" require:"true" type:"Struct"`
+	DomainName *string                                                               `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	LogCount   *int64                                                                `json:"LogCount,omitempty" xml:"LogCount,omitempty" require:"true"`
+	LogInfos   *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfos  `json:"LogInfos,omitempty" xml:"LogInfos,omitempty" require:"true" type:"Struct"`
+	PageInfos  *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailPageInfos `json:"PageInfos,omitempty" xml:"PageInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetail) String() string {
@@ -7202,7 +6793,7 @@ func (s *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetail) SetPageInf
 }
 
 type DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfos struct {
-	LogInfoDetail []*DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfosLogInfoDetail `json:"LogInfoDetail" xml:"LogInfoDetail" require:"true" type:"Repeated"`
+	LogInfoDetail []*DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfosLogInfoDetail `json:"LogInfoDetail,omitempty" xml:"LogInfoDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfos) String() string {
@@ -7219,11 +6810,11 @@ func (s *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfos) Se
 }
 
 type DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfosLogInfoDetail struct {
-	LogName   *string `json:"LogName" xml:"LogName" require:"true"`
-	LogPath   *string `json:"LogPath" xml:"LogPath" require:"true"`
-	LogSize   *int64  `json:"LogSize" xml:"LogSize" require:"true"`
-	StartTime *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *string `json:"EndTime" xml:"EndTime" require:"true"`
+	LogName   *string `json:"LogName,omitempty" xml:"LogName,omitempty" require:"true"`
+	LogPath   *string `json:"LogPath,omitempty" xml:"LogPath,omitempty" require:"true"`
+	LogSize   *int64  `json:"LogSize,omitempty" xml:"LogSize,omitempty" require:"true"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfosLogInfoDetail) String() string {
@@ -7260,9 +6851,9 @@ func (s *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailLogInfosLogI
 }
 
 type DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailPageInfos struct {
-	PageNumber *int64 `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64 `json:"PageSize" xml:"PageSize" require:"true"`
-	Total      *int64 `json:"Total" xml:"Total" require:"true"`
+	PageNumber *int64 `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64 `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Total      *int64 `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailPageInfos) String() string {
@@ -7289,8 +6880,7 @@ func (s *DescribeVodDomainLogResponseDomainLogDetailsDomainLogDetailPageInfos) S
 }
 
 type DescribeVodDomainCertificateInfoRequest struct {
-	OwnerId    *int64  `json:"OwnerId" xml:"OwnerId"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainCertificateInfoRequest) String() string {
@@ -7301,19 +6891,14 @@ func (s DescribeVodDomainCertificateInfoRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeVodDomainCertificateInfoRequest) SetOwnerId(v int64) *DescribeVodDomainCertificateInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
 func (s *DescribeVodDomainCertificateInfoRequest) SetDomainName(v string) *DescribeVodDomainCertificateInfoRequest {
 	s.DomainName = &v
 	return s
 }
 
 type DescribeVodDomainCertificateInfoResponse struct {
-	RequestId *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	CertInfos *DescribeVodDomainCertificateInfoResponseCertInfos `json:"CertInfos" xml:"CertInfos" require:"true" type:"Struct"`
+	RequestId *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	CertInfos *DescribeVodDomainCertificateInfoResponseCertInfos `json:"CertInfos,omitempty" xml:"CertInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainCertificateInfoResponse) String() string {
@@ -7335,7 +6920,7 @@ func (s *DescribeVodDomainCertificateInfoResponse) SetCertInfos(v *DescribeVodDo
 }
 
 type DescribeVodDomainCertificateInfoResponseCertInfos struct {
-	CertInfo []*DescribeVodDomainCertificateInfoResponseCertInfosCertInfo `json:"CertInfo" xml:"CertInfo" require:"true" type:"Repeated"`
+	CertInfo []*DescribeVodDomainCertificateInfoResponseCertInfosCertInfo `json:"CertInfo,omitempty" xml:"CertInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainCertificateInfoResponseCertInfos) String() string {
@@ -7352,15 +6937,15 @@ func (s *DescribeVodDomainCertificateInfoResponseCertInfos) SetCertInfo(v []*Des
 }
 
 type DescribeVodDomainCertificateInfoResponseCertInfosCertInfo struct {
-	DomainName              *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CertName                *string `json:"CertName" xml:"CertName" require:"true"`
-	CertDomainName          *string `json:"CertDomainName" xml:"CertDomainName" require:"true"`
-	CertExpireTime          *string `json:"CertExpireTime" xml:"CertExpireTime" require:"true"`
-	CertLife                *string `json:"CertLife" xml:"CertLife" require:"true"`
-	CertOrg                 *string `json:"CertOrg" xml:"CertOrg" require:"true"`
-	CertType                *string `json:"CertType" xml:"CertType" require:"true"`
-	ServerCertificateStatus *string `json:"ServerCertificateStatus" xml:"ServerCertificateStatus" require:"true"`
-	Status                  *string `json:"Status" xml:"Status" require:"true"`
+	DomainName              *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CertName                *string `json:"CertName,omitempty" xml:"CertName,omitempty" require:"true"`
+	CertDomainName          *string `json:"CertDomainName,omitempty" xml:"CertDomainName,omitempty" require:"true"`
+	CertExpireTime          *string `json:"CertExpireTime,omitempty" xml:"CertExpireTime,omitempty" require:"true"`
+	CertLife                *string `json:"CertLife,omitempty" xml:"CertLife,omitempty" require:"true"`
+	CertOrg                 *string `json:"CertOrg,omitempty" xml:"CertOrg,omitempty" require:"true"`
+	CertType                *string `json:"CertType,omitempty" xml:"CertType,omitempty" require:"true"`
+	ServerCertificateStatus *string `json:"ServerCertificateStatus,omitempty" xml:"ServerCertificateStatus,omitempty" require:"true"`
+	Status                  *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainCertificateInfoResponseCertInfosCertInfo) String() string {
@@ -7417,13 +7002,12 @@ func (s *DescribeVodDomainCertificateInfoResponseCertInfosCertInfo) SetStatus(v 
 }
 
 type DescribeVodDomainTrafficDataRequest struct {
-	OwnerId        *int64  `json:"OwnerId" xml:"OwnerId"`
-	DomainName     *string `json:"DomainName" xml:"DomainName"`
-	StartTime      *string `json:"StartTime" xml:"StartTime"`
-	EndTime        *string `json:"EndTime" xml:"EndTime"`
-	Interval       *string `json:"Interval" xml:"Interval"`
-	IspNameEn      *string `json:"IspNameEn" xml:"IspNameEn"`
-	LocationNameEn *string `json:"LocationNameEn" xml:"LocationNameEn"`
+	DomainName     *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	StartTime      *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime        *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	Interval       *string `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	IspNameEn      *string `json:"IspNameEn,omitempty" xml:"IspNameEn,omitempty"`
+	LocationNameEn *string `json:"LocationNameEn,omitempty" xml:"LocationNameEn,omitempty"`
 }
 
 func (s DescribeVodDomainTrafficDataRequest) String() string {
@@ -7432,11 +7016,6 @@ func (s DescribeVodDomainTrafficDataRequest) String() string {
 
 func (s DescribeVodDomainTrafficDataRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodDomainTrafficDataRequest) SetOwnerId(v int64) *DescribeVodDomainTrafficDataRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodDomainTrafficDataRequest) SetDomainName(v string) *DescribeVodDomainTrafficDataRequest {
@@ -7470,12 +7049,12 @@ func (s *DescribeVodDomainTrafficDataRequest) SetLocationNameEn(v string) *Descr
 }
 
 type DescribeVodDomainTrafficDataResponse struct {
-	RequestId              *string                                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName             *string                                                     `json:"DomainName" xml:"DomainName" require:"true"`
-	StartTime              *string                                                     `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime                *string                                                     `json:"EndTime" xml:"EndTime" require:"true"`
-	DataInterval           *string                                                     `json:"DataInterval" xml:"DataInterval" require:"true"`
-	TrafficDataPerInterval *DescribeVodDomainTrafficDataResponseTrafficDataPerInterval `json:"TrafficDataPerInterval" xml:"TrafficDataPerInterval" require:"true" type:"Struct"`
+	RequestId              *string                                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName             *string                                                     `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	StartTime              *string                                                     `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime                *string                                                     `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	DataInterval           *string                                                     `json:"DataInterval,omitempty" xml:"DataInterval,omitempty" require:"true"`
+	TrafficDataPerInterval *DescribeVodDomainTrafficDataResponseTrafficDataPerInterval `json:"TrafficDataPerInterval,omitempty" xml:"TrafficDataPerInterval,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainTrafficDataResponse) String() string {
@@ -7517,7 +7096,7 @@ func (s *DescribeVodDomainTrafficDataResponse) SetTrafficDataPerInterval(v *Desc
 }
 
 type DescribeVodDomainTrafficDataResponseTrafficDataPerInterval struct {
-	DataModule []*DescribeVodDomainTrafficDataResponseTrafficDataPerIntervalDataModule `json:"DataModule" xml:"DataModule" require:"true" type:"Repeated"`
+	DataModule []*DescribeVodDomainTrafficDataResponseTrafficDataPerIntervalDataModule `json:"DataModule,omitempty" xml:"DataModule,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainTrafficDataResponseTrafficDataPerInterval) String() string {
@@ -7534,13 +7113,13 @@ func (s *DescribeVodDomainTrafficDataResponseTrafficDataPerInterval) SetDataModu
 }
 
 type DescribeVodDomainTrafficDataResponseTrafficDataPerIntervalDataModule struct {
-	TimeStamp          *string `json:"TimeStamp" xml:"TimeStamp" require:"true"`
-	Value              *string `json:"Value" xml:"Value" require:"true"`
-	DomesticValue      *string `json:"DomesticValue" xml:"DomesticValue" require:"true"`
-	OverseasValue      *string `json:"OverseasValue" xml:"OverseasValue" require:"true"`
-	HttpsValue         *string `json:"HttpsValue" xml:"HttpsValue" require:"true"`
-	HttpsDomesticValue *string `json:"HttpsDomesticValue" xml:"HttpsDomesticValue" require:"true"`
-	HttpsOverseasValue *string `json:"HttpsOverseasValue" xml:"HttpsOverseasValue" require:"true"`
+	TimeStamp          *string `json:"TimeStamp,omitempty" xml:"TimeStamp,omitempty" require:"true"`
+	Value              *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	DomesticValue      *string `json:"DomesticValue,omitempty" xml:"DomesticValue,omitempty" require:"true"`
+	OverseasValue      *string `json:"OverseasValue,omitempty" xml:"OverseasValue,omitempty" require:"true"`
+	HttpsValue         *string `json:"HttpsValue,omitempty" xml:"HttpsValue,omitempty" require:"true"`
+	HttpsDomesticValue *string `json:"HttpsDomesticValue,omitempty" xml:"HttpsDomesticValue,omitempty" require:"true"`
+	HttpsOverseasValue *string `json:"HttpsOverseasValue,omitempty" xml:"HttpsOverseasValue,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainTrafficDataResponseTrafficDataPerIntervalDataModule) String() string {
@@ -7587,13 +7166,12 @@ func (s *DescribeVodDomainTrafficDataResponseTrafficDataPerIntervalDataModule) S
 }
 
 type DescribeVodDomainBpsDataRequest struct {
-	OwnerId        *int64  `json:"OwnerId" xml:"OwnerId"`
-	DomainName     *string `json:"DomainName" xml:"DomainName"`
-	StartTime      *string `json:"StartTime" xml:"StartTime"`
-	EndTime        *string `json:"EndTime" xml:"EndTime"`
-	Interval       *string `json:"Interval" xml:"Interval"`
-	IspNameEn      *string `json:"IspNameEn" xml:"IspNameEn"`
-	LocationNameEn *string `json:"LocationNameEn" xml:"LocationNameEn"`
+	DomainName     *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	StartTime      *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime        *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	Interval       *string `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	IspNameEn      *string `json:"IspNameEn,omitempty" xml:"IspNameEn,omitempty"`
+	LocationNameEn *string `json:"LocationNameEn,omitempty" xml:"LocationNameEn,omitempty"`
 }
 
 func (s DescribeVodDomainBpsDataRequest) String() string {
@@ -7602,11 +7180,6 @@ func (s DescribeVodDomainBpsDataRequest) String() string {
 
 func (s DescribeVodDomainBpsDataRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodDomainBpsDataRequest) SetOwnerId(v int64) *DescribeVodDomainBpsDataRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodDomainBpsDataRequest) SetDomainName(v string) *DescribeVodDomainBpsDataRequest {
@@ -7640,14 +7213,14 @@ func (s *DescribeVodDomainBpsDataRequest) SetLocationNameEn(v string) *DescribeV
 }
 
 type DescribeVodDomainBpsDataResponse struct {
-	RequestId          *string                                             `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName         *string                                             `json:"DomainName" xml:"DomainName" require:"true"`
-	StartTime          *string                                             `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime            *string                                             `json:"EndTime" xml:"EndTime" require:"true"`
-	LocationNameEn     *string                                             `json:"LocationNameEn" xml:"LocationNameEn" require:"true"`
-	IspNameEn          *string                                             `json:"IspNameEn" xml:"IspNameEn" require:"true"`
-	DataInterval       *string                                             `json:"DataInterval" xml:"DataInterval" require:"true"`
-	BpsDataPerInterval *DescribeVodDomainBpsDataResponseBpsDataPerInterval `json:"BpsDataPerInterval" xml:"BpsDataPerInterval" require:"true" type:"Struct"`
+	RequestId          *string                                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName         *string                                             `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	StartTime          *string                                             `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime            *string                                             `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	LocationNameEn     *string                                             `json:"LocationNameEn,omitempty" xml:"LocationNameEn,omitempty" require:"true"`
+	IspNameEn          *string                                             `json:"IspNameEn,omitempty" xml:"IspNameEn,omitempty" require:"true"`
+	DataInterval       *string                                             `json:"DataInterval,omitempty" xml:"DataInterval,omitempty" require:"true"`
+	BpsDataPerInterval *DescribeVodDomainBpsDataResponseBpsDataPerInterval `json:"BpsDataPerInterval,omitempty" xml:"BpsDataPerInterval,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainBpsDataResponse) String() string {
@@ -7699,7 +7272,7 @@ func (s *DescribeVodDomainBpsDataResponse) SetBpsDataPerInterval(v *DescribeVodD
 }
 
 type DescribeVodDomainBpsDataResponseBpsDataPerInterval struct {
-	DataModule []*DescribeVodDomainBpsDataResponseBpsDataPerIntervalDataModule `json:"DataModule" xml:"DataModule" require:"true" type:"Repeated"`
+	DataModule []*DescribeVodDomainBpsDataResponseBpsDataPerIntervalDataModule `json:"DataModule,omitempty" xml:"DataModule,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainBpsDataResponseBpsDataPerInterval) String() string {
@@ -7716,13 +7289,13 @@ func (s *DescribeVodDomainBpsDataResponseBpsDataPerInterval) SetDataModule(v []*
 }
 
 type DescribeVodDomainBpsDataResponseBpsDataPerIntervalDataModule struct {
-	TimeStamp          *string `json:"TimeStamp" xml:"TimeStamp" require:"true"`
-	Value              *string `json:"Value" xml:"Value" require:"true"`
-	DomesticValue      *string `json:"DomesticValue" xml:"DomesticValue" require:"true"`
-	OverseasValue      *string `json:"OverseasValue" xml:"OverseasValue" require:"true"`
-	HttpsValue         *string `json:"HttpsValue" xml:"HttpsValue" require:"true"`
-	HttpsDomesticValue *string `json:"HttpsDomesticValue" xml:"HttpsDomesticValue" require:"true"`
-	HttpsOverseasValue *string `json:"HttpsOverseasValue" xml:"HttpsOverseasValue" require:"true"`
+	TimeStamp          *string `json:"TimeStamp,omitempty" xml:"TimeStamp,omitempty" require:"true"`
+	Value              *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	DomesticValue      *string `json:"DomesticValue,omitempty" xml:"DomesticValue,omitempty" require:"true"`
+	OverseasValue      *string `json:"OverseasValue,omitempty" xml:"OverseasValue,omitempty" require:"true"`
+	HttpsValue         *string `json:"HttpsValue,omitempty" xml:"HttpsValue,omitempty" require:"true"`
+	HttpsDomesticValue *string `json:"HttpsDomesticValue,omitempty" xml:"HttpsDomesticValue,omitempty" require:"true"`
+	HttpsOverseasValue *string `json:"HttpsOverseasValue,omitempty" xml:"HttpsOverseasValue,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainBpsDataResponseBpsDataPerIntervalDataModule) String() string {
@@ -7769,13 +7342,12 @@ func (s *DescribeVodDomainBpsDataResponseBpsDataPerIntervalDataModule) SetHttpsO
 }
 
 type DescribeVodDomainUsageDataRequest struct {
-	OwnerId    *int64  `json:"OwnerId" xml:"OwnerId"`
-	DomainName *string `json:"DomainName" xml:"DomainName"`
-	StartTime  *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime    *string `json:"EndTime" xml:"EndTime" require:"true"`
-	Type       *string `json:"Type" xml:"Type"`
-	Area       *string `json:"Area" xml:"Area"`
-	Field      *string `json:"Field" xml:"Field" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	StartTime  *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime    *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	Area       *string `json:"Area,omitempty" xml:"Area,omitempty"`
+	Field      *string `json:"Field,omitempty" xml:"Field,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainUsageDataRequest) String() string {
@@ -7784,11 +7356,6 @@ func (s DescribeVodDomainUsageDataRequest) String() string {
 
 func (s DescribeVodDomainUsageDataRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodDomainUsageDataRequest) SetOwnerId(v int64) *DescribeVodDomainUsageDataRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodDomainUsageDataRequest) SetDomainName(v string) *DescribeVodDomainUsageDataRequest {
@@ -7822,14 +7389,14 @@ func (s *DescribeVodDomainUsageDataRequest) SetField(v string) *DescribeVodDomai
 }
 
 type DescribeVodDomainUsageDataResponse struct {
-	RequestId            *string                                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName           *string                                                 `json:"DomainName" xml:"DomainName" require:"true"`
-	StartTime            *string                                                 `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime              *string                                                 `json:"EndTime" xml:"EndTime" require:"true"`
-	Type                 *string                                                 `json:"Type" xml:"Type" require:"true"`
-	Area                 *string                                                 `json:"Area" xml:"Area" require:"true"`
-	DataInterval         *string                                                 `json:"DataInterval" xml:"DataInterval" require:"true"`
-	UsageDataPerInterval *DescribeVodDomainUsageDataResponseUsageDataPerInterval `json:"UsageDataPerInterval" xml:"UsageDataPerInterval" require:"true" type:"Struct"`
+	RequestId            *string                                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName           *string                                                 `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	StartTime            *string                                                 `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime              *string                                                 `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Type                 *string                                                 `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Area                 *string                                                 `json:"Area,omitempty" xml:"Area,omitempty" require:"true"`
+	DataInterval         *string                                                 `json:"DataInterval,omitempty" xml:"DataInterval,omitempty" require:"true"`
+	UsageDataPerInterval *DescribeVodDomainUsageDataResponseUsageDataPerInterval `json:"UsageDataPerInterval,omitempty" xml:"UsageDataPerInterval,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainUsageDataResponse) String() string {
@@ -7881,7 +7448,7 @@ func (s *DescribeVodDomainUsageDataResponse) SetUsageDataPerInterval(v *Describe
 }
 
 type DescribeVodDomainUsageDataResponseUsageDataPerInterval struct {
-	DataModule []*DescribeVodDomainUsageDataResponseUsageDataPerIntervalDataModule `json:"DataModule" xml:"DataModule" require:"true" type:"Repeated"`
+	DataModule []*DescribeVodDomainUsageDataResponseUsageDataPerIntervalDataModule `json:"DataModule,omitempty" xml:"DataModule,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainUsageDataResponseUsageDataPerInterval) String() string {
@@ -7898,8 +7465,8 @@ func (s *DescribeVodDomainUsageDataResponseUsageDataPerInterval) SetDataModule(v
 }
 
 type DescribeVodDomainUsageDataResponseUsageDataPerIntervalDataModule struct {
-	TimeStamp *string `json:"TimeStamp" xml:"TimeStamp" require:"true"`
-	Value     *string `json:"Value" xml:"Value" require:"true"`
+	TimeStamp *string `json:"TimeStamp,omitempty" xml:"TimeStamp,omitempty" require:"true"`
+	Value     *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainUsageDataResponseUsageDataPerIntervalDataModule) String() string {
@@ -7921,9 +7488,8 @@ func (s *DescribeVodDomainUsageDataResponseUsageDataPerIntervalDataModule) SetVa
 }
 
 type DescribeVodCertificateListRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
 }
 
 func (s DescribeVodCertificateListRequest) String() string {
@@ -7932,11 +7498,6 @@ func (s DescribeVodCertificateListRequest) String() string {
 
 func (s DescribeVodCertificateListRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodCertificateListRequest) SetOwnerId(v int64) *DescribeVodCertificateListRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodCertificateListRequest) SetSecurityToken(v string) *DescribeVodCertificateListRequest {
@@ -7950,8 +7511,8 @@ func (s *DescribeVodCertificateListRequest) SetDomainName(v string) *DescribeVod
 }
 
 type DescribeVodCertificateListResponse struct {
-	RequestId            *string                                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	CertificateListModel *DescribeVodCertificateListResponseCertificateListModel `json:"CertificateListModel" xml:"CertificateListModel" require:"true" type:"Struct"`
+	RequestId            *string                                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	CertificateListModel *DescribeVodCertificateListResponseCertificateListModel `json:"CertificateListModel,omitempty" xml:"CertificateListModel,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodCertificateListResponse) String() string {
@@ -7973,8 +7534,8 @@ func (s *DescribeVodCertificateListResponse) SetCertificateListModel(v *Describe
 }
 
 type DescribeVodCertificateListResponseCertificateListModel struct {
-	Count    *int                                                            `json:"Count" xml:"Count" require:"true"`
-	CertList *DescribeVodCertificateListResponseCertificateListModelCertList `json:"CertList" xml:"CertList" require:"true" type:"Struct"`
+	Count    *int                                                            `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
+	CertList *DescribeVodCertificateListResponseCertificateListModelCertList `json:"CertList,omitempty" xml:"CertList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodCertificateListResponseCertificateListModel) String() string {
@@ -7996,7 +7557,7 @@ func (s *DescribeVodCertificateListResponseCertificateListModel) SetCertList(v *
 }
 
 type DescribeVodCertificateListResponseCertificateListModelCertList struct {
-	Cert []*DescribeVodCertificateListResponseCertificateListModelCertListCert `json:"Cert" xml:"Cert" require:"true" type:"Repeated"`
+	Cert []*DescribeVodCertificateListResponseCertificateListModelCertListCert `json:"Cert,omitempty" xml:"Cert,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodCertificateListResponseCertificateListModelCertList) String() string {
@@ -8013,12 +7574,12 @@ func (s *DescribeVodCertificateListResponseCertificateListModelCertList) SetCert
 }
 
 type DescribeVodCertificateListResponseCertificateListModelCertListCert struct {
-	CertName    *string `json:"CertName" xml:"CertName" require:"true"`
-	CertId      *int64  `json:"CertId" xml:"CertId" require:"true"`
-	Fingerprint *string `json:"Fingerprint" xml:"Fingerprint" require:"true"`
-	Common      *string `json:"Common" xml:"Common" require:"true"`
-	Issuer      *string `json:"Issuer" xml:"Issuer" require:"true"`
-	LastTime    *int64  `json:"LastTime" xml:"LastTime" require:"true"`
+	CertName    *string `json:"CertName,omitempty" xml:"CertName,omitempty" require:"true"`
+	CertId      *int64  `json:"CertId,omitempty" xml:"CertId,omitempty" require:"true"`
+	Fingerprint *string `json:"Fingerprint,omitempty" xml:"Fingerprint,omitempty" require:"true"`
+	Common      *string `json:"Common,omitempty" xml:"Common,omitempty" require:"true"`
+	Issuer      *string `json:"Issuer,omitempty" xml:"Issuer,omitempty" require:"true"`
+	LastTime    *int64  `json:"LastTime,omitempty" xml:"LastTime,omitempty" require:"true"`
 }
 
 func (s DescribeVodCertificateListResponseCertificateListModelCertListCert) String() string {
@@ -8060,9 +7621,8 @@ func (s *DescribeVodCertificateListResponseCertificateListModelCertListCert) Set
 }
 
 type BatchStopVodDomainRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainNames   *string `json:"DomainNames" xml:"DomainNames" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainNames   *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
 }
 
 func (s BatchStopVodDomainRequest) String() string {
@@ -8071,11 +7631,6 @@ func (s BatchStopVodDomainRequest) String() string {
 
 func (s BatchStopVodDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *BatchStopVodDomainRequest) SetOwnerId(v int64) *BatchStopVodDomainRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *BatchStopVodDomainRequest) SetSecurityToken(v string) *BatchStopVodDomainRequest {
@@ -8089,7 +7644,7 @@ func (s *BatchStopVodDomainRequest) SetDomainNames(v string) *BatchStopVodDomain
 }
 
 type BatchStopVodDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s BatchStopVodDomainResponse) String() string {
@@ -8106,10 +7661,8 @@ func (s *BatchStopVodDomainResponse) SetRequestId(v string) *BatchStopVodDomainR
 }
 
 type DeleteVodDomainRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	OwnerAccount  *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DeleteVodDomainRequest) String() string {
@@ -8118,16 +7671,6 @@ func (s DeleteVodDomainRequest) String() string {
 
 func (s DeleteVodDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteVodDomainRequest) SetOwnerId(v int64) *DeleteVodDomainRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteVodDomainRequest) SetOwnerAccount(v string) *DeleteVodDomainRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *DeleteVodDomainRequest) SetSecurityToken(v string) *DeleteVodDomainRequest {
@@ -8141,7 +7684,7 @@ func (s *DeleteVodDomainRequest) SetDomainName(v string) *DeleteVodDomainRequest
 }
 
 type DeleteVodDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteVodDomainResponse) String() string {
@@ -8158,14 +7701,13 @@ func (s *DeleteVodDomainResponse) SetRequestId(v string) *DeleteVodDomainRespons
 }
 
 type SetVodDomainCertificateRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CertName      *string `json:"CertName" xml:"CertName"`
-	SSLProtocol   *string `json:"SSLProtocol" xml:"SSLProtocol" require:"true"`
-	SSLPub        *string `json:"SSLPub" xml:"SSLPub"`
-	SSLPri        *string `json:"SSLPri" xml:"SSLPri"`
-	Region        *string `json:"Region" xml:"Region"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CertName      *string `json:"CertName,omitempty" xml:"CertName,omitempty"`
+	SSLProtocol   *string `json:"SSLProtocol,omitempty" xml:"SSLProtocol,omitempty" require:"true"`
+	SSLPub        *string `json:"SSLPub,omitempty" xml:"SSLPub,omitempty"`
+	SSLPri        *string `json:"SSLPri,omitempty" xml:"SSLPri,omitempty"`
+	Region        *string `json:"Region,omitempty" xml:"Region,omitempty"`
 }
 
 func (s SetVodDomainCertificateRequest) String() string {
@@ -8174,11 +7716,6 @@ func (s SetVodDomainCertificateRequest) String() string {
 
 func (s SetVodDomainCertificateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetVodDomainCertificateRequest) SetOwnerId(v int64) *SetVodDomainCertificateRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *SetVodDomainCertificateRequest) SetSecurityToken(v string) *SetVodDomainCertificateRequest {
@@ -8217,7 +7754,7 @@ func (s *SetVodDomainCertificateRequest) SetRegion(v string) *SetVodDomainCertif
 }
 
 type SetVodDomainCertificateResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetVodDomainCertificateResponse) String() string {
@@ -8234,10 +7771,9 @@ func (s *SetVodDomainCertificateResponse) SetRequestId(v string) *SetVodDomainCe
 }
 
 type DeleteVodSpecificConfigRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	ConfigId      *string `json:"ConfigId" xml:"ConfigId" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	ConfigId      *string `json:"ConfigId,omitempty" xml:"ConfigId,omitempty" require:"true"`
 }
 
 func (s DeleteVodSpecificConfigRequest) String() string {
@@ -8246,11 +7782,6 @@ func (s DeleteVodSpecificConfigRequest) String() string {
 
 func (s DeleteVodSpecificConfigRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteVodSpecificConfigRequest) SetOwnerId(v int64) *DeleteVodSpecificConfigRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DeleteVodSpecificConfigRequest) SetSecurityToken(v string) *DeleteVodSpecificConfigRequest {
@@ -8269,7 +7800,7 @@ func (s *DeleteVodSpecificConfigRequest) SetConfigId(v string) *DeleteVodSpecifi
 }
 
 type DeleteVodSpecificConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteVodSpecificConfigResponse) String() string {
@@ -8286,11 +7817,9 @@ func (s *DeleteVodSpecificConfigResponse) SetRequestId(v string) *DeleteVodSpeci
 }
 
 type BatchSetVodDomainConfigsRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	OwnerAccount  *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainNames   *string `json:"DomainNames" xml:"DomainNames" require:"true"`
-	Functions     *string `json:"Functions" xml:"Functions" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainNames   *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
+	Functions     *string `json:"Functions,omitempty" xml:"Functions,omitempty" require:"true"`
 }
 
 func (s BatchSetVodDomainConfigsRequest) String() string {
@@ -8299,16 +7828,6 @@ func (s BatchSetVodDomainConfigsRequest) String() string {
 
 func (s BatchSetVodDomainConfigsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *BatchSetVodDomainConfigsRequest) SetOwnerId(v int64) *BatchSetVodDomainConfigsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *BatchSetVodDomainConfigsRequest) SetOwnerAccount(v string) *BatchSetVodDomainConfigsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *BatchSetVodDomainConfigsRequest) SetSecurityToken(v string) *BatchSetVodDomainConfigsRequest {
@@ -8327,7 +7846,7 @@ func (s *BatchSetVodDomainConfigsRequest) SetFunctions(v string) *BatchSetVodDom
 }
 
 type BatchSetVodDomainConfigsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s BatchSetVodDomainConfigsResponse) String() string {
@@ -8344,13 +7863,11 @@ func (s *BatchSetVodDomainConfigsResponse) SetRequestId(v string) *BatchSetVodDo
 }
 
 type AddVodDomainRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	OwnerAccount  *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Sources       *string `json:"Sources" xml:"Sources" require:"true"`
-	CheckUrl      *string `json:"CheckUrl" xml:"CheckUrl"`
-	Scope         *string `json:"Scope" xml:"Scope"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Sources       *string `json:"Sources,omitempty" xml:"Sources,omitempty" require:"true"`
+	CheckUrl      *string `json:"CheckUrl,omitempty" xml:"CheckUrl,omitempty"`
+	Scope         *string `json:"Scope,omitempty" xml:"Scope,omitempty"`
 }
 
 func (s AddVodDomainRequest) String() string {
@@ -8359,16 +7876,6 @@ func (s AddVodDomainRequest) String() string {
 
 func (s AddVodDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddVodDomainRequest) SetOwnerId(v int64) *AddVodDomainRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddVodDomainRequest) SetOwnerAccount(v string) *AddVodDomainRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *AddVodDomainRequest) SetSecurityToken(v string) *AddVodDomainRequest {
@@ -8397,7 +7904,7 @@ func (s *AddVodDomainRequest) SetScope(v string) *AddVodDomainRequest {
 }
 
 type AddVodDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s AddVodDomainResponse) String() string {
@@ -8414,8 +7921,7 @@ func (s *AddVodDomainResponse) SetRequestId(v string) *AddVodDomainResponse {
 }
 
 type DescribeVodRefreshQuotaRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
 }
 
 func (s DescribeVodRefreshQuotaRequest) String() string {
@@ -8426,26 +7932,21 @@ func (s DescribeVodRefreshQuotaRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DescribeVodRefreshQuotaRequest) SetOwnerId(v int64) *DescribeVodRefreshQuotaRequest {
-	s.OwnerId = &v
-	return s
-}
-
 func (s *DescribeVodRefreshQuotaRequest) SetSecurityToken(v string) *DescribeVodRefreshQuotaRequest {
 	s.SecurityToken = &v
 	return s
 }
 
 type DescribeVodRefreshQuotaResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	UrlQuota      *string `json:"UrlQuota" xml:"UrlQuota" require:"true"`
-	DirQuota      *string `json:"DirQuota" xml:"DirQuota" require:"true"`
-	UrlRemain     *string `json:"UrlRemain" xml:"UrlRemain" require:"true"`
-	DirRemain     *string `json:"DirRemain" xml:"DirRemain" require:"true"`
-	PreloadQuota  *string `json:"PreloadQuota" xml:"PreloadQuota" require:"true"`
-	BlockQuota    *string `json:"BlockQuota" xml:"BlockQuota" require:"true"`
-	PreloadRemain *string `json:"PreloadRemain" xml:"PreloadRemain" require:"true"`
-	BlockRemain   *string `json:"blockRemain" xml:"blockRemain" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UrlQuota      *string `json:"UrlQuota,omitempty" xml:"UrlQuota,omitempty" require:"true"`
+	DirQuota      *string `json:"DirQuota,omitempty" xml:"DirQuota,omitempty" require:"true"`
+	UrlRemain     *string `json:"UrlRemain,omitempty" xml:"UrlRemain,omitempty" require:"true"`
+	DirRemain     *string `json:"DirRemain,omitempty" xml:"DirRemain,omitempty" require:"true"`
+	PreloadQuota  *string `json:"PreloadQuota,omitempty" xml:"PreloadQuota,omitempty" require:"true"`
+	BlockQuota    *string `json:"BlockQuota,omitempty" xml:"BlockQuota,omitempty" require:"true"`
+	PreloadRemain *string `json:"PreloadRemain,omitempty" xml:"PreloadRemain,omitempty" require:"true"`
+	BlockRemain   *string `json:"blockRemain,omitempty" xml:"blockRemain,omitempty" require:"true"`
 }
 
 func (s DescribeVodRefreshQuotaResponse) String() string {
@@ -8502,18 +8003,17 @@ func (s *DescribeVodRefreshQuotaResponse) SetBlockRemain(v string) *DescribeVodR
 }
 
 type DescribeVodRefreshTasksRequest struct {
-	OwnerId         *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken   *string `json:"SecurityToken" xml:"SecurityToken"`
-	TaskId          *string `json:"TaskId" xml:"TaskId"`
-	ObjectPath      *string `json:"ObjectPath" xml:"ObjectPath"`
-	PageNumber      *int    `json:"PageNumber" xml:"PageNumber"`
-	ObjectType      *string `json:"ObjectType" xml:"ObjectType"`
-	DomainName      *string `json:"DomainName" xml:"DomainName"`
-	Status          *string `json:"Status" xml:"Status"`
-	PageSize        *int    `json:"PageSize" xml:"PageSize"`
-	StartTime       *string `json:"StartTime" xml:"StartTime"`
-	EndTime         *string `json:"EndTime" xml:"EndTime"`
-	ResourceGroupId *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	SecurityToken   *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	TaskId          *string `json:"TaskId,omitempty" xml:"TaskId,omitempty"`
+	ObjectPath      *string `json:"ObjectPath,omitempty" xml:"ObjectPath,omitempty"`
+	PageNumber      *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	ObjectType      *string `json:"ObjectType,omitempty" xml:"ObjectType,omitempty"`
+	DomainName      *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartTime       *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime         *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	ResourceGroupId *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s DescribeVodRefreshTasksRequest) String() string {
@@ -8522,11 +8022,6 @@ func (s DescribeVodRefreshTasksRequest) String() string {
 
 func (s DescribeVodRefreshTasksRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodRefreshTasksRequest) SetOwnerId(v int64) *DescribeVodRefreshTasksRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodRefreshTasksRequest) SetSecurityToken(v string) *DescribeVodRefreshTasksRequest {
@@ -8585,11 +8080,11 @@ func (s *DescribeVodRefreshTasksRequest) SetResourceGroupId(v string) *DescribeV
 }
 
 type DescribeVodRefreshTasksResponse struct {
-	RequestId  *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber *int64                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64                                `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int64                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Tasks      *DescribeVodRefreshTasksResponseTasks `json:"Tasks" xml:"Tasks" require:"true" type:"Struct"`
+	RequestId  *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber *int64                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int64                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Tasks      *DescribeVodRefreshTasksResponseTasks `json:"Tasks,omitempty" xml:"Tasks,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodRefreshTasksResponse) String() string {
@@ -8626,7 +8121,7 @@ func (s *DescribeVodRefreshTasksResponse) SetTasks(v *DescribeVodRefreshTasksRes
 }
 
 type DescribeVodRefreshTasksResponseTasks struct {
-	Task []*DescribeVodRefreshTasksResponseTasksTask `json:"Task" xml:"Task" require:"true" type:"Repeated"`
+	Task []*DescribeVodRefreshTasksResponseTasksTask `json:"Task,omitempty" xml:"Task,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodRefreshTasksResponseTasks) String() string {
@@ -8643,13 +8138,13 @@ func (s *DescribeVodRefreshTasksResponseTasks) SetTask(v []*DescribeVodRefreshTa
 }
 
 type DescribeVodRefreshTasksResponseTasksTask struct {
-	TaskId       *string `json:"TaskId" xml:"TaskId" require:"true"`
-	ObjectPath   *string `json:"ObjectPath" xml:"ObjectPath" require:"true"`
-	Process      *string `json:"Process" xml:"Process" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	CreationTime *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	ObjectType   *string `json:"ObjectType" xml:"ObjectType" require:"true"`
+	TaskId       *string `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
+	ObjectPath   *string `json:"ObjectPath,omitempty" xml:"ObjectPath,omitempty" require:"true"`
+	Process      *string `json:"Process,omitempty" xml:"Process,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	CreationTime *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ObjectType   *string `json:"ObjectType,omitempty" xml:"ObjectType,omitempty" require:"true"`
 }
 
 func (s DescribeVodRefreshTasksResponseTasksTask) String() string {
@@ -8696,10 +8191,9 @@ func (s *DescribeVodRefreshTasksResponseTasksTask) SetObjectType(v string) *Desc
 }
 
 type DescribeVodDomainConfigsRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
-	FunctionNames *string `json:"FunctionNames" xml:"FunctionNames" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	FunctionNames *string `json:"FunctionNames,omitempty" xml:"FunctionNames,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainConfigsRequest) String() string {
@@ -8708,11 +8202,6 @@ func (s DescribeVodDomainConfigsRequest) String() string {
 
 func (s DescribeVodDomainConfigsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodDomainConfigsRequest) SetOwnerId(v int64) *DescribeVodDomainConfigsRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodDomainConfigsRequest) SetSecurityToken(v string) *DescribeVodDomainConfigsRequest {
@@ -8731,8 +8220,8 @@ func (s *DescribeVodDomainConfigsRequest) SetFunctionNames(v string) *DescribeVo
 }
 
 type DescribeVodDomainConfigsResponse struct {
-	RequestId     *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainConfigs *DescribeVodDomainConfigsResponseDomainConfigs `json:"DomainConfigs" xml:"DomainConfigs" require:"true" type:"Struct"`
+	RequestId     *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainConfigs *DescribeVodDomainConfigsResponseDomainConfigs `json:"DomainConfigs,omitempty" xml:"DomainConfigs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainConfigsResponse) String() string {
@@ -8754,7 +8243,7 @@ func (s *DescribeVodDomainConfigsResponse) SetDomainConfigs(v *DescribeVodDomain
 }
 
 type DescribeVodDomainConfigsResponseDomainConfigs struct {
-	DomainConfig []*DescribeVodDomainConfigsResponseDomainConfigsDomainConfig `json:"DomainConfig" xml:"DomainConfig" require:"true" type:"Repeated"`
+	DomainConfig []*DescribeVodDomainConfigsResponseDomainConfigsDomainConfig `json:"DomainConfig,omitempty" xml:"DomainConfig,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainConfigsResponseDomainConfigs) String() string {
@@ -8771,10 +8260,10 @@ func (s *DescribeVodDomainConfigsResponseDomainConfigs) SetDomainConfig(v []*Des
 }
 
 type DescribeVodDomainConfigsResponseDomainConfigsDomainConfig struct {
-	FunctionName *string                                                                `json:"FunctionName" xml:"FunctionName" require:"true"`
-	ConfigId     *string                                                                `json:"ConfigId" xml:"ConfigId" require:"true"`
-	Status       *string                                                                `json:"Status" xml:"Status" require:"true"`
-	FunctionArgs *DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgs `json:"FunctionArgs" xml:"FunctionArgs" require:"true" type:"Struct"`
+	FunctionName *string                                                                `json:"FunctionName,omitempty" xml:"FunctionName,omitempty" require:"true"`
+	ConfigId     *string                                                                `json:"ConfigId,omitempty" xml:"ConfigId,omitempty" require:"true"`
+	Status       *string                                                                `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	FunctionArgs *DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgs `json:"FunctionArgs,omitempty" xml:"FunctionArgs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainConfigsResponseDomainConfigsDomainConfig) String() string {
@@ -8806,7 +8295,7 @@ func (s *DescribeVodDomainConfigsResponseDomainConfigsDomainConfig) SetFunctionA
 }
 
 type DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgs struct {
-	FunctionArg []*DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgsFunctionArg `json:"FunctionArg" xml:"FunctionArg" require:"true" type:"Repeated"`
+	FunctionArg []*DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgsFunctionArg `json:"FunctionArg,omitempty" xml:"FunctionArg,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgs) String() string {
@@ -8823,8 +8312,8 @@ func (s *DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgs) 
 }
 
 type DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgsFunctionArg struct {
-	ArgName  *string `json:"ArgName" xml:"ArgName" require:"true"`
-	ArgValue *string `json:"ArgValue" xml:"ArgValue" require:"true"`
+	ArgName  *string `json:"ArgName,omitempty" xml:"ArgName,omitempty" require:"true"`
+	ArgValue *string `json:"ArgValue,omitempty" xml:"ArgValue,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgsFunctionArg) String() string {
@@ -8846,17 +8335,17 @@ func (s *DescribeVodDomainConfigsResponseDomainConfigsDomainConfigFunctionArgsFu
 }
 
 type DescribeVodUserDomainsRequest struct {
-	OwnerId          *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken    *string `json:"SecurityToken" xml:"SecurityToken"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	PageNumber       *int    `json:"PageNumber" xml:"PageNumber"`
-	DomainName       *string `json:"DomainName" xml:"DomainName"`
-	DomainStatus     *string `json:"DomainStatus" xml:"DomainStatus"`
-	DomainSearchType *string `json:"DomainSearchType" xml:"DomainSearchType"`
-	CdnType          *string `json:"CdnType" xml:"CdnType"`
-	CheckDomainShow  *bool   `json:"CheckDomainShow" xml:"CheckDomainShow"`
-	FuncId           *string `json:"FuncId" xml:"FuncId"`
-	FuncFilter       *string `json:"FuncFilter" xml:"FuncFilter"`
+	SecurityToken    *string                             `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	PageSize         *int                                `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber       *int                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	DomainName       *string                             `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	DomainStatus     *string                             `json:"DomainStatus,omitempty" xml:"DomainStatus,omitempty"`
+	DomainSearchType *string                             `json:"DomainSearchType,omitempty" xml:"DomainSearchType,omitempty"`
+	CdnType          *string                             `json:"CdnType,omitempty" xml:"CdnType,omitempty"`
+	CheckDomainShow  *bool                               `json:"CheckDomainShow,omitempty" xml:"CheckDomainShow,omitempty"`
+	FuncId           *string                             `json:"FuncId,omitempty" xml:"FuncId,omitempty"`
+	FuncFilter       *string                             `json:"FuncFilter,omitempty" xml:"FuncFilter,omitempty"`
+	Tag              []*DescribeVodUserDomainsRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s DescribeVodUserDomainsRequest) String() string {
@@ -8865,11 +8354,6 @@ func (s DescribeVodUserDomainsRequest) String() string {
 
 func (s DescribeVodUserDomainsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodUserDomainsRequest) SetOwnerId(v int64) *DescribeVodUserDomainsRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodUserDomainsRequest) SetSecurityToken(v string) *DescribeVodUserDomainsRequest {
@@ -8922,12 +8406,40 @@ func (s *DescribeVodUserDomainsRequest) SetFuncFilter(v string) *DescribeVodUser
 	return s
 }
 
+func (s *DescribeVodUserDomainsRequest) SetTag(v []*DescribeVodUserDomainsRequestTag) *DescribeVodUserDomainsRequest {
+	s.Tag = v
+	return s
+}
+
+type DescribeVodUserDomainsRequestTag struct {
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
+}
+
+func (s DescribeVodUserDomainsRequestTag) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeVodUserDomainsRequestTag) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeVodUserDomainsRequestTag) SetKey(v string) *DescribeVodUserDomainsRequestTag {
+	s.Key = &v
+	return s
+}
+
+func (s *DescribeVodUserDomainsRequestTag) SetValue(v string) *DescribeVodUserDomainsRequestTag {
+	s.Value = &v
+	return s
+}
+
 type DescribeVodUserDomainsResponse struct {
-	RequestId  *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber *int64                                 `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64                                 `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int64                                 `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Domains    *DescribeVodUserDomainsResponseDomains `json:"Domains" xml:"Domains" require:"true" type:"Struct"`
+	RequestId  *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber *int64                                 `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64                                 `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int64                                 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Domains    *DescribeVodUserDomainsResponseDomains `json:"Domains,omitempty" xml:"Domains,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodUserDomainsResponse) String() string {
@@ -8964,7 +8476,7 @@ func (s *DescribeVodUserDomainsResponse) SetDomains(v *DescribeVodUserDomainsRes
 }
 
 type DescribeVodUserDomainsResponseDomains struct {
-	PageData []*DescribeVodUserDomainsResponseDomainsPageData `json:"PageData" xml:"PageData" require:"true" type:"Repeated"`
+	PageData []*DescribeVodUserDomainsResponseDomainsPageData `json:"PageData,omitempty" xml:"PageData,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodUserDomainsResponseDomains) String() string {
@@ -8981,17 +8493,17 @@ func (s *DescribeVodUserDomainsResponseDomains) SetPageData(v []*DescribeVodUser
 }
 
 type DescribeVodUserDomainsResponseDomainsPageData struct {
-	DomainName   *string                                               `json:"DomainName" xml:"DomainName" require:"true"`
-	Cname        *string                                               `json:"Cname" xml:"Cname" require:"true"`
-	CdnType      *string                                               `json:"CdnType" xml:"CdnType" require:"true"`
-	DomainStatus *string                                               `json:"DomainStatus" xml:"DomainStatus" require:"true"`
-	GmtCreated   *string                                               `json:"GmtCreated" xml:"GmtCreated" require:"true"`
-	GmtModified  *string                                               `json:"GmtModified" xml:"GmtModified" require:"true"`
-	Description  *string                                               `json:"Description" xml:"Description" require:"true"`
-	SslProtocol  *string                                               `json:"SslProtocol" xml:"SslProtocol" require:"true"`
-	Weight       *string                                               `json:"Weight" xml:"Weight" require:"true"`
-	Sandbox      *string                                               `json:"Sandbox" xml:"Sandbox" require:"true"`
-	Sources      *DescribeVodUserDomainsResponseDomainsPageDataSources `json:"Sources" xml:"Sources" require:"true" type:"Struct"`
+	DomainName   *string                                               `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Cname        *string                                               `json:"Cname,omitempty" xml:"Cname,omitempty" require:"true"`
+	CdnType      *string                                               `json:"CdnType,omitempty" xml:"CdnType,omitempty" require:"true"`
+	DomainStatus *string                                               `json:"DomainStatus,omitempty" xml:"DomainStatus,omitempty" require:"true"`
+	GmtCreated   *string                                               `json:"GmtCreated,omitempty" xml:"GmtCreated,omitempty" require:"true"`
+	GmtModified  *string                                               `json:"GmtModified,omitempty" xml:"GmtModified,omitempty" require:"true"`
+	Description  *string                                               `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	SslProtocol  *string                                               `json:"SslProtocol,omitempty" xml:"SslProtocol,omitempty" require:"true"`
+	Weight       *string                                               `json:"Weight,omitempty" xml:"Weight,omitempty" require:"true"`
+	Sandbox      *string                                               `json:"Sandbox,omitempty" xml:"Sandbox,omitempty" require:"true"`
+	Sources      *DescribeVodUserDomainsResponseDomainsPageDataSources `json:"Sources,omitempty" xml:"Sources,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodUserDomainsResponseDomainsPageData) String() string {
@@ -9058,7 +8570,7 @@ func (s *DescribeVodUserDomainsResponseDomainsPageData) SetSources(v *DescribeVo
 }
 
 type DescribeVodUserDomainsResponseDomainsPageDataSources struct {
-	Source []*DescribeVodUserDomainsResponseDomainsPageDataSourcesSource `json:"Source" xml:"Source" require:"true" type:"Repeated"`
+	Source []*DescribeVodUserDomainsResponseDomainsPageDataSourcesSource `json:"Source,omitempty" xml:"Source,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodUserDomainsResponseDomainsPageDataSources) String() string {
@@ -9075,10 +8587,10 @@ func (s *DescribeVodUserDomainsResponseDomainsPageDataSources) SetSource(v []*De
 }
 
 type DescribeVodUserDomainsResponseDomainsPageDataSourcesSource struct {
-	Type     *string `json:"Type" xml:"Type" require:"true"`
-	Content  *string `json:"Content" xml:"Content" require:"true"`
-	Port     *int    `json:"Port" xml:"Port" require:"true"`
-	Priority *string `json:"Priority" xml:"Priority" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Content  *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	Priority *string `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
 }
 
 func (s DescribeVodUserDomainsResponseDomainsPageDataSourcesSource) String() string {
@@ -9110,11 +8622,10 @@ func (s *DescribeVodUserDomainsResponseDomainsPageDataSourcesSource) SetPriority
 }
 
 type UpdateVodDomainRequest struct {
-	OwnerId        *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken  *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName     *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Sources        *string `json:"Sources" xml:"Sources"`
-	TopLevelDomain *string `json:"TopLevelDomain" xml:"TopLevelDomain"`
+	SecurityToken  *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName     *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Sources        *string `json:"Sources,omitempty" xml:"Sources,omitempty"`
+	TopLevelDomain *string `json:"TopLevelDomain,omitempty" xml:"TopLevelDomain,omitempty"`
 }
 
 func (s UpdateVodDomainRequest) String() string {
@@ -9123,11 +8634,6 @@ func (s UpdateVodDomainRequest) String() string {
 
 func (s UpdateVodDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateVodDomainRequest) SetOwnerId(v int64) *UpdateVodDomainRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *UpdateVodDomainRequest) SetSecurityToken(v string) *UpdateVodDomainRequest {
@@ -9151,7 +8657,7 @@ func (s *UpdateVodDomainRequest) SetTopLevelDomain(v string) *UpdateVodDomainReq
 }
 
 type UpdateVodDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateVodDomainResponse) String() string {
@@ -9168,10 +8674,9 @@ func (s *UpdateVodDomainResponse) SetRequestId(v string) *UpdateVodDomainRespons
 }
 
 type RefreshVodObjectCachesRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	ObjectPath    *string `json:"ObjectPath" xml:"ObjectPath" require:"true"`
-	ObjectType    *string `json:"ObjectType" xml:"ObjectType"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ObjectPath    *string `json:"ObjectPath,omitempty" xml:"ObjectPath,omitempty" require:"true"`
+	ObjectType    *string `json:"ObjectType,omitempty" xml:"ObjectType,omitempty"`
 }
 
 func (s RefreshVodObjectCachesRequest) String() string {
@@ -9180,11 +8685,6 @@ func (s RefreshVodObjectCachesRequest) String() string {
 
 func (s RefreshVodObjectCachesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RefreshVodObjectCachesRequest) SetOwnerId(v int64) *RefreshVodObjectCachesRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *RefreshVodObjectCachesRequest) SetSecurityToken(v string) *RefreshVodObjectCachesRequest {
@@ -9203,8 +8703,8 @@ func (s *RefreshVodObjectCachesRequest) SetObjectType(v string) *RefreshVodObjec
 }
 
 type RefreshVodObjectCachesResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RefreshTaskId *string `json:"RefreshTaskId" xml:"RefreshTaskId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RefreshTaskId *string `json:"RefreshTaskId,omitempty" xml:"RefreshTaskId,omitempty" require:"true"`
 }
 
 func (s RefreshVodObjectCachesResponse) String() string {
@@ -9226,9 +8726,8 @@ func (s *RefreshVodObjectCachesResponse) SetRefreshTaskId(v string) *RefreshVodO
 }
 
 type PreloadVodObjectCachesRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	ObjectPath    *string `json:"ObjectPath" xml:"ObjectPath" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	ObjectPath    *string `json:"ObjectPath,omitempty" xml:"ObjectPath,omitempty" require:"true"`
 }
 
 func (s PreloadVodObjectCachesRequest) String() string {
@@ -9237,11 +8736,6 @@ func (s PreloadVodObjectCachesRequest) String() string {
 
 func (s PreloadVodObjectCachesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *PreloadVodObjectCachesRequest) SetOwnerId(v int64) *PreloadVodObjectCachesRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *PreloadVodObjectCachesRequest) SetSecurityToken(v string) *PreloadVodObjectCachesRequest {
@@ -9255,8 +8749,8 @@ func (s *PreloadVodObjectCachesRequest) SetObjectPath(v string) *PreloadVodObjec
 }
 
 type PreloadVodObjectCachesResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	PreloadTaskId *string `json:"PreloadTaskId" xml:"PreloadTaskId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PreloadTaskId *string `json:"PreloadTaskId,omitempty" xml:"PreloadTaskId,omitempty" require:"true"`
 }
 
 func (s PreloadVodObjectCachesResponse) String() string {
@@ -9278,9 +8772,8 @@ func (s *PreloadVodObjectCachesResponse) SetPreloadTaskId(v string) *PreloadVodO
 }
 
 type BatchStartVodDomainRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainNames   *string `json:"DomainNames" xml:"DomainNames" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainNames   *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
 }
 
 func (s BatchStartVodDomainRequest) String() string {
@@ -9289,11 +8782,6 @@ func (s BatchStartVodDomainRequest) String() string {
 
 func (s BatchStartVodDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *BatchStartVodDomainRequest) SetOwnerId(v int64) *BatchStartVodDomainRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *BatchStartVodDomainRequest) SetSecurityToken(v string) *BatchStartVodDomainRequest {
@@ -9307,7 +8795,7 @@ func (s *BatchStartVodDomainRequest) SetDomainNames(v string) *BatchStartVodDoma
 }
 
 type BatchStartVodDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s BatchStartVodDomainResponse) String() string {
@@ -9324,9 +8812,8 @@ func (s *BatchStartVodDomainResponse) SetRequestId(v string) *BatchStartVodDomai
 }
 
 type DescribeVodDomainDetailRequest struct {
-	OwnerId       *int64  `json:"OwnerId" xml:"OwnerId"`
-	SecurityToken *string `json:"SecurityToken" xml:"SecurityToken"`
-	DomainName    *string `json:"DomainName" xml:"DomainName" require:"true"`
+	SecurityToken *string `json:"SecurityToken,omitempty" xml:"SecurityToken,omitempty"`
+	DomainName    *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainDetailRequest) String() string {
@@ -9335,11 +8822,6 @@ func (s DescribeVodDomainDetailRequest) String() string {
 
 func (s DescribeVodDomainDetailRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeVodDomainDetailRequest) SetOwnerId(v int64) *DescribeVodDomainDetailRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribeVodDomainDetailRequest) SetSecurityToken(v string) *DescribeVodDomainDetailRequest {
@@ -9353,8 +8835,8 @@ func (s *DescribeVodDomainDetailRequest) SetDomainName(v string) *DescribeVodDom
 }
 
 type DescribeVodDomainDetailResponse struct {
-	RequestId    *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainDetail *DescribeVodDomainDetailResponseDomainDetail `json:"DomainDetail" xml:"DomainDetail" require:"true" type:"Struct"`
+	RequestId    *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainDetail *DescribeVodDomainDetailResponseDomainDetail `json:"DomainDetail,omitempty" xml:"DomainDetail,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainDetailResponse) String() string {
@@ -9376,18 +8858,18 @@ func (s *DescribeVodDomainDetailResponse) SetDomainDetail(v *DescribeVodDomainDe
 }
 
 type DescribeVodDomainDetailResponseDomainDetail struct {
-	GmtCreated   *string                                             `json:"GmtCreated" xml:"GmtCreated" require:"true"`
-	GmtModified  *string                                             `json:"GmtModified" xml:"GmtModified" require:"true"`
-	DomainStatus *string                                             `json:"DomainStatus" xml:"DomainStatus" require:"true"`
-	Cname        *string                                             `json:"Cname" xml:"Cname" require:"true"`
-	DomainName   *string                                             `json:"DomainName" xml:"DomainName" require:"true"`
-	Description  *string                                             `json:"Description" xml:"Description" require:"true"`
-	SSLProtocol  *string                                             `json:"SSLProtocol" xml:"SSLProtocol" require:"true"`
-	SSLPub       *string                                             `json:"SSLPub" xml:"SSLPub" require:"true"`
-	Scope        *string                                             `json:"Scope" xml:"Scope" require:"true"`
-	CertName     *string                                             `json:"CertName" xml:"CertName" require:"true"`
-	Weight       *string                                             `json:"Weight" xml:"Weight" require:"true"`
-	Sources      *DescribeVodDomainDetailResponseDomainDetailSources `json:"Sources" xml:"Sources" require:"true" type:"Struct"`
+	GmtCreated   *string                                             `json:"GmtCreated,omitempty" xml:"GmtCreated,omitempty" require:"true"`
+	GmtModified  *string                                             `json:"GmtModified,omitempty" xml:"GmtModified,omitempty" require:"true"`
+	DomainStatus *string                                             `json:"DomainStatus,omitempty" xml:"DomainStatus,omitempty" require:"true"`
+	Cname        *string                                             `json:"Cname,omitempty" xml:"Cname,omitempty" require:"true"`
+	DomainName   *string                                             `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Description  *string                                             `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	SSLProtocol  *string                                             `json:"SSLProtocol,omitempty" xml:"SSLProtocol,omitempty" require:"true"`
+	SSLPub       *string                                             `json:"SSLPub,omitempty" xml:"SSLPub,omitempty" require:"true"`
+	Scope        *string                                             `json:"Scope,omitempty" xml:"Scope,omitempty" require:"true"`
+	CertName     *string                                             `json:"CertName,omitempty" xml:"CertName,omitempty" require:"true"`
+	Weight       *string                                             `json:"Weight,omitempty" xml:"Weight,omitempty" require:"true"`
+	Sources      *DescribeVodDomainDetailResponseDomainDetailSources `json:"Sources,omitempty" xml:"Sources,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeVodDomainDetailResponseDomainDetail) String() string {
@@ -9459,7 +8941,7 @@ func (s *DescribeVodDomainDetailResponseDomainDetail) SetSources(v *DescribeVodD
 }
 
 type DescribeVodDomainDetailResponseDomainDetailSources struct {
-	Source []*DescribeVodDomainDetailResponseDomainDetailSourcesSource `json:"Source" xml:"Source" require:"true" type:"Repeated"`
+	Source []*DescribeVodDomainDetailResponseDomainDetailSourcesSource `json:"Source,omitempty" xml:"Source,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeVodDomainDetailResponseDomainDetailSources) String() string {
@@ -9476,11 +8958,11 @@ func (s *DescribeVodDomainDetailResponseDomainDetailSources) SetSource(v []*Desc
 }
 
 type DescribeVodDomainDetailResponseDomainDetailSourcesSource struct {
-	Content  *string `json:"Content" xml:"Content" require:"true"`
-	Type     *string `json:"Type" xml:"Type" require:"true"`
-	Port     *int    `json:"Port" xml:"Port" require:"true"`
-	Enabled  *string `json:"Enabled" xml:"Enabled" require:"true"`
-	Priority *string `json:"Priority" xml:"Priority" require:"true"`
+	Content  *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Port     *int    `json:"Port,omitempty" xml:"Port,omitempty" require:"true"`
+	Enabled  *string `json:"Enabled,omitempty" xml:"Enabled,omitempty" require:"true"`
+	Priority *string `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
 }
 
 func (s DescribeVodDomainDetailResponseDomainDetailSourcesSource) String() string {
@@ -9517,10 +8999,7 @@ func (s *DescribeVodDomainDetailResponseDomainDetailSourcesSource) SetPriority(v
 }
 
 type DeleteVodTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VodTemplateId        *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
+	VodTemplateId *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
 }
 
 func (s DeleteVodTemplateRequest) String() string {
@@ -9531,29 +9010,14 @@ func (s DeleteVodTemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteVodTemplateRequest) SetOwnerId(v int64) *DeleteVodTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteVodTemplateRequest) SetResourceOwnerAccount(v string) *DeleteVodTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteVodTemplateRequest) SetResourceOwnerId(v int64) *DeleteVodTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteVodTemplateRequest) SetVodTemplateId(v string) *DeleteVodTemplateRequest {
 	s.VodTemplateId = &v
 	return s
 }
 
 type DeleteVodTemplateResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	VodTemplateId *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VodTemplateId *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
 }
 
 func (s DeleteVodTemplateResponse) String() string {
@@ -9575,10 +9039,7 @@ func (s *DeleteVodTemplateResponse) SetVodTemplateId(v string) *DeleteVodTemplat
 }
 
 type GetVodTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VodTemplateId        *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
+	VodTemplateId *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
 }
 
 func (s GetVodTemplateRequest) String() string {
@@ -9589,29 +9050,14 @@ func (s GetVodTemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetVodTemplateRequest) SetOwnerId(v int64) *GetVodTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetVodTemplateRequest) SetResourceOwnerAccount(v string) *GetVodTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetVodTemplateRequest) SetResourceOwnerId(v int64) *GetVodTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetVodTemplateRequest) SetVodTemplateId(v string) *GetVodTemplateRequest {
 	s.VodTemplateId = &v
 	return s
 }
 
 type GetVodTemplateResponse struct {
-	RequestId       *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	VodTemplateInfo *GetVodTemplateResponseVodTemplateInfo `json:"VodTemplateInfo" xml:"VodTemplateInfo" require:"true" type:"Struct"`
+	RequestId       *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VodTemplateInfo *GetVodTemplateResponseVodTemplateInfo `json:"VodTemplateInfo,omitempty" xml:"VodTemplateInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetVodTemplateResponse) String() string {
@@ -9633,15 +9079,15 @@ func (s *GetVodTemplateResponse) SetVodTemplateInfo(v *GetVodTemplateResponseVod
 }
 
 type GetVodTemplateResponseVodTemplateInfo struct {
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	VodTemplateId   *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
-	TemplateType    *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	SubTemplateType *string `json:"SubTemplateType" xml:"SubTemplateType" require:"true"`
-	Source          *string `json:"Source" xml:"Source" require:"true"`
-	IsDefault       *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	TemplateConfig  *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime      *string `json:"ModifyTime" xml:"ModifyTime" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	VodTemplateId   *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
+	TemplateType    *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	SubTemplateType *string `json:"SubTemplateType,omitempty" xml:"SubTemplateType,omitempty" require:"true"`
+	Source          *string `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	IsDefault       *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	TemplateConfig  *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime      *string `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
 }
 
 func (s GetVodTemplateResponseVodTemplateInfo) String() string {
@@ -9698,11 +9144,8 @@ func (s *GetVodTemplateResponseVodTemplateInfo) SetModifyTime(v string) *GetVodT
 }
 
 type ListVodTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateType         *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	TemplateType *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	AppId        *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s ListVodTemplateRequest) String() string {
@@ -9711,21 +9154,6 @@ func (s ListVodTemplateRequest) String() string {
 
 func (s ListVodTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListVodTemplateRequest) SetOwnerId(v int64) *ListVodTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListVodTemplateRequest) SetResourceOwnerAccount(v string) *ListVodTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListVodTemplateRequest) SetResourceOwnerId(v int64) *ListVodTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListVodTemplateRequest) SetTemplateType(v string) *ListVodTemplateRequest {
@@ -9739,8 +9167,8 @@ func (s *ListVodTemplateRequest) SetAppId(v string) *ListVodTemplateRequest {
 }
 
 type ListVodTemplateResponse struct {
-	RequestId           *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	VodTemplateInfoList []*ListVodTemplateResponseVodTemplateInfoList `json:"VodTemplateInfoList" xml:"VodTemplateInfoList" require:"true" type:"Repeated"`
+	RequestId           *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VodTemplateInfoList []*ListVodTemplateResponseVodTemplateInfoList `json:"VodTemplateInfoList,omitempty" xml:"VodTemplateInfoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListVodTemplateResponse) String() string {
@@ -9762,16 +9190,16 @@ func (s *ListVodTemplateResponse) SetVodTemplateInfoList(v []*ListVodTemplateRes
 }
 
 type ListVodTemplateResponseVodTemplateInfoList struct {
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	VodTemplateId   *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
-	TemplateType    *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	SubTemplateType *string `json:"SubTemplateType" xml:"SubTemplateType" require:"true"`
-	Source          *string `json:"Source" xml:"Source" require:"true"`
-	IsDefault       *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	TemplateConfig  *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime      *string `json:"ModifyTime" xml:"ModifyTime" require:"true"`
-	AppId           *string `json:"AppId" xml:"AppId" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	VodTemplateId   *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
+	TemplateType    *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	SubTemplateType *string `json:"SubTemplateType,omitempty" xml:"SubTemplateType,omitempty" require:"true"`
+	Source          *string `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	IsDefault       *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	TemplateConfig  *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime      *string `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s ListVodTemplateResponseVodTemplateInfoList) String() string {
@@ -9833,12 +9261,9 @@ func (s *ListVodTemplateResponseVodTemplateInfoList) SetAppId(v string) *ListVod
 }
 
 type UpdateVodTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VodTemplateId        *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
-	Name                 *string `json:"Name" xml:"Name"`
-	TemplateConfig       *string `json:"TemplateConfig" xml:"TemplateConfig"`
+	VodTemplateId  *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
+	Name           *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	TemplateConfig *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty"`
 }
 
 func (s UpdateVodTemplateRequest) String() string {
@@ -9847,21 +9272,6 @@ func (s UpdateVodTemplateRequest) String() string {
 
 func (s UpdateVodTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateVodTemplateRequest) SetOwnerId(v int64) *UpdateVodTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateVodTemplateRequest) SetResourceOwnerAccount(v string) *UpdateVodTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateVodTemplateRequest) SetResourceOwnerId(v int64) *UpdateVodTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateVodTemplateRequest) SetVodTemplateId(v string) *UpdateVodTemplateRequest {
@@ -9880,8 +9290,8 @@ func (s *UpdateVodTemplateRequest) SetTemplateConfig(v string) *UpdateVodTemplat
 }
 
 type UpdateVodTemplateResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	VodTemplateId *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VodTemplateId *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
 }
 
 func (s UpdateVodTemplateResponse) String() string {
@@ -9903,14 +9313,11 @@ func (s *UpdateVodTemplateResponse) SetVodTemplateId(v string) *UpdateVodTemplat
 }
 
 type AddVodTemplateRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Name                 *string `json:"Name" xml:"Name" require:"true"`
-	TemplateType         *string `json:"TemplateType" xml:"TemplateType" require:"true"`
-	SubTemplateType      *string `json:"SubTemplateType" xml:"SubTemplateType"`
-	TemplateConfig       *string `json:"TemplateConfig" xml:"TemplateConfig" require:"true"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	TemplateType    *string `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	SubTemplateType *string `json:"SubTemplateType,omitempty" xml:"SubTemplateType,omitempty"`
+	TemplateConfig  *string `json:"TemplateConfig,omitempty" xml:"TemplateConfig,omitempty" require:"true"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s AddVodTemplateRequest) String() string {
@@ -9919,21 +9326,6 @@ func (s AddVodTemplateRequest) String() string {
 
 func (s AddVodTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddVodTemplateRequest) SetOwnerId(v int64) *AddVodTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddVodTemplateRequest) SetResourceOwnerAccount(v string) *AddVodTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddVodTemplateRequest) SetResourceOwnerId(v int64) *AddVodTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AddVodTemplateRequest) SetName(v string) *AddVodTemplateRequest {
@@ -9962,8 +9354,8 @@ func (s *AddVodTemplateRequest) SetAppId(v string) *AddVodTemplateRequest {
 }
 
 type AddVodTemplateResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	VodTemplateId *string `json:"VodTemplateId" xml:"VodTemplateId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VodTemplateId *string `json:"VodTemplateId,omitempty" xml:"VodTemplateId,omitempty" require:"true"`
 }
 
 func (s AddVodTemplateResponse) String() string {
@@ -9985,23 +9377,19 @@ func (s *AddVodTemplateResponse) SetVodTemplateId(v string) *AddVodTemplateRespo
 }
 
 type CreateUploadAttachedMediaRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Title                *string `json:"Title" xml:"Title"`
-	BusinessType         *string `json:"BusinessType" xml:"BusinessType" require:"true"`
-	MediaExt             *string `json:"MediaExt" xml:"MediaExt"`
-	FileName             *string `json:"FileName" xml:"FileName"`
-	FileSize             *string `json:"FileSize" xml:"FileSize"`
-	Tags                 *string `json:"Tags" xml:"Tags"`
-	CateId               *int64  `json:"CateId" xml:"CateId"`
-	StorageLocation      *string `json:"StorageLocation" xml:"StorageLocation"`
-	Description          *string `json:"Description" xml:"Description"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	CateIds              *string `json:"CateIds" xml:"CateIds"`
-	AppId                *string `json:"AppId" xml:"AppId"`
-	Icon                 *string `json:"Icon" xml:"Icon"`
+	Title           *string `json:"Title,omitempty" xml:"Title,omitempty"`
+	BusinessType    *string `json:"BusinessType,omitempty" xml:"BusinessType,omitempty" require:"true"`
+	MediaExt        *string `json:"MediaExt,omitempty" xml:"MediaExt,omitempty"`
+	FileName        *string `json:"FileName,omitempty" xml:"FileName,omitempty"`
+	FileSize        *string `json:"FileSize,omitempty" xml:"FileSize,omitempty"`
+	Tags            *string `json:"Tags,omitempty" xml:"Tags,omitempty"`
+	CateId          *int64  `json:"CateId,omitempty" xml:"CateId,omitempty"`
+	StorageLocation *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	UserData        *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	CateIds         *string `json:"CateIds,omitempty" xml:"CateIds,omitempty"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	Icon            *string `json:"Icon,omitempty" xml:"Icon,omitempty"`
 }
 
 func (s CreateUploadAttachedMediaRequest) String() string {
@@ -10010,26 +9398,6 @@ func (s CreateUploadAttachedMediaRequest) String() string {
 
 func (s CreateUploadAttachedMediaRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateUploadAttachedMediaRequest) SetAccessKeyId(v string) *CreateUploadAttachedMediaRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateUploadAttachedMediaRequest) SetOwnerId(v int64) *CreateUploadAttachedMediaRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateUploadAttachedMediaRequest) SetResourceOwnerAccount(v string) *CreateUploadAttachedMediaRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateUploadAttachedMediaRequest) SetResourceOwnerId(v int64) *CreateUploadAttachedMediaRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *CreateUploadAttachedMediaRequest) SetTitle(v string) *CreateUploadAttachedMediaRequest {
@@ -10098,12 +9466,12 @@ func (s *CreateUploadAttachedMediaRequest) SetIcon(v string) *CreateUploadAttach
 }
 
 type CreateUploadAttachedMediaResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaId       *string `json:"MediaId" xml:"MediaId" require:"true"`
-	MediaURL      *string `json:"MediaURL" xml:"MediaURL" require:"true"`
-	UploadAddress *string `json:"UploadAddress" xml:"UploadAddress" require:"true"`
-	UploadAuth    *string `json:"UploadAuth" xml:"UploadAuth" require:"true"`
-	FileURL       *string `json:"FileURL" xml:"FileURL" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaId       *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	MediaURL      *string `json:"MediaURL,omitempty" xml:"MediaURL,omitempty" require:"true"`
+	UploadAddress *string `json:"UploadAddress,omitempty" xml:"UploadAddress,omitempty" require:"true"`
+	UploadAuth    *string `json:"UploadAuth,omitempty" xml:"UploadAuth,omitempty" require:"true"`
+	FileURL       *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
 }
 
 func (s CreateUploadAttachedMediaResponse) String() string {
@@ -10145,14 +9513,10 @@ func (s *CreateUploadAttachedMediaResponse) SetFileURL(v string) *CreateUploadAt
 }
 
 type RegisterMediaRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	RegisterMetadatas    *string `json:"RegisterMetadatas" xml:"RegisterMetadatas" require:"true"`
-	TemplateGroupId      *string `json:"TemplateGroupId" xml:"TemplateGroupId"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	WorkflowId           *string `json:"WorkflowId" xml:"WorkflowId"`
+	RegisterMetadatas *string `json:"RegisterMetadatas,omitempty" xml:"RegisterMetadatas,omitempty" require:"true"`
+	TemplateGroupId   *string `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty"`
+	UserData          *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	WorkflowId        *string `json:"WorkflowId,omitempty" xml:"WorkflowId,omitempty"`
 }
 
 func (s RegisterMediaRequest) String() string {
@@ -10161,26 +9525,6 @@ func (s RegisterMediaRequest) String() string {
 
 func (s RegisterMediaRequest) GoString() string {
 	return s.String()
-}
-
-func (s *RegisterMediaRequest) SetAccessKeyId(v string) *RegisterMediaRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *RegisterMediaRequest) SetOwnerId(v int64) *RegisterMediaRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *RegisterMediaRequest) SetResourceOwnerAccount(v string) *RegisterMediaRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *RegisterMediaRequest) SetResourceOwnerId(v int64) *RegisterMediaRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *RegisterMediaRequest) SetRegisterMetadatas(v string) *RegisterMediaRequest {
@@ -10204,9 +9548,9 @@ func (s *RegisterMediaRequest) SetWorkflowId(v string) *RegisterMediaRequest {
 }
 
 type RegisterMediaResponse struct {
-	RequestId           *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	RegisteredMediaList []*RegisterMediaResponseRegisteredMediaList `json:"RegisteredMediaList" xml:"RegisteredMediaList" require:"true" type:"Repeated"`
-	FailedFileURLs      []*string                                   `json:"FailedFileURLs" xml:"FailedFileURLs" require:"true" type:"Repeated"`
+	RequestId           *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RegisteredMediaList []*RegisterMediaResponseRegisteredMediaList `json:"RegisteredMediaList,omitempty" xml:"RegisteredMediaList,omitempty" require:"true" type:"Repeated"`
+	FailedFileURLs      []*string                                   `json:"FailedFileURLs,omitempty" xml:"FailedFileURLs,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s RegisterMediaResponse) String() string {
@@ -10233,9 +9577,9 @@ func (s *RegisterMediaResponse) SetFailedFileURLs(v []*string) *RegisterMediaRes
 }
 
 type RegisterMediaResponseRegisteredMediaList struct {
-	MediaId     *string `json:"MediaId" xml:"MediaId" require:"true"`
-	FileURL     *string `json:"FileURL" xml:"FileURL" require:"true"`
-	NewRegister *bool   `json:"NewRegister" xml:"NewRegister" require:"true"`
+	MediaId     *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	FileURL     *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
+	NewRegister *bool   `json:"NewRegister,omitempty" xml:"NewRegister,omitempty" require:"true"`
 }
 
 func (s RegisterMediaResponseRegisteredMediaList) String() string {
@@ -10262,11 +9606,7 @@ func (s *RegisterMediaResponseRegisteredMediaList) SetNewRegister(v bool) *Regis
 }
 
 type DeleteWatermarkRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	WatermarkId          *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
+	WatermarkId *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
 }
 
 func (s DeleteWatermarkRequest) String() string {
@@ -10277,33 +9617,13 @@ func (s DeleteWatermarkRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteWatermarkRequest) SetAccessKeyId(v string) *DeleteWatermarkRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteWatermarkRequest) SetOwnerId(v int64) *DeleteWatermarkRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteWatermarkRequest) SetResourceOwnerAccount(v string) *DeleteWatermarkRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteWatermarkRequest) SetResourceOwnerId(v int64) *DeleteWatermarkRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteWatermarkRequest) SetWatermarkId(v string) *DeleteWatermarkRequest {
 	s.WatermarkId = &v
 	return s
 }
 
 type DeleteWatermarkResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteWatermarkResponse) String() string {
@@ -10320,11 +9640,7 @@ func (s *DeleteWatermarkResponse) SetRequestId(v string) *DeleteWatermarkRespons
 }
 
 type GetWatermarkRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	WatermarkId          *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
+	WatermarkId *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
 }
 
 func (s GetWatermarkRequest) String() string {
@@ -10335,34 +9651,14 @@ func (s GetWatermarkRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetWatermarkRequest) SetAccessKeyId(v string) *GetWatermarkRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetWatermarkRequest) SetOwnerId(v int64) *GetWatermarkRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetWatermarkRequest) SetResourceOwnerAccount(v string) *GetWatermarkRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetWatermarkRequest) SetResourceOwnerId(v int64) *GetWatermarkRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *GetWatermarkRequest) SetWatermarkId(v string) *GetWatermarkRequest {
 	s.WatermarkId = &v
 	return s
 }
 
 type GetWatermarkResponse struct {
-	RequestId     *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	WatermarkInfo *GetWatermarkResponseWatermarkInfo `json:"WatermarkInfo" xml:"WatermarkInfo" require:"true" type:"Struct"`
+	RequestId     *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	WatermarkInfo *GetWatermarkResponseWatermarkInfo `json:"WatermarkInfo,omitempty" xml:"WatermarkInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetWatermarkResponse) String() string {
@@ -10384,14 +9680,14 @@ func (s *GetWatermarkResponse) SetWatermarkInfo(v *GetWatermarkResponseWatermark
 }
 
 type GetWatermarkResponseWatermarkInfo struct {
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Type            *string `json:"Type" xml:"Type" require:"true"`
-	IsDefault       *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	WatermarkId     *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	FileUrl         *string `json:"FileUrl" xml:"FileUrl" require:"true"`
-	WatermarkConfig *string `json:"WatermarkConfig" xml:"WatermarkConfig" require:"true"`
-	AppId           *string `json:"AppId" xml:"AppId" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Type            *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	IsDefault       *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	WatermarkId     *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	FileUrl         *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty" require:"true"`
+	WatermarkConfig *string `json:"WatermarkConfig,omitempty" xml:"WatermarkConfig,omitempty" require:"true"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s GetWatermarkResponseWatermarkInfo) String() string {
@@ -10443,11 +9739,7 @@ func (s *GetWatermarkResponseWatermarkInfo) SetAppId(v string) *GetWatermarkResp
 }
 
 type SetDefaultWatermarkRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	WatermarkId          *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
+	WatermarkId *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
 }
 
 func (s SetDefaultWatermarkRequest) String() string {
@@ -10458,33 +9750,13 @@ func (s SetDefaultWatermarkRequest) GoString() string {
 	return s.String()
 }
 
-func (s *SetDefaultWatermarkRequest) SetAccessKeyId(v string) *SetDefaultWatermarkRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SetDefaultWatermarkRequest) SetOwnerId(v int64) *SetDefaultWatermarkRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SetDefaultWatermarkRequest) SetResourceOwnerAccount(v string) *SetDefaultWatermarkRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SetDefaultWatermarkRequest) SetResourceOwnerId(v int64) *SetDefaultWatermarkRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *SetDefaultWatermarkRequest) SetWatermarkId(v string) *SetDefaultWatermarkRequest {
 	s.WatermarkId = &v
 	return s
 }
 
 type SetDefaultWatermarkResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDefaultWatermarkResponse) String() string {
@@ -10501,13 +9773,9 @@ func (s *SetDefaultWatermarkResponse) SetRequestId(v string) *SetDefaultWatermar
 }
 
 type ListWatermarkRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	PageSize *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNo   *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	AppId    *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s ListWatermarkRequest) String() string {
@@ -10516,26 +9784,6 @@ func (s ListWatermarkRequest) String() string {
 
 func (s ListWatermarkRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListWatermarkRequest) SetAccessKeyId(v string) *ListWatermarkRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListWatermarkRequest) SetOwnerId(v int64) *ListWatermarkRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListWatermarkRequest) SetResourceOwnerAccount(v string) *ListWatermarkRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListWatermarkRequest) SetResourceOwnerId(v int64) *ListWatermarkRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListWatermarkRequest) SetPageSize(v int) *ListWatermarkRequest {
@@ -10554,8 +9802,8 @@ func (s *ListWatermarkRequest) SetAppId(v string) *ListWatermarkRequest {
 }
 
 type ListWatermarkResponse struct {
-	RequestId      *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	WatermarkInfos []*ListWatermarkResponseWatermarkInfos `json:"WatermarkInfos" xml:"WatermarkInfos" require:"true" type:"Repeated"`
+	RequestId      *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	WatermarkInfos []*ListWatermarkResponseWatermarkInfos `json:"WatermarkInfos,omitempty" xml:"WatermarkInfos,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListWatermarkResponse) String() string {
@@ -10577,14 +9825,14 @@ func (s *ListWatermarkResponse) SetWatermarkInfos(v []*ListWatermarkResponseWate
 }
 
 type ListWatermarkResponseWatermarkInfos struct {
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Type            *string `json:"Type" xml:"Type" require:"true"`
-	IsDefault       *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	WatermarkId     *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	FileUrl         *string `json:"FileUrl" xml:"FileUrl" require:"true"`
-	WatermarkConfig *string `json:"WatermarkConfig" xml:"WatermarkConfig" require:"true"`
-	AppId           *string `json:"AppId" xml:"AppId" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Type            *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	IsDefault       *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	WatermarkId     *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	FileUrl         *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty" require:"true"`
+	WatermarkConfig *string `json:"WatermarkConfig,omitempty" xml:"WatermarkConfig,omitempty" require:"true"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s ListWatermarkResponseWatermarkInfos) String() string {
@@ -10636,13 +9884,9 @@ func (s *ListWatermarkResponseWatermarkInfos) SetAppId(v string) *ListWatermarkR
 }
 
 type UpdateWatermarkRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Name                 *string `json:"Name" xml:"Name"`
-	WatermarkId          *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
-	WatermarkConfig      *string `json:"WatermarkConfig" xml:"WatermarkConfig" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	WatermarkId     *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
+	WatermarkConfig *string `json:"WatermarkConfig,omitempty" xml:"WatermarkConfig,omitempty" require:"true"`
 }
 
 func (s UpdateWatermarkRequest) String() string {
@@ -10651,26 +9895,6 @@ func (s UpdateWatermarkRequest) String() string {
 
 func (s UpdateWatermarkRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateWatermarkRequest) SetAccessKeyId(v string) *UpdateWatermarkRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UpdateWatermarkRequest) SetOwnerId(v int64) *UpdateWatermarkRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateWatermarkRequest) SetResourceOwnerAccount(v string) *UpdateWatermarkRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateWatermarkRequest) SetResourceOwnerId(v int64) *UpdateWatermarkRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateWatermarkRequest) SetName(v string) *UpdateWatermarkRequest {
@@ -10689,8 +9913,8 @@ func (s *UpdateWatermarkRequest) SetWatermarkConfig(v string) *UpdateWatermarkRe
 }
 
 type UpdateWatermarkResponse struct {
-	RequestId     *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	WatermarkInfo *UpdateWatermarkResponseWatermarkInfo `json:"WatermarkInfo" xml:"WatermarkInfo" require:"true" type:"Struct"`
+	RequestId     *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	WatermarkInfo *UpdateWatermarkResponseWatermarkInfo `json:"WatermarkInfo,omitempty" xml:"WatermarkInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateWatermarkResponse) String() string {
@@ -10712,13 +9936,13 @@ func (s *UpdateWatermarkResponse) SetWatermarkInfo(v *UpdateWatermarkResponseWat
 }
 
 type UpdateWatermarkResponseWatermarkInfo struct {
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Type            *string `json:"Type" xml:"Type" require:"true"`
-	IsDefault       *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	WatermarkId     *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	FileUrl         *string `json:"FileUrl" xml:"FileUrl" require:"true"`
-	WatermarkConfig *string `json:"WatermarkConfig" xml:"WatermarkConfig" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Type            *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	IsDefault       *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	WatermarkId     *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	FileUrl         *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty" require:"true"`
+	WatermarkConfig *string `json:"WatermarkConfig,omitempty" xml:"WatermarkConfig,omitempty" require:"true"`
 }
 
 func (s UpdateWatermarkResponseWatermarkInfo) String() string {
@@ -10765,15 +9989,11 @@ func (s *UpdateWatermarkResponseWatermarkInfo) SetWatermarkConfig(v string) *Upd
 }
 
 type AddWatermarkRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Type                 *string `json:"Type" xml:"Type" require:"true"`
-	Name                 *string `json:"Name" xml:"Name" require:"true"`
-	WatermarkConfig      *string `json:"WatermarkConfig" xml:"WatermarkConfig" require:"true"`
-	FileUrl              *string `json:"FileUrl" xml:"FileUrl"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	Type            *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	WatermarkConfig *string `json:"WatermarkConfig,omitempty" xml:"WatermarkConfig,omitempty" require:"true"`
+	FileUrl         *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s AddWatermarkRequest) String() string {
@@ -10782,26 +10002,6 @@ func (s AddWatermarkRequest) String() string {
 
 func (s AddWatermarkRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddWatermarkRequest) SetAccessKeyId(v string) *AddWatermarkRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *AddWatermarkRequest) SetOwnerId(v int64) *AddWatermarkRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddWatermarkRequest) SetResourceOwnerAccount(v string) *AddWatermarkRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddWatermarkRequest) SetResourceOwnerId(v int64) *AddWatermarkRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AddWatermarkRequest) SetType(v string) *AddWatermarkRequest {
@@ -10830,8 +10030,8 @@ func (s *AddWatermarkRequest) SetAppId(v string) *AddWatermarkRequest {
 }
 
 type AddWatermarkResponse struct {
-	RequestId     *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	WatermarkInfo *AddWatermarkResponseWatermarkInfo `json:"WatermarkInfo" xml:"WatermarkInfo" require:"true" type:"Struct"`
+	RequestId     *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	WatermarkInfo *AddWatermarkResponseWatermarkInfo `json:"WatermarkInfo,omitempty" xml:"WatermarkInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddWatermarkResponse) String() string {
@@ -10853,13 +10053,13 @@ func (s *AddWatermarkResponse) SetWatermarkInfo(v *AddWatermarkResponseWatermark
 }
 
 type AddWatermarkResponseWatermarkInfo struct {
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Type            *string `json:"Type" xml:"Type" require:"true"`
-	IsDefault       *string `json:"IsDefault" xml:"IsDefault" require:"true"`
-	WatermarkId     *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	FileUrl         *string `json:"FileUrl" xml:"FileUrl" require:"true"`
-	WatermarkConfig *string `json:"WatermarkConfig" xml:"WatermarkConfig" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Type            *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	IsDefault       *string `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
+	WatermarkId     *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	FileUrl         *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty" require:"true"`
+	WatermarkConfig *string `json:"WatermarkConfig,omitempty" xml:"WatermarkConfig,omitempty" require:"true"`
 }
 
 func (s AddWatermarkResponseWatermarkInfo) String() string {
@@ -10906,12 +10106,7 @@ func (s *AddWatermarkResponseWatermarkInfo) SetWatermarkConfig(v string) *AddWat
 }
 
 type GetMediaDNAResultRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	MediaId              *string `json:"MediaId" xml:"MediaId" require:"true"`
+	MediaId *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
 }
 
 func (s GetMediaDNAResultRequest) String() string {
@@ -10922,39 +10117,14 @@ func (s GetMediaDNAResultRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetMediaDNAResultRequest) SetAccessKeyId(v string) *GetMediaDNAResultRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetMediaDNAResultRequest) SetOwnerId(v string) *GetMediaDNAResultRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMediaDNAResultRequest) SetResourceOwnerId(v string) *GetMediaDNAResultRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetMediaDNAResultRequest) SetResourceOwnerAccount(v string) *GetMediaDNAResultRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMediaDNAResultRequest) SetOwnerAccount(v string) *GetMediaDNAResultRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *GetMediaDNAResultRequest) SetMediaId(v string) *GetMediaDNAResultRequest {
 	s.MediaId = &v
 	return s
 }
 
 type GetMediaDNAResultResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	DNAResult *GetMediaDNAResultResponseDNAResult `json:"DNAResult" xml:"DNAResult" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DNAResult *GetMediaDNAResultResponseDNAResult `json:"DNAResult,omitempty" xml:"DNAResult,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaDNAResultResponse) String() string {
@@ -10976,7 +10146,7 @@ func (s *GetMediaDNAResultResponse) SetDNAResult(v *GetMediaDNAResultResponseDNA
 }
 
 type GetMediaDNAResultResponseDNAResult struct {
-	VideoDNA []*GetMediaDNAResultResponseDNAResultVideoDNA `json:"VideoDNA" xml:"VideoDNA" require:"true" type:"Repeated"`
+	VideoDNA []*GetMediaDNAResultResponseDNAResultVideoDNA `json:"VideoDNA,omitempty" xml:"VideoDNA,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaDNAResultResponseDNAResult) String() string {
@@ -10993,9 +10163,9 @@ func (s *GetMediaDNAResultResponseDNAResult) SetVideoDNA(v []*GetMediaDNAResultR
 }
 
 type GetMediaDNAResultResponseDNAResultVideoDNA struct {
-	PrimaryKey *string                                             `json:"PrimaryKey" xml:"PrimaryKey" require:"true"`
-	Similarity *string                                             `json:"Similarity" xml:"Similarity" require:"true"`
-	Detail     []*GetMediaDNAResultResponseDNAResultVideoDNADetail `json:"Detail" xml:"Detail" require:"true" type:"Repeated"`
+	PrimaryKey *string                                             `json:"PrimaryKey,omitempty" xml:"PrimaryKey,omitempty" require:"true"`
+	Similarity *string                                             `json:"Similarity,omitempty" xml:"Similarity,omitempty" require:"true"`
+	Detail     []*GetMediaDNAResultResponseDNAResultVideoDNADetail `json:"Detail,omitempty" xml:"Detail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMediaDNAResultResponseDNAResultVideoDNA) String() string {
@@ -11022,8 +10192,8 @@ func (s *GetMediaDNAResultResponseDNAResultVideoDNA) SetDetail(v []*GetMediaDNAR
 }
 
 type GetMediaDNAResultResponseDNAResultVideoDNADetail struct {
-	Input       *GetMediaDNAResultResponseDNAResultVideoDNADetailInput       `json:"Input" xml:"Input" require:"true" type:"Struct"`
-	Duplication *GetMediaDNAResultResponseDNAResultVideoDNADetailDuplication `json:"Duplication" xml:"Duplication" require:"true" type:"Struct"`
+	Input       *GetMediaDNAResultResponseDNAResultVideoDNADetailInput       `json:"Input,omitempty" xml:"Input,omitempty" require:"true" type:"Struct"`
+	Duplication *GetMediaDNAResultResponseDNAResultVideoDNADetailDuplication `json:"Duplication,omitempty" xml:"Duplication,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMediaDNAResultResponseDNAResultVideoDNADetail) String() string {
@@ -11045,8 +10215,8 @@ func (s *GetMediaDNAResultResponseDNAResultVideoDNADetail) SetDuplication(v *Get
 }
 
 type GetMediaDNAResultResponseDNAResultVideoDNADetailInput struct {
-	Start    *string `json:"Start" xml:"Start" require:"true"`
-	Duration *string `json:"Duration" xml:"Duration" require:"true"`
+	Start    *string `json:"Start,omitempty" xml:"Start,omitempty" require:"true"`
+	Duration *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
 }
 
 func (s GetMediaDNAResultResponseDNAResultVideoDNADetailInput) String() string {
@@ -11068,8 +10238,8 @@ func (s *GetMediaDNAResultResponseDNAResultVideoDNADetailInput) SetDuration(v st
 }
 
 type GetMediaDNAResultResponseDNAResultVideoDNADetailDuplication struct {
-	Start    *string `json:"Start" xml:"Start" require:"true"`
-	Duration *string `json:"Duration" xml:"Duration" require:"true"`
+	Start    *string `json:"Start,omitempty" xml:"Start,omitempty" require:"true"`
+	Duration *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
 }
 
 func (s GetMediaDNAResultResponseDNAResultVideoDNADetailDuplication) String() string {
@@ -11091,11 +10261,8 @@ func (s *GetMediaDNAResultResponseDNAResultVideoDNADetailDuplication) SetDuratio
 }
 
 type DeleteMezzaninesRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoIds             *string `json:"VideoIds" xml:"VideoIds" require:"true"`
-	Force                *bool   `json:"Force" xml:"Force"`
+	VideoIds *string `json:"VideoIds,omitempty" xml:"VideoIds,omitempty" require:"true"`
+	Force    *bool   `json:"Force,omitempty" xml:"Force,omitempty"`
 }
 
 func (s DeleteMezzaninesRequest) String() string {
@@ -11104,21 +10271,6 @@ func (s DeleteMezzaninesRequest) String() string {
 
 func (s DeleteMezzaninesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteMezzaninesRequest) SetOwnerId(v int64) *DeleteMezzaninesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteMezzaninesRequest) SetResourceOwnerAccount(v string) *DeleteMezzaninesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteMezzaninesRequest) SetResourceOwnerId(v int64) *DeleteMezzaninesRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *DeleteMezzaninesRequest) SetVideoIds(v string) *DeleteMezzaninesRequest {
@@ -11132,9 +10284,9 @@ func (s *DeleteMezzaninesRequest) SetForce(v bool) *DeleteMezzaninesRequest {
 }
 
 type DeleteMezzaninesResponse struct {
-	RequestId            *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistVideoIds     []*string `json:"NonExistVideoIds" xml:"NonExistVideoIds" require:"true" type:"Repeated"`
-	UnRemoveableVideoIds []*string `json:"UnRemoveableVideoIds" xml:"UnRemoveableVideoIds" require:"true" type:"Repeated"`
+	RequestId            *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistVideoIds     []*string `json:"NonExistVideoIds,omitempty" xml:"NonExistVideoIds,omitempty" require:"true" type:"Repeated"`
+	UnRemoveableVideoIds []*string `json:"UnRemoveableVideoIds,omitempty" xml:"UnRemoveableVideoIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DeleteMezzaninesResponse) String() string {
@@ -11161,12 +10313,8 @@ func (s *DeleteMezzaninesResponse) SetUnRemoveableVideoIds(v []*string) *DeleteM
 }
 
 type UpdateImageInfosRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	UpdateContent        *string `json:"UpdateContent" xml:"UpdateContent" require:"true"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	UpdateContent       *string `json:"UpdateContent,omitempty" xml:"UpdateContent,omitempty" require:"true"`
 }
 
 func (s UpdateImageInfosRequest) String() string {
@@ -11175,26 +10323,6 @@ func (s UpdateImageInfosRequest) String() string {
 
 func (s UpdateImageInfosRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateImageInfosRequest) SetAccessKeyId(v string) *UpdateImageInfosRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UpdateImageInfosRequest) SetOwnerId(v int64) *UpdateImageInfosRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateImageInfosRequest) SetResourceOwnerAccount(v string) *UpdateImageInfosRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateImageInfosRequest) SetResourceOwnerId(v int64) *UpdateImageInfosRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateImageInfosRequest) SetResourceRealOwnerId(v int64) *UpdateImageInfosRequest {
@@ -11208,8 +10336,8 @@ func (s *UpdateImageInfosRequest) SetUpdateContent(v string) *UpdateImageInfosRe
 }
 
 type UpdateImageInfosResponse struct {
-	RequestId        *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistImageIds *UpdateImageInfosResponseNonExistImageIds `json:"NonExistImageIds" xml:"NonExistImageIds" require:"true" type:"Struct"`
+	RequestId        *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistImageIds *UpdateImageInfosResponseNonExistImageIds `json:"NonExistImageIds,omitempty" xml:"NonExistImageIds,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpdateImageInfosResponse) String() string {
@@ -11231,7 +10359,7 @@ func (s *UpdateImageInfosResponse) SetNonExistImageIds(v *UpdateImageInfosRespon
 }
 
 type UpdateImageInfosResponseNonExistImageIds struct {
-	ImageId []*string `json:"ImageId" xml:"ImageId" require:"true" type:"Repeated"`
+	ImageId []*string `json:"ImageId,omitempty" xml:"ImageId,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateImageInfosResponseNonExistImageIds) String() string {
@@ -11248,15 +10376,11 @@ func (s *UpdateImageInfosResponseNonExistImageIds) SetImageId(v []*string) *Upda
 }
 
 type DeleteImageRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	DeleteImageType      *string `json:"DeleteImageType" xml:"DeleteImageType" require:"true"`
-	ImageURLs            *string `json:"ImageURLs" xml:"ImageURLs"`
-	ImageIds             *string `json:"ImageIds" xml:"ImageIds"`
-	VideoId              *string `json:"VideoId" xml:"VideoId"`
-	ImageType            *string `json:"ImageType" xml:"ImageType"`
+	DeleteImageType *string `json:"DeleteImageType,omitempty" xml:"DeleteImageType,omitempty" require:"true"`
+	ImageURLs       *string `json:"ImageURLs,omitempty" xml:"ImageURLs,omitempty"`
+	ImageIds        *string `json:"ImageIds,omitempty" xml:"ImageIds,omitempty"`
+	VideoId         *string `json:"VideoId,omitempty" xml:"VideoId,omitempty"`
+	ImageType       *string `json:"ImageType,omitempty" xml:"ImageType,omitempty"`
 }
 
 func (s DeleteImageRequest) String() string {
@@ -11265,26 +10389,6 @@ func (s DeleteImageRequest) String() string {
 
 func (s DeleteImageRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteImageRequest) SetAccessKeyId(v string) *DeleteImageRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteImageRequest) SetOwnerId(v int64) *DeleteImageRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteImageRequest) SetResourceOwnerAccount(v string) *DeleteImageRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteImageRequest) SetResourceOwnerId(v int64) *DeleteImageRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *DeleteImageRequest) SetDeleteImageType(v string) *DeleteImageRequest {
@@ -11313,7 +10417,7 @@ func (s *DeleteImageRequest) SetImageType(v string) *DeleteImageRequest {
 }
 
 type DeleteImageResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteImageResponse) String() string {
@@ -11330,7 +10434,7 @@ func (s *DeleteImageResponse) SetRequestId(v string) *DeleteImageResponse {
 }
 
 type ListAuditSecurityIpRequest struct {
-	SecurityGroupName *string `json:"SecurityGroupName" xml:"SecurityGroupName"`
+	SecurityGroupName *string `json:"SecurityGroupName,omitempty" xml:"SecurityGroupName,omitempty"`
 }
 
 func (s ListAuditSecurityIpRequest) String() string {
@@ -11347,8 +10451,8 @@ func (s *ListAuditSecurityIpRequest) SetSecurityGroupName(v string) *ListAuditSe
 }
 
 type ListAuditSecurityIpResponse struct {
-	RequestId      *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	SecurityIpList []*ListAuditSecurityIpResponseSecurityIpList `json:"SecurityIpList" xml:"SecurityIpList" require:"true" type:"Repeated"`
+	RequestId      *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecurityIpList []*ListAuditSecurityIpResponseSecurityIpList `json:"SecurityIpList,omitempty" xml:"SecurityIpList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAuditSecurityIpResponse) String() string {
@@ -11370,10 +10474,10 @@ func (s *ListAuditSecurityIpResponse) SetSecurityIpList(v []*ListAuditSecurityIp
 }
 
 type ListAuditSecurityIpResponseSecurityIpList struct {
-	SecurityGroupName *string `json:"SecurityGroupName" xml:"SecurityGroupName" require:"true"`
-	Ips               *string `json:"Ips" xml:"Ips" require:"true"`
-	CreationTime      *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime  *string `json:"ModificationTime" xml:"ModificationTime" require:"true"`
+	SecurityGroupName *string `json:"SecurityGroupName,omitempty" xml:"SecurityGroupName,omitempty" require:"true"`
+	Ips               *string `json:"Ips,omitempty" xml:"Ips,omitempty" require:"true"`
+	CreationTime      *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime  *string `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
 }
 
 func (s ListAuditSecurityIpResponseSecurityIpList) String() string {
@@ -11405,9 +10509,9 @@ func (s *ListAuditSecurityIpResponseSecurityIpList) SetModificationTime(v string
 }
 
 type SetAuditSecurityIpRequest struct {
-	SecurityGroupName *string `json:"SecurityGroupName" xml:"SecurityGroupName"`
-	Ips               *string `json:"Ips" xml:"Ips" require:"true"`
-	OperateMode       *string `json:"OperateMode" xml:"OperateMode"`
+	SecurityGroupName *string `json:"SecurityGroupName,omitempty" xml:"SecurityGroupName,omitempty"`
+	Ips               *string `json:"Ips,omitempty" xml:"Ips,omitempty" require:"true"`
+	OperateMode       *string `json:"OperateMode,omitempty" xml:"OperateMode,omitempty"`
 }
 
 func (s SetAuditSecurityIpRequest) String() string {
@@ -11434,7 +10538,7 @@ func (s *SetAuditSecurityIpRequest) SetOperateMode(v string) *SetAuditSecurityIp
 }
 
 type SetAuditSecurityIpResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetAuditSecurityIpResponse) String() string {
@@ -11451,18 +10555,15 @@ func (s *SetAuditSecurityIpResponse) SetRequestId(v string) *SetAuditSecurityIpR
 }
 
 type UploadMediaByURLRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	UploadURLs           *string `json:"UploadURLs" xml:"UploadURLs" require:"true"`
-	TemplateGroupId      *string `json:"TemplateGroupId" xml:"TemplateGroupId"`
-	StorageLocation      *string `json:"StorageLocation" xml:"StorageLocation"`
-	UploadMetadatas      *string `json:"UploadMetadatas" xml:"UploadMetadatas"`
-	Priority             *string `json:"Priority" xml:"Priority"`
-	MessageCallback      *string `json:"MessageCallback" xml:"MessageCallback"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	AppId                *string `json:"AppId" xml:"AppId"`
-	WorkflowId           *string `json:"WorkflowId" xml:"WorkflowId"`
+	UploadURLs      *string `json:"UploadURLs,omitempty" xml:"UploadURLs,omitempty" require:"true"`
+	TemplateGroupId *string `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty"`
+	StorageLocation *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty"`
+	UploadMetadatas *string `json:"UploadMetadatas,omitempty" xml:"UploadMetadatas,omitempty"`
+	Priority        *string `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	MessageCallback *string `json:"MessageCallback,omitempty" xml:"MessageCallback,omitempty"`
+	UserData        *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
+	WorkflowId      *string `json:"WorkflowId,omitempty" xml:"WorkflowId,omitempty"`
 }
 
 func (s UploadMediaByURLRequest) String() string {
@@ -11471,21 +10572,6 @@ func (s UploadMediaByURLRequest) String() string {
 
 func (s UploadMediaByURLRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UploadMediaByURLRequest) SetOwnerId(v int64) *UploadMediaByURLRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UploadMediaByURLRequest) SetResourceOwnerAccount(v string) *UploadMediaByURLRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UploadMediaByURLRequest) SetResourceOwnerId(v int64) *UploadMediaByURLRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UploadMediaByURLRequest) SetUploadURLs(v string) *UploadMediaByURLRequest {
@@ -11534,8 +10620,8 @@ func (s *UploadMediaByURLRequest) SetWorkflowId(v string) *UploadMediaByURLReque
 }
 
 type UploadMediaByURLResponse struct {
-	RequestId  *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	UploadJobs []*UploadMediaByURLResponseUploadJobs `json:"UploadJobs" xml:"UploadJobs" require:"true" type:"Repeated"`
+	RequestId  *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UploadJobs []*UploadMediaByURLResponseUploadJobs `json:"UploadJobs,omitempty" xml:"UploadJobs,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UploadMediaByURLResponse) String() string {
@@ -11557,8 +10643,8 @@ func (s *UploadMediaByURLResponse) SetUploadJobs(v []*UploadMediaByURLResponseUp
 }
 
 type UploadMediaByURLResponseUploadJobs struct {
-	JobId     *string `json:"JobId" xml:"JobId" require:"true"`
-	SourceURL *string `json:"SourceURL" xml:"SourceURL" require:"true"`
+	JobId     *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	SourceURL *string `json:"SourceURL,omitempty" xml:"SourceURL,omitempty" require:"true"`
 }
 
 func (s UploadMediaByURLResponseUploadJobs) String() string {
@@ -11580,10 +10666,7 @@ func (s *UploadMediaByURLResponseUploadJobs) SetSourceURL(v string) *UploadMedia
 }
 
 type UpdateVideoInfosRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	UpdateContent        *string `json:"UpdateContent" xml:"UpdateContent" require:"true"`
+	UpdateContent *string `json:"UpdateContent,omitempty" xml:"UpdateContent,omitempty" require:"true"`
 }
 
 func (s UpdateVideoInfosRequest) String() string {
@@ -11594,30 +10677,15 @@ func (s UpdateVideoInfosRequest) GoString() string {
 	return s.String()
 }
 
-func (s *UpdateVideoInfosRequest) SetOwnerId(v int64) *UpdateVideoInfosRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateVideoInfosRequest) SetResourceOwnerAccount(v string) *UpdateVideoInfosRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateVideoInfosRequest) SetResourceOwnerId(v int64) *UpdateVideoInfosRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *UpdateVideoInfosRequest) SetUpdateContent(v string) *UpdateVideoInfosRequest {
 	s.UpdateContent = &v
 	return s
 }
 
 type UpdateVideoInfosResponse struct {
-	RequestId         *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistVideoIds  []*string `json:"NonExistVideoIds" xml:"NonExistVideoIds" require:"true" type:"Repeated"`
-	ForbiddenVideoIds []*string `json:"ForbiddenVideoIds" xml:"ForbiddenVideoIds" require:"true" type:"Repeated"`
+	RequestId         *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistVideoIds  []*string `json:"NonExistVideoIds,omitempty" xml:"NonExistVideoIds,omitempty" require:"true" type:"Repeated"`
+	ForbiddenVideoIds []*string `json:"ForbiddenVideoIds,omitempty" xml:"ForbiddenVideoIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateVideoInfosResponse) String() string {
@@ -11644,17 +10712,14 @@ func (s *UpdateVideoInfosResponse) SetForbiddenVideoIds(v []*string) *UpdateVide
 }
 
 type SearchMediaRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	SearchType           *string `json:"SearchType" xml:"SearchType"`
-	Fields               *string `json:"Fields" xml:"Fields"`
-	Match                *string `json:"Match" xml:"Match"`
-	SortBy               *string `json:"SortBy" xml:"SortBy"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	ScrollToken          *string `json:"ScrollToken" xml:"ScrollToken"`
-	SessionId            *string `json:"SessionId" xml:"SessionId"`
+	SearchType  *string `json:"SearchType,omitempty" xml:"SearchType,omitempty"`
+	Fields      *string `json:"Fields,omitempty" xml:"Fields,omitempty"`
+	Match       *string `json:"Match,omitempty" xml:"Match,omitempty"`
+	SortBy      *string `json:"SortBy,omitempty" xml:"SortBy,omitempty"`
+	PageNo      *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize    *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ScrollToken *string `json:"ScrollToken,omitempty" xml:"ScrollToken,omitempty"`
+	SessionId   *string `json:"SessionId,omitempty" xml:"SessionId,omitempty"`
 }
 
 func (s SearchMediaRequest) String() string {
@@ -11663,21 +10728,6 @@ func (s SearchMediaRequest) String() string {
 
 func (s SearchMediaRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SearchMediaRequest) SetOwnerId(v int64) *SearchMediaRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SearchMediaRequest) SetResourceOwnerAccount(v string) *SearchMediaRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SearchMediaRequest) SetResourceOwnerId(v int64) *SearchMediaRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SearchMediaRequest) SetSearchType(v string) *SearchMediaRequest {
@@ -11721,10 +10771,10 @@ func (s *SearchMediaRequest) SetSessionId(v string) *SearchMediaRequest {
 }
 
 type SearchMediaResponse struct {
-	RequestId   *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	ScrollToken *string                         `json:"ScrollToken" xml:"ScrollToken" require:"true"`
-	Total       *int64                          `json:"Total" xml:"Total" require:"true"`
-	MediaList   []*SearchMediaResponseMediaList `json:"MediaList" xml:"MediaList" require:"true" type:"Repeated"`
+	RequestId   *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ScrollToken *string                         `json:"ScrollToken,omitempty" xml:"ScrollToken,omitempty" require:"true"`
+	Total       *int64                          `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	MediaList   []*SearchMediaResponseMediaList `json:"MediaList,omitempty" xml:"MediaList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchMediaResponse) String() string {
@@ -11756,13 +10806,13 @@ func (s *SearchMediaResponse) SetMediaList(v []*SearchMediaResponseMediaList) *S
 }
 
 type SearchMediaResponseMediaList struct {
-	MediaType     *string                                    `json:"MediaType" xml:"MediaType" require:"true"`
-	CreationTime  *string                                    `json:"CreationTime" xml:"CreationTime" require:"true"`
-	MediaId       *string                                    `json:"MediaId" xml:"MediaId" require:"true"`
-	Video         *SearchMediaResponseMediaListVideo         `json:"Video" xml:"Video" require:"true" type:"Struct"`
-	Audio         *SearchMediaResponseMediaListAudio         `json:"Audio" xml:"Audio" require:"true" type:"Struct"`
-	Image         *SearchMediaResponseMediaListImage         `json:"Image" xml:"Image" require:"true" type:"Struct"`
-	AttachedMedia *SearchMediaResponseMediaListAttachedMedia `json:"AttachedMedia" xml:"AttachedMedia" require:"true" type:"Struct"`
+	MediaType     *string                                    `json:"MediaType,omitempty" xml:"MediaType,omitempty" require:"true"`
+	CreationTime  *string                                    `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	MediaId       *string                                    `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Video         *SearchMediaResponseMediaListVideo         `json:"Video,omitempty" xml:"Video,omitempty" require:"true" type:"Struct"`
+	Audio         *SearchMediaResponseMediaListAudio         `json:"Audio,omitempty" xml:"Audio,omitempty" require:"true" type:"Struct"`
+	Image         *SearchMediaResponseMediaListImage         `json:"Image,omitempty" xml:"Image,omitempty" require:"true" type:"Struct"`
+	AttachedMedia *SearchMediaResponseMediaListAttachedMedia `json:"AttachedMedia,omitempty" xml:"AttachedMedia,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchMediaResponseMediaList) String() string {
@@ -11809,34 +10859,36 @@ func (s *SearchMediaResponseMediaList) SetAttachedMedia(v *SearchMediaResponseMe
 }
 
 type SearchMediaResponseMediaListVideo struct {
-	VideoId           *string   `json:"VideoId" xml:"VideoId" require:"true"`
-	MediaSource       *string   `json:"MediaSource" xml:"MediaSource" require:"true"`
-	MediaType         *string   `json:"MediaType" xml:"MediaType" require:"true"`
-	Title             *string   `json:"Title" xml:"Title" require:"true"`
-	Tags              *string   `json:"Tags" xml:"Tags" require:"true"`
-	Status            *string   `json:"Status" xml:"Status" require:"true"`
-	Size              *int64    `json:"Size" xml:"Size" require:"true"`
-	Duration          *float32  `json:"Duration" xml:"Duration" require:"true"`
-	Description       *string   `json:"Description" xml:"Description" require:"true"`
-	ModificationTime  *string   `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	CreationTime      *string   `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CoverURL          *string   `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId            *int64    `json:"CateId" xml:"CateId" require:"true"`
-	CateName          *string   `json:"CateName" xml:"CateName" require:"true"`
-	DownloadSwitch    *string   `json:"DownloadSwitch" xml:"DownloadSwitch" require:"true"`
-	PreprocessStatus  *string   `json:"PreprocessStatus" xml:"PreprocessStatus" require:"true"`
-	StorageLocation   *string   `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId          *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	TranscodeMode     *string   `json:"TranscodeMode" xml:"TranscodeMode" require:"true"`
-	AuditStatus       *string   `json:"AuditStatus" xml:"AuditStatus" require:"true"`
-	AuditAIStatus     *string   `json:"AuditAIStatus" xml:"AuditAIStatus" require:"true"`
-	AuditManualStatus *string   `json:"AuditManualStatus" xml:"AuditManualStatus" require:"true"`
-	AuditAIResult     *string   `json:"AuditAIResult" xml:"AuditAIResult" require:"true"`
-	AuditTemplateId   *string   `json:"AuditTemplateId" xml:"AuditTemplateId" require:"true"`
-	CustomMediaInfo   *string   `json:"CustomMediaInfo" xml:"CustomMediaInfo" require:"true"`
-	AppId             *string   `json:"AppId" xml:"AppId" require:"true"`
-	Snapshots         []*string `json:"Snapshots" xml:"Snapshots" require:"true" type:"Repeated"`
-	SpriteSnapshots   []*string `json:"SpriteSnapshots" xml:"SpriteSnapshots" require:"true" type:"Repeated"`
+	VideoId              *string   `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	MediaSource          *string   `json:"MediaSource,omitempty" xml:"MediaSource,omitempty" require:"true"`
+	MediaType            *string   `json:"MediaType,omitempty" xml:"MediaType,omitempty" require:"true"`
+	Title                *string   `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags                 *string   `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status               *string   `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size                 *int64    `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Duration             *float32  `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description          *string   `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ModificationTime     *string   `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	CreationTime         *string   `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CoverURL             *string   `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId               *int64    `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName             *string   `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	DownloadSwitch       *string   `json:"DownloadSwitch,omitempty" xml:"DownloadSwitch,omitempty" require:"true"`
+	PreprocessStatus     *string   `json:"PreprocessStatus,omitempty" xml:"PreprocessStatus,omitempty" require:"true"`
+	StorageLocation      *string   `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId             *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	TranscodeMode        *string   `json:"TranscodeMode,omitempty" xml:"TranscodeMode,omitempty" require:"true"`
+	AuditStatus          *string   `json:"AuditStatus,omitempty" xml:"AuditStatus,omitempty" require:"true"`
+	AuditAIStatus        *string   `json:"AuditAIStatus,omitempty" xml:"AuditAIStatus,omitempty" require:"true"`
+	AuditManualStatus    *string   `json:"AuditManualStatus,omitempty" xml:"AuditManualStatus,omitempty" require:"true"`
+	AuditAIResult        *string   `json:"AuditAIResult,omitempty" xml:"AuditAIResult,omitempty" require:"true"`
+	AuditTemplateId      *string   `json:"AuditTemplateId,omitempty" xml:"AuditTemplateId,omitempty" require:"true"`
+	CustomMediaInfo      *string   `json:"CustomMediaInfo,omitempty" xml:"CustomMediaInfo,omitempty" require:"true"`
+	AppId                *string   `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	AuditAbnormalModules *string   `json:"AuditAbnormalModules,omitempty" xml:"AuditAbnormalModules,omitempty" require:"true"`
+	AuditLabel           *string   `json:"AuditLabel,omitempty" xml:"AuditLabel,omitempty" require:"true"`
+	Snapshots            []*string `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Repeated"`
+	SpriteSnapshots      []*string `json:"SpriteSnapshots,omitempty" xml:"SpriteSnapshots,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchMediaResponseMediaListVideo) String() string {
@@ -11977,6 +11029,16 @@ func (s *SearchMediaResponseMediaListVideo) SetAppId(v string) *SearchMediaRespo
 	return s
 }
 
+func (s *SearchMediaResponseMediaListVideo) SetAuditAbnormalModules(v string) *SearchMediaResponseMediaListVideo {
+	s.AuditAbnormalModules = &v
+	return s
+}
+
+func (s *SearchMediaResponseMediaListVideo) SetAuditLabel(v string) *SearchMediaResponseMediaListVideo {
+	s.AuditLabel = &v
+	return s
+}
+
 func (s *SearchMediaResponseMediaListVideo) SetSnapshots(v []*string) *SearchMediaResponseMediaListVideo {
 	s.Snapshots = v
 	return s
@@ -11988,33 +11050,33 @@ func (s *SearchMediaResponseMediaListVideo) SetSpriteSnapshots(v []*string) *Sea
 }
 
 type SearchMediaResponseMediaListAudio struct {
-	AudioId           *string   `json:"AudioId" xml:"AudioId" require:"true"`
-	MediaSource       *string   `json:"MediaSource" xml:"MediaSource" require:"true"`
-	Title             *string   `json:"Title" xml:"Title" require:"true"`
-	Tags              *string   `json:"Tags" xml:"Tags" require:"true"`
-	Status            *string   `json:"Status" xml:"Status" require:"true"`
-	Size              *int64    `json:"Size" xml:"Size" require:"true"`
-	Duration          *float32  `json:"Duration" xml:"Duration" require:"true"`
-	Description       *string   `json:"Description" xml:"Description" require:"true"`
-	ModificationTime  *string   `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	CreationTime      *string   `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CoverURL          *string   `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId            *int64    `json:"CateId" xml:"CateId" require:"true"`
-	CateName          *string   `json:"CateName" xml:"CateName" require:"true"`
-	DownloadSwitch    *string   `json:"DownloadSwitch" xml:"DownloadSwitch" require:"true"`
-	PreprocessStatus  *string   `json:"PreprocessStatus" xml:"PreprocessStatus" require:"true"`
-	StorageLocation   *string   `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId          *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	TranscodeMode     *string   `json:"TranscodeMode" xml:"TranscodeMode" require:"true"`
-	AuditStatus       *string   `json:"AuditStatus" xml:"AuditStatus" require:"true"`
-	AuditAIStatus     *string   `json:"AuditAIStatus" xml:"AuditAIStatus" require:"true"`
-	AuditManualStatus *string   `json:"AuditManualStatus" xml:"AuditManualStatus" require:"true"`
-	AuditAIResult     *string   `json:"AuditAIResult" xml:"AuditAIResult" require:"true"`
-	AuditTemplateId   *string   `json:"AuditTemplateId" xml:"AuditTemplateId" require:"true"`
-	CustomMediaInfo   *string   `json:"CustomMediaInfo" xml:"CustomMediaInfo" require:"true"`
-	AppId             *string   `json:"AppId" xml:"AppId" require:"true"`
-	Snapshots         []*string `json:"Snapshots" xml:"Snapshots" require:"true" type:"Repeated"`
-	SpriteSnapshots   []*string `json:"SpriteSnapshots" xml:"SpriteSnapshots" require:"true" type:"Repeated"`
+	AudioId           *string   `json:"AudioId,omitempty" xml:"AudioId,omitempty" require:"true"`
+	MediaSource       *string   `json:"MediaSource,omitempty" xml:"MediaSource,omitempty" require:"true"`
+	Title             *string   `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags              *string   `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status            *string   `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size              *int64    `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Duration          *float32  `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description       *string   `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ModificationTime  *string   `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	CreationTime      *string   `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CoverURL          *string   `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId            *int64    `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName          *string   `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	DownloadSwitch    *string   `json:"DownloadSwitch,omitempty" xml:"DownloadSwitch,omitempty" require:"true"`
+	PreprocessStatus  *string   `json:"PreprocessStatus,omitempty" xml:"PreprocessStatus,omitempty" require:"true"`
+	StorageLocation   *string   `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId          *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	TranscodeMode     *string   `json:"TranscodeMode,omitempty" xml:"TranscodeMode,omitempty" require:"true"`
+	AuditStatus       *string   `json:"AuditStatus,omitempty" xml:"AuditStatus,omitempty" require:"true"`
+	AuditAIStatus     *string   `json:"AuditAIStatus,omitempty" xml:"AuditAIStatus,omitempty" require:"true"`
+	AuditManualStatus *string   `json:"AuditManualStatus,omitempty" xml:"AuditManualStatus,omitempty" require:"true"`
+	AuditAIResult     *string   `json:"AuditAIResult,omitempty" xml:"AuditAIResult,omitempty" require:"true"`
+	AuditTemplateId   *string   `json:"AuditTemplateId,omitempty" xml:"AuditTemplateId,omitempty" require:"true"`
+	CustomMediaInfo   *string   `json:"CustomMediaInfo,omitempty" xml:"CustomMediaInfo,omitempty" require:"true"`
+	AppId             *string   `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Snapshots         []*string `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Repeated"`
+	SpriteSnapshots   []*string `json:"SpriteSnapshots,omitempty" xml:"SpriteSnapshots,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchMediaResponseMediaListAudio) String() string {
@@ -12161,21 +11223,21 @@ func (s *SearchMediaResponseMediaListAudio) SetSpriteSnapshots(v []*string) *Sea
 }
 
 type SearchMediaResponseMediaListImage struct {
-	Title            *string `json:"Title" xml:"Title" require:"true"`
-	ImageId          *string `json:"ImageId" xml:"ImageId" require:"true"`
-	CateId           *int64  `json:"CateId" xml:"CateId" require:"true"`
-	CateName         *string `json:"CateName" xml:"CateName" require:"true"`
-	Ext              *string `json:"Ext" xml:"Ext" require:"true"`
-	CreationTime     *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	Tags             *string `json:"Tags" xml:"Tags" require:"true"`
-	Type             *string `json:"Type" xml:"Type" require:"true"`
-	URL              *string `json:"URL" xml:"URL" require:"true"`
-	Status           *string `json:"Status" xml:"Status" require:"true"`
-	Description      *string `json:"Description" xml:"Description" require:"true"`
-	StorageLocation  *string `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId         *string `json:"RegionId" xml:"RegionId" require:"true"`
-	AppId            *string `json:"AppId" xml:"AppId" require:"true"`
+	Title            *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	ImageId          *string `json:"ImageId,omitempty" xml:"ImageId,omitempty" require:"true"`
+	CateId           *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName         *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Ext              *string `json:"Ext,omitempty" xml:"Ext,omitempty" require:"true"`
+	CreationTime     *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	Tags             *string `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Type             *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	URL              *string `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
+	Status           *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description      *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	StorageLocation  *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	AppId            *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s SearchMediaResponseMediaListImage) String() string {
@@ -12262,22 +11324,22 @@ func (s *SearchMediaResponseMediaListImage) SetAppId(v string) *SearchMediaRespo
 }
 
 type SearchMediaResponseMediaListAttachedMedia struct {
-	Title            *string                                                `json:"Title" xml:"Title" require:"true"`
-	MediaId          *string                                                `json:"MediaId" xml:"MediaId" require:"true"`
-	Ext              *string                                                `json:"Ext" xml:"Ext" require:"true"`
-	CreationTime     *string                                                `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string                                                `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	Tags             *string                                                `json:"Tags" xml:"Tags" require:"true"`
-	BusinessType     *string                                                `json:"BusinessType" xml:"BusinessType" require:"true"`
-	URL              *string                                                `json:"URL" xml:"URL" require:"true"`
-	Status           *string                                                `json:"Status" xml:"Status" require:"true"`
-	Description      *string                                                `json:"Description" xml:"Description" require:"true"`
-	StorageLocation  *string                                                `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId         *string                                                `json:"RegionId" xml:"RegionId" require:"true"`
-	AppId            *string                                                `json:"AppId" xml:"AppId" require:"true"`
-	Icon             *string                                                `json:"Icon" xml:"Icon" require:"true"`
-	OnlineStatus     *string                                                `json:"OnlineStatus" xml:"OnlineStatus" require:"true"`
-	Categories       []*SearchMediaResponseMediaListAttachedMediaCategories `json:"Categories" xml:"Categories" require:"true" type:"Repeated"`
+	Title            *string                                                `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	MediaId          *string                                                `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Ext              *string                                                `json:"Ext,omitempty" xml:"Ext,omitempty" require:"true"`
+	CreationTime     *string                                                `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string                                                `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	Tags             *string                                                `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	BusinessType     *string                                                `json:"BusinessType,omitempty" xml:"BusinessType,omitempty" require:"true"`
+	URL              *string                                                `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
+	Status           *string                                                `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description      *string                                                `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	StorageLocation  *string                                                `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId         *string                                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	AppId            *string                                                `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Icon             *string                                                `json:"Icon,omitempty" xml:"Icon,omitempty" require:"true"`
+	OnlineStatus     *string                                                `json:"OnlineStatus,omitempty" xml:"OnlineStatus,omitempty" require:"true"`
+	Categories       []*SearchMediaResponseMediaListAttachedMediaCategories `json:"Categories,omitempty" xml:"Categories,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchMediaResponseMediaListAttachedMedia) String() string {
@@ -12369,10 +11431,10 @@ func (s *SearchMediaResponseMediaListAttachedMedia) SetCategories(v []*SearchMed
 }
 
 type SearchMediaResponseMediaListAttachedMediaCategories struct {
-	CateId   *int64  `json:"CateId" xml:"CateId" require:"true"`
-	CateName *string `json:"CateName" xml:"CateName" require:"true"`
-	Level    *int64  `json:"Level" xml:"Level" require:"true"`
-	ParentId *int64  `json:"ParentId" xml:"ParentId" require:"true"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Level    *int64  `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	ParentId *int64  `json:"ParentId,omitempty" xml:"ParentId,omitempty" require:"true"`
 }
 
 func (s SearchMediaResponseMediaListAttachedMediaCategories) String() string {
@@ -12404,11 +11466,8 @@ func (s *SearchMediaResponseMediaListAttachedMediaCategories) SetParentId(v int6
 }
 
 type GetVideoInfosRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoIds             *string `json:"VideoIds" xml:"VideoIds" require:"true"`
-	AdditionType         *string `json:"AdditionType" xml:"AdditionType"`
+	VideoIds     *string `json:"VideoIds,omitempty" xml:"VideoIds,omitempty" require:"true"`
+	AdditionType *string `json:"AdditionType,omitempty" xml:"AdditionType,omitempty"`
 }
 
 func (s GetVideoInfosRequest) String() string {
@@ -12417,21 +11476,6 @@ func (s GetVideoInfosRequest) String() string {
 
 func (s GetVideoInfosRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetVideoInfosRequest) SetOwnerId(v int64) *GetVideoInfosRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetVideoInfosRequest) SetResourceOwnerAccount(v string) *GetVideoInfosRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetVideoInfosRequest) SetResourceOwnerId(v int64) *GetVideoInfosRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetVideoInfosRequest) SetVideoIds(v string) *GetVideoInfosRequest {
@@ -12445,9 +11489,9 @@ func (s *GetVideoInfosRequest) SetAdditionType(v string) *GetVideoInfosRequest {
 }
 
 type GetVideoInfosResponse struct {
-	RequestId        *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	VideoList        []*GetVideoInfosResponseVideoList `json:"VideoList" xml:"VideoList" require:"true" type:"Repeated"`
-	NonExistVideoIds []*string                         `json:"NonExistVideoIds" xml:"NonExistVideoIds" require:"true" type:"Repeated"`
+	RequestId        *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VideoList        []*GetVideoInfosResponseVideoList `json:"VideoList,omitempty" xml:"VideoList,omitempty" require:"true" type:"Repeated"`
+	NonExistVideoIds []*string                         `json:"NonExistVideoIds,omitempty" xml:"NonExistVideoIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetVideoInfosResponse) String() string {
@@ -12474,27 +11518,27 @@ func (s *GetVideoInfosResponse) SetNonExistVideoIds(v []*string) *GetVideoInfosR
 }
 
 type GetVideoInfosResponseVideoList struct {
-	VideoId          *string                                        `json:"VideoId" xml:"VideoId" require:"true"`
-	Title            *string                                        `json:"Title" xml:"Title" require:"true"`
-	Tags             *string                                        `json:"Tags" xml:"Tags" require:"true"`
-	Status           *string                                        `json:"Status" xml:"Status" require:"true"`
-	Size             *int64                                         `json:"Size" xml:"Size" require:"true"`
-	Duration         *float32                                       `json:"Duration" xml:"Duration" require:"true"`
-	Description      *string                                        `json:"Description" xml:"Description" require:"true"`
-	ModificationTime *string                                        `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	CreationTime     *string                                        `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CoverURL         *string                                        `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId           *int64                                         `json:"CateId" xml:"CateId" require:"true"`
-	CateName         *string                                        `json:"CateName" xml:"CateName" require:"true"`
-	DownloadSwitch   *string                                        `json:"DownloadSwitch" xml:"DownloadSwitch" require:"true"`
-	TemplateGroupId  *string                                        `json:"TemplateGroupId" xml:"TemplateGroupId" require:"true"`
-	PreprocessStatus *string                                        `json:"PreprocessStatus" xml:"PreprocessStatus" require:"true"`
-	StorageLocation  *string                                        `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId         *string                                        `json:"RegionId" xml:"RegionId" require:"true"`
-	CustomMediaInfo  *string                                        `json:"CustomMediaInfo" xml:"CustomMediaInfo" require:"true"`
-	AppId            *string                                        `json:"AppId" xml:"AppId" require:"true"`
-	ThumbnailList    []*GetVideoInfosResponseVideoListThumbnailList `json:"ThumbnailList" xml:"ThumbnailList" require:"true" type:"Repeated"`
-	Snapshots        []*string                                      `json:"Snapshots" xml:"Snapshots" require:"true" type:"Repeated"`
+	VideoId          *string                                        `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Title            *string                                        `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags             *string                                        `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status           *string                                        `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size             *int64                                         `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Duration         *float32                                       `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description      *string                                        `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ModificationTime *string                                        `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	CreationTime     *string                                        `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CoverURL         *string                                        `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId           *int64                                         `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName         *string                                        `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	DownloadSwitch   *string                                        `json:"DownloadSwitch,omitempty" xml:"DownloadSwitch,omitempty" require:"true"`
+	TemplateGroupId  *string                                        `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty" require:"true"`
+	PreprocessStatus *string                                        `json:"PreprocessStatus,omitempty" xml:"PreprocessStatus,omitempty" require:"true"`
+	StorageLocation  *string                                        `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId         *string                                        `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	CustomMediaInfo  *string                                        `json:"CustomMediaInfo,omitempty" xml:"CustomMediaInfo,omitempty" require:"true"`
+	AppId            *string                                        `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	ThumbnailList    []*GetVideoInfosResponseVideoListThumbnailList `json:"ThumbnailList,omitempty" xml:"ThumbnailList,omitempty" require:"true" type:"Repeated"`
+	Snapshots        []*string                                      `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetVideoInfosResponseVideoList) String() string {
@@ -12611,7 +11655,7 @@ func (s *GetVideoInfosResponseVideoList) SetSnapshots(v []*string) *GetVideoInfo
 }
 
 type GetVideoInfosResponseVideoListThumbnailList struct {
-	URL *string `json:"URL" xml:"URL" require:"true"`
+	URL *string `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
 }
 
 func (s GetVideoInfosResponseVideoListThumbnailList) String() string {
@@ -12628,12 +11672,8 @@ func (s *GetVideoInfosResponseVideoListThumbnailList) SetURL(v string) *GetVideo
 }
 
 type SubmitPreprocessJobsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	PreprocessType       *string `json:"PreprocessType" xml:"PreprocessType" require:"true"`
+	VideoId        *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	PreprocessType *string `json:"PreprocessType,omitempty" xml:"PreprocessType,omitempty" require:"true"`
 }
 
 func (s SubmitPreprocessJobsRequest) String() string {
@@ -12642,26 +11682,6 @@ func (s SubmitPreprocessJobsRequest) String() string {
 
 func (s SubmitPreprocessJobsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitPreprocessJobsRequest) SetAccessKeyId(v string) *SubmitPreprocessJobsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitPreprocessJobsRequest) SetOwnerId(v int64) *SubmitPreprocessJobsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitPreprocessJobsRequest) SetResourceOwnerAccount(v string) *SubmitPreprocessJobsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitPreprocessJobsRequest) SetResourceOwnerId(v int64) *SubmitPreprocessJobsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SubmitPreprocessJobsRequest) SetVideoId(v string) *SubmitPreprocessJobsRequest {
@@ -12675,8 +11695,8 @@ func (s *SubmitPreprocessJobsRequest) SetPreprocessType(v string) *SubmitPreproc
 }
 
 type SubmitPreprocessJobsResponse struct {
-	RequestId      *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	PreprocessJobs *SubmitPreprocessJobsResponsePreprocessJobs `json:"PreprocessJobs" xml:"PreprocessJobs" require:"true" type:"Struct"`
+	RequestId      *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PreprocessJobs *SubmitPreprocessJobsResponsePreprocessJobs `json:"PreprocessJobs,omitempty" xml:"PreprocessJobs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SubmitPreprocessJobsResponse) String() string {
@@ -12698,7 +11718,7 @@ func (s *SubmitPreprocessJobsResponse) SetPreprocessJobs(v *SubmitPreprocessJobs
 }
 
 type SubmitPreprocessJobsResponsePreprocessJobs struct {
-	PreprocessJob []*SubmitPreprocessJobsResponsePreprocessJobsPreprocessJob `json:"PreprocessJob" xml:"PreprocessJob" require:"true" type:"Repeated"`
+	PreprocessJob []*SubmitPreprocessJobsResponsePreprocessJobsPreprocessJob `json:"PreprocessJob,omitempty" xml:"PreprocessJob,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SubmitPreprocessJobsResponsePreprocessJobs) String() string {
@@ -12715,7 +11735,7 @@ func (s *SubmitPreprocessJobsResponsePreprocessJobs) SetPreprocessJob(v []*Submi
 }
 
 type SubmitPreprocessJobsResponsePreprocessJobsPreprocessJob struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s SubmitPreprocessJobsResponsePreprocessJobsPreprocessJob) String() string {
@@ -12732,10 +11752,9 @@ func (s *SubmitPreprocessJobsResponsePreprocessJobsPreprocessJob) SetJobId(v str
 }
 
 type DescribePlayVideoStatisRequest struct {
-	OwnerId   *int64  `json:"OwnerId" xml:"OwnerId"`
-	StartTime *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *string `json:"EndTime" xml:"EndTime" require:"true"`
-	VideoId   *string `json:"VideoId" xml:"VideoId" require:"true"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	VideoId   *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
 }
 
 func (s DescribePlayVideoStatisRequest) String() string {
@@ -12744,11 +11763,6 @@ func (s DescribePlayVideoStatisRequest) String() string {
 
 func (s DescribePlayVideoStatisRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribePlayVideoStatisRequest) SetOwnerId(v int64) *DescribePlayVideoStatisRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribePlayVideoStatisRequest) SetStartTime(v string) *DescribePlayVideoStatisRequest {
@@ -12767,8 +11781,8 @@ func (s *DescribePlayVideoStatisRequest) SetVideoId(v string) *DescribePlayVideo
 }
 
 type DescribePlayVideoStatisResponse struct {
-	RequestId              *string                                                `json:"RequestId" xml:"RequestId" require:"true"`
-	VideoPlayStatisDetails *DescribePlayVideoStatisResponseVideoPlayStatisDetails `json:"VideoPlayStatisDetails" xml:"VideoPlayStatisDetails" require:"true" type:"Struct"`
+	RequestId              *string                                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VideoPlayStatisDetails *DescribePlayVideoStatisResponseVideoPlayStatisDetails `json:"VideoPlayStatisDetails,omitempty" xml:"VideoPlayStatisDetails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePlayVideoStatisResponse) String() string {
@@ -12790,7 +11804,7 @@ func (s *DescribePlayVideoStatisResponse) SetVideoPlayStatisDetails(v *DescribeP
 }
 
 type DescribePlayVideoStatisResponseVideoPlayStatisDetails struct {
-	VideoPlayStatisDetail []*DescribePlayVideoStatisResponseVideoPlayStatisDetailsVideoPlayStatisDetail `json:"VideoPlayStatisDetail" xml:"VideoPlayStatisDetail" require:"true" type:"Repeated"`
+	VideoPlayStatisDetail []*DescribePlayVideoStatisResponseVideoPlayStatisDetailsVideoPlayStatisDetail `json:"VideoPlayStatisDetail,omitempty" xml:"VideoPlayStatisDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePlayVideoStatisResponseVideoPlayStatisDetails) String() string {
@@ -12807,12 +11821,12 @@ func (s *DescribePlayVideoStatisResponseVideoPlayStatisDetails) SetVideoPlayStat
 }
 
 type DescribePlayVideoStatisResponseVideoPlayStatisDetailsVideoPlayStatisDetail struct {
-	Date         *string `json:"Date" xml:"Date" require:"true"`
-	PlayDuration *string `json:"PlayDuration" xml:"PlayDuration" require:"true"`
-	VV           *string `json:"VV" xml:"VV" require:"true"`
-	UV           *string `json:"UV" xml:"UV" require:"true"`
-	PlayRange    *string `json:"PlayRange" xml:"PlayRange" require:"true"`
-	Title        *string `json:"Title" xml:"Title" require:"true"`
+	Date         *string `json:"Date,omitempty" xml:"Date,omitempty" require:"true"`
+	PlayDuration *string `json:"PlayDuration,omitempty" xml:"PlayDuration,omitempty" require:"true"`
+	VV           *string `json:"VV,omitempty" xml:"VV,omitempty" require:"true"`
+	UV           *string `json:"UV,omitempty" xml:"UV,omitempty" require:"true"`
+	PlayRange    *string `json:"PlayRange,omitempty" xml:"PlayRange,omitempty" require:"true"`
+	Title        *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
 }
 
 func (s DescribePlayVideoStatisResponseVideoPlayStatisDetailsVideoPlayStatisDetail) String() string {
@@ -12854,9 +11868,8 @@ func (s *DescribePlayVideoStatisResponseVideoPlayStatisDetailsVideoPlayStatisDet
 }
 
 type DescribePlayUserTotalRequest struct {
-	OwnerId   *int64  `json:"OwnerId" xml:"OwnerId"`
-	StartTime *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *string `json:"EndTime" xml:"EndTime" require:"true"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribePlayUserTotalRequest) String() string {
@@ -12865,11 +11878,6 @@ func (s DescribePlayUserTotalRequest) String() string {
 
 func (s DescribePlayUserTotalRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribePlayUserTotalRequest) SetOwnerId(v int64) *DescribePlayUserTotalRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribePlayUserTotalRequest) SetStartTime(v string) *DescribePlayUserTotalRequest {
@@ -12883,8 +11891,8 @@ func (s *DescribePlayUserTotalRequest) SetEndTime(v string) *DescribePlayUserTot
 }
 
 type DescribePlayUserTotalResponse struct {
-	RequestId            *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	UserPlayStatisTotals *DescribePlayUserTotalResponseUserPlayStatisTotals `json:"UserPlayStatisTotals" xml:"UserPlayStatisTotals" require:"true" type:"Struct"`
+	RequestId            *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UserPlayStatisTotals *DescribePlayUserTotalResponseUserPlayStatisTotals `json:"UserPlayStatisTotals,omitempty" xml:"UserPlayStatisTotals,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePlayUserTotalResponse) String() string {
@@ -12906,7 +11914,7 @@ func (s *DescribePlayUserTotalResponse) SetUserPlayStatisTotals(v *DescribePlayU
 }
 
 type DescribePlayUserTotalResponseUserPlayStatisTotals struct {
-	UserPlayStatisTotal []*DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotal `json:"UserPlayStatisTotal" xml:"UserPlayStatisTotal" require:"true" type:"Repeated"`
+	UserPlayStatisTotal []*DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotal `json:"UserPlayStatisTotal,omitempty" xml:"UserPlayStatisTotal,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePlayUserTotalResponseUserPlayStatisTotals) String() string {
@@ -12923,11 +11931,11 @@ func (s *DescribePlayUserTotalResponseUserPlayStatisTotals) SetUserPlayStatisTot
 }
 
 type DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotal struct {
-	Date         *string                                                                 `json:"Date" xml:"Date" require:"true"`
-	PlayDuration *string                                                                 `json:"PlayDuration" xml:"PlayDuration" require:"true"`
-	PlayRange    *string                                                                 `json:"PlayRange" xml:"PlayRange" require:"true"`
-	VV           *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalVV `json:"VV" xml:"VV" require:"true" type:"Struct"`
-	UV           *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalUV `json:"UV" xml:"UV" require:"true" type:"Struct"`
+	Date         *string                                                                 `json:"Date,omitempty" xml:"Date,omitempty" require:"true"`
+	PlayDuration *string                                                                 `json:"PlayDuration,omitempty" xml:"PlayDuration,omitempty" require:"true"`
+	PlayRange    *string                                                                 `json:"PlayRange,omitempty" xml:"PlayRange,omitempty" require:"true"`
+	VV           *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalVV `json:"VV,omitempty" xml:"VV,omitempty" require:"true" type:"Struct"`
+	UV           *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalUV `json:"UV,omitempty" xml:"UV,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotal) String() string {
@@ -12964,10 +11972,10 @@ func (s *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotal) S
 }
 
 type DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalVV struct {
-	Android *string `json:"Android" xml:"Android" require:"true"`
-	IOS     *string `json:"iOS" xml:"iOS" require:"true"`
-	Flash   *string `json:"Flash" xml:"Flash" require:"true"`
-	HTML5   *string `json:"HTML5" xml:"HTML5" require:"true"`
+	Android *string `json:"Android,omitempty" xml:"Android,omitempty" require:"true"`
+	IOS     *string `json:"iOS,omitempty" xml:"iOS,omitempty" require:"true"`
+	Flash   *string `json:"Flash,omitempty" xml:"Flash,omitempty" require:"true"`
+	HTML5   *string `json:"HTML5,omitempty" xml:"HTML5,omitempty" require:"true"`
 }
 
 func (s DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalVV) String() string {
@@ -12999,10 +12007,10 @@ func (s *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalVV)
 }
 
 type DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalUV struct {
-	Android *string `json:"Android" xml:"Android" require:"true"`
-	IOS     *string `json:"iOS" xml:"iOS" require:"true"`
-	Flash   *string `json:"Flash" xml:"Flash" require:"true"`
-	HTML5   *string `json:"HTML5" xml:"HTML5" require:"true"`
+	Android *string `json:"Android,omitempty" xml:"Android,omitempty" require:"true"`
+	IOS     *string `json:"iOS,omitempty" xml:"iOS,omitempty" require:"true"`
+	Flash   *string `json:"Flash,omitempty" xml:"Flash,omitempty" require:"true"`
+	HTML5   *string `json:"HTML5,omitempty" xml:"HTML5,omitempty" require:"true"`
 }
 
 func (s DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalUV) String() string {
@@ -13034,9 +12042,8 @@ func (s *DescribePlayUserTotalResponseUserPlayStatisTotalsUserPlayStatisTotalUV)
 }
 
 type DescribePlayUserAvgRequest struct {
-	OwnerId   *int64  `json:"OwnerId" xml:"OwnerId"`
-	StartTime *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *string `json:"EndTime" xml:"EndTime" require:"true"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
 }
 
 func (s DescribePlayUserAvgRequest) String() string {
@@ -13045,11 +12052,6 @@ func (s DescribePlayUserAvgRequest) String() string {
 
 func (s DescribePlayUserAvgRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribePlayUserAvgRequest) SetOwnerId(v int64) *DescribePlayUserAvgRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribePlayUserAvgRequest) SetStartTime(v string) *DescribePlayUserAvgRequest {
@@ -13063,8 +12065,8 @@ func (s *DescribePlayUserAvgRequest) SetEndTime(v string) *DescribePlayUserAvgRe
 }
 
 type DescribePlayUserAvgResponse struct {
-	RequestId          *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	UserPlayStatisAvgs *DescribePlayUserAvgResponseUserPlayStatisAvgs `json:"UserPlayStatisAvgs" xml:"UserPlayStatisAvgs" require:"true" type:"Struct"`
+	RequestId          *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UserPlayStatisAvgs *DescribePlayUserAvgResponseUserPlayStatisAvgs `json:"UserPlayStatisAvgs,omitempty" xml:"UserPlayStatisAvgs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePlayUserAvgResponse) String() string {
@@ -13086,7 +12088,7 @@ func (s *DescribePlayUserAvgResponse) SetUserPlayStatisAvgs(v *DescribePlayUserA
 }
 
 type DescribePlayUserAvgResponseUserPlayStatisAvgs struct {
-	UserPlayStatisAvg []*DescribePlayUserAvgResponseUserPlayStatisAvgsUserPlayStatisAvg `json:"UserPlayStatisAvg" xml:"UserPlayStatisAvg" require:"true" type:"Repeated"`
+	UserPlayStatisAvg []*DescribePlayUserAvgResponseUserPlayStatisAvgsUserPlayStatisAvg `json:"UserPlayStatisAvg,omitempty" xml:"UserPlayStatisAvg,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePlayUserAvgResponseUserPlayStatisAvgs) String() string {
@@ -13103,9 +12105,9 @@ func (s *DescribePlayUserAvgResponseUserPlayStatisAvgs) SetUserPlayStatisAvg(v [
 }
 
 type DescribePlayUserAvgResponseUserPlayStatisAvgsUserPlayStatisAvg struct {
-	Date            *string `json:"Date" xml:"Date" require:"true"`
-	AvgPlayDuration *string `json:"AvgPlayDuration" xml:"AvgPlayDuration" require:"true"`
-	AvgPlayCount    *string `json:"AvgPlayCount" xml:"AvgPlayCount" require:"true"`
+	Date            *string `json:"Date,omitempty" xml:"Date,omitempty" require:"true"`
+	AvgPlayDuration *string `json:"AvgPlayDuration,omitempty" xml:"AvgPlayDuration,omitempty" require:"true"`
+	AvgPlayCount    *string `json:"AvgPlayCount,omitempty" xml:"AvgPlayCount,omitempty" require:"true"`
 }
 
 func (s DescribePlayUserAvgResponseUserPlayStatisAvgsUserPlayStatisAvg) String() string {
@@ -13132,10 +12134,9 @@ func (s *DescribePlayUserAvgResponseUserPlayStatisAvgsUserPlayStatisAvg) SetAvgP
 }
 
 type DescribePlayTopVideosRequest struct {
-	OwnerId  *int64  `json:"OwnerId" xml:"OwnerId"`
-	BizDate  *string `json:"BizDate" xml:"BizDate" require:"true"`
-	PageNo   *int64  `json:"PageNo" xml:"PageNo"`
-	PageSize *int64  `json:"PageSize" xml:"PageSize"`
+	BizDate  *string `json:"BizDate,omitempty" xml:"BizDate,omitempty" require:"true"`
+	PageNo   *int64  `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribePlayTopVideosRequest) String() string {
@@ -13144,11 +12145,6 @@ func (s DescribePlayTopVideosRequest) String() string {
 
 func (s DescribePlayTopVideosRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribePlayTopVideosRequest) SetOwnerId(v int64) *DescribePlayTopVideosRequest {
-	s.OwnerId = &v
-	return s
 }
 
 func (s *DescribePlayTopVideosRequest) SetBizDate(v string) *DescribePlayTopVideosRequest {
@@ -13167,11 +12163,11 @@ func (s *DescribePlayTopVideosRequest) SetPageSize(v int64) *DescribePlayTopVide
 }
 
 type DescribePlayTopVideosResponse struct {
-	RequestId     *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNo        *int64                                      `json:"PageNo" xml:"PageNo" require:"true"`
-	PageSize      *int64                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalNum      *int64                                      `json:"TotalNum" xml:"TotalNum" require:"true"`
-	TopPlayVideos *DescribePlayTopVideosResponseTopPlayVideos `json:"TopPlayVideos" xml:"TopPlayVideos" require:"true" type:"Struct"`
+	RequestId     *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNo        *int64                                      `json:"PageNo,omitempty" xml:"PageNo,omitempty" require:"true"`
+	PageSize      *int64                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalNum      *int64                                      `json:"TotalNum,omitempty" xml:"TotalNum,omitempty" require:"true"`
+	TopPlayVideos *DescribePlayTopVideosResponseTopPlayVideos `json:"TopPlayVideos,omitempty" xml:"TopPlayVideos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePlayTopVideosResponse) String() string {
@@ -13208,7 +12204,7 @@ func (s *DescribePlayTopVideosResponse) SetTopPlayVideos(v *DescribePlayTopVideo
 }
 
 type DescribePlayTopVideosResponseTopPlayVideos struct {
-	TopPlayVideoStatis []*DescribePlayTopVideosResponseTopPlayVideosTopPlayVideoStatis `json:"TopPlayVideoStatis" xml:"TopPlayVideoStatis" require:"true" type:"Repeated"`
+	TopPlayVideoStatis []*DescribePlayTopVideosResponseTopPlayVideosTopPlayVideoStatis `json:"TopPlayVideoStatis,omitempty" xml:"TopPlayVideoStatis,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePlayTopVideosResponseTopPlayVideos) String() string {
@@ -13225,11 +12221,11 @@ func (s *DescribePlayTopVideosResponseTopPlayVideos) SetTopPlayVideoStatis(v []*
 }
 
 type DescribePlayTopVideosResponseTopPlayVideosTopPlayVideoStatis struct {
-	PlayDuration *string `json:"PlayDuration" xml:"PlayDuration" require:"true"`
-	VV           *string `json:"VV" xml:"VV" require:"true"`
-	UV           *string `json:"UV" xml:"UV" require:"true"`
-	VideoId      *string `json:"VideoId" xml:"VideoId" require:"true"`
-	Title        *string `json:"Title" xml:"Title" require:"true"`
+	PlayDuration *string `json:"PlayDuration,omitempty" xml:"PlayDuration,omitempty" require:"true"`
+	VV           *string `json:"VV,omitempty" xml:"VV,omitempty" require:"true"`
+	UV           *string `json:"UV,omitempty" xml:"UV,omitempty" require:"true"`
+	VideoId      *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Title        *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
 }
 
 func (s DescribePlayTopVideosResponseTopPlayVideosTopPlayVideoStatis) String() string {
@@ -13266,15 +12262,11 @@ func (s *DescribePlayTopVideosResponseTopPlayVideosTopPlayVideoStatis) SetTitle(
 }
 
 type ListSnapshotsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	SnapshotType         *string `json:"SnapshotType" xml:"SnapshotType"`
-	AuthTimeout          *string `json:"AuthTimeout" xml:"AuthTimeout"`
-	PageSize             *string `json:"PageSize" xml:"PageSize"`
-	PageNo               *string `json:"PageNo" xml:"PageNo"`
+	VideoId      *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	SnapshotType *string `json:"SnapshotType,omitempty" xml:"SnapshotType,omitempty"`
+	AuthTimeout  *string `json:"AuthTimeout,omitempty" xml:"AuthTimeout,omitempty"`
+	PageSize     *string `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNo       *string `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
 }
 
 func (s ListSnapshotsRequest) String() string {
@@ -13283,26 +12275,6 @@ func (s ListSnapshotsRequest) String() string {
 
 func (s ListSnapshotsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListSnapshotsRequest) SetAccessKeyId(v string) *ListSnapshotsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListSnapshotsRequest) SetOwnerId(v int64) *ListSnapshotsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListSnapshotsRequest) SetResourceOwnerAccount(v string) *ListSnapshotsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListSnapshotsRequest) SetResourceOwnerId(v int64) *ListSnapshotsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListSnapshotsRequest) SetVideoId(v string) *ListSnapshotsRequest {
@@ -13331,8 +12303,8 @@ func (s *ListSnapshotsRequest) SetPageNo(v string) *ListSnapshotsRequest {
 }
 
 type ListSnapshotsResponse struct {
-	RequestId     *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaSnapshot *ListSnapshotsResponseMediaSnapshot `json:"MediaSnapshot" xml:"MediaSnapshot" require:"true" type:"Struct"`
+	RequestId     *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaSnapshot *ListSnapshotsResponseMediaSnapshot `json:"MediaSnapshot,omitempty" xml:"MediaSnapshot,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSnapshotsResponse) String() string {
@@ -13354,11 +12326,11 @@ func (s *ListSnapshotsResponse) SetMediaSnapshot(v *ListSnapshotsResponseMediaSn
 }
 
 type ListSnapshotsResponseMediaSnapshot struct {
-	Total        *int64                                       `json:"Total" xml:"Total" require:"true"`
-	Regular      *string                                      `json:"Regular" xml:"Regular" require:"true"`
-	CreationTime *string                                      `json:"CreationTime" xml:"CreationTime" require:"true"`
-	JobId        *string                                      `json:"JobId" xml:"JobId" require:"true"`
-	Snapshots    *ListSnapshotsResponseMediaSnapshotSnapshots `json:"Snapshots" xml:"Snapshots" require:"true" type:"Struct"`
+	Total        *int64                                       `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	Regular      *string                                      `json:"Regular,omitempty" xml:"Regular,omitempty" require:"true"`
+	CreationTime *string                                      `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	JobId        *string                                      `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Snapshots    *ListSnapshotsResponseMediaSnapshotSnapshots `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSnapshotsResponseMediaSnapshot) String() string {
@@ -13395,7 +12367,7 @@ func (s *ListSnapshotsResponseMediaSnapshot) SetSnapshots(v *ListSnapshotsRespon
 }
 
 type ListSnapshotsResponseMediaSnapshotSnapshots struct {
-	Snapshot []*ListSnapshotsResponseMediaSnapshotSnapshotsSnapshot `json:"Snapshot" xml:"Snapshot" require:"true" type:"Repeated"`
+	Snapshot []*ListSnapshotsResponseMediaSnapshotSnapshotsSnapshot `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListSnapshotsResponseMediaSnapshotSnapshots) String() string {
@@ -13412,8 +12384,8 @@ func (s *ListSnapshotsResponseMediaSnapshotSnapshots) SetSnapshot(v []*ListSnaps
 }
 
 type ListSnapshotsResponseMediaSnapshotSnapshotsSnapshot struct {
-	Index *int64  `json:"Index" xml:"Index" require:"true"`
-	Url   *string `json:"Url" xml:"Url" require:"true"`
+	Index *int64  `json:"Index,omitempty" xml:"Index,omitempty" require:"true"`
+	Url   *string `json:"Url,omitempty" xml:"Url,omitempty" require:"true"`
 }
 
 func (s ListSnapshotsResponseMediaSnapshotSnapshotsSnapshot) String() string {
@@ -13435,18 +12407,14 @@ func (s *ListSnapshotsResponseMediaSnapshotSnapshotsSnapshot) SetUrl(v string) *
 }
 
 type SubmitTranscodeJobsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId"`
-	TemplateGroupId      *string `json:"TemplateGroupId" xml:"TemplateGroupId" require:"true"`
-	PipelineId           *string `json:"PipelineId" xml:"PipelineId"`
-	EncryptConfig        *string `json:"EncryptConfig" xml:"EncryptConfig"`
-	OverrideParams       *string `json:"OverrideParams" xml:"OverrideParams"`
-	Priority             *string `json:"Priority" xml:"Priority"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	FileUrl              *string `json:"FileUrl" xml:"FileUrl"`
+	VideoId         *string `json:"VideoId,omitempty" xml:"VideoId,omitempty"`
+	TemplateGroupId *string `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty" require:"true"`
+	PipelineId      *string `json:"PipelineId,omitempty" xml:"PipelineId,omitempty"`
+	EncryptConfig   *string `json:"EncryptConfig,omitempty" xml:"EncryptConfig,omitempty"`
+	OverrideParams  *string `json:"OverrideParams,omitempty" xml:"OverrideParams,omitempty"`
+	Priority        *string `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	UserData        *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	FileUrl         *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty"`
 }
 
 func (s SubmitTranscodeJobsRequest) String() string {
@@ -13455,26 +12423,6 @@ func (s SubmitTranscodeJobsRequest) String() string {
 
 func (s SubmitTranscodeJobsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitTranscodeJobsRequest) SetAccessKeyId(v string) *SubmitTranscodeJobsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitTranscodeJobsRequest) SetOwnerId(v int64) *SubmitTranscodeJobsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitTranscodeJobsRequest) SetResourceOwnerAccount(v string) *SubmitTranscodeJobsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitTranscodeJobsRequest) SetResourceOwnerId(v int64) *SubmitTranscodeJobsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SubmitTranscodeJobsRequest) SetVideoId(v string) *SubmitTranscodeJobsRequest {
@@ -13518,9 +12466,9 @@ func (s *SubmitTranscodeJobsRequest) SetFileUrl(v string) *SubmitTranscodeJobsRe
 }
 
 type SubmitTranscodeJobsResponse struct {
-	RequestId       *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TranscodeTaskId *string                                   `json:"TranscodeTaskId" xml:"TranscodeTaskId" require:"true"`
-	TranscodeJobs   *SubmitTranscodeJobsResponseTranscodeJobs `json:"TranscodeJobs" xml:"TranscodeJobs" require:"true" type:"Struct"`
+	RequestId       *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TranscodeTaskId *string                                   `json:"TranscodeTaskId,omitempty" xml:"TranscodeTaskId,omitempty" require:"true"`
+	TranscodeJobs   *SubmitTranscodeJobsResponseTranscodeJobs `json:"TranscodeJobs,omitempty" xml:"TranscodeJobs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SubmitTranscodeJobsResponse) String() string {
@@ -13547,7 +12495,7 @@ func (s *SubmitTranscodeJobsResponse) SetTranscodeJobs(v *SubmitTranscodeJobsRes
 }
 
 type SubmitTranscodeJobsResponseTranscodeJobs struct {
-	TranscodeJob []*SubmitTranscodeJobsResponseTranscodeJobsTranscodeJob `json:"TranscodeJob" xml:"TranscodeJob" require:"true" type:"Repeated"`
+	TranscodeJob []*SubmitTranscodeJobsResponseTranscodeJobsTranscodeJob `json:"TranscodeJob,omitempty" xml:"TranscodeJob,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SubmitTranscodeJobsResponseTranscodeJobs) String() string {
@@ -13564,7 +12512,7 @@ func (s *SubmitTranscodeJobsResponseTranscodeJobs) SetTranscodeJob(v []*SubmitTr
 }
 
 type SubmitTranscodeJobsResponseTranscodeJobsTranscodeJob struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s SubmitTranscodeJobsResponseTranscodeJobsTranscodeJob) String() string {
@@ -13581,18 +12529,15 @@ func (s *SubmitTranscodeJobsResponseTranscodeJobsTranscodeJob) SetJobId(v string
 }
 
 type ListLiveRecordVideoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	StreamName           *string `json:"StreamName" xml:"StreamName"`
-	DomainName           *string `json:"DomainName" xml:"DomainName"`
-	AppName              *string `json:"AppName" xml:"AppName"`
-	QueryType            *string `json:"QueryType" xml:"QueryType"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	SortBy               *string `json:"SortBy" xml:"SortBy"`
-	StartTime            *string `json:"StartTime" xml:"StartTime"`
-	EndTime              *string `json:"EndTime" xml:"EndTime"`
+	StreamName *string `json:"StreamName,omitempty" xml:"StreamName,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	AppName    *string `json:"AppName,omitempty" xml:"AppName,omitempty"`
+	QueryType  *string `json:"QueryType,omitempty" xml:"QueryType,omitempty"`
+	PageNo     *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	SortBy     *string `json:"SortBy,omitempty" xml:"SortBy,omitempty"`
+	StartTime  *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime    *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
 }
 
 func (s ListLiveRecordVideoRequest) String() string {
@@ -13601,21 +12546,6 @@ func (s ListLiveRecordVideoRequest) String() string {
 
 func (s ListLiveRecordVideoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ListLiveRecordVideoRequest) SetOwnerId(v int64) *ListLiveRecordVideoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListLiveRecordVideoRequest) SetResourceOwnerAccount(v string) *ListLiveRecordVideoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListLiveRecordVideoRequest) SetResourceOwnerId(v int64) *ListLiveRecordVideoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ListLiveRecordVideoRequest) SetStreamName(v string) *ListLiveRecordVideoRequest {
@@ -13664,9 +12594,9 @@ func (s *ListLiveRecordVideoRequest) SetEndTime(v string) *ListLiveRecordVideoRe
 }
 
 type ListLiveRecordVideoResponse struct {
-	RequestId           *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Total               *int                                            `json:"Total" xml:"Total" require:"true"`
-	LiveRecordVideoList *ListLiveRecordVideoResponseLiveRecordVideoList `json:"LiveRecordVideoList" xml:"LiveRecordVideoList" require:"true" type:"Struct"`
+	RequestId           *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Total               *int                                            `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	LiveRecordVideoList *ListLiveRecordVideoResponseLiveRecordVideoList `json:"LiveRecordVideoList,omitempty" xml:"LiveRecordVideoList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListLiveRecordVideoResponse) String() string {
@@ -13693,7 +12623,7 @@ func (s *ListLiveRecordVideoResponse) SetLiveRecordVideoList(v *ListLiveRecordVi
 }
 
 type ListLiveRecordVideoResponseLiveRecordVideoList struct {
-	LiveRecordVideo []*ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideo `json:"LiveRecordVideo" xml:"LiveRecordVideo" require:"true" type:"Repeated"`
+	LiveRecordVideo []*ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideo `json:"LiveRecordVideo,omitempty" xml:"LiveRecordVideo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListLiveRecordVideoResponseLiveRecordVideoList) String() string {
@@ -13710,14 +12640,14 @@ func (s *ListLiveRecordVideoResponseLiveRecordVideoList) SetLiveRecordVideo(v []
 }
 
 type ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideo struct {
-	StreamName      *string                                                                    `json:"StreamName" xml:"StreamName" require:"true"`
-	DomainName      *string                                                                    `json:"DomainName" xml:"DomainName" require:"true"`
-	AppName         *string                                                                    `json:"AppName" xml:"AppName" require:"true"`
-	PlaylistId      *string                                                                    `json:"PlaylistId" xml:"PlaylistId" require:"true"`
-	RecordStartTime *string                                                                    `json:"RecordStartTime" xml:"RecordStartTime" require:"true"`
-	RecordEndTime   *string                                                                    `json:"RecordEndTime" xml:"RecordEndTime" require:"true"`
-	PlayInfoList    *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoList `json:"PlayInfoList" xml:"PlayInfoList" require:"true" type:"Struct"`
-	Video           *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideo        `json:"Video" xml:"Video" require:"true" type:"Struct"`
+	StreamName      *string                                                                    `json:"StreamName,omitempty" xml:"StreamName,omitempty" require:"true"`
+	DomainName      *string                                                                    `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	AppName         *string                                                                    `json:"AppName,omitempty" xml:"AppName,omitempty" require:"true"`
+	PlaylistId      *string                                                                    `json:"PlaylistId,omitempty" xml:"PlaylistId,omitempty" require:"true"`
+	RecordStartTime *string                                                                    `json:"RecordStartTime,omitempty" xml:"RecordStartTime,omitempty" require:"true"`
+	RecordEndTime   *string                                                                    `json:"RecordEndTime,omitempty" xml:"RecordEndTime,omitempty" require:"true"`
+	PlayInfoList    *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoList `json:"PlayInfoList,omitempty" xml:"PlayInfoList,omitempty" require:"true" type:"Struct"`
+	Video           *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideo        `json:"Video,omitempty" xml:"Video,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideo) String() string {
@@ -13769,7 +12699,7 @@ func (s *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideo) SetVideo
 }
 
 type ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoList struct {
-	PlayInfo []*ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoListPlayInfo `json:"PlayInfo" xml:"PlayInfo" require:"true" type:"Repeated"`
+	PlayInfo []*ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoListPlayInfo `json:"PlayInfo,omitempty" xml:"PlayInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoList) String() string {
@@ -13786,21 +12716,21 @@ func (s *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoLi
 }
 
 type ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoListPlayInfo struct {
-	Width      *int64  `json:"Width" xml:"Width" require:"true"`
-	Height     *int64  `json:"Height" xml:"Height" require:"true"`
-	Size       *int64  `json:"Size" xml:"Size" require:"true"`
-	PlayURL    *string `json:"PlayURL" xml:"PlayURL" require:"true"`
-	Bitrate    *string `json:"Bitrate" xml:"Bitrate" require:"true"`
-	Definition *string `json:"Definition" xml:"Definition" require:"true"`
-	Duration   *string `json:"Duration" xml:"Duration" require:"true"`
-	Format     *string `json:"Format" xml:"Format" require:"true"`
-	Fps        *string `json:"Fps" xml:"Fps" require:"true"`
-	Encrypt    *int64  `json:"Encrypt" xml:"Encrypt" require:"true"`
-	Plaintext  *string `json:"Plaintext" xml:"Plaintext" require:"true"`
-	Complexity *string `json:"Complexity" xml:"Complexity" require:"true"`
-	StreamType *string `json:"StreamType" xml:"StreamType" require:"true"`
-	Rand       *string `json:"Rand" xml:"Rand" require:"true"`
-	JobId      *string `json:"JobId" xml:"JobId" require:"true"`
+	Width      *int64  `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height     *int64  `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Size       *int64  `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	PlayURL    *string `json:"PlayURL,omitempty" xml:"PlayURL,omitempty" require:"true"`
+	Bitrate    *string `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
+	Definition *string `json:"Definition,omitempty" xml:"Definition,omitempty" require:"true"`
+	Duration   *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Format     *string `json:"Format,omitempty" xml:"Format,omitempty" require:"true"`
+	Fps        *string `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	Encrypt    *int64  `json:"Encrypt,omitempty" xml:"Encrypt,omitempty" require:"true"`
+	Plaintext  *string `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	Complexity *string `json:"Complexity,omitempty" xml:"Complexity,omitempty" require:"true"`
+	StreamType *string `json:"StreamType,omitempty" xml:"StreamType,omitempty" require:"true"`
+	Rand       *string `json:"Rand,omitempty" xml:"Rand,omitempty" require:"true"`
+	JobId      *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoListPlayInfo) String() string {
@@ -13887,24 +12817,24 @@ func (s *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoPlayInfoLi
 }
 
 type ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideo struct {
-	VideoId         *string                                                                      `json:"VideoId" xml:"VideoId" require:"true"`
-	Title           *string                                                                      `json:"Title" xml:"Title" require:"true"`
-	Tags            *string                                                                      `json:"Tags" xml:"Tags" require:"true"`
-	Status          *string                                                                      `json:"Status" xml:"Status" require:"true"`
-	Size            *int64                                                                       `json:"Size" xml:"Size" require:"true"`
-	Privilege       *int                                                                         `json:"Privilege" xml:"Privilege" require:"true"`
-	Duration        *float32                                                                     `json:"Duration" xml:"Duration" require:"true"`
-	Description     *string                                                                      `json:"Description" xml:"Description" require:"true"`
-	CustomerId      *int64                                                                       `json:"CustomerId" xml:"CustomerId" require:"true"`
-	CreateTime      *string                                                                      `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreationTime    *string                                                                      `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifyTime      *string                                                                      `json:"ModifyTime" xml:"ModifyTime" require:"true"`
-	CoverURL        *string                                                                      `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId          *int                                                                         `json:"CateId" xml:"CateId" require:"true"`
-	CateName        *string                                                                      `json:"CateName" xml:"CateName" require:"true"`
-	DownloadSwitch  *string                                                                      `json:"DownloadSwitch" xml:"DownloadSwitch" require:"true"`
-	TemplateGroupId *string                                                                      `json:"TemplateGroupId" xml:"TemplateGroupId" require:"true"`
-	Snapshots       *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideoSnapshots `json:"Snapshots" xml:"Snapshots" require:"true" type:"Struct"`
+	VideoId         *string                                                                      `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Title           *string                                                                      `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags            *string                                                                      `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status          *string                                                                      `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size            *int64                                                                       `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Privilege       *int                                                                         `json:"Privilege,omitempty" xml:"Privilege,omitempty" require:"true"`
+	Duration        *float32                                                                     `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description     *string                                                                      `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CustomerId      *int64                                                                       `json:"CustomerId,omitempty" xml:"CustomerId,omitempty" require:"true"`
+	CreateTime      *string                                                                      `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreationTime    *string                                                                      `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifyTime      *string                                                                      `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
+	CoverURL        *string                                                                      `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId          *int                                                                         `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName        *string                                                                      `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	DownloadSwitch  *string                                                                      `json:"DownloadSwitch,omitempty" xml:"DownloadSwitch,omitempty" require:"true"`
+	TemplateGroupId *string                                                                      `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty" require:"true"`
+	Snapshots       *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideoSnapshots `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideo) String() string {
@@ -14006,7 +12936,7 @@ func (s *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideo) Set
 }
 
 type ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideoSnapshots struct {
-	Snapshot []*string `json:"Snapshot" xml:"Snapshot" require:"true" type:"Repeated"`
+	Snapshot []*string `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideoSnapshots) String() string {
@@ -14023,7 +12953,7 @@ func (s *ListLiveRecordVideoResponseLiveRecordVideoListLiveRecordVideoVideoSnaps
 }
 
 type CreateAuditRequest struct {
-	AuditContent *string `json:"AuditContent" xml:"AuditContent" require:"true"`
+	AuditContent *string `json:"AuditContent,omitempty" xml:"AuditContent,omitempty" require:"true"`
 }
 
 func (s CreateAuditRequest) String() string {
@@ -14040,7 +12970,7 @@ func (s *CreateAuditRequest) SetAuditContent(v string) *CreateAuditRequest {
 }
 
 type CreateAuditResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateAuditResponse) String() string {
@@ -14057,10 +12987,10 @@ func (s *CreateAuditResponse) SetRequestId(v string) *CreateAuditResponse {
 }
 
 type GetAuditHistoryRequest struct {
-	VideoId  *string `json:"VideoId" xml:"VideoId" require:"true"`
-	PageNo   *int64  `json:"PageNo" xml:"PageNo"`
-	PageSize *int64  `json:"PageSize" xml:"PageSize"`
-	SortBy   *string `json:"SortBy" xml:"SortBy"`
+	VideoId  *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	PageNo   *int64  `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	SortBy   *string `json:"SortBy,omitempty" xml:"SortBy,omitempty"`
 }
 
 func (s GetAuditHistoryRequest) String() string {
@@ -14092,10 +13022,10 @@ func (s *GetAuditHistoryRequest) SetSortBy(v string) *GetAuditHistoryRequest {
 }
 
 type GetAuditHistoryResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Status    *string                             `json:"Status" xml:"Status" require:"true"`
-	Total     *int64                              `json:"Total" xml:"Total" require:"true"`
-	Histories []*GetAuditHistoryResponseHistories `json:"Histories" xml:"Histories" require:"true" type:"Repeated"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Status    *string                             `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Total     *int64                              `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	Histories []*GetAuditHistoryResponseHistories `json:"Histories,omitempty" xml:"Histories,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetAuditHistoryResponse) String() string {
@@ -14127,11 +13057,11 @@ func (s *GetAuditHistoryResponse) SetHistories(v []*GetAuditHistoryResponseHisto
 }
 
 type GetAuditHistoryResponseHistories struct {
-	CreationTime *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Reason       *string `json:"Reason" xml:"Reason" require:"true"`
-	Comment      *string `json:"Comment" xml:"Comment" require:"true"`
-	Auditor      *string `json:"Auditor" xml:"Auditor" require:"true"`
+	CreationTime *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Reason       *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	Comment      *string `json:"Comment,omitempty" xml:"Comment,omitempty" require:"true"`
+	Auditor      *string `json:"Auditor,omitempty" xml:"Auditor,omitempty" require:"true"`
 }
 
 func (s GetAuditHistoryResponseHistories) String() string {
@@ -14168,12 +13098,7 @@ func (s *GetAuditHistoryResponseHistories) SetAuditor(v string) *GetAuditHistory
 }
 
 type ListAIJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	JobIds               *string `json:"JobIds" xml:"JobIds" require:"true"`
+	JobIds *string `json:"JobIds,omitempty" xml:"JobIds,omitempty" require:"true"`
 }
 
 func (s ListAIJobRequest) String() string {
@@ -14184,40 +13109,15 @@ func (s ListAIJobRequest) GoString() string {
 	return s.String()
 }
 
-func (s *ListAIJobRequest) SetAccessKeyId(v string) *ListAIJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ListAIJobRequest) SetOwnerId(v string) *ListAIJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ListAIJobRequest) SetResourceOwnerId(v string) *ListAIJobRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *ListAIJobRequest) SetResourceOwnerAccount(v string) *ListAIJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ListAIJobRequest) SetOwnerAccount(v string) *ListAIJobRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *ListAIJobRequest) SetJobIds(v string) *ListAIJobRequest {
 	s.JobIds = &v
 	return s
 }
 
 type ListAIJobResponse struct {
-	RequestId        *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	AIJobList        *ListAIJobResponseAIJobList        `json:"AIJobList" xml:"AIJobList" require:"true" type:"Struct"`
-	NonExistAIJobIds *ListAIJobResponseNonExistAIJobIds `json:"NonExistAIJobIds" xml:"NonExistAIJobIds" require:"true" type:"Struct"`
+	RequestId        *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AIJobList        *ListAIJobResponseAIJobList        `json:"AIJobList,omitempty" xml:"AIJobList,omitempty" require:"true" type:"Struct"`
+	NonExistAIJobIds *ListAIJobResponseNonExistAIJobIds `json:"NonExistAIJobIds,omitempty" xml:"NonExistAIJobIds,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListAIJobResponse) String() string {
@@ -14244,7 +13144,7 @@ func (s *ListAIJobResponse) SetNonExistAIJobIds(v *ListAIJobResponseNonExistAIJo
 }
 
 type ListAIJobResponseAIJobList struct {
-	AIJob []*ListAIJobResponseAIJobListAIJob `json:"AIJob" xml:"AIJob" require:"true" type:"Repeated"`
+	AIJob []*ListAIJobResponseAIJobListAIJob `json:"AIJob,omitempty" xml:"AIJob,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAIJobResponseAIJobList) String() string {
@@ -14261,15 +13161,15 @@ func (s *ListAIJobResponseAIJobList) SetAIJob(v []*ListAIJobResponseAIJobListAIJ
 }
 
 type ListAIJobResponseAIJobListAIJob struct {
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	MediaId      *string `json:"MediaId" xml:"MediaId" require:"true"`
-	Type         *string `json:"Type" xml:"Type" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Code         *string `json:"Code" xml:"Code" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
-	CreationTime *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CompleteTime *string `json:"CompleteTime" xml:"CompleteTime" require:"true"`
-	Data         *string `json:"Data" xml:"Data" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	MediaId      *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Code         *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	CreationTime *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CompleteTime *string `json:"CompleteTime,omitempty" xml:"CompleteTime,omitempty" require:"true"`
+	Data         *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s ListAIJobResponseAIJobListAIJob) String() string {
@@ -14326,7 +13226,7 @@ func (s *ListAIJobResponseAIJobListAIJob) SetData(v string) *ListAIJobResponseAI
 }
 
 type ListAIJobResponseNonExistAIJobIds struct {
-	String []*string `json:"String" xml:"String" require:"true" type:"Repeated"`
+	String []*string `json:"String,omitempty" xml:"String,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAIJobResponseNonExistAIJobIds) String() string {
@@ -14343,16 +13243,11 @@ func (s *ListAIJobResponseNonExistAIJobIds) SetString(v []*string) *ListAIJobRes
 }
 
 type SubmitAIJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	MediaId              *string `json:"MediaId" xml:"MediaId"`
-	Types                *string `json:"Types" xml:"Types"`
-	Config               *string `json:"Config" xml:"Config"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	Input                *string `json:"Input" xml:"Input"`
+	MediaId  *string `json:"MediaId,omitempty" xml:"MediaId,omitempty"`
+	Types    *string `json:"Types,omitempty" xml:"Types,omitempty"`
+	Config   *string `json:"Config,omitempty" xml:"Config,omitempty"`
+	UserData *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	Input    *string `json:"Input,omitempty" xml:"Input,omitempty"`
 }
 
 func (s SubmitAIJobRequest) String() string {
@@ -14361,31 +13256,6 @@ func (s SubmitAIJobRequest) String() string {
 
 func (s SubmitAIJobRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitAIJobRequest) SetAccessKeyId(v string) *SubmitAIJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitAIJobRequest) SetOwnerId(v string) *SubmitAIJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitAIJobRequest) SetResourceOwnerId(v string) *SubmitAIJobRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *SubmitAIJobRequest) SetResourceOwnerAccount(v string) *SubmitAIJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitAIJobRequest) SetOwnerAccount(v string) *SubmitAIJobRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *SubmitAIJobRequest) SetMediaId(v string) *SubmitAIJobRequest {
@@ -14414,8 +13284,8 @@ func (s *SubmitAIJobRequest) SetInput(v string) *SubmitAIJobRequest {
 }
 
 type SubmitAIJobResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	AIJobList *SubmitAIJobResponseAIJobList `json:"AIJobList" xml:"AIJobList" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AIJobList *SubmitAIJobResponseAIJobList `json:"AIJobList,omitempty" xml:"AIJobList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SubmitAIJobResponse) String() string {
@@ -14437,7 +13307,7 @@ func (s *SubmitAIJobResponse) SetAIJobList(v *SubmitAIJobResponseAIJobList) *Sub
 }
 
 type SubmitAIJobResponseAIJobList struct {
-	AIJob []*SubmitAIJobResponseAIJobListAIJob `json:"AIJob" xml:"AIJob" require:"true" type:"Repeated"`
+	AIJob []*SubmitAIJobResponseAIJobListAIJob `json:"AIJob,omitempty" xml:"AIJob,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SubmitAIJobResponseAIJobList) String() string {
@@ -14454,14 +13324,14 @@ func (s *SubmitAIJobResponseAIJobList) SetAIJob(v []*SubmitAIJobResponseAIJobLis
 }
 
 type SubmitAIJobResponseAIJobListAIJob struct {
-	JobId        *string `json:"JobId" xml:"JobId" require:"true"`
-	Type         *string `json:"Type" xml:"Type" require:"true"`
-	MediaId      *string `json:"MediaId" xml:"MediaId" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Code         *string `json:"Code" xml:"Code" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
-	CreationTime *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Data         *string `json:"Data" xml:"Data" require:"true"`
+	JobId        *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	MediaId      *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Code         *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	CreationTime *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Data         *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s SubmitAIJobResponseAIJobListAIJob) String() string {
@@ -14513,13 +13383,9 @@ func (s *SubmitAIJobResponseAIJobListAIJob) SetData(v string) *SubmitAIJobRespon
 }
 
 type GetImageInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ImageId              *string `json:"ImageId" xml:"ImageId" require:"true"`
-	AuthTimeout          *int64  `json:"AuthTimeout" xml:"AuthTimeout"`
-	OutputType           *string `json:"OutputType" xml:"OutputType"`
+	ImageId     *string `json:"ImageId,omitempty" xml:"ImageId,omitempty" require:"true"`
+	AuthTimeout *int64  `json:"AuthTimeout,omitempty" xml:"AuthTimeout,omitempty"`
+	OutputType  *string `json:"OutputType,omitempty" xml:"OutputType,omitempty"`
 }
 
 func (s GetImageInfoRequest) String() string {
@@ -14528,26 +13394,6 @@ func (s GetImageInfoRequest) String() string {
 
 func (s GetImageInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetImageInfoRequest) SetAccessKeyId(v string) *GetImageInfoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetImageInfoRequest) SetOwnerId(v int64) *GetImageInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetImageInfoRequest) SetResourceOwnerAccount(v string) *GetImageInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetImageInfoRequest) SetResourceOwnerId(v int64) *GetImageInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetImageInfoRequest) SetImageId(v string) *GetImageInfoRequest {
@@ -14566,8 +13412,8 @@ func (s *GetImageInfoRequest) SetOutputType(v string) *GetImageInfoRequest {
 }
 
 type GetImageInfoResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	ImageInfo *GetImageInfoResponseImageInfo `json:"ImageInfo" xml:"ImageInfo" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ImageInfo *GetImageInfoResponseImageInfo `json:"ImageInfo,omitempty" xml:"ImageInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetImageInfoResponse) String() string {
@@ -14589,21 +13435,21 @@ func (s *GetImageInfoResponse) SetImageInfo(v *GetImageInfoResponseImageInfo) *G
 }
 
 type GetImageInfoResponseImageInfo struct {
-	ImageId         *string                                 `json:"ImageId" xml:"ImageId" require:"true"`
-	Title           *string                                 `json:"Title" xml:"Title" require:"true"`
-	CreationTime    *string                                 `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ImageType       *string                                 `json:"ImageType" xml:"ImageType" require:"true"`
-	Tags            *string                                 `json:"Tags" xml:"Tags" require:"true"`
-	URL             *string                                 `json:"URL" xml:"URL" require:"true"`
-	CateId          *int64                                  `json:"CateId" xml:"CateId" require:"true"`
-	CateName        *string                                 `json:"CateName" xml:"CateName" require:"true"`
-	Description     *string                                 `json:"Description" xml:"Description" require:"true"`
-	StorageLocation *string                                 `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	Status          *string                                 `json:"Status" xml:"Status" require:"true"`
-	AppId           *string                                 `json:"AppId" xml:"AppId" require:"true"`
-	RegionId        *string                                 `json:"RegionId" xml:"RegionId" require:"true"`
-	AuditStatus     *string                                 `json:"AuditStatus" xml:"AuditStatus" require:"true"`
-	Mezzanine       *GetImageInfoResponseImageInfoMezzanine `json:"Mezzanine" xml:"Mezzanine" require:"true" type:"Struct"`
+	ImageId         *string                                 `json:"ImageId,omitempty" xml:"ImageId,omitempty" require:"true"`
+	Title           *string                                 `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	CreationTime    *string                                 `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ImageType       *string                                 `json:"ImageType,omitempty" xml:"ImageType,omitempty" require:"true"`
+	Tags            *string                                 `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	URL             *string                                 `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
+	CateId          *int64                                  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName        *string                                 `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Description     *string                                 `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	StorageLocation *string                                 `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	Status          *string                                 `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	AppId           *string                                 `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	RegionId        *string                                 `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	AuditStatus     *string                                 `json:"AuditStatus,omitempty" xml:"AuditStatus,omitempty" require:"true"`
+	Mezzanine       *GetImageInfoResponseImageInfoMezzanine `json:"Mezzanine,omitempty" xml:"Mezzanine,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetImageInfoResponseImageInfo) String() string {
@@ -14690,11 +13536,11 @@ func (s *GetImageInfoResponseImageInfo) SetMezzanine(v *GetImageInfoResponseImag
 }
 
 type GetImageInfoResponseImageInfoMezzanine struct {
-	OriginalFileName *string `json:"OriginalFileName" xml:"OriginalFileName" require:"true"`
-	FileSize         *string `json:"FileSize" xml:"FileSize" require:"true"`
-	Width            *int    `json:"Width" xml:"Width" require:"true"`
-	Height           *int    `json:"Height" xml:"Height" require:"true"`
-	FileURL          *string `json:"FileURL" xml:"FileURL" require:"true"`
+	OriginalFileName *string `json:"OriginalFileName,omitempty" xml:"OriginalFileName,omitempty" require:"true"`
+	FileSize         *string `json:"FileSize,omitempty" xml:"FileSize,omitempty" require:"true"`
+	Width            *int    `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height           *int    `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	FileURL          *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
 }
 
 func (s GetImageInfoResponseImageInfoMezzanine) String() string {
@@ -14731,11 +13577,8 @@ func (s *GetImageInfoResponseImageInfoMezzanine) SetFileURL(v string) *GetImageI
 }
 
 type DeleteStreamRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	JobIds               *string `json:"JobIds" xml:"JobIds" require:"true"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
+	JobIds  *string `json:"JobIds,omitempty" xml:"JobIds,omitempty" require:"true"`
+	VideoId *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
 }
 
 func (s DeleteStreamRequest) String() string {
@@ -14744,21 +13587,6 @@ func (s DeleteStreamRequest) String() string {
 
 func (s DeleteStreamRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteStreamRequest) SetOwnerId(v int64) *DeleteStreamRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteStreamRequest) SetResourceOwnerAccount(v string) *DeleteStreamRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteStreamRequest) SetResourceOwnerId(v int64) *DeleteStreamRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *DeleteStreamRequest) SetJobIds(v string) *DeleteStreamRequest {
@@ -14772,7 +13600,7 @@ func (s *DeleteStreamRequest) SetVideoId(v string) *DeleteStreamRequest {
 }
 
 type DeleteStreamResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteStreamResponse) String() string {
@@ -14789,20 +13617,16 @@ func (s *DeleteStreamResponse) SetRequestId(v string) *DeleteStreamResponse {
 }
 
 type SubmitSnapshotJobRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId"`
-	SpecifiedOffsetTime  *int64  `json:"SpecifiedOffsetTime" xml:"SpecifiedOffsetTime"`
-	Width                *string `json:"Width" xml:"Width"`
-	Height               *string `json:"Height" xml:"Height"`
-	Count                *int64  `json:"Count" xml:"Count"`
-	Interval             *int64  `json:"Interval" xml:"Interval"`
-	SpriteSnapshotConfig *string `json:"SpriteSnapshotConfig" xml:"SpriteSnapshotConfig"`
-	SnapshotTemplateId   *string `json:"SnapshotTemplateId" xml:"SnapshotTemplateId"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	FileUrl              *string `json:"FileUrl" xml:"FileUrl"`
+	VideoId              *string `json:"VideoId,omitempty" xml:"VideoId,omitempty"`
+	SpecifiedOffsetTime  *int64  `json:"SpecifiedOffsetTime,omitempty" xml:"SpecifiedOffsetTime,omitempty"`
+	Width                *string `json:"Width,omitempty" xml:"Width,omitempty"`
+	Height               *string `json:"Height,omitempty" xml:"Height,omitempty"`
+	Count                *int64  `json:"Count,omitempty" xml:"Count,omitempty"`
+	Interval             *int64  `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	SpriteSnapshotConfig *string `json:"SpriteSnapshotConfig,omitempty" xml:"SpriteSnapshotConfig,omitempty"`
+	SnapshotTemplateId   *string `json:"SnapshotTemplateId,omitempty" xml:"SnapshotTemplateId,omitempty"`
+	UserData             *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	FileUrl              *string `json:"FileUrl,omitempty" xml:"FileUrl,omitempty"`
 }
 
 func (s SubmitSnapshotJobRequest) String() string {
@@ -14811,26 +13635,6 @@ func (s SubmitSnapshotJobRequest) String() string {
 
 func (s SubmitSnapshotJobRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SubmitSnapshotJobRequest) SetAccessKeyId(v string) *SubmitSnapshotJobRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SubmitSnapshotJobRequest) SetOwnerId(v int64) *SubmitSnapshotJobRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SubmitSnapshotJobRequest) SetResourceOwnerAccount(v string) *SubmitSnapshotJobRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SubmitSnapshotJobRequest) SetResourceOwnerId(v int64) *SubmitSnapshotJobRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SubmitSnapshotJobRequest) SetVideoId(v string) *SubmitSnapshotJobRequest {
@@ -14884,8 +13688,8 @@ func (s *SubmitSnapshotJobRequest) SetFileUrl(v string) *SubmitSnapshotJobReques
 }
 
 type SubmitSnapshotJobResponse struct {
-	RequestId   *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	SnapshotJob *SubmitSnapshotJobResponseSnapshotJob `json:"SnapshotJob" xml:"SnapshotJob" require:"true" type:"Struct"`
+	RequestId   *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SnapshotJob *SubmitSnapshotJobResponseSnapshotJob `json:"SnapshotJob,omitempty" xml:"SnapshotJob,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SubmitSnapshotJobResponse) String() string {
@@ -14907,7 +13711,7 @@ func (s *SubmitSnapshotJobResponse) SetSnapshotJob(v *SubmitSnapshotJobResponseS
 }
 
 type SubmitSnapshotJobResponseSnapshotJob struct {
-	JobId *string `json:"JobId" xml:"JobId" require:"true"`
+	JobId *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
 }
 
 func (s SubmitSnapshotJobResponseSnapshotJob) String() string {
@@ -14924,16 +13728,11 @@ func (s *SubmitSnapshotJobResponseSnapshotJob) SetJobId(v string) *SubmitSnapsho
 }
 
 type UpdateEditingProjectRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ProjectId            *string `json:"ProjectId" xml:"ProjectId" require:"true"`
-	Title                *string `json:"Title" xml:"Title"`
-	Timeline             *string `json:"Timeline" xml:"Timeline"`
-	Description          *string `json:"Description" xml:"Description"`
-	CoverURL             *string `json:"CoverURL" xml:"CoverURL"`
+	ProjectId   *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	Title       *string `json:"Title,omitempty" xml:"Title,omitempty"`
+	Timeline    *string `json:"Timeline,omitempty" xml:"Timeline,omitempty"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	CoverURL    *string `json:"CoverURL,omitempty" xml:"CoverURL,omitempty"`
 }
 
 func (s UpdateEditingProjectRequest) String() string {
@@ -14942,31 +13741,6 @@ func (s UpdateEditingProjectRequest) String() string {
 
 func (s UpdateEditingProjectRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateEditingProjectRequest) SetAccessKeyId(v string) *UpdateEditingProjectRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *UpdateEditingProjectRequest) SetOwnerId(v string) *UpdateEditingProjectRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateEditingProjectRequest) SetResourceOwnerId(v string) *UpdateEditingProjectRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *UpdateEditingProjectRequest) SetResourceOwnerAccount(v string) *UpdateEditingProjectRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateEditingProjectRequest) SetOwnerAccount(v string) *UpdateEditingProjectRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *UpdateEditingProjectRequest) SetProjectId(v string) *UpdateEditingProjectRequest {
@@ -14995,7 +13769,7 @@ func (s *UpdateEditingProjectRequest) SetCoverURL(v string) *UpdateEditingProjec
 }
 
 type UpdateEditingProjectResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateEditingProjectResponse) String() string {
@@ -15012,13 +13786,8 @@ func (s *UpdateEditingProjectResponse) SetRequestId(v string) *UpdateEditingProj
 }
 
 type SetEditingProjectMaterialsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ProjectId            *string `json:"ProjectId" xml:"ProjectId" require:"true"`
-	MaterialIds          *string `json:"MaterialIds" xml:"MaterialIds" require:"true"`
+	ProjectId   *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	MaterialIds *string `json:"MaterialIds,omitempty" xml:"MaterialIds,omitempty" require:"true"`
 }
 
 func (s SetEditingProjectMaterialsRequest) String() string {
@@ -15027,31 +13796,6 @@ func (s SetEditingProjectMaterialsRequest) String() string {
 
 func (s SetEditingProjectMaterialsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetEditingProjectMaterialsRequest) SetAccessKeyId(v string) *SetEditingProjectMaterialsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SetEditingProjectMaterialsRequest) SetOwnerId(v string) *SetEditingProjectMaterialsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SetEditingProjectMaterialsRequest) SetResourceOwnerId(v string) *SetEditingProjectMaterialsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *SetEditingProjectMaterialsRequest) SetResourceOwnerAccount(v string) *SetEditingProjectMaterialsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SetEditingProjectMaterialsRequest) SetOwnerAccount(v string) *SetEditingProjectMaterialsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *SetEditingProjectMaterialsRequest) SetProjectId(v string) *SetEditingProjectMaterialsRequest {
@@ -15065,7 +13809,7 @@ func (s *SetEditingProjectMaterialsRequest) SetMaterialIds(v string) *SetEditing
 }
 
 type SetEditingProjectMaterialsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetEditingProjectMaterialsResponse) String() string {
@@ -15082,18 +13826,13 @@ func (s *SetEditingProjectMaterialsResponse) SetRequestId(v string) *SetEditingP
 }
 
 type SearchEditingProjectRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	EndTime              *string `json:"EndTime" xml:"EndTime"`
-	StartTime            *string `json:"StartTime" xml:"StartTime"`
-	Status               *string `json:"Status" xml:"Status"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	SortBy               *string `json:"SortBy" xml:"SortBy"`
-	Title                *string `json:"Title" xml:"Title"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	Status    *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	PageNo    *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize  *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	SortBy    *string `json:"SortBy,omitempty" xml:"SortBy,omitempty"`
+	Title     *string `json:"Title,omitempty" xml:"Title,omitempty"`
 }
 
 func (s SearchEditingProjectRequest) String() string {
@@ -15102,31 +13841,6 @@ func (s SearchEditingProjectRequest) String() string {
 
 func (s SearchEditingProjectRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SearchEditingProjectRequest) SetAccessKeyId(v string) *SearchEditingProjectRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SearchEditingProjectRequest) SetOwnerId(v string) *SearchEditingProjectRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SearchEditingProjectRequest) SetResourceOwnerId(v string) *SearchEditingProjectRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *SearchEditingProjectRequest) SetResourceOwnerAccount(v string) *SearchEditingProjectRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SearchEditingProjectRequest) SetOwnerAccount(v string) *SearchEditingProjectRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *SearchEditingProjectRequest) SetEndTime(v string) *SearchEditingProjectRequest {
@@ -15165,9 +13879,9 @@ func (s *SearchEditingProjectRequest) SetTitle(v string) *SearchEditingProjectRe
 }
 
 type SearchEditingProjectResponse struct {
-	RequestId   *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Total       *int                                     `json:"Total" xml:"Total" require:"true"`
-	ProjectList *SearchEditingProjectResponseProjectList `json:"ProjectList" xml:"ProjectList" require:"true" type:"Struct"`
+	RequestId   *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Total       *int                                     `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	ProjectList *SearchEditingProjectResponseProjectList `json:"ProjectList,omitempty" xml:"ProjectList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s SearchEditingProjectResponse) String() string {
@@ -15194,7 +13908,7 @@ func (s *SearchEditingProjectResponse) SetProjectList(v *SearchEditingProjectRes
 }
 
 type SearchEditingProjectResponseProjectList struct {
-	Project []*SearchEditingProjectResponseProjectListProject `json:"Project" xml:"Project" require:"true" type:"Repeated"`
+	Project []*SearchEditingProjectResponseProjectListProject `json:"Project,omitempty" xml:"Project,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s SearchEditingProjectResponseProjectList) String() string {
@@ -15211,16 +13925,16 @@ func (s *SearchEditingProjectResponseProjectList) SetProject(v []*SearchEditingP
 }
 
 type SearchEditingProjectResponseProjectListProject struct {
-	ProjectId       *string  `json:"ProjectId" xml:"ProjectId" require:"true"`
-	CreationTime    *string  `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifiedTime    *string  `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Status          *string  `json:"Status" xml:"Status" require:"true"`
-	Description     *string  `json:"Description" xml:"Description" require:"true"`
-	Title           *string  `json:"Title" xml:"Title" require:"true"`
-	CoverURL        *string  `json:"CoverURL" xml:"CoverURL" require:"true"`
-	StorageLocation *string  `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId        *string  `json:"RegionId" xml:"RegionId" require:"true"`
-	Duration        *float32 `json:"Duration" xml:"Duration" require:"true"`
+	ProjectId       *string  `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	CreationTime    *string  `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifiedTime    *string  `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Status          *string  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description     *string  `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Title           *string  `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	CoverURL        *string  `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	StorageLocation *string  `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId        *string  `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Duration        *float32 `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
 }
 
 func (s SearchEditingProjectResponseProjectListProject) String() string {
@@ -15282,18 +13996,14 @@ func (s *SearchEditingProjectResponseProjectListProject) SetDuration(v float32) 
 }
 
 type ProduceEditingProjectVideoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ProjectId            *string `json:"ProjectId" xml:"ProjectId"`
-	Timeline             *string `json:"Timeline" xml:"Timeline"`
-	Title                *string `json:"Title" xml:"Title"`
-	Description          *string `json:"Description" xml:"Description"`
-	CoverURL             *string `json:"CoverURL" xml:"CoverURL"`
-	MediaMetadata        *string `json:"MediaMetadata" xml:"MediaMetadata"`
-	ProduceConfig        *string `json:"ProduceConfig" xml:"ProduceConfig"`
-	UserData             *string `json:"UserData" xml:"UserData"`
+	ProjectId     *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty"`
+	Timeline      *string `json:"Timeline,omitempty" xml:"Timeline,omitempty"`
+	Title         *string `json:"Title,omitempty" xml:"Title,omitempty"`
+	Description   *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	CoverURL      *string `json:"CoverURL,omitempty" xml:"CoverURL,omitempty"`
+	MediaMetadata *string `json:"MediaMetadata,omitempty" xml:"MediaMetadata,omitempty"`
+	ProduceConfig *string `json:"ProduceConfig,omitempty" xml:"ProduceConfig,omitempty"`
+	UserData      *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
 }
 
 func (s ProduceEditingProjectVideoRequest) String() string {
@@ -15302,26 +14012,6 @@ func (s ProduceEditingProjectVideoRequest) String() string {
 
 func (s ProduceEditingProjectVideoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ProduceEditingProjectVideoRequest) SetAccessKeyId(v string) *ProduceEditingProjectVideoRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ProduceEditingProjectVideoRequest) SetOwnerId(v int64) *ProduceEditingProjectVideoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ProduceEditingProjectVideoRequest) SetResourceOwnerAccount(v string) *ProduceEditingProjectVideoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ProduceEditingProjectVideoRequest) SetResourceOwnerId(v int64) *ProduceEditingProjectVideoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ProduceEditingProjectVideoRequest) SetProjectId(v string) *ProduceEditingProjectVideoRequest {
@@ -15365,9 +14055,9 @@ func (s *ProduceEditingProjectVideoRequest) SetUserData(v string) *ProduceEditin
 }
 
 type ProduceEditingProjectVideoResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	MediaId   *string `json:"MediaId" xml:"MediaId" require:"true"`
-	ProjectId *string `json:"ProjectId" xml:"ProjectId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MediaId   *string `json:"MediaId,omitempty" xml:"MediaId,omitempty" require:"true"`
+	ProjectId *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
 }
 
 func (s ProduceEditingProjectVideoResponse) String() string {
@@ -15394,14 +14084,9 @@ func (s *ProduceEditingProjectVideoResponse) SetProjectId(v string) *ProduceEdit
 }
 
 type GetEditingProjectMaterialsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ProjectId            *string `json:"ProjectId" xml:"ProjectId" require:"true"`
-	Type                 *string `json:"Type" xml:"Type"`
-	MaterialType         *string `json:"MaterialType" xml:"MaterialType"`
+	ProjectId    *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	MaterialType *string `json:"MaterialType,omitempty" xml:"MaterialType,omitempty"`
 }
 
 func (s GetEditingProjectMaterialsRequest) String() string {
@@ -15410,31 +14095,6 @@ func (s GetEditingProjectMaterialsRequest) String() string {
 
 func (s GetEditingProjectMaterialsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetEditingProjectMaterialsRequest) SetAccessKeyId(v string) *GetEditingProjectMaterialsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetEditingProjectMaterialsRequest) SetOwnerId(v string) *GetEditingProjectMaterialsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetEditingProjectMaterialsRequest) SetResourceOwnerId(v string) *GetEditingProjectMaterialsRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetEditingProjectMaterialsRequest) SetResourceOwnerAccount(v string) *GetEditingProjectMaterialsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetEditingProjectMaterialsRequest) SetOwnerAccount(v string) *GetEditingProjectMaterialsRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *GetEditingProjectMaterialsRequest) SetProjectId(v string) *GetEditingProjectMaterialsRequest {
@@ -15453,8 +14113,8 @@ func (s *GetEditingProjectMaterialsRequest) SetMaterialType(v string) *GetEditin
 }
 
 type GetEditingProjectMaterialsResponse struct {
-	RequestId    *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	MaterialList *GetEditingProjectMaterialsResponseMaterialList `json:"MaterialList" xml:"MaterialList" require:"true" type:"Struct"`
+	RequestId    *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MaterialList *GetEditingProjectMaterialsResponseMaterialList `json:"MaterialList,omitempty" xml:"MaterialList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetEditingProjectMaterialsResponse) String() string {
@@ -15476,7 +14136,7 @@ func (s *GetEditingProjectMaterialsResponse) SetMaterialList(v *GetEditingProjec
 }
 
 type GetEditingProjectMaterialsResponseMaterialList struct {
-	Material []*GetEditingProjectMaterialsResponseMaterialListMaterial `json:"Material" xml:"Material" require:"true" type:"Repeated"`
+	Material []*GetEditingProjectMaterialsResponseMaterialListMaterial `json:"Material,omitempty" xml:"Material,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetEditingProjectMaterialsResponseMaterialList) String() string {
@@ -15493,22 +14153,22 @@ func (s *GetEditingProjectMaterialsResponseMaterialList) SetMaterial(v []*GetEdi
 }
 
 type GetEditingProjectMaterialsResponseMaterialListMaterial struct {
-	MaterialId   *string                                                          `json:"MaterialId" xml:"MaterialId" require:"true"`
-	Title        *string                                                          `json:"Title" xml:"Title" require:"true"`
-	Tags         *string                                                          `json:"Tags" xml:"Tags" require:"true"`
-	Status       *string                                                          `json:"Status" xml:"Status" require:"true"`
-	Size         *int64                                                           `json:"Size" xml:"Size" require:"true"`
-	Duration     *float32                                                         `json:"Duration" xml:"Duration" require:"true"`
-	Description  *string                                                          `json:"Description" xml:"Description" require:"true"`
-	CreationTime *string                                                          `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifiedTime *string                                                          `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	CoverURL     *string                                                          `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId       *int                                                             `json:"CateId" xml:"CateId" require:"true"`
-	CateName     *string                                                          `json:"CateName" xml:"CateName" require:"true"`
-	Source       *string                                                          `json:"Source" xml:"Source" require:"true"`
-	SpriteConfig *string                                                          `json:"SpriteConfig" xml:"SpriteConfig" require:"true"`
-	Snapshots    *GetEditingProjectMaterialsResponseMaterialListMaterialSnapshots `json:"Snapshots" xml:"Snapshots" require:"true" type:"Struct"`
-	Sprites      *GetEditingProjectMaterialsResponseMaterialListMaterialSprites   `json:"Sprites" xml:"Sprites" require:"true" type:"Struct"`
+	MaterialId   *string                                                          `json:"MaterialId,omitempty" xml:"MaterialId,omitempty" require:"true"`
+	Title        *string                                                          `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags         *string                                                          `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status       *string                                                          `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size         *int64                                                           `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Duration     *float32                                                         `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description  *string                                                          `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreationTime *string                                                          `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifiedTime *string                                                          `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	CoverURL     *string                                                          `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId       *int                                                             `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName     *string                                                          `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Source       *string                                                          `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	SpriteConfig *string                                                          `json:"SpriteConfig,omitempty" xml:"SpriteConfig,omitempty" require:"true"`
+	Snapshots    *GetEditingProjectMaterialsResponseMaterialListMaterialSnapshots `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Struct"`
+	Sprites      *GetEditingProjectMaterialsResponseMaterialListMaterialSprites   `json:"Sprites,omitempty" xml:"Sprites,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetEditingProjectMaterialsResponseMaterialListMaterial) String() string {
@@ -15600,7 +14260,7 @@ func (s *GetEditingProjectMaterialsResponseMaterialListMaterial) SetSprites(v *G
 }
 
 type GetEditingProjectMaterialsResponseMaterialListMaterialSnapshots struct {
-	Snapshot []*string `json:"Snapshot" xml:"Snapshot" require:"true" type:"Repeated"`
+	Snapshot []*string `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetEditingProjectMaterialsResponseMaterialListMaterialSnapshots) String() string {
@@ -15617,7 +14277,7 @@ func (s *GetEditingProjectMaterialsResponseMaterialListMaterialSnapshots) SetSna
 }
 
 type GetEditingProjectMaterialsResponseMaterialListMaterialSprites struct {
-	Sprite []*string `json:"Sprite" xml:"Sprite" require:"true" type:"Repeated"`
+	Sprite []*string `json:"Sprite,omitempty" xml:"Sprite,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetEditingProjectMaterialsResponseMaterialListMaterialSprites) String() string {
@@ -15634,12 +14294,7 @@ func (s *GetEditingProjectMaterialsResponseMaterialListMaterialSprites) SetSprit
 }
 
 type GetEditingProjectRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ProjectId            *string `json:"ProjectId" xml:"ProjectId" require:"true"`
+	ProjectId *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
 }
 
 func (s GetEditingProjectRequest) String() string {
@@ -15650,39 +14305,14 @@ func (s GetEditingProjectRequest) GoString() string {
 	return s.String()
 }
 
-func (s *GetEditingProjectRequest) SetAccessKeyId(v string) *GetEditingProjectRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetEditingProjectRequest) SetOwnerId(v string) *GetEditingProjectRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetEditingProjectRequest) SetResourceOwnerId(v string) *GetEditingProjectRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetEditingProjectRequest) SetResourceOwnerAccount(v string) *GetEditingProjectRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetEditingProjectRequest) SetOwnerAccount(v string) *GetEditingProjectRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *GetEditingProjectRequest) SetProjectId(v string) *GetEditingProjectRequest {
 	s.ProjectId = &v
 	return s
 }
 
 type GetEditingProjectResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Project   *GetEditingProjectResponseProject `json:"Project" xml:"Project" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Project   *GetEditingProjectResponseProject `json:"Project,omitempty" xml:"Project,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetEditingProjectResponse) String() string {
@@ -15704,16 +14334,16 @@ func (s *GetEditingProjectResponse) SetProject(v *GetEditingProjectResponseProje
 }
 
 type GetEditingProjectResponseProject struct {
-	ProjectId       *string `json:"ProjectId" xml:"ProjectId" require:"true"`
-	CreationTime    *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifiedTime    *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Status          *string `json:"Status" xml:"Status" require:"true"`
-	Description     *string `json:"Description" xml:"Description" require:"true"`
-	Title           *string `json:"Title" xml:"Title" require:"true"`
-	Timeline        *string `json:"Timeline" xml:"Timeline" require:"true"`
-	CoverURL        *string `json:"CoverURL" xml:"CoverURL" require:"true"`
-	StorageLocation *string `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId        *string `json:"RegionId" xml:"RegionId" require:"true"`
+	ProjectId       *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	CreationTime    *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifiedTime    *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Title           *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Timeline        *string `json:"Timeline,omitempty" xml:"Timeline,omitempty" require:"true"`
+	CoverURL        *string `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	StorageLocation *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId        *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s GetEditingProjectResponseProject) String() string {
@@ -15775,12 +14405,7 @@ func (s *GetEditingProjectResponseProject) SetRegionId(v string) *GetEditingProj
 }
 
 type DeleteEditingProjectRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ProjectIds           *string `json:"ProjectIds" xml:"ProjectIds" require:"true"`
+	ProjectIds *string `json:"ProjectIds,omitempty" xml:"ProjectIds,omitempty" require:"true"`
 }
 
 func (s DeleteEditingProjectRequest) String() string {
@@ -15791,38 +14416,13 @@ func (s DeleteEditingProjectRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteEditingProjectRequest) SetAccessKeyId(v string) *DeleteEditingProjectRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteEditingProjectRequest) SetOwnerId(v string) *DeleteEditingProjectRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteEditingProjectRequest) SetResourceOwnerId(v string) *DeleteEditingProjectRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteEditingProjectRequest) SetResourceOwnerAccount(v string) *DeleteEditingProjectRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteEditingProjectRequest) SetOwnerAccount(v string) *DeleteEditingProjectRequest {
-	s.OwnerAccount = &v
-	return s
-}
-
 func (s *DeleteEditingProjectRequest) SetProjectIds(v string) *DeleteEditingProjectRequest {
 	s.ProjectIds = &v
 	return s
 }
 
 type DeleteEditingProjectResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteEditingProjectResponse) String() string {
@@ -15839,16 +14439,11 @@ func (s *DeleteEditingProjectResponse) SetRequestId(v string) *DeleteEditingProj
 }
 
 type AddEditingProjectRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	Title                *string `json:"Title" xml:"Title" require:"true"`
-	Description          *string `json:"Description" xml:"Description"`
-	Timeline             *string `json:"Timeline" xml:"Timeline"`
-	CoverURL             *string `json:"CoverURL" xml:"CoverURL"`
-	Division             *string `json:"Division" xml:"Division"`
+	Title       *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	Timeline    *string `json:"Timeline,omitempty" xml:"Timeline,omitempty"`
+	CoverURL    *string `json:"CoverURL,omitempty" xml:"CoverURL,omitempty"`
+	Division    *string `json:"Division,omitempty" xml:"Division,omitempty"`
 }
 
 func (s AddEditingProjectRequest) String() string {
@@ -15857,31 +14452,6 @@ func (s AddEditingProjectRequest) String() string {
 
 func (s AddEditingProjectRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddEditingProjectRequest) SetAccessKeyId(v string) *AddEditingProjectRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *AddEditingProjectRequest) SetOwnerId(v string) *AddEditingProjectRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddEditingProjectRequest) SetResourceOwnerId(v string) *AddEditingProjectRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *AddEditingProjectRequest) SetResourceOwnerAccount(v string) *AddEditingProjectRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddEditingProjectRequest) SetOwnerAccount(v string) *AddEditingProjectRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *AddEditingProjectRequest) SetTitle(v string) *AddEditingProjectRequest {
@@ -15910,8 +14480,8 @@ func (s *AddEditingProjectRequest) SetDivision(v string) *AddEditingProjectReque
 }
 
 type AddEditingProjectResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Project   *AddEditingProjectResponseProject `json:"Project" xml:"Project" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Project   *AddEditingProjectResponseProject `json:"Project,omitempty" xml:"Project,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddEditingProjectResponse) String() string {
@@ -15933,12 +14503,12 @@ func (s *AddEditingProjectResponse) SetProject(v *AddEditingProjectResponseProje
 }
 
 type AddEditingProjectResponseProject struct {
-	ProjectId    *string `json:"ProjectId" xml:"ProjectId" require:"true"`
-	CreationTime *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModifiedTime *string `json:"ModifiedTime" xml:"ModifiedTime" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	Title        *string `json:"Title" xml:"Title" require:"true"`
+	ProjectId    *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	CreationTime *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModifiedTime *string `json:"ModifiedTime,omitempty" xml:"ModifiedTime,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Title        *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
 }
 
 func (s AddEditingProjectResponseProject) String() string {
@@ -15980,14 +14550,11 @@ func (s *AddEditingProjectResponseProject) SetTitle(v string) *AddEditingProject
 }
 
 type GetMezzanineInfoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	AuthTimeout          *int64  `json:"AuthTimeout" xml:"AuthTimeout"`
-	PreviewSegment       *bool   `json:"PreviewSegment" xml:"PreviewSegment"`
-	OutputType           *string `json:"OutputType" xml:"OutputType"`
-	AdditionType         *string `json:"AdditionType" xml:"AdditionType"`
+	VideoId        *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	AuthTimeout    *int64  `json:"AuthTimeout,omitempty" xml:"AuthTimeout,omitempty"`
+	PreviewSegment *bool   `json:"PreviewSegment,omitempty" xml:"PreviewSegment,omitempty"`
+	OutputType     *string `json:"OutputType,omitempty" xml:"OutputType,omitempty"`
+	AdditionType   *string `json:"AdditionType,omitempty" xml:"AdditionType,omitempty"`
 }
 
 func (s GetMezzanineInfoRequest) String() string {
@@ -15996,21 +14563,6 @@ func (s GetMezzanineInfoRequest) String() string {
 
 func (s GetMezzanineInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetMezzanineInfoRequest) SetOwnerId(v int64) *GetMezzanineInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMezzanineInfoRequest) SetResourceOwnerAccount(v string) *GetMezzanineInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMezzanineInfoRequest) SetResourceOwnerId(v int64) *GetMezzanineInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetMezzanineInfoRequest) SetVideoId(v string) *GetMezzanineInfoRequest {
@@ -16039,8 +14591,8 @@ func (s *GetMezzanineInfoRequest) SetAdditionType(v string) *GetMezzanineInfoReq
 }
 
 type GetMezzanineInfoResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Mezzanine *GetMezzanineInfoResponseMezzanine `json:"Mezzanine" xml:"Mezzanine" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Mezzanine *GetMezzanineInfoResponseMezzanine `json:"Mezzanine,omitempty" xml:"Mezzanine,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMezzanineInfoResponse) String() string {
@@ -16062,22 +14614,22 @@ func (s *GetMezzanineInfoResponse) SetMezzanine(v *GetMezzanineInfoResponseMezza
 }
 
 type GetMezzanineInfoResponseMezzanine struct {
-	VideoId          *string                                             `json:"VideoId" xml:"VideoId" require:"true"`
-	Bitrate          *string                                             `json:"Bitrate" xml:"Bitrate" require:"true"`
-	CreationTime     *string                                             `json:"CreationTime" xml:"CreationTime" require:"true"`
-	Duration         *string                                             `json:"Duration" xml:"Duration" require:"true"`
-	Fps              *string                                             `json:"Fps" xml:"Fps" require:"true"`
-	Height           *int64                                              `json:"Height" xml:"Height" require:"true"`
-	Width            *int64                                              `json:"Width" xml:"Width" require:"true"`
-	Size             *int64                                              `json:"Size" xml:"Size" require:"true"`
-	Status           *string                                             `json:"Status" xml:"Status" require:"true"`
-	FileURL          *string                                             `json:"FileURL" xml:"FileURL" require:"true"`
-	FileName         *string                                             `json:"FileName" xml:"FileName" require:"true"`
-	CRC64            *string                                             `json:"CRC64" xml:"CRC64" require:"true"`
-	PreprocessStatus *string                                             `json:"PreprocessStatus" xml:"PreprocessStatus" require:"true"`
-	OutputType       *string                                             `json:"OutputType" xml:"OutputType" require:"true"`
-	AudioStreamList  []*GetMezzanineInfoResponseMezzanineAudioStreamList `json:"AudioStreamList" xml:"AudioStreamList" require:"true" type:"Repeated"`
-	VideoStreamList  []*GetMezzanineInfoResponseMezzanineVideoStreamList `json:"VideoStreamList" xml:"VideoStreamList" require:"true" type:"Repeated"`
+	VideoId          *string                                             `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Bitrate          *string                                             `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
+	CreationTime     *string                                             `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	Duration         *string                                             `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Fps              *string                                             `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	Height           *int64                                              `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Width            *int64                                              `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Size             *int64                                              `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Status           *string                                             `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	FileURL          *string                                             `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
+	FileName         *string                                             `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
+	CRC64            *string                                             `json:"CRC64,omitempty" xml:"CRC64,omitempty" require:"true"`
+	PreprocessStatus *string                                             `json:"PreprocessStatus,omitempty" xml:"PreprocessStatus,omitempty" require:"true"`
+	OutputType       *string                                             `json:"OutputType,omitempty" xml:"OutputType,omitempty" require:"true"`
+	AudioStreamList  []*GetMezzanineInfoResponseMezzanineAudioStreamList `json:"AudioStreamList,omitempty" xml:"AudioStreamList,omitempty" require:"true" type:"Repeated"`
+	VideoStreamList  []*GetMezzanineInfoResponseMezzanineVideoStreamList `json:"VideoStreamList,omitempty" xml:"VideoStreamList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetMezzanineInfoResponseMezzanine) String() string {
@@ -16169,22 +14721,22 @@ func (s *GetMezzanineInfoResponseMezzanine) SetVideoStreamList(v []*GetMezzanine
 }
 
 type GetMezzanineInfoResponseMezzanineAudioStreamList struct {
-	Index          *string `json:"Index" xml:"Index" require:"true"`
-	CodecName      *string `json:"CodecName" xml:"CodecName" require:"true"`
-	CodecLongName  *string `json:"CodecLongName" xml:"CodecLongName" require:"true"`
-	CodecTimeBase  *string `json:"CodecTimeBase" xml:"CodecTimeBase" require:"true"`
-	CodecTagString *string `json:"CodecTagString" xml:"CodecTagString" require:"true"`
-	CodecTag       *string `json:"CodecTag" xml:"CodecTag" require:"true"`
-	SampleFmt      *string `json:"SampleFmt" xml:"SampleFmt" require:"true"`
-	SampleRate     *string `json:"SampleRate" xml:"SampleRate" require:"true"`
-	Channels       *string `json:"Channels" xml:"Channels" require:"true"`
-	ChannelLayout  *string `json:"ChannelLayout" xml:"ChannelLayout" require:"true"`
-	Timebase       *string `json:"Timebase" xml:"Timebase" require:"true"`
-	StartTime      *string `json:"StartTime" xml:"StartTime" require:"true"`
-	Duration       *string `json:"Duration" xml:"Duration" require:"true"`
-	Bitrate        *string `json:"Bitrate" xml:"Bitrate" require:"true"`
-	NumFrames      *string `json:"NumFrames" xml:"NumFrames" require:"true"`
-	Lang           *string `json:"Lang" xml:"Lang" require:"true"`
+	Index          *string `json:"Index,omitempty" xml:"Index,omitempty" require:"true"`
+	CodecName      *string `json:"CodecName,omitempty" xml:"CodecName,omitempty" require:"true"`
+	CodecLongName  *string `json:"CodecLongName,omitempty" xml:"CodecLongName,omitempty" require:"true"`
+	CodecTimeBase  *string `json:"CodecTimeBase,omitempty" xml:"CodecTimeBase,omitempty" require:"true"`
+	CodecTagString *string `json:"CodecTagString,omitempty" xml:"CodecTagString,omitempty" require:"true"`
+	CodecTag       *string `json:"CodecTag,omitempty" xml:"CodecTag,omitempty" require:"true"`
+	SampleFmt      *string `json:"SampleFmt,omitempty" xml:"SampleFmt,omitempty" require:"true"`
+	SampleRate     *string `json:"SampleRate,omitempty" xml:"SampleRate,omitempty" require:"true"`
+	Channels       *string `json:"Channels,omitempty" xml:"Channels,omitempty" require:"true"`
+	ChannelLayout  *string `json:"ChannelLayout,omitempty" xml:"ChannelLayout,omitempty" require:"true"`
+	Timebase       *string `json:"Timebase,omitempty" xml:"Timebase,omitempty" require:"true"`
+	StartTime      *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	Duration       *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Bitrate        *string `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
+	NumFrames      *string `json:"NumFrames,omitempty" xml:"NumFrames,omitempty" require:"true"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty" require:"true"`
 }
 
 func (s GetMezzanineInfoResponseMezzanineAudioStreamList) String() string {
@@ -16276,28 +14828,29 @@ func (s *GetMezzanineInfoResponseMezzanineAudioStreamList) SetLang(v string) *Ge
 }
 
 type GetMezzanineInfoResponseMezzanineVideoStreamList struct {
-	Index          *string `json:"Index" xml:"Index" require:"true"`
-	CodecName      *string `json:"CodecName" xml:"CodecName" require:"true"`
-	CodecLongName  *string `json:"CodecLongName" xml:"CodecLongName" require:"true"`
-	Profile        *string `json:"Profile" xml:"Profile" require:"true"`
-	CodecTimeBase  *string `json:"CodecTimeBase" xml:"CodecTimeBase" require:"true"`
-	CodecTagString *string `json:"CodecTagString" xml:"CodecTagString" require:"true"`
-	CodecTag       *string `json:"CodecTag" xml:"CodecTag" require:"true"`
-	Width          *string `json:"Width" xml:"Width" require:"true"`
-	Height         *string `json:"Height" xml:"Height" require:"true"`
-	HasBFrames     *string `json:"HasBFrames" xml:"HasBFrames" require:"true"`
-	Sar            *string `json:"Sar" xml:"Sar" require:"true"`
-	Dar            *string `json:"Dar" xml:"Dar" require:"true"`
-	PixFmt         *string `json:"PixFmt" xml:"PixFmt" require:"true"`
-	Level          *string `json:"Level" xml:"Level" require:"true"`
-	Fps            *string `json:"Fps" xml:"Fps" require:"true"`
-	AvgFPS         *string `json:"AvgFPS" xml:"AvgFPS" require:"true"`
-	Timebase       *string `json:"Timebase" xml:"Timebase" require:"true"`
-	StartTime      *string `json:"StartTime" xml:"StartTime" require:"true"`
-	Duration       *string `json:"Duration" xml:"Duration" require:"true"`
-	NumFrames      *string `json:"NumFrames" xml:"NumFrames" require:"true"`
-	Lang           *string `json:"Lang" xml:"Lang" require:"true"`
-	Rotate         *string `json:"Rotate" xml:"Rotate" require:"true"`
+	Index          *string `json:"Index,omitempty" xml:"Index,omitempty" require:"true"`
+	CodecName      *string `json:"CodecName,omitempty" xml:"CodecName,omitempty" require:"true"`
+	CodecLongName  *string `json:"CodecLongName,omitempty" xml:"CodecLongName,omitempty" require:"true"`
+	Profile        *string `json:"Profile,omitempty" xml:"Profile,omitempty" require:"true"`
+	CodecTimeBase  *string `json:"CodecTimeBase,omitempty" xml:"CodecTimeBase,omitempty" require:"true"`
+	CodecTagString *string `json:"CodecTagString,omitempty" xml:"CodecTagString,omitempty" require:"true"`
+	CodecTag       *string `json:"CodecTag,omitempty" xml:"CodecTag,omitempty" require:"true"`
+	Width          *string `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height         *string `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	HasBFrames     *string `json:"HasBFrames,omitempty" xml:"HasBFrames,omitempty" require:"true"`
+	Sar            *string `json:"Sar,omitempty" xml:"Sar,omitempty" require:"true"`
+	Dar            *string `json:"Dar,omitempty" xml:"Dar,omitempty" require:"true"`
+	PixFmt         *string `json:"PixFmt,omitempty" xml:"PixFmt,omitempty" require:"true"`
+	Level          *string `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	Fps            *string `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	AvgFPS         *string `json:"AvgFPS,omitempty" xml:"AvgFPS,omitempty" require:"true"`
+	Timebase       *string `json:"Timebase,omitempty" xml:"Timebase,omitempty" require:"true"`
+	StartTime      *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	Duration       *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	NumFrames      *string `json:"NumFrames,omitempty" xml:"NumFrames,omitempty" require:"true"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty" require:"true"`
+	Rotate         *string `json:"Rotate,omitempty" xml:"Rotate,omitempty" require:"true"`
+	Bitrate        *string `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
 }
 
 func (s GetMezzanineInfoResponseMezzanineVideoStreamList) String() string {
@@ -16418,12 +14971,14 @@ func (s *GetMezzanineInfoResponseMezzanineVideoStreamList) SetRotate(v string) *
 	return s
 }
 
+func (s *GetMezzanineInfoResponseMezzanineVideoStreamList) SetBitrate(v string) *GetMezzanineInfoResponseMezzanineVideoStreamList {
+	s.Bitrate = &v
+	return s
+}
+
 type UpdateCategoryRequest struct {
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	CateName             *string `json:"CateName" xml:"CateName" require:"true"`
-	CateId               *int64  `json:"CateId" xml:"CateId" require:"true"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
 }
 
 func (s UpdateCategoryRequest) String() string {
@@ -16432,21 +14987,6 @@ func (s UpdateCategoryRequest) String() string {
 
 func (s UpdateCategoryRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateCategoryRequest) SetOwnerId(v string) *UpdateCategoryRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateCategoryRequest) SetResourceOwnerId(v string) *UpdateCategoryRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *UpdateCategoryRequest) SetResourceOwnerAccount(v string) *UpdateCategoryRequest {
-	s.ResourceOwnerAccount = &v
-	return s
 }
 
 func (s *UpdateCategoryRequest) SetCateName(v string) *UpdateCategoryRequest {
@@ -16460,7 +15000,7 @@ func (s *UpdateCategoryRequest) SetCateId(v int64) *UpdateCategoryRequest {
 }
 
 type UpdateCategoryResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateCategoryResponse) String() string {
@@ -16477,14 +15017,11 @@ func (s *UpdateCategoryResponse) SetRequestId(v string) *UpdateCategoryResponse 
 }
 
 type GetCategoriesRequest struct {
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	CateId               *int64  `json:"CateId" xml:"CateId"`
-	PageNo               *int64  `json:"PageNo" xml:"PageNo"`
-	PageSize             *int64  `json:"PageSize" xml:"PageSize"`
-	SortBy               *string `json:"SortBy" xml:"SortBy"`
-	Type                 *string `json:"Type" xml:"Type"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty"`
+	PageNo   *int64  `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	SortBy   *string `json:"SortBy,omitempty" xml:"SortBy,omitempty"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty"`
 }
 
 func (s GetCategoriesRequest) String() string {
@@ -16493,21 +15030,6 @@ func (s GetCategoriesRequest) String() string {
 
 func (s GetCategoriesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetCategoriesRequest) SetOwnerId(v string) *GetCategoriesRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetCategoriesRequest) SetResourceOwnerId(v string) *GetCategoriesRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetCategoriesRequest) SetResourceOwnerAccount(v string) *GetCategoriesRequest {
-	s.ResourceOwnerAccount = &v
-	return s
 }
 
 func (s *GetCategoriesRequest) SetCateId(v int64) *GetCategoriesRequest {
@@ -16536,10 +15058,10 @@ func (s *GetCategoriesRequest) SetType(v string) *GetCategoriesRequest {
 }
 
 type GetCategoriesResponse struct {
-	RequestId     *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	SubTotal      *int64                              `json:"SubTotal" xml:"SubTotal" require:"true"`
-	SubCategories *GetCategoriesResponseSubCategories `json:"SubCategories" xml:"SubCategories" require:"true" type:"Struct"`
-	Category      *GetCategoriesResponseCategory      `json:"Category" xml:"Category" require:"true" type:"Struct"`
+	RequestId     *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SubTotal      *int64                              `json:"SubTotal,omitempty" xml:"SubTotal,omitempty" require:"true"`
+	SubCategories *GetCategoriesResponseSubCategories `json:"SubCategories,omitempty" xml:"SubCategories,omitempty" require:"true" type:"Struct"`
+	Category      *GetCategoriesResponseCategory      `json:"Category,omitempty" xml:"Category,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetCategoriesResponse) String() string {
@@ -16571,7 +15093,7 @@ func (s *GetCategoriesResponse) SetCategory(v *GetCategoriesResponseCategory) *G
 }
 
 type GetCategoriesResponseSubCategories struct {
-	Category []*GetCategoriesResponseSubCategoriesCategory `json:"Category" xml:"Category" require:"true" type:"Repeated"`
+	Category []*GetCategoriesResponseSubCategoriesCategory `json:"Category,omitempty" xml:"Category,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetCategoriesResponseSubCategories) String() string {
@@ -16588,12 +15110,12 @@ func (s *GetCategoriesResponseSubCategories) SetCategory(v []*GetCategoriesRespo
 }
 
 type GetCategoriesResponseSubCategoriesCategory struct {
-	CateId   *int64  `json:"CateId" xml:"CateId" require:"true"`
-	CateName *string `json:"CateName" xml:"CateName" require:"true"`
-	Level    *int64  `json:"Level" xml:"Level" require:"true"`
-	ParentId *int64  `json:"ParentId" xml:"ParentId" require:"true"`
-	SubTotal *int64  `json:"SubTotal" xml:"SubTotal" require:"true"`
-	Type     *string `json:"Type" xml:"Type" require:"true"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Level    *int64  `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	ParentId *int64  `json:"ParentId,omitempty" xml:"ParentId,omitempty" require:"true"`
+	SubTotal *int64  `json:"SubTotal,omitempty" xml:"SubTotal,omitempty" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s GetCategoriesResponseSubCategoriesCategory) String() string {
@@ -16635,11 +15157,11 @@ func (s *GetCategoriesResponseSubCategoriesCategory) SetType(v string) *GetCateg
 }
 
 type GetCategoriesResponseCategory struct {
-	CateId   *int64  `json:"CateId" xml:"CateId" require:"true"`
-	CateName *string `json:"CateName" xml:"CateName" require:"true"`
-	Level    *int64  `json:"Level" xml:"Level" require:"true"`
-	ParentId *int64  `json:"ParentId" xml:"ParentId" require:"true"`
-	Type     *string `json:"Type" xml:"Type" require:"true"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	Level    *int64  `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	ParentId *int64  `json:"ParentId,omitempty" xml:"ParentId,omitempty" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s GetCategoriesResponseCategory) String() string {
@@ -16676,10 +15198,7 @@ func (s *GetCategoriesResponseCategory) SetType(v string) *GetCategoriesResponse
 }
 
 type DeleteCategoryRequest struct {
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	CateId               *int64  `json:"CateId" xml:"CateId" require:"true"`
+	CateId *int64 `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
 }
 
 func (s DeleteCategoryRequest) String() string {
@@ -16690,28 +15209,13 @@ func (s DeleteCategoryRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteCategoryRequest) SetOwnerId(v string) *DeleteCategoryRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteCategoryRequest) SetResourceOwnerId(v string) *DeleteCategoryRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *DeleteCategoryRequest) SetResourceOwnerAccount(v string) *DeleteCategoryRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
 func (s *DeleteCategoryRequest) SetCateId(v int64) *DeleteCategoryRequest {
 	s.CateId = &v
 	return s
 }
 
 type DeleteCategoryResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteCategoryResponse) String() string {
@@ -16728,12 +15232,9 @@ func (s *DeleteCategoryResponse) SetRequestId(v string) *DeleteCategoryResponse 
 }
 
 type AddCategoryRequest struct {
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	CateName             *string `json:"CateName" xml:"CateName" require:"true"`
-	ParentId             *int64  `json:"ParentId" xml:"ParentId"`
-	Type                 *string `json:"Type" xml:"Type"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	ParentId *int64  `json:"ParentId,omitempty" xml:"ParentId,omitempty"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty"`
 }
 
 func (s AddCategoryRequest) String() string {
@@ -16742,21 +15243,6 @@ func (s AddCategoryRequest) String() string {
 
 func (s AddCategoryRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddCategoryRequest) SetOwnerId(v string) *AddCategoryRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddCategoryRequest) SetResourceOwnerId(v string) *AddCategoryRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *AddCategoryRequest) SetResourceOwnerAccount(v string) *AddCategoryRequest {
-	s.ResourceOwnerAccount = &v
-	return s
 }
 
 func (s *AddCategoryRequest) SetCateName(v string) *AddCategoryRequest {
@@ -16775,8 +15261,8 @@ func (s *AddCategoryRequest) SetType(v string) *AddCategoryRequest {
 }
 
 type AddCategoryResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Category  *AddCategoryResponseCategory `json:"Category" xml:"Category" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Category  *AddCategoryResponseCategory `json:"Category,omitempty" xml:"Category,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddCategoryResponse) String() string {
@@ -16798,11 +15284,11 @@ func (s *AddCategoryResponse) SetCategory(v *AddCategoryResponseCategory) *AddCa
 }
 
 type AddCategoryResponseCategory struct {
-	CateId   *int64  `json:"CateId" xml:"CateId" require:"true"`
-	CateName *string `json:"CateName" xml:"CateName" require:"true"`
-	ParentId *int64  `json:"ParentId" xml:"ParentId" require:"true"`
-	Level    *int64  `json:"Level" xml:"Level" require:"true"`
-	Type     *string `json:"Type" xml:"Type" require:"true"`
+	CateId   *int64  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName *string `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	ParentId *int64  `json:"ParentId,omitempty" xml:"ParentId,omitempty" require:"true"`
+	Level    *int64  `json:"Level,omitempty" xml:"Level,omitempty" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s AddCategoryResponseCategory) String() string {
@@ -16839,18 +15325,15 @@ func (s *AddCategoryResponseCategory) SetType(v string) *AddCategoryResponseCate
 }
 
 type GetPlayInfoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	Formats              *string `json:"Formats" xml:"Formats"`
-	AuthTimeout          *int64  `json:"AuthTimeout" xml:"AuthTimeout"`
-	OutputType           *string `json:"OutputType" xml:"OutputType"`
-	StreamType           *string `json:"StreamType" xml:"StreamType"`
-	ReAuthInfo           *string `json:"ReAuthInfo" xml:"ReAuthInfo"`
-	Definition           *string `json:"Definition" xml:"Definition"`
-	ResultType           *string `json:"ResultType" xml:"ResultType"`
-	PlayConfig           *string `json:"PlayConfig" xml:"PlayConfig"`
+	VideoId     *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Formats     *string `json:"Formats,omitempty" xml:"Formats,omitempty"`
+	AuthTimeout *int64  `json:"AuthTimeout,omitempty" xml:"AuthTimeout,omitempty"`
+	OutputType  *string `json:"OutputType,omitempty" xml:"OutputType,omitempty"`
+	StreamType  *string `json:"StreamType,omitempty" xml:"StreamType,omitempty"`
+	ReAuthInfo  *string `json:"ReAuthInfo,omitempty" xml:"ReAuthInfo,omitempty"`
+	Definition  *string `json:"Definition,omitempty" xml:"Definition,omitempty"`
+	ResultType  *string `json:"ResultType,omitempty" xml:"ResultType,omitempty"`
+	PlayConfig  *string `json:"PlayConfig,omitempty" xml:"PlayConfig,omitempty"`
 }
 
 func (s GetPlayInfoRequest) String() string {
@@ -16859,21 +15342,6 @@ func (s GetPlayInfoRequest) String() string {
 
 func (s GetPlayInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetPlayInfoRequest) SetOwnerId(v int64) *GetPlayInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetPlayInfoRequest) SetResourceOwnerAccount(v string) *GetPlayInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetPlayInfoRequest) SetResourceOwnerId(v int64) *GetPlayInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetPlayInfoRequest) SetVideoId(v string) *GetPlayInfoRequest {
@@ -16922,9 +15390,9 @@ func (s *GetPlayInfoRequest) SetPlayConfig(v string) *GetPlayInfoRequest {
 }
 
 type GetPlayInfoResponse struct {
-	RequestId    *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	PlayInfoList *GetPlayInfoResponsePlayInfoList `json:"PlayInfoList" xml:"PlayInfoList" require:"true" type:"Struct"`
-	VideoBase    *GetPlayInfoResponseVideoBase    `json:"VideoBase" xml:"VideoBase" require:"true" type:"Struct"`
+	RequestId    *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PlayInfoList *GetPlayInfoResponsePlayInfoList `json:"PlayInfoList,omitempty" xml:"PlayInfoList,omitempty" require:"true" type:"Struct"`
+	VideoBase    *GetPlayInfoResponseVideoBase    `json:"VideoBase,omitempty" xml:"VideoBase,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPlayInfoResponse) String() string {
@@ -16951,7 +15419,7 @@ func (s *GetPlayInfoResponse) SetVideoBase(v *GetPlayInfoResponseVideoBase) *Get
 }
 
 type GetPlayInfoResponsePlayInfoList struct {
-	PlayInfo []*GetPlayInfoResponsePlayInfoListPlayInfo `json:"PlayInfo" xml:"PlayInfo" require:"true" type:"Repeated"`
+	PlayInfo []*GetPlayInfoResponsePlayInfoListPlayInfo `json:"PlayInfo,omitempty" xml:"PlayInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetPlayInfoResponsePlayInfoList) String() string {
@@ -16968,29 +15436,29 @@ func (s *GetPlayInfoResponsePlayInfoList) SetPlayInfo(v []*GetPlayInfoResponsePl
 }
 
 type GetPlayInfoResponsePlayInfoListPlayInfo struct {
-	Width            *int64  `json:"Width" xml:"Width" require:"true"`
-	Height           *int64  `json:"Height" xml:"Height" require:"true"`
-	Size             *int64  `json:"Size" xml:"Size" require:"true"`
-	PlayURL          *string `json:"PlayURL" xml:"PlayURL" require:"true"`
-	Bitrate          *string `json:"Bitrate" xml:"Bitrate" require:"true"`
-	Definition       *string `json:"Definition" xml:"Definition" require:"true"`
-	Duration         *string `json:"Duration" xml:"Duration" require:"true"`
-	Format           *string `json:"Format" xml:"Format" require:"true"`
-	Fps              *string `json:"Fps" xml:"Fps" require:"true"`
-	Encrypt          *int64  `json:"Encrypt" xml:"Encrypt" require:"true"`
-	Plaintext        *string `json:"Plaintext" xml:"Plaintext" require:"true"`
-	Complexity       *string `json:"Complexity" xml:"Complexity" require:"true"`
-	StreamType       *string `json:"StreamType" xml:"StreamType" require:"true"`
-	Rand             *string `json:"Rand" xml:"Rand" require:"true"`
-	JobId            *string `json:"JobId" xml:"JobId" require:"true"`
-	PreprocessStatus *string `json:"PreprocessStatus" xml:"PreprocessStatus" require:"true"`
-	WatermarkId      *string `json:"WatermarkId" xml:"WatermarkId" require:"true"`
-	Status           *string `json:"Status" xml:"Status" require:"true"`
-	CreationTime     *string `json:"CreationTime" xml:"CreationTime" require:"true"`
-	ModificationTime *string `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	EncryptType      *string `json:"EncryptType" xml:"EncryptType" require:"true"`
-	NarrowBandType   *string `json:"NarrowBandType" xml:"NarrowBandType" require:"true"`
-	Specification    *string `json:"Specification" xml:"Specification" require:"true"`
+	Width            *int64  `json:"Width,omitempty" xml:"Width,omitempty" require:"true"`
+	Height           *int64  `json:"Height,omitempty" xml:"Height,omitempty" require:"true"`
+	Size             *int64  `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	PlayURL          *string `json:"PlayURL,omitempty" xml:"PlayURL,omitempty" require:"true"`
+	Bitrate          *string `json:"Bitrate,omitempty" xml:"Bitrate,omitempty" require:"true"`
+	Definition       *string `json:"Definition,omitempty" xml:"Definition,omitempty" require:"true"`
+	Duration         *string `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Format           *string `json:"Format,omitempty" xml:"Format,omitempty" require:"true"`
+	Fps              *string `json:"Fps,omitempty" xml:"Fps,omitempty" require:"true"`
+	Encrypt          *int64  `json:"Encrypt,omitempty" xml:"Encrypt,omitempty" require:"true"`
+	Plaintext        *string `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	Complexity       *string `json:"Complexity,omitempty" xml:"Complexity,omitempty" require:"true"`
+	StreamType       *string `json:"StreamType,omitempty" xml:"StreamType,omitempty" require:"true"`
+	Rand             *string `json:"Rand,omitempty" xml:"Rand,omitempty" require:"true"`
+	JobId            *string `json:"JobId,omitempty" xml:"JobId,omitempty" require:"true"`
+	PreprocessStatus *string `json:"PreprocessStatus,omitempty" xml:"PreprocessStatus,omitempty" require:"true"`
+	WatermarkId      *string `json:"WatermarkId,omitempty" xml:"WatermarkId,omitempty" require:"true"`
+	Status           *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	CreationTime     *string `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	ModificationTime *string `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	EncryptType      *string `json:"EncryptType,omitempty" xml:"EncryptType,omitempty" require:"true"`
+	NarrowBandType   *string `json:"NarrowBandType,omitempty" xml:"NarrowBandType,omitempty" require:"true"`
+	Specification    *string `json:"Specification,omitempty" xml:"Specification,omitempty" require:"true"`
 }
 
 func (s GetPlayInfoResponsePlayInfoListPlayInfo) String() string {
@@ -17117,16 +15585,16 @@ func (s *GetPlayInfoResponsePlayInfoListPlayInfo) SetSpecification(v string) *Ge
 }
 
 type GetPlayInfoResponseVideoBase struct {
-	OutputType    *string                                    `json:"OutputType" xml:"OutputType" require:"true"`
-	CoverURL      *string                                    `json:"CoverURL" xml:"CoverURL" require:"true"`
-	Duration      *string                                    `json:"Duration" xml:"Duration" require:"true"`
-	Status        *string                                    `json:"Status" xml:"Status" require:"true"`
-	Title         *string                                    `json:"Title" xml:"Title" require:"true"`
-	VideoId       *string                                    `json:"VideoId" xml:"VideoId" require:"true"`
-	MediaType     *string                                    `json:"MediaType" xml:"MediaType" require:"true"`
-	CreationTime  *string                                    `json:"CreationTime" xml:"CreationTime" require:"true"`
-	TranscodeMode *string                                    `json:"TranscodeMode" xml:"TranscodeMode" require:"true"`
-	ThumbnailList *GetPlayInfoResponseVideoBaseThumbnailList `json:"ThumbnailList" xml:"ThumbnailList" require:"true" type:"Struct"`
+	OutputType    *string                                    `json:"OutputType,omitempty" xml:"OutputType,omitempty" require:"true"`
+	CoverURL      *string                                    `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	Duration      *string                                    `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Status        *string                                    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Title         *string                                    `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	VideoId       *string                                    `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	MediaType     *string                                    `json:"MediaType,omitempty" xml:"MediaType,omitempty" require:"true"`
+	CreationTime  *string                                    `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	TranscodeMode *string                                    `json:"TranscodeMode,omitempty" xml:"TranscodeMode,omitempty" require:"true"`
+	ThumbnailList *GetPlayInfoResponseVideoBaseThumbnailList `json:"ThumbnailList,omitempty" xml:"ThumbnailList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPlayInfoResponseVideoBase) String() string {
@@ -17188,7 +15656,7 @@ func (s *GetPlayInfoResponseVideoBase) SetThumbnailList(v *GetPlayInfoResponseVi
 }
 
 type GetPlayInfoResponseVideoBaseThumbnailList struct {
-	Thumbnail []*GetPlayInfoResponseVideoBaseThumbnailListThumbnail `json:"Thumbnail" xml:"Thumbnail" require:"true" type:"Repeated"`
+	Thumbnail []*GetPlayInfoResponseVideoBaseThumbnailListThumbnail `json:"Thumbnail,omitempty" xml:"Thumbnail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetPlayInfoResponseVideoBaseThumbnailList) String() string {
@@ -17205,7 +15673,7 @@ func (s *GetPlayInfoResponseVideoBaseThumbnailList) SetThumbnail(v []*GetPlayInf
 }
 
 type GetPlayInfoResponseVideoBaseThumbnailListThumbnail struct {
-	URL *string `json:"URL" xml:"URL" require:"true"`
+	URL *string `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
 }
 
 func (s GetPlayInfoResponseVideoBaseThumbnailListThumbnail) String() string {
@@ -17222,20 +15690,16 @@ func (s *GetPlayInfoResponseVideoBaseThumbnailListThumbnail) SetURL(v string) *G
 }
 
 type CreateUploadImageRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	Title                *string `json:"Title" xml:"Title"`
-	ImageType            *string `json:"ImageType" xml:"ImageType" require:"true"`
-	ImageExt             *string `json:"ImageExt" xml:"ImageExt"`
-	OriginalFileName     *string `json:"OriginalFileName" xml:"OriginalFileName"`
-	Tags                 *string `json:"Tags" xml:"Tags"`
-	StorageLocation      *string `json:"StorageLocation" xml:"StorageLocation"`
-	CateId               *int64  `json:"CateId" xml:"CateId"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	Description          *string `json:"Description" xml:"Description"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	Title            *string `json:"Title,omitempty" xml:"Title,omitempty"`
+	ImageType        *string `json:"ImageType,omitempty" xml:"ImageType,omitempty" require:"true"`
+	ImageExt         *string `json:"ImageExt,omitempty" xml:"ImageExt,omitempty"`
+	OriginalFileName *string `json:"OriginalFileName,omitempty" xml:"OriginalFileName,omitempty"`
+	Tags             *string `json:"Tags,omitempty" xml:"Tags,omitempty"`
+	StorageLocation  *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty"`
+	CateId           *int64  `json:"CateId,omitempty" xml:"CateId,omitempty"`
+	UserData         *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	Description      *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	AppId            *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s CreateUploadImageRequest) String() string {
@@ -17244,26 +15708,6 @@ func (s CreateUploadImageRequest) String() string {
 
 func (s CreateUploadImageRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateUploadImageRequest) SetAccessKeyId(v string) *CreateUploadImageRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *CreateUploadImageRequest) SetOwnerId(v int64) *CreateUploadImageRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateUploadImageRequest) SetResourceOwnerAccount(v string) *CreateUploadImageRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateUploadImageRequest) SetResourceOwnerId(v int64) *CreateUploadImageRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *CreateUploadImageRequest) SetTitle(v string) *CreateUploadImageRequest {
@@ -17317,12 +15761,12 @@ func (s *CreateUploadImageRequest) SetAppId(v string) *CreateUploadImageRequest 
 }
 
 type CreateUploadImageResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ImageId       *string `json:"ImageId" xml:"ImageId" require:"true"`
-	ImageURL      *string `json:"ImageURL" xml:"ImageURL" require:"true"`
-	UploadAddress *string `json:"UploadAddress" xml:"UploadAddress" require:"true"`
-	UploadAuth    *string `json:"UploadAuth" xml:"UploadAuth" require:"true"`
-	FileURL       *string `json:"FileURL" xml:"FileURL" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ImageId       *string `json:"ImageId,omitempty" xml:"ImageId,omitempty" require:"true"`
+	ImageURL      *string `json:"ImageURL,omitempty" xml:"ImageURL,omitempty" require:"true"`
+	UploadAddress *string `json:"UploadAddress,omitempty" xml:"UploadAddress,omitempty" require:"true"`
+	UploadAuth    *string `json:"UploadAuth,omitempty" xml:"UploadAuth,omitempty" require:"true"`
+	FileURL       *string `json:"FileURL,omitempty" xml:"FileURL,omitempty" require:"true"`
 }
 
 func (s CreateUploadImageResponse) String() string {
@@ -17364,20 +15808,15 @@ func (s *CreateUploadImageResponse) SetFileURL(v string) *CreateUploadImageRespo
 }
 
 type SetMessageCallbackRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	CallbackType         *string `json:"CallbackType" xml:"CallbackType"`
-	CallbackURL          *string `json:"CallbackURL" xml:"CallbackURL"`
-	EventTypeList        *string `json:"EventTypeList" xml:"EventTypeList"`
-	AuthSwitch           *string `json:"AuthSwitch" xml:"AuthSwitch"`
-	AuthKey              *string `json:"AuthKey" xml:"AuthKey"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	MnsEndpoint          *string `json:"MnsEndpoint" xml:"MnsEndpoint"`
-	MnsQueueName         *string `json:"MnsQueueName" xml:"MnsQueueName"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	CallbackType        *string `json:"CallbackType,omitempty" xml:"CallbackType,omitempty"`
+	CallbackURL         *string `json:"CallbackURL,omitempty" xml:"CallbackURL,omitempty"`
+	EventTypeList       *string `json:"EventTypeList,omitempty" xml:"EventTypeList,omitempty"`
+	AuthSwitch          *string `json:"AuthSwitch,omitempty" xml:"AuthSwitch,omitempty"`
+	AuthKey             *string `json:"AuthKey,omitempty" xml:"AuthKey,omitempty"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	MnsEndpoint         *string `json:"MnsEndpoint,omitempty" xml:"MnsEndpoint,omitempty"`
+	MnsQueueName        *string `json:"MnsQueueName,omitempty" xml:"MnsQueueName,omitempty"`
+	AppId               *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s SetMessageCallbackRequest) String() string {
@@ -17386,31 +15825,6 @@ func (s SetMessageCallbackRequest) String() string {
 
 func (s SetMessageCallbackRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetMessageCallbackRequest) SetAccessKeyId(v string) *SetMessageCallbackRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SetMessageCallbackRequest) SetOwnerId(v string) *SetMessageCallbackRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SetMessageCallbackRequest) SetResourceOwnerId(v string) *SetMessageCallbackRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *SetMessageCallbackRequest) SetResourceOwnerAccount(v string) *SetMessageCallbackRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SetMessageCallbackRequest) SetOwnerAccount(v string) *SetMessageCallbackRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *SetMessageCallbackRequest) SetCallbackType(v string) *SetMessageCallbackRequest {
@@ -17459,7 +15873,7 @@ func (s *SetMessageCallbackRequest) SetAppId(v string) *SetMessageCallbackReques
 }
 
 type SetMessageCallbackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetMessageCallbackResponse) String() string {
@@ -17476,13 +15890,8 @@ func (s *SetMessageCallbackResponse) SetRequestId(v string) *SetMessageCallbackR
 }
 
 type GetMessageCallbackRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *string `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerId      *string `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	OwnerAccount         *string `json:"OwnerAccount" xml:"OwnerAccount"`
-	ResourceRealOwnerId  *int64  `json:"ResourceRealOwnerId" xml:"ResourceRealOwnerId"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	ResourceRealOwnerId *int64  `json:"ResourceRealOwnerId,omitempty" xml:"ResourceRealOwnerId,omitempty"`
+	AppId               *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s GetMessageCallbackRequest) String() string {
@@ -17491,31 +15900,6 @@ func (s GetMessageCallbackRequest) String() string {
 
 func (s GetMessageCallbackRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetMessageCallbackRequest) SetAccessKeyId(v string) *GetMessageCallbackRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *GetMessageCallbackRequest) SetOwnerId(v string) *GetMessageCallbackRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetMessageCallbackRequest) SetResourceOwnerId(v string) *GetMessageCallbackRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
-func (s *GetMessageCallbackRequest) SetResourceOwnerAccount(v string) *GetMessageCallbackRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetMessageCallbackRequest) SetOwnerAccount(v string) *GetMessageCallbackRequest {
-	s.OwnerAccount = &v
-	return s
 }
 
 func (s *GetMessageCallbackRequest) SetResourceRealOwnerId(v int64) *GetMessageCallbackRequest {
@@ -17529,8 +15913,8 @@ func (s *GetMessageCallbackRequest) SetAppId(v string) *GetMessageCallbackReques
 }
 
 type GetMessageCallbackResponse struct {
-	RequestId       *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	MessageCallback *GetMessageCallbackResponseMessageCallback `json:"MessageCallback" xml:"MessageCallback" require:"true" type:"Struct"`
+	RequestId       *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MessageCallback *GetMessageCallbackResponseMessageCallback `json:"MessageCallback,omitempty" xml:"MessageCallback,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetMessageCallbackResponse) String() string {
@@ -17552,14 +15936,14 @@ func (s *GetMessageCallbackResponse) SetMessageCallback(v *GetMessageCallbackRes
 }
 
 type GetMessageCallbackResponseMessageCallback struct {
-	CallbackType  *string `json:"CallbackType" xml:"CallbackType" require:"true"`
-	CallbackURL   *string `json:"CallbackURL" xml:"CallbackURL" require:"true"`
-	EventTypeList *string `json:"EventTypeList" xml:"EventTypeList" require:"true"`
-	AuthSwitch    *string `json:"AuthSwitch" xml:"AuthSwitch" require:"true"`
-	AuthKey       *string `json:"AuthKey" xml:"AuthKey" require:"true"`
-	MnsEndpoint   *string `json:"MnsEndpoint" xml:"MnsEndpoint" require:"true"`
-	MnsQueueName  *string `json:"MnsQueueName" xml:"MnsQueueName" require:"true"`
-	AppId         *string `json:"AppId" xml:"AppId" require:"true"`
+	CallbackType  *string `json:"CallbackType,omitempty" xml:"CallbackType,omitempty" require:"true"`
+	CallbackURL   *string `json:"CallbackURL,omitempty" xml:"CallbackURL,omitempty" require:"true"`
+	EventTypeList *string `json:"EventTypeList,omitempty" xml:"EventTypeList,omitempty" require:"true"`
+	AuthSwitch    *string `json:"AuthSwitch,omitempty" xml:"AuthSwitch,omitempty" require:"true"`
+	AuthKey       *string `json:"AuthKey,omitempty" xml:"AuthKey,omitempty" require:"true"`
+	MnsEndpoint   *string `json:"MnsEndpoint,omitempty" xml:"MnsEndpoint,omitempty" require:"true"`
+	MnsQueueName  *string `json:"MnsQueueName,omitempty" xml:"MnsQueueName,omitempty" require:"true"`
+	AppId         *string `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
 }
 
 func (s GetMessageCallbackResponseMessageCallback) String() string {
@@ -17611,16 +15995,13 @@ func (s *GetMessageCallbackResponseMessageCallback) SetAppId(v string) *GetMessa
 }
 
 type UpdateVideoInfoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	Title                *string `json:"Title" xml:"Title"`
-	Tags                 *string `json:"Tags" xml:"Tags"`
-	Description          *string `json:"Description" xml:"Description"`
-	CoverURL             *string `json:"CoverURL" xml:"CoverURL"`
-	CateId               *int64  `json:"CateId" xml:"CateId"`
-	CustomMediaInfo      *string `json:"CustomMediaInfo" xml:"CustomMediaInfo"`
+	VideoId         *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Title           *string `json:"Title,omitempty" xml:"Title,omitempty"`
+	Tags            *string `json:"Tags,omitempty" xml:"Tags,omitempty"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	CoverURL        *string `json:"CoverURL,omitempty" xml:"CoverURL,omitempty"`
+	CateId          *int64  `json:"CateId,omitempty" xml:"CateId,omitempty"`
+	CustomMediaInfo *string `json:"CustomMediaInfo,omitempty" xml:"CustomMediaInfo,omitempty"`
 }
 
 func (s UpdateVideoInfoRequest) String() string {
@@ -17629,21 +16010,6 @@ func (s UpdateVideoInfoRequest) String() string {
 
 func (s UpdateVideoInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateVideoInfoRequest) SetOwnerId(v int64) *UpdateVideoInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *UpdateVideoInfoRequest) SetResourceOwnerAccount(v string) *UpdateVideoInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *UpdateVideoInfoRequest) SetResourceOwnerId(v int64) *UpdateVideoInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *UpdateVideoInfoRequest) SetVideoId(v string) *UpdateVideoInfoRequest {
@@ -17682,7 +16048,7 @@ func (s *UpdateVideoInfoRequest) SetCustomMediaInfo(v string) *UpdateVideoInfoRe
 }
 
 type UpdateVideoInfoResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateVideoInfoResponse) String() string {
@@ -17699,12 +16065,9 @@ func (s *UpdateVideoInfoResponse) SetRequestId(v string) *UpdateVideoInfoRespons
 }
 
 type GetVideoPlayAuthRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	AuthInfoTimeout      *int64  `json:"AuthInfoTimeout" xml:"AuthInfoTimeout"`
-	PlayConfig           *string `json:"PlayConfig" xml:"PlayConfig"`
+	VideoId         *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	AuthInfoTimeout *int64  `json:"AuthInfoTimeout,omitempty" xml:"AuthInfoTimeout,omitempty"`
+	PlayConfig      *string `json:"PlayConfig,omitempty" xml:"PlayConfig,omitempty"`
 }
 
 func (s GetVideoPlayAuthRequest) String() string {
@@ -17713,21 +16076,6 @@ func (s GetVideoPlayAuthRequest) String() string {
 
 func (s GetVideoPlayAuthRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetVideoPlayAuthRequest) SetOwnerId(v int64) *GetVideoPlayAuthRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetVideoPlayAuthRequest) SetResourceOwnerAccount(v string) *GetVideoPlayAuthRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetVideoPlayAuthRequest) SetResourceOwnerId(v int64) *GetVideoPlayAuthRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetVideoPlayAuthRequest) SetVideoId(v string) *GetVideoPlayAuthRequest {
@@ -17746,9 +16094,9 @@ func (s *GetVideoPlayAuthRequest) SetPlayConfig(v string) *GetVideoPlayAuthReque
 }
 
 type GetVideoPlayAuthResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	PlayAuth  *string                            `json:"PlayAuth" xml:"PlayAuth" require:"true"`
-	VideoMeta *GetVideoPlayAuthResponseVideoMeta `json:"VideoMeta" xml:"VideoMeta" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PlayAuth  *string                            `json:"PlayAuth,omitempty" xml:"PlayAuth,omitempty" require:"true"`
+	VideoMeta *GetVideoPlayAuthResponseVideoMeta `json:"VideoMeta,omitempty" xml:"VideoMeta,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetVideoPlayAuthResponse) String() string {
@@ -17775,11 +16123,11 @@ func (s *GetVideoPlayAuthResponse) SetVideoMeta(v *GetVideoPlayAuthResponseVideo
 }
 
 type GetVideoPlayAuthResponseVideoMeta struct {
-	CoverURL *string  `json:"CoverURL" xml:"CoverURL" require:"true"`
-	Duration *float32 `json:"Duration" xml:"Duration" require:"true"`
-	Status   *string  `json:"Status" xml:"Status" require:"true"`
-	Title    *string  `json:"Title" xml:"Title" require:"true"`
-	VideoId  *string  `json:"VideoId" xml:"VideoId" require:"true"`
+	CoverURL *string  `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	Duration *float32 `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Status   *string  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Title    *string  `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	VideoId  *string  `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
 }
 
 func (s GetVideoPlayAuthResponseVideoMeta) String() string {
@@ -17816,17 +16164,14 @@ func (s *GetVideoPlayAuthResponseVideoMeta) SetVideoId(v string) *GetVideoPlayAu
 }
 
 type GetVideoListRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	CateId               *int64  `json:"CateId" xml:"CateId"`
-	Status               *string `json:"Status" xml:"Status"`
-	PageNo               *int    `json:"PageNo" xml:"PageNo"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	SortBy               *string `json:"SortBy" xml:"SortBy"`
-	StartTime            *string `json:"StartTime" xml:"StartTime"`
-	EndTime              *string `json:"EndTime" xml:"EndTime"`
-	StorageLocation      *string `json:"StorageLocation" xml:"StorageLocation"`
+	CateId          *int64  `json:"CateId,omitempty" xml:"CateId,omitempty"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	PageNo          *int    `json:"PageNo,omitempty" xml:"PageNo,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	SortBy          *string `json:"SortBy,omitempty" xml:"SortBy,omitempty"`
+	StartTime       *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime         *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	StorageLocation *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty"`
 }
 
 func (s GetVideoListRequest) String() string {
@@ -17835,21 +16180,6 @@ func (s GetVideoListRequest) String() string {
 
 func (s GetVideoListRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetVideoListRequest) SetOwnerId(v int64) *GetVideoListRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetVideoListRequest) SetResourceOwnerAccount(v string) *GetVideoListRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetVideoListRequest) SetResourceOwnerId(v int64) *GetVideoListRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetVideoListRequest) SetCateId(v int64) *GetVideoListRequest {
@@ -17893,9 +16223,9 @@ func (s *GetVideoListRequest) SetStorageLocation(v string) *GetVideoListRequest 
 }
 
 type GetVideoListResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Total     *int                           `json:"Total" xml:"Total" require:"true"`
-	VideoList *GetVideoListResponseVideoList `json:"VideoList" xml:"VideoList" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Total     *int                           `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	VideoList *GetVideoListResponseVideoList `json:"VideoList,omitempty" xml:"VideoList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetVideoListResponse) String() string {
@@ -17922,7 +16252,7 @@ func (s *GetVideoListResponse) SetVideoList(v *GetVideoListResponseVideoList) *G
 }
 
 type GetVideoListResponseVideoList struct {
-	Video []*GetVideoListResponseVideoListVideo `json:"Video" xml:"Video" require:"true" type:"Repeated"`
+	Video []*GetVideoListResponseVideoListVideo `json:"Video,omitempty" xml:"Video,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetVideoListResponseVideoList) String() string {
@@ -17939,23 +16269,23 @@ func (s *GetVideoListResponseVideoList) SetVideo(v []*GetVideoListResponseVideoL
 }
 
 type GetVideoListResponseVideoListVideo struct {
-	VideoId          *string                                      `json:"VideoId" xml:"VideoId" require:"true"`
-	Title            *string                                      `json:"Title" xml:"Title" require:"true"`
-	Tags             *string                                      `json:"Tags" xml:"Tags" require:"true"`
-	Status           *string                                      `json:"Status" xml:"Status" require:"true"`
-	Size             *int64                                       `json:"Size" xml:"Size" require:"true"`
-	Duration         *float32                                     `json:"Duration" xml:"Duration" require:"true"`
-	Description      *string                                      `json:"Description" xml:"Description" require:"true"`
-	CreateTime       *string                                      `json:"CreateTime" xml:"CreateTime" require:"true"`
-	ModifyTime       *string                                      `json:"ModifyTime" xml:"ModifyTime" require:"true"`
-	ModificationTime *string                                      `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	CreationTime     *string                                      `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CoverURL         *string                                      `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId           *int64                                       `json:"CateId" xml:"CateId" require:"true"`
-	CateName         *string                                      `json:"CateName" xml:"CateName" require:"true"`
-	StorageLocation  *string                                      `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	AppId            *string                                      `json:"AppId" xml:"AppId" require:"true"`
-	Snapshots        *GetVideoListResponseVideoListVideoSnapshots `json:"Snapshots" xml:"Snapshots" require:"true" type:"Struct"`
+	VideoId          *string                                      `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Title            *string                                      `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags             *string                                      `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status           *string                                      `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size             *int64                                       `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Duration         *float32                                     `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description      *string                                      `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateTime       *string                                      `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	ModifyTime       *string                                      `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
+	ModificationTime *string                                      `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	CreationTime     *string                                      `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CoverURL         *string                                      `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId           *int64                                       `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName         *string                                      `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	StorageLocation  *string                                      `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	AppId            *string                                      `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	Snapshots        *GetVideoListResponseVideoListVideoSnapshots `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetVideoListResponseVideoListVideo) String() string {
@@ -18052,7 +16382,7 @@ func (s *GetVideoListResponseVideoListVideo) SetSnapshots(v *GetVideoListRespons
 }
 
 type GetVideoListResponseVideoListVideoSnapshots struct {
-	Snapshot []*string `json:"Snapshot" xml:"Snapshot" require:"true" type:"Repeated"`
+	Snapshot []*string `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetVideoListResponseVideoListVideoSnapshots) String() string {
@@ -18069,11 +16399,8 @@ func (s *GetVideoListResponseVideoListVideoSnapshots) SetSnapshot(v []*string) *
 }
 
 type GetVideoInfoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
-	AdditionType         *string `json:"AdditionType" xml:"AdditionType"`
+	VideoId      *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	AdditionType *string `json:"AdditionType,omitempty" xml:"AdditionType,omitempty"`
 }
 
 func (s GetVideoInfoRequest) String() string {
@@ -18082,21 +16409,6 @@ func (s GetVideoInfoRequest) String() string {
 
 func (s GetVideoInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetVideoInfoRequest) SetOwnerId(v int64) *GetVideoInfoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *GetVideoInfoRequest) SetResourceOwnerAccount(v string) *GetVideoInfoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *GetVideoInfoRequest) SetResourceOwnerId(v int64) *GetVideoInfoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *GetVideoInfoRequest) SetVideoId(v string) *GetVideoInfoRequest {
@@ -18110,9 +16422,9 @@ func (s *GetVideoInfoRequest) SetAdditionType(v string) *GetVideoInfoRequest {
 }
 
 type GetVideoInfoResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	AI        *string                    `json:"AI" xml:"AI" require:"true"`
-	Video     *GetVideoInfoResponseVideo `json:"Video" xml:"Video" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AI        *string                    `json:"AI,omitempty" xml:"AI,omitempty" require:"true"`
+	Video     *GetVideoInfoResponseVideo `json:"Video,omitempty" xml:"Video,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetVideoInfoResponse) String() string {
@@ -18139,30 +16451,30 @@ func (s *GetVideoInfoResponse) SetVideo(v *GetVideoInfoResponseVideo) *GetVideoI
 }
 
 type GetVideoInfoResponseVideo struct {
-	VideoId          *string                                 `json:"VideoId" xml:"VideoId" require:"true"`
-	Title            *string                                 `json:"Title" xml:"Title" require:"true"`
-	Tags             *string                                 `json:"Tags" xml:"Tags" require:"true"`
-	Status           *string                                 `json:"Status" xml:"Status" require:"true"`
-	Size             *int64                                  `json:"Size" xml:"Size" require:"true"`
-	Duration         *float32                                `json:"Duration" xml:"Duration" require:"true"`
-	Description      *string                                 `json:"Description" xml:"Description" require:"true"`
-	CreateTime       *string                                 `json:"CreateTime" xml:"CreateTime" require:"true"`
-	ModifyTime       *string                                 `json:"ModifyTime" xml:"ModifyTime" require:"true"`
-	ModificationTime *string                                 `json:"ModificationTime" xml:"ModificationTime" require:"true"`
-	CreationTime     *string                                 `json:"CreationTime" xml:"CreationTime" require:"true"`
-	CoverURL         *string                                 `json:"CoverURL" xml:"CoverURL" require:"true"`
-	CateId           *int64                                  `json:"CateId" xml:"CateId" require:"true"`
-	CateName         *string                                 `json:"CateName" xml:"CateName" require:"true"`
-	DownloadSwitch   *string                                 `json:"DownloadSwitch" xml:"DownloadSwitch" require:"true"`
-	TemplateGroupId  *string                                 `json:"TemplateGroupId" xml:"TemplateGroupId" require:"true"`
-	PreprocessStatus *string                                 `json:"PreprocessStatus" xml:"PreprocessStatus" require:"true"`
-	StorageLocation  *string                                 `json:"StorageLocation" xml:"StorageLocation" require:"true"`
-	RegionId         *string                                 `json:"RegionId" xml:"RegionId" require:"true"`
-	CustomMediaInfo  *string                                 `json:"CustomMediaInfo" xml:"CustomMediaInfo" require:"true"`
-	AuditStatus      *string                                 `json:"AuditStatus" xml:"AuditStatus" require:"true"`
-	AppId            *string                                 `json:"AppId" xml:"AppId" require:"true"`
-	ThumbnailList    *GetVideoInfoResponseVideoThumbnailList `json:"ThumbnailList" xml:"ThumbnailList" require:"true" type:"Struct"`
-	Snapshots        *GetVideoInfoResponseVideoSnapshots     `json:"Snapshots" xml:"Snapshots" require:"true" type:"Struct"`
+	VideoId          *string                                 `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	Title            *string                                 `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	Tags             *string                                 `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	Status           *string                                 `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Size             *int64                                  `json:"Size,omitempty" xml:"Size,omitempty" require:"true"`
+	Duration         *float32                                `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	Description      *string                                 `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateTime       *string                                 `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	ModifyTime       *string                                 `json:"ModifyTime,omitempty" xml:"ModifyTime,omitempty" require:"true"`
+	ModificationTime *string                                 `json:"ModificationTime,omitempty" xml:"ModificationTime,omitempty" require:"true"`
+	CreationTime     *string                                 `json:"CreationTime,omitempty" xml:"CreationTime,omitempty" require:"true"`
+	CoverURL         *string                                 `json:"CoverURL,omitempty" xml:"CoverURL,omitempty" require:"true"`
+	CateId           *int64                                  `json:"CateId,omitempty" xml:"CateId,omitempty" require:"true"`
+	CateName         *string                                 `json:"CateName,omitempty" xml:"CateName,omitempty" require:"true"`
+	DownloadSwitch   *string                                 `json:"DownloadSwitch,omitempty" xml:"DownloadSwitch,omitempty" require:"true"`
+	TemplateGroupId  *string                                 `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty" require:"true"`
+	PreprocessStatus *string                                 `json:"PreprocessStatus,omitempty" xml:"PreprocessStatus,omitempty" require:"true"`
+	StorageLocation  *string                                 `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty" require:"true"`
+	RegionId         *string                                 `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	CustomMediaInfo  *string                                 `json:"CustomMediaInfo,omitempty" xml:"CustomMediaInfo,omitempty" require:"true"`
+	AuditStatus      *string                                 `json:"AuditStatus,omitempty" xml:"AuditStatus,omitempty" require:"true"`
+	AppId            *string                                 `json:"AppId,omitempty" xml:"AppId,omitempty" require:"true"`
+	ThumbnailList    *GetVideoInfoResponseVideoThumbnailList `json:"ThumbnailList,omitempty" xml:"ThumbnailList,omitempty" require:"true" type:"Struct"`
+	Snapshots        *GetVideoInfoResponseVideoSnapshots     `json:"Snapshots,omitempty" xml:"Snapshots,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetVideoInfoResponseVideo) String() string {
@@ -18294,7 +16606,7 @@ func (s *GetVideoInfoResponseVideo) SetSnapshots(v *GetVideoInfoResponseVideoSna
 }
 
 type GetVideoInfoResponseVideoThumbnailList struct {
-	Thumbnail []*GetVideoInfoResponseVideoThumbnailListThumbnail `json:"Thumbnail" xml:"Thumbnail" require:"true" type:"Repeated"`
+	Thumbnail []*GetVideoInfoResponseVideoThumbnailListThumbnail `json:"Thumbnail,omitempty" xml:"Thumbnail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetVideoInfoResponseVideoThumbnailList) String() string {
@@ -18311,7 +16623,7 @@ func (s *GetVideoInfoResponseVideoThumbnailList) SetThumbnail(v []*GetVideoInfoR
 }
 
 type GetVideoInfoResponseVideoThumbnailListThumbnail struct {
-	URL *string `json:"URL" xml:"URL" require:"true"`
+	URL *string `json:"URL,omitempty" xml:"URL,omitempty" require:"true"`
 }
 
 func (s GetVideoInfoResponseVideoThumbnailListThumbnail) String() string {
@@ -18328,7 +16640,7 @@ func (s *GetVideoInfoResponseVideoThumbnailListThumbnail) SetURL(v string) *GetV
 }
 
 type GetVideoInfoResponseVideoSnapshots struct {
-	Snapshot []*string `json:"Snapshot" xml:"Snapshot" require:"true" type:"Repeated"`
+	Snapshot []*string `json:"Snapshot,omitempty" xml:"Snapshot,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetVideoInfoResponseVideoSnapshots) String() string {
@@ -18345,10 +16657,7 @@ func (s *GetVideoInfoResponseVideoSnapshots) SetSnapshot(v []*string) *GetVideoI
 }
 
 type DeleteVideoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoIds             *string `json:"VideoIds" xml:"VideoIds" require:"true"`
+	VideoIds *string `json:"VideoIds,omitempty" xml:"VideoIds,omitempty" require:"true"`
 }
 
 func (s DeleteVideoRequest) String() string {
@@ -18359,30 +16668,15 @@ func (s DeleteVideoRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteVideoRequest) SetOwnerId(v int64) *DeleteVideoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteVideoRequest) SetResourceOwnerAccount(v string) *DeleteVideoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteVideoRequest) SetResourceOwnerId(v int64) *DeleteVideoRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteVideoRequest) SetVideoIds(v string) *DeleteVideoRequest {
 	s.VideoIds = &v
 	return s
 }
 
 type DeleteVideoResponse struct {
-	RequestId         *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	NonExistVideoIds  []*string `json:"NonExistVideoIds" xml:"NonExistVideoIds" require:"true" type:"Repeated"`
-	ForbiddenVideoIds []*string `json:"ForbiddenVideoIds" xml:"ForbiddenVideoIds" require:"true" type:"Repeated"`
+	RequestId         *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NonExistVideoIds  []*string `json:"NonExistVideoIds,omitempty" xml:"NonExistVideoIds,omitempty" require:"true" type:"Repeated"`
+	ForbiddenVideoIds []*string `json:"ForbiddenVideoIds,omitempty" xml:"ForbiddenVideoIds,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DeleteVideoResponse) String() string {
@@ -18409,10 +16703,7 @@ func (s *DeleteVideoResponse) SetForbiddenVideoIds(v []*string) *DeleteVideoResp
 }
 
 type RefreshUploadVideoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	VideoId              *string `json:"VideoId" xml:"VideoId" require:"true"`
+	VideoId *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
 }
 
 func (s RefreshUploadVideoRequest) String() string {
@@ -18423,31 +16714,16 @@ func (s RefreshUploadVideoRequest) GoString() string {
 	return s.String()
 }
 
-func (s *RefreshUploadVideoRequest) SetOwnerId(v int64) *RefreshUploadVideoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *RefreshUploadVideoRequest) SetResourceOwnerAccount(v string) *RefreshUploadVideoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *RefreshUploadVideoRequest) SetResourceOwnerId(v int64) *RefreshUploadVideoRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *RefreshUploadVideoRequest) SetVideoId(v string) *RefreshUploadVideoRequest {
 	s.VideoId = &v
 	return s
 }
 
 type RefreshUploadVideoResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	UploadAuth    *string `json:"UploadAuth" xml:"UploadAuth" require:"true"`
-	UploadAddress *string `json:"UploadAddress" xml:"UploadAddress" require:"true"`
-	VideoId       *string `json:"VideoId" xml:"VideoId" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	UploadAuth    *string `json:"UploadAuth,omitempty" xml:"UploadAuth,omitempty" require:"true"`
+	UploadAddress *string `json:"UploadAddress,omitempty" xml:"UploadAddress,omitempty" require:"true"`
+	VideoId       *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
 }
 
 func (s RefreshUploadVideoResponse) String() string {
@@ -18479,24 +16755,21 @@ func (s *RefreshUploadVideoResponse) SetVideoId(v string) *RefreshUploadVideoRes
 }
 
 type CreateUploadVideoRequest struct {
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	CoverURL             *string `json:"CoverURL" xml:"CoverURL"`
-	Description          *string `json:"Description" xml:"Description"`
-	FileName             *string `json:"FileName" xml:"FileName" require:"true"`
-	FileSize             *int64  `json:"FileSize" xml:"FileSize"`
-	IP                   *string `json:"IP" xml:"IP"`
-	Title                *string `json:"Title" xml:"Title" require:"true"`
-	CateId               *int64  `json:"CateId" xml:"CateId"`
-	Tags                 *string `json:"Tags" xml:"Tags"`
-	TranscodeMode        *string `json:"TranscodeMode" xml:"TranscodeMode"`
-	UserData             *string `json:"UserData" xml:"UserData"`
-	TemplateGroupId      *string `json:"TemplateGroupId" xml:"TemplateGroupId"`
-	WorkflowId           *string `json:"WorkflowId" xml:"WorkflowId"`
-	StorageLocation      *string `json:"StorageLocation" xml:"StorageLocation"`
-	CustomMediaInfo      *string `json:"CustomMediaInfo" xml:"CustomMediaInfo"`
-	AppId                *string `json:"AppId" xml:"AppId"`
+	CoverURL        *string `json:"CoverURL,omitempty" xml:"CoverURL,omitempty"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	FileName        *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
+	FileSize        *int64  `json:"FileSize,omitempty" xml:"FileSize,omitempty"`
+	IP              *string `json:"IP,omitempty" xml:"IP,omitempty"`
+	Title           *string `json:"Title,omitempty" xml:"Title,omitempty" require:"true"`
+	CateId          *int64  `json:"CateId,omitempty" xml:"CateId,omitempty"`
+	Tags            *string `json:"Tags,omitempty" xml:"Tags,omitempty"`
+	TranscodeMode   *string `json:"TranscodeMode,omitempty" xml:"TranscodeMode,omitempty"`
+	UserData        *string `json:"UserData,omitempty" xml:"UserData,omitempty"`
+	TemplateGroupId *string `json:"TemplateGroupId,omitempty" xml:"TemplateGroupId,omitempty"`
+	WorkflowId      *string `json:"WorkflowId,omitempty" xml:"WorkflowId,omitempty"`
+	StorageLocation *string `json:"StorageLocation,omitempty" xml:"StorageLocation,omitempty"`
+	CustomMediaInfo *string `json:"CustomMediaInfo,omitempty" xml:"CustomMediaInfo,omitempty"`
+	AppId           *string `json:"AppId,omitempty" xml:"AppId,omitempty"`
 }
 
 func (s CreateUploadVideoRequest) String() string {
@@ -18505,21 +16778,6 @@ func (s CreateUploadVideoRequest) String() string {
 
 func (s CreateUploadVideoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *CreateUploadVideoRequest) SetOwnerId(v int64) *CreateUploadVideoRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *CreateUploadVideoRequest) SetResourceOwnerAccount(v string) *CreateUploadVideoRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *CreateUploadVideoRequest) SetResourceOwnerId(v int64) *CreateUploadVideoRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *CreateUploadVideoRequest) SetCoverURL(v string) *CreateUploadVideoRequest {
@@ -18598,10 +16856,10 @@ func (s *CreateUploadVideoRequest) SetAppId(v string) *CreateUploadVideoRequest 
 }
 
 type CreateUploadVideoResponse struct {
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	VideoId       *string `json:"VideoId" xml:"VideoId" require:"true"`
-	UploadAddress *string `json:"UploadAddress" xml:"UploadAddress" require:"true"`
-	UploadAuth    *string `json:"UploadAuth" xml:"UploadAuth" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	VideoId       *string `json:"VideoId,omitempty" xml:"VideoId,omitempty" require:"true"`
+	UploadAddress *string `json:"UploadAddress,omitempty" xml:"UploadAddress,omitempty" require:"true"`
+	UploadAuth    *string `json:"UploadAuth,omitempty" xml:"UploadAuth,omitempty" require:"true"`
 }
 
 func (s CreateUploadVideoResponse) String() string {
@@ -18651,10 +16909,9 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	client.EndpointMap = map[string]*string{
 		"cn-beijing":                  tea.String("vod.cn-shanghai.aliyuncs.com"),
 		"cn-hangzhou":                 tea.String("vod.cn-shanghai.aliyuncs.com"),
-		"cn-shenzhen":                 tea.String("vod.cn-shanghai.aliyuncs.com"),
-		"ap-northeast-2-pop":          tea.String("vod.ap-northeast-1.aliyuncs.com"),
-		"ap-southeast-2":              tea.String("vod.ap-northeast-1.aliyuncs.com"),
-		"ap-southeast-3":              tea.String("vod.ap-northeast-1.aliyuncs.com"),
+		"ap-northeast-2-pop":          tea.String("vod.aliyuncs.com"),
+		"ap-southeast-2":              tea.String("vod.aliyuncs.com"),
+		"ap-southeast-3":              tea.String("vod.aliyuncs.com"),
 		"cn-beijing-finance-1":        tea.String("vod.aliyuncs.com"),
 		"cn-beijing-finance-pop":      tea.String("vod.aliyuncs.com"),
 		"cn-beijing-gov-1":            tea.String("vod.aliyuncs.com"),
@@ -18672,6 +16929,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 		"cn-hangzhou-test-306":        tea.String("vod.aliyuncs.com"),
 		"cn-hongkong-finance-pop":     tea.String("vod.aliyuncs.com"),
 		"cn-huhehaote":                tea.String("vod.aliyuncs.com"),
+		"cn-huhehaote-nebula-1":       tea.String("vod.aliyuncs.com"),
 		"cn-qingdao":                  tea.String("vod.aliyuncs.com"),
 		"cn-qingdao-nebula":           tea.String("vod.aliyuncs.com"),
 		"cn-shanghai-et15-b01":        tea.String("vod.aliyuncs.com"),
@@ -18684,25 +16942,226 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 		"cn-shenzhen-st4-d01":         tea.String("vod.aliyuncs.com"),
 		"cn-shenzhen-su18-b01":        tea.String("vod.aliyuncs.com"),
 		"cn-wuhan":                    tea.String("vod.aliyuncs.com"),
+		"cn-wulanchabu":               tea.String("vod.aliyuncs.com"),
 		"cn-yushanfang":               tea.String("vod.aliyuncs.com"),
 		"cn-zhangbei-na61-b01":        tea.String("vod.aliyuncs.com"),
 		"cn-zhangjiakou-na62-a01":     tea.String("vod.aliyuncs.com"),
 		"cn-zhengzhou-nebula-1":       tea.String("vod.aliyuncs.com"),
-		"eu-west-1-oxs":               tea.String("vod.ap-northeast-1.aliyuncs.com"),
-		"me-east-1":                   tea.String("vod.ap-northeast-1.aliyuncs.com"),
-		"rus-west-1-pop":              tea.String("vod.ap-northeast-1.aliyuncs.com"),
-		"us-east-1":                   tea.String("vod.ap-northeast-1.aliyuncs.com"),
+		"eu-west-1-oxs":               tea.String("vod.aliyuncs.com"),
+		"me-east-1":                   tea.String("vod.aliyuncs.com"),
+		"rus-west-1-pop":              tea.String("vod.aliyuncs.com"),
+		"us-east-1":                   tea.String("vod.aliyuncs.com"),
 	}
 	_err = client.CheckConfig(config)
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("vod"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
 	return nil
+}
+
+func (client *Client) ListDynamicImageWithOptions(request *ListDynamicImageRequest, runtime *util.RuntimeOptions) (_result *ListDynamicImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListDynamicImageResponse{}
+	_body, _err := client.DoRequest(tea.String("ListDynamicImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListDynamicImage(request *ListDynamicImageRequest) (_result *ListDynamicImageResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListDynamicImageResponse{}
+	_body, _err := client.ListDynamicImageWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DeleteDynamicImageWithOptions(request *DeleteDynamicImageRequest, runtime *util.RuntimeOptions) (_result *DeleteDynamicImageResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteDynamicImageResponse{}
+	_body, _err := client.DoRequest(tea.String("DeleteDynamicImage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteDynamicImage(request *DeleteDynamicImageRequest) (_result *DeleteDynamicImageResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteDynamicImageResponse{}
+	_body, _err := client.DeleteDynamicImageWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeVodUserTagsWithOptions(request *DescribeVodUserTagsRequest, runtime *util.RuntimeOptions) (_result *DescribeVodUserTagsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeVodUserTagsResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeVodUserTags"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeVodUserTags(request *DescribeVodUserTagsRequest) (_result *DescribeVodUserTagsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeVodUserTagsResponse{}
+	_body, _err := client.DescribeVodUserTagsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeVodTagResourcesWithOptions(request *DescribeVodTagResourcesRequest, runtime *util.RuntimeOptions) (_result *DescribeVodTagResourcesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeVodTagResourcesResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeVodTagResources"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeVodTagResources(request *DescribeVodTagResourcesRequest) (_result *DescribeVodTagResourcesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeVodTagResourcesResponse{}
+	_body, _err := client.DescribeVodTagResourcesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateMediaDNALibWithOptions(request *CreateMediaDNALibRequest, runtime *util.RuntimeOptions) (_result *CreateMediaDNALibResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateMediaDNALibResponse{}
+	_body, _err := client.DoRequest(tea.String("CreateMediaDNALib"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateMediaDNALib(request *CreateMediaDNALibRequest) (_result *CreateMediaDNALibResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateMediaDNALibResponse{}
+	_body, _err := client.CreateMediaDNALibWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListMediaDNALibsWithOptions(request *ListMediaDNALibsRequest, runtime *util.RuntimeOptions) (_result *ListMediaDNALibsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListMediaDNALibsResponse{}
+	_body, _err := client.DoRequest(tea.String("ListMediaDNALibs"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListMediaDNALibs(request *ListMediaDNALibsRequest) (_result *ListMediaDNALibsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListMediaDNALibsResponse{}
+	_body, _err := client.ListMediaDNALibsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) UnTagVodResourcesWithOptions(request *UnTagVodResourcesRequest, runtime *util.RuntimeOptions) (_result *UnTagVodResourcesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &UnTagVodResourcesResponse{}
+	_body, _err := client.DoRequest(tea.String("UnTagVodResources"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) UnTagVodResources(request *UnTagVodResourcesRequest) (_result *UnTagVodResourcesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &UnTagVodResourcesResponse{}
+	_body, _err := client.UnTagVodResourcesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) TagVodResourcesWithOptions(request *TagVodResourcesRequest, runtime *util.RuntimeOptions) (_result *TagVodResourcesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &TagVodResourcesResponse{}
+	_body, _err := client.DoRequest(tea.String("TagVodResources"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) TagVodResources(request *TagVodResourcesRequest) (_result *TagVodResourcesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &TagVodResourcesResponse{}
+	_body, _err := client.TagVodResourcesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) SubmitMediaDNADeleteJobWithOptions(request *SubmitMediaDNADeleteJobRequest, runtime *util.RuntimeOptions) (_result *SubmitMediaDNADeleteJobResponse, _err error) {
@@ -18886,7 +17345,7 @@ func (client *Client) DescribeVodStorageDataWithOptions(request *DescribeVodStor
 		return _result, _err
 	}
 	_result = &DescribeVodStorageDataResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodStorageData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodStorageData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -18911,7 +17370,7 @@ func (client *Client) DescribeVodAIDataWithOptions(request *DescribeVodAIDataReq
 		return _result, _err
 	}
 	_result = &DescribeVodAIDataResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodAIData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodAIData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -18936,7 +17395,7 @@ func (client *Client) DescribeVodTranscodeDataWithOptions(request *DescribeVodTr
 		return _result, _err
 	}
 	_result = &DescribeVodTranscodeDataResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodTranscodeData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodTranscodeData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -19861,7 +18320,7 @@ func (client *Client) DescribeVodDomainLogWithOptions(request *DescribeVodDomain
 		return _result, _err
 	}
 	_result = &DescribeVodDomainLogResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodDomainLog"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodDomainLog"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -19886,7 +18345,7 @@ func (client *Client) DescribeVodDomainCertificateInfoWithOptions(request *Descr
 		return _result, _err
 	}
 	_result = &DescribeVodDomainCertificateInfoResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodDomainCertificateInfo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodDomainCertificateInfo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -19911,7 +18370,7 @@ func (client *Client) DescribeVodDomainTrafficDataWithOptions(request *DescribeV
 		return _result, _err
 	}
 	_result = &DescribeVodDomainTrafficDataResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodDomainTrafficData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodDomainTrafficData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -19936,7 +18395,7 @@ func (client *Client) DescribeVodDomainBpsDataWithOptions(request *DescribeVodDo
 		return _result, _err
 	}
 	_result = &DescribeVodDomainBpsDataResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodDomainBpsData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodDomainBpsData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -19961,7 +18420,7 @@ func (client *Client) DescribeVodDomainUsageDataWithOptions(request *DescribeVod
 		return _result, _err
 	}
 	_result = &DescribeVodDomainUsageDataResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeVodDomainUsageData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeVodDomainUsageData"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -20986,7 +19445,7 @@ func (client *Client) DescribePlayVideoStatisWithOptions(request *DescribePlayVi
 		return _result, _err
 	}
 	_result = &DescribePlayVideoStatisResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribePlayVideoStatis"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribePlayVideoStatis"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -21011,7 +19470,7 @@ func (client *Client) DescribePlayUserTotalWithOptions(request *DescribePlayUser
 		return _result, _err
 	}
 	_result = &DescribePlayUserTotalResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribePlayUserTotal"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribePlayUserTotal"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -21036,7 +19495,7 @@ func (client *Client) DescribePlayUserAvgWithOptions(request *DescribePlayUserAv
 		return _result, _err
 	}
 	_result = &DescribePlayUserAvgResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribePlayUserAvg"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribePlayUserAvg"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -21061,7 +19520,7 @@ func (client *Client) DescribePlayTopVideosWithOptions(request *DescribePlayTopV
 		return _result, _err
 	}
 	_result = &DescribePlayTopVideosResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribePlayTopVideos"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribePlayTopVideos"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-03-21"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
