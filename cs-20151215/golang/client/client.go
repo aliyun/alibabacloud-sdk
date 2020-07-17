@@ -8,6 +8,313 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type DeleteKubernetesTriggerRequest struct {
+	Headers map[string]*string `json:"headers,omitempty" xml:"headers,omitempty"`
+}
+
+func (s DeleteKubernetesTriggerRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteKubernetesTriggerRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteKubernetesTriggerRequest) SetHeaders(v map[string]*string) *DeleteKubernetesTriggerRequest {
+	s.Headers = v
+	return s
+}
+
+type DeleteKubernetesTriggerResponseBody struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s DeleteKubernetesTriggerResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteKubernetesTriggerResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteKubernetesTriggerResponseBody) SetRequestId(v string) *DeleteKubernetesTriggerResponseBody {
+	s.RequestId = &v
+	return s
+}
+
+type DeleteKubernetesTriggerResponse struct {
+	Headers map[string]*string                   `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *DeleteKubernetesTriggerResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
+}
+
+func (s DeleteKubernetesTriggerResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DeleteKubernetesTriggerResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DeleteKubernetesTriggerResponse) SetHeaders(v map[string]*string) *DeleteKubernetesTriggerResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *DeleteKubernetesTriggerResponse) SetBody(v *DeleteKubernetesTriggerResponseBody) *DeleteKubernetesTriggerResponse {
+	s.Body = v
+	return s
+}
+
+type CreateKubernetesTriggerBody struct {
+	RegionId   *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	ClusterId  *string `json:"ClusterId,omitempty" xml:"ClusterId,omitempty" require:"true"`
+	ProjectId  *string `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	TriggerUrl *string `json:"TriggerUrl,omitempty" xml:"TriggerUrl,omitempty"`
+}
+
+func (s CreateKubernetesTriggerBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateKubernetesTriggerBody) GoString() string {
+	return s.String()
+}
+
+func (s *CreateKubernetesTriggerBody) SetRegionId(v string) *CreateKubernetesTriggerBody {
+	s.RegionId = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerBody) SetClusterId(v string) *CreateKubernetesTriggerBody {
+	s.ClusterId = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerBody) SetProjectId(v string) *CreateKubernetesTriggerBody {
+	s.ProjectId = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerBody) SetType(v string) *CreateKubernetesTriggerBody {
+	s.Type = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerBody) SetTriggerUrl(v string) *CreateKubernetesTriggerBody {
+	s.TriggerUrl = &v
+	return s
+}
+
+type CreateKubernetesTriggerRequest struct {
+	Headers map[string]*string           `json:"headers,omitempty" xml:"headers,omitempty"`
+	Body    *CreateKubernetesTriggerBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
+}
+
+func (s CreateKubernetesTriggerRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateKubernetesTriggerRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateKubernetesTriggerRequest) SetHeaders(v map[string]*string) *CreateKubernetesTriggerRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *CreateKubernetesTriggerRequest) SetBody(v *CreateKubernetesTriggerBody) *CreateKubernetesTriggerRequest {
+	s.Body = v
+	return s
+}
+
+type CreateKubernetesTriggerResponseBody struct {
+	Id        *string `json:"id,omitempty" xml:"id,omitempty" require:"true"`
+	ClusterId *string `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	ProjectId *string `json:"project_id,omitempty" xml:"project_id,omitempty" require:"true"`
+	Action    *string `json:"action,omitempty" xml:"action,omitempty" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+}
+
+func (s CreateKubernetesTriggerResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateKubernetesTriggerResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *CreateKubernetesTriggerResponseBody) SetId(v string) *CreateKubernetesTriggerResponseBody {
+	s.Id = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerResponseBody) SetClusterId(v string) *CreateKubernetesTriggerResponseBody {
+	s.ClusterId = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerResponseBody) SetProjectId(v string) *CreateKubernetesTriggerResponseBody {
+	s.ProjectId = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerResponseBody) SetAction(v string) *CreateKubernetesTriggerResponseBody {
+	s.Action = &v
+	return s
+}
+
+func (s *CreateKubernetesTriggerResponseBody) SetRequestId(v string) *CreateKubernetesTriggerResponseBody {
+	s.RequestId = &v
+	return s
+}
+
+type CreateKubernetesTriggerResponse struct {
+	Headers map[string]*string                   `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    *CreateKubernetesTriggerResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true"`
+}
+
+func (s CreateKubernetesTriggerResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateKubernetesTriggerResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateKubernetesTriggerResponse) SetHeaders(v map[string]*string) *CreateKubernetesTriggerResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *CreateKubernetesTriggerResponse) SetBody(v *CreateKubernetesTriggerResponseBody) *CreateKubernetesTriggerResponse {
+	s.Body = v
+	return s
+}
+
+type GetKubernetesTriggerQuery struct {
+	Namespace *string `json:"Namespace,omitempty" xml:"Namespace,omitempty" require:"true"`
+	Type      *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Name      *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+}
+
+func (s GetKubernetesTriggerQuery) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetKubernetesTriggerQuery) GoString() string {
+	return s.String()
+}
+
+func (s *GetKubernetesTriggerQuery) SetNamespace(v string) *GetKubernetesTriggerQuery {
+	s.Namespace = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerQuery) SetType(v string) *GetKubernetesTriggerQuery {
+	s.Type = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerQuery) SetName(v string) *GetKubernetesTriggerQuery {
+	s.Name = &v
+	return s
+}
+
+type GetKubernetesTriggerRequest struct {
+	Headers map[string]*string         `json:"headers,omitempty" xml:"headers,omitempty"`
+	Query   *GetKubernetesTriggerQuery `json:"query,omitempty" xml:"query,omitempty" require:"true"`
+}
+
+func (s GetKubernetesTriggerRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetKubernetesTriggerRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetKubernetesTriggerRequest) SetHeaders(v map[string]*string) *GetKubernetesTriggerRequest {
+	s.Headers = v
+	return s
+}
+
+func (s *GetKubernetesTriggerRequest) SetQuery(v *GetKubernetesTriggerQuery) *GetKubernetesTriggerRequest {
+	s.Query = v
+	return s
+}
+
+type GetKubernetesTriggerResponseBody struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Id        *string `json:"id,omitempty" xml:"id,omitempty" require:"true"`
+	ClusterId *string `json:"cluster_id,omitempty" xml:"cluster_id,omitempty" require:"true"`
+	ProjectId *string `json:"project_id,omitempty" xml:"project_id,omitempty" require:"true"`
+	Action    *string `json:"action,omitempty" xml:"action,omitempty" require:"true"`
+	Token     *string `json:"token,omitempty" xml:"token,omitempty" require:"true"`
+}
+
+func (s GetKubernetesTriggerResponseBody) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetKubernetesTriggerResponseBody) GoString() string {
+	return s.String()
+}
+
+func (s *GetKubernetesTriggerResponseBody) SetRequestId(v string) *GetKubernetesTriggerResponseBody {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerResponseBody) SetId(v string) *GetKubernetesTriggerResponseBody {
+	s.Id = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerResponseBody) SetClusterId(v string) *GetKubernetesTriggerResponseBody {
+	s.ClusterId = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerResponseBody) SetProjectId(v string) *GetKubernetesTriggerResponseBody {
+	s.ProjectId = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerResponseBody) SetAction(v string) *GetKubernetesTriggerResponseBody {
+	s.Action = &v
+	return s
+}
+
+func (s *GetKubernetesTriggerResponseBody) SetToken(v string) *GetKubernetesTriggerResponseBody {
+	s.Token = &v
+	return s
+}
+
+type GetKubernetesTriggerResponse struct {
+	Headers map[string]*string                  `json:"headers,omitempty" xml:"headers,omitempty" require:"true"`
+	Body    []*GetKubernetesTriggerResponseBody `json:"body,omitempty" xml:"body,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetKubernetesTriggerResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetKubernetesTriggerResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetKubernetesTriggerResponse) SetHeaders(v map[string]*string) *GetKubernetesTriggerResponse {
+	s.Headers = v
+	return s
+}
+
+func (s *GetKubernetesTriggerResponse) SetBody(v []*GetKubernetesTriggerResponseBody) *GetKubernetesTriggerResponse {
+	s.Body = v
+	return s
+}
+
 type ListTagResourcesQuery struct {
 	NextToken    *string `json:"next_token,omitempty" xml:"next_token,omitempty"`
 	ResourceIds  *string `json:"resource_ids,omitempty" xml:"resource_ids,omitempty"`
@@ -1596,12 +1903,13 @@ func (s *DescribeClusterAttachScriptsBody) SetOptions(v *DescribeClusterAttachSc
 }
 
 type DescribeClusterAttachScriptsBodyOptions struct {
-	FlannelIface     *string `json:"flannelIface,omitempty" xml:"flannelIface,omitempty"`
-	EnableIptables   *bool   `json:"enableIptables,omitempty" xml:"enableIptables,omitempty"`
-	ManageRuntime    *bool   `json:"manageRuntime,omitempty" xml:"manageRuntime,omitempty"`
-	NodeNameStrategy *string `json:"nodeNameStrategy,omitempty" xml:"nodeNameStrategy,omitempty"`
-	NodeName         *string `json:"nodeName,omitempty" xml:"nodeName,omitempty"`
-	NodeNamePrefix   *string `json:"nodeNamePrefix,omitempty" xml:"nodeNamePrefix,omitempty"`
+	FlannelIface     *string   `json:"flannelIface,omitempty" xml:"flannelIface,omitempty"`
+	EnableIptables   *bool     `json:"enableIptables,omitempty" xml:"enableIptables,omitempty"`
+	ManageRuntime    *bool     `json:"manageRuntime,omitempty" xml:"manageRuntime,omitempty"`
+	NodeNameStrategy *string   `json:"nodeNameStrategy,omitempty" xml:"nodeNameStrategy,omitempty"`
+	NodeName         *string   `json:"nodeName,omitempty" xml:"nodeName,omitempty"`
+	NodeNamePrefix   *string   `json:"nodeNamePrefix,omitempty" xml:"nodeNamePrefix,omitempty"`
+	EnabledAddons    []*string `json:"enabledAddons,omitempty" xml:"enabledAddons,omitempty" type:"Repeated"`
 }
 
 func (s DescribeClusterAttachScriptsBodyOptions) String() string {
@@ -1639,6 +1947,11 @@ func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeName(v string) *Describ
 
 func (s *DescribeClusterAttachScriptsBodyOptions) SetNodeNamePrefix(v string) *DescribeClusterAttachScriptsBodyOptions {
 	s.NodeNamePrefix = &v
+	return s
+}
+
+func (s *DescribeClusterAttachScriptsBodyOptions) SetEnabledAddons(v []*string) *DescribeClusterAttachScriptsBodyOptions {
+	s.EnabledAddons = v
 	return s
 }
 
@@ -4432,6 +4745,81 @@ func (client *Client) Init(config *roa.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) DeleteKubernetesTriggerWithOptions(id *string, request *DeleteKubernetesTriggerRequest, runtime *util.RuntimeOptions) (_result *DeleteKubernetesTriggerResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DeleteKubernetesTriggerResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("DELETE"), tea.String("AK"), tea.String("/triggers/revoke/"+tea.StringValue(id)), nil, request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DeleteKubernetesTrigger(id *string, request *DeleteKubernetesTriggerRequest) (_result *DeleteKubernetesTriggerResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DeleteKubernetesTriggerResponse{}
+	_body, _err := client.DeleteKubernetesTriggerWithOptions(id, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateKubernetesTriggerWithOptions(request *CreateKubernetesTriggerRequest, runtime *util.RuntimeOptions) (_result *CreateKubernetesTriggerResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateKubernetesTriggerResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("POST"), tea.String("AK"), tea.String("/triggers"), nil, request.Headers, tea.ToMap(request.Body), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateKubernetesTrigger(request *CreateKubernetesTriggerRequest) (_result *CreateKubernetesTriggerResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateKubernetesTriggerResponse{}
+	_body, _err := client.CreateKubernetesTriggerWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) GetKubernetesTriggerWithOptions(clusterId *string, request *GetKubernetesTriggerRequest, runtime *util.RuntimeOptions) (_result *GetKubernetesTriggerResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetKubernetesTriggerResponse{}
+	_body, _err := client.DoRequest(tea.String("2015-12-15"), tea.String("HTTPS"), tea.String("GET"), tea.String("AK"), tea.String("/triggers/"+tea.StringValue(clusterId)), util.StringifyMapValue(tea.ToMap(request.Query)), request.Headers, nil, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetKubernetesTrigger(clusterId *string, request *GetKubernetesTriggerRequest) (_result *GetKubernetesTriggerResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetKubernetesTriggerResponse{}
+	_body, _err := client.GetKubernetesTriggerWithOptions(clusterId, request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) ListTagResourcesWithOptions(request *ListTagResourcesRequest, runtime *util.RuntimeOptions) (_result *ListTagResourcesResponse, _err error) {
