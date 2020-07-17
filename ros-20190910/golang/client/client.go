@@ -8,10 +8,249 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type GetTemplateSummaryRequest struct {
+	StackId      *string `json:"StackId,omitempty" xml:"StackId,omitempty"`
+	TemplateBody *string `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	TemplateId   *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty"`
+	TemplateURL  *string `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	ChangeSetId  *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty"`
+}
+
+func (s GetTemplateSummaryRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetTemplateSummaryRequest) GoString() string {
+	return s.String()
+}
+
+func (s *GetTemplateSummaryRequest) SetStackId(v string) *GetTemplateSummaryRequest {
+	s.StackId = &v
+	return s
+}
+
+func (s *GetTemplateSummaryRequest) SetTemplateBody(v string) *GetTemplateSummaryRequest {
+	s.TemplateBody = &v
+	return s
+}
+
+func (s *GetTemplateSummaryRequest) SetRegionId(v string) *GetTemplateSummaryRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *GetTemplateSummaryRequest) SetTemplateId(v string) *GetTemplateSummaryRequest {
+	s.TemplateId = &v
+	return s
+}
+
+func (s *GetTemplateSummaryRequest) SetTemplateURL(v string) *GetTemplateSummaryRequest {
+	s.TemplateURL = &v
+	return s
+}
+
+func (s *GetTemplateSummaryRequest) SetChangeSetId(v string) *GetTemplateSummaryRequest {
+	s.ChangeSetId = &v
+	return s
+}
+
+type GetTemplateSummaryResponse struct {
+	RequestId                   *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Description                 *string                                                  `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	Metadata                    map[string]interface{}                                   `json:"Metadata,omitempty" xml:"Metadata,omitempty" require:"true"`
+	Version                     *string                                                  `json:"Version,omitempty" xml:"Version,omitempty" require:"true"`
+	ResourceIdentifierSummaries []*GetTemplateSummaryResponseResourceIdentifierSummaries `json:"ResourceIdentifierSummaries,omitempty" xml:"ResourceIdentifierSummaries,omitempty" require:"true" type:"Repeated"`
+	Parameters                  []map[string]interface{}                                 `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
+	ResourceTypes               []*string                                                `json:"ResourceTypes,omitempty" xml:"ResourceTypes,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetTemplateSummaryResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetTemplateSummaryResponse) GoString() string {
+	return s.String()
+}
+
+func (s *GetTemplateSummaryResponse) SetRequestId(v string) *GetTemplateSummaryResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *GetTemplateSummaryResponse) SetDescription(v string) *GetTemplateSummaryResponse {
+	s.Description = &v
+	return s
+}
+
+func (s *GetTemplateSummaryResponse) SetMetadata(v map[string]interface{}) *GetTemplateSummaryResponse {
+	s.Metadata = v
+	return s
+}
+
+func (s *GetTemplateSummaryResponse) SetVersion(v string) *GetTemplateSummaryResponse {
+	s.Version = &v
+	return s
+}
+
+func (s *GetTemplateSummaryResponse) SetResourceIdentifierSummaries(v []*GetTemplateSummaryResponseResourceIdentifierSummaries) *GetTemplateSummaryResponse {
+	s.ResourceIdentifierSummaries = v
+	return s
+}
+
+func (s *GetTemplateSummaryResponse) SetParameters(v []map[string]interface{}) *GetTemplateSummaryResponse {
+	s.Parameters = v
+	return s
+}
+
+func (s *GetTemplateSummaryResponse) SetResourceTypes(v []*string) *GetTemplateSummaryResponse {
+	s.ResourceTypes = v
+	return s
+}
+
+type GetTemplateSummaryResponseResourceIdentifierSummaries struct {
+	ResourceType        *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	LogicalResourceIds  []*string `json:"LogicalResourceIds,omitempty" xml:"LogicalResourceIds,omitempty" require:"true" type:"Repeated"`
+	ResourceIdentifiers []*string `json:"ResourceIdentifiers,omitempty" xml:"ResourceIdentifiers,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s GetTemplateSummaryResponseResourceIdentifierSummaries) String() string {
+	return tea.Prettify(s)
+}
+
+func (s GetTemplateSummaryResponseResourceIdentifierSummaries) GoString() string {
+	return s.String()
+}
+
+func (s *GetTemplateSummaryResponseResourceIdentifierSummaries) SetResourceType(v string) *GetTemplateSummaryResponseResourceIdentifierSummaries {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *GetTemplateSummaryResponseResourceIdentifierSummaries) SetLogicalResourceIds(v []*string) *GetTemplateSummaryResponseResourceIdentifierSummaries {
+	s.LogicalResourceIds = v
+	return s
+}
+
+func (s *GetTemplateSummaryResponseResourceIdentifierSummaries) SetResourceIdentifiers(v []*string) *GetTemplateSummaryResponseResourceIdentifierSummaries {
+	s.ResourceIdentifiers = v
+	return s
+}
+
+type ListTagValuesRequest struct {
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	NextToken    *string `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
+	Key          *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+}
+
+func (s ListTagValuesRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagValuesRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagValuesRequest) SetRegionId(v string) *ListTagValuesRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *ListTagValuesRequest) SetResourceType(v string) *ListTagValuesRequest {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *ListTagValuesRequest) SetNextToken(v string) *ListTagValuesRequest {
+	s.NextToken = &v
+	return s
+}
+
+func (s *ListTagValuesRequest) SetKey(v string) *ListTagValuesRequest {
+	s.Key = &v
+	return s
+}
+
+type ListTagValuesResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken *string `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+}
+
+func (s ListTagValuesResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagValuesResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagValuesResponse) SetRequestId(v string) *ListTagValuesResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListTagValuesResponse) SetNextToken(v string) *ListTagValuesResponse {
+	s.NextToken = &v
+	return s
+}
+
+type ListTagKeysRequest struct {
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	NextToken    *string `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
+}
+
+func (s ListTagKeysRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagKeysRequest) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagKeysRequest) SetRegionId(v string) *ListTagKeysRequest {
+	s.RegionId = &v
+	return s
+}
+
+func (s *ListTagKeysRequest) SetResourceType(v string) *ListTagKeysRequest {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *ListTagKeysRequest) SetNextToken(v string) *ListTagKeysRequest {
+	s.NextToken = &v
+	return s
+}
+
+type ListTagKeysResponse struct {
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken *string `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+}
+
+func (s ListTagKeysResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s ListTagKeysResponse) GoString() string {
+	return s.String()
+}
+
+func (s *ListTagKeysResponse) SetRequestId(v string) *ListTagKeysResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *ListTagKeysResponse) SetNextToken(v string) *ListTagKeysResponse {
+	s.NextToken = &v
+	return s
+}
+
 type SetDeletionProtectionRequest struct {
-	StackId            *string `json:"StackId" xml:"StackId" require:"true"`
-	DeletionProtection *string `json:"DeletionProtection" xml:"DeletionProtection" require:"true"`
-	RegionId           *string `json:"RegionId" xml:"RegionId" require:"true"`
+	StackId            *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	DeletionProtection *string `json:"DeletionProtection,omitempty" xml:"DeletionProtection,omitempty" require:"true"`
+	RegionId           *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s SetDeletionProtectionRequest) String() string {
@@ -38,7 +277,7 @@ func (s *SetDeletionProtectionRequest) SetRegionId(v string) *SetDeletionProtect
 }
 
 type SetDeletionProtectionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDeletionProtectionResponse) String() string {
@@ -55,12 +294,12 @@ func (s *SetDeletionProtectionResponse) SetRequestId(v string) *SetDeletionProte
 }
 
 type UpdateStackTemplateByResourcesRequest struct {
-	StackId           *string   `json:"StackId" xml:"StackId" require:"true"`
-	DryRun            *bool     `json:"DryRun" xml:"DryRun"`
-	RegionId          *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	ClientToken       *string   `json:"ClientToken" xml:"ClientToken"`
-	TemplateFormat    *string   `json:"TemplateFormat" xml:"TemplateFormat"`
-	LogicalResourceId []*string `json:"LogicalResourceId" xml:"LogicalResourceId" type:"Repeated"`
+	StackId           *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	DryRun            *bool     `json:"DryRun,omitempty" xml:"DryRun,omitempty"`
+	RegionId          *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ClientToken       *string   `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	TemplateFormat    *string   `json:"TemplateFormat,omitempty" xml:"TemplateFormat,omitempty"`
+	LogicalResourceId []*string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" type:"Repeated"`
 }
 
 func (s UpdateStackTemplateByResourcesRequest) String() string {
@@ -102,9 +341,9 @@ func (s *UpdateStackTemplateByResourcesRequest) SetLogicalResourceId(v []*string
 }
 
 type UpdateStackTemplateByResourcesResponse struct {
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OldTemplateBody *string `json:"OldTemplateBody" xml:"OldTemplateBody" require:"true"`
-	NewTemplateBody *string `json:"NewTemplateBody" xml:"NewTemplateBody" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OldTemplateBody *string `json:"OldTemplateBody,omitempty" xml:"OldTemplateBody,omitempty" require:"true"`
+	NewTemplateBody *string `json:"NewTemplateBody,omitempty" xml:"NewTemplateBody,omitempty" require:"true"`
 }
 
 func (s UpdateStackTemplateByResourcesResponse) String() string {
@@ -131,8 +370,8 @@ func (s *UpdateStackTemplateByResourcesResponse) SetNewTemplateBody(v string) *U
 }
 
 type GetStackDriftDetectionStatusRequest struct {
-	RegionId         *string `json:"RegionId" xml:"RegionId" require:"true"`
-	DriftDetectionId *string `json:"DriftDetectionId" xml:"DriftDetectionId" require:"true"`
+	RegionId         *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DriftDetectionId *string `json:"DriftDetectionId,omitempty" xml:"DriftDetectionId,omitempty" require:"true"`
 }
 
 func (s GetStackDriftDetectionStatusRequest) String() string {
@@ -154,14 +393,14 @@ func (s *GetStackDriftDetectionStatusRequest) SetDriftDetectionId(v string) *Get
 }
 
 type GetStackDriftDetectionStatusResponse struct {
-	RequestId                  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DriftDetectionId           *string `json:"DriftDetectionId" xml:"DriftDetectionId" require:"true"`
-	DriftDetectionTime         *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	DriftDetectionStatus       *string `json:"DriftDetectionStatus" xml:"DriftDetectionStatus" require:"true"`
-	DriftDetectionStatusReason *string `json:"DriftDetectionStatusReason" xml:"DriftDetectionStatusReason" require:"true"`
-	StackDriftStatus           *string `json:"StackDriftStatus" xml:"StackDriftStatus" require:"true"`
-	StackId                    *string `json:"StackId" xml:"StackId" require:"true"`
-	DriftedStackResourceCount  *int    `json:"DriftedStackResourceCount" xml:"DriftedStackResourceCount" require:"true"`
+	RequestId                  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DriftDetectionId           *string `json:"DriftDetectionId,omitempty" xml:"DriftDetectionId,omitempty" require:"true"`
+	DriftDetectionTime         *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	DriftDetectionStatus       *string `json:"DriftDetectionStatus,omitempty" xml:"DriftDetectionStatus,omitempty" require:"true"`
+	DriftDetectionStatusReason *string `json:"DriftDetectionStatusReason,omitempty" xml:"DriftDetectionStatusReason,omitempty" require:"true"`
+	StackDriftStatus           *string `json:"StackDriftStatus,omitempty" xml:"StackDriftStatus,omitempty" require:"true"`
+	StackId                    *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	DriftedStackResourceCount  *int    `json:"DriftedStackResourceCount,omitempty" xml:"DriftedStackResourceCount,omitempty" require:"true"`
 }
 
 func (s GetStackDriftDetectionStatusResponse) String() string {
@@ -213,10 +452,10 @@ func (s *GetStackDriftDetectionStatusResponse) SetDriftedStackResourceCount(v in
 }
 
 type DetectStackGroupDriftRequest struct {
-	ClientToken          *string                `json:"ClientToken" xml:"ClientToken"`
-	RegionId             *string                `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName       *string                `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	OperationPreferences map[string]interface{} `json:"OperationPreferences" xml:"OperationPreferences"`
+	ClientToken          *string                `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	RegionId             *string                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName       *string                `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	OperationPreferences map[string]interface{} `json:"OperationPreferences,omitempty" xml:"OperationPreferences,omitempty"`
 }
 
 func (s DetectStackGroupDriftRequest) String() string {
@@ -248,8 +487,8 @@ func (s *DetectStackGroupDriftRequest) SetOperationPreferences(v map[string]inte
 }
 
 type DetectStackGroupDriftResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s DetectStackGroupDriftResponse) String() string {
@@ -271,11 +510,11 @@ func (s *DetectStackGroupDriftResponse) SetOperationId(v string) *DetectStackGro
 }
 
 type ListStackResourceDriftsRequest struct {
-	StackId             *string   `json:"StackId" xml:"StackId" require:"true"`
-	RegionId            *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	MaxResults          *int64    `json:"MaxResults" xml:"MaxResults"`
-	ResourceDriftStatus []*string `json:"ResourceDriftStatus" xml:"ResourceDriftStatus" type:"Repeated"`
-	NextToken           *string   `json:"NextToken" xml:"NextToken"`
+	StackId             *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId            *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	MaxResults          *int64    `json:"MaxResults,omitempty" xml:"MaxResults,omitempty"`
+	ResourceDriftStatus []*string `json:"ResourceDriftStatus,omitempty" xml:"ResourceDriftStatus,omitempty" type:"Repeated"`
+	NextToken           *string   `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
 }
 
 func (s ListStackResourceDriftsRequest) String() string {
@@ -312,9 +551,9 @@ func (s *ListStackResourceDriftsRequest) SetNextToken(v string) *ListStackResour
 }
 
 type ListStackResourceDriftsResponse struct {
-	RequestId      *string                                          `json:"RequestId" xml:"RequestId" require:"true"`
-	NextToken      *string                                          `json:"NextToken" xml:"NextToken" require:"true"`
-	ResourceDrifts []*ListStackResourceDriftsResponseResourceDrifts `json:"ResourceDrifts" xml:"ResourceDrifts" require:"true" type:"Repeated"`
+	RequestId      *string                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken      *string                                          `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	ResourceDrifts []*ListStackResourceDriftsResponseResourceDrifts `json:"ResourceDrifts,omitempty" xml:"ResourceDrifts,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackResourceDriftsResponse) String() string {
@@ -341,15 +580,15 @@ func (s *ListStackResourceDriftsResponse) SetResourceDrifts(v []*ListStackResour
 }
 
 type ListStackResourceDriftsResponseResourceDrifts struct {
-	DriftDetectionTime  *string                                                             `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	ResourceDriftStatus *string                                                             `json:"ResourceDriftStatus" xml:"ResourceDriftStatus" require:"true"`
-	StackId             *string                                                             `json:"StackId" xml:"StackId" require:"true"`
-	ResourceType        *string                                                             `json:"ResourceType" xml:"ResourceType" require:"true"`
-	PhysicalResourceId  *string                                                             `json:"PhysicalResourceId" xml:"PhysicalResourceId" require:"true"`
-	LogicalResourceId   *string                                                             `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
-	ActualProperties    *string                                                             `json:"ActualProperties" xml:"ActualProperties" require:"true"`
-	ExpectedProperties  *string                                                             `json:"ExpectedProperties" xml:"ExpectedProperties" require:"true"`
-	PropertyDifferences []*ListStackResourceDriftsResponseResourceDriftsPropertyDifferences `json:"PropertyDifferences" xml:"PropertyDifferences" require:"true" type:"Repeated"`
+	DriftDetectionTime  *string                                                             `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	ResourceDriftStatus *string                                                             `json:"ResourceDriftStatus,omitempty" xml:"ResourceDriftStatus,omitempty" require:"true"`
+	StackId             *string                                                             `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	ResourceType        *string                                                             `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	PhysicalResourceId  *string                                                             `json:"PhysicalResourceId,omitempty" xml:"PhysicalResourceId,omitempty" require:"true"`
+	LogicalResourceId   *string                                                             `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	ActualProperties    *string                                                             `json:"ActualProperties,omitempty" xml:"ActualProperties,omitempty" require:"true"`
+	ExpectedProperties  *string                                                             `json:"ExpectedProperties,omitempty" xml:"ExpectedProperties,omitempty" require:"true"`
+	PropertyDifferences []*ListStackResourceDriftsResponseResourceDriftsPropertyDifferences `json:"PropertyDifferences,omitempty" xml:"PropertyDifferences,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackResourceDriftsResponseResourceDrifts) String() string {
@@ -406,10 +645,10 @@ func (s *ListStackResourceDriftsResponseResourceDrifts) SetPropertyDifferences(v
 }
 
 type ListStackResourceDriftsResponseResourceDriftsPropertyDifferences struct {
-	PropertyPath   *string `json:"PropertyPath" xml:"PropertyPath" require:"true"`
-	ActualValue    *string `json:"ActualValue" xml:"ActualValue" require:"true"`
-	ExpectedValue  *string `json:"ExpectedValue" xml:"ExpectedValue" require:"true"`
-	DifferenceType *string `json:"DifferenceType" xml:"DifferenceType" require:"true"`
+	PropertyPath   *string `json:"PropertyPath,omitempty" xml:"PropertyPath,omitempty" require:"true"`
+	ActualValue    *string `json:"ActualValue,omitempty" xml:"ActualValue,omitempty" require:"true"`
+	ExpectedValue  *string `json:"ExpectedValue,omitempty" xml:"ExpectedValue,omitempty" require:"true"`
+	DifferenceType *string `json:"DifferenceType,omitempty" xml:"DifferenceType,omitempty" require:"true"`
 }
 
 func (s ListStackResourceDriftsResponseResourceDriftsPropertyDifferences) String() string {
@@ -441,10 +680,10 @@ func (s *ListStackResourceDriftsResponseResourceDriftsPropertyDifferences) SetDi
 }
 
 type DetectStackResourceDriftRequest struct {
-	StackId           *string `json:"StackId" xml:"StackId" require:"true"`
-	ClientToken       *string `json:"ClientToken" xml:"ClientToken"`
-	RegionId          *string `json:"RegionId" xml:"RegionId" require:"true"`
-	LogicalResourceId *string `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
+	StackId           *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	ClientToken       *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	RegionId          *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	LogicalResourceId *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
 }
 
 func (s DetectStackResourceDriftRequest) String() string {
@@ -476,16 +715,16 @@ func (s *DetectStackResourceDriftRequest) SetLogicalResourceId(v string) *Detect
 }
 
 type DetectStackResourceDriftResponse struct {
-	RequestId           *string                                                `json:"RequestId" xml:"RequestId" require:"true"`
-	DriftDetectionTime  *string                                                `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	ResourceDriftStatus *string                                                `json:"ResourceDriftStatus" xml:"ResourceDriftStatus" require:"true"`
-	StackId             *string                                                `json:"StackId" xml:"StackId" require:"true"`
-	ResourceType        *string                                                `json:"ResourceType" xml:"ResourceType" require:"true"`
-	PhysicalResourceId  *string                                                `json:"PhysicalResourceId" xml:"PhysicalResourceId" require:"true"`
-	LogicalResourceId   *string                                                `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
-	ActualProperties    *string                                                `json:"ActualProperties" xml:"ActualProperties" require:"true"`
-	ExpectedProperties  *string                                                `json:"ExpectedProperties" xml:"ExpectedProperties" require:"true"`
-	PropertyDifferences []*DetectStackResourceDriftResponsePropertyDifferences `json:"PropertyDifferences" xml:"PropertyDifferences" require:"true" type:"Repeated"`
+	RequestId           *string                                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DriftDetectionTime  *string                                                `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	ResourceDriftStatus *string                                                `json:"ResourceDriftStatus,omitempty" xml:"ResourceDriftStatus,omitempty" require:"true"`
+	StackId             *string                                                `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	ResourceType        *string                                                `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	PhysicalResourceId  *string                                                `json:"PhysicalResourceId,omitempty" xml:"PhysicalResourceId,omitempty" require:"true"`
+	LogicalResourceId   *string                                                `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	ActualProperties    *string                                                `json:"ActualProperties,omitempty" xml:"ActualProperties,omitempty" require:"true"`
+	ExpectedProperties  *string                                                `json:"ExpectedProperties,omitempty" xml:"ExpectedProperties,omitempty" require:"true"`
+	PropertyDifferences []*DetectStackResourceDriftResponsePropertyDifferences `json:"PropertyDifferences,omitempty" xml:"PropertyDifferences,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DetectStackResourceDriftResponse) String() string {
@@ -547,10 +786,10 @@ func (s *DetectStackResourceDriftResponse) SetPropertyDifferences(v []*DetectSta
 }
 
 type DetectStackResourceDriftResponsePropertyDifferences struct {
-	PropertyPath   *string `json:"PropertyPath" xml:"PropertyPath" require:"true"`
-	ActualValue    *string `json:"ActualValue" xml:"ActualValue" require:"true"`
-	ExpectedValue  *string `json:"ExpectedValue" xml:"ExpectedValue" require:"true"`
-	DifferenceType *string `json:"DifferenceType" xml:"DifferenceType" require:"true"`
+	PropertyPath   *string `json:"PropertyPath,omitempty" xml:"PropertyPath,omitempty" require:"true"`
+	ActualValue    *string `json:"ActualValue,omitempty" xml:"ActualValue,omitempty" require:"true"`
+	ExpectedValue  *string `json:"ExpectedValue,omitempty" xml:"ExpectedValue,omitempty" require:"true"`
+	DifferenceType *string `json:"DifferenceType,omitempty" xml:"DifferenceType,omitempty" require:"true"`
 }
 
 func (s DetectStackResourceDriftResponsePropertyDifferences) String() string {
@@ -582,10 +821,10 @@ func (s *DetectStackResourceDriftResponsePropertyDifferences) SetDifferenceType(
 }
 
 type DetectStackDriftRequest struct {
-	StackId           *string   `json:"StackId" xml:"StackId" require:"true"`
-	RegionId          *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	LogicalResourceId []*string `json:"LogicalResourceId" xml:"LogicalResourceId" type:"Repeated"`
-	ClientToken       *string   `json:"ClientToken" xml:"ClientToken"`
+	StackId           *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId          *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	LogicalResourceId []*string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" type:"Repeated"`
+	ClientToken       *string   `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s DetectStackDriftRequest) String() string {
@@ -617,8 +856,8 @@ func (s *DetectStackDriftRequest) SetClientToken(v string) *DetectStackDriftRequ
 }
 
 type DetectStackDriftResponse struct {
-	RequestId        *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DriftDetectionId *string `json:"DriftDetectionId" xml:"DriftDetectionId" require:"true"`
+	RequestId        *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DriftDetectionId *string `json:"DriftDetectionId,omitempty" xml:"DriftDetectionId,omitempty" require:"true"`
 }
 
 func (s DetectStackDriftResponse) String() string {
@@ -640,14 +879,14 @@ func (s *DetectStackDriftResponse) SetDriftDetectionId(v string) *DetectStackDri
 }
 
 type UpdateStackInstancesRequest struct {
-	RegionId             *string                                          `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName       *string                                          `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	ParameterOverrides   []*UpdateStackInstancesRequestParameterOverrides `json:"ParameterOverrides" xml:"ParameterOverrides" type:"Repeated"`
-	AccountIds           map[string]interface{}                           `json:"AccountIds" xml:"AccountIds" require:"true"`
-	RegionIds            map[string]interface{}                           `json:"RegionIds" xml:"RegionIds" require:"true"`
-	ClientToken          *string                                          `json:"ClientToken" xml:"ClientToken"`
-	OperationDescription *string                                          `json:"OperationDescription" xml:"OperationDescription"`
-	OperationPreferences map[string]interface{}                           `json:"OperationPreferences" xml:"OperationPreferences"`
+	RegionId             *string                                          `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName       *string                                          `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	ParameterOverrides   []*UpdateStackInstancesRequestParameterOverrides `json:"ParameterOverrides,omitempty" xml:"ParameterOverrides,omitempty" type:"Repeated"`
+	AccountIds           map[string]interface{}                           `json:"AccountIds,omitempty" xml:"AccountIds,omitempty" require:"true"`
+	RegionIds            map[string]interface{}                           `json:"RegionIds,omitempty" xml:"RegionIds,omitempty" require:"true"`
+	ClientToken          *string                                          `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	OperationDescription *string                                          `json:"OperationDescription,omitempty" xml:"OperationDescription,omitempty"`
+	OperationPreferences map[string]interface{}                           `json:"OperationPreferences,omitempty" xml:"OperationPreferences,omitempty"`
 }
 
 func (s UpdateStackInstancesRequest) String() string {
@@ -699,8 +938,8 @@ func (s *UpdateStackInstancesRequest) SetOperationPreferences(v map[string]inter
 }
 
 type UpdateStackInstancesRequestParameterOverrides struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s UpdateStackInstancesRequestParameterOverrides) String() string {
@@ -722,8 +961,8 @@ func (s *UpdateStackInstancesRequestParameterOverrides) SetParameterKey(v string
 }
 
 type UpdateStackInstancesResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s UpdateStackInstancesResponse) String() string {
@@ -745,10 +984,10 @@ func (s *UpdateStackInstancesResponse) SetOperationId(v string) *UpdateStackInst
 }
 
 type ListStackGroupOperationsRequest struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	PageSize       *int64  `json:"PageSize" xml:"PageSize"`
-	PageNumber     *int64  `json:"PageNumber" xml:"PageNumber"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	PageSize       *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber     *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s ListStackGroupOperationsRequest) String() string {
@@ -780,11 +1019,11 @@ func (s *ListStackGroupOperationsRequest) SetPageNumber(v int64) *ListStackGroup
 }
 
 type ListStackGroupOperationsResponse struct {
-	RequestId            *string                                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber           *int                                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize             *int                                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount           *int                                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	StackGroupOperations []*ListStackGroupOperationsResponseStackGroupOperations `json:"StackGroupOperations" xml:"StackGroupOperations" require:"true" type:"Repeated"`
+	RequestId            *string                                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber           *int                                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize             *int                                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount           *int                                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	StackGroupOperations []*ListStackGroupOperationsResponseStackGroupOperations `json:"StackGroupOperations,omitempty" xml:"StackGroupOperations,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackGroupOperationsResponse) String() string {
@@ -821,14 +1060,14 @@ func (s *ListStackGroupOperationsResponse) SetStackGroupOperations(v []*ListStac
 }
 
 type ListStackGroupOperationsResponseStackGroupOperations struct {
-	StackGroupName       *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackGroupId         *string `json:"StackGroupId" xml:"StackGroupId" require:"true"`
-	OperationId          *string `json:"OperationId" xml:"OperationId" require:"true"`
-	OperationDescription *string `json:"OperationDescription" xml:"OperationDescription" require:"true"`
-	CreateTime           *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	EndTime              *string `json:"EndTime" xml:"EndTime" require:"true"`
-	Action               *string `json:"Action" xml:"Action" require:"true"`
-	Status               *string `json:"Status" xml:"Status" require:"true"`
+	StackGroupName       *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackGroupId         *string `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
+	OperationId          *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
+	OperationDescription *string `json:"OperationDescription,omitempty" xml:"OperationDescription,omitempty" require:"true"`
+	CreateTime           *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	EndTime              *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Action               *string `json:"Action,omitempty" xml:"Action,omitempty" require:"true"`
+	Status               *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s ListStackGroupOperationsResponseStackGroupOperations) String() string {
@@ -880,8 +1119,8 @@ func (s *ListStackGroupOperationsResponseStackGroupOperations) SetStatus(v strin
 }
 
 type GetStackGroupRequest struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
 }
 
 func (s GetStackGroupRequest) String() string {
@@ -903,8 +1142,8 @@ func (s *GetStackGroupRequest) SetStackGroupName(v string) *GetStackGroupRequest
 }
 
 type GetStackGroupResponse struct {
-	RequestId  *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	StackGroup *GetStackGroupResponseStackGroup `json:"StackGroup" xml:"StackGroup" require:"true" type:"Struct"`
+	RequestId  *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackGroup *GetStackGroupResponseStackGroup `json:"StackGroup,omitempty" xml:"StackGroup,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetStackGroupResponse) String() string {
@@ -926,15 +1165,15 @@ func (s *GetStackGroupResponse) SetStackGroup(v *GetStackGroupResponseStackGroup
 }
 
 type GetStackGroupResponseStackGroup struct {
-	StackGroupName                 *string                                                        `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackGroupId                   *string                                                        `json:"StackGroupId" xml:"StackGroupId" require:"true"`
-	Status                         *string                                                        `json:"Status" xml:"Status" require:"true"`
-	Description                    *string                                                        `json:"Description" xml:"Description" require:"true"`
-	TemplateBody                   *string                                                        `json:"TemplateBody" xml:"TemplateBody" require:"true"`
-	ExecutionRoleName              *string                                                        `json:"ExecutionRoleName" xml:"ExecutionRoleName" require:"true"`
-	AdministrationRoleName         *string                                                        `json:"AdministrationRoleName" xml:"AdministrationRoleName" require:"true"`
-	Parameters                     []*GetStackGroupResponseStackGroupParameters                   `json:"Parameters" xml:"Parameters" require:"true" type:"Repeated"`
-	StackGroupDriftDetectionDetail *GetStackGroupResponseStackGroupStackGroupDriftDetectionDetail `json:"StackGroupDriftDetectionDetail" xml:"StackGroupDriftDetectionDetail" require:"true" type:"Struct"`
+	StackGroupName                 *string                                                        `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackGroupId                   *string                                                        `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
+	Status                         *string                                                        `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description                    *string                                                        `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	TemplateBody                   *string                                                        `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty" require:"true"`
+	ExecutionRoleName              *string                                                        `json:"ExecutionRoleName,omitempty" xml:"ExecutionRoleName,omitempty" require:"true"`
+	AdministrationRoleName         *string                                                        `json:"AdministrationRoleName,omitempty" xml:"AdministrationRoleName,omitempty" require:"true"`
+	Parameters                     []*GetStackGroupResponseStackGroupParameters                   `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
+	StackGroupDriftDetectionDetail *GetStackGroupResponseStackGroupStackGroupDriftDetectionDetail `json:"StackGroupDriftDetectionDetail,omitempty" xml:"StackGroupDriftDetectionDetail,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetStackGroupResponseStackGroup) String() string {
@@ -991,8 +1230,8 @@ func (s *GetStackGroupResponseStackGroup) SetStackGroupDriftDetectionDetail(v *G
 }
 
 type GetStackGroupResponseStackGroupParameters struct {
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
 }
 
 func (s GetStackGroupResponseStackGroupParameters) String() string {
@@ -1014,15 +1253,15 @@ func (s *GetStackGroupResponseStackGroupParameters) SetParameterValue(v string) 
 }
 
 type GetStackGroupResponseStackGroupStackGroupDriftDetectionDetail struct {
-	DriftDetectionTime            *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	StackGroupDriftStatus         *string `json:"StackGroupDriftStatus" xml:"StackGroupDriftStatus" require:"true"`
-	DriftDetectionStatus          *string `json:"DriftDetectionStatus" xml:"DriftDetectionStatus" require:"true"`
-	DriftedStackInstancesCount    *int    `json:"DriftedStackInstancesCount" xml:"DriftedStackInstancesCount" require:"true"`
-	FailedStackInstancesCount     *int    `json:"FailedStackInstancesCount" xml:"FailedStackInstancesCount" require:"true"`
-	CancelledStackInstancesCount  *int    `json:"CancelledStackInstancesCount" xml:"CancelledStackInstancesCount" require:"true"`
-	InProgressStackInstancesCount *int    `json:"InProgressStackInstancesCount" xml:"InProgressStackInstancesCount" require:"true"`
-	InSyncStackInstancesCount     *int    `json:"InSyncStackInstancesCount" xml:"InSyncStackInstancesCount" require:"true"`
-	TotalStackInstancesCount      *int    `json:"TotalStackInstancesCount" xml:"TotalStackInstancesCount" require:"true"`
+	DriftDetectionTime            *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	StackGroupDriftStatus         *string `json:"StackGroupDriftStatus,omitempty" xml:"StackGroupDriftStatus,omitempty" require:"true"`
+	DriftDetectionStatus          *string `json:"DriftDetectionStatus,omitempty" xml:"DriftDetectionStatus,omitempty" require:"true"`
+	DriftedStackInstancesCount    *int    `json:"DriftedStackInstancesCount,omitempty" xml:"DriftedStackInstancesCount,omitempty" require:"true"`
+	FailedStackInstancesCount     *int    `json:"FailedStackInstancesCount,omitempty" xml:"FailedStackInstancesCount,omitempty" require:"true"`
+	CancelledStackInstancesCount  *int    `json:"CancelledStackInstancesCount,omitempty" xml:"CancelledStackInstancesCount,omitempty" require:"true"`
+	InProgressStackInstancesCount *int    `json:"InProgressStackInstancesCount,omitempty" xml:"InProgressStackInstancesCount,omitempty" require:"true"`
+	InSyncStackInstancesCount     *int    `json:"InSyncStackInstancesCount,omitempty" xml:"InSyncStackInstancesCount,omitempty" require:"true"`
+	TotalStackInstancesCount      *int    `json:"TotalStackInstancesCount,omitempty" xml:"TotalStackInstancesCount,omitempty" require:"true"`
 }
 
 func (s GetStackGroupResponseStackGroupStackGroupDriftDetectionDetail) String() string {
@@ -1079,8 +1318,8 @@ func (s *GetStackGroupResponseStackGroupStackGroupDriftDetectionDetail) SetTotal
 }
 
 type GetStackGroupOperationRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s GetStackGroupOperationRequest) String() string {
@@ -1102,8 +1341,8 @@ func (s *GetStackGroupOperationRequest) SetOperationId(v string) *GetStackGroupO
 }
 
 type GetStackGroupOperationResponse struct {
-	RequestId           *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	StackGroupOperation *GetStackGroupOperationResponseStackGroupOperation `json:"StackGroupOperation" xml:"StackGroupOperation" require:"true" type:"Struct"`
+	RequestId           *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackGroupOperation *GetStackGroupOperationResponseStackGroupOperation `json:"StackGroupOperation,omitempty" xml:"StackGroupOperation,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetStackGroupOperationResponse) String() string {
@@ -1125,19 +1364,19 @@ func (s *GetStackGroupOperationResponse) SetStackGroupOperation(v *GetStackGroup
 }
 
 type GetStackGroupOperationResponseStackGroupOperation struct {
-	StackGroupName                 *string                                                                          `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackGroupId                   *string                                                                          `json:"StackGroupId" xml:"StackGroupId" require:"true"`
-	OperationId                    *string                                                                          `json:"OperationId" xml:"OperationId" require:"true"`
-	OperationDescription           *string                                                                          `json:"OperationDescription" xml:"OperationDescription" require:"true"`
-	CreateTime                     *string                                                                          `json:"CreateTime" xml:"CreateTime" require:"true"`
-	EndTime                        *string                                                                          `json:"EndTime" xml:"EndTime" require:"true"`
-	Action                         *string                                                                          `json:"Action" xml:"Action" require:"true"`
-	Status                         *string                                                                          `json:"Status" xml:"Status" require:"true"`
-	RetainStacks                   *bool                                                                            `json:"RetainStacks" xml:"RetainStacks" require:"true"`
-	AdministratorRoleName          *string                                                                          `json:"AdministratorRoleName" xml:"AdministratorRoleName" require:"true"`
-	ExecutionRoleName              *string                                                                          `json:"ExecutionRoleName" xml:"ExecutionRoleName" require:"true"`
-	OperationPreferences           *GetStackGroupOperationResponseStackGroupOperationOperationPreferences           `json:"OperationPreferences" xml:"OperationPreferences" require:"true" type:"Struct"`
-	StackGroupDriftDetectionDetail *GetStackGroupOperationResponseStackGroupOperationStackGroupDriftDetectionDetail `json:"StackGroupDriftDetectionDetail" xml:"StackGroupDriftDetectionDetail" require:"true" type:"Struct"`
+	StackGroupName                 *string                                                                          `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackGroupId                   *string                                                                          `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
+	OperationId                    *string                                                                          `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
+	OperationDescription           *string                                                                          `json:"OperationDescription,omitempty" xml:"OperationDescription,omitempty" require:"true"`
+	CreateTime                     *string                                                                          `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	EndTime                        *string                                                                          `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Action                         *string                                                                          `json:"Action,omitempty" xml:"Action,omitempty" require:"true"`
+	Status                         *string                                                                          `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	RetainStacks                   *bool                                                                            `json:"RetainStacks,omitempty" xml:"RetainStacks,omitempty" require:"true"`
+	AdministratorRoleName          *string                                                                          `json:"AdministratorRoleName,omitempty" xml:"AdministratorRoleName,omitempty" require:"true"`
+	ExecutionRoleName              *string                                                                          `json:"ExecutionRoleName,omitempty" xml:"ExecutionRoleName,omitempty" require:"true"`
+	OperationPreferences           *GetStackGroupOperationResponseStackGroupOperationOperationPreferences           `json:"OperationPreferences,omitempty" xml:"OperationPreferences,omitempty" require:"true" type:"Struct"`
+	StackGroupDriftDetectionDetail *GetStackGroupOperationResponseStackGroupOperationStackGroupDriftDetectionDetail `json:"StackGroupDriftDetectionDetail,omitempty" xml:"StackGroupDriftDetectionDetail,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetStackGroupOperationResponseStackGroupOperation) String() string {
@@ -1214,11 +1453,11 @@ func (s *GetStackGroupOperationResponseStackGroupOperation) SetStackGroupDriftDe
 }
 
 type GetStackGroupOperationResponseStackGroupOperationOperationPreferences struct {
-	FailureToleranceCount      *int      `json:"FailureToleranceCount" xml:"FailureToleranceCount" require:"true"`
-	FailureTolerancePercentage *int      `json:"FailureTolerancePercentage" xml:"FailureTolerancePercentage" require:"true"`
-	MaxConcurrentCount         *int      `json:"MaxConcurrentCount" xml:"MaxConcurrentCount" require:"true"`
-	MaxConcurrentPercentage    *int      `json:"MaxConcurrentPercentage" xml:"MaxConcurrentPercentage" require:"true"`
-	RegionIdsOrder             []*string `json:"RegionIdsOrder" xml:"RegionIdsOrder" require:"true" type:"Repeated"`
+	FailureToleranceCount      *int      `json:"FailureToleranceCount,omitempty" xml:"FailureToleranceCount,omitempty" require:"true"`
+	FailureTolerancePercentage *int      `json:"FailureTolerancePercentage,omitempty" xml:"FailureTolerancePercentage,omitempty" require:"true"`
+	MaxConcurrentCount         *int      `json:"MaxConcurrentCount,omitempty" xml:"MaxConcurrentCount,omitempty" require:"true"`
+	MaxConcurrentPercentage    *int      `json:"MaxConcurrentPercentage,omitempty" xml:"MaxConcurrentPercentage,omitempty" require:"true"`
+	RegionIdsOrder             []*string `json:"RegionIdsOrder,omitempty" xml:"RegionIdsOrder,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetStackGroupOperationResponseStackGroupOperationOperationPreferences) String() string {
@@ -1255,15 +1494,15 @@ func (s *GetStackGroupOperationResponseStackGroupOperationOperationPreferences) 
 }
 
 type GetStackGroupOperationResponseStackGroupOperationStackGroupDriftDetectionDetail struct {
-	DriftDetectionTime            *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	StackGroupDriftStatus         *string `json:"StackGroupDriftStatus" xml:"StackGroupDriftStatus" require:"true"`
-	DriftDetectionStatus          *string `json:"DriftDetectionStatus" xml:"DriftDetectionStatus" require:"true"`
-	DriftedStackInstancesCount    *int    `json:"DriftedStackInstancesCount" xml:"DriftedStackInstancesCount" require:"true"`
-	FailedStackInstancesCount     *int    `json:"FailedStackInstancesCount" xml:"FailedStackInstancesCount" require:"true"`
-	CancelledStackInstancesCount  *int    `json:"CancelledStackInstancesCount" xml:"CancelledStackInstancesCount" require:"true"`
-	InProgressStackInstancesCount *int    `json:"InProgressStackInstancesCount" xml:"InProgressStackInstancesCount" require:"true"`
-	InSyncStackInstancesCount     *int    `json:"InSyncStackInstancesCount" xml:"InSyncStackInstancesCount" require:"true"`
-	TotalStackInstancesCount      *int    `json:"TotalStackInstancesCount" xml:"TotalStackInstancesCount" require:"true"`
+	DriftDetectionTime            *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	StackGroupDriftStatus         *string `json:"StackGroupDriftStatus,omitempty" xml:"StackGroupDriftStatus,omitempty" require:"true"`
+	DriftDetectionStatus          *string `json:"DriftDetectionStatus,omitempty" xml:"DriftDetectionStatus,omitempty" require:"true"`
+	DriftedStackInstancesCount    *int    `json:"DriftedStackInstancesCount,omitempty" xml:"DriftedStackInstancesCount,omitempty" require:"true"`
+	FailedStackInstancesCount     *int    `json:"FailedStackInstancesCount,omitempty" xml:"FailedStackInstancesCount,omitempty" require:"true"`
+	CancelledStackInstancesCount  *int    `json:"CancelledStackInstancesCount,omitempty" xml:"CancelledStackInstancesCount,omitempty" require:"true"`
+	InProgressStackInstancesCount *int    `json:"InProgressStackInstancesCount,omitempty" xml:"InProgressStackInstancesCount,omitempty" require:"true"`
+	InSyncStackInstancesCount     *int    `json:"InSyncStackInstancesCount,omitempty" xml:"InSyncStackInstancesCount,omitempty" require:"true"`
+	TotalStackInstancesCount      *int    `json:"TotalStackInstancesCount,omitempty" xml:"TotalStackInstancesCount,omitempty" require:"true"`
 }
 
 func (s GetStackGroupOperationResponseStackGroupOperationStackGroupDriftDetectionDetail) String() string {
@@ -1320,10 +1559,10 @@ func (s *GetStackGroupOperationResponseStackGroupOperationStackGroupDriftDetecti
 }
 
 type ListStackGroupsRequest struct {
-	RegionId   *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Status     *string `json:"Status" xml:"Status"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
+	RegionId   *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s ListStackGroupsRequest) String() string {
@@ -1355,11 +1594,11 @@ func (s *ListStackGroupsRequest) SetPageNumber(v int64) *ListStackGroupsRequest 
 }
 
 type ListStackGroupsResponse struct {
-	RequestId   *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber  *int                                  `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize    *int                                  `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount  *int                                  `json:"TotalCount" xml:"TotalCount" require:"true"`
-	StackGroups []*ListStackGroupsResponseStackGroups `json:"StackGroups" xml:"StackGroups" require:"true" type:"Repeated"`
+	RequestId   *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber  *int                                  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize    *int                                  `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount  *int                                  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	StackGroups []*ListStackGroupsResponseStackGroups `json:"StackGroups,omitempty" xml:"StackGroups,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackGroupsResponse) String() string {
@@ -1396,12 +1635,12 @@ func (s *ListStackGroupsResponse) SetStackGroups(v []*ListStackGroupsResponseSta
 }
 
 type ListStackGroupsResponseStackGroups struct {
-	StackGroupName        *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackGroupId          *string `json:"StackGroupId" xml:"StackGroupId" require:"true"`
-	Status                *string `json:"Status" xml:"Status" require:"true"`
-	Description           *string `json:"Description" xml:"Description" require:"true"`
-	DriftDetectionTime    *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	StackGroupDriftStatus *string `json:"StackGroupDriftStatus" xml:"StackGroupDriftStatus" require:"true"`
+	StackGroupName        *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackGroupId          *string `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
+	Status                *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Description           *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DriftDetectionTime    *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	StackGroupDriftStatus *string `json:"StackGroupDriftStatus,omitempty" xml:"StackGroupDriftStatus,omitempty" require:"true"`
 }
 
 func (s ListStackGroupsResponseStackGroups) String() string {
@@ -1443,14 +1682,14 @@ func (s *ListStackGroupsResponseStackGroups) SetStackGroupDriftStatus(v string) 
 }
 
 type CreateStackInstancesRequest struct {
-	RegionId             *string                                          `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName       *string                                          `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	ParameterOverrides   []*CreateStackInstancesRequestParameterOverrides `json:"ParameterOverrides" xml:"ParameterOverrides" type:"Repeated"`
-	AccountIds           map[string]interface{}                           `json:"AccountIds" xml:"AccountIds" require:"true"`
-	RegionIds            map[string]interface{}                           `json:"RegionIds" xml:"RegionIds" require:"true"`
-	ClientToken          *string                                          `json:"ClientToken" xml:"ClientToken"`
-	OperationDescription *string                                          `json:"OperationDescription" xml:"OperationDescription"`
-	OperationPreferences map[string]interface{}                           `json:"OperationPreferences" xml:"OperationPreferences"`
+	RegionId             *string                                          `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName       *string                                          `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	ParameterOverrides   []*CreateStackInstancesRequestParameterOverrides `json:"ParameterOverrides,omitempty" xml:"ParameterOverrides,omitempty" type:"Repeated"`
+	AccountIds           map[string]interface{}                           `json:"AccountIds,omitempty" xml:"AccountIds,omitempty" require:"true"`
+	RegionIds            map[string]interface{}                           `json:"RegionIds,omitempty" xml:"RegionIds,omitempty" require:"true"`
+	ClientToken          *string                                          `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	OperationDescription *string                                          `json:"OperationDescription,omitempty" xml:"OperationDescription,omitempty"`
+	OperationPreferences map[string]interface{}                           `json:"OperationPreferences,omitempty" xml:"OperationPreferences,omitempty"`
 }
 
 func (s CreateStackInstancesRequest) String() string {
@@ -1502,8 +1741,8 @@ func (s *CreateStackInstancesRequest) SetOperationPreferences(v map[string]inter
 }
 
 type CreateStackInstancesRequestParameterOverrides struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s CreateStackInstancesRequestParameterOverrides) String() string {
@@ -1525,8 +1764,8 @@ func (s *CreateStackInstancesRequestParameterOverrides) SetParameterKey(v string
 }
 
 type CreateStackInstancesResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s CreateStackInstancesResponse) String() string {
@@ -1548,15 +1787,15 @@ func (s *CreateStackInstancesResponse) SetOperationId(v string) *CreateStackInst
 }
 
 type CreateStackGroupRequest struct {
-	RegionId               *string                              `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName         *string                              `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	Description            *string                              `json:"Description" xml:"Description"`
-	Parameters             []*CreateStackGroupRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	TemplateBody           *string                              `json:"TemplateBody" xml:"TemplateBody"`
-	TemplateURL            *string                              `json:"TemplateURL" xml:"TemplateURL"`
-	ClientToken            *string                              `json:"ClientToken" xml:"ClientToken"`
-	AdministrationRoleName *string                              `json:"AdministrationRoleName" xml:"AdministrationRoleName"`
-	ExecutionRoleName      *string                              `json:"ExecutionRoleName" xml:"ExecutionRoleName"`
+	RegionId               *string                              `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName         *string                              `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	Description            *string                              `json:"Description,omitempty" xml:"Description,omitempty"`
+	Parameters             []*CreateStackGroupRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	TemplateBody           *string                              `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	TemplateURL            *string                              `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	ClientToken            *string                              `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	AdministrationRoleName *string                              `json:"AdministrationRoleName,omitempty" xml:"AdministrationRoleName,omitempty"`
+	ExecutionRoleName      *string                              `json:"ExecutionRoleName,omitempty" xml:"ExecutionRoleName,omitempty"`
 }
 
 func (s CreateStackGroupRequest) String() string {
@@ -1613,8 +1852,8 @@ func (s *CreateStackGroupRequest) SetExecutionRoleName(v string) *CreateStackGro
 }
 
 type CreateStackGroupRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s CreateStackGroupRequestParameters) String() string {
@@ -1636,8 +1875,8 @@ func (s *CreateStackGroupRequestParameters) SetParameterKey(v string) *CreateSta
 }
 
 type CreateStackGroupResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	StackGroupId *string `json:"StackGroupId" xml:"StackGroupId" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackGroupId *string `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
 }
 
 func (s CreateStackGroupResponse) String() string {
@@ -1659,10 +1898,10 @@ func (s *CreateStackGroupResponse) SetStackGroupId(v string) *CreateStackGroupRe
 }
 
 type GetStackInstanceRequest struct {
-	RegionId               *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName         *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackInstanceAccountId *string `json:"StackInstanceAccountId" xml:"StackInstanceAccountId" require:"true"`
-	StackInstanceRegionId  *string `json:"StackInstanceRegionId" xml:"StackInstanceRegionId" require:"true"`
+	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName         *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackInstanceAccountId *string `json:"StackInstanceAccountId,omitempty" xml:"StackInstanceAccountId,omitempty" require:"true"`
+	StackInstanceRegionId  *string `json:"StackInstanceRegionId,omitempty" xml:"StackInstanceRegionId,omitempty" require:"true"`
 }
 
 func (s GetStackInstanceRequest) String() string {
@@ -1694,8 +1933,8 @@ func (s *GetStackInstanceRequest) SetStackInstanceRegionId(v string) *GetStackIn
 }
 
 type GetStackInstanceResponse struct {
-	RequestId     *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	StackInstance *GetStackInstanceResponseStackInstance `json:"StackInstance" xml:"StackInstance" require:"true" type:"Struct"`
+	RequestId     *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackInstance *GetStackInstanceResponseStackInstance `json:"StackInstance,omitempty" xml:"StackInstance,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetStackInstanceResponse) String() string {
@@ -1717,16 +1956,16 @@ func (s *GetStackInstanceResponse) SetStackInstance(v *GetStackInstanceResponseS
 }
 
 type GetStackInstanceResponseStackInstance struct {
-	StackGroupName     *string                                                    `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackGroupId       *string                                                    `json:"StackGroupId" xml:"StackGroupId" require:"true"`
-	StackId            *string                                                    `json:"StackId" xml:"StackId" require:"true"`
-	AccountId          *string                                                    `json:"AccountId" xml:"AccountId" require:"true"`
-	RegionId           *string                                                    `json:"RegionId" xml:"RegionId" require:"true"`
-	Status             *string                                                    `json:"Status" xml:"Status" require:"true"`
-	StatusReason       *string                                                    `json:"StatusReason" xml:"StatusReason" require:"true"`
-	StackDriftStatus   *string                                                    `json:"StackDriftStatus" xml:"StackDriftStatus" require:"true"`
-	DriftDetectionTime *string                                                    `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	ParameterOverrides []*GetStackInstanceResponseStackInstanceParameterOverrides `json:"ParameterOverrides" xml:"ParameterOverrides" require:"true" type:"Repeated"`
+	StackGroupName     *string                                                    `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackGroupId       *string                                                    `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
+	StackId            *string                                                    `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	AccountId          *string                                                    `json:"AccountId,omitempty" xml:"AccountId,omitempty" require:"true"`
+	RegionId           *string                                                    `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status             *string                                                    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason       *string                                                    `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	StackDriftStatus   *string                                                    `json:"StackDriftStatus,omitempty" xml:"StackDriftStatus,omitempty" require:"true"`
+	DriftDetectionTime *string                                                    `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	ParameterOverrides []*GetStackInstanceResponseStackInstanceParameterOverrides `json:"ParameterOverrides,omitempty" xml:"ParameterOverrides,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetStackInstanceResponseStackInstance) String() string {
@@ -1788,8 +2027,8 @@ func (s *GetStackInstanceResponseStackInstance) SetParameterOverrides(v []*GetSt
 }
 
 type GetStackInstanceResponseStackInstanceParameterOverrides struct {
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
 }
 
 func (s GetStackInstanceResponseStackInstanceParameterOverrides) String() string {
@@ -1811,19 +2050,19 @@ func (s *GetStackInstanceResponseStackInstanceParameterOverrides) SetParameterVa
 }
 
 type UpdateStackGroupRequest struct {
-	RegionId               *string                              `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName         *string                              `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	Description            *string                              `json:"Description" xml:"Description"`
-	Parameters             []*UpdateStackGroupRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	AccountIds             map[string]interface{}               `json:"AccountIds" xml:"AccountIds"`
-	RegionIds              map[string]interface{}               `json:"RegionIds" xml:"RegionIds"`
-	TemplateBody           *string                              `json:"TemplateBody" xml:"TemplateBody"`
-	TemplateURL            *string                              `json:"TemplateURL" xml:"TemplateURL"`
-	ClientToken            *string                              `json:"ClientToken" xml:"ClientToken"`
-	OperationDescription   *string                              `json:"OperationDescription" xml:"OperationDescription"`
-	OperationPreferences   map[string]interface{}               `json:"OperationPreferences" xml:"OperationPreferences"`
-	AdministrationRoleName *string                              `json:"AdministrationRoleName" xml:"AdministrationRoleName"`
-	ExecutionRoleName      *string                              `json:"ExecutionRoleName" xml:"ExecutionRoleName"`
+	RegionId               *string                              `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName         *string                              `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	Description            *string                              `json:"Description,omitempty" xml:"Description,omitempty"`
+	Parameters             []*UpdateStackGroupRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	AccountIds             map[string]interface{}               `json:"AccountIds,omitempty" xml:"AccountIds,omitempty"`
+	RegionIds              map[string]interface{}               `json:"RegionIds,omitempty" xml:"RegionIds,omitempty"`
+	TemplateBody           *string                              `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	TemplateURL            *string                              `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	ClientToken            *string                              `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	OperationDescription   *string                              `json:"OperationDescription,omitempty" xml:"OperationDescription,omitempty"`
+	OperationPreferences   map[string]interface{}               `json:"OperationPreferences,omitempty" xml:"OperationPreferences,omitempty"`
+	AdministrationRoleName *string                              `json:"AdministrationRoleName,omitempty" xml:"AdministrationRoleName,omitempty"`
+	ExecutionRoleName      *string                              `json:"ExecutionRoleName,omitempty" xml:"ExecutionRoleName,omitempty"`
 }
 
 func (s UpdateStackGroupRequest) String() string {
@@ -1900,8 +2139,8 @@ func (s *UpdateStackGroupRequest) SetExecutionRoleName(v string) *UpdateStackGro
 }
 
 type UpdateStackGroupRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s UpdateStackGroupRequestParameters) String() string {
@@ -1923,8 +2162,8 @@ func (s *UpdateStackGroupRequestParameters) SetParameterKey(v string) *UpdateSta
 }
 
 type UpdateStackGroupResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s UpdateStackGroupResponse) String() string {
@@ -1946,12 +2185,12 @@ func (s *UpdateStackGroupResponse) SetOperationId(v string) *UpdateStackGroupRes
 }
 
 type ListStackInstancesRequest struct {
-	RegionId               *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName         *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackInstanceAccountId *string `json:"StackInstanceAccountId" xml:"StackInstanceAccountId"`
-	StackInstanceRegionId  *string `json:"StackInstanceRegionId" xml:"StackInstanceRegionId"`
-	PageSize               *int64  `json:"PageSize" xml:"PageSize"`
-	PageNumber             *int64  `json:"PageNumber" xml:"PageNumber"`
+	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName         *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackInstanceAccountId *string `json:"StackInstanceAccountId,omitempty" xml:"StackInstanceAccountId,omitempty"`
+	StackInstanceRegionId  *string `json:"StackInstanceRegionId,omitempty" xml:"StackInstanceRegionId,omitempty"`
+	PageSize               *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber             *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s ListStackInstancesRequest) String() string {
@@ -1993,11 +2232,11 @@ func (s *ListStackInstancesRequest) SetPageNumber(v int64) *ListStackInstancesRe
 }
 
 type ListStackInstancesResponse struct {
-	RequestId      *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber     *int                                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize       *int                                        `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount     *int                                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	StackInstances []*ListStackInstancesResponseStackInstances `json:"StackInstances" xml:"StackInstances" require:"true" type:"Repeated"`
+	RequestId      *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber     *int                                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize       *int                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount     *int                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	StackInstances []*ListStackInstancesResponseStackInstances `json:"StackInstances,omitempty" xml:"StackInstances,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackInstancesResponse) String() string {
@@ -2034,15 +2273,15 @@ func (s *ListStackInstancesResponse) SetStackInstances(v []*ListStackInstancesRe
 }
 
 type ListStackInstancesResponseStackInstances struct {
-	StackGroupName     *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	StackGroupId       *string `json:"StackGroupId" xml:"StackGroupId" require:"true"`
-	StackId            *string `json:"StackId" xml:"StackId" require:"true"`
-	AccountId          *string `json:"AccountId" xml:"AccountId" require:"true"`
-	RegionId           *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Status             *string `json:"Status" xml:"Status" require:"true"`
-	StatusReason       *string `json:"StatusReason" xml:"StatusReason" require:"true"`
-	StackDriftStatus   *string `json:"StackDriftStatus" xml:"StackDriftStatus" require:"true"`
-	DriftDetectionTime *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
+	StackGroupName     *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	StackGroupId       *string `json:"StackGroupId,omitempty" xml:"StackGroupId,omitempty" require:"true"`
+	StackId            *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	AccountId          *string `json:"AccountId,omitempty" xml:"AccountId,omitempty" require:"true"`
+	RegionId           *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status             *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason       *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	StackDriftStatus   *string `json:"StackDriftStatus,omitempty" xml:"StackDriftStatus,omitempty" require:"true"`
+	DriftDetectionTime *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
 }
 
 func (s ListStackInstancesResponseStackInstances) String() string {
@@ -2099,10 +2338,10 @@ func (s *ListStackInstancesResponseStackInstances) SetDriftDetectionTime(v strin
 }
 
 type ListStackGroupOperationResultsRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
-	PageSize    *int64  `json:"PageSize" xml:"PageSize"`
-	PageNumber  *int64  `json:"PageNumber" xml:"PageNumber"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
+	PageSize    *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNumber  *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 }
 
 func (s ListStackGroupOperationResultsRequest) String() string {
@@ -2134,11 +2373,11 @@ func (s *ListStackGroupOperationResultsRequest) SetPageNumber(v int64) *ListStac
 }
 
 type ListStackGroupOperationResultsResponse struct {
-	RequestId                  *string                                                             `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber                 *int                                                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize                   *int                                                                `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount                 *int                                                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	StackGroupOperationResults []*ListStackGroupOperationResultsResponseStackGroupOperationResults `json:"StackGroupOperationResults" xml:"StackGroupOperationResults" require:"true" type:"Repeated"`
+	RequestId                  *string                                                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber                 *int                                                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize                   *int                                                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount                 *int                                                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	StackGroupOperationResults []*ListStackGroupOperationResultsResponseStackGroupOperationResults `json:"StackGroupOperationResults,omitempty" xml:"StackGroupOperationResults,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackGroupOperationResultsResponse) String() string {
@@ -2175,10 +2414,10 @@ func (s *ListStackGroupOperationResultsResponse) SetStackGroupOperationResults(v
 }
 
 type ListStackGroupOperationResultsResponseStackGroupOperationResults struct {
-	AccountId    *string `json:"AccountId" xml:"AccountId" require:"true"`
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	StatusReason *string `json:"StatusReason" xml:"StatusReason" require:"true"`
+	AccountId    *string `json:"AccountId,omitempty" xml:"AccountId,omitempty" require:"true"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
 }
 
 func (s ListStackGroupOperationResultsResponseStackGroupOperationResults) String() string {
@@ -2210,8 +2449,8 @@ func (s *ListStackGroupOperationResultsResponseStackGroupOperationResults) SetSt
 }
 
 type StopStackGroupOperationRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s StopStackGroupOperationRequest) String() string {
@@ -2233,7 +2472,7 @@ func (s *StopStackGroupOperationRequest) SetOperationId(v string) *StopStackGrou
 }
 
 type StopStackGroupOperationResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s StopStackGroupOperationResponse) String() string {
@@ -2250,8 +2489,8 @@ func (s *StopStackGroupOperationResponse) SetRequestId(v string) *StopStackGroup
 }
 
 type DeleteStackGroupRequest struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName *string `json:"StackGroupName" xml:"StackGroupName" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName *string `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
 }
 
 func (s DeleteStackGroupRequest) String() string {
@@ -2273,7 +2512,7 @@ func (s *DeleteStackGroupRequest) SetStackGroupName(v string) *DeleteStackGroupR
 }
 
 type DeleteStackGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteStackGroupResponse) String() string {
@@ -2290,14 +2529,14 @@ func (s *DeleteStackGroupResponse) SetRequestId(v string) *DeleteStackGroupRespo
 }
 
 type DeleteStackInstancesRequest struct {
-	RegionId             *string                `json:"RegionId" xml:"RegionId" require:"true"`
-	StackGroupName       *string                `json:"StackGroupName" xml:"StackGroupName" require:"true"`
-	AccountIds           map[string]interface{} `json:"AccountIds" xml:"AccountIds" require:"true"`
-	RegionIds            map[string]interface{} `json:"RegionIds" xml:"RegionIds" require:"true"`
-	RetainStacks         *bool                  `json:"RetainStacks" xml:"RetainStacks" require:"true"`
-	ClientToken          *string                `json:"ClientToken" xml:"ClientToken"`
-	OperationDescription *string                `json:"OperationDescription" xml:"OperationDescription"`
-	OperationPreferences map[string]interface{} `json:"OperationPreferences" xml:"OperationPreferences"`
+	RegionId             *string                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackGroupName       *string                `json:"StackGroupName,omitempty" xml:"StackGroupName,omitempty" require:"true"`
+	AccountIds           map[string]interface{} `json:"AccountIds,omitempty" xml:"AccountIds,omitempty" require:"true"`
+	RegionIds            map[string]interface{} `json:"RegionIds,omitempty" xml:"RegionIds,omitempty" require:"true"`
+	RetainStacks         *bool                  `json:"RetainStacks,omitempty" xml:"RetainStacks,omitempty" require:"true"`
+	ClientToken          *string                `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	OperationDescription *string                `json:"OperationDescription,omitempty" xml:"OperationDescription,omitempty"`
+	OperationPreferences map[string]interface{} `json:"OperationPreferences,omitempty" xml:"OperationPreferences,omitempty"`
 }
 
 func (s DeleteStackInstancesRequest) String() string {
@@ -2349,8 +2588,8 @@ func (s *DeleteStackInstancesRequest) SetOperationPreferences(v map[string]inter
 }
 
 type DeleteStackInstancesResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OperationId *string `json:"OperationId" xml:"OperationId" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OperationId *string `json:"OperationId,omitempty" xml:"OperationId,omitempty" require:"true"`
 }
 
 func (s DeleteStackInstancesResponse) String() string {
@@ -2372,11 +2611,11 @@ func (s *DeleteStackInstancesResponse) SetOperationId(v string) *DeleteStackInst
 }
 
 type ListTagResourcesRequest struct {
-	RegionId     *string                       `json:"RegionId" xml:"RegionId" require:"true"`
-	ResourceId   []*string                     `json:"ResourceId" xml:"ResourceId" type:"Repeated"`
-	ResourceType *string                       `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Tag          []*ListTagResourcesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	NextToken    *string                       `json:"NextToken" xml:"NextToken"`
+	RegionId     *string                       `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceId   []*string                     `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" type:"Repeated"`
+	ResourceType *string                       `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag          []*ListTagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	NextToken    *string                       `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
 }
 
 func (s ListTagResourcesRequest) String() string {
@@ -2413,8 +2652,8 @@ func (s *ListTagResourcesRequest) SetNextToken(v string) *ListTagResourcesReques
 }
 
 type ListTagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s ListTagResourcesRequestTag) String() string {
@@ -2436,9 +2675,9 @@ func (s *ListTagResourcesRequestTag) SetValue(v string) *ListTagResourcesRequest
 }
 
 type ListTagResourcesResponse struct {
-	RequestId    *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	NextToken    *string                                 `json:"NextToken" xml:"NextToken" require:"true"`
-	TagResources []*ListTagResourcesResponseTagResources `json:"TagResources" xml:"TagResources" require:"true" type:"Repeated"`
+	RequestId    *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken    *string                                 `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	TagResources []*ListTagResourcesResponseTagResources `json:"TagResources,omitempty" xml:"TagResources,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTagResourcesResponse) String() string {
@@ -2465,10 +2704,10 @@ func (s *ListTagResourcesResponse) SetTagResources(v []*ListTagResourcesResponse
 }
 
 type ListTagResourcesResponseTagResources struct {
-	ResourceId   *string `json:"ResourceId" xml:"ResourceId" require:"true"`
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	TagKey       *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue     *string `json:"TagValue" xml:"TagValue" require:"true"`
+	ResourceId   *string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	TagKey       *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue     *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
 }
 
 func (s ListTagResourcesResponseTagResources) String() string {
@@ -2500,11 +2739,11 @@ func (s *ListTagResourcesResponseTagResources) SetTagValue(v string) *ListTagRes
 }
 
 type UntagResourcesRequest struct {
-	RegionId     *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	ResourceId   []*string `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
-	ResourceType *string   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	TagKey       []*string `json:"TagKey" xml:"TagKey" type:"Repeated"`
-	All          *bool     `json:"All" xml:"All"`
+	RegionId     *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceId   []*string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	ResourceType *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	TagKey       []*string `json:"TagKey,omitempty" xml:"TagKey,omitempty" type:"Repeated"`
+	All          *bool     `json:"All,omitempty" xml:"All,omitempty"`
 }
 
 func (s UntagResourcesRequest) String() string {
@@ -2541,7 +2780,7 @@ func (s *UntagResourcesRequest) SetAll(v bool) *UntagResourcesRequest {
 }
 
 type UntagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UntagResourcesResponse) String() string {
@@ -2558,10 +2797,10 @@ func (s *UntagResourcesResponse) SetRequestId(v string) *UntagResourcesResponse 
 }
 
 type TagResourcesRequest struct {
-	RegionId     *string                   `json:"RegionId" xml:"RegionId" require:"true"`
-	ResourceId   []*string                 `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
-	ResourceType *string                   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Tag          []*TagResourcesRequestTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	RegionId     *string                   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ResourceId   []*string                 `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	ResourceType *string                   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag          []*TagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s TagResourcesRequest) String() string {
@@ -2593,8 +2832,8 @@ func (s *TagResourcesRequest) SetTag(v []*TagResourcesRequestTag) *TagResourcesR
 }
 
 type TagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s TagResourcesRequestTag) String() string {
@@ -2616,7 +2855,7 @@ func (s *TagResourcesRequestTag) SetValue(v string) *TagResourcesRequestTag {
 }
 
 type TagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s TagResourcesResponse) String() string {
@@ -2633,7 +2872,7 @@ func (s *TagResourcesResponse) SetRequestId(v string) *TagResourcesResponse {
 }
 
 type DeleteTemplateRequest struct {
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s DeleteTemplateRequest) String() string {
@@ -2650,7 +2889,7 @@ func (s *DeleteTemplateRequest) SetTemplateId(v string) *DeleteTemplateRequest {
 }
 
 type DeleteTemplateResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteTemplateResponse) String() string {
@@ -2667,11 +2906,11 @@ func (s *DeleteTemplateResponse) SetRequestId(v string) *DeleteTemplateResponse 
 }
 
 type UpdateTemplateRequest struct {
-	TemplateURL  *string `json:"TemplateURL" xml:"TemplateURL"`
-	TemplateName *string `json:"TemplateName" xml:"TemplateName"`
-	Description  *string `json:"Description" xml:"Description"`
-	TemplateBody *string `json:"TemplateBody" xml:"TemplateBody"`
-	TemplateId   *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	TemplateURL  *string `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	TemplateName *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	TemplateBody *string `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	TemplateId   *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s UpdateTemplateRequest) String() string {
@@ -2708,8 +2947,8 @@ func (s *UpdateTemplateRequest) SetTemplateId(v string) *UpdateTemplateRequest {
 }
 
 type UpdateTemplateResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s UpdateTemplateResponse) String() string {
@@ -2731,10 +2970,10 @@ func (s *UpdateTemplateResponse) SetTemplateId(v string) *UpdateTemplateResponse
 }
 
 type ListTemplatesRequest struct {
-	PageNumber   *int64                     `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64                     `json:"PageSize" xml:"PageSize"`
-	TemplateName *string                    `json:"TemplateName" xml:"TemplateName"`
-	Tag          []*ListTemplatesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
+	PageNumber   *int64                     `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64                     `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	TemplateName *string                    `json:"TemplateName,omitempty" xml:"TemplateName,omitempty"`
+	Tag          []*ListTemplatesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 }
 
 func (s ListTemplatesRequest) String() string {
@@ -2766,8 +3005,8 @@ func (s *ListTemplatesRequest) SetTag(v []*ListTemplatesRequestTag) *ListTemplat
 }
 
 type ListTemplatesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s ListTemplatesRequestTag) String() string {
@@ -2789,11 +3028,11 @@ func (s *ListTemplatesRequestTag) SetValue(v string) *ListTemplatesRequestTag {
 }
 
 type ListTemplatesResponse struct {
-	PageNumber *int                              `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                              `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                              `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Templates  []*ListTemplatesResponseTemplates `json:"Templates" xml:"Templates" require:"true" type:"Repeated"`
+	PageNumber *int                              `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Templates  []*ListTemplatesResponseTemplates `json:"Templates,omitempty" xml:"Templates,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTemplatesResponse) String() string {
@@ -2830,11 +3069,11 @@ func (s *ListTemplatesResponse) SetTemplates(v []*ListTemplatesResponseTemplates
 }
 
 type ListTemplatesResponseTemplates struct {
-	CreateTime   *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	Description  *string `json:"Description" xml:"Description" require:"true"`
-	TemplateId   *string `json:"TemplateId" xml:"TemplateId" require:"true"`
-	TemplateName *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	UpdateTime   *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
+	CreateTime   *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	TemplateId   *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
+	TemplateName *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	UpdateTime   *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
 }
 
 func (s ListTemplatesResponseTemplates) String() string {
@@ -2871,10 +3110,10 @@ func (s *ListTemplatesResponseTemplates) SetUpdateTime(v string) *ListTemplatesR
 }
 
 type CreateTemplateRequest struct {
-	TemplateURL  *string `json:"TemplateURL" xml:"TemplateURL"`
-	Description  *string `json:"Description" xml:"Description"`
-	TemplateBody *string `json:"TemplateBody" xml:"TemplateBody"`
-	TemplateName *string `json:"TemplateName" xml:"TemplateName" require:"true"`
+	TemplateURL  *string `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	Description  *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	TemplateBody *string `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	TemplateName *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
 }
 
 func (s CreateTemplateRequest) String() string {
@@ -2906,8 +3145,8 @@ func (s *CreateTemplateRequest) SetTemplateName(v string) *CreateTemplateRequest
 }
 
 type CreateTemplateResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateId *string `json:"TemplateId" xml:"TemplateId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateId *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty" require:"true"`
 }
 
 func (s CreateTemplateResponse) String() string {
@@ -2929,19 +3168,19 @@ func (s *CreateTemplateResponse) SetTemplateId(v string) *CreateTemplateResponse
 }
 
 type CreateStackRequest struct {
-	DisableRollback    *bool                           `json:"DisableRollback" xml:"DisableRollback"`
-	TemplateBody       *string                         `json:"TemplateBody" xml:"TemplateBody"`
-	Parameters         []*CreateStackRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	StackPolicyURL     *string                         `json:"StackPolicyURL" xml:"StackPolicyURL"`
-	TimeoutInMinutes   *int64                          `json:"TimeoutInMinutes" xml:"TimeoutInMinutes"`
-	StackPolicyBody    *string                         `json:"StackPolicyBody" xml:"StackPolicyBody"`
-	StackName          *string                         `json:"StackName" xml:"StackName" require:"true"`
-	RegionId           *string                         `json:"RegionId" xml:"RegionId" require:"true"`
-	ClientToken        *string                         `json:"ClientToken" xml:"ClientToken"`
-	TemplateURL        *string                         `json:"TemplateURL" xml:"TemplateURL"`
-	NotificationURLs   []*string                       `json:"NotificationURLs" xml:"NotificationURLs" type:"Repeated"`
-	RamRoleName        *string                         `json:"RamRoleName" xml:"RamRoleName"`
-	DeletionProtection *string                         `json:"DeletionProtection" xml:"DeletionProtection"`
+	DisableRollback    *bool                           `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty"`
+	TemplateBody       *string                         `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	Parameters         []*CreateStackRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	StackPolicyURL     *string                         `json:"StackPolicyURL,omitempty" xml:"StackPolicyURL,omitempty"`
+	TimeoutInMinutes   *int64                          `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty"`
+	StackPolicyBody    *string                         `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty"`
+	StackName          *string                         `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	RegionId           *string                         `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ClientToken        *string                         `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	TemplateURL        *string                         `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	NotificationURLs   []*string                       `json:"NotificationURLs,omitempty" xml:"NotificationURLs,omitempty" type:"Repeated"`
+	RamRoleName        *string                         `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
+	DeletionProtection *string                         `json:"DeletionProtection,omitempty" xml:"DeletionProtection,omitempty"`
 }
 
 func (s CreateStackRequest) String() string {
@@ -3018,8 +3257,8 @@ func (s *CreateStackRequest) SetDeletionProtection(v string) *CreateStackRequest
 }
 
 type CreateStackRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s CreateStackRequestParameters) String() string {
@@ -3041,8 +3280,8 @@ func (s *CreateStackRequestParameters) SetParameterKey(v string) *CreateStackReq
 }
 
 type CreateStackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	StackId   *string `json:"StackId" xml:"StackId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackId   *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
 }
 
 func (s CreateStackResponse) String() string {
@@ -3064,9 +3303,9 @@ func (s *CreateStackResponse) SetStackId(v string) *CreateStackResponse {
 }
 
 type GetStackRequest struct {
-	StackId     *string `json:"StackId" xml:"StackId" require:"true"`
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ClientToken *string `json:"ClientToken" xml:"ClientToken"`
+	StackId     *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ClientToken *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s GetStackRequest) String() string {
@@ -3093,27 +3332,27 @@ func (s *GetStackRequest) SetClientToken(v string) *GetStackRequest {
 }
 
 type GetStackResponse struct {
-	CreateTime          *string                       `json:"CreateTime" xml:"CreateTime" require:"true"`
-	Description         *string                       `json:"Description" xml:"Description" require:"true"`
-	DisableRollback     *bool                         `json:"DisableRollback" xml:"DisableRollback" require:"true"`
-	RegionId            *string                       `json:"RegionId" xml:"RegionId" require:"true"`
-	RequestId           *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	StackId             *string                       `json:"StackId" xml:"StackId" require:"true"`
-	StackName           *string                       `json:"StackName" xml:"StackName" require:"true"`
-	Status              *string                       `json:"Status" xml:"Status" require:"true"`
-	StatusReason        *string                       `json:"StatusReason" xml:"StatusReason" require:"true"`
-	TemplateDescription *string                       `json:"TemplateDescription" xml:"TemplateDescription" require:"true"`
-	TimeoutInMinutes    *int                          `json:"TimeoutInMinutes" xml:"TimeoutInMinutes" require:"true"`
-	UpdateTime          *string                       `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	ParentStackId       *string                       `json:"ParentStackId" xml:"ParentStackId" require:"true"`
-	StackDriftStatus    *string                       `json:"StackDriftStatus" xml:"StackDriftStatus" require:"true"`
-	DriftDetectionTime  *string                       `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	RamRoleName         *string                       `json:"RamRoleName" xml:"RamRoleName" require:"true"`
-	DeletionProtection  *string                       `json:"DeletionProtection" xml:"DeletionProtection" require:"true"`
-	RootStackId         *string                       `json:"RootStackId" xml:"RootStackId" require:"true"`
-	Parameters          []*GetStackResponseParameters `json:"Parameters" xml:"Parameters" require:"true" type:"Repeated"`
-	Outputs             []map[string]interface{}      `json:"Outputs" xml:"Outputs" require:"true" type:"Repeated"`
-	NotificationURLs    []*string                     `json:"NotificationURLs" xml:"NotificationURLs" require:"true" type:"Repeated"`
+	CreateTime          *string                       `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	Description         *string                       `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DisableRollback     *bool                         `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty" require:"true"`
+	RegionId            *string                       `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RequestId           *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackId             *string                       `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName           *string                       `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status              *string                       `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason        *string                       `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	TemplateDescription *string                       `json:"TemplateDescription,omitempty" xml:"TemplateDescription,omitempty" require:"true"`
+	TimeoutInMinutes    *int                          `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty" require:"true"`
+	UpdateTime          *string                       `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	ParentStackId       *string                       `json:"ParentStackId,omitempty" xml:"ParentStackId,omitempty" require:"true"`
+	StackDriftStatus    *string                       `json:"StackDriftStatus,omitempty" xml:"StackDriftStatus,omitempty" require:"true"`
+	DriftDetectionTime  *string                       `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	RamRoleName         *string                       `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty" require:"true"`
+	DeletionProtection  *string                       `json:"DeletionProtection,omitempty" xml:"DeletionProtection,omitempty" require:"true"`
+	RootStackId         *string                       `json:"RootStackId,omitempty" xml:"RootStackId,omitempty" require:"true"`
+	Parameters          []*GetStackResponseParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
+	Outputs             []map[string]interface{}      `json:"Outputs,omitempty" xml:"Outputs,omitempty" require:"true" type:"Repeated"`
+	NotificationURLs    []*string                     `json:"NotificationURLs,omitempty" xml:"NotificationURLs,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetStackResponse) String() string {
@@ -3230,8 +3469,8 @@ func (s *GetStackResponse) SetNotificationURLs(v []*string) *GetStackResponse {
 }
 
 type GetStackResponseParameters struct {
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
 }
 
 func (s GetStackResponseParameters) String() string {
@@ -3253,11 +3492,11 @@ func (s *GetStackResponseParameters) SetParameterValue(v string) *GetStackRespon
 }
 
 type DeleteStackRequest struct {
-	StackId            *string   `json:"StackId" xml:"StackId" require:"true"`
-	RetainAllResources *bool     `json:"RetainAllResources" xml:"RetainAllResources"`
-	RegionId           *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	RetainResources    []*string `json:"RetainResources" xml:"RetainResources" type:"Repeated"`
-	RamRoleName        *string   `json:"RamRoleName" xml:"RamRoleName"`
+	StackId            *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RetainAllResources *bool     `json:"RetainAllResources,omitempty" xml:"RetainAllResources,omitempty"`
+	RegionId           *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RetainResources    []*string `json:"RetainResources,omitempty" xml:"RetainResources,omitempty" type:"Repeated"`
+	RamRoleName        *string   `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
 }
 
 func (s DeleteStackRequest) String() string {
@@ -3294,7 +3533,7 @@ func (s *DeleteStackRequest) SetRamRoleName(v string) *DeleteStackRequest {
 }
 
 type DeleteStackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteStackResponse) String() string {
@@ -3311,20 +3550,21 @@ func (s *DeleteStackResponse) SetRequestId(v string) *DeleteStackResponse {
 }
 
 type UpdateStackRequest struct {
-	StackId                     *string                         `json:"StackId" xml:"StackId" require:"true"`
-	ClientToken                 *string                         `json:"ClientToken" xml:"ClientToken"`
-	StackPolicyDuringUpdateBody *string                         `json:"StackPolicyDuringUpdateBody" xml:"StackPolicyDuringUpdateBody"`
-	TimeoutInMinutes            *int64                          `json:"TimeoutInMinutes" xml:"TimeoutInMinutes"`
-	TemplateBody                *string                         `json:"TemplateBody" xml:"TemplateBody"`
-	Parameters                  []*UpdateStackRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	StackPolicyURL              *string                         `json:"StackPolicyURL" xml:"StackPolicyURL"`
-	StackPolicyDuringUpdateURL  *string                         `json:"StackPolicyDuringUpdateURL" xml:"StackPolicyDuringUpdateURL"`
-	StackPolicyBody             *string                         `json:"StackPolicyBody" xml:"StackPolicyBody"`
-	UsePreviousParameters       *bool                           `json:"UsePreviousParameters" xml:"UsePreviousParameters"`
-	RegionId                    *string                         `json:"RegionId" xml:"RegionId" require:"true"`
-	DisableRollback             *bool                           `json:"DisableRollback" xml:"DisableRollback"`
-	TemplateURL                 *string                         `json:"TemplateURL" xml:"TemplateURL"`
-	RamRoleName                 *string                         `json:"RamRoleName" xml:"RamRoleName"`
+	StackId                     *string                         `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	ClientToken                 *string                         `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	StackPolicyDuringUpdateBody *string                         `json:"StackPolicyDuringUpdateBody,omitempty" xml:"StackPolicyDuringUpdateBody,omitempty"`
+	TimeoutInMinutes            *int64                          `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty"`
+	TemplateBody                *string                         `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	Parameters                  []*UpdateStackRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	StackPolicyURL              *string                         `json:"StackPolicyURL,omitempty" xml:"StackPolicyURL,omitempty"`
+	StackPolicyDuringUpdateURL  *string                         `json:"StackPolicyDuringUpdateURL,omitempty" xml:"StackPolicyDuringUpdateURL,omitempty"`
+	StackPolicyBody             *string                         `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty"`
+	UsePreviousParameters       *bool                           `json:"UsePreviousParameters,omitempty" xml:"UsePreviousParameters,omitempty"`
+	RegionId                    *string                         `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	DisableRollback             *bool                           `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty"`
+	TemplateURL                 *string                         `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	RamRoleName                 *string                         `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
+	ReplacementOption           *string                         `json:"ReplacementOption,omitempty" xml:"ReplacementOption,omitempty"`
 }
 
 func (s UpdateStackRequest) String() string {
@@ -3405,9 +3645,14 @@ func (s *UpdateStackRequest) SetRamRoleName(v string) *UpdateStackRequest {
 	return s
 }
 
+func (s *UpdateStackRequest) SetReplacementOption(v string) *UpdateStackRequest {
+	s.ReplacementOption = &v
+	return s
+}
+
 type UpdateStackRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s UpdateStackRequestParameters) String() string {
@@ -3429,8 +3674,8 @@ func (s *UpdateStackRequestParameters) SetParameterKey(v string) *UpdateStackReq
 }
 
 type UpdateStackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	StackId   *string `json:"StackId" xml:"StackId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackId   *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
 }
 
 func (s UpdateStackResponse) String() string {
@@ -3452,15 +3697,15 @@ func (s *UpdateStackResponse) SetStackId(v string) *UpdateStackResponse {
 }
 
 type ListStacksRequest struct {
-	Status          []*string               `json:"Status" xml:"Status" type:"Repeated"`
-	PageSize        *int64                  `json:"PageSize" xml:"PageSize"`
-	ParentStackId   *string                 `json:"ParentStackId" xml:"ParentStackId"`
-	RegionId        *string                 `json:"RegionId" xml:"RegionId" require:"true"`
-	StackName       []*string               `json:"StackName" xml:"StackName" type:"Repeated"`
-	PageNumber      *int64                  `json:"PageNumber" xml:"PageNumber"`
-	ShowNestedStack *bool                   `json:"ShowNestedStack" xml:"ShowNestedStack"`
-	Tag             []*ListStacksRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	StackId         *string                 `json:"StackId" xml:"StackId"`
+	Status          []*string               `json:"Status,omitempty" xml:"Status,omitempty" type:"Repeated"`
+	PageSize        *int64                  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ParentStackId   *string                 `json:"ParentStackId,omitempty" xml:"ParentStackId,omitempty"`
+	RegionId        *string                 `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackName       []*string               `json:"StackName,omitempty" xml:"StackName,omitempty" type:"Repeated"`
+	PageNumber      *int64                  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	ShowNestedStack *bool                   `json:"ShowNestedStack,omitempty" xml:"ShowNestedStack,omitempty"`
+	Tag             []*ListStacksRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	StackId         *string                 `json:"StackId,omitempty" xml:"StackId,omitempty"`
 }
 
 func (s ListStacksRequest) String() string {
@@ -3517,8 +3762,8 @@ func (s *ListStacksRequest) SetStackId(v string) *ListStacksRequest {
 }
 
 type ListStacksRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s ListStacksRequestTag) String() string {
@@ -3540,11 +3785,11 @@ func (s *ListStacksRequestTag) SetValue(v string) *ListStacksRequestTag {
 }
 
 type ListStacksResponse struct {
-	PageNumber *int                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                        `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Stacks     []*ListStacksResponseStacks `json:"Stacks" xml:"Stacks" require:"true" type:"Repeated"`
+	PageNumber *int                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Stacks     []*ListStacksResponseStacks `json:"Stacks,omitempty" xml:"Stacks,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStacksResponse) String() string {
@@ -3581,18 +3826,18 @@ func (s *ListStacksResponse) SetStacks(v []*ListStacksResponseStacks) *ListStack
 }
 
 type ListStacksResponseStacks struct {
-	CreateTime         *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	DisableRollback    *bool   `json:"DisableRollback" xml:"DisableRollback" require:"true"`
-	RegionId           *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackId            *string `json:"StackId" xml:"StackId" require:"true"`
-	StackName          *string `json:"StackName" xml:"StackName" require:"true"`
-	Status             *string `json:"Status" xml:"Status" require:"true"`
-	StatusReason       *string `json:"StatusReason" xml:"StatusReason" require:"true"`
-	TimeoutInMinutes   *int    `json:"TimeoutInMinutes" xml:"TimeoutInMinutes" require:"true"`
-	ParentStackId      *string `json:"ParentStackId" xml:"ParentStackId" require:"true"`
-	UpdateTime         *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	StackDriftStatus   *string `json:"StackDriftStatus" xml:"StackDriftStatus" require:"true"`
-	DriftDetectionTime *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
+	CreateTime         *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	DisableRollback    *bool   `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty" require:"true"`
+	RegionId           *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackId            *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName          *string `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status             *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason       *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	TimeoutInMinutes   *int    `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty" require:"true"`
+	ParentStackId      *string `json:"ParentStackId,omitempty" xml:"ParentStackId,omitempty" require:"true"`
+	UpdateTime         *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	StackDriftStatus   *string `json:"StackDriftStatus,omitempty" xml:"StackDriftStatus,omitempty" require:"true"`
+	DriftDetectionTime *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
 }
 
 func (s ListStacksResponseStacks) String() string {
@@ -3664,16 +3909,16 @@ func (s *ListStacksResponseStacks) SetDriftDetectionTime(v string) *ListStacksRe
 }
 
 type PreviewStackRequest struct {
-	DisableRollback  *bool                            `json:"DisableRollback" xml:"DisableRollback"`
-	TimeoutInMinutes *int64                           `json:"TimeoutInMinutes" xml:"TimeoutInMinutes"`
-	Parameters       []*PreviewStackRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	TemplateBody     *string                          `json:"TemplateBody" xml:"TemplateBody"`
-	StackPolicyURL   *string                          `json:"StackPolicyURL" xml:"StackPolicyURL"`
-	RegionId         *string                          `json:"RegionId" xml:"RegionId" require:"true"`
-	StackPolicyBody  *string                          `json:"StackPolicyBody" xml:"StackPolicyBody"`
-	StackName        *string                          `json:"StackName" xml:"StackName" require:"true"`
-	ClientToken      *string                          `json:"ClientToken" xml:"ClientToken"`
-	TemplateURL      *string                          `json:"TemplateURL" xml:"TemplateURL"`
+	DisableRollback  *bool                            `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty"`
+	TimeoutInMinutes *int64                           `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty"`
+	Parameters       []*PreviewStackRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	TemplateBody     *string                          `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	StackPolicyURL   *string                          `json:"StackPolicyURL,omitempty" xml:"StackPolicyURL,omitempty"`
+	RegionId         *string                          `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackPolicyBody  *string                          `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty"`
+	StackName        *string                          `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	ClientToken      *string                          `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	TemplateURL      *string                          `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
 }
 
 func (s PreviewStackRequest) String() string {
@@ -3735,8 +3980,8 @@ func (s *PreviewStackRequest) SetTemplateURL(v string) *PreviewStackRequest {
 }
 
 type PreviewStackRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s PreviewStackRequestParameters) String() string {
@@ -3758,8 +4003,8 @@ func (s *PreviewStackRequestParameters) SetParameterKey(v string) *PreviewStackR
 }
 
 type PreviewStackResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Stack     *PreviewStackResponseStack `json:"Stack" xml:"Stack" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Stack     *PreviewStackResponseStack `json:"Stack,omitempty" xml:"Stack,omitempty" require:"true" type:"Struct"`
 }
 
 func (s PreviewStackResponse) String() string {
@@ -3781,15 +4026,15 @@ func (s *PreviewStackResponse) SetStack(v *PreviewStackResponseStack) *PreviewSt
 }
 
 type PreviewStackResponseStack struct {
-	Description         *string                                `json:"Description" xml:"Description" require:"true"`
-	DisableRollback     *bool                                  `json:"DisableRollback" xml:"DisableRollback" require:"true"`
-	RegionId            *string                                `json:"RegionId" xml:"RegionId" require:"true"`
-	StackName           *string                                `json:"StackName" xml:"StackName" require:"true"`
-	StackPolicyBody     map[string]interface{}                 `json:"StackPolicyBody" xml:"StackPolicyBody" require:"true"`
-	TemplateDescription *string                                `json:"TemplateDescription" xml:"TemplateDescription" require:"true"`
-	TimeoutInMinutes    *int                                   `json:"TimeoutInMinutes" xml:"TimeoutInMinutes" require:"true"`
-	Parameters          []*PreviewStackResponseStackParameters `json:"Parameters" xml:"Parameters" require:"true" type:"Repeated"`
-	Resources           []*PreviewStackResponseStackResources  `json:"Resources" xml:"Resources" require:"true" type:"Repeated"`
+	Description         *string                                `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DisableRollback     *bool                                  `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty" require:"true"`
+	RegionId            *string                                `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackName           *string                                `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	StackPolicyBody     map[string]interface{}                 `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty" require:"true"`
+	TemplateDescription *string                                `json:"TemplateDescription,omitempty" xml:"TemplateDescription,omitempty" require:"true"`
+	TimeoutInMinutes    *int                                   `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty" require:"true"`
+	Parameters          []*PreviewStackResponseStackParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
+	Resources           []*PreviewStackResponseStackResources  `json:"Resources,omitempty" xml:"Resources,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s PreviewStackResponseStack) String() string {
@@ -3846,8 +4091,8 @@ func (s *PreviewStackResponseStack) SetResources(v []*PreviewStackResponseStackR
 }
 
 type PreviewStackResponseStackParameters struct {
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
 }
 
 func (s PreviewStackResponseStackParameters) String() string {
@@ -3869,12 +4114,12 @@ func (s *PreviewStackResponseStackParameters) SetParameterValue(v string) *Previ
 }
 
 type PreviewStackResponseStackResources struct {
-	Description       *string                `json:"Description" xml:"Description" require:"true"`
-	LogicalResourceId *string                `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
-	Properties        map[string]interface{} `json:"Properties" xml:"Properties" require:"true"`
-	ResourceType      *string                `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Stack             map[string]interface{} `json:"Stack" xml:"Stack" require:"true"`
-	RequiredBy        []*string              `json:"RequiredBy" xml:"RequiredBy" require:"true" type:"Repeated"`
+	Description       *string                `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	LogicalResourceId *string                `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	Properties        map[string]interface{} `json:"Properties,omitempty" xml:"Properties,omitempty" require:"true"`
+	ResourceType      *string                `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Stack             map[string]interface{} `json:"Stack,omitempty" xml:"Stack,omitempty" require:"true"`
+	RequiredBy        []*string              `json:"RequiredBy,omitempty" xml:"RequiredBy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s PreviewStackResponseStackResources) String() string {
@@ -3916,11 +4161,11 @@ func (s *PreviewStackResponseStackResources) SetRequiredBy(v []*string) *Preview
 }
 
 type GetTemplateEstimateCostRequest struct {
-	TemplateURL  *string                                     `json:"TemplateURL" xml:"TemplateURL"`
-	RegionId     *string                                     `json:"RegionId" xml:"RegionId" require:"true"`
-	Parameters   []*GetTemplateEstimateCostRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	TemplateBody *string                                     `json:"TemplateBody" xml:"TemplateBody"`
-	ClientToken  *string                                     `json:"ClientToken" xml:"ClientToken"`
+	TemplateURL  *string                                     `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	RegionId     *string                                     `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	Parameters   []*GetTemplateEstimateCostRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	TemplateBody *string                                     `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	ClientToken  *string                                     `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s GetTemplateEstimateCostRequest) String() string {
@@ -3957,8 +4202,8 @@ func (s *GetTemplateEstimateCostRequest) SetClientToken(v string) *GetTemplateEs
 }
 
 type GetTemplateEstimateCostRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s GetTemplateEstimateCostRequestParameters) String() string {
@@ -3980,8 +4225,8 @@ func (s *GetTemplateEstimateCostRequestParameters) SetParameterKey(v string) *Ge
 }
 
 type GetTemplateEstimateCostResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Resources map[string]interface{} `json:"Resources" xml:"Resources" require:"true"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Resources map[string]interface{} `json:"Resources,omitempty" xml:"Resources,omitempty" require:"true"`
 }
 
 func (s GetTemplateEstimateCostResponse) String() string {
@@ -4003,9 +4248,9 @@ func (s *GetTemplateEstimateCostResponse) SetResources(v map[string]interface{})
 }
 
 type CancelUpdateStackRequest struct {
-	StackId    *string `json:"StackId" xml:"StackId" require:"true"`
-	RegionId   *string `json:"RegionId" xml:"RegionId" require:"true"`
-	CancelType *string `json:"CancelType" xml:"CancelType"`
+	StackId    *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId   *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	CancelType *string `json:"CancelType,omitempty" xml:"CancelType,omitempty"`
 }
 
 func (s CancelUpdateStackRequest) String() string {
@@ -4032,7 +4277,7 @@ func (s *CancelUpdateStackRequest) SetCancelType(v string) *CancelUpdateStackReq
 }
 
 type CancelUpdateStackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CancelUpdateStackResponse) String() string {
@@ -4049,15 +4294,15 @@ func (s *CancelUpdateStackResponse) SetRequestId(v string) *CancelUpdateStackRes
 }
 
 type ContinueCreateStackRequest struct {
-	StackId             *string                                 `json:"StackId" xml:"StackId" require:"true"`
-	RecreatingResources []*string                               `json:"RecreatingResources" xml:"RecreatingResources" type:"Repeated"`
-	RegionId            *string                                 `json:"RegionId" xml:"RegionId" require:"true"`
-	RamRoleName         *string                                 `json:"RamRoleName" xml:"RamRoleName"`
-	Mode                *string                                 `json:"Mode" xml:"Mode"`
-	TemplateBody        *string                                 `json:"TemplateBody" xml:"TemplateBody"`
-	TemplateURL         *string                                 `json:"TemplateURL" xml:"TemplateURL"`
-	Parameters          []*ContinueCreateStackRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	DryRun              *bool                                   `json:"DryRun" xml:"DryRun"`
+	StackId             *string                                 `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RecreatingResources []*string                               `json:"RecreatingResources,omitempty" xml:"RecreatingResources,omitempty" type:"Repeated"`
+	RegionId            *string                                 `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RamRoleName         *string                                 `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
+	Mode                *string                                 `json:"Mode,omitempty" xml:"Mode,omitempty"`
+	TemplateBody        *string                                 `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	TemplateURL         *string                                 `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	Parameters          []*ContinueCreateStackRequestParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	DryRun              *bool                                   `json:"DryRun,omitempty" xml:"DryRun,omitempty"`
 }
 
 func (s ContinueCreateStackRequest) String() string {
@@ -4114,8 +4359,8 @@ func (s *ContinueCreateStackRequest) SetDryRun(v bool) *ContinueCreateStackReque
 }
 
 type ContinueCreateStackRequestParameters struct {
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
 }
 
 func (s ContinueCreateStackRequestParameters) String() string {
@@ -4137,8 +4382,8 @@ func (s *ContinueCreateStackRequestParameters) SetParameterValue(v string) *Cont
 }
 
 type ContinueCreateStackResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	StackId   *string `json:"StackId" xml:"StackId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackId   *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
 }
 
 func (s ContinueCreateStackResponse) String() string {
@@ -4160,10 +4405,10 @@ func (s *ContinueCreateStackResponse) SetStackId(v string) *ContinueCreateStackR
 }
 
 type SetStackPolicyRequest struct {
-	StackId         *string `json:"StackId" xml:"StackId" require:"true"`
-	RegionId        *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackPolicyBody *string `json:"StackPolicyBody" xml:"StackPolicyBody"`
-	StackPolicyURL  *string `json:"StackPolicyURL" xml:"StackPolicyURL"`
+	StackId         *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId        *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackPolicyBody *string `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty"`
+	StackPolicyURL  *string `json:"StackPolicyURL,omitempty" xml:"StackPolicyURL,omitempty"`
 }
 
 func (s SetStackPolicyRequest) String() string {
@@ -4195,7 +4440,7 @@ func (s *SetStackPolicyRequest) SetStackPolicyURL(v string) *SetStackPolicyReque
 }
 
 type SetStackPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetStackPolicyResponse) String() string {
@@ -4212,8 +4457,8 @@ func (s *SetStackPolicyResponse) SetRequestId(v string) *SetStackPolicyResponse 
 }
 
 type GetStackPolicyRequest struct {
-	StackId  *string `json:"StackId" xml:"StackId" require:"true"`
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
+	StackId  *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s GetStackPolicyRequest) String() string {
@@ -4235,8 +4480,8 @@ func (s *GetStackPolicyRequest) SetRegionId(v string) *GetStackPolicyRequest {
 }
 
 type GetStackPolicyResponse struct {
-	RequestId       *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	StackPolicyBody map[string]interface{} `json:"StackPolicyBody" xml:"StackPolicyBody" require:"true"`
+	RequestId       *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackPolicyBody map[string]interface{} `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty" require:"true"`
 }
 
 func (s GetStackPolicyResponse) String() string {
@@ -4258,9 +4503,9 @@ func (s *GetStackPolicyResponse) SetStackPolicyBody(v map[string]interface{}) *G
 }
 
 type ValidateTemplateRequest struct {
-	TemplateURL  *string `json:"TemplateURL" xml:"TemplateURL"`
-	RegionId     *string `json:"RegionId" xml:"RegionId"`
-	TemplateBody *string `json:"TemplateBody" xml:"TemplateBody"`
+	TemplateURL  *string `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	TemplateBody *string `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
 }
 
 func (s ValidateTemplateRequest) String() string {
@@ -4287,9 +4532,9 @@ func (s *ValidateTemplateRequest) SetTemplateBody(v string) *ValidateTemplateReq
 }
 
 type ValidateTemplateResponse struct {
-	Description *string                  `json:"Description" xml:"Description" require:"true"`
-	RequestId   *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Parameters  []map[string]interface{} `json:"Parameters" xml:"Parameters" require:"true" type:"Repeated"`
+	Description *string                  `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	RequestId   *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Parameters  []map[string]interface{} `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ValidateTemplateResponse) String() string {
@@ -4316,10 +4561,10 @@ func (s *ValidateTemplateResponse) SetParameters(v []map[string]interface{}) *Va
 }
 
 type GetTemplateRequest struct {
-	StackId     *string `json:"StackId" xml:"StackId"`
-	RegionId    *string `json:"RegionId" xml:"RegionId"`
-	ChangeSetId *string `json:"ChangeSetId" xml:"ChangeSetId"`
-	TemplateId  *string `json:"TemplateId" xml:"TemplateId"`
+	StackId     *string `json:"StackId,omitempty" xml:"StackId,omitempty"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
+	ChangeSetId *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty"`
+	TemplateId  *string `json:"TemplateId,omitempty" xml:"TemplateId,omitempty"`
 }
 
 func (s GetTemplateRequest) String() string {
@@ -4351,8 +4596,8 @@ func (s *GetTemplateRequest) SetTemplateId(v string) *GetTemplateRequest {
 }
 
 type GetTemplateResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateBody *string `json:"TemplateBody" xml:"TemplateBody" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateBody *string `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty" require:"true"`
 }
 
 func (s GetTemplateResponse) String() string {
@@ -4374,9 +4619,9 @@ func (s *GetTemplateResponse) SetTemplateBody(v string) *GetTemplateResponse {
 }
 
 type GetChangeSetRequest struct {
-	ShowTemplate *bool   `json:"ShowTemplate" xml:"ShowTemplate"`
-	RegionId     *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ChangeSetId  *string `json:"ChangeSetId" xml:"ChangeSetId" require:"true"`
+	ShowTemplate *bool   `json:"ShowTemplate,omitempty" xml:"ShowTemplate,omitempty"`
+	RegionId     *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ChangeSetId  *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty" require:"true"`
 }
 
 func (s GetChangeSetRequest) String() string {
@@ -4403,22 +4648,23 @@ func (s *GetChangeSetRequest) SetChangeSetId(v string) *GetChangeSetRequest {
 }
 
 type GetChangeSetResponse struct {
-	ChangeSetId      *string                           `json:"ChangeSetId" xml:"ChangeSetId" require:"true"`
-	ChangeSetName    *string                           `json:"ChangeSetName" xml:"ChangeSetName" require:"true"`
-	ChangeSetType    *string                           `json:"ChangeSetType" xml:"ChangeSetType" require:"true"`
-	CreateTime       *string                           `json:"CreateTime" xml:"CreateTime" require:"true"`
-	Description      *string                           `json:"Description" xml:"Description" require:"true"`
-	DisableRollback  *bool                             `json:"DisableRollback" xml:"DisableRollback" require:"true"`
-	ExecutionStatus  *string                           `json:"ExecutionStatus" xml:"ExecutionStatus" require:"true"`
-	RegionId         *string                           `json:"RegionId" xml:"RegionId" require:"true"`
-	RequestId        *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	StackId          *string                           `json:"StackId" xml:"StackId" require:"true"`
-	StackName        *string                           `json:"StackName" xml:"StackName" require:"true"`
-	Status           *string                           `json:"Status" xml:"Status" require:"true"`
-	TemplateBody     *string                           `json:"TemplateBody" xml:"TemplateBody" require:"true"`
-	TimeoutInMinutes *int                              `json:"TimeoutInMinutes" xml:"TimeoutInMinutes" require:"true"`
-	Parameters       []*GetChangeSetResponseParameters `json:"Parameters" xml:"Parameters" require:"true" type:"Repeated"`
-	Changes          []map[string]interface{}          `json:"Changes" xml:"Changes" require:"true" type:"Repeated"`
+	ChangeSetId      *string                           `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty" require:"true"`
+	ChangeSetName    *string                           `json:"ChangeSetName,omitempty" xml:"ChangeSetName,omitempty" require:"true"`
+	ChangeSetType    *string                           `json:"ChangeSetType,omitempty" xml:"ChangeSetType,omitempty" require:"true"`
+	CreateTime       *string                           `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	Description      *string                           `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	DisableRollback  *bool                             `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty" require:"true"`
+	ExecutionStatus  *string                           `json:"ExecutionStatus,omitempty" xml:"ExecutionStatus,omitempty" require:"true"`
+	RegionId         *string                           `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	RequestId        *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackId          *string                           `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName        *string                           `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status           *string                           `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	TemplateBody     *string                           `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty" require:"true"`
+	TimeoutInMinutes *int                              `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty" require:"true"`
+	StatusReason     *string                           `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	Parameters       []*GetChangeSetResponseParameters `json:"Parameters,omitempty" xml:"Parameters,omitempty" require:"true" type:"Repeated"`
+	Changes          []map[string]interface{}          `json:"Changes,omitempty" xml:"Changes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetChangeSetResponse) String() string {
@@ -4499,6 +4745,11 @@ func (s *GetChangeSetResponse) SetTimeoutInMinutes(v int) *GetChangeSetResponse 
 	return s
 }
 
+func (s *GetChangeSetResponse) SetStatusReason(v string) *GetChangeSetResponse {
+	s.StatusReason = &v
+	return s
+}
+
 func (s *GetChangeSetResponse) SetParameters(v []*GetChangeSetResponseParameters) *GetChangeSetResponse {
 	s.Parameters = v
 	return s
@@ -4510,8 +4761,8 @@ func (s *GetChangeSetResponse) SetChanges(v []map[string]interface{}) *GetChange
 }
 
 type GetChangeSetResponseParameters struct {
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
 }
 
 func (s GetChangeSetResponseParameters) String() string {
@@ -4533,14 +4784,14 @@ func (s *GetChangeSetResponseParameters) SetParameterValue(v string) *GetChangeS
 }
 
 type ListChangeSetsRequest struct {
-	StackId         *string   `json:"StackId" xml:"StackId" require:"true"`
-	Status          []*string `json:"Status" xml:"Status" type:"Repeated"`
-	ChangeSetName   []*string `json:"ChangeSetName" xml:"ChangeSetName" type:"Repeated"`
-	PageSize        *int64    `json:"PageSize" xml:"PageSize"`
-	RegionId        *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	PageNumber      *int64    `json:"PageNumber" xml:"PageNumber"`
-	ExecutionStatus []*string `json:"ExecutionStatus" xml:"ExecutionStatus" type:"Repeated"`
-	ChangeSetId     *string   `json:"ChangeSetId" xml:"ChangeSetId"`
+	StackId         *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	Status          []*string `json:"Status,omitempty" xml:"Status,omitempty" type:"Repeated"`
+	ChangeSetName   []*string `json:"ChangeSetName,omitempty" xml:"ChangeSetName,omitempty" type:"Repeated"`
+	PageSize        *int64    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	RegionId        *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	PageNumber      *int64    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	ExecutionStatus []*string `json:"ExecutionStatus,omitempty" xml:"ExecutionStatus,omitempty" type:"Repeated"`
+	ChangeSetId     *string   `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty"`
 }
 
 func (s ListChangeSetsRequest) String() string {
@@ -4592,11 +4843,11 @@ func (s *ListChangeSetsRequest) SetChangeSetId(v string) *ListChangeSetsRequest 
 }
 
 type ListChangeSetsResponse struct {
-	PageNumber *int                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                                `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	ChangeSets []*ListChangeSetsResponseChangeSets `json:"ChangeSets" xml:"ChangeSets" require:"true" type:"Repeated"`
+	PageNumber *int                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	ChangeSets []*ListChangeSetsResponseChangeSets `json:"ChangeSets,omitempty" xml:"ChangeSets,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListChangeSetsResponse) String() string {
@@ -4633,16 +4884,17 @@ func (s *ListChangeSetsResponse) SetChangeSets(v []*ListChangeSetsResponseChange
 }
 
 type ListChangeSetsResponseChangeSets struct {
-	ChangeSetId     *string `json:"ChangeSetId" xml:"ChangeSetId" require:"true"`
-	ChangeSetName   *string `json:"ChangeSetName" xml:"ChangeSetName" require:"true"`
-	ChangeSetType   *string `json:"ChangeSetType" xml:"ChangeSetType" require:"true"`
-	CreateTime      *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	Description     *string `json:"Description" xml:"Description" require:"true"`
-	ExecutionStatus *string `json:"ExecutionStatus" xml:"ExecutionStatus" require:"true"`
-	RegionId        *string `json:"RegionId" xml:"RegionId" require:"true"`
-	StackId         *string `json:"StackId" xml:"StackId" require:"true"`
-	StackName       *string `json:"StackName" xml:"StackName" require:"true"`
-	Status          *string `json:"Status" xml:"Status" require:"true"`
+	ChangeSetId     *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty" require:"true"`
+	ChangeSetName   *string `json:"ChangeSetName,omitempty" xml:"ChangeSetName,omitempty" require:"true"`
+	ChangeSetType   *string `json:"ChangeSetType,omitempty" xml:"ChangeSetType,omitempty" require:"true"`
+	CreateTime      *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	ExecutionStatus *string `json:"ExecutionStatus,omitempty" xml:"ExecutionStatus,omitempty" require:"true"`
+	RegionId        *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	StackId         *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName       *string `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason    *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
 }
 
 func (s ListChangeSetsResponseChangeSets) String() string {
@@ -4703,9 +4955,14 @@ func (s *ListChangeSetsResponseChangeSets) SetStatus(v string) *ListChangeSetsRe
 	return s
 }
 
+func (s *ListChangeSetsResponseChangeSets) SetStatusReason(v string) *ListChangeSetsResponseChangeSets {
+	s.StatusReason = &v
+	return s
+}
+
 type ExecuteChangeSetRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ChangeSetId *string `json:"ChangeSetId" xml:"ChangeSetId" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ChangeSetId *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty" require:"true"`
 }
 
 func (s ExecuteChangeSetRequest) String() string {
@@ -4727,7 +4984,7 @@ func (s *ExecuteChangeSetRequest) SetChangeSetId(v string) *ExecuteChangeSetRequ
 }
 
 type ExecuteChangeSetResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ExecuteChangeSetResponse) String() string {
@@ -4744,8 +5001,8 @@ func (s *ExecuteChangeSetResponse) SetRequestId(v string) *ExecuteChangeSetRespo
 }
 
 type DeleteChangeSetRequest struct {
-	RegionId    *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ChangeSetId *string `json:"ChangeSetId" xml:"ChangeSetId" require:"true"`
+	RegionId    *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ChangeSetId *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty" require:"true"`
 }
 
 func (s DeleteChangeSetRequest) String() string {
@@ -4767,7 +5024,7 @@ func (s *DeleteChangeSetRequest) SetChangeSetId(v string) *DeleteChangeSetReques
 }
 
 type DeleteChangeSetResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteChangeSetResponse) String() string {
@@ -4784,13 +5041,13 @@ func (s *DeleteChangeSetResponse) SetRequestId(v string) *DeleteChangeSetRespons
 }
 
 type ListStackEventsRequest struct {
-	StackId           *string   `json:"StackId" xml:"StackId" require:"true"`
-	Status            []*string `json:"Status" xml:"Status" type:"Repeated"`
-	PageSize          *int64    `json:"PageSize" xml:"PageSize"`
-	ResourceType      []*string `json:"ResourceType" xml:"ResourceType" type:"Repeated"`
-	RegionId          *string   `json:"RegionId" xml:"RegionId" require:"true"`
-	PageNumber        *int64    `json:"PageNumber" xml:"PageNumber"`
-	LogicalResourceId []*string `json:"LogicalResourceId" xml:"LogicalResourceId" type:"Repeated"`
+	StackId           *string   `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	Status            []*string `json:"Status,omitempty" xml:"Status,omitempty" type:"Repeated"`
+	PageSize          *int64    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ResourceType      []*string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" type:"Repeated"`
+	RegionId          *string   `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	PageNumber        *int64    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	LogicalResourceId []*string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" type:"Repeated"`
 }
 
 func (s ListStackEventsRequest) String() string {
@@ -4837,11 +5094,11 @@ func (s *ListStackEventsRequest) SetLogicalResourceId(v []*string) *ListStackEve
 }
 
 type ListStackEventsResponse struct {
-	PageNumber *int                             `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                             `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int                             `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Events     []*ListStackEventsResponseEvents `json:"Events" xml:"Events" require:"true" type:"Repeated"`
+	PageNumber *int                             `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                             `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int                             `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Events     []*ListStackEventsResponseEvents `json:"Events,omitempty" xml:"Events,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackEventsResponse) String() string {
@@ -4878,15 +5135,15 @@ func (s *ListStackEventsResponse) SetEvents(v []*ListStackEventsResponseEvents) 
 }
 
 type ListStackEventsResponseEvents struct {
-	CreateTime         *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	EventId            *string `json:"EventId" xml:"EventId" require:"true"`
-	LogicalResourceId  *string `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
-	PhysicalResourceId *string `json:"PhysicalResourceId" xml:"PhysicalResourceId" require:"true"`
-	ResourceType       *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	StackId            *string `json:"StackId" xml:"StackId" require:"true"`
-	StackName          *string `json:"StackName" xml:"StackName" require:"true"`
-	Status             *string `json:"Status" xml:"Status" require:"true"`
-	StatusReason       *string `json:"StatusReason" xml:"StatusReason" require:"true"`
+	CreateTime         *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	EventId            *string `json:"EventId,omitempty" xml:"EventId,omitempty" require:"true"`
+	LogicalResourceId  *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	PhysicalResourceId *string `json:"PhysicalResourceId,omitempty" xml:"PhysicalResourceId,omitempty" require:"true"`
+	ResourceType       *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	StackId            *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName          *string `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status             *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason       *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
 }
 
 func (s ListStackEventsResponseEvents) String() string {
@@ -4943,8 +5200,8 @@ func (s *ListStackEventsResponseEvents) SetStatusReason(v string) *ListStackEven
 }
 
 type ListStackResourcesRequest struct {
-	StackId  *string `json:"StackId" xml:"StackId" require:"true"`
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
+	StackId  *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s ListStackResourcesRequest) String() string {
@@ -4966,8 +5223,8 @@ func (s *ListStackResourcesRequest) SetRegionId(v string) *ListStackResourcesReq
 }
 
 type ListStackResourcesResponse struct {
-	RequestId *string                                `json:"RequestId" xml:"RequestId" require:"true"`
-	Resources []*ListStackResourcesResponseResources `json:"Resources" xml:"Resources" require:"true" type:"Repeated"`
+	RequestId *string                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Resources []*ListStackResourcesResponseResources `json:"Resources,omitempty" xml:"Resources,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListStackResourcesResponse) String() string {
@@ -4989,17 +5246,17 @@ func (s *ListStackResourcesResponse) SetResources(v []*ListStackResourcesRespons
 }
 
 type ListStackResourcesResponseResources struct {
-	CreateTime          *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	LogicalResourceId   *string `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
-	PhysicalResourceId  *string `json:"PhysicalResourceId" xml:"PhysicalResourceId" require:"true"`
-	ResourceType        *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	StackId             *string `json:"StackId" xml:"StackId" require:"true"`
-	StackName           *string `json:"StackName" xml:"StackName" require:"true"`
-	Status              *string `json:"Status" xml:"Status" require:"true"`
-	StatusReason        *string `json:"StatusReason" xml:"StatusReason" require:"true"`
-	UpdateTime          *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	ResourceDriftStatus *string `json:"ResourceDriftStatus" xml:"ResourceDriftStatus" require:"true"`
-	DriftDetectionTime  *string `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
+	CreateTime          *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	LogicalResourceId   *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	PhysicalResourceId  *string `json:"PhysicalResourceId,omitempty" xml:"PhysicalResourceId,omitempty" require:"true"`
+	ResourceType        *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	StackId             *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName           *string `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status              *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason        *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	UpdateTime          *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	ResourceDriftStatus *string `json:"ResourceDriftStatus,omitempty" xml:"ResourceDriftStatus,omitempty" require:"true"`
+	DriftDetectionTime  *string `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
 }
 
 func (s ListStackResourcesResponseResources) String() string {
@@ -5066,11 +5323,11 @@ func (s *ListStackResourcesResponseResources) SetDriftDetectionTime(v string) *L
 }
 
 type GetStackResourceRequest struct {
-	StackId                *string `json:"StackId" xml:"StackId" require:"true"`
-	ClientToken            *string `json:"ClientToken" xml:"ClientToken"`
-	RegionId               *string `json:"RegionId" xml:"RegionId" require:"true"`
-	ShowResourceAttributes *bool   `json:"ShowResourceAttributes" xml:"ShowResourceAttributes"`
-	LogicalResourceId      *string `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
+	StackId                *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	ClientToken            *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	RegionId               *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ShowResourceAttributes *bool   `json:"ShowResourceAttributes,omitempty" xml:"ShowResourceAttributes,omitempty"`
+	LogicalResourceId      *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
 }
 
 func (s GetStackResourceRequest) String() string {
@@ -5107,21 +5364,21 @@ func (s *GetStackResourceRequest) SetLogicalResourceId(v string) *GetStackResour
 }
 
 type GetStackResourceResponse struct {
-	CreateTime          *string                  `json:"CreateTime" xml:"CreateTime" require:"true"`
-	Description         *string                  `json:"Description" xml:"Description" require:"true"`
-	LogicalResourceId   *string                  `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
-	Metadata            map[string]interface{}   `json:"Metadata" xml:"Metadata" require:"true"`
-	PhysicalResourceId  *string                  `json:"PhysicalResourceId" xml:"PhysicalResourceId" require:"true"`
-	RequestId           *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	ResourceType        *string                  `json:"ResourceType" xml:"ResourceType" require:"true"`
-	StackId             *string                  `json:"StackId" xml:"StackId" require:"true"`
-	StackName           *string                  `json:"StackName" xml:"StackName" require:"true"`
-	Status              *string                  `json:"Status" xml:"Status" require:"true"`
-	StatusReason        *string                  `json:"StatusReason" xml:"StatusReason" require:"true"`
-	UpdateTime          *string                  `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	ResourceDriftStatus *string                  `json:"ResourceDriftStatus" xml:"ResourceDriftStatus" require:"true"`
-	DriftDetectionTime  *string                  `json:"DriftDetectionTime" xml:"DriftDetectionTime" require:"true"`
-	ResourceAttributes  []map[string]interface{} `json:"ResourceAttributes" xml:"ResourceAttributes" require:"true" type:"Repeated"`
+	CreateTime          *string                  `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	Description         *string                  `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	LogicalResourceId   *string                  `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	Metadata            map[string]interface{}   `json:"Metadata,omitempty" xml:"Metadata,omitempty" require:"true"`
+	PhysicalResourceId  *string                  `json:"PhysicalResourceId,omitempty" xml:"PhysicalResourceId,omitempty" require:"true"`
+	RequestId           *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ResourceType        *string                  `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	StackId             *string                  `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	StackName           *string                  `json:"StackName,omitempty" xml:"StackName,omitempty" require:"true"`
+	Status              *string                  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason        *string                  `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
+	UpdateTime          *string                  `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	ResourceDriftStatus *string                  `json:"ResourceDriftStatus,omitempty" xml:"ResourceDriftStatus,omitempty" require:"true"`
+	DriftDetectionTime  *string                  `json:"DriftDetectionTime,omitempty" xml:"DriftDetectionTime,omitempty" require:"true"`
+	ResourceAttributes  []map[string]interface{} `json:"ResourceAttributes,omitempty" xml:"ResourceAttributes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetStackResourceResponse) String() string {
@@ -5208,7 +5465,7 @@ func (s *GetStackResourceResponse) SetResourceAttributes(v []map[string]interfac
 }
 
 type GetResourceTypeTemplateRequest struct {
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
 }
 
 func (s GetResourceTypeTemplateRequest) String() string {
@@ -5225,8 +5482,8 @@ func (s *GetResourceTypeTemplateRequest) SetResourceType(v string) *GetResourceT
 }
 
 type GetResourceTypeTemplateResponse struct {
-	RequestId    *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateBody map[string]interface{} `json:"TemplateBody" xml:"TemplateBody" require:"true"`
+	RequestId    *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateBody map[string]interface{} `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty" require:"true"`
 }
 
 func (s GetResourceTypeTemplateResponse) String() string {
@@ -5248,7 +5505,7 @@ func (s *GetResourceTypeTemplateResponse) SetTemplateBody(v map[string]interface
 }
 
 type GetResourceTypeRequest struct {
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
 }
 
 func (s GetResourceTypeRequest) String() string {
@@ -5265,11 +5522,11 @@ func (s *GetResourceTypeRequest) SetResourceType(v string) *GetResourceTypeReque
 }
 
 type GetResourceTypeResponse struct {
-	Attributes            map[string]interface{} `json:"Attributes" xml:"Attributes" require:"true"`
-	Properties            map[string]interface{} `json:"Properties" xml:"Properties" require:"true"`
-	RequestId             *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	ResourceType          *string                `json:"ResourceType" xml:"ResourceType" require:"true"`
-	SupportDriftDetection *bool                  `json:"SupportDriftDetection" xml:"SupportDriftDetection" require:"true"`
+	Attributes            map[string]interface{} `json:"Attributes,omitempty" xml:"Attributes,omitempty" require:"true"`
+	Properties            map[string]interface{} `json:"Properties,omitempty" xml:"Properties,omitempty" require:"true"`
+	RequestId             *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ResourceType          *string                `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	SupportDriftDetection *bool                  `json:"SupportDriftDetection,omitempty" xml:"SupportDriftDetection,omitempty" require:"true"`
 }
 
 func (s GetResourceTypeResponse) String() string {
@@ -5317,8 +5574,8 @@ func (s ListResourceTypesRequest) GoString() string {
 }
 
 type ListResourceTypesResponse struct {
-	RequestId     *string   `json:"RequestId" xml:"RequestId" require:"true"`
-	ResourceTypes []*string `json:"ResourceTypes" xml:"ResourceTypes" require:"true" type:"Repeated"`
+	RequestId     *string   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ResourceTypes []*string `json:"ResourceTypes,omitempty" xml:"ResourceTypes,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListResourceTypesResponse) String() string {
@@ -5340,12 +5597,12 @@ func (s *ListResourceTypesResponse) SetResourceTypes(v []*string) *ListResourceT
 }
 
 type SignalResourceRequest struct {
-	StackId           *string `json:"StackId" xml:"StackId" require:"true"`
-	Status            *string `json:"Status" xml:"Status" require:"true"`
-	RegionId          *string `json:"RegionId" xml:"RegionId" require:"true"`
-	UniqueId          *string `json:"UniqueId" xml:"UniqueId" require:"true"`
-	ClientToken       *string `json:"ClientToken" xml:"ClientToken"`
-	LogicalResourceId *string `json:"LogicalResourceId" xml:"LogicalResourceId" require:"true"`
+	StackId           *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
+	Status            *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	RegionId          *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	UniqueId          *string `json:"UniqueId,omitempty" xml:"UniqueId,omitempty" require:"true"`
+	ClientToken       *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	LogicalResourceId *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
 }
 
 func (s SignalResourceRequest) String() string {
@@ -5387,7 +5644,7 @@ func (s *SignalResourceRequest) SetLogicalResourceId(v string) *SignalResourceRe
 }
 
 type SignalResourceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SignalResourceResponse) String() string {
@@ -5404,7 +5661,7 @@ func (s *SignalResourceResponse) SetRequestId(v string) *SignalResourceResponse 
 }
 
 type DescribeRegionsRequest struct {
-	AcceptLanguage *string `json:"AcceptLanguage" xml:"AcceptLanguage"`
+	AcceptLanguage *string `json:"AcceptLanguage,omitempty" xml:"AcceptLanguage,omitempty"`
 }
 
 func (s DescribeRegionsRequest) String() string {
@@ -5421,8 +5678,8 @@ func (s *DescribeRegionsRequest) SetAcceptLanguage(v string) *DescribeRegionsReq
 }
 
 type DescribeRegionsResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Regions   []*DescribeRegionsResponseRegions `json:"Regions" xml:"Regions" require:"true" type:"Repeated"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Regions   []*DescribeRegionsResponseRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -5444,9 +5701,9 @@ func (s *DescribeRegionsResponse) SetRegions(v []*DescribeRegionsResponseRegions
 }
 
 type DescribeRegionsResponseRegions struct {
-	RegionId       *string `json:"RegionId" xml:"RegionId" require:"true"`
-	LocalName      *string `json:"LocalName" xml:"LocalName" require:"true"`
-	RegionEndpoint *string `json:"RegionEndpoint" xml:"RegionEndpoint" require:"true"`
+	RegionId       *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	LocalName      *string `json:"LocalName,omitempty" xml:"LocalName,omitempty" require:"true"`
+	RegionEndpoint *string `json:"RegionEndpoint,omitempty" xml:"RegionEndpoint,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -5473,25 +5730,27 @@ func (s *DescribeRegionsResponseRegions) SetRegionEndpoint(v string) *DescribeRe
 }
 
 type CreateChangeSetRequest struct {
-	StackId                     *string                             `json:"StackId" xml:"StackId"`
-	Parameters                  []*CreateChangeSetRequestParameters `json:"Parameters" xml:"Parameters" type:"Repeated"`
-	StackPolicyURL              *string                             `json:"StackPolicyURL" xml:"StackPolicyURL"`
-	StackPolicyBody             *string                             `json:"StackPolicyBody" xml:"StackPolicyBody"`
-	StackName                   *string                             `json:"StackName" xml:"StackName"`
-	UsePreviousParameters       *bool                               `json:"UsePreviousParameters" xml:"UsePreviousParameters"`
-	ChangeSetType               *string                             `json:"ChangeSetType" xml:"ChangeSetType"`
-	Description                 *string                             `json:"Description" xml:"Description"`
-	RegionId                    *string                             `json:"RegionId" xml:"RegionId" require:"true"`
-	ClientToken                 *string                             `json:"ClientToken" xml:"ClientToken"`
-	TemplateURL                 *string                             `json:"TemplateURL" xml:"TemplateURL"`
-	StackPolicyDuringUpdateURL  *string                             `json:"StackPolicyDuringUpdateURL" xml:"StackPolicyDuringUpdateURL"`
-	TemplateBody                *string                             `json:"TemplateBody" xml:"TemplateBody"`
-	TimeoutInMinutes            *int64                              `json:"TimeoutInMinutes" xml:"TimeoutInMinutes"`
-	DisableRollback             *bool                               `json:"DisableRollback" xml:"DisableRollback"`
-	ChangeSetName               *string                             `json:"ChangeSetName" xml:"ChangeSetName" require:"true"`
-	StackPolicyDuringUpdateBody *string                             `json:"StackPolicyDuringUpdateBody" xml:"StackPolicyDuringUpdateBody"`
-	NotificationURLs            []*string                           `json:"NotificationURLs" xml:"NotificationURLs" type:"Repeated"`
-	RamRoleName                 *string                             `json:"RamRoleName" xml:"RamRoleName"`
+	StackId                     *string                                    `json:"StackId,omitempty" xml:"StackId,omitempty"`
+	Parameters                  []*CreateChangeSetRequestParameters        `json:"Parameters,omitempty" xml:"Parameters,omitempty" type:"Repeated"`
+	StackPolicyURL              *string                                    `json:"StackPolicyURL,omitempty" xml:"StackPolicyURL,omitempty"`
+	StackPolicyBody             *string                                    `json:"StackPolicyBody,omitempty" xml:"StackPolicyBody,omitempty"`
+	StackName                   *string                                    `json:"StackName,omitempty" xml:"StackName,omitempty"`
+	UsePreviousParameters       *bool                                      `json:"UsePreviousParameters,omitempty" xml:"UsePreviousParameters,omitempty"`
+	ChangeSetType               *string                                    `json:"ChangeSetType,omitempty" xml:"ChangeSetType,omitempty"`
+	Description                 *string                                    `json:"Description,omitempty" xml:"Description,omitempty"`
+	RegionId                    *string                                    `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
+	ClientToken                 *string                                    `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	TemplateURL                 *string                                    `json:"TemplateURL,omitempty" xml:"TemplateURL,omitempty"`
+	StackPolicyDuringUpdateURL  *string                                    `json:"StackPolicyDuringUpdateURL,omitempty" xml:"StackPolicyDuringUpdateURL,omitempty"`
+	TemplateBody                *string                                    `json:"TemplateBody,omitempty" xml:"TemplateBody,omitempty"`
+	TimeoutInMinutes            *int64                                     `json:"TimeoutInMinutes,omitempty" xml:"TimeoutInMinutes,omitempty"`
+	DisableRollback             *bool                                      `json:"DisableRollback,omitempty" xml:"DisableRollback,omitempty"`
+	ChangeSetName               *string                                    `json:"ChangeSetName,omitempty" xml:"ChangeSetName,omitempty" require:"true"`
+	StackPolicyDuringUpdateBody *string                                    `json:"StackPolicyDuringUpdateBody,omitempty" xml:"StackPolicyDuringUpdateBody,omitempty"`
+	NotificationURLs            []*string                                  `json:"NotificationURLs,omitempty" xml:"NotificationURLs,omitempty" type:"Repeated"`
+	RamRoleName                 *string                                    `json:"RamRoleName,omitempty" xml:"RamRoleName,omitempty"`
+	ReplacementOption           *string                                    `json:"ReplacementOption,omitempty" xml:"ReplacementOption,omitempty"`
+	ResourcesToImport           []*CreateChangeSetRequestResourcesToImport `json:"ResourcesToImport,omitempty" xml:"ResourcesToImport,omitempty" type:"Repeated"`
 }
 
 func (s CreateChangeSetRequest) String() string {
@@ -5597,9 +5856,19 @@ func (s *CreateChangeSetRequest) SetRamRoleName(v string) *CreateChangeSetReques
 	return s
 }
 
+func (s *CreateChangeSetRequest) SetReplacementOption(v string) *CreateChangeSetRequest {
+	s.ReplacementOption = &v
+	return s
+}
+
+func (s *CreateChangeSetRequest) SetResourcesToImport(v []*CreateChangeSetRequestResourcesToImport) *CreateChangeSetRequest {
+	s.ResourcesToImport = v
+	return s
+}
+
 type CreateChangeSetRequestParameters struct {
-	ParameterValue *string `json:"ParameterValue" xml:"ParameterValue" require:"true"`
-	ParameterKey   *string `json:"ParameterKey" xml:"ParameterKey" require:"true"`
+	ParameterValue *string `json:"ParameterValue,omitempty" xml:"ParameterValue,omitempty" require:"true"`
+	ParameterKey   *string `json:"ParameterKey,omitempty" xml:"ParameterKey,omitempty" require:"true"`
 }
 
 func (s CreateChangeSetRequestParameters) String() string {
@@ -5620,10 +5889,39 @@ func (s *CreateChangeSetRequestParameters) SetParameterKey(v string) *CreateChan
 	return s
 }
 
+type CreateChangeSetRequestResourcesToImport struct {
+	LogicalResourceId  *string `json:"LogicalResourceId,omitempty" xml:"LogicalResourceId,omitempty" require:"true"`
+	ResourceType       *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceIdentifier *string `json:"ResourceIdentifier,omitempty" xml:"ResourceIdentifier,omitempty" require:"true"`
+}
+
+func (s CreateChangeSetRequestResourcesToImport) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateChangeSetRequestResourcesToImport) GoString() string {
+	return s.String()
+}
+
+func (s *CreateChangeSetRequestResourcesToImport) SetLogicalResourceId(v string) *CreateChangeSetRequestResourcesToImport {
+	s.LogicalResourceId = &v
+	return s
+}
+
+func (s *CreateChangeSetRequestResourcesToImport) SetResourceType(v string) *CreateChangeSetRequestResourcesToImport {
+	s.ResourceType = &v
+	return s
+}
+
+func (s *CreateChangeSetRequestResourcesToImport) SetResourceIdentifier(v string) *CreateChangeSetRequestResourcesToImport {
+	s.ResourceIdentifier = &v
+	return s
+}
+
 type CreateChangeSetResponse struct {
-	ChangeSetId *string `json:"ChangeSetId" xml:"ChangeSetId" require:"true"`
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	StackId     *string `json:"StackId" xml:"StackId" require:"true"`
+	ChangeSetId *string `json:"ChangeSetId,omitempty" xml:"ChangeSetId,omitempty" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StackId     *string `json:"StackId,omitempty" xml:"StackId,omitempty" require:"true"`
 }
 
 func (s CreateChangeSetResponse) String() string {
@@ -5669,12 +5967,87 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("ros"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
 
 	return nil
+}
+
+func (client *Client) GetTemplateSummaryWithOptions(request *GetTemplateSummaryRequest, runtime *util.RuntimeOptions) (_result *GetTemplateSummaryResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &GetTemplateSummaryResponse{}
+	_body, _err := client.DoRequest(tea.String("GetTemplateSummary"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-10"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) GetTemplateSummary(request *GetTemplateSummaryRequest) (_result *GetTemplateSummaryResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &GetTemplateSummaryResponse{}
+	_body, _err := client.GetTemplateSummaryWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListTagValuesWithOptions(request *ListTagValuesRequest, runtime *util.RuntimeOptions) (_result *ListTagValuesResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListTagValuesResponse{}
+	_body, _err := client.DoRequest(tea.String("ListTagValues"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-10"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListTagValues(request *ListTagValuesRequest) (_result *ListTagValuesResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListTagValuesResponse{}
+	_body, _err := client.ListTagValuesWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) ListTagKeysWithOptions(request *ListTagKeysRequest, runtime *util.RuntimeOptions) (_result *ListTagKeysResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &ListTagKeysResponse{}
+	_body, _err := client.DoRequest(tea.String("ListTagKeys"), tea.String("HTTPS"), tea.String("POST"), tea.String("2019-09-10"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) ListTagKeys(request *ListTagKeysRequest) (_result *ListTagKeysResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &ListTagKeysResponse{}
+	_body, _err := client.ListTagKeysWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) SetDeletionProtectionWithOptions(request *SetDeletionProtectionRequest, runtime *util.RuntimeOptions) (_result *SetDeletionProtectionResponse, _err error) {
