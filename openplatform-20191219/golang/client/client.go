@@ -9,8 +9,8 @@ import (
 )
 
 type AuthorizeFileUploadRequest struct {
-	Product  *string `json:"Product" xml:"Product" require:"true"`
-	RegionId *string `json:"RegionId" xml:"RegionId"`
+	Product  *string `json:"Product,omitempty" xml:"Product,omitempty" require:"true"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty"`
 }
 
 func (s AuthorizeFileUploadRequest) String() string {
@@ -32,14 +32,14 @@ func (s *AuthorizeFileUploadRequest) SetRegionId(v string) *AuthorizeFileUploadR
 }
 
 type AuthorizeFileUploadResponse struct {
-	AccessKeyId   *string `json:"AccessKeyId" xml:"AccessKeyId" require:"true"`
-	Bucket        *string `json:"Bucket" xml:"Bucket" require:"true"`
-	EncodedPolicy *string `json:"EncodedPolicy" xml:"EncodedPolicy" require:"true"`
-	Endpoint      *string `json:"Endpoint" xml:"Endpoint" require:"true"`
-	ObjectKey     *string `json:"ObjectKey" xml:"ObjectKey" require:"true"`
-	RequestId     *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Signature     *string `json:"Signature" xml:"Signature" require:"true"`
-	UseAccelerate *bool   `json:"UseAccelerate" xml:"UseAccelerate" require:"true"`
+	AccessKeyId   *string `json:"AccessKeyId,omitempty" xml:"AccessKeyId,omitempty" require:"true"`
+	Bucket        *string `json:"Bucket,omitempty" xml:"Bucket,omitempty" require:"true"`
+	EncodedPolicy *string `json:"EncodedPolicy,omitempty" xml:"EncodedPolicy,omitempty" require:"true"`
+	Endpoint      *string `json:"Endpoint,omitempty" xml:"Endpoint,omitempty" require:"true"`
+	ObjectKey     *string `json:"ObjectKey,omitempty" xml:"ObjectKey,omitempty" require:"true"`
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Signature     *string `json:"Signature,omitempty" xml:"Signature,omitempty" require:"true"`
+	UseAccelerate *bool   `json:"UseAccelerate,omitempty" xml:"UseAccelerate,omitempty" require:"true"`
 }
 
 func (s AuthorizeFileUploadResponse) String() string {
