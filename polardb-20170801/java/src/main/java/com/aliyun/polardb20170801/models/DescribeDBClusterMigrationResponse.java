@@ -80,7 +80,7 @@ public class DescribeDBClusterMigrationResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         public static DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems build(java.util.Map<String, ?> map) throws Exception {
             DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems self = new DescribeDBClusterMigrationResponseDBClusterEndpointListAddressItems();
@@ -132,7 +132,7 @@ public class DescribeDBClusterMigrationResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         public static DescribeDBClusterMigrationResponseRdsEndpointListAddressItems build(java.util.Map<String, ?> map) throws Exception {
             DescribeDBClusterMigrationResponseRdsEndpointListAddressItems self = new DescribeDBClusterMigrationResponseRdsEndpointListAddressItems();

@@ -22,7 +22,7 @@ public class DescribeDBClusterAttributeResponse extends TeaModel {
 
     @NameInMap("VSwitchId")
     @Validation(required = true)
-    public String VSwitchId;
+    public String vSwitchId;
 
     @NameInMap("PayType")
     @Validation(required = true)

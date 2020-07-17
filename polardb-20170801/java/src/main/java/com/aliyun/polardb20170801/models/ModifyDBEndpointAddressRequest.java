@@ -4,21 +4,6 @@ package com.aliyun.polardb20170801.models;
 import com.aliyun.tea.*;
 
 public class ModifyDBEndpointAddressRequest extends TeaModel {
-    @NameInMap("AccessKeyId")
-    public String accessKeyId;
-
-    @NameInMap("OwnerId")
-    public Long ownerId;
-
-    @NameInMap("ResourceOwnerAccount")
-    public String resourceOwnerAccount;
-
-    @NameInMap("ResourceOwnerId")
-    public Long resourceOwnerId;
-
-    @NameInMap("OwnerAccount")
-    public String ownerAccount;
-
     @NameInMap("DBClusterId")
     @Validation(required = true)
     public String DBClusterId;
@@ -39,6 +24,9 @@ public class ModifyDBEndpointAddressRequest extends TeaModel {
 
     @NameInMap("PrivateZoneName")
     public String privateZoneName;
+
+    @NameInMap("Port")
+    public String port;
 
     public static ModifyDBEndpointAddressRequest build(java.util.Map<String, ?> map) throws Exception {
         ModifyDBEndpointAddressRequest self = new ModifyDBEndpointAddressRequest();

@@ -4,21 +4,6 @@ package com.aliyun.polardb20170801.models;
 import com.aliyun.tea.*;
 
 public class CreateDBClusterRequest extends TeaModel {
-    @NameInMap("AccessKeyId")
-    public String accessKeyId;
-
-    @NameInMap("OwnerId")
-    public Long ownerId;
-
-    @NameInMap("ResourceOwnerAccount")
-    public String resourceOwnerAccount;
-
-    @NameInMap("ResourceOwnerId")
-    public Long resourceOwnerId;
-
-    @NameInMap("OwnerAccount")
-    public String ownerAccount;
-
     @NameInMap("ZoneId")
     public String zoneId;
 
@@ -57,7 +42,7 @@ public class CreateDBClusterRequest extends TeaModel {
     public String VPCId;
 
     @NameInMap("VSwitchId")
-    public String VSwitchId;
+    public String vSwitchId;
 
     @NameInMap("CreationOption")
     public String creationOption;

@@ -4,9 +4,6 @@ package com.aliyun.polardb20170801.models;
 import com.aliyun.tea.*;
 
 public class DescribeDBNodePerformanceRequest extends TeaModel {
-    @NameInMap("AccessKeyId")
-    public String accessKeyId;
-
     @NameInMap("DBNodeId")
     @Validation(required = true)
     public String DBNodeId;

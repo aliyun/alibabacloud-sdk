@@ -40,7 +40,7 @@ public class DescribeDBClusterEndpointsResponse extends TeaModel {
 
         @NameInMap("VSwitchId")
         @Validation(required = true)
-        public String VSwitchId;
+        public String vSwitchId;
 
         @NameInMap("VpcInstanceId")
         @Validation(required = true)
@@ -81,6 +81,10 @@ public class DescribeDBClusterEndpointsResponse extends TeaModel {
         @NameInMap("EndpointConfig")
         @Validation(required = true)
         public String endpointConfig;
+
+        @NameInMap("NodeWithRoles")
+        @Validation(required = true)
+        public String nodeWithRoles;
 
         @NameInMap("AddressItems")
         @Validation(required = true)
