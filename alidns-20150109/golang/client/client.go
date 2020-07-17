@@ -8,12 +8,709 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type DescribeDohDomainStatisticsSummaryRequest struct {
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+}
+
+func (s DescribeDohDomainStatisticsSummaryRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohDomainStatisticsSummaryRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohDomainStatisticsSummaryRequest) SetLang(v string) *DescribeDohDomainStatisticsSummaryRequest {
+	s.Lang = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryRequest) SetPageNumber(v int) *DescribeDohDomainStatisticsSummaryRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryRequest) SetPageSize(v int) *DescribeDohDomainStatisticsSummaryRequest {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryRequest) SetStartDate(v string) *DescribeDohDomainStatisticsSummaryRequest {
+	s.StartDate = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryRequest) SetEndDate(v string) *DescribeDohDomainStatisticsSummaryRequest {
+	s.EndDate = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryRequest) SetDomainName(v string) *DescribeDohDomainStatisticsSummaryRequest {
+	s.DomainName = &v
+	return s
+}
+
+type DescribeDohDomainStatisticsSummaryResponse struct {
+	RequestId  *string                                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                                    `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                                    `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageSize   *int                                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Statistics []*DescribeDohDomainStatisticsSummaryResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDohDomainStatisticsSummaryResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohDomainStatisticsSummaryResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponse) SetRequestId(v string) *DescribeDohDomainStatisticsSummaryResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponse) SetTotalItems(v int) *DescribeDohDomainStatisticsSummaryResponse {
+	s.TotalItems = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponse) SetTotalPages(v int) *DescribeDohDomainStatisticsSummaryResponse {
+	s.TotalPages = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponse) SetPageSize(v int) *DescribeDohDomainStatisticsSummaryResponse {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponse) SetPageNumber(v int) *DescribeDohDomainStatisticsSummaryResponse {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponse) SetStatistics(v []*DescribeDohDomainStatisticsSummaryResponseStatistics) *DescribeDohDomainStatisticsSummaryResponse {
+	s.Statistics = v
+	return s
+}
+
+type DescribeDohDomainStatisticsSummaryResponseStatistics struct {
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	V4HttpCount  *int64  `json:"V4HttpCount,omitempty" xml:"V4HttpCount,omitempty" require:"true"`
+	V6HttpCount  *int64  `json:"V6HttpCount,omitempty" xml:"V6HttpCount,omitempty" require:"true"`
+	V4HttpsCount *int64  `json:"V4HttpsCount,omitempty" xml:"V4HttpsCount,omitempty" require:"true"`
+	V6HttpsCount *int64  `json:"V6HttpsCount,omitempty" xml:"V6HttpsCount,omitempty" require:"true"`
+	TotalCount   *int64  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	IpCount      *int64  `json:"IpCount,omitempty" xml:"IpCount,omitempty" require:"true"`
+	HttpCount    *int64  `json:"HttpCount,omitempty" xml:"HttpCount,omitempty" require:"true"`
+	HttpsCount   *int64  `json:"HttpsCount,omitempty" xml:"HttpsCount,omitempty" require:"true"`
+}
+
+func (s DescribeDohDomainStatisticsSummaryResponseStatistics) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohDomainStatisticsSummaryResponseStatistics) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetDomainName(v string) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.DomainName = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetV4HttpCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.V4HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetV6HttpCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.V6HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetV4HttpsCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.V4HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetV6HttpsCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.V6HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetTotalCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetIpCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.IpCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetHttpCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsSummaryResponseStatistics) SetHttpsCount(v int64) *DescribeDohDomainStatisticsSummaryResponseStatistics {
+	s.HttpsCount = &v
+	return s
+}
+
+type DescribeDohAccountStatisticsRequest struct {
+	Lang      *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StartDate *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate   *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+}
+
+func (s DescribeDohAccountStatisticsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohAccountStatisticsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohAccountStatisticsRequest) SetLang(v string) *DescribeDohAccountStatisticsRequest {
+	s.Lang = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsRequest) SetStartDate(v string) *DescribeDohAccountStatisticsRequest {
+	s.StartDate = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsRequest) SetEndDate(v string) *DescribeDohAccountStatisticsRequest {
+	s.EndDate = &v
+	return s
+}
+
+type DescribeDohAccountStatisticsResponse struct {
+	RequestId  *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Statistics []*DescribeDohAccountStatisticsResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDohAccountStatisticsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohAccountStatisticsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohAccountStatisticsResponse) SetRequestId(v string) *DescribeDohAccountStatisticsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsResponse) SetStatistics(v []*DescribeDohAccountStatisticsResponseStatistics) *DescribeDohAccountStatisticsResponse {
+	s.Statistics = v
+	return s
+}
+
+type DescribeDohAccountStatisticsResponseStatistics struct {
+	Timestamp    *int64 `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	V4HttpCount  *int64 `json:"V4HttpCount,omitempty" xml:"V4HttpCount,omitempty" require:"true"`
+	V6HttpCount  *int64 `json:"V6HttpCount,omitempty" xml:"V6HttpCount,omitempty" require:"true"`
+	V4HttpsCount *int64 `json:"V4HttpsCount,omitempty" xml:"V4HttpsCount,omitempty" require:"true"`
+	V6HttpsCount *int64 `json:"V6HttpsCount,omitempty" xml:"V6HttpsCount,omitempty" require:"true"`
+	TotalCount   *int64 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+}
+
+func (s DescribeDohAccountStatisticsResponseStatistics) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohAccountStatisticsResponseStatistics) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohAccountStatisticsResponseStatistics) SetTimestamp(v int64) *DescribeDohAccountStatisticsResponseStatistics {
+	s.Timestamp = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsResponseStatistics) SetV4HttpCount(v int64) *DescribeDohAccountStatisticsResponseStatistics {
+	s.V4HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsResponseStatistics) SetV6HttpCount(v int64) *DescribeDohAccountStatisticsResponseStatistics {
+	s.V6HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsResponseStatistics) SetV4HttpsCount(v int64) *DescribeDohAccountStatisticsResponseStatistics {
+	s.V4HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsResponseStatistics) SetV6HttpsCount(v int64) *DescribeDohAccountStatisticsResponseStatistics {
+	s.V6HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohAccountStatisticsResponseStatistics) SetTotalCount(v int64) *DescribeDohAccountStatisticsResponseStatistics {
+	s.TotalCount = &v
+	return s
+}
+
+type DescribeDohSubDomainStatisticsRequest struct {
+	Lang      *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	SubDomain *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	StartDate *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate   *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+}
+
+func (s DescribeDohSubDomainStatisticsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohSubDomainStatisticsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohSubDomainStatisticsRequest) SetLang(v string) *DescribeDohSubDomainStatisticsRequest {
+	s.Lang = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsRequest) SetSubDomain(v string) *DescribeDohSubDomainStatisticsRequest {
+	s.SubDomain = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsRequest) SetStartDate(v string) *DescribeDohSubDomainStatisticsRequest {
+	s.StartDate = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsRequest) SetEndDate(v string) *DescribeDohSubDomainStatisticsRequest {
+	s.EndDate = &v
+	return s
+}
+
+type DescribeDohSubDomainStatisticsResponse struct {
+	RequestId  *string                                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Statistics []*DescribeDohSubDomainStatisticsResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDohSubDomainStatisticsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohSubDomainStatisticsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohSubDomainStatisticsResponse) SetRequestId(v string) *DescribeDohSubDomainStatisticsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsResponse) SetStatistics(v []*DescribeDohSubDomainStatisticsResponseStatistics) *DescribeDohSubDomainStatisticsResponse {
+	s.Statistics = v
+	return s
+}
+
+type DescribeDohSubDomainStatisticsResponseStatistics struct {
+	Timestamp    *int64 `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	V4HttpCount  *int64 `json:"V4HttpCount,omitempty" xml:"V4HttpCount,omitempty" require:"true"`
+	V4HttpsCount *int64 `json:"V4HttpsCount,omitempty" xml:"V4HttpsCount,omitempty" require:"true"`
+	V6HttpCount  *int64 `json:"V6HttpCount,omitempty" xml:"V6HttpCount,omitempty" require:"true"`
+	V6HttpsCount *int64 `json:"V6HttpsCount,omitempty" xml:"V6HttpsCount,omitempty" require:"true"`
+	TotalCount   *int64 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+}
+
+func (s DescribeDohSubDomainStatisticsResponseStatistics) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohSubDomainStatisticsResponseStatistics) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohSubDomainStatisticsResponseStatistics) SetTimestamp(v int64) *DescribeDohSubDomainStatisticsResponseStatistics {
+	s.Timestamp = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsResponseStatistics) SetV4HttpCount(v int64) *DescribeDohSubDomainStatisticsResponseStatistics {
+	s.V4HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsResponseStatistics) SetV4HttpsCount(v int64) *DescribeDohSubDomainStatisticsResponseStatistics {
+	s.V4HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsResponseStatistics) SetV6HttpCount(v int64) *DescribeDohSubDomainStatisticsResponseStatistics {
+	s.V6HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsResponseStatistics) SetV6HttpsCount(v int64) *DescribeDohSubDomainStatisticsResponseStatistics {
+	s.V6HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsResponseStatistics) SetTotalCount(v int64) *DescribeDohSubDomainStatisticsResponseStatistics {
+	s.TotalCount = &v
+	return s
+}
+
+type DescribeDohSubDomainStatisticsSummaryRequest struct {
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+	SubDomain  *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+}
+
+func (s DescribeDohSubDomainStatisticsSummaryRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohSubDomainStatisticsSummaryRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetLang(v string) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.Lang = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetPageNumber(v int) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetPageSize(v int) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetStartDate(v string) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.StartDate = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetEndDate(v string) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.EndDate = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetSubDomain(v string) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.SubDomain = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryRequest) SetDomainName(v string) *DescribeDohSubDomainStatisticsSummaryRequest {
+	s.DomainName = &v
+	return s
+}
+
+type DescribeDohSubDomainStatisticsSummaryResponse struct {
+	RequestId  *string                                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                                       `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                                       `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageSize   *int                                                       `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                                       `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Statistics []*DescribeDohSubDomainStatisticsSummaryResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDohSubDomainStatisticsSummaryResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohSubDomainStatisticsSummaryResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponse) SetRequestId(v string) *DescribeDohSubDomainStatisticsSummaryResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponse) SetTotalItems(v int) *DescribeDohSubDomainStatisticsSummaryResponse {
+	s.TotalItems = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponse) SetTotalPages(v int) *DescribeDohSubDomainStatisticsSummaryResponse {
+	s.TotalPages = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponse) SetPageSize(v int) *DescribeDohSubDomainStatisticsSummaryResponse {
+	s.PageSize = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponse) SetPageNumber(v int) *DescribeDohSubDomainStatisticsSummaryResponse {
+	s.PageNumber = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponse) SetStatistics(v []*DescribeDohSubDomainStatisticsSummaryResponseStatistics) *DescribeDohSubDomainStatisticsSummaryResponse {
+	s.Statistics = v
+	return s
+}
+
+type DescribeDohSubDomainStatisticsSummaryResponseStatistics struct {
+	SubDomain    *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	V4HttpCount  *int64  `json:"V4HttpCount,omitempty" xml:"V4HttpCount,omitempty" require:"true"`
+	V6HttpCount  *int64  `json:"V6HttpCount,omitempty" xml:"V6HttpCount,omitempty" require:"true"`
+	V4HttpsCount *int64  `json:"V4HttpsCount,omitempty" xml:"V4HttpsCount,omitempty" require:"true"`
+	V6HttpsCount *int64  `json:"V6HttpsCount,omitempty" xml:"V6HttpsCount,omitempty" require:"true"`
+	TotalCount   *int64  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	IpCount      *int64  `json:"IpCount,omitempty" xml:"IpCount,omitempty" require:"true"`
+	HttpCount    *int64  `json:"HttpCount,omitempty" xml:"HttpCount,omitempty" require:"true"`
+	HttpsCount   *int64  `json:"HttpsCount,omitempty" xml:"HttpsCount,omitempty" require:"true"`
+}
+
+func (s DescribeDohSubDomainStatisticsSummaryResponseStatistics) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohSubDomainStatisticsSummaryResponseStatistics) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetSubDomain(v string) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.SubDomain = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetV4HttpCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.V4HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetV6HttpCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.V6HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetV4HttpsCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.V4HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetV6HttpsCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.V6HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetTotalCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetIpCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.IpCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetHttpCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohSubDomainStatisticsSummaryResponseStatistics) SetHttpsCount(v int64) *DescribeDohSubDomainStatisticsSummaryResponseStatistics {
+	s.HttpsCount = &v
+	return s
+}
+
+type DescribeDohDomainStatisticsRequest struct {
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+}
+
+func (s DescribeDohDomainStatisticsRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohDomainStatisticsRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohDomainStatisticsRequest) SetLang(v string) *DescribeDohDomainStatisticsRequest {
+	s.Lang = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsRequest) SetDomainName(v string) *DescribeDohDomainStatisticsRequest {
+	s.DomainName = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsRequest) SetStartDate(v string) *DescribeDohDomainStatisticsRequest {
+	s.StartDate = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsRequest) SetEndDate(v string) *DescribeDohDomainStatisticsRequest {
+	s.EndDate = &v
+	return s
+}
+
+type DescribeDohDomainStatisticsResponse struct {
+	RequestId  *string                                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Statistics []*DescribeDohDomainStatisticsResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s DescribeDohDomainStatisticsResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohDomainStatisticsResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohDomainStatisticsResponse) SetRequestId(v string) *DescribeDohDomainStatisticsResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsResponse) SetStatistics(v []*DescribeDohDomainStatisticsResponseStatistics) *DescribeDohDomainStatisticsResponse {
+	s.Statistics = v
+	return s
+}
+
+type DescribeDohDomainStatisticsResponseStatistics struct {
+	Timestamp    *int64 `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	V4HttpCount  *int64 `json:"V4HttpCount,omitempty" xml:"V4HttpCount,omitempty" require:"true"`
+	V6HttpCount  *int64 `json:"V6HttpCount,omitempty" xml:"V6HttpCount,omitempty" require:"true"`
+	V4HttpsCount *int64 `json:"V4HttpsCount,omitempty" xml:"V4HttpsCount,omitempty" require:"true"`
+	V6HttpsCount *int64 `json:"V6HttpsCount,omitempty" xml:"V6HttpsCount,omitempty" require:"true"`
+	TotalCount   *int64 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+}
+
+func (s DescribeDohDomainStatisticsResponseStatistics) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohDomainStatisticsResponseStatistics) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohDomainStatisticsResponseStatistics) SetTimestamp(v int64) *DescribeDohDomainStatisticsResponseStatistics {
+	s.Timestamp = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsResponseStatistics) SetV4HttpCount(v int64) *DescribeDohDomainStatisticsResponseStatistics {
+	s.V4HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsResponseStatistics) SetV6HttpCount(v int64) *DescribeDohDomainStatisticsResponseStatistics {
+	s.V6HttpCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsResponseStatistics) SetV4HttpsCount(v int64) *DescribeDohDomainStatisticsResponseStatistics {
+	s.V4HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsResponseStatistics) SetV6HttpsCount(v int64) *DescribeDohDomainStatisticsResponseStatistics {
+	s.V6HttpsCount = &v
+	return s
+}
+
+func (s *DescribeDohDomainStatisticsResponseStatistics) SetTotalCount(v int64) *DescribeDohDomainStatisticsResponseStatistics {
+	s.TotalCount = &v
+	return s
+}
+
+type DescribeDohUserInfoRequest struct {
+	Lang      *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StartDate *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate   *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+}
+
+func (s DescribeDohUserInfoRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohUserInfoRequest) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohUserInfoRequest) SetLang(v string) *DescribeDohUserInfoRequest {
+	s.Lang = &v
+	return s
+}
+
+func (s *DescribeDohUserInfoRequest) SetStartDate(v string) *DescribeDohUserInfoRequest {
+	s.StartDate = &v
+	return s
+}
+
+func (s *DescribeDohUserInfoRequest) SetEndDate(v string) *DescribeDohUserInfoRequest {
+	s.EndDate = &v
+	return s
+}
+
+type DescribeDohUserInfoResponse struct {
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PdnsId         *int64  `json:"PdnsId,omitempty" xml:"PdnsId,omitempty" require:"true"`
+	DomainCount    *int    `json:"DomainCount,omitempty" xml:"DomainCount,omitempty" require:"true"`
+	SubDomainCount *int    `json:"SubDomainCount,omitempty" xml:"SubDomainCount,omitempty" require:"true"`
+}
+
+func (s DescribeDohUserInfoResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s DescribeDohUserInfoResponse) GoString() string {
+	return s.String()
+}
+
+func (s *DescribeDohUserInfoResponse) SetRequestId(v string) *DescribeDohUserInfoResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *DescribeDohUserInfoResponse) SetPdnsId(v int64) *DescribeDohUserInfoResponse {
+	s.PdnsId = &v
+	return s
+}
+
+func (s *DescribeDohUserInfoResponse) SetDomainCount(v int) *DescribeDohUserInfoResponse {
+	s.DomainCount = &v
+	return s
+}
+
+func (s *DescribeDohUserInfoResponse) SetSubDomainCount(v int) *DescribeDohUserInfoResponse {
+	s.SubDomainCount = &v
+	return s
+}
+
 type ListTagResourcesRequest struct {
-	Lang         *string                       `json:"Lang" xml:"Lang"`
-	ResourceType *string                       `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Tag          []*ListTagResourcesRequestTag `json:"Tag" xml:"Tag" type:"Repeated"`
-	ResourceId   []*string                     `json:"ResourceId" xml:"ResourceId" type:"Repeated"`
-	NextToken    *string                       `json:"NextToken" xml:"NextToken"`
+	Lang         *string                       `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	ResourceType *string                       `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag          []*ListTagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
+	ResourceId   []*string                     `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" type:"Repeated"`
+	NextToken    *string                       `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
 }
 
 func (s ListTagResourcesRequest) String() string {
@@ -50,8 +747,8 @@ func (s *ListTagResourcesRequest) SetNextToken(v string) *ListTagResourcesReques
 }
 
 type ListTagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s ListTagResourcesRequestTag) String() string {
@@ -73,9 +770,9 @@ func (s *ListTagResourcesRequestTag) SetValue(v string) *ListTagResourcesRequest
 }
 
 type ListTagResourcesResponse struct {
-	RequestId    *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	NextToken    *string                                 `json:"NextToken" xml:"NextToken" require:"true"`
-	TagResources []*ListTagResourcesResponseTagResources `json:"TagResources" xml:"TagResources" require:"true" type:"Repeated"`
+	RequestId    *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	NextToken    *string                                 `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	TagResources []*ListTagResourcesResponseTagResources `json:"TagResources,omitempty" xml:"TagResources,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListTagResourcesResponse) String() string {
@@ -102,10 +799,10 @@ func (s *ListTagResourcesResponse) SetTagResources(v []*ListTagResourcesResponse
 }
 
 type ListTagResourcesResponseTagResources struct {
-	TagKey       *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue     *string `json:"TagValue" xml:"TagValue" require:"true"`
-	ResourceId   *string `json:"ResourceId" xml:"ResourceId" require:"true"`
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
+	TagKey       *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue     *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
+	ResourceId   *string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
 }
 
 func (s ListTagResourcesResponseTagResources) String() string {
@@ -137,10 +834,10 @@ func (s *ListTagResourcesResponseTagResources) SetResourceType(v string) *ListTa
 }
 
 type TagResourcesRequest struct {
-	Lang         *string                   `json:"Lang" xml:"Lang"`
-	ResourceType *string                   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	Tag          []*TagResourcesRequestTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
-	ResourceId   []*string                 `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
+	Lang         *string                   `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	ResourceType *string                   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	Tag          []*TagResourcesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
+	ResourceId   []*string                 `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s TagResourcesRequest) String() string {
@@ -172,8 +869,8 @@ func (s *TagResourcesRequest) SetResourceId(v []*string) *TagResourcesRequest {
 }
 
 type TagResourcesRequestTag struct {
-	Key   *string `json:"Key" xml:"Key"`
-	Value *string `json:"Value" xml:"Value"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty"`
 }
 
 func (s TagResourcesRequestTag) String() string {
@@ -195,7 +892,7 @@ func (s *TagResourcesRequestTag) SetValue(v string) *TagResourcesRequestTag {
 }
 
 type TagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s TagResourcesResponse) String() string {
@@ -212,11 +909,11 @@ func (s *TagResourcesResponse) SetRequestId(v string) *TagResourcesResponse {
 }
 
 type UntagResourcesRequest struct {
-	Lang         *string   `json:"Lang" xml:"Lang"`
-	ResourceType *string   `json:"ResourceType" xml:"ResourceType" require:"true"`
-	All          *bool     `json:"All" xml:"All"`
-	ResourceId   []*string `json:"ResourceId" xml:"ResourceId" require:"true" type:"Repeated"`
-	TagKey       []*string `json:"TagKey" xml:"TagKey" type:"Repeated"`
+	Lang         *string   `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	ResourceType *string   `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	All          *bool     `json:"All,omitempty" xml:"All,omitempty"`
+	ResourceId   []*string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true" type:"Repeated"`
+	TagKey       []*string `json:"TagKey,omitempty" xml:"TagKey,omitempty" type:"Repeated"`
 }
 
 func (s UntagResourcesRequest) String() string {
@@ -253,7 +950,7 @@ func (s *UntagResourcesRequest) SetTagKey(v []*string) *UntagResourcesRequest {
 }
 
 type UntagResourcesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UntagResourcesResponse) String() string {
@@ -270,10 +967,10 @@ func (s *UntagResourcesResponse) SetRequestId(v string) *UntagResourcesResponse 
 }
 
 type DescribeTagsRequest struct {
-	Lang         *string `json:"Lang" xml:"Lang"`
-	ResourceType *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	ResourceType *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeTagsRequest) String() string {
@@ -305,11 +1002,11 @@ func (s *DescribeTagsRequest) SetPageSize(v int64) *DescribeTagsRequest {
 }
 
 type DescribeTagsResponse struct {
-	RequestId  *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int64                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int64                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64                      `json:"PageSize" xml:"PageSize" require:"true"`
-	Tags       []*DescribeTagsResponseTags `json:"Tags" xml:"Tags" require:"true" type:"Repeated"`
+	RequestId  *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int64                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int64                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Tags       []*DescribeTagsResponseTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTagsResponse) String() string {
@@ -346,7 +1043,7 @@ func (s *DescribeTagsResponse) SetTags(v []*DescribeTagsResponseTags) *DescribeT
 }
 
 type DescribeTagsResponseTags struct {
-	Key *string `json:"Key" xml:"Key" require:"true"`
+	Key *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
 }
 
 func (s DescribeTagsResponseTags) String() string {
@@ -363,10 +1060,10 @@ func (s *DescribeTagsResponseTags) SetKey(v string) *DescribeTagsResponseTags {
 }
 
 type CopyGtmConfigRequest struct {
-	Lang     *string `json:"Lang" xml:"Lang"`
-	SourceId *string `json:"SourceId" xml:"SourceId" require:"true"`
-	TargetId *string `json:"TargetId" xml:"TargetId" require:"true"`
-	CopyType *string `json:"CopyType" xml:"CopyType" require:"true"`
+	Lang     *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	SourceId *string `json:"SourceId,omitempty" xml:"SourceId,omitempty" require:"true"`
+	TargetId *string `json:"TargetId,omitempty" xml:"TargetId,omitempty" require:"true"`
+	CopyType *string `json:"CopyType,omitempty" xml:"CopyType,omitempty" require:"true"`
 }
 
 func (s CopyGtmConfigRequest) String() string {
@@ -398,7 +1095,7 @@ func (s *CopyGtmConfigRequest) SetCopyType(v string) *CopyGtmConfigRequest {
 }
 
 type CopyGtmConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CopyGtmConfigResponse) String() string {
@@ -415,8 +1112,8 @@ func (s *CopyGtmConfigResponse) SetRequestId(v string) *CopyGtmConfigResponse {
 }
 
 type DescribeDomainDnssecInfoRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribeDomainDnssecInfoRequest) String() string {
@@ -438,16 +1135,16 @@ func (s *DescribeDomainDnssecInfoRequest) SetDomainName(v string) *DescribeDomai
 }
 
 type DescribeDomainDnssecInfoResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Status     *string `json:"Status" xml:"Status" require:"true"`
-	DsRecord   *string `json:"DsRecord" xml:"DsRecord" require:"true"`
-	Digest     *string `json:"Digest" xml:"Digest" require:"true"`
-	DigestType *string `json:"DigestType" xml:"DigestType" require:"true"`
-	Algorithm  *string `json:"Algorithm" xml:"Algorithm" require:"true"`
-	PublicKey  *string `json:"PublicKey" xml:"PublicKey" require:"true"`
-	KeyTag     *string `json:"KeyTag" xml:"KeyTag" require:"true"`
-	Flags      *string `json:"Flags" xml:"Flags" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	DsRecord   *string `json:"DsRecord,omitempty" xml:"DsRecord,omitempty" require:"true"`
+	Digest     *string `json:"Digest,omitempty" xml:"Digest,omitempty" require:"true"`
+	DigestType *string `json:"DigestType,omitempty" xml:"DigestType,omitempty" require:"true"`
+	Algorithm  *string `json:"Algorithm,omitempty" xml:"Algorithm,omitempty" require:"true"`
+	PublicKey  *string `json:"PublicKey,omitempty" xml:"PublicKey,omitempty" require:"true"`
+	KeyTag     *string `json:"KeyTag,omitempty" xml:"KeyTag,omitempty" require:"true"`
+	Flags      *string `json:"Flags,omitempty" xml:"Flags,omitempty" require:"true"`
 }
 
 func (s DescribeDomainDnssecInfoResponse) String() string {
@@ -509,9 +1206,9 @@ func (s *DescribeDomainDnssecInfoResponse) SetFlags(v string) *DescribeDomainDns
 }
 
 type SetDomainDnssecStatusRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Status     *string `json:"Status" xml:"Status" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s SetDomainDnssecStatusRequest) String() string {
@@ -538,7 +1235,7 @@ func (s *SetDomainDnssecStatusRequest) SetStatus(v string) *SetDomainDnssecStatu
 }
 
 type SetDomainDnssecStatusResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetDomainDnssecStatusResponse) String() string {
@@ -555,11 +1252,10 @@ func (s *SetDomainDnssecStatusResponse) SetRequestId(v string) *SetDomainDnssecS
 }
 
 type TransferDomainRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	DomainNames  *string `json:"DomainNames" xml:"DomainNames" require:"true"`
-	Remark       *string `json:"Remark" xml:"Remark"`
-	TargetUserId *int64  `json:"TargetUserId" xml:"TargetUserId" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainNames  *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
+	Remark       *string `json:"Remark,omitempty" xml:"Remark,omitempty"`
+	TargetUserId *int64  `json:"TargetUserId,omitempty" xml:"TargetUserId,omitempty" require:"true"`
 }
 
 func (s TransferDomainRequest) String() string {
@@ -568,11 +1264,6 @@ func (s TransferDomainRequest) String() string {
 
 func (s TransferDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *TransferDomainRequest) SetAccessKeyId(v string) *TransferDomainRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *TransferDomainRequest) SetLang(v string) *TransferDomainRequest {
@@ -596,8 +1287,8 @@ func (s *TransferDomainRequest) SetTargetUserId(v int64) *TransferDomainRequest 
 }
 
 type TransferDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TaskId    *int64  `json:"TaskId" xml:"TaskId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TaskId    *int64  `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
 }
 
 func (s TransferDomainResponse) String() string {
@@ -619,13 +1310,13 @@ func (s *TransferDomainResponse) SetTaskId(v int64) *TransferDomainResponse {
 }
 
 type DescribeTransferDomainsRequest struct {
-	Lang         *string `json:"Lang" xml:"Lang"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
-	TransferType *string `json:"TransferType" xml:"TransferType" require:"true"`
-	DomainName   *string `json:"DomainName" xml:"DomainName"`
-	FromUserId   *int64  `json:"FromUserId" xml:"FromUserId"`
-	TargetUserId *int64  `json:"TargetUserId" xml:"TargetUserId"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	TransferType *string `json:"TransferType,omitempty" xml:"TransferType,omitempty" require:"true"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	FromUserId   *int64  `json:"FromUserId,omitempty" xml:"FromUserId,omitempty"`
+	TargetUserId *int64  `json:"TargetUserId,omitempty" xml:"TargetUserId,omitempty"`
 }
 
 func (s DescribeTransferDomainsRequest) String() string {
@@ -672,11 +1363,11 @@ func (s *DescribeTransferDomainsRequest) SetTargetUserId(v int64) *DescribeTrans
 }
 
 type DescribeTransferDomainsResponse struct {
-	RequestId       *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount      *int64                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber      *int64                                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize        *int64                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	DomainTransfers *DescribeTransferDomainsResponseDomainTransfers `json:"DomainTransfers" xml:"DomainTransfers" require:"true" type:"Struct"`
+	RequestId       *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount      *int64                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber      *int64                                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize        *int64                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DomainTransfers *DescribeTransferDomainsResponseDomainTransfers `json:"DomainTransfers,omitempty" xml:"DomainTransfers,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeTransferDomainsResponse) String() string {
@@ -713,7 +1404,7 @@ func (s *DescribeTransferDomainsResponse) SetDomainTransfers(v *DescribeTransfer
 }
 
 type DescribeTransferDomainsResponseDomainTransfers struct {
-	DomainTransfer []*DescribeTransferDomainsResponseDomainTransfersDomainTransfer `json:"DomainTransfer" xml:"DomainTransfer" require:"true" type:"Repeated"`
+	DomainTransfer []*DescribeTransferDomainsResponseDomainTransfersDomainTransfer `json:"DomainTransfer,omitempty" xml:"DomainTransfer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeTransferDomainsResponseDomainTransfers) String() string {
@@ -730,12 +1421,12 @@ func (s *DescribeTransferDomainsResponseDomainTransfers) SetDomainTransfer(v []*
 }
 
 type DescribeTransferDomainsResponseDomainTransfersDomainTransfer struct {
-	DomainName      *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CreateTime      *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	FromUserId      *int64  `json:"FromUserId" xml:"FromUserId" require:"true"`
-	TargetUserId    *int64  `json:"TargetUserId" xml:"TargetUserId" require:"true"`
-	Id              *int64  `json:"Id" xml:"Id" require:"true"`
+	DomainName      *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CreateTime      *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	FromUserId      *int64  `json:"FromUserId,omitempty" xml:"FromUserId,omitempty" require:"true"`
+	TargetUserId    *int64  `json:"TargetUserId,omitempty" xml:"TargetUserId,omitempty" require:"true"`
+	Id              *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
 }
 
 func (s DescribeTransferDomainsResponseDomainTransfersDomainTransfer) String() string {
@@ -777,10 +1468,9 @@ func (s *DescribeTransferDomainsResponseDomainTransfersDomainTransfer) SetId(v i
 }
 
 type AddDomainBackupRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang        *string `json:"Lang" xml:"Lang"`
-	DomainName  *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PeriodType  *string `json:"PeriodType" xml:"PeriodType" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PeriodType *string `json:"PeriodType,omitempty" xml:"PeriodType,omitempty" require:"true"`
 }
 
 func (s AddDomainBackupRequest) String() string {
@@ -789,11 +1479,6 @@ func (s AddDomainBackupRequest) String() string {
 
 func (s AddDomainBackupRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddDomainBackupRequest) SetAccessKeyId(v string) *AddDomainBackupRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *AddDomainBackupRequest) SetLang(v string) *AddDomainBackupRequest {
@@ -812,9 +1497,9 @@ func (s *AddDomainBackupRequest) SetPeriodType(v string) *AddDomainBackupRequest
 }
 
 type AddDomainBackupResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PeriodType *string `json:"PeriodType" xml:"PeriodType" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PeriodType *string `json:"PeriodType,omitempty" xml:"PeriodType,omitempty" require:"true"`
 }
 
 func (s AddDomainBackupResponse) String() string {
@@ -841,8 +1526,8 @@ func (s *AddDomainBackupResponse) SetPeriodType(v string) *AddDomainBackupRespon
 }
 
 type RetrieveDomainRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s RetrieveDomainRequest) String() string {
@@ -864,7 +1549,7 @@ func (s *RetrieveDomainRequest) SetDomainName(v string) *RetrieveDomainRequest {
 }
 
 type RetrieveDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RetrieveDomainResponse) String() string {
@@ -881,8 +1566,8 @@ func (s *RetrieveDomainResponse) SetRequestId(v string) *RetrieveDomainResponse 
 }
 
 type DescribeGtmRecoveryPlanRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	RecoveryPlanId *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	RecoveryPlanId *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmRecoveryPlanRequest) String() string {
@@ -904,21 +1589,21 @@ func (s *DescribeGtmRecoveryPlanRequest) SetRecoveryPlanId(v int64) *DescribeGtm
 }
 
 type DescribeGtmRecoveryPlanResponse struct {
-	RequestId             *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	RecoveryPlanId        *int64                                         `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
-	Name                  *string                                        `json:"Name" xml:"Name" require:"true"`
-	Remark                *string                                        `json:"Remark" xml:"Remark" require:"true"`
-	FaultAddrPoolNum      *int                                           `json:"FaultAddrPoolNum" xml:"FaultAddrPoolNum" require:"true"`
-	Status                *string                                        `json:"Status" xml:"Status" require:"true"`
-	LastExecuteTime       *string                                        `json:"LastExecuteTime" xml:"LastExecuteTime" require:"true"`
-	LastExecuteTimestamp  *int64                                         `json:"LastExecuteTimestamp" xml:"LastExecuteTimestamp" require:"true"`
-	LastRollbackTime      *string                                        `json:"LastRollbackTime" xml:"LastRollbackTime" require:"true"`
-	LastRollbackTimestamp *int64                                         `json:"LastRollbackTimestamp" xml:"LastRollbackTimestamp" require:"true"`
-	CreateTime            *string                                        `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp       *int64                                         `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	UpdateTime            *string                                        `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	UpdateTimestamp       *int64                                         `json:"UpdateTimestamp" xml:"UpdateTimestamp" require:"true"`
-	FaultAddrPools        *DescribeGtmRecoveryPlanResponseFaultAddrPools `json:"FaultAddrPools" xml:"FaultAddrPools" require:"true" type:"Struct"`
+	RequestId             *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecoveryPlanId        *int64                                         `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
+	Name                  *string                                        `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Remark                *string                                        `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
+	FaultAddrPoolNum      *int                                           `json:"FaultAddrPoolNum,omitempty" xml:"FaultAddrPoolNum,omitempty" require:"true"`
+	Status                *string                                        `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	LastExecuteTime       *string                                        `json:"LastExecuteTime,omitempty" xml:"LastExecuteTime,omitempty" require:"true"`
+	LastExecuteTimestamp  *int64                                         `json:"LastExecuteTimestamp,omitempty" xml:"LastExecuteTimestamp,omitempty" require:"true"`
+	LastRollbackTime      *string                                        `json:"LastRollbackTime,omitempty" xml:"LastRollbackTime,omitempty" require:"true"`
+	LastRollbackTimestamp *int64                                         `json:"LastRollbackTimestamp,omitempty" xml:"LastRollbackTimestamp,omitempty" require:"true"`
+	CreateTime            *string                                        `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp       *int64                                         `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	UpdateTime            *string                                        `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	UpdateTimestamp       *int64                                         `json:"UpdateTimestamp,omitempty" xml:"UpdateTimestamp,omitempty" require:"true"`
+	FaultAddrPools        *DescribeGtmRecoveryPlanResponseFaultAddrPools `json:"FaultAddrPools,omitempty" xml:"FaultAddrPools,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmRecoveryPlanResponse) String() string {
@@ -1005,7 +1690,7 @@ func (s *DescribeGtmRecoveryPlanResponse) SetFaultAddrPools(v *DescribeGtmRecove
 }
 
 type DescribeGtmRecoveryPlanResponseFaultAddrPools struct {
-	FaultAddrPool []*DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPool `json:"FaultAddrPool" xml:"FaultAddrPool" require:"true" type:"Repeated"`
+	FaultAddrPool []*DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPool `json:"FaultAddrPool,omitempty" xml:"FaultAddrPool,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmRecoveryPlanResponseFaultAddrPools) String() string {
@@ -1022,10 +1707,10 @@ func (s *DescribeGtmRecoveryPlanResponseFaultAddrPools) SetFaultAddrPool(v []*De
 }
 
 type DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPool struct {
-	AddrPoolId   *string                                                          `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	AddrPoolName *string                                                          `json:"AddrPoolName" xml:"AddrPoolName" require:"true"`
-	InstanceId   *string                                                          `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Addrs        *DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrs `json:"Addrs" xml:"Addrs" require:"true" type:"Struct"`
+	AddrPoolId   *string                                                          `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	AddrPoolName *string                                                          `json:"AddrPoolName,omitempty" xml:"AddrPoolName,omitempty" require:"true"`
+	InstanceId   *string                                                          `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Addrs        *DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrs `json:"Addrs,omitempty" xml:"Addrs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPool) String() string {
@@ -1057,7 +1742,7 @@ func (s *DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPool) SetAddrs(v 
 }
 
 type DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrs struct {
-	Addr []*DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrsAddr `json:"Addr" xml:"Addr" require:"true" type:"Repeated"`
+	Addr []*DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrsAddr `json:"Addr,omitempty" xml:"Addr,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrs) String() string {
@@ -1074,9 +1759,9 @@ func (s *DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrs) SetAdd
 }
 
 type DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrsAddr struct {
-	Id    *int64  `json:"Id" xml:"Id" require:"true"`
-	Mode  *string `json:"Mode" xml:"Mode" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Id    *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Mode  *string `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrsAddr) String() string {
@@ -1103,10 +1788,10 @@ func (s *DescribeGtmRecoveryPlanResponseFaultAddrPoolsFaultAddrPoolAddrsAddr) Se
 }
 
 type AddGtmRecoveryPlanRequest struct {
-	Lang          *string `json:"Lang" xml:"Lang"`
-	Name          *string `json:"Name" xml:"Name" require:"true"`
-	Remark        *string `json:"Remark" xml:"Remark"`
-	FaultAddrPool *string `json:"FaultAddrPool" xml:"FaultAddrPool" require:"true"`
+	Lang          *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	Name          *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Remark        *string `json:"Remark,omitempty" xml:"Remark,omitempty"`
+	FaultAddrPool *string `json:"FaultAddrPool,omitempty" xml:"FaultAddrPool,omitempty" require:"true"`
 }
 
 func (s AddGtmRecoveryPlanRequest) String() string {
@@ -1138,8 +1823,8 @@ func (s *AddGtmRecoveryPlanRequest) SetFaultAddrPool(v string) *AddGtmRecoveryPl
 }
 
 type AddGtmRecoveryPlanResponse struct {
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecoveryPlanId *string `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecoveryPlanId *string `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
 }
 
 func (s AddGtmRecoveryPlanResponse) String() string {
@@ -1161,11 +1846,11 @@ func (s *AddGtmRecoveryPlanResponse) SetRecoveryPlanId(v string) *AddGtmRecovery
 }
 
 type UpdateGtmRecoveryPlanRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	RecoveryPlanId *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
-	Name           *string `json:"Name" xml:"Name"`
-	Remark         *string `json:"Remark" xml:"Remark"`
-	FaultAddrPool  *string `json:"FaultAddrPool" xml:"FaultAddrPool"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	RecoveryPlanId *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
+	Name           *string `json:"Name,omitempty" xml:"Name,omitempty"`
+	Remark         *string `json:"Remark,omitempty" xml:"Remark,omitempty"`
+	FaultAddrPool  *string `json:"FaultAddrPool,omitempty" xml:"FaultAddrPool,omitempty"`
 }
 
 func (s UpdateGtmRecoveryPlanRequest) String() string {
@@ -1202,7 +1887,7 @@ func (s *UpdateGtmRecoveryPlanRequest) SetFaultAddrPool(v string) *UpdateGtmReco
 }
 
 type UpdateGtmRecoveryPlanResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateGtmRecoveryPlanResponse) String() string {
@@ -1219,8 +1904,8 @@ func (s *UpdateGtmRecoveryPlanResponse) SetRequestId(v string) *UpdateGtmRecover
 }
 
 type DeleteGtmRecoveryPlanRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	RecoveryPlanId *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	RecoveryPlanId *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
 }
 
 func (s DeleteGtmRecoveryPlanRequest) String() string {
@@ -1242,7 +1927,7 @@ func (s *DeleteGtmRecoveryPlanRequest) SetRecoveryPlanId(v int64) *DeleteGtmReco
 }
 
 type DeleteGtmRecoveryPlanResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteGtmRecoveryPlanResponse) String() string {
@@ -1259,10 +1944,10 @@ func (s *DeleteGtmRecoveryPlanResponse) SetRequestId(v string) *DeleteGtmRecover
 }
 
 type DescribeGtmRecoveryPlansRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	Keyword    *string `json:"Keyword" xml:"Keyword"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	Keyword    *string `json:"Keyword,omitempty" xml:"Keyword,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeGtmRecoveryPlansRequest) String() string {
@@ -1294,12 +1979,12 @@ func (s *DescribeGtmRecoveryPlansRequest) SetPageSize(v int) *DescribeGtmRecover
 }
 
 type DescribeGtmRecoveryPlansResponse struct {
-	RequestId     *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems    *int                                           `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages    *int                                           `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageNumber    *int                                           `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize      *int                                           `json:"PageSize" xml:"PageSize" require:"true"`
-	RecoveryPlans *DescribeGtmRecoveryPlansResponseRecoveryPlans `json:"RecoveryPlans" xml:"RecoveryPlans" require:"true" type:"Struct"`
+	RequestId     *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems    *int                                           `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages    *int                                           `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageNumber    *int                                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *int                                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RecoveryPlans *DescribeGtmRecoveryPlansResponseRecoveryPlans `json:"RecoveryPlans,omitempty" xml:"RecoveryPlans,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmRecoveryPlansResponse) String() string {
@@ -1341,7 +2026,7 @@ func (s *DescribeGtmRecoveryPlansResponse) SetRecoveryPlans(v *DescribeGtmRecove
 }
 
 type DescribeGtmRecoveryPlansResponseRecoveryPlans struct {
-	RecoveryPlan []*DescribeGtmRecoveryPlansResponseRecoveryPlansRecoveryPlan `json:"RecoveryPlan" xml:"RecoveryPlan" require:"true" type:"Repeated"`
+	RecoveryPlan []*DescribeGtmRecoveryPlansResponseRecoveryPlansRecoveryPlan `json:"RecoveryPlan,omitempty" xml:"RecoveryPlan,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmRecoveryPlansResponseRecoveryPlans) String() string {
@@ -1358,19 +2043,19 @@ func (s *DescribeGtmRecoveryPlansResponseRecoveryPlans) SetRecoveryPlan(v []*Des
 }
 
 type DescribeGtmRecoveryPlansResponseRecoveryPlansRecoveryPlan struct {
-	RecoveryPlanId        *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
-	Name                  *string `json:"Name" xml:"Name" require:"true"`
-	Remark                *string `json:"Remark" xml:"Remark" require:"true"`
-	FaultAddrPoolNum      *int    `json:"FaultAddrPoolNum" xml:"FaultAddrPoolNum" require:"true"`
-	LastExecuteTime       *string `json:"LastExecuteTime" xml:"LastExecuteTime" require:"true"`
-	LastExecuteTimestamp  *int64  `json:"LastExecuteTimestamp" xml:"LastExecuteTimestamp" require:"true"`
-	LastRollbackTime      *string `json:"LastRollbackTime" xml:"LastRollbackTime" require:"true"`
-	LastRollbackTimestamp *int64  `json:"LastRollbackTimestamp" xml:"LastRollbackTimestamp" require:"true"`
-	CreateTime            *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp       *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	UpdateTime            *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	UpdateTimestamp       *int64  `json:"UpdateTimestamp" xml:"UpdateTimestamp" require:"true"`
-	Status                *string `json:"Status" xml:"Status" require:"true"`
+	RecoveryPlanId        *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
+	Name                  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Remark                *string `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
+	FaultAddrPoolNum      *int    `json:"FaultAddrPoolNum,omitempty" xml:"FaultAddrPoolNum,omitempty" require:"true"`
+	LastExecuteTime       *string `json:"LastExecuteTime,omitempty" xml:"LastExecuteTime,omitempty" require:"true"`
+	LastExecuteTimestamp  *int64  `json:"LastExecuteTimestamp,omitempty" xml:"LastExecuteTimestamp,omitempty" require:"true"`
+	LastRollbackTime      *string `json:"LastRollbackTime,omitempty" xml:"LastRollbackTime,omitempty" require:"true"`
+	LastRollbackTimestamp *int64  `json:"LastRollbackTimestamp,omitempty" xml:"LastRollbackTimestamp,omitempty" require:"true"`
+	CreateTime            *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp       *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	UpdateTime            *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	UpdateTimestamp       *int64  `json:"UpdateTimestamp,omitempty" xml:"UpdateTimestamp,omitempty" require:"true"`
+	Status                *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s DescribeGtmRecoveryPlansResponseRecoveryPlansRecoveryPlan) String() string {
@@ -1447,7 +2132,7 @@ func (s *DescribeGtmRecoveryPlansResponseRecoveryPlansRecoveryPlan) SetStatus(v 
 }
 
 type DescribeGtmRecoveryPlanAvailableConfigRequest struct {
-	Lang *string `json:"Lang" xml:"Lang"`
+	Lang *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
 }
 
 func (s DescribeGtmRecoveryPlanAvailableConfigRequest) String() string {
@@ -1464,8 +2149,8 @@ func (s *DescribeGtmRecoveryPlanAvailableConfigRequest) SetLang(v string) *Descr
 }
 
 type DescribeGtmRecoveryPlanAvailableConfigResponse struct {
-	RequestId *string                                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Instances *DescribeGtmRecoveryPlanAvailableConfigResponseInstances `json:"Instances" xml:"Instances" require:"true" type:"Struct"`
+	RequestId *string                                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Instances *DescribeGtmRecoveryPlanAvailableConfigResponseInstances `json:"Instances,omitempty" xml:"Instances,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmRecoveryPlanAvailableConfigResponse) String() string {
@@ -1487,7 +2172,7 @@ func (s *DescribeGtmRecoveryPlanAvailableConfigResponse) SetInstances(v *Describ
 }
 
 type DescribeGtmRecoveryPlanAvailableConfigResponseInstances struct {
-	Instance []*DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstance `json:"Instance" xml:"Instance" require:"true" type:"Repeated"`
+	Instance []*DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstance `json:"Instance,omitempty" xml:"Instance,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmRecoveryPlanAvailableConfigResponseInstances) String() string {
@@ -1504,9 +2189,9 @@ func (s *DescribeGtmRecoveryPlanAvailableConfigResponseInstances) SetInstance(v 
 }
 
 type DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstance struct {
-	InstanceId   *string                                                                   `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceName *string                                                                   `json:"InstanceName" xml:"InstanceName" require:"true"`
-	AddrPools    *DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPools `json:"AddrPools" xml:"AddrPools" require:"true" type:"Struct"`
+	InstanceId   *string                                                                   `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceName *string                                                                   `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	AddrPools    *DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPools `json:"AddrPools,omitempty" xml:"AddrPools,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstance) String() string {
@@ -1533,7 +2218,7 @@ func (s *DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstance) SetAdd
 }
 
 type DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPools struct {
-	AddrPool []*DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPoolsAddrPool `json:"AddrPool" xml:"AddrPool" require:"true" type:"Repeated"`
+	AddrPool []*DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPoolsAddrPool `json:"AddrPool,omitempty" xml:"AddrPool,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPools) String() string {
@@ -1550,8 +2235,8 @@ func (s *DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPool
 }
 
 type DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPoolsAddrPool struct {
-	AddrPoolId *string `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	Name       *string `json:"Name" xml:"Name" require:"true"`
+	AddrPoolId *string `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	Name       *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPoolsAddrPool) String() string {
@@ -1573,8 +2258,8 @@ func (s *DescribeGtmRecoveryPlanAvailableConfigResponseInstancesInstanceAddrPool
 }
 
 type ExecuteGtmRecoveryPlanRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	RecoveryPlanId *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	RecoveryPlanId *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
 }
 
 func (s ExecuteGtmRecoveryPlanRequest) String() string {
@@ -1596,7 +2281,7 @@ func (s *ExecuteGtmRecoveryPlanRequest) SetRecoveryPlanId(v int64) *ExecuteGtmRe
 }
 
 type ExecuteGtmRecoveryPlanResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ExecuteGtmRecoveryPlanResponse) String() string {
@@ -1613,8 +2298,8 @@ func (s *ExecuteGtmRecoveryPlanResponse) SetRequestId(v string) *ExecuteGtmRecov
 }
 
 type RollbackGtmRecoveryPlanRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	RecoveryPlanId *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	RecoveryPlanId *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
 }
 
 func (s RollbackGtmRecoveryPlanRequest) String() string {
@@ -1636,7 +2321,7 @@ func (s *RollbackGtmRecoveryPlanRequest) SetRecoveryPlanId(v int64) *RollbackGtm
 }
 
 type RollbackGtmRecoveryPlanResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s RollbackGtmRecoveryPlanResponse) String() string {
@@ -1653,10 +2338,10 @@ func (s *RollbackGtmRecoveryPlanResponse) SetRequestId(v string) *RollbackGtmRec
 }
 
 type PreviewGtmRecoveryPlanRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	RecoveryPlanId *int64  `json:"RecoveryPlanId" xml:"RecoveryPlanId" require:"true"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	RecoveryPlanId *int64  `json:"RecoveryPlanId,omitempty" xml:"RecoveryPlanId,omitempty" require:"true"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s PreviewGtmRecoveryPlanRequest) String() string {
@@ -1688,12 +2373,12 @@ func (s *PreviewGtmRecoveryPlanRequest) SetPageSize(v int) *PreviewGtmRecoveryPl
 }
 
 type PreviewGtmRecoveryPlanResponse struct {
-	RequestId  *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems *int                                    `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages *int                                    `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageSize   *int                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Previews   *PreviewGtmRecoveryPlanResponsePreviews `json:"Previews" xml:"Previews" require:"true" type:"Struct"`
+	RequestId  *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                    `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                    `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageSize   *int                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Previews   *PreviewGtmRecoveryPlanResponsePreviews `json:"Previews,omitempty" xml:"Previews,omitempty" require:"true" type:"Struct"`
 }
 
 func (s PreviewGtmRecoveryPlanResponse) String() string {
@@ -1735,7 +2420,7 @@ func (s *PreviewGtmRecoveryPlanResponse) SetPreviews(v *PreviewGtmRecoveryPlanRe
 }
 
 type PreviewGtmRecoveryPlanResponsePreviews struct {
-	Preview []*PreviewGtmRecoveryPlanResponsePreviewsPreview `json:"Preview" xml:"Preview" require:"true" type:"Repeated"`
+	Preview []*PreviewGtmRecoveryPlanResponsePreviewsPreview `json:"Preview,omitempty" xml:"Preview,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s PreviewGtmRecoveryPlanResponsePreviews) String() string {
@@ -1752,10 +2437,10 @@ func (s *PreviewGtmRecoveryPlanResponsePreviews) SetPreview(v []*PreviewGtmRecov
 }
 
 type PreviewGtmRecoveryPlanResponsePreviewsPreview struct {
-	InstanceId     *string                                                   `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Name           *string                                                   `json:"Name" xml:"Name" require:"true"`
-	UserDomainName *string                                                   `json:"UserDomainName" xml:"UserDomainName" require:"true"`
-	SwitchInfos    *PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfos `json:"SwitchInfos" xml:"SwitchInfos" require:"true" type:"Struct"`
+	InstanceId     *string                                                   `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Name           *string                                                   `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	UserDomainName *string                                                   `json:"UserDomainName,omitempty" xml:"UserDomainName,omitempty" require:"true"`
+	SwitchInfos    *PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfos `json:"SwitchInfos,omitempty" xml:"SwitchInfos,omitempty" require:"true" type:"Struct"`
 }
 
 func (s PreviewGtmRecoveryPlanResponsePreviewsPreview) String() string {
@@ -1787,7 +2472,7 @@ func (s *PreviewGtmRecoveryPlanResponsePreviewsPreview) SetSwitchInfos(v *Previe
 }
 
 type PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfos struct {
-	SwitchInfo []*PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfosSwitchInfo `json:"SwitchInfo" xml:"SwitchInfo" require:"true" type:"Repeated"`
+	SwitchInfo []*PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfosSwitchInfo `json:"SwitchInfo,omitempty" xml:"SwitchInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfos) String() string {
@@ -1804,8 +2489,8 @@ func (s *PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfos) SetSwitchInfo
 }
 
 type PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfosSwitchInfo struct {
-	StrategyName *string `json:"StrategyName" xml:"StrategyName" require:"true"`
-	Content      *string `json:"Content" xml:"Content" require:"true"`
+	StrategyName *string `json:"StrategyName,omitempty" xml:"StrategyName,omitempty" require:"true"`
+	Content      *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfosSwitchInfo) String() string {
@@ -1827,9 +2512,9 @@ func (s *PreviewGtmRecoveryPlanResponsePreviewsPreviewSwitchInfosSwitchInfo) Set
 }
 
 type GetTxtRecordForVerifyRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	DomainName *string `json:"DomainName" xml:"DomainName"`
-	Type       *string `json:"Type" xml:"Type" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s GetTxtRecordForVerifyRequest) String() string {
@@ -1856,10 +2541,10 @@ func (s *GetTxtRecordForVerifyRequest) SetType(v string) *GetTxtRecordForVerifyR
 }
 
 type GetTxtRecordForVerifyResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	RR         *string `json:"RR" xml:"RR" require:"true"`
-	Value      *string `json:"Value" xml:"Value" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	RR         *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Value      *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s GetTxtRecordForVerifyResponse) String() string {
@@ -1891,10 +2576,10 @@ func (s *GetTxtRecordForVerifyResponse) SetValue(v string) *GetTxtRecordForVerif
 }
 
 type DescribeDomainStatisticsRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	StartDate  *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate    *string `json:"EndDate" xml:"EndDate"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty" require:"true"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
 }
 
 func (s DescribeDomainStatisticsRequest) String() string {
@@ -1926,8 +2611,8 @@ func (s *DescribeDomainStatisticsRequest) SetEndDate(v string) *DescribeDomainSt
 }
 
 type DescribeDomainStatisticsResponse struct {
-	RequestId  *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Statistics *DescribeDomainStatisticsResponseStatistics `json:"Statistics" xml:"Statistics" require:"true" type:"Struct"`
+	RequestId  *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Statistics *DescribeDomainStatisticsResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainStatisticsResponse) String() string {
@@ -1949,7 +2634,7 @@ func (s *DescribeDomainStatisticsResponse) SetStatistics(v *DescribeDomainStatis
 }
 
 type DescribeDomainStatisticsResponseStatistics struct {
-	Statistic []*DescribeDomainStatisticsResponseStatisticsStatistic `json:"Statistic" xml:"Statistic" require:"true" type:"Repeated"`
+	Statistic []*DescribeDomainStatisticsResponseStatisticsStatistic `json:"Statistic,omitempty" xml:"Statistic,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainStatisticsResponseStatistics) String() string {
@@ -1966,8 +2651,8 @@ func (s *DescribeDomainStatisticsResponseStatistics) SetStatistic(v []*DescribeD
 }
 
 type DescribeDomainStatisticsResponseStatisticsStatistic struct {
-	Timestamp *int64 `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Count     *int64 `json:"Count" xml:"Count" require:"true"`
+	Timestamp *int64 `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Count     *int64 `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s DescribeDomainStatisticsResponseStatisticsStatistic) String() string {
@@ -1989,11 +2674,11 @@ func (s *DescribeDomainStatisticsResponseStatisticsStatistic) SetCount(v int64) 
 }
 
 type DescribeRecordStatisticsRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	StartDate  *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate    *string `json:"EndDate" xml:"EndDate"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Rr         *string `json:"Rr" xml:"Rr" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty" require:"true"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Rr         *string `json:"Rr,omitempty" xml:"Rr,omitempty" require:"true"`
 }
 
 func (s DescribeRecordStatisticsRequest) String() string {
@@ -2030,8 +2715,8 @@ func (s *DescribeRecordStatisticsRequest) SetRr(v string) *DescribeRecordStatist
 }
 
 type DescribeRecordStatisticsResponse struct {
-	RequestId  *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Statistics *DescribeRecordStatisticsResponseStatistics `json:"Statistics" xml:"Statistics" require:"true" type:"Struct"`
+	RequestId  *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Statistics *DescribeRecordStatisticsResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRecordStatisticsResponse) String() string {
@@ -2053,7 +2738,7 @@ func (s *DescribeRecordStatisticsResponse) SetStatistics(v *DescribeRecordStatis
 }
 
 type DescribeRecordStatisticsResponseStatistics struct {
-	Statistic []*DescribeRecordStatisticsResponseStatisticsStatistic `json:"Statistic" xml:"Statistic" require:"true" type:"Repeated"`
+	Statistic []*DescribeRecordStatisticsResponseStatisticsStatistic `json:"Statistic,omitempty" xml:"Statistic,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRecordStatisticsResponseStatistics) String() string {
@@ -2070,8 +2755,8 @@ func (s *DescribeRecordStatisticsResponseStatistics) SetStatistic(v []*DescribeR
 }
 
 type DescribeRecordStatisticsResponseStatisticsStatistic struct {
-	Timestamp *int64 `json:"Timestamp" xml:"Timestamp" require:"true"`
-	Count     *int64 `json:"Count" xml:"Count" require:"true"`
+	Timestamp *int64 `json:"Timestamp,omitempty" xml:"Timestamp,omitempty" require:"true"`
+	Count     *int64 `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s DescribeRecordStatisticsResponseStatisticsStatistic) String() string {
@@ -2093,8 +2778,8 @@ func (s *DescribeRecordStatisticsResponseStatisticsStatistic) SetCount(v int64) 
 }
 
 type DescribeGtmInstanceSystemCnameRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceSystemCnameRequest) String() string {
@@ -2116,8 +2801,8 @@ func (s *DescribeGtmInstanceSystemCnameRequest) SetInstanceId(v string) *Describ
 }
 
 type DescribeGtmInstanceSystemCnameResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SystemCname *string `json:"SystemCname" xml:"SystemCname" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SystemCname *string `json:"SystemCname,omitempty" xml:"SystemCname,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceSystemCnameResponse) String() string {
@@ -2139,10 +2824,10 @@ func (s *DescribeGtmInstanceSystemCnameResponse) SetSystemCname(v string) *Descr
 }
 
 type DescribeInstanceDomainsRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s DescribeInstanceDomainsRequest) String() string {
@@ -2174,12 +2859,12 @@ func (s *DescribeInstanceDomainsRequest) SetInstanceId(v string) *DescribeInstan
 }
 
 type DescribeInstanceDomainsResponse struct {
-	RequestId       *string                                           `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems      *int                                              `json:"TotalItems" xml:"TotalItems" require:"true"`
-	PageNumber      *int                                              `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize        *int                                              `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalPages      *int                                              `json:"TotalPages" xml:"TotalPages" require:"true"`
-	InstanceDomains []*DescribeInstanceDomainsResponseInstanceDomains `json:"InstanceDomains" xml:"InstanceDomains" require:"true" type:"Repeated"`
+	RequestId       *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems      *int                                              `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	PageNumber      *int                                              `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize        *int                                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalPages      *int                                              `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	InstanceDomains []*DescribeInstanceDomainsResponseInstanceDomains `json:"InstanceDomains,omitempty" xml:"InstanceDomains,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeInstanceDomainsResponse) String() string {
@@ -2221,9 +2906,9 @@ func (s *DescribeInstanceDomainsResponse) SetInstanceDomains(v []*DescribeInstan
 }
 
 type DescribeInstanceDomainsResponseInstanceDomains struct {
-	DomainName      *string `json:"DomainName" xml:"DomainName" require:"true"`
-	CreateTime      *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
+	DomainName      *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CreateTime      *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
 }
 
 func (s DescribeInstanceDomainsResponseInstanceDomains) String() string {
@@ -2250,9 +2935,9 @@ func (s *DescribeInstanceDomainsResponseInstanceDomains) SetCreateTimestamp(v in
 }
 
 type BindInstanceDomainsRequest struct {
-	Lang        *string `json:"Lang" xml:"Lang"`
-	InstanceId  *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	DomainNames *string `json:"DomainNames" xml:"DomainNames" require:"true"`
+	Lang        *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId  *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	DomainNames *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
 }
 
 func (s BindInstanceDomainsRequest) String() string {
@@ -2279,9 +2964,9 @@ func (s *BindInstanceDomainsRequest) SetDomainNames(v string) *BindInstanceDomai
 }
 
 type BindInstanceDomainsResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SuccessCount *int    `json:"SuccessCount" xml:"SuccessCount" require:"true"`
-	FailedCount  *int    `json:"FailedCount" xml:"FailedCount" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SuccessCount *int    `json:"SuccessCount,omitempty" xml:"SuccessCount,omitempty" require:"true"`
+	FailedCount  *int    `json:"FailedCount,omitempty" xml:"FailedCount,omitempty" require:"true"`
 }
 
 func (s BindInstanceDomainsResponse) String() string {
@@ -2308,9 +2993,9 @@ func (s *BindInstanceDomainsResponse) SetFailedCount(v int) *BindInstanceDomains
 }
 
 type UnbindInstanceDomainsRequest struct {
-	Lang        *string `json:"Lang" xml:"Lang"`
-	DomainNames *string `json:"DomainNames" xml:"DomainNames" require:"true"`
-	InstanceId  *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	Lang        *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainNames *string `json:"DomainNames,omitempty" xml:"DomainNames,omitempty" require:"true"`
+	InstanceId  *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s UnbindInstanceDomainsRequest) String() string {
@@ -2337,9 +3022,9 @@ func (s *UnbindInstanceDomainsRequest) SetInstanceId(v string) *UnbindInstanceDo
 }
 
 type UnbindInstanceDomainsResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SuccessCount *int    `json:"SuccessCount" xml:"SuccessCount" require:"true"`
-	FailedCount  *int    `json:"FailedCount" xml:"FailedCount" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SuccessCount *int    `json:"SuccessCount,omitempty" xml:"SuccessCount,omitempty" require:"true"`
+	FailedCount  *int    `json:"FailedCount,omitempty" xml:"FailedCount,omitempty" require:"true"`
 }
 
 func (s UnbindInstanceDomainsResponse) String() string {
@@ -2366,10 +3051,10 @@ func (s *UnbindInstanceDomainsResponse) SetFailedCount(v int) *UnbindInstanceDom
 }
 
 type UpdateCustomLineRequest struct {
-	Lang      *string                             `json:"Lang" xml:"Lang"`
-	LineName  *string                             `json:"LineName" xml:"LineName"`
-	IpSegment []*UpdateCustomLineRequestIpSegment `json:"IpSegment" xml:"IpSegment" type:"Repeated"`
-	LineId    *int64                              `json:"LineId" xml:"LineId" require:"true"`
+	Lang      *string                             `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	LineName  *string                             `json:"LineName,omitempty" xml:"LineName,omitempty"`
+	IpSegment []*UpdateCustomLineRequestIpSegment `json:"IpSegment,omitempty" xml:"IpSegment,omitempty" type:"Repeated"`
+	LineId    *int64                              `json:"LineId,omitempty" xml:"LineId,omitempty" require:"true"`
 }
 
 func (s UpdateCustomLineRequest) String() string {
@@ -2401,8 +3086,8 @@ func (s *UpdateCustomLineRequest) SetLineId(v int64) *UpdateCustomLineRequest {
 }
 
 type UpdateCustomLineRequestIpSegment struct {
-	StartIp *string `json:"StartIp" xml:"StartIp"`
-	EndIp   *string `json:"EndIp" xml:"EndIp"`
+	StartIp *string `json:"StartIp,omitempty" xml:"StartIp,omitempty"`
+	EndIp   *string `json:"EndIp,omitempty" xml:"EndIp,omitempty"`
 }
 
 func (s UpdateCustomLineRequestIpSegment) String() string {
@@ -2424,7 +3109,7 @@ func (s *UpdateCustomLineRequestIpSegment) SetEndIp(v string) *UpdateCustomLineR
 }
 
 type UpdateCustomLineResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateCustomLineResponse) String() string {
@@ -2441,10 +3126,10 @@ func (s *UpdateCustomLineResponse) SetRequestId(v string) *UpdateCustomLineRespo
 }
 
 type AddCustomLineRequest struct {
-	Lang       *string                          `json:"Lang" xml:"Lang"`
-	DomainName *string                          `json:"DomainName" xml:"DomainName" require:"true"`
-	LineName   *string                          `json:"LineName" xml:"LineName" require:"true"`
-	IpSegment  []*AddCustomLineRequestIpSegment `json:"IpSegment" xml:"IpSegment" require:"true" type:"Repeated"`
+	Lang       *string                          `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string                          `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	LineName   *string                          `json:"LineName,omitempty" xml:"LineName,omitempty" require:"true"`
+	IpSegment  []*AddCustomLineRequestIpSegment `json:"IpSegment,omitempty" xml:"IpSegment,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s AddCustomLineRequest) String() string {
@@ -2476,8 +3161,8 @@ func (s *AddCustomLineRequest) SetIpSegment(v []*AddCustomLineRequestIpSegment) 
 }
 
 type AddCustomLineRequestIpSegment struct {
-	StartIp *string `json:"StartIp" xml:"StartIp"`
-	EndIp   *string `json:"EndIp" xml:"EndIp"`
+	StartIp *string `json:"StartIp,omitempty" xml:"StartIp,omitempty"`
+	EndIp   *string `json:"EndIp,omitempty" xml:"EndIp,omitempty"`
 }
 
 func (s AddCustomLineRequestIpSegment) String() string {
@@ -2499,9 +3184,9 @@ func (s *AddCustomLineRequestIpSegment) SetEndIp(v string) *AddCustomLineRequest
 }
 
 type AddCustomLineResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	LineId    *int64  `json:"LineId" xml:"LineId" require:"true"`
-	LineCode  *string `json:"LineCode" xml:"LineCode" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	LineId    *int64  `json:"LineId,omitempty" xml:"LineId,omitempty" require:"true"`
+	LineCode  *string `json:"LineCode,omitempty" xml:"LineCode,omitempty" require:"true"`
 }
 
 func (s AddCustomLineResponse) String() string {
@@ -2528,8 +3213,8 @@ func (s *AddCustomLineResponse) SetLineCode(v string) *AddCustomLineResponse {
 }
 
 type DeleteCustomLinesRequest struct {
-	Lang    *string `json:"Lang" xml:"Lang"`
-	LineIds *string `json:"LineIds" xml:"LineIds" require:"true"`
+	Lang    *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	LineIds *string `json:"LineIds,omitempty" xml:"LineIds,omitempty" require:"true"`
 }
 
 func (s DeleteCustomLinesRequest) String() string {
@@ -2551,7 +3236,7 @@ func (s *DeleteCustomLinesRequest) SetLineIds(v string) *DeleteCustomLinesReques
 }
 
 type DeleteCustomLinesResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteCustomLinesResponse) String() string {
@@ -2568,8 +3253,8 @@ func (s *DeleteCustomLinesResponse) SetRequestId(v string) *DeleteCustomLinesRes
 }
 
 type DescribeCustomLineRequest struct {
-	LineId *int64  `json:"LineId" xml:"LineId"`
-	Lang   *string `json:"Lang" xml:"Lang"`
+	LineId *int64  `json:"LineId,omitempty" xml:"LineId,omitempty"`
+	Lang   *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
 }
 
 func (s DescribeCustomLineRequest) String() string {
@@ -2591,15 +3276,15 @@ func (s *DescribeCustomLineRequest) SetLang(v string) *DescribeCustomLineRequest
 }
 
 type DescribeCustomLineResponse struct {
-	RequestId       *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Id              *int64                                     `json:"Id" xml:"Id" require:"true"`
-	Name            *string                                    `json:"Name" xml:"Name" require:"true"`
-	DomainName      *string                                    `json:"DomainName" xml:"DomainName" require:"true"`
-	CreateTime      *string                                    `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp *int64                                     `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	IpSegments      *string                                    `json:"IpSegments" xml:"IpSegments" require:"true"`
-	Code            *string                                    `json:"Code" xml:"Code" require:"true"`
-	IpSegmentList   []*DescribeCustomLineResponseIpSegmentList `json:"IpSegmentList" xml:"IpSegmentList" require:"true" type:"Repeated"`
+	RequestId       *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Id              *int64                                     `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name            *string                                    `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	DomainName      *string                                    `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	CreateTime      *string                                    `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp *int64                                     `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	IpSegments      *string                                    `json:"IpSegments,omitempty" xml:"IpSegments,omitempty" require:"true"`
+	Code            *string                                    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	IpSegmentList   []*DescribeCustomLineResponseIpSegmentList `json:"IpSegmentList,omitempty" xml:"IpSegmentList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeCustomLineResponse) String() string {
@@ -2656,9 +3341,9 @@ func (s *DescribeCustomLineResponse) SetIpSegmentList(v []*DescribeCustomLineRes
 }
 
 type DescribeCustomLineResponseIpSegmentList struct {
-	Name    *string `json:"Name" xml:"Name" require:"true"`
-	StartIp *string `json:"StartIp" xml:"StartIp" require:"true"`
-	EndIp   *string `json:"EndIp" xml:"EndIp" require:"true"`
+	Name    *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	StartIp *string `json:"StartIp,omitempty" xml:"StartIp,omitempty" require:"true"`
+	EndIp   *string `json:"EndIp,omitempty" xml:"EndIp,omitempty" require:"true"`
 }
 
 func (s DescribeCustomLineResponseIpSegmentList) String() string {
@@ -2685,10 +3370,10 @@ func (s *DescribeCustomLineResponseIpSegmentList) SetEndIp(v string) *DescribeCu
 }
 
 type DescribeCustomLinesRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribeCustomLinesRequest) String() string {
@@ -2720,12 +3405,12 @@ func (s *DescribeCustomLinesRequest) SetDomainName(v string) *DescribeCustomLine
 }
 
 type DescribeCustomLinesResponse struct {
-	RequestId   *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems  *int                                      `json:"TotalItems" xml:"TotalItems" require:"true"`
-	PageNumber  *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize    *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalPages  *int                                      `json:"TotalPages" xml:"TotalPages" require:"true"`
-	CustomLines []*DescribeCustomLinesResponseCustomLines `json:"CustomLines" xml:"CustomLines" require:"true" type:"Repeated"`
+	RequestId   *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems  *int                                      `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	PageNumber  *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize    *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalPages  *int                                      `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	CustomLines []*DescribeCustomLinesResponseCustomLines `json:"CustomLines,omitempty" xml:"CustomLines,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeCustomLinesResponse) String() string {
@@ -2767,12 +3452,12 @@ func (s *DescribeCustomLinesResponse) SetCustomLines(v []*DescribeCustomLinesRes
 }
 
 type DescribeCustomLinesResponseCustomLines struct {
-	Id              *int64  `json:"Id" xml:"Id" require:"true"`
-	Name            *string `json:"Name" xml:"Name" require:"true"`
-	CreateTime      *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	IpSegments      *string `json:"IpSegments" xml:"IpSegments" require:"true"`
-	Code            *string `json:"Code" xml:"Code" require:"true"`
+	Id              *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name            *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	CreateTime      *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	IpSegments      *string `json:"IpSegments,omitempty" xml:"IpSegments,omitempty" require:"true"`
+	Code            *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
 }
 
 func (s DescribeCustomLinesResponseCustomLines) String() string {
@@ -2814,14 +3499,14 @@ func (s *DescribeCustomLinesResponseCustomLines) SetCode(v string) *DescribeCust
 }
 
 type DescribeDomainStatisticsSummaryRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	StartDate  *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate    *string `json:"EndDate" xml:"EndDate"`
-	SearchMode *string `json:"SearchMode" xml:"SearchMode"`
-	Keyword    *string `json:"Keyword" xml:"Keyword"`
-	Threshold  *int64  `json:"Threshold" xml:"Threshold"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty" require:"true"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+	SearchMode *string `json:"SearchMode,omitempty" xml:"SearchMode,omitempty"`
+	Keyword    *string `json:"Keyword,omitempty" xml:"Keyword,omitempty"`
+	Threshold  *int64  `json:"Threshold,omitempty" xml:"Threshold,omitempty"`
 }
 
 func (s DescribeDomainStatisticsSummaryRequest) String() string {
@@ -2873,12 +3558,12 @@ func (s *DescribeDomainStatisticsSummaryRequest) SetThreshold(v int64) *Describe
 }
 
 type DescribeDomainStatisticsSummaryResponse struct {
-	RequestId  *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems *int                                               `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages *int                                               `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageSize   *int                                               `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                               `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Statistics *DescribeDomainStatisticsSummaryResponseStatistics `json:"Statistics" xml:"Statistics" require:"true" type:"Struct"`
+	RequestId  *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                               `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                               `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageSize   *int                                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Statistics *DescribeDomainStatisticsSummaryResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainStatisticsSummaryResponse) String() string {
@@ -2920,7 +3605,7 @@ func (s *DescribeDomainStatisticsSummaryResponse) SetStatistics(v *DescribeDomai
 }
 
 type DescribeDomainStatisticsSummaryResponseStatistics struct {
-	Statistic []*DescribeDomainStatisticsSummaryResponseStatisticsStatistic `json:"Statistic" xml:"Statistic" require:"true" type:"Repeated"`
+	Statistic []*DescribeDomainStatisticsSummaryResponseStatisticsStatistic `json:"Statistic,omitempty" xml:"Statistic,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainStatisticsSummaryResponseStatistics) String() string {
@@ -2937,8 +3622,8 @@ func (s *DescribeDomainStatisticsSummaryResponseStatistics) SetStatistic(v []*De
 }
 
 type DescribeDomainStatisticsSummaryResponseStatisticsStatistic struct {
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Count      *int64  `json:"Count" xml:"Count" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Count      *int64  `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s DescribeDomainStatisticsSummaryResponseStatisticsStatistic) String() string {
@@ -2960,15 +3645,15 @@ func (s *DescribeDomainStatisticsSummaryResponseStatisticsStatistic) SetCount(v 
 }
 
 type DescribeRecordStatisticsSummaryRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	StartDate  *string `json:"StartDate" xml:"StartDate" require:"true"`
-	EndDate    *string `json:"EndDate" xml:"EndDate"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	SearchMode *string `json:"SearchMode" xml:"SearchMode"`
-	Keyword    *string `json:"Keyword" xml:"Keyword"`
-	Threshold  *int64  `json:"Threshold" xml:"Threshold"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty" require:"true"`
+	EndDate    *string `json:"EndDate,omitempty" xml:"EndDate,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	SearchMode *string `json:"SearchMode,omitempty" xml:"SearchMode,omitempty"`
+	Keyword    *string `json:"Keyword,omitempty" xml:"Keyword,omitempty"`
+	Threshold  *int64  `json:"Threshold,omitempty" xml:"Threshold,omitempty"`
 }
 
 func (s DescribeRecordStatisticsSummaryRequest) String() string {
@@ -3025,12 +3710,12 @@ func (s *DescribeRecordStatisticsSummaryRequest) SetThreshold(v int64) *Describe
 }
 
 type DescribeRecordStatisticsSummaryResponse struct {
-	RequestId  *string                                            `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems *int                                               `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages *int                                               `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageSize   *int                                               `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                                               `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Statistics *DescribeRecordStatisticsSummaryResponseStatistics `json:"Statistics" xml:"Statistics" require:"true" type:"Struct"`
+	RequestId  *string                                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                               `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                               `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageSize   *int                                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Statistics *DescribeRecordStatisticsSummaryResponseStatistics `json:"Statistics,omitempty" xml:"Statistics,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRecordStatisticsSummaryResponse) String() string {
@@ -3072,7 +3757,7 @@ func (s *DescribeRecordStatisticsSummaryResponse) SetStatistics(v *DescribeRecor
 }
 
 type DescribeRecordStatisticsSummaryResponseStatistics struct {
-	Statistic []*DescribeRecordStatisticsSummaryResponseStatisticsStatistic `json:"Statistic" xml:"Statistic" require:"true" type:"Repeated"`
+	Statistic []*DescribeRecordStatisticsSummaryResponseStatisticsStatistic `json:"Statistic,omitempty" xml:"Statistic,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRecordStatisticsSummaryResponseStatistics) String() string {
@@ -3089,8 +3774,8 @@ func (s *DescribeRecordStatisticsSummaryResponseStatistics) SetStatistic(v []*De
 }
 
 type DescribeRecordStatisticsSummaryResponseStatisticsStatistic struct {
-	SubDomain *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	Count     *int64  `json:"Count" xml:"Count" require:"true"`
+	SubDomain *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Count     *int64  `json:"Count,omitempty" xml:"Count,omitempty" require:"true"`
 }
 
 func (s DescribeRecordStatisticsSummaryResponseStatisticsStatistic) String() string {
@@ -3112,9 +3797,9 @@ func (s *DescribeRecordStatisticsSummaryResponseStatisticsStatistic) SetCount(v 
 }
 
 type OperateBatchDomainRequest struct {
-	Lang             *string                                      `json:"Lang" xml:"Lang"`
-	Type             *string                                      `json:"Type" xml:"Type" require:"true"`
-	DomainRecordInfo []*OperateBatchDomainRequestDomainRecordInfo `json:"DomainRecordInfo" xml:"DomainRecordInfo" require:"true" type:"Repeated"`
+	Lang             *string                                      `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	Type             *string                                      `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	DomainRecordInfo []*OperateBatchDomainRequestDomainRecordInfo `json:"DomainRecordInfo,omitempty" xml:"DomainRecordInfo,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s OperateBatchDomainRequest) String() string {
@@ -3141,16 +3826,16 @@ func (s *OperateBatchDomainRequest) SetDomainRecordInfo(v []*OperateBatchDomainR
 }
 
 type OperateBatchDomainRequestDomainRecordInfo struct {
-	Domain   *string `json:"Domain" xml:"Domain" require:"true"`
-	Type     *string `json:"Type" xml:"Type"`
-	Rr       *string `json:"Rr" xml:"Rr"`
-	Value    *string `json:"Value" xml:"Value"`
-	Ttl      *int    `json:"Ttl" xml:"Ttl"`
-	Priority *int    `json:"Priority" xml:"Priority"`
-	Line     *string `json:"Line" xml:"Line"`
-	NewRr    *string `json:"NewRr" xml:"NewRr"`
-	NewType  *string `json:"NewType" xml:"NewType"`
-	NewValue *string `json:"NewValue" xml:"NewValue"`
+	Domain   *string `json:"Domain,omitempty" xml:"Domain,omitempty" require:"true"`
+	Type     *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	Rr       *string `json:"Rr,omitempty" xml:"Rr,omitempty"`
+	Value    *string `json:"Value,omitempty" xml:"Value,omitempty"`
+	Ttl      *int    `json:"Ttl,omitempty" xml:"Ttl,omitempty"`
+	Priority *int    `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	Line     *string `json:"Line,omitempty" xml:"Line,omitempty"`
+	NewRr    *string `json:"NewRr,omitempty" xml:"NewRr,omitempty"`
+	NewType  *string `json:"NewType,omitempty" xml:"NewType,omitempty"`
+	NewValue *string `json:"NewValue,omitempty" xml:"NewValue,omitempty"`
 }
 
 func (s OperateBatchDomainRequestDomainRecordInfo) String() string {
@@ -3212,8 +3897,8 @@ func (s *OperateBatchDomainRequestDomainRecordInfo) SetNewValue(v string) *Opera
 }
 
 type OperateBatchDomainResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TaskId    *int64  `json:"TaskId" xml:"TaskId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TaskId    *int64  `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
 }
 
 func (s OperateBatchDomainResponse) String() string {
@@ -3235,12 +3920,12 @@ func (s *OperateBatchDomainResponse) SetTaskId(v int64) *OperateBatchDomainRespo
 }
 
 type DescribeBatchResultDetailRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
-	TaskId     *int64  `json:"TaskId" xml:"TaskId"`
-	BatchType  *string `json:"BatchType" xml:"BatchType"`
-	Status     *string `json:"Status" xml:"Status"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	TaskId     *int64  `json:"TaskId,omitempty" xml:"TaskId,omitempty"`
+	BatchType  *string `json:"BatchType,omitempty" xml:"BatchType,omitempty"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty"`
 }
 
 func (s DescribeBatchResultDetailRequest) String() string {
@@ -3282,11 +3967,11 @@ func (s *DescribeBatchResultDetailRequest) SetStatus(v string) *DescribeBatchRes
 }
 
 type DescribeBatchResultDetailResponse struct {
-	RequestId          *string                                              `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount         *int64                                               `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber         *int64                                               `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize           *int64                                               `json:"PageSize" xml:"PageSize" require:"true"`
-	BatchResultDetails *DescribeBatchResultDetailResponseBatchResultDetails `json:"BatchResultDetails" xml:"BatchResultDetails" require:"true" type:"Struct"`
+	RequestId          *string                                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount         *int64                                               `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber         *int64                                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize           *int64                                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	BatchResultDetails *DescribeBatchResultDetailResponseBatchResultDetails `json:"BatchResultDetails,omitempty" xml:"BatchResultDetails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeBatchResultDetailResponse) String() string {
@@ -3323,7 +4008,7 @@ func (s *DescribeBatchResultDetailResponse) SetBatchResultDetails(v *DescribeBat
 }
 
 type DescribeBatchResultDetailResponseBatchResultDetails struct {
-	BatchResultDetail []*DescribeBatchResultDetailResponseBatchResultDetailsBatchResultDetail `json:"BatchResultDetail" xml:"BatchResultDetail" require:"true" type:"Repeated"`
+	BatchResultDetail []*DescribeBatchResultDetailResponseBatchResultDetailsBatchResultDetail `json:"BatchResultDetail,omitempty" xml:"BatchResultDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeBatchResultDetailResponseBatchResultDetails) String() string {
@@ -3340,22 +4025,22 @@ func (s *DescribeBatchResultDetailResponseBatchResultDetails) SetBatchResultDeta
 }
 
 type DescribeBatchResultDetailResponseBatchResultDetailsBatchResultDetail struct {
-	Domain         *string `json:"Domain" xml:"Domain" require:"true"`
-	Type           *string `json:"Type" xml:"Type" require:"true"`
-	Rr             *string `json:"Rr" xml:"Rr" require:"true"`
-	Value          *string `json:"Value" xml:"Value" require:"true"`
-	Status         *bool   `json:"Status" xml:"Status" require:"true"`
-	Reason         *string `json:"Reason" xml:"Reason" require:"true"`
-	NewRr          *string `json:"NewRr" xml:"NewRr" require:"true"`
-	NewValue       *string `json:"NewValue" xml:"NewValue" require:"true"`
-	BatchType      *string `json:"BatchType" xml:"BatchType" require:"true"`
-	OperateDateStr *string `json:"OperateDateStr" xml:"OperateDateStr" require:"true"`
-	Line           *string `json:"Line" xml:"Line" require:"true"`
-	Priority       *string `json:"Priority" xml:"Priority" require:"true"`
-	Ttl            *string `json:"Ttl" xml:"Ttl" require:"true"`
-	RecordId       *string `json:"RecordId" xml:"RecordId" require:"true"`
-	Remark         *string `json:"Remark" xml:"Remark" require:"true"`
-	RrStatus       *string `json:"RrStatus" xml:"RrStatus" require:"true"`
+	Domain         *string `json:"Domain,omitempty" xml:"Domain,omitempty" require:"true"`
+	Type           *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Rr             *string `json:"Rr,omitempty" xml:"Rr,omitempty" require:"true"`
+	Value          *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	Status         *bool   `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Reason         *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	NewRr          *string `json:"NewRr,omitempty" xml:"NewRr,omitempty" require:"true"`
+	NewValue       *string `json:"NewValue,omitempty" xml:"NewValue,omitempty" require:"true"`
+	BatchType      *string `json:"BatchType,omitempty" xml:"BatchType,omitempty" require:"true"`
+	OperateDateStr *string `json:"OperateDateStr,omitempty" xml:"OperateDateStr,omitempty" require:"true"`
+	Line           *string `json:"Line,omitempty" xml:"Line,omitempty" require:"true"`
+	Priority       *string `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
+	Ttl            *string `json:"Ttl,omitempty" xml:"Ttl,omitempty" require:"true"`
+	RecordId       *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	Remark         *string `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
+	RrStatus       *string `json:"RrStatus,omitempty" xml:"RrStatus,omitempty" require:"true"`
 }
 
 func (s DescribeBatchResultDetailResponseBatchResultDetailsBatchResultDetail) String() string {
@@ -3447,9 +4132,9 @@ func (s *DescribeBatchResultDetailResponseBatchResultDetailsBatchResultDetail) S
 }
 
 type DescribeBatchResultCountRequest struct {
-	Lang      *string `json:"Lang" xml:"Lang"`
-	TaskId    *int64  `json:"TaskId" xml:"TaskId"`
-	BatchType *string `json:"BatchType" xml:"BatchType"`
+	Lang      *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	TaskId    *int64  `json:"TaskId,omitempty" xml:"TaskId,omitempty"`
+	BatchType *string `json:"BatchType,omitempty" xml:"BatchType,omitempty"`
 }
 
 func (s DescribeBatchResultCountRequest) String() string {
@@ -3476,14 +4161,14 @@ func (s *DescribeBatchResultCountRequest) SetBatchType(v string) *DescribeBatchR
 }
 
 type DescribeBatchResultCountResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Status       *int    `json:"Status" xml:"Status" require:"true"`
-	TotalCount   *int    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	SuccessCount *int    `json:"SuccessCount" xml:"SuccessCount" require:"true"`
-	FailedCount  *int    `json:"FailedCount" xml:"FailedCount" require:"true"`
-	Reason       *string `json:"Reason" xml:"Reason" require:"true"`
-	BatchType    *string `json:"BatchType" xml:"BatchType" require:"true"`
-	TaskId       *int64  `json:"TaskId" xml:"TaskId" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Status       *int    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	TotalCount   *int    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	SuccessCount *int    `json:"SuccessCount,omitempty" xml:"SuccessCount,omitempty" require:"true"`
+	FailedCount  *int    `json:"FailedCount,omitempty" xml:"FailedCount,omitempty" require:"true"`
+	Reason       *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	BatchType    *string `json:"BatchType,omitempty" xml:"BatchType,omitempty" require:"true"`
+	TaskId       *int64  `json:"TaskId,omitempty" xml:"TaskId,omitempty" require:"true"`
 }
 
 func (s DescribeBatchResultCountResponse) String() string {
@@ -3535,9 +4220,9 @@ func (s *DescribeBatchResultCountResponse) SetTaskId(v int64) *DescribeBatchResu
 }
 
 type SetGtmAccessModeRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	StrategyId *string `json:"StrategyId" xml:"StrategyId" require:"true"`
-	AccessMode *string `json:"AccessMode" xml:"AccessMode" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StrategyId *string `json:"StrategyId,omitempty" xml:"StrategyId,omitempty" require:"true"`
+	AccessMode *string `json:"AccessMode,omitempty" xml:"AccessMode,omitempty" require:"true"`
 }
 
 func (s SetGtmAccessModeRequest) String() string {
@@ -3564,7 +4249,7 @@ func (s *SetGtmAccessModeRequest) SetAccessMode(v string) *SetGtmAccessModeReque
 }
 
 type SetGtmAccessModeResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetGtmAccessModeResponse) String() string {
@@ -3581,9 +4266,9 @@ func (s *SetGtmAccessModeResponse) SetRequestId(v string) *SetGtmAccessModeRespo
 }
 
 type SetGtmMonitorStatusRequest struct {
-	Lang            *string `json:"Lang" xml:"Lang"`
-	MonitorConfigId *string `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
-	Status          *string `json:"Status" xml:"Status" require:"true"`
+	Lang            *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	MonitorConfigId *string `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
+	Status          *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s SetGtmMonitorStatusRequest) String() string {
@@ -3610,7 +4295,7 @@ func (s *SetGtmMonitorStatusRequest) SetStatus(v string) *SetGtmMonitorStatusReq
 }
 
 type SetGtmMonitorStatusResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s SetGtmMonitorStatusResponse) String() string {
@@ -3627,15 +4312,15 @@ func (s *SetGtmMonitorStatusResponse) SetRequestId(v string) *SetGtmMonitorStatu
 }
 
 type UpdateGtmInstanceGlobalConfigRequest struct {
-	Lang                  *string `json:"Lang" xml:"Lang"`
-	InstanceId            *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceName          *string `json:"InstanceName" xml:"InstanceName"`
-	Ttl                   *int    `json:"Ttl" xml:"Ttl"`
-	UserDomainName        *string `json:"UserDomainName" xml:"UserDomainName"`
-	LbaStrategy           *string `json:"LbaStrategy" xml:"LbaStrategy"`
-	AlertGroup            *string `json:"AlertGroup" xml:"AlertGroup"`
-	CnameMode             *string `json:"CnameMode" xml:"CnameMode"`
-	CnameCustomDomainName *string `json:"CnameCustomDomainName" xml:"CnameCustomDomainName"`
+	Lang                  *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId            *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceName          *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty"`
+	Ttl                   *int    `json:"Ttl,omitempty" xml:"Ttl,omitempty"`
+	UserDomainName        *string `json:"UserDomainName,omitempty" xml:"UserDomainName,omitempty"`
+	LbaStrategy           *string `json:"LbaStrategy,omitempty" xml:"LbaStrategy,omitempty"`
+	AlertGroup            *string `json:"AlertGroup,omitempty" xml:"AlertGroup,omitempty"`
+	CnameMode             *string `json:"CnameMode,omitempty" xml:"CnameMode,omitempty"`
+	CnameCustomDomainName *string `json:"CnameCustomDomainName,omitempty" xml:"CnameCustomDomainName,omitempty"`
 }
 
 func (s UpdateGtmInstanceGlobalConfigRequest) String() string {
@@ -3692,7 +4377,7 @@ func (s *UpdateGtmInstanceGlobalConfigRequest) SetCnameCustomDomainName(v string
 }
 
 type UpdateGtmInstanceGlobalConfigResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateGtmInstanceGlobalConfigResponse) String() string {
@@ -3709,13 +4394,13 @@ func (s *UpdateGtmInstanceGlobalConfigResponse) SetRequestId(v string) *UpdateGt
 }
 
 type DescribeGtmLogsRequest struct {
-	Lang           *string `json:"Lang" xml:"Lang"`
-	InstanceId     *string `json:"InstanceId" xml:"InstanceId"`
-	Keyword        *string `json:"Keyword" xml:"Keyword"`
-	PageNumber     *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize       *int    `json:"PageSize" xml:"PageSize"`
-	StartTimestamp *int64  `json:"StartTimestamp" xml:"StartTimestamp"`
-	EndTimestamp   *int64  `json:"EndTimestamp" xml:"EndTimestamp"`
+	Lang           *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId     *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	Keyword        *string `json:"Keyword,omitempty" xml:"Keyword,omitempty"`
+	PageNumber     *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize       *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartTimestamp *int64  `json:"StartTimestamp,omitempty" xml:"StartTimestamp,omitempty"`
+	EndTimestamp   *int64  `json:"EndTimestamp,omitempty" xml:"EndTimestamp,omitempty"`
 }
 
 func (s DescribeGtmLogsRequest) String() string {
@@ -3762,12 +4447,12 @@ func (s *DescribeGtmLogsRequest) SetEndTimestamp(v int64) *DescribeGtmLogsReques
 }
 
 type DescribeGtmLogsResponse struct {
-	RequestId  *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems *int                         `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages *int                         `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageSize   *int                         `json:"PageSize" xml:"PageSize" require:"true"`
-	PageNumber *int                         `json:"PageNumber" xml:"PageNumber" require:"true"`
-	Logs       *DescribeGtmLogsResponseLogs `json:"Logs" xml:"Logs" require:"true" type:"Struct"`
+	RequestId  *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                         `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                         `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageSize   *int                         `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	PageNumber *int                         `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	Logs       *DescribeGtmLogsResponseLogs `json:"Logs,omitempty" xml:"Logs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmLogsResponse) String() string {
@@ -3809,7 +4494,7 @@ func (s *DescribeGtmLogsResponse) SetLogs(v *DescribeGtmLogsResponseLogs) *Descr
 }
 
 type DescribeGtmLogsResponseLogs struct {
-	Log []*DescribeGtmLogsResponseLogsLog `json:"Log" xml:"Log" require:"true" type:"Repeated"`
+	Log []*DescribeGtmLogsResponseLogsLog `json:"Log,omitempty" xml:"Log,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmLogsResponseLogs) String() string {
@@ -3826,15 +4511,15 @@ func (s *DescribeGtmLogsResponseLogs) SetLog(v []*DescribeGtmLogsResponseLogsLog
 }
 
 type DescribeGtmLogsResponseLogsLog struct {
-	OperTime      *string `json:"OperTime" xml:"OperTime" require:"true"`
-	OperAction    *string `json:"OperAction" xml:"OperAction" require:"true"`
-	EntityType    *string `json:"EntityType" xml:"EntityType" require:"true"`
-	EntityId      *string `json:"EntityId" xml:"EntityId" require:"true"`
-	EntityName    *string `json:"EntityName" xml:"EntityName" require:"true"`
-	OperIp        *string `json:"OperIp" xml:"OperIp" require:"true"`
-	OperTimestamp *int64  `json:"OperTimestamp" xml:"OperTimestamp" require:"true"`
-	Id            *int64  `json:"Id" xml:"Id" require:"true"`
-	Content       *string `json:"Content" xml:"Content" require:"true"`
+	OperTime      *string `json:"OperTime,omitempty" xml:"OperTime,omitempty" require:"true"`
+	OperAction    *string `json:"OperAction,omitempty" xml:"OperAction,omitempty" require:"true"`
+	EntityType    *string `json:"EntityType,omitempty" xml:"EntityType,omitempty" require:"true"`
+	EntityId      *string `json:"EntityId,omitempty" xml:"EntityId,omitempty" require:"true"`
+	EntityName    *string `json:"EntityName,omitempty" xml:"EntityName,omitempty" require:"true"`
+	OperIp        *string `json:"OperIp,omitempty" xml:"OperIp,omitempty" require:"true"`
+	OperTimestamp *int64  `json:"OperTimestamp,omitempty" xml:"OperTimestamp,omitempty" require:"true"`
+	Id            *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Content       *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s DescribeGtmLogsResponseLogsLog) String() string {
@@ -3891,8 +4576,8 @@ func (s *DescribeGtmLogsResponseLogsLog) SetContent(v string) *DescribeGtmLogsRe
 }
 
 type DeleteGtmAccessStrategyRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	StrategyId *string `json:"StrategyId" xml:"StrategyId"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StrategyId *string `json:"StrategyId,omitempty" xml:"StrategyId,omitempty"`
 }
 
 func (s DeleteGtmAccessStrategyRequest) String() string {
@@ -3914,7 +4599,7 @@ func (s *DeleteGtmAccessStrategyRequest) SetStrategyId(v string) *DeleteGtmAcces
 }
 
 type DeleteGtmAccessStrategyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteGtmAccessStrategyResponse) String() string {
@@ -3931,14 +4616,14 @@ func (s *DeleteGtmAccessStrategyResponse) SetRequestId(v string) *DeleteGtmAcces
 }
 
 type AddGtmMonitorRequest struct {
-	Lang              *string                            `json:"Lang" xml:"Lang"`
-	AddrPoolId        *string                            `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	ProtocolType      *string                            `json:"ProtocolType" xml:"ProtocolType" require:"true"`
-	Interval          *int                               `json:"Interval" xml:"Interval" require:"true"`
-	EvaluationCount   *int                               `json:"EvaluationCount" xml:"EvaluationCount" require:"true"`
-	Timeout           *int                               `json:"Timeout" xml:"Timeout" require:"true"`
-	MonitorExtendInfo *string                            `json:"MonitorExtendInfo" xml:"MonitorExtendInfo" require:"true"`
-	IspCityNode       []*AddGtmMonitorRequestIspCityNode `json:"IspCityNode" xml:"IspCityNode" require:"true" type:"Repeated"`
+	Lang              *string                            `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	AddrPoolId        *string                            `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	ProtocolType      *string                            `json:"ProtocolType,omitempty" xml:"ProtocolType,omitempty" require:"true"`
+	Interval          *int                               `json:"Interval,omitempty" xml:"Interval,omitempty" require:"true"`
+	EvaluationCount   *int                               `json:"EvaluationCount,omitempty" xml:"EvaluationCount,omitempty" require:"true"`
+	Timeout           *int                               `json:"Timeout,omitempty" xml:"Timeout,omitempty" require:"true"`
+	MonitorExtendInfo *string                            `json:"MonitorExtendInfo,omitempty" xml:"MonitorExtendInfo,omitempty" require:"true"`
+	IspCityNode       []*AddGtmMonitorRequestIspCityNode `json:"IspCityNode,omitempty" xml:"IspCityNode,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s AddGtmMonitorRequest) String() string {
@@ -3990,8 +4675,8 @@ func (s *AddGtmMonitorRequest) SetIspCityNode(v []*AddGtmMonitorRequestIspCityNo
 }
 
 type AddGtmMonitorRequestIspCityNode struct {
-	CityCode *string `json:"CityCode" xml:"CityCode" require:"true"`
-	IspCode  *string `json:"IspCode" xml:"IspCode" require:"true"`
+	CityCode *string `json:"CityCode,omitempty" xml:"CityCode,omitempty" require:"true"`
+	IspCode  *string `json:"IspCode,omitempty" xml:"IspCode,omitempty" require:"true"`
 }
 
 func (s AddGtmMonitorRequestIspCityNode) String() string {
@@ -4013,8 +4698,8 @@ func (s *AddGtmMonitorRequestIspCityNode) SetIspCode(v string) *AddGtmMonitorReq
 }
 
 type AddGtmMonitorResponse struct {
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	MonitorConfigId *string `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MonitorConfigId *string `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
 }
 
 func (s AddGtmMonitorResponse) String() string {
@@ -4036,19 +4721,19 @@ func (s *AddGtmMonitorResponse) SetMonitorConfigId(v string) *AddGtmMonitorRespo
 }
 
 type AddGtmAddressPoolRequest struct {
-	Lang                *string                                `json:"Lang" xml:"Lang"`
-	InstanceId          *string                                `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Name                *string                                `json:"Name" xml:"Name" require:"true"`
-	Type                *string                                `json:"Type" xml:"Type" require:"true"`
-	MinAvailableAddrNum *int                                   `json:"MinAvailableAddrNum" xml:"MinAvailableAddrNum" require:"true"`
-	Addr                []*AddGtmAddressPoolRequestAddr        `json:"Addr" xml:"Addr" require:"true" type:"Repeated"`
-	MonitorStatus       *string                                `json:"MonitorStatus" xml:"MonitorStatus"`
-	ProtocolType        *string                                `json:"ProtocolType" xml:"ProtocolType"`
-	Interval            *int                                   `json:"Interval" xml:"Interval"`
-	EvaluationCount     *int                                   `json:"EvaluationCount" xml:"EvaluationCount"`
-	Timeout             *int                                   `json:"Timeout" xml:"Timeout"`
-	MonitorExtendInfo   *string                                `json:"MonitorExtendInfo" xml:"MonitorExtendInfo"`
-	IspCityNode         []*AddGtmAddressPoolRequestIspCityNode `json:"IspCityNode" xml:"IspCityNode" type:"Repeated"`
+	Lang                *string                                `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId          *string                                `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Name                *string                                `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Type                *string                                `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	MinAvailableAddrNum *int                                   `json:"MinAvailableAddrNum,omitempty" xml:"MinAvailableAddrNum,omitempty" require:"true"`
+	Addr                []*AddGtmAddressPoolRequestAddr        `json:"Addr,omitempty" xml:"Addr,omitempty" require:"true" type:"Repeated"`
+	MonitorStatus       *string                                `json:"MonitorStatus,omitempty" xml:"MonitorStatus,omitempty"`
+	ProtocolType        *string                                `json:"ProtocolType,omitempty" xml:"ProtocolType,omitempty"`
+	Interval            *int                                   `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	EvaluationCount     *int                                   `json:"EvaluationCount,omitempty" xml:"EvaluationCount,omitempty"`
+	Timeout             *int                                   `json:"Timeout,omitempty" xml:"Timeout,omitempty"`
+	MonitorExtendInfo   *string                                `json:"MonitorExtendInfo,omitempty" xml:"MonitorExtendInfo,omitempty"`
+	IspCityNode         []*AddGtmAddressPoolRequestIspCityNode `json:"IspCityNode,omitempty" xml:"IspCityNode,omitempty" type:"Repeated"`
 }
 
 func (s AddGtmAddressPoolRequest) String() string {
@@ -4125,9 +4810,9 @@ func (s *AddGtmAddressPoolRequest) SetIspCityNode(v []*AddGtmAddressPoolRequestI
 }
 
 type AddGtmAddressPoolRequestAddr struct {
-	Value     *string `json:"Value" xml:"Value" require:"true"`
-	LbaWeight *int    `json:"LbaWeight" xml:"LbaWeight" require:"true"`
-	Mode      *string `json:"Mode" xml:"Mode" require:"true"`
+	Value     *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	LbaWeight *int    `json:"LbaWeight,omitempty" xml:"LbaWeight,omitempty" require:"true"`
+	Mode      *string `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
 }
 
 func (s AddGtmAddressPoolRequestAddr) String() string {
@@ -4154,8 +4839,8 @@ func (s *AddGtmAddressPoolRequestAddr) SetMode(v string) *AddGtmAddressPoolReque
 }
 
 type AddGtmAddressPoolRequestIspCityNode struct {
-	CityCode *string `json:"CityCode" xml:"CityCode"`
-	IspCode  *string `json:"IspCode" xml:"IspCode"`
+	CityCode *string `json:"CityCode,omitempty" xml:"CityCode,omitempty"`
+	IspCode  *string `json:"IspCode,omitempty" xml:"IspCode,omitempty"`
 }
 
 func (s AddGtmAddressPoolRequestIspCityNode) String() string {
@@ -4177,9 +4862,9 @@ func (s *AddGtmAddressPoolRequestIspCityNode) SetIspCode(v string) *AddGtmAddres
 }
 
 type AddGtmAddressPoolResponse struct {
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AddrPoolId      *string `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	MonitorConfigId *string `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AddrPoolId      *string `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	MonitorConfigId *string `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
 }
 
 func (s AddGtmAddressPoolResponse) String() string {
@@ -4206,12 +4891,12 @@ func (s *AddGtmAddressPoolResponse) SetMonitorConfigId(v string) *AddGtmAddressP
 }
 
 type AddGtmAccessStrategyRequest struct {
-	Lang               *string `json:"Lang" xml:"Lang"`
-	InstanceId         *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	StrategyName       *string `json:"StrategyName" xml:"StrategyName" require:"true"`
-	DefaultAddrPoolId  *string `json:"DefaultAddrPoolId" xml:"DefaultAddrPoolId" require:"true"`
-	FailoverAddrPoolId *string `json:"FailoverAddrPoolId" xml:"FailoverAddrPoolId" require:"true"`
-	AccessLines        *string `json:"AccessLines" xml:"AccessLines" require:"true"`
+	Lang               *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId         *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	StrategyName       *string `json:"StrategyName,omitempty" xml:"StrategyName,omitempty" require:"true"`
+	DefaultAddrPoolId  *string `json:"DefaultAddrPoolId,omitempty" xml:"DefaultAddrPoolId,omitempty" require:"true"`
+	FailoverAddrPoolId *string `json:"FailoverAddrPoolId,omitempty" xml:"FailoverAddrPoolId,omitempty" require:"true"`
+	AccessLines        *string `json:"AccessLines,omitempty" xml:"AccessLines,omitempty" require:"true"`
 }
 
 func (s AddGtmAccessStrategyRequest) String() string {
@@ -4253,8 +4938,8 @@ func (s *AddGtmAccessStrategyRequest) SetAccessLines(v string) *AddGtmAccessStra
 }
 
 type AddGtmAccessStrategyResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	StrategyId *string `json:"StrategyId" xml:"StrategyId" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StrategyId *string `json:"StrategyId,omitempty" xml:"StrategyId,omitempty" require:"true"`
 }
 
 func (s AddGtmAccessStrategyResponse) String() string {
@@ -4276,12 +4961,12 @@ func (s *AddGtmAccessStrategyResponse) SetStrategyId(v string) *AddGtmAccessStra
 }
 
 type DescribeGtmInstancesRequest struct {
-	Lang                 *string `json:"Lang" xml:"Lang"`
-	PageNumber           *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
-	Keyword              *string `json:"Keyword" xml:"Keyword"`
-	ResourceGroupId      *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	NeedDetailAttributes *bool   `json:"NeedDetailAttributes" xml:"NeedDetailAttributes"`
+	Lang                 *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	PageNumber           *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize             *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Keyword              *string `json:"Keyword,omitempty" xml:"Keyword,omitempty"`
+	ResourceGroupId      *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	NeedDetailAttributes *bool   `json:"NeedDetailAttributes,omitempty" xml:"NeedDetailAttributes,omitempty"`
 }
 
 func (s DescribeGtmInstancesRequest) String() string {
@@ -4323,12 +5008,12 @@ func (s *DescribeGtmInstancesRequest) SetNeedDetailAttributes(v bool) *DescribeG
 }
 
 type DescribeGtmInstancesResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber   *int                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize     *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalItems   *int                                      `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages   *int                                      `json:"TotalPages" xml:"TotalPages" require:"true"`
-	GtmInstances *DescribeGtmInstancesResponseGtmInstances `json:"GtmInstances" xml:"GtmInstances" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber   *int                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize     *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalItems   *int                                      `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages   *int                                      `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	GtmInstances *DescribeGtmInstancesResponseGtmInstances `json:"GtmInstances,omitempty" xml:"GtmInstances,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmInstancesResponse) String() string {
@@ -4370,7 +5055,7 @@ func (s *DescribeGtmInstancesResponse) SetGtmInstances(v *DescribeGtmInstancesRe
 }
 
 type DescribeGtmInstancesResponseGtmInstances struct {
-	GtmInstance []*DescribeGtmInstancesResponseGtmInstancesGtmInstance `json:"GtmInstance" xml:"GtmInstance" require:"true" type:"Repeated"`
+	GtmInstance []*DescribeGtmInstancesResponseGtmInstancesGtmInstance `json:"GtmInstance,omitempty" xml:"GtmInstance,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmInstancesResponseGtmInstances) String() string {
@@ -4387,21 +5072,21 @@ func (s *DescribeGtmInstancesResponseGtmInstances) SetGtmInstance(v []*DescribeG
 }
 
 type DescribeGtmInstancesResponseGtmInstancesGtmInstance struct {
-	InstanceId        *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceName      *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	Cname             *string `json:"Cname" xml:"Cname" require:"true"`
-	UserDomainName    *string `json:"UserDomainName" xml:"UserDomainName" require:"true"`
-	VersionCode       *string `json:"VersionCode" xml:"VersionCode" require:"true"`
-	Ttl               *int    `json:"Ttl" xml:"Ttl" require:"true"`
-	LbaStrategy       *string `json:"LbaStrategy" xml:"LbaStrategy" require:"true"`
-	CreateTime        *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp   *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	ExpireTime        *string `json:"ExpireTime" xml:"ExpireTime" require:"true"`
-	ExpireTimestamp   *int64  `json:"ExpireTimestamp" xml:"ExpireTimestamp" require:"true"`
-	AlertGroup        *string `json:"AlertGroup" xml:"AlertGroup" require:"true"`
-	CnameMode         *string `json:"CnameMode" xml:"CnameMode" require:"true"`
-	AccessStrategyNum *int    `json:"AccessStrategyNum" xml:"AccessStrategyNum" require:"true"`
-	AddressPoolNum    *int    `json:"AddressPoolNum" xml:"AddressPoolNum" require:"true"`
+	InstanceId        *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceName      *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	Cname             *string `json:"Cname,omitempty" xml:"Cname,omitempty" require:"true"`
+	UserDomainName    *string `json:"UserDomainName,omitempty" xml:"UserDomainName,omitempty" require:"true"`
+	VersionCode       *string `json:"VersionCode,omitempty" xml:"VersionCode,omitempty" require:"true"`
+	Ttl               *int    `json:"Ttl,omitempty" xml:"Ttl,omitempty" require:"true"`
+	LbaStrategy       *string `json:"LbaStrategy,omitempty" xml:"LbaStrategy,omitempty" require:"true"`
+	CreateTime        *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp   *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	ExpireTime        *string `json:"ExpireTime,omitempty" xml:"ExpireTime,omitempty" require:"true"`
+	ExpireTimestamp   *int64  `json:"ExpireTimestamp,omitempty" xml:"ExpireTimestamp,omitempty" require:"true"`
+	AlertGroup        *string `json:"AlertGroup,omitempty" xml:"AlertGroup,omitempty" require:"true"`
+	CnameMode         *string `json:"CnameMode,omitempty" xml:"CnameMode,omitempty" require:"true"`
+	AccessStrategyNum *int    `json:"AccessStrategyNum,omitempty" xml:"AccessStrategyNum,omitempty" require:"true"`
+	AddressPoolNum    *int    `json:"AddressPoolNum,omitempty" xml:"AddressPoolNum,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstancesResponseGtmInstancesGtmInstance) String() string {
@@ -4488,8 +5173,8 @@ func (s *DescribeGtmInstancesResponseGtmInstancesGtmInstance) SetAddressPoolNum(
 }
 
 type DeleteGtmAddressPoolRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	AddrPoolId *string `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	AddrPoolId *string `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
 }
 
 func (s DeleteGtmAddressPoolRequest) String() string {
@@ -4511,7 +5196,7 @@ func (s *DeleteGtmAddressPoolRequest) SetAddrPoolId(v string) *DeleteGtmAddressP
 }
 
 type DeleteGtmAddressPoolResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteGtmAddressPoolResponse) String() string {
@@ -4528,10 +5213,10 @@ func (s *DeleteGtmAddressPoolResponse) SetRequestId(v string) *DeleteGtmAddressP
 }
 
 type DescribeGtmAccessStrategiesRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeGtmAccessStrategiesRequest) String() string {
@@ -4563,12 +5248,12 @@ func (s *DescribeGtmAccessStrategiesRequest) SetPageSize(v int) *DescribeGtmAcce
 }
 
 type DescribeGtmAccessStrategiesResponse struct {
-	RequestId  *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems *int                                           `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages *int                                           `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageNumber *int                                           `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                                           `json:"PageSize" xml:"PageSize" require:"true"`
-	Strategies *DescribeGtmAccessStrategiesResponseStrategies `json:"Strategies" xml:"Strategies" require:"true" type:"Struct"`
+	RequestId  *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                           `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                           `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageNumber *int                                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Strategies *DescribeGtmAccessStrategiesResponseStrategies `json:"Strategies,omitempty" xml:"Strategies,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmAccessStrategiesResponse) String() string {
@@ -4610,7 +5295,7 @@ func (s *DescribeGtmAccessStrategiesResponse) SetStrategies(v *DescribeGtmAccess
 }
 
 type DescribeGtmAccessStrategiesResponseStrategies struct {
-	Strategy []*DescribeGtmAccessStrategiesResponseStrategiesStrategy `json:"Strategy" xml:"Strategy" require:"true" type:"Repeated"`
+	Strategy []*DescribeGtmAccessStrategiesResponseStrategiesStrategy `json:"Strategy,omitempty" xml:"Strategy,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmAccessStrategiesResponseStrategies) String() string {
@@ -4627,23 +5312,23 @@ func (s *DescribeGtmAccessStrategiesResponseStrategies) SetStrategy(v []*Describ
 }
 
 type DescribeGtmAccessStrategiesResponseStrategiesStrategy struct {
-	StrategyId                    *string                                                     `json:"StrategyId" xml:"StrategyId" require:"true"`
-	StrategyName                  *string                                                     `json:"StrategyName" xml:"StrategyName" require:"true"`
-	CreateTime                    *string                                                     `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp               *int64                                                      `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	DefaultAddrPoolId             *string                                                     `json:"DefaultAddrPoolId" xml:"DefaultAddrPoolId" require:"true"`
-	DefaultAddrPoolName           *string                                                     `json:"DefaultAddrPoolName" xml:"DefaultAddrPoolName" require:"true"`
-	FailoverAddrPoolId            *string                                                     `json:"FailoverAddrPoolId" xml:"FailoverAddrPoolId" require:"true"`
-	FailoverAddrPoolName          *string                                                     `json:"FailoverAddrPoolName" xml:"FailoverAddrPoolName" require:"true"`
-	AccessMode                    *string                                                     `json:"AccessMode" xml:"AccessMode" require:"true"`
-	AccessStatus                  *string                                                     `json:"AccessStatus" xml:"AccessStatus" require:"true"`
-	StrategyMode                  *string                                                     `json:"StrategyMode" xml:"StrategyMode" require:"true"`
-	InstanceId                    *string                                                     `json:"InstanceId" xml:"InstanceId" require:"true"`
-	DefaultAddrPoolStatus         *string                                                     `json:"DefaultAddrPoolStatus" xml:"DefaultAddrPoolStatus" require:"true"`
-	FailoverAddrPoolStatus        *string                                                     `json:"FailoverAddrPoolStatus" xml:"FailoverAddrPoolStatus" require:"true"`
-	DefaultAddrPoolMonitorStatus  *string                                                     `json:"DefaultAddrPoolMonitorStatus" xml:"DefaultAddrPoolMonitorStatus" require:"true"`
-	FailoverAddrPoolMonitorStatus *string                                                     `json:"FailoverAddrPoolMonitorStatus" xml:"FailoverAddrPoolMonitorStatus" require:"true"`
-	Lines                         *DescribeGtmAccessStrategiesResponseStrategiesStrategyLines `json:"Lines" xml:"Lines" require:"true" type:"Struct"`
+	StrategyId                    *string                                                     `json:"StrategyId,omitempty" xml:"StrategyId,omitempty" require:"true"`
+	StrategyName                  *string                                                     `json:"StrategyName,omitempty" xml:"StrategyName,omitempty" require:"true"`
+	CreateTime                    *string                                                     `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp               *int64                                                      `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	DefaultAddrPoolId             *string                                                     `json:"DefaultAddrPoolId,omitempty" xml:"DefaultAddrPoolId,omitempty" require:"true"`
+	DefaultAddrPoolName           *string                                                     `json:"DefaultAddrPoolName,omitempty" xml:"DefaultAddrPoolName,omitempty" require:"true"`
+	FailoverAddrPoolId            *string                                                     `json:"FailoverAddrPoolId,omitempty" xml:"FailoverAddrPoolId,omitempty" require:"true"`
+	FailoverAddrPoolName          *string                                                     `json:"FailoverAddrPoolName,omitempty" xml:"FailoverAddrPoolName,omitempty" require:"true"`
+	AccessMode                    *string                                                     `json:"AccessMode,omitempty" xml:"AccessMode,omitempty" require:"true"`
+	AccessStatus                  *string                                                     `json:"AccessStatus,omitempty" xml:"AccessStatus,omitempty" require:"true"`
+	StrategyMode                  *string                                                     `json:"StrategyMode,omitempty" xml:"StrategyMode,omitempty" require:"true"`
+	InstanceId                    *string                                                     `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	DefaultAddrPoolStatus         *string                                                     `json:"DefaultAddrPoolStatus,omitempty" xml:"DefaultAddrPoolStatus,omitempty" require:"true"`
+	FailoverAddrPoolStatus        *string                                                     `json:"FailoverAddrPoolStatus,omitempty" xml:"FailoverAddrPoolStatus,omitempty" require:"true"`
+	DefaultAddrPoolMonitorStatus  *string                                                     `json:"DefaultAddrPoolMonitorStatus,omitempty" xml:"DefaultAddrPoolMonitorStatus,omitempty" require:"true"`
+	FailoverAddrPoolMonitorStatus *string                                                     `json:"FailoverAddrPoolMonitorStatus,omitempty" xml:"FailoverAddrPoolMonitorStatus,omitempty" require:"true"`
+	Lines                         *DescribeGtmAccessStrategiesResponseStrategiesStrategyLines `json:"Lines,omitempty" xml:"Lines,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmAccessStrategiesResponseStrategiesStrategy) String() string {
@@ -4740,7 +5425,7 @@ func (s *DescribeGtmAccessStrategiesResponseStrategiesStrategy) SetLines(v *Desc
 }
 
 type DescribeGtmAccessStrategiesResponseStrategiesStrategyLines struct {
-	Line []*DescribeGtmAccessStrategiesResponseStrategiesStrategyLinesLine `json:"Line" xml:"Line" require:"true" type:"Repeated"`
+	Line []*DescribeGtmAccessStrategiesResponseStrategiesStrategyLinesLine `json:"Line,omitempty" xml:"Line,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmAccessStrategiesResponseStrategiesStrategyLines) String() string {
@@ -4757,10 +5442,10 @@ func (s *DescribeGtmAccessStrategiesResponseStrategiesStrategyLines) SetLine(v [
 }
 
 type DescribeGtmAccessStrategiesResponseStrategiesStrategyLinesLine struct {
-	LineCode  *string `json:"LineCode" xml:"LineCode" require:"true"`
-	LineName  *string `json:"LineName" xml:"LineName" require:"true"`
-	GroupCode *string `json:"GroupCode" xml:"GroupCode" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	LineCode  *string `json:"LineCode,omitempty" xml:"LineCode,omitempty" require:"true"`
+	LineName  *string `json:"LineName,omitempty" xml:"LineName,omitempty" require:"true"`
+	GroupCode *string `json:"GroupCode,omitempty" xml:"GroupCode,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAccessStrategiesResponseStrategiesStrategyLinesLine) String() string {
@@ -4792,8 +5477,8 @@ func (s *DescribeGtmAccessStrategiesResponseStrategiesStrategyLinesLine) SetGrou
 }
 
 type DescribeGtmAccessStrategyRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	StrategyId *string `json:"StrategyId" xml:"StrategyId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StrategyId *string `json:"StrategyId,omitempty" xml:"StrategyId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAccessStrategyRequest) String() string {
@@ -4815,22 +5500,22 @@ func (s *DescribeGtmAccessStrategyRequest) SetStrategyId(v string) *DescribeGtmA
 }
 
 type DescribeGtmAccessStrategyResponse struct {
-	RequestId                     *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	StrategyId                    *string                                 `json:"StrategyId" xml:"StrategyId" require:"true"`
-	StrategyName                  *string                                 `json:"StrategyName" xml:"StrategyName" require:"true"`
-	DefultAddrPoolId              *string                                 `json:"DefultAddrPoolId" xml:"DefultAddrPoolId" require:"true"`
-	DefaultAddrPoolName           *string                                 `json:"DefaultAddrPoolName" xml:"DefaultAddrPoolName" require:"true"`
-	FailoverAddrPoolId            *string                                 `json:"FailoverAddrPoolId" xml:"FailoverAddrPoolId" require:"true"`
-	FailoverAddrPoolName          *string                                 `json:"FailoverAddrPoolName" xml:"FailoverAddrPoolName" require:"true"`
-	StrategyMode                  *string                                 `json:"StrategyMode" xml:"StrategyMode" require:"true"`
-	AccessMode                    *string                                 `json:"AccessMode" xml:"AccessMode" require:"true"`
-	AccessStatus                  *string                                 `json:"AccessStatus" xml:"AccessStatus" require:"true"`
-	InstanceId                    *string                                 `json:"InstanceId" xml:"InstanceId" require:"true"`
-	DefaultAddrPoolStatus         *string                                 `json:"DefaultAddrPoolStatus" xml:"DefaultAddrPoolStatus" require:"true"`
-	FailoverAddrPoolStatus        *string                                 `json:"FailoverAddrPoolStatus" xml:"FailoverAddrPoolStatus" require:"true"`
-	DefaultAddrPoolMonitorStatus  *string                                 `json:"DefaultAddrPoolMonitorStatus" xml:"DefaultAddrPoolMonitorStatus" require:"true"`
-	FailoverAddrPoolMonitorStatus *string                                 `json:"FailoverAddrPoolMonitorStatus" xml:"FailoverAddrPoolMonitorStatus" require:"true"`
-	Lines                         *DescribeGtmAccessStrategyResponseLines `json:"Lines" xml:"Lines" require:"true" type:"Struct"`
+	RequestId                     *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	StrategyId                    *string                                 `json:"StrategyId,omitempty" xml:"StrategyId,omitempty" require:"true"`
+	StrategyName                  *string                                 `json:"StrategyName,omitempty" xml:"StrategyName,omitempty" require:"true"`
+	DefultAddrPoolId              *string                                 `json:"DefultAddrPoolId,omitempty" xml:"DefultAddrPoolId,omitempty" require:"true"`
+	DefaultAddrPoolName           *string                                 `json:"DefaultAddrPoolName,omitempty" xml:"DefaultAddrPoolName,omitempty" require:"true"`
+	FailoverAddrPoolId            *string                                 `json:"FailoverAddrPoolId,omitempty" xml:"FailoverAddrPoolId,omitempty" require:"true"`
+	FailoverAddrPoolName          *string                                 `json:"FailoverAddrPoolName,omitempty" xml:"FailoverAddrPoolName,omitempty" require:"true"`
+	StrategyMode                  *string                                 `json:"StrategyMode,omitempty" xml:"StrategyMode,omitempty" require:"true"`
+	AccessMode                    *string                                 `json:"AccessMode,omitempty" xml:"AccessMode,omitempty" require:"true"`
+	AccessStatus                  *string                                 `json:"AccessStatus,omitempty" xml:"AccessStatus,omitempty" require:"true"`
+	InstanceId                    *string                                 `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	DefaultAddrPoolStatus         *string                                 `json:"DefaultAddrPoolStatus,omitempty" xml:"DefaultAddrPoolStatus,omitempty" require:"true"`
+	FailoverAddrPoolStatus        *string                                 `json:"FailoverAddrPoolStatus,omitempty" xml:"FailoverAddrPoolStatus,omitempty" require:"true"`
+	DefaultAddrPoolMonitorStatus  *string                                 `json:"DefaultAddrPoolMonitorStatus,omitempty" xml:"DefaultAddrPoolMonitorStatus,omitempty" require:"true"`
+	FailoverAddrPoolMonitorStatus *string                                 `json:"FailoverAddrPoolMonitorStatus,omitempty" xml:"FailoverAddrPoolMonitorStatus,omitempty" require:"true"`
+	Lines                         *DescribeGtmAccessStrategyResponseLines `json:"Lines,omitempty" xml:"Lines,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmAccessStrategyResponse) String() string {
@@ -4922,7 +5607,7 @@ func (s *DescribeGtmAccessStrategyResponse) SetLines(v *DescribeGtmAccessStrateg
 }
 
 type DescribeGtmAccessStrategyResponseLines struct {
-	Line []*DescribeGtmAccessStrategyResponseLinesLine `json:"Line" xml:"Line" require:"true" type:"Repeated"`
+	Line []*DescribeGtmAccessStrategyResponseLinesLine `json:"Line,omitempty" xml:"Line,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmAccessStrategyResponseLines) String() string {
@@ -4939,10 +5624,10 @@ func (s *DescribeGtmAccessStrategyResponseLines) SetLine(v []*DescribeGtmAccessS
 }
 
 type DescribeGtmAccessStrategyResponseLinesLine struct {
-	LineCode  *string `json:"LineCode" xml:"LineCode" require:"true"`
-	LineName  *string `json:"LineName" xml:"LineName" require:"true"`
-	GroupCode *string `json:"GroupCode" xml:"GroupCode" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	LineCode  *string `json:"LineCode,omitempty" xml:"LineCode,omitempty" require:"true"`
+	LineName  *string `json:"LineName,omitempty" xml:"LineName,omitempty" require:"true"`
+	GroupCode *string `json:"GroupCode,omitempty" xml:"GroupCode,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAccessStrategyResponseLinesLine) String() string {
@@ -4974,8 +5659,8 @@ func (s *DescribeGtmAccessStrategyResponseLinesLine) SetGroupName(v string) *Des
 }
 
 type DescribeGtmAccessStrategyAvailableConfigRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAccessStrategyAvailableConfigRequest) String() string {
@@ -4997,9 +5682,9 @@ func (s *DescribeGtmAccessStrategyAvailableConfigRequest) SetInstanceId(v string
 }
 
 type DescribeGtmAccessStrategyAvailableConfigResponse struct {
-	RequestId *string                                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	AddrPools *DescribeGtmAccessStrategyAvailableConfigResponseAddrPools `json:"AddrPools" xml:"AddrPools" require:"true" type:"Struct"`
-	Lines     *DescribeGtmAccessStrategyAvailableConfigResponseLines     `json:"Lines" xml:"Lines" require:"true" type:"Struct"`
+	RequestId *string                                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AddrPools *DescribeGtmAccessStrategyAvailableConfigResponseAddrPools `json:"AddrPools,omitempty" xml:"AddrPools,omitempty" require:"true" type:"Struct"`
+	Lines     *DescribeGtmAccessStrategyAvailableConfigResponseLines     `json:"Lines,omitempty" xml:"Lines,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmAccessStrategyAvailableConfigResponse) String() string {
@@ -5026,7 +5711,7 @@ func (s *DescribeGtmAccessStrategyAvailableConfigResponse) SetLines(v *DescribeG
 }
 
 type DescribeGtmAccessStrategyAvailableConfigResponseAddrPools struct {
-	AddrPool []*DescribeGtmAccessStrategyAvailableConfigResponseAddrPoolsAddrPool `json:"AddrPool" xml:"AddrPool" require:"true" type:"Repeated"`
+	AddrPool []*DescribeGtmAccessStrategyAvailableConfigResponseAddrPoolsAddrPool `json:"AddrPool,omitempty" xml:"AddrPool,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmAccessStrategyAvailableConfigResponseAddrPools) String() string {
@@ -5043,8 +5728,8 @@ func (s *DescribeGtmAccessStrategyAvailableConfigResponseAddrPools) SetAddrPool(
 }
 
 type DescribeGtmAccessStrategyAvailableConfigResponseAddrPoolsAddrPool struct {
-	AddrPoolId   *string `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	AddrPoolName *string `json:"AddrPoolName" xml:"AddrPoolName" require:"true"`
+	AddrPoolId   *string `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	AddrPoolName *string `json:"AddrPoolName,omitempty" xml:"AddrPoolName,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAccessStrategyAvailableConfigResponseAddrPoolsAddrPool) String() string {
@@ -5066,7 +5751,7 @@ func (s *DescribeGtmAccessStrategyAvailableConfigResponseAddrPoolsAddrPool) SetA
 }
 
 type DescribeGtmAccessStrategyAvailableConfigResponseLines struct {
-	Line []*DescribeGtmAccessStrategyAvailableConfigResponseLinesLine `json:"Line" xml:"Line" require:"true" type:"Repeated"`
+	Line []*DescribeGtmAccessStrategyAvailableConfigResponseLinesLine `json:"Line,omitempty" xml:"Line,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmAccessStrategyAvailableConfigResponseLines) String() string {
@@ -5083,12 +5768,12 @@ func (s *DescribeGtmAccessStrategyAvailableConfigResponseLines) SetLine(v []*Des
 }
 
 type DescribeGtmAccessStrategyAvailableConfigResponseLinesLine struct {
-	LineCode   *string `json:"LineCode" xml:"LineCode" require:"true"`
-	LineName   *string `json:"LineName" xml:"LineName" require:"true"`
-	GroupCode  *string `json:"GroupCode" xml:"GroupCode" require:"true"`
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	Status     *string `json:"Status" xml:"Status" require:"true"`
-	FatherCode *string `json:"FatherCode" xml:"FatherCode" require:"true"`
+	LineCode   *string `json:"LineCode,omitempty" xml:"LineCode,omitempty" require:"true"`
+	LineName   *string `json:"LineName,omitempty" xml:"LineName,omitempty" require:"true"`
+	GroupCode  *string `json:"GroupCode,omitempty" xml:"GroupCode,omitempty" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	FatherCode *string `json:"FatherCode,omitempty" xml:"FatherCode,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAccessStrategyAvailableConfigResponseLinesLine) String() string {
@@ -5130,7 +5815,7 @@ func (s *DescribeGtmAccessStrategyAvailableConfigResponseLinesLine) SetFatherCod
 }
 
 type DescribeGtmAvailableAlertGroupRequest struct {
-	Lang *string `json:"Lang" xml:"Lang"`
+	Lang *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
 }
 
 func (s DescribeGtmAvailableAlertGroupRequest) String() string {
@@ -5147,8 +5832,8 @@ func (s *DescribeGtmAvailableAlertGroupRequest) SetLang(v string) *DescribeGtmAv
 }
 
 type DescribeGtmAvailableAlertGroupResponse struct {
-	RequestId           *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AvailableAlertGroup *string `json:"AvailableAlertGroup" xml:"AvailableAlertGroup" require:"true"`
+	RequestId           *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AvailableAlertGroup *string `json:"AvailableAlertGroup,omitempty" xml:"AvailableAlertGroup,omitempty" require:"true"`
 }
 
 func (s DescribeGtmAvailableAlertGroupResponse) String() string {
@@ -5170,9 +5855,9 @@ func (s *DescribeGtmAvailableAlertGroupResponse) SetAvailableAlertGroup(v string
 }
 
 type DescribeGtmInstanceRequest struct {
-	Lang                 *string `json:"Lang" xml:"Lang"`
-	InstanceId           *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	NeedDetailAttributes *bool   `json:"NeedDetailAttributes" xml:"NeedDetailAttributes"`
+	Lang                 *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId           *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	NeedDetailAttributes *bool   `json:"NeedDetailAttributes,omitempty" xml:"NeedDetailAttributes,omitempty"`
 }
 
 func (s DescribeGtmInstanceRequest) String() string {
@@ -5199,22 +5884,22 @@ func (s *DescribeGtmInstanceRequest) SetNeedDetailAttributes(v bool) *DescribeGt
 }
 
 type DescribeGtmInstanceResponse struct {
-	RequestId         *string `json:"RequestId" xml:"RequestId" require:"true"`
-	InstanceId        *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	InstanceName      *string `json:"InstanceName" xml:"InstanceName" require:"true"`
-	VersionCode       *string `json:"VersionCode" xml:"VersionCode" require:"true"`
-	ExpireTime        *string `json:"ExpireTime" xml:"ExpireTime" require:"true"`
-	ExpireTimestamp   *int64  `json:"ExpireTimestamp" xml:"ExpireTimestamp" require:"true"`
-	Cname             *string `json:"Cname" xml:"Cname" require:"true"`
-	UserDomainName    *string `json:"UserDomainName" xml:"UserDomainName" require:"true"`
-	Ttl               *int    `json:"Ttl" xml:"Ttl" require:"true"`
-	LbaStrategy       *string `json:"LbaStrategy" xml:"LbaStrategy" require:"true"`
-	CreateTime        *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp   *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	AlertGroup        *string `json:"AlertGroup" xml:"AlertGroup" require:"true"`
-	CnameMode         *string `json:"CnameMode" xml:"CnameMode" require:"true"`
-	AccessStrategyNum *int    `json:"AccessStrategyNum" xml:"AccessStrategyNum" require:"true"`
-	AddressPoolNum    *int    `json:"AddressPoolNum" xml:"AddressPoolNum" require:"true"`
+	RequestId         *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	InstanceId        *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	InstanceName      *string `json:"InstanceName,omitempty" xml:"InstanceName,omitempty" require:"true"`
+	VersionCode       *string `json:"VersionCode,omitempty" xml:"VersionCode,omitempty" require:"true"`
+	ExpireTime        *string `json:"ExpireTime,omitempty" xml:"ExpireTime,omitempty" require:"true"`
+	ExpireTimestamp   *int64  `json:"ExpireTimestamp,omitempty" xml:"ExpireTimestamp,omitempty" require:"true"`
+	Cname             *string `json:"Cname,omitempty" xml:"Cname,omitempty" require:"true"`
+	UserDomainName    *string `json:"UserDomainName,omitempty" xml:"UserDomainName,omitempty" require:"true"`
+	Ttl               *int    `json:"Ttl,omitempty" xml:"Ttl,omitempty" require:"true"`
+	LbaStrategy       *string `json:"LbaStrategy,omitempty" xml:"LbaStrategy,omitempty" require:"true"`
+	CreateTime        *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp   *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	AlertGroup        *string `json:"AlertGroup,omitempty" xml:"AlertGroup,omitempty" require:"true"`
+	CnameMode         *string `json:"CnameMode,omitempty" xml:"CnameMode,omitempty" require:"true"`
+	AccessStrategyNum *int    `json:"AccessStrategyNum,omitempty" xml:"AccessStrategyNum,omitempty" require:"true"`
+	AddressPoolNum    *int    `json:"AddressPoolNum,omitempty" xml:"AddressPoolNum,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceResponse) String() string {
@@ -5306,8 +5991,8 @@ func (s *DescribeGtmInstanceResponse) SetAddressPoolNum(v int) *DescribeGtmInsta
 }
 
 type DescribeGtmInstanceAddressPoolRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	AddrPoolId *string `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	AddrPoolId *string `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceAddressPoolRequest) String() string {
@@ -5329,20 +6014,20 @@ func (s *DescribeGtmInstanceAddressPoolRequest) SetAddrPoolId(v string) *Describ
 }
 
 type DescribeGtmInstanceAddressPoolResponse struct {
-	RequestId           *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	AddrPoolId          *string                                      `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	CreateTime          *string                                      `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp     *int64                                       `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	UpdateTime          *string                                      `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	UpdateTimestamp     *int64                                       `json:"UpdateTimestamp" xml:"UpdateTimestamp" require:"true"`
-	AddrCount           *int                                         `json:"AddrCount" xml:"AddrCount" require:"true"`
-	MinAvailableAddrNum *int                                         `json:"MinAvailableAddrNum" xml:"MinAvailableAddrNum" require:"true"`
-	MonitorConfigId     *string                                      `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
-	MonitorStatus       *string                                      `json:"MonitorStatus" xml:"MonitorStatus" require:"true"`
-	Name                *string                                      `json:"Name" xml:"Name" require:"true"`
-	Status              *string                                      `json:"Status" xml:"Status" require:"true"`
-	Type                *string                                      `json:"Type" xml:"Type" require:"true"`
-	Addrs               *DescribeGtmInstanceAddressPoolResponseAddrs `json:"Addrs" xml:"Addrs" require:"true" type:"Struct"`
+	RequestId           *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AddrPoolId          *string                                      `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	CreateTime          *string                                      `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp     *int64                                       `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	UpdateTime          *string                                      `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	UpdateTimestamp     *int64                                       `json:"UpdateTimestamp,omitempty" xml:"UpdateTimestamp,omitempty" require:"true"`
+	AddrCount           *int                                         `json:"AddrCount,omitempty" xml:"AddrCount,omitempty" require:"true"`
+	MinAvailableAddrNum *int                                         `json:"MinAvailableAddrNum,omitempty" xml:"MinAvailableAddrNum,omitempty" require:"true"`
+	MonitorConfigId     *string                                      `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
+	MonitorStatus       *string                                      `json:"MonitorStatus,omitempty" xml:"MonitorStatus,omitempty" require:"true"`
+	Name                *string                                      `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Status              *string                                      `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Type                *string                                      `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Addrs               *DescribeGtmInstanceAddressPoolResponseAddrs `json:"Addrs,omitempty" xml:"Addrs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmInstanceAddressPoolResponse) String() string {
@@ -5424,7 +6109,7 @@ func (s *DescribeGtmInstanceAddressPoolResponse) SetAddrs(v *DescribeGtmInstance
 }
 
 type DescribeGtmInstanceAddressPoolResponseAddrs struct {
-	Addr []*DescribeGtmInstanceAddressPoolResponseAddrsAddr `json:"Addr" xml:"Addr" require:"true" type:"Repeated"`
+	Addr []*DescribeGtmInstanceAddressPoolResponseAddrsAddr `json:"Addr,omitempty" xml:"Addr,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmInstanceAddressPoolResponseAddrs) String() string {
@@ -5441,15 +6126,15 @@ func (s *DescribeGtmInstanceAddressPoolResponseAddrs) SetAddr(v []*DescribeGtmIn
 }
 
 type DescribeGtmInstanceAddressPoolResponseAddrsAddr struct {
-	AddrId          *int64  `json:"AddrId" xml:"AddrId" require:"true"`
-	CreateTime      *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	UpdateTime      *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	UpdateTimestamp *int64  `json:"UpdateTimestamp" xml:"UpdateTimestamp" require:"true"`
-	Value           *string `json:"Value" xml:"Value" require:"true"`
-	LbaWeight       *int    `json:"LbaWeight" xml:"LbaWeight" require:"true"`
-	Mode            *string `json:"Mode" xml:"Mode" require:"true"`
-	AlertStatus     *string `json:"AlertStatus" xml:"AlertStatus" require:"true"`
+	AddrId          *int64  `json:"AddrId,omitempty" xml:"AddrId,omitempty" require:"true"`
+	CreateTime      *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	UpdateTime      *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	UpdateTimestamp *int64  `json:"UpdateTimestamp,omitempty" xml:"UpdateTimestamp,omitempty" require:"true"`
+	Value           *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	LbaWeight       *int    `json:"LbaWeight,omitempty" xml:"LbaWeight,omitempty" require:"true"`
+	Mode            *string `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
+	AlertStatus     *string `json:"AlertStatus,omitempty" xml:"AlertStatus,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceAddressPoolResponseAddrsAddr) String() string {
@@ -5506,10 +6191,10 @@ func (s *DescribeGtmInstanceAddressPoolResponseAddrsAddr) SetAlertStatus(v strin
 }
 
 type DescribeGtmInstanceAddressPoolsRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeGtmInstanceAddressPoolsRequest) String() string {
@@ -5541,12 +6226,12 @@ func (s *DescribeGtmInstanceAddressPoolsRequest) SetPageSize(v int) *DescribeGtm
 }
 
 type DescribeGtmInstanceAddressPoolsResponse struct {
-	RequestId  *string                                           `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalItems *int                                              `json:"TotalItems" xml:"TotalItems" require:"true"`
-	TotalPages *int                                              `json:"TotalPages" xml:"TotalPages" require:"true"`
-	PageNumber *int                                              `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                                              `json:"PageSize" xml:"PageSize" require:"true"`
-	AddrPools  *DescribeGtmInstanceAddressPoolsResponseAddrPools `json:"AddrPools" xml:"AddrPools" require:"true" type:"Struct"`
+	RequestId  *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalItems *int                                              `json:"TotalItems,omitempty" xml:"TotalItems,omitempty" require:"true"`
+	TotalPages *int                                              `json:"TotalPages,omitempty" xml:"TotalPages,omitempty" require:"true"`
+	PageNumber *int                                              `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	AddrPools  *DescribeGtmInstanceAddressPoolsResponseAddrPools `json:"AddrPools,omitempty" xml:"AddrPools,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmInstanceAddressPoolsResponse) String() string {
@@ -5588,7 +6273,7 @@ func (s *DescribeGtmInstanceAddressPoolsResponse) SetAddrPools(v *DescribeGtmIns
 }
 
 type DescribeGtmInstanceAddressPoolsResponseAddrPools struct {
-	AddrPool []*DescribeGtmInstanceAddressPoolsResponseAddrPoolsAddrPool `json:"AddrPool" xml:"AddrPool" require:"true" type:"Repeated"`
+	AddrPool []*DescribeGtmInstanceAddressPoolsResponseAddrPoolsAddrPool `json:"AddrPool,omitempty" xml:"AddrPool,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmInstanceAddressPoolsResponseAddrPools) String() string {
@@ -5605,18 +6290,18 @@ func (s *DescribeGtmInstanceAddressPoolsResponseAddrPools) SetAddrPool(v []*Desc
 }
 
 type DescribeGtmInstanceAddressPoolsResponseAddrPoolsAddrPool struct {
-	AddrPoolId          *string `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	CreateTime          *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp     *int64  `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	UpdateTime          *string `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	UpdateTimestamp     *int64  `json:"UpdateTimestamp" xml:"UpdateTimestamp" require:"true"`
-	AddrCount           *int    `json:"AddrCount" xml:"AddrCount" require:"true"`
-	MinAvailableAddrNum *int    `json:"MinAvailableAddrNum" xml:"MinAvailableAddrNum" require:"true"`
-	MonitorConfigId     *string `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
-	MonitorStatus       *string `json:"MonitorStatus" xml:"MonitorStatus" require:"true"`
-	Name                *string `json:"Name" xml:"Name" require:"true"`
-	Status              *string `json:"Status" xml:"Status" require:"true"`
-	Type                *string `json:"Type" xml:"Type" require:"true"`
+	AddrPoolId          *string `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	CreateTime          *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp     *int64  `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	UpdateTime          *string `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	UpdateTimestamp     *int64  `json:"UpdateTimestamp,omitempty" xml:"UpdateTimestamp,omitempty" require:"true"`
+	AddrCount           *int    `json:"AddrCount,omitempty" xml:"AddrCount,omitempty" require:"true"`
+	MinAvailableAddrNum *int    `json:"MinAvailableAddrNum,omitempty" xml:"MinAvailableAddrNum,omitempty" require:"true"`
+	MonitorConfigId     *string `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
+	MonitorStatus       *string `json:"MonitorStatus,omitempty" xml:"MonitorStatus,omitempty" require:"true"`
+	Name                *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Status              *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Type                *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceAddressPoolsResponseAddrPoolsAddrPool) String() string {
@@ -5688,8 +6373,8 @@ func (s *DescribeGtmInstanceAddressPoolsResponseAddrPoolsAddrPool) SetType(v str
 }
 
 type DescribeGtmInstanceStatusRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceStatusRequest) String() string {
@@ -5711,13 +6396,13 @@ func (s *DescribeGtmInstanceStatusRequest) SetInstanceId(v string) *DescribeGtmI
 }
 
 type DescribeGtmInstanceStatusResponse struct {
-	RequestId                   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	AddrNotAvailableNum         *int    `json:"AddrNotAvailableNum" xml:"AddrNotAvailableNum" require:"true"`
-	AddrPoolNotAvailableNum     *int    `json:"AddrPoolNotAvailableNum" xml:"AddrPoolNotAvailableNum" require:"true"`
-	SwitchToFailoverStrategyNum *int    `json:"SwitchToFailoverStrategyNum" xml:"SwitchToFailoverStrategyNum" require:"true"`
-	StrategyNotAvailableNum     *int    `json:"StrategyNotAvailableNum" xml:"StrategyNotAvailableNum" require:"true"`
-	Status                      *string `json:"Status" xml:"Status" require:"true"`
-	StatusReason                *string `json:"StatusReason" xml:"StatusReason" require:"true"`
+	RequestId                   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AddrNotAvailableNum         *int    `json:"AddrNotAvailableNum,omitempty" xml:"AddrNotAvailableNum,omitempty" require:"true"`
+	AddrPoolNotAvailableNum     *int    `json:"AddrPoolNotAvailableNum,omitempty" xml:"AddrPoolNotAvailableNum,omitempty" require:"true"`
+	SwitchToFailoverStrategyNum *int    `json:"SwitchToFailoverStrategyNum,omitempty" xml:"SwitchToFailoverStrategyNum,omitempty" require:"true"`
+	StrategyNotAvailableNum     *int    `json:"StrategyNotAvailableNum,omitempty" xml:"StrategyNotAvailableNum,omitempty" require:"true"`
+	Status                      *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	StatusReason                *string `json:"StatusReason,omitempty" xml:"StatusReason,omitempty" require:"true"`
 }
 
 func (s DescribeGtmInstanceStatusResponse) String() string {
@@ -5764,7 +6449,7 @@ func (s *DescribeGtmInstanceStatusResponse) SetStatusReason(v string) *DescribeG
 }
 
 type DescribeGtmMonitorAvailableConfigRequest struct {
-	Lang *string `json:"Lang" xml:"Lang"`
+	Lang *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
 }
 
 func (s DescribeGtmMonitorAvailableConfigRequest) String() string {
@@ -5781,8 +6466,8 @@ func (s *DescribeGtmMonitorAvailableConfigRequest) SetLang(v string) *DescribeGt
 }
 
 type DescribeGtmMonitorAvailableConfigResponse struct {
-	RequestId    *string                                                `json:"RequestId" xml:"RequestId" require:"true"`
-	IspCityNodes *DescribeGtmMonitorAvailableConfigResponseIspCityNodes `json:"IspCityNodes" xml:"IspCityNodes" require:"true" type:"Struct"`
+	RequestId    *string                                                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	IspCityNodes *DescribeGtmMonitorAvailableConfigResponseIspCityNodes `json:"IspCityNodes,omitempty" xml:"IspCityNodes,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmMonitorAvailableConfigResponse) String() string {
@@ -5804,7 +6489,7 @@ func (s *DescribeGtmMonitorAvailableConfigResponse) SetIspCityNodes(v *DescribeG
 }
 
 type DescribeGtmMonitorAvailableConfigResponseIspCityNodes struct {
-	IspCityNode []*DescribeGtmMonitorAvailableConfigResponseIspCityNodesIspCityNode `json:"IspCityNode" xml:"IspCityNode" require:"true" type:"Repeated"`
+	IspCityNode []*DescribeGtmMonitorAvailableConfigResponseIspCityNodesIspCityNode `json:"IspCityNode,omitempty" xml:"IspCityNode,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmMonitorAvailableConfigResponseIspCityNodes) String() string {
@@ -5821,14 +6506,14 @@ func (s *DescribeGtmMonitorAvailableConfigResponseIspCityNodes) SetIspCityNode(v
 }
 
 type DescribeGtmMonitorAvailableConfigResponseIspCityNodesIspCityNode struct {
-	IspName         *string `json:"IspName" xml:"IspName" require:"true"`
-	IspCode         *string `json:"IspCode" xml:"IspCode" require:"true"`
-	CityName        *string `json:"CityName" xml:"CityName" require:"true"`
-	CityCode        *string `json:"CityCode" xml:"CityCode" require:"true"`
-	DefaultSelected *bool   `json:"DefaultSelected" xml:"DefaultSelected" require:"true"`
-	Mainland        *bool   `json:"Mainland" xml:"Mainland" require:"true"`
-	GroupType       *string `json:"GroupType" xml:"GroupType" require:"true"`
-	GroupName       *string `json:"GroupName" xml:"GroupName" require:"true"`
+	IspName         *string `json:"IspName,omitempty" xml:"IspName,omitempty" require:"true"`
+	IspCode         *string `json:"IspCode,omitempty" xml:"IspCode,omitempty" require:"true"`
+	CityName        *string `json:"CityName,omitempty" xml:"CityName,omitempty" require:"true"`
+	CityCode        *string `json:"CityCode,omitempty" xml:"CityCode,omitempty" require:"true"`
+	DefaultSelected *bool   `json:"DefaultSelected,omitempty" xml:"DefaultSelected,omitempty" require:"true"`
+	Mainland        *bool   `json:"Mainland,omitempty" xml:"Mainland,omitempty" require:"true"`
+	GroupType       *string `json:"GroupType,omitempty" xml:"GroupType,omitempty" require:"true"`
+	GroupName       *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s DescribeGtmMonitorAvailableConfigResponseIspCityNodesIspCityNode) String() string {
@@ -5880,8 +6565,8 @@ func (s *DescribeGtmMonitorAvailableConfigResponseIspCityNodesIspCityNode) SetGr
 }
 
 type DescribeGtmMonitorConfigRequest struct {
-	Lang            *string `json:"Lang" xml:"Lang"`
-	MonitorConfigId *string `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
+	Lang            *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	MonitorConfigId *string `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
 }
 
 func (s DescribeGtmMonitorConfigRequest) String() string {
@@ -5903,18 +6588,18 @@ func (s *DescribeGtmMonitorConfigRequest) SetMonitorConfigId(v string) *Describe
 }
 
 type DescribeGtmMonitorConfigResponse struct {
-	RequestId         *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	MonitorConfigId   *string                                       `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
-	CreateTime        *string                                       `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp   *int64                                        `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	UpdateTime        *string                                       `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	UpdateTimestamp   *int64                                        `json:"UpdateTimestamp" xml:"UpdateTimestamp" require:"true"`
-	ProtocolType      *string                                       `json:"ProtocolType" xml:"ProtocolType" require:"true"`
-	Interval          *int                                          `json:"Interval" xml:"Interval" require:"true"`
-	EvaluationCount   *int                                          `json:"EvaluationCount" xml:"EvaluationCount" require:"true"`
-	Timeout           *int                                          `json:"Timeout" xml:"Timeout" require:"true"`
-	MonitorExtendInfo *string                                       `json:"MonitorExtendInfo" xml:"MonitorExtendInfo" require:"true"`
-	IspCityNodes      *DescribeGtmMonitorConfigResponseIspCityNodes `json:"IspCityNodes" xml:"IspCityNodes" require:"true" type:"Struct"`
+	RequestId         *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	MonitorConfigId   *string                                       `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
+	CreateTime        *string                                       `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp   *int64                                        `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	UpdateTime        *string                                       `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	UpdateTimestamp   *int64                                        `json:"UpdateTimestamp,omitempty" xml:"UpdateTimestamp,omitempty" require:"true"`
+	ProtocolType      *string                                       `json:"ProtocolType,omitempty" xml:"ProtocolType,omitempty" require:"true"`
+	Interval          *int                                          `json:"Interval,omitempty" xml:"Interval,omitempty" require:"true"`
+	EvaluationCount   *int                                          `json:"EvaluationCount,omitempty" xml:"EvaluationCount,omitempty" require:"true"`
+	Timeout           *int                                          `json:"Timeout,omitempty" xml:"Timeout,omitempty" require:"true"`
+	MonitorExtendInfo *string                                       `json:"MonitorExtendInfo,omitempty" xml:"MonitorExtendInfo,omitempty" require:"true"`
+	IspCityNodes      *DescribeGtmMonitorConfigResponseIspCityNodes `json:"IspCityNodes,omitempty" xml:"IspCityNodes,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeGtmMonitorConfigResponse) String() string {
@@ -5986,7 +6671,7 @@ func (s *DescribeGtmMonitorConfigResponse) SetIspCityNodes(v *DescribeGtmMonitor
 }
 
 type DescribeGtmMonitorConfigResponseIspCityNodes struct {
-	IspCityNode []*DescribeGtmMonitorConfigResponseIspCityNodesIspCityNode `json:"IspCityNode" xml:"IspCityNode" require:"true" type:"Repeated"`
+	IspCityNode []*DescribeGtmMonitorConfigResponseIspCityNodesIspCityNode `json:"IspCityNode,omitempty" xml:"IspCityNode,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeGtmMonitorConfigResponseIspCityNodes) String() string {
@@ -6003,12 +6688,12 @@ func (s *DescribeGtmMonitorConfigResponseIspCityNodes) SetIspCityNode(v []*Descr
 }
 
 type DescribeGtmMonitorConfigResponseIspCityNodesIspCityNode struct {
-	CountryName *string `json:"CountryName" xml:"CountryName" require:"true"`
-	CountryCode *string `json:"CountryCode" xml:"CountryCode" require:"true"`
-	CityName    *string `json:"CityName" xml:"CityName" require:"true"`
-	CityCode    *string `json:"CityCode" xml:"CityCode" require:"true"`
-	IspCode     *string `json:"IspCode" xml:"IspCode" require:"true"`
-	IspName     *string `json:"IspName" xml:"IspName" require:"true"`
+	CountryName *string `json:"CountryName,omitempty" xml:"CountryName,omitempty" require:"true"`
+	CountryCode *string `json:"CountryCode,omitempty" xml:"CountryCode,omitempty" require:"true"`
+	CityName    *string `json:"CityName,omitempty" xml:"CityName,omitempty" require:"true"`
+	CityCode    *string `json:"CityCode,omitempty" xml:"CityCode,omitempty" require:"true"`
+	IspCode     *string `json:"IspCode,omitempty" xml:"IspCode,omitempty" require:"true"`
+	IspName     *string `json:"IspName,omitempty" xml:"IspName,omitempty" require:"true"`
 }
 
 func (s DescribeGtmMonitorConfigResponseIspCityNodesIspCityNode) String() string {
@@ -6050,12 +6735,12 @@ func (s *DescribeGtmMonitorConfigResponseIspCityNodesIspCityNode) SetIspName(v s
 }
 
 type UpdateGtmAccessStrategyRequest struct {
-	Lang               *string `json:"Lang" xml:"Lang"`
-	StrategyId         *string `json:"StrategyId" xml:"StrategyId" require:"true"`
-	StrategyName       *string `json:"StrategyName" xml:"StrategyName"`
-	DefaultAddrPoolId  *string `json:"DefaultAddrPoolId" xml:"DefaultAddrPoolId"`
-	FailoverAddrPoolId *string `json:"FailoverAddrPoolId" xml:"FailoverAddrPoolId"`
-	AccessLines        *string `json:"AccessLines" xml:"AccessLines"`
+	Lang               *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	StrategyId         *string `json:"StrategyId,omitempty" xml:"StrategyId,omitempty" require:"true"`
+	StrategyName       *string `json:"StrategyName,omitempty" xml:"StrategyName,omitempty"`
+	DefaultAddrPoolId  *string `json:"DefaultAddrPoolId,omitempty" xml:"DefaultAddrPoolId,omitempty"`
+	FailoverAddrPoolId *string `json:"FailoverAddrPoolId,omitempty" xml:"FailoverAddrPoolId,omitempty"`
+	AccessLines        *string `json:"AccessLines,omitempty" xml:"AccessLines,omitempty"`
 }
 
 func (s UpdateGtmAccessStrategyRequest) String() string {
@@ -6097,7 +6782,7 @@ func (s *UpdateGtmAccessStrategyRequest) SetAccessLines(v string) *UpdateGtmAcce
 }
 
 type UpdateGtmAccessStrategyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateGtmAccessStrategyResponse) String() string {
@@ -6114,12 +6799,12 @@ func (s *UpdateGtmAccessStrategyResponse) SetRequestId(v string) *UpdateGtmAcces
 }
 
 type UpdateGtmAddressPoolRequest struct {
-	Lang                *string                            `json:"Lang" xml:"Lang"`
-	AddrPoolId          *string                            `json:"AddrPoolId" xml:"AddrPoolId" require:"true"`
-	Name                *string                            `json:"Name" xml:"Name"`
-	Type                *string                            `json:"Type" xml:"Type" require:"true"`
-	MinAvailableAddrNum *int                               `json:"MinAvailableAddrNum" xml:"MinAvailableAddrNum"`
-	Addr                []*UpdateGtmAddressPoolRequestAddr `json:"Addr" xml:"Addr" require:"true" type:"Repeated"`
+	Lang                *string                            `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	AddrPoolId          *string                            `json:"AddrPoolId,omitempty" xml:"AddrPoolId,omitempty" require:"true"`
+	Name                *string                            `json:"Name,omitempty" xml:"Name,omitempty"`
+	Type                *string                            `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	MinAvailableAddrNum *int                               `json:"MinAvailableAddrNum,omitempty" xml:"MinAvailableAddrNum,omitempty"`
+	Addr                []*UpdateGtmAddressPoolRequestAddr `json:"Addr,omitempty" xml:"Addr,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateGtmAddressPoolRequest) String() string {
@@ -6161,9 +6846,9 @@ func (s *UpdateGtmAddressPoolRequest) SetAddr(v []*UpdateGtmAddressPoolRequestAd
 }
 
 type UpdateGtmAddressPoolRequestAddr struct {
-	Value     *string `json:"Value" xml:"Value" require:"true"`
-	LbaWeight *int    `json:"LbaWeight" xml:"LbaWeight" require:"true"`
-	Mode      *string `json:"Mode" xml:"Mode" require:"true"`
+	Value     *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	LbaWeight *int    `json:"LbaWeight,omitempty" xml:"LbaWeight,omitempty" require:"true"`
+	Mode      *string `json:"Mode,omitempty" xml:"Mode,omitempty" require:"true"`
 }
 
 func (s UpdateGtmAddressPoolRequestAddr) String() string {
@@ -6190,7 +6875,7 @@ func (s *UpdateGtmAddressPoolRequestAddr) SetMode(v string) *UpdateGtmAddressPoo
 }
 
 type UpdateGtmAddressPoolResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateGtmAddressPoolResponse) String() string {
@@ -6207,14 +6892,14 @@ func (s *UpdateGtmAddressPoolResponse) SetRequestId(v string) *UpdateGtmAddressP
 }
 
 type UpdateGtmMonitorRequest struct {
-	Lang              *string                               `json:"Lang" xml:"Lang"`
-	MonitorConfigId   *string                               `json:"MonitorConfigId" xml:"MonitorConfigId" require:"true"`
-	ProtocolType      *string                               `json:"ProtocolType" xml:"ProtocolType" require:"true"`
-	Interval          *int                                  `json:"Interval" xml:"Interval"`
-	EvaluationCount   *int                                  `json:"EvaluationCount" xml:"EvaluationCount"`
-	Timeout           *int                                  `json:"Timeout" xml:"Timeout"`
-	MonitorExtendInfo *string                               `json:"MonitorExtendInfo" xml:"MonitorExtendInfo" require:"true"`
-	IspCityNode       []*UpdateGtmMonitorRequestIspCityNode `json:"IspCityNode" xml:"IspCityNode" require:"true" type:"Repeated"`
+	Lang              *string                               `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	MonitorConfigId   *string                               `json:"MonitorConfigId,omitempty" xml:"MonitorConfigId,omitempty" require:"true"`
+	ProtocolType      *string                               `json:"ProtocolType,omitempty" xml:"ProtocolType,omitempty" require:"true"`
+	Interval          *int                                  `json:"Interval,omitempty" xml:"Interval,omitempty"`
+	EvaluationCount   *int                                  `json:"EvaluationCount,omitempty" xml:"EvaluationCount,omitempty"`
+	Timeout           *int                                  `json:"Timeout,omitempty" xml:"Timeout,omitempty"`
+	MonitorExtendInfo *string                               `json:"MonitorExtendInfo,omitempty" xml:"MonitorExtendInfo,omitempty" require:"true"`
+	IspCityNode       []*UpdateGtmMonitorRequestIspCityNode `json:"IspCityNode,omitempty" xml:"IspCityNode,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s UpdateGtmMonitorRequest) String() string {
@@ -6266,8 +6951,8 @@ func (s *UpdateGtmMonitorRequest) SetIspCityNode(v []*UpdateGtmMonitorRequestIsp
 }
 
 type UpdateGtmMonitorRequestIspCityNode struct {
-	CityCode *string `json:"CityCode" xml:"CityCode" require:"true"`
-	IspCode  *string `json:"IspCode" xml:"IspCode" require:"true"`
+	CityCode *string `json:"CityCode,omitempty" xml:"CityCode,omitempty" require:"true"`
+	IspCode  *string `json:"IspCode,omitempty" xml:"IspCode,omitempty" require:"true"`
 }
 
 func (s UpdateGtmMonitorRequestIspCityNode) String() string {
@@ -6289,7 +6974,7 @@ func (s *UpdateGtmMonitorRequestIspCityNode) SetIspCode(v string) *UpdateGtmMoni
 }
 
 type UpdateGtmMonitorResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateGtmMonitorResponse) String() string {
@@ -6306,10 +6991,9 @@ func (s *UpdateGtmMonitorResponse) SetRequestId(v string) *UpdateGtmMonitorRespo
 }
 
 type UpdateDomainRemarkRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang        *string `json:"Lang" xml:"Lang"`
-	DomainName  *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Remark      *string `json:"Remark" xml:"Remark"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Remark     *string `json:"Remark,omitempty" xml:"Remark,omitempty"`
 }
 
 func (s UpdateDomainRemarkRequest) String() string {
@@ -6318,11 +7002,6 @@ func (s UpdateDomainRemarkRequest) String() string {
 
 func (s UpdateDomainRemarkRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateDomainRemarkRequest) SetAccessKeyId(v string) *UpdateDomainRemarkRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *UpdateDomainRemarkRequest) SetLang(v string) *UpdateDomainRemarkRequest {
@@ -6341,7 +7020,7 @@ func (s *UpdateDomainRemarkRequest) SetRemark(v string) *UpdateDomainRemarkReque
 }
 
 type UpdateDomainRemarkResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateDomainRemarkResponse) String() string {
@@ -6358,11 +7037,10 @@ func (s *UpdateDomainRemarkResponse) SetRequestId(v string) *UpdateDomainRemarkR
 }
 
 type UpdateDomainRecordRemarkRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	RecordId     *string `json:"RecordId" xml:"RecordId" require:"true"`
-	Remark       *string `json:"Remark" xml:"Remark"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	RecordId     *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	Remark       *string `json:"Remark,omitempty" xml:"Remark,omitempty"`
 }
 
 func (s UpdateDomainRecordRemarkRequest) String() string {
@@ -6371,11 +7049,6 @@ func (s UpdateDomainRecordRemarkRequest) String() string {
 
 func (s UpdateDomainRecordRemarkRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateDomainRecordRemarkRequest) SetAccessKeyId(v string) *UpdateDomainRecordRemarkRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *UpdateDomainRecordRemarkRequest) SetLang(v string) *UpdateDomainRecordRemarkRequest {
@@ -6399,7 +7072,7 @@ func (s *UpdateDomainRecordRemarkRequest) SetRemark(v string) *UpdateDomainRecor
 }
 
 type UpdateDomainRecordRemarkResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateDomainRecordRemarkResponse) String() string {
@@ -6416,10 +7089,9 @@ func (s *UpdateDomainRecordRemarkResponse) SetRequestId(v string) *UpdateDomainR
 }
 
 type DescribeSupportLinesRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	DomainName   *string `json:"DomainName" xml:"DomainName"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
 }
 
 func (s DescribeSupportLinesRequest) String() string {
@@ -6428,11 +7100,6 @@ func (s DescribeSupportLinesRequest) String() string {
 
 func (s DescribeSupportLinesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeSupportLinesRequest) SetAccessKeyId(v string) *DescribeSupportLinesRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeSupportLinesRequest) SetLang(v string) *DescribeSupportLinesRequest {
@@ -6451,8 +7118,8 @@ func (s *DescribeSupportLinesRequest) SetDomainName(v string) *DescribeSupportLi
 }
 
 type DescribeSupportLinesResponse struct {
-	RequestId   *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordLines *DescribeSupportLinesResponseRecordLines `json:"RecordLines" xml:"RecordLines" require:"true" type:"Struct"`
+	RequestId   *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordLines *DescribeSupportLinesResponseRecordLines `json:"RecordLines,omitempty" xml:"RecordLines,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSupportLinesResponse) String() string {
@@ -6474,7 +7141,7 @@ func (s *DescribeSupportLinesResponse) SetRecordLines(v *DescribeSupportLinesRes
 }
 
 type DescribeSupportLinesResponseRecordLines struct {
-	RecordLine []*DescribeSupportLinesResponseRecordLinesRecordLine `json:"RecordLine" xml:"RecordLine" require:"true" type:"Repeated"`
+	RecordLine []*DescribeSupportLinesResponseRecordLinesRecordLine `json:"RecordLine,omitempty" xml:"RecordLine,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSupportLinesResponseRecordLines) String() string {
@@ -6491,10 +7158,10 @@ func (s *DescribeSupportLinesResponseRecordLines) SetRecordLine(v []*DescribeSup
 }
 
 type DescribeSupportLinesResponseRecordLinesRecordLine struct {
-	LineCode        *string `json:"LineCode" xml:"LineCode" require:"true"`
-	FatherCode      *string `json:"FatherCode" xml:"FatherCode" require:"true"`
-	LineName        *string `json:"LineName" xml:"LineName" require:"true"`
-	LineDisplayName *string `json:"LineDisplayName" xml:"LineDisplayName" require:"true"`
+	LineCode        *string `json:"LineCode,omitempty" xml:"LineCode,omitempty" require:"true"`
+	FatherCode      *string `json:"FatherCode,omitempty" xml:"FatherCode,omitempty" require:"true"`
+	LineName        *string `json:"LineName,omitempty" xml:"LineName,omitempty" require:"true"`
+	LineDisplayName *string `json:"LineDisplayName,omitempty" xml:"LineDisplayName,omitempty" require:"true"`
 }
 
 func (s DescribeSupportLinesResponseRecordLinesRecordLine) String() string {
@@ -6526,9 +7193,8 @@ func (s *DescribeSupportLinesResponseRecordLinesRecordLine) SetLineDisplayName(v
 }
 
 type DescribeDomainNsRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang        *string `json:"Lang" xml:"Lang"`
-	DomainName  *string `json:"DomainName" xml:"DomainName" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DescribeDomainNsRequest) String() string {
@@ -6537,11 +7203,6 @@ func (s DescribeDomainNsRequest) String() string {
 
 func (s DescribeDomainNsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDomainNsRequest) SetAccessKeyId(v string) *DescribeDomainNsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDomainNsRequest) SetLang(v string) *DescribeDomainNsRequest {
@@ -6555,11 +7216,11 @@ func (s *DescribeDomainNsRequest) SetDomainName(v string) *DescribeDomainNsReque
 }
 
 type DescribeDomainNsResponse struct {
-	RequestId        *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	AllAliDns        *bool                                     `json:"AllAliDns" xml:"AllAliDns" require:"true"`
-	IncludeAliDns    *bool                                     `json:"IncludeAliDns" xml:"IncludeAliDns" require:"true"`
-	DnsServers       *DescribeDomainNsResponseDnsServers       `json:"DnsServers" xml:"DnsServers" require:"true" type:"Struct"`
-	ExpectDnsServers *DescribeDomainNsResponseExpectDnsServers `json:"ExpectDnsServers" xml:"ExpectDnsServers" require:"true" type:"Struct"`
+	RequestId        *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	AllAliDns        *bool                                     `json:"AllAliDns,omitempty" xml:"AllAliDns,omitempty" require:"true"`
+	IncludeAliDns    *bool                                     `json:"IncludeAliDns,omitempty" xml:"IncludeAliDns,omitempty" require:"true"`
+	DnsServers       *DescribeDomainNsResponseDnsServers       `json:"DnsServers,omitempty" xml:"DnsServers,omitempty" require:"true" type:"Struct"`
+	ExpectDnsServers *DescribeDomainNsResponseExpectDnsServers `json:"ExpectDnsServers,omitempty" xml:"ExpectDnsServers,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainNsResponse) String() string {
@@ -6596,7 +7257,7 @@ func (s *DescribeDomainNsResponse) SetExpectDnsServers(v *DescribeDomainNsRespon
 }
 
 type DescribeDomainNsResponseDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainNsResponseDnsServers) String() string {
@@ -6613,7 +7274,7 @@ func (s *DescribeDomainNsResponseDnsServers) SetDnsServer(v []*string) *Describe
 }
 
 type DescribeDomainNsResponseExpectDnsServers struct {
-	ExpectDnsServer []*string `json:"ExpectDnsServer" xml:"ExpectDnsServer" require:"true" type:"Repeated"`
+	ExpectDnsServer []*string `json:"ExpectDnsServer,omitempty" xml:"ExpectDnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainNsResponseExpectDnsServers) String() string {
@@ -6630,10 +7291,9 @@ func (s *DescribeDomainNsResponseExpectDnsServers) SetExpectDnsServer(v []*strin
 }
 
 type DescribeDnsProductInstanceRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	InstanceId   *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	InstanceId   *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s DescribeDnsProductInstanceRequest) String() string {
@@ -6642,11 +7302,6 @@ func (s DescribeDnsProductInstanceRequest) String() string {
 
 func (s DescribeDnsProductInstanceRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDnsProductInstanceRequest) SetAccessKeyId(v string) *DescribeDnsProductInstanceRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDnsProductInstanceRequest) SetLang(v string) *DescribeDnsProductInstanceRequest {
@@ -6665,39 +7320,39 @@ func (s *DescribeDnsProductInstanceRequest) SetInstanceId(v string) *DescribeDns
 }
 
 type DescribeDnsProductInstanceResponse struct {
-	RequestId             *string                                       `json:"RequestId" xml:"RequestId" require:"true"`
-	InstanceId            *string                                       `json:"InstanceId" xml:"InstanceId" require:"true"`
-	VersionCode           *string                                       `json:"VersionCode" xml:"VersionCode" require:"true"`
-	VersionName           *string                                       `json:"VersionName" xml:"VersionName" require:"true"`
-	StartTime             *string                                       `json:"StartTime" xml:"StartTime" require:"true"`
-	StartTimestamp        *int64                                        `json:"StartTimestamp" xml:"StartTimestamp" require:"true"`
-	EndTime               *string                                       `json:"EndTime" xml:"EndTime" require:"true"`
-	EndTimestamp          *int64                                        `json:"EndTimestamp" xml:"EndTimestamp" require:"true"`
-	Domain                *string                                       `json:"Domain" xml:"Domain" require:"true"`
-	BindCount             *int64                                        `json:"BindCount" xml:"BindCount" require:"true"`
-	BindUsedCount         *int64                                        `json:"BindUsedCount" xml:"BindUsedCount" require:"true"`
-	TTLMinValue           *int64                                        `json:"TTLMinValue" xml:"TTLMinValue" require:"true"`
-	SubDomainLevel        *int64                                        `json:"SubDomainLevel" xml:"SubDomainLevel" require:"true"`
-	DnsSLBCount           *int64                                        `json:"DnsSLBCount" xml:"DnsSLBCount" require:"true"`
-	URLForwardCount       *int64                                        `json:"URLForwardCount" xml:"URLForwardCount" require:"true"`
-	DDosDefendFlow        *int64                                        `json:"DDosDefendFlow" xml:"DDosDefendFlow" require:"true"`
-	DDosDefendQuery       *int64                                        `json:"DDosDefendQuery" xml:"DDosDefendQuery" require:"true"`
-	OverseaDDosDefendFlow *int64                                        `json:"OverseaDDosDefendFlow" xml:"OverseaDDosDefendFlow" require:"true"`
-	SearchEngineLines     *string                                       `json:"SearchEngineLines" xml:"SearchEngineLines" require:"true"`
-	ISPLines              *string                                       `json:"ISPLines" xml:"ISPLines" require:"true"`
-	ISPRegionLines        *string                                       `json:"ISPRegionLines" xml:"ISPRegionLines" require:"true"`
-	OverseaLine           *string                                       `json:"OverseaLine" xml:"OverseaLine" require:"true"`
-	MonitorNodeCount      *int64                                        `json:"MonitorNodeCount" xml:"MonitorNodeCount" require:"true"`
-	MonitorFrequency      *int64                                        `json:"MonitorFrequency" xml:"MonitorFrequency" require:"true"`
-	MonitorTaskCount      *int64                                        `json:"MonitorTaskCount" xml:"MonitorTaskCount" require:"true"`
-	RegionLines           *bool                                         `json:"RegionLines" xml:"RegionLines" require:"true"`
-	Gslb                  *bool                                         `json:"Gslb" xml:"Gslb" require:"true"`
-	InClean               *bool                                         `json:"InClean" xml:"InClean" require:"true"`
-	InBlackHole           *bool                                         `json:"InBlackHole" xml:"InBlackHole" require:"true"`
-	BindDomainCount       *int64                                        `json:"BindDomainCount" xml:"BindDomainCount" require:"true"`
-	BindDomainUsedCount   *int64                                        `json:"BindDomainUsedCount" xml:"BindDomainUsedCount" require:"true"`
-	DnsSecurity           *string                                       `json:"DnsSecurity" xml:"DnsSecurity" require:"true"`
-	DnsServers            *DescribeDnsProductInstanceResponseDnsServers `json:"DnsServers" xml:"DnsServers" require:"true" type:"Struct"`
+	RequestId             *string                                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	InstanceId            *string                                       `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	VersionCode           *string                                       `json:"VersionCode,omitempty" xml:"VersionCode,omitempty" require:"true"`
+	VersionName           *string                                       `json:"VersionName,omitempty" xml:"VersionName,omitempty" require:"true"`
+	StartTime             *string                                       `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	StartTimestamp        *int64                                        `json:"StartTimestamp,omitempty" xml:"StartTimestamp,omitempty" require:"true"`
+	EndTime               *string                                       `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	EndTimestamp          *int64                                        `json:"EndTimestamp,omitempty" xml:"EndTimestamp,omitempty" require:"true"`
+	Domain                *string                                       `json:"Domain,omitempty" xml:"Domain,omitempty" require:"true"`
+	BindCount             *int64                                        `json:"BindCount,omitempty" xml:"BindCount,omitempty" require:"true"`
+	BindUsedCount         *int64                                        `json:"BindUsedCount,omitempty" xml:"BindUsedCount,omitempty" require:"true"`
+	TTLMinValue           *int64                                        `json:"TTLMinValue,omitempty" xml:"TTLMinValue,omitempty" require:"true"`
+	SubDomainLevel        *int64                                        `json:"SubDomainLevel,omitempty" xml:"SubDomainLevel,omitempty" require:"true"`
+	DnsSLBCount           *int64                                        `json:"DnsSLBCount,omitempty" xml:"DnsSLBCount,omitempty" require:"true"`
+	URLForwardCount       *int64                                        `json:"URLForwardCount,omitempty" xml:"URLForwardCount,omitempty" require:"true"`
+	DDosDefendFlow        *int64                                        `json:"DDosDefendFlow,omitempty" xml:"DDosDefendFlow,omitempty" require:"true"`
+	DDosDefendQuery       *int64                                        `json:"DDosDefendQuery,omitempty" xml:"DDosDefendQuery,omitempty" require:"true"`
+	OverseaDDosDefendFlow *int64                                        `json:"OverseaDDosDefendFlow,omitempty" xml:"OverseaDDosDefendFlow,omitempty" require:"true"`
+	SearchEngineLines     *string                                       `json:"SearchEngineLines,omitempty" xml:"SearchEngineLines,omitempty" require:"true"`
+	ISPLines              *string                                       `json:"ISPLines,omitempty" xml:"ISPLines,omitempty" require:"true"`
+	ISPRegionLines        *string                                       `json:"ISPRegionLines,omitempty" xml:"ISPRegionLines,omitempty" require:"true"`
+	OverseaLine           *string                                       `json:"OverseaLine,omitempty" xml:"OverseaLine,omitempty" require:"true"`
+	MonitorNodeCount      *int64                                        `json:"MonitorNodeCount,omitempty" xml:"MonitorNodeCount,omitempty" require:"true"`
+	MonitorFrequency      *int64                                        `json:"MonitorFrequency,omitempty" xml:"MonitorFrequency,omitempty" require:"true"`
+	MonitorTaskCount      *int64                                        `json:"MonitorTaskCount,omitempty" xml:"MonitorTaskCount,omitempty" require:"true"`
+	RegionLines           *bool                                         `json:"RegionLines,omitempty" xml:"RegionLines,omitempty" require:"true"`
+	Gslb                  *bool                                         `json:"Gslb,omitempty" xml:"Gslb,omitempty" require:"true"`
+	InClean               *bool                                         `json:"InClean,omitempty" xml:"InClean,omitempty" require:"true"`
+	InBlackHole           *bool                                         `json:"InBlackHole,omitempty" xml:"InBlackHole,omitempty" require:"true"`
+	BindDomainCount       *int64                                        `json:"BindDomainCount,omitempty" xml:"BindDomainCount,omitempty" require:"true"`
+	BindDomainUsedCount   *int64                                        `json:"BindDomainUsedCount,omitempty" xml:"BindDomainUsedCount,omitempty" require:"true"`
+	DnsSecurity           *string                                       `json:"DnsSecurity,omitempty" xml:"DnsSecurity,omitempty" require:"true"`
+	DnsServers            *DescribeDnsProductInstanceResponseDnsServers `json:"DnsServers,omitempty" xml:"DnsServers,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDnsProductInstanceResponse) String() string {
@@ -6874,7 +7529,7 @@ func (s *DescribeDnsProductInstanceResponse) SetDnsServers(v *DescribeDnsProduct
 }
 
 type DescribeDnsProductInstanceResponseDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDnsProductInstanceResponseDnsServers) String() string {
@@ -6891,16 +7546,15 @@ func (s *DescribeDnsProductInstanceResponseDnsServers) SetDnsServer(v []*string)
 }
 
 type UpdateDomainRecordRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	RecordId     *string `json:"RecordId" xml:"RecordId" require:"true"`
-	RR           *string `json:"RR" xml:"RR" require:"true"`
-	Type         *string `json:"Type" xml:"Type" require:"true"`
-	Value        *string `json:"Value" xml:"Value" require:"true"`
-	TTL          *int64  `json:"TTL" xml:"TTL"`
-	Priority     *int64  `json:"Priority" xml:"Priority"`
-	Line         *string `json:"Line" xml:"Line"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	RecordId     *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	RR           *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Value        *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	TTL          *int64  `json:"TTL,omitempty" xml:"TTL,omitempty"`
+	Priority     *int64  `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	Line         *string `json:"Line,omitempty" xml:"Line,omitempty"`
 }
 
 func (s UpdateDomainRecordRequest) String() string {
@@ -6909,11 +7563,6 @@ func (s UpdateDomainRecordRequest) String() string {
 
 func (s UpdateDomainRecordRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateDomainRecordRequest) SetAccessKeyId(v string) *UpdateDomainRecordRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *UpdateDomainRecordRequest) SetLang(v string) *UpdateDomainRecordRequest {
@@ -6962,8 +7611,8 @@ func (s *UpdateDomainRecordRequest) SetLine(v string) *UpdateDomainRecordRequest
 }
 
 type UpdateDomainRecordResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordId  *string `json:"RecordId" xml:"RecordId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordId  *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
 }
 
 func (s UpdateDomainRecordResponse) String() string {
@@ -6985,9 +7634,9 @@ func (s *UpdateDomainRecordResponse) SetRecordId(v string) *UpdateDomainRecordRe
 }
 
 type UpdateDomainGroupRequest struct {
-	Lang      *string `json:"Lang" xml:"Lang"`
-	GroupId   *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	Lang      *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	GroupId   *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s UpdateDomainGroupRequest) String() string {
@@ -7014,9 +7663,9 @@ func (s *UpdateDomainGroupRequest) SetGroupName(v string) *UpdateDomainGroupRequ
 }
 
 type UpdateDomainGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId   *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId   *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s UpdateDomainGroupResponse) String() string {
@@ -7043,11 +7692,10 @@ func (s *UpdateDomainGroupResponse) SetGroupName(v string) *UpdateDomainGroupRes
 }
 
 type UpdateDNSSLBWeightRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	RecordId     *string `json:"RecordId" xml:"RecordId" require:"true"`
-	Weight       *int    `json:"Weight" xml:"Weight" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	RecordId     *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	Weight       *int    `json:"Weight,omitempty" xml:"Weight,omitempty" require:"true"`
 }
 
 func (s UpdateDNSSLBWeightRequest) String() string {
@@ -7056,11 +7704,6 @@ func (s UpdateDNSSLBWeightRequest) String() string {
 
 func (s UpdateDNSSLBWeightRequest) GoString() string {
 	return s.String()
-}
-
-func (s *UpdateDNSSLBWeightRequest) SetAccessKeyId(v string) *UpdateDNSSLBWeightRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *UpdateDNSSLBWeightRequest) SetLang(v string) *UpdateDNSSLBWeightRequest {
@@ -7084,9 +7727,9 @@ func (s *UpdateDNSSLBWeightRequest) SetWeight(v int) *UpdateDNSSLBWeightRequest 
 }
 
 type UpdateDNSSLBWeightResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordId  *string `json:"RecordId" xml:"RecordId" require:"true"`
-	Weight    *int    `json:"Weight" xml:"Weight" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordId  *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	Weight    *int    `json:"Weight,omitempty" xml:"Weight,omitempty" require:"true"`
 }
 
 func (s UpdateDNSSLBWeightResponse) String() string {
@@ -7113,11 +7756,10 @@ func (s *UpdateDNSSLBWeightResponse) SetWeight(v int) *UpdateDNSSLBWeightRespons
 }
 
 type SetDomainRecordStatusRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	RecordId     *string `json:"RecordId" xml:"RecordId" require:"true"`
-	Status       *string `json:"Status" xml:"Status" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	RecordId     *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s SetDomainRecordStatusRequest) String() string {
@@ -7126,11 +7768,6 @@ func (s SetDomainRecordStatusRequest) String() string {
 
 func (s SetDomainRecordStatusRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetDomainRecordStatusRequest) SetAccessKeyId(v string) *SetDomainRecordStatusRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *SetDomainRecordStatusRequest) SetLang(v string) *SetDomainRecordStatusRequest {
@@ -7154,9 +7791,9 @@ func (s *SetDomainRecordStatusRequest) SetStatus(v string) *SetDomainRecordStatu
 }
 
 type SetDomainRecordStatusResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordId  *string `json:"RecordId" xml:"RecordId" require:"true"`
-	Status    *string `json:"Status" xml:"Status" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordId  *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	Status    *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s SetDomainRecordStatusResponse) String() string {
@@ -7183,13 +7820,12 @@ func (s *SetDomainRecordStatusResponse) SetStatus(v string) *SetDomainRecordStat
 }
 
 type SetDNSSLBStatusRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	SubDomain    *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	Open         *bool   `json:"Open" xml:"Open"`
-	DomainName   *string `json:"DomainName" xml:"DomainName"`
-	Type         *string `json:"Type" xml:"Type"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	SubDomain    *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	Open         *bool   `json:"Open,omitempty" xml:"Open,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty"`
 }
 
 func (s SetDNSSLBStatusRequest) String() string {
@@ -7198,11 +7834,6 @@ func (s SetDNSSLBStatusRequest) String() string {
 
 func (s SetDNSSLBStatusRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SetDNSSLBStatusRequest) SetAccessKeyId(v string) *SetDNSSLBStatusRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *SetDNSSLBStatusRequest) SetLang(v string) *SetDNSSLBStatusRequest {
@@ -7236,9 +7867,9 @@ func (s *SetDNSSLBStatusRequest) SetType(v string) *SetDNSSLBStatusRequest {
 }
 
 type SetDNSSLBStatusResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordCount *int64  `json:"RecordCount" xml:"RecordCount" require:"true"`
-	Open        *bool   `json:"Open" xml:"Open" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordCount *int64  `json:"RecordCount,omitempty" xml:"RecordCount,omitempty" require:"true"`
+	Open        *bool   `json:"Open,omitempty" xml:"Open,omitempty" require:"true"`
 }
 
 func (s SetDNSSLBStatusResponse) String() string {
@@ -7265,10 +7896,9 @@ func (s *SetDNSSLBStatusResponse) SetOpen(v bool) *SetDNSSLBStatusResponse {
 }
 
 type ModifyHichinaDomainDNSRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	DomainName   *string `json:"DomainName" xml:"DomainName" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s ModifyHichinaDomainDNSRequest) String() string {
@@ -7277,11 +7907,6 @@ func (s ModifyHichinaDomainDNSRequest) String() string {
 
 func (s ModifyHichinaDomainDNSRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifyHichinaDomainDNSRequest) SetAccessKeyId(v string) *ModifyHichinaDomainDNSRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *ModifyHichinaDomainDNSRequest) SetLang(v string) *ModifyHichinaDomainDNSRequest {
@@ -7300,9 +7925,9 @@ func (s *ModifyHichinaDomainDNSRequest) SetDomainName(v string) *ModifyHichinaDo
 }
 
 type ModifyHichinaDomainDNSResponse struct {
-	RequestId          *string                                           `json:"RequestId" xml:"RequestId" require:"true"`
-	OriginalDnsServers *ModifyHichinaDomainDNSResponseOriginalDnsServers `json:"OriginalDnsServers" xml:"OriginalDnsServers" require:"true" type:"Struct"`
-	NewDnsServers      *ModifyHichinaDomainDNSResponseNewDnsServers      `json:"NewDnsServers" xml:"NewDnsServers" require:"true" type:"Struct"`
+	RequestId          *string                                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OriginalDnsServers *ModifyHichinaDomainDNSResponseOriginalDnsServers `json:"OriginalDnsServers,omitempty" xml:"OriginalDnsServers,omitempty" require:"true" type:"Struct"`
+	NewDnsServers      *ModifyHichinaDomainDNSResponseNewDnsServers      `json:"NewDnsServers,omitempty" xml:"NewDnsServers,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ModifyHichinaDomainDNSResponse) String() string {
@@ -7329,7 +7954,7 @@ func (s *ModifyHichinaDomainDNSResponse) SetNewDnsServers(v *ModifyHichinaDomain
 }
 
 type ModifyHichinaDomainDNSResponseOriginalDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ModifyHichinaDomainDNSResponseOriginalDnsServers) String() string {
@@ -7346,7 +7971,7 @@ func (s *ModifyHichinaDomainDNSResponseOriginalDnsServers) SetDnsServer(v []*str
 }
 
 type ModifyHichinaDomainDNSResponseNewDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ModifyHichinaDomainDNSResponseNewDnsServers) String() string {
@@ -7363,9 +7988,8 @@ func (s *ModifyHichinaDomainDNSResponseNewDnsServers) SetDnsServer(v []*string) 
 }
 
 type GetMainDomainNameRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang        *string `json:"Lang" xml:"Lang"`
-	InputString *string `json:"InputString" xml:"InputString" require:"true"`
+	Lang        *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	InputString *string `json:"InputString,omitempty" xml:"InputString,omitempty" require:"true"`
 }
 
 func (s GetMainDomainNameRequest) String() string {
@@ -7374,11 +7998,6 @@ func (s GetMainDomainNameRequest) String() string {
 
 func (s GetMainDomainNameRequest) GoString() string {
 	return s.String()
-}
-
-func (s *GetMainDomainNameRequest) SetAccessKeyId(v string) *GetMainDomainNameRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *GetMainDomainNameRequest) SetLang(v string) *GetMainDomainNameRequest {
@@ -7392,10 +8011,10 @@ func (s *GetMainDomainNameRequest) SetInputString(v string) *GetMainDomainNameRe
 }
 
 type GetMainDomainNameResponse struct {
-	RequestId   *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName  *string `json:"DomainName" xml:"DomainName" require:"true"`
-	RR          *string `json:"RR" xml:"RR" require:"true"`
-	DomainLevel *int64  `json:"DomainLevel" xml:"DomainLevel" require:"true"`
+	RequestId   *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName  *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	RR          *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	DomainLevel *int64  `json:"DomainLevel,omitempty" xml:"DomainLevel,omitempty" require:"true"`
 }
 
 func (s GetMainDomainNameResponse) String() string {
@@ -7427,15 +8046,14 @@ func (s *GetMainDomainNameResponse) SetDomainLevel(v int64) *GetMainDomainNameRe
 }
 
 type DescribeSubDomainRecordsRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	SubDomain    *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
-	Type         *string `json:"Type" xml:"Type"`
-	Line         *string `json:"Line" xml:"Line"`
-	DomainName   *string `json:"DomainName" xml:"DomainName"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	SubDomain    *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	Line         *string `json:"Line,omitempty" xml:"Line,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty"`
 }
 
 func (s DescribeSubDomainRecordsRequest) String() string {
@@ -7444,11 +8062,6 @@ func (s DescribeSubDomainRecordsRequest) String() string {
 
 func (s DescribeSubDomainRecordsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeSubDomainRecordsRequest) SetAccessKeyId(v string) *DescribeSubDomainRecordsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeSubDomainRecordsRequest) SetLang(v string) *DescribeSubDomainRecordsRequest {
@@ -7492,11 +8105,11 @@ func (s *DescribeSubDomainRecordsRequest) SetDomainName(v string) *DescribeSubDo
 }
 
 type DescribeSubDomainRecordsResponse struct {
-	RequestId     *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int64                                         `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber    *int64                                         `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize      *int64                                         `json:"PageSize" xml:"PageSize" require:"true"`
-	DomainRecords *DescribeSubDomainRecordsResponseDomainRecords `json:"DomainRecords" xml:"DomainRecords" require:"true" type:"Struct"`
+	RequestId     *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int64                                         `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber    *int64                                         `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *int64                                         `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DomainRecords *DescribeSubDomainRecordsResponseDomainRecords `json:"DomainRecords,omitempty" xml:"DomainRecords,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSubDomainRecordsResponse) String() string {
@@ -7533,7 +8146,7 @@ func (s *DescribeSubDomainRecordsResponse) SetDomainRecords(v *DescribeSubDomain
 }
 
 type DescribeSubDomainRecordsResponseDomainRecords struct {
-	Record []*DescribeSubDomainRecordsResponseDomainRecordsRecord `json:"Record" xml:"Record" require:"true" type:"Repeated"`
+	Record []*DescribeSubDomainRecordsResponseDomainRecordsRecord `json:"Record,omitempty" xml:"Record,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSubDomainRecordsResponseDomainRecords) String() string {
@@ -7550,17 +8163,17 @@ func (s *DescribeSubDomainRecordsResponseDomainRecords) SetRecord(v []*DescribeS
 }
 
 type DescribeSubDomainRecordsResponseDomainRecordsRecord struct {
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	RecordId   *string `json:"RecordId" xml:"RecordId" require:"true"`
-	RR         *string `json:"RR" xml:"RR" require:"true"`
-	Type       *string `json:"Type" xml:"Type" require:"true"`
-	Value      *string `json:"Value" xml:"Value" require:"true"`
-	TTL        *int64  `json:"TTL" xml:"TTL" require:"true"`
-	Priority   *int64  `json:"Priority" xml:"Priority" require:"true"`
-	Line       *string `json:"Line" xml:"Line" require:"true"`
-	Status     *string `json:"Status" xml:"Status" require:"true"`
-	Locked     *bool   `json:"Locked" xml:"Locked" require:"true"`
-	Weight     *int    `json:"Weight" xml:"Weight" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	RecordId   *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	RR         *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Value      *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	TTL        *int64  `json:"TTL,omitempty" xml:"TTL,omitempty" require:"true"`
+	Priority   *int64  `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
+	Line       *string `json:"Line,omitempty" xml:"Line,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Locked     *bool   `json:"Locked,omitempty" xml:"Locked,omitempty" require:"true"`
+	Weight     *int    `json:"Weight,omitempty" xml:"Weight,omitempty" require:"true"`
 }
 
 func (s DescribeSubDomainRecordsResponseDomainRecordsRecord) String() string {
@@ -7627,15 +8240,14 @@ func (s *DescribeSubDomainRecordsResponseDomainRecordsRecord) SetWeight(v int) *
 }
 
 type DescribeRecordLogsRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	DomainName   *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
-	KeyWord      *string `json:"KeyWord" xml:"KeyWord"`
-	StartDate    *string `json:"StartDate" xml:"StartDate"`
-	EndDate      *string `json:"endDate" xml:"endDate"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	KeyWord      *string `json:"KeyWord,omitempty" xml:"KeyWord,omitempty"`
+	StartDate    *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate      *string `json:"endDate,omitempty" xml:"endDate,omitempty"`
 }
 
 func (s DescribeRecordLogsRequest) String() string {
@@ -7644,11 +8256,6 @@ func (s DescribeRecordLogsRequest) String() string {
 
 func (s DescribeRecordLogsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeRecordLogsRequest) SetAccessKeyId(v string) *DescribeRecordLogsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeRecordLogsRequest) SetLang(v string) *DescribeRecordLogsRequest {
@@ -7692,11 +8299,11 @@ func (s *DescribeRecordLogsRequest) SetEndDate(v string) *DescribeRecordLogsRequ
 }
 
 type DescribeRecordLogsResponse struct {
-	RequestId  *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int64                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int64                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64                                `json:"PageSize" xml:"PageSize" require:"true"`
-	RecordLogs *DescribeRecordLogsResponseRecordLogs `json:"RecordLogs" xml:"RecordLogs" require:"true" type:"Struct"`
+	RequestId  *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int64                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int64                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RecordLogs *DescribeRecordLogsResponseRecordLogs `json:"RecordLogs,omitempty" xml:"RecordLogs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRecordLogsResponse) String() string {
@@ -7733,7 +8340,7 @@ func (s *DescribeRecordLogsResponse) SetRecordLogs(v *DescribeRecordLogsResponse
 }
 
 type DescribeRecordLogsResponseRecordLogs struct {
-	RecordLog []*DescribeRecordLogsResponseRecordLogsRecordLog `json:"RecordLog" xml:"RecordLog" require:"true" type:"Repeated"`
+	RecordLog []*DescribeRecordLogsResponseRecordLogsRecordLog `json:"RecordLog,omitempty" xml:"RecordLog,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRecordLogsResponseRecordLogs) String() string {
@@ -7750,11 +8357,11 @@ func (s *DescribeRecordLogsResponseRecordLogs) SetRecordLog(v []*DescribeRecordL
 }
 
 type DescribeRecordLogsResponseRecordLogsRecordLog struct {
-	ActionTime      *string `json:"ActionTime" xml:"ActionTime" require:"true"`
-	ActionTimestamp *int64  `json:"ActionTimestamp" xml:"ActionTimestamp" require:"true"`
-	Action          *string `json:"Action" xml:"Action" require:"true"`
-	Message         *string `json:"Message" xml:"Message" require:"true"`
-	ClientIp        *string `json:"ClientIp" xml:"ClientIp" require:"true"`
+	ActionTime      *string `json:"ActionTime,omitempty" xml:"ActionTime,omitempty" require:"true"`
+	ActionTimestamp *int64  `json:"ActionTimestamp,omitempty" xml:"ActionTimestamp,omitempty" require:"true"`
+	Action          *string `json:"Action,omitempty" xml:"Action,omitempty" require:"true"`
+	Message         *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	ClientIp        *string `json:"ClientIp,omitempty" xml:"ClientIp,omitempty" require:"true"`
 }
 
 func (s DescribeRecordLogsResponseRecordLogsRecordLog) String() string {
@@ -7791,14 +8398,14 @@ func (s *DescribeRecordLogsResponseRecordLogsRecordLog) SetClientIp(v string) *D
 }
 
 type DescribeDomainsRequest struct {
-	Lang            *string `json:"Lang" xml:"Lang"`
-	KeyWord         *string `json:"KeyWord" xml:"KeyWord"`
-	GroupId         *string `json:"GroupId" xml:"GroupId"`
-	PageNumber      *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize        *int64  `json:"PageSize" xml:"PageSize"`
-	SearchMode      *string `json:"SearchMode" xml:"SearchMode"`
-	ResourceGroupId *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	Starmark        *bool   `json:"Starmark" xml:"Starmark"`
+	Lang            *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	KeyWord         *string `json:"KeyWord,omitempty" xml:"KeyWord,omitempty"`
+	GroupId         *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	PageNumber      *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize        *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	SearchMode      *string `json:"SearchMode,omitempty" xml:"SearchMode,omitempty"`
+	ResourceGroupId *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
+	Starmark        *bool   `json:"Starmark,omitempty" xml:"Starmark,omitempty"`
 }
 
 func (s DescribeDomainsRequest) String() string {
@@ -7850,11 +8457,11 @@ func (s *DescribeDomainsRequest) SetStarmark(v bool) *DescribeDomainsRequest {
 }
 
 type DescribeDomainsResponse struct {
-	RequestId  *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int64                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int64                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64                          `json:"PageSize" xml:"PageSize" require:"true"`
-	Domains    *DescribeDomainsResponseDomains `json:"Domains" xml:"Domains" require:"true" type:"Struct"`
+	RequestId  *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int64                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int64                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Domains    *DescribeDomainsResponseDomains `json:"Domains,omitempty" xml:"Domains,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainsResponse) String() string {
@@ -7891,7 +8498,7 @@ func (s *DescribeDomainsResponse) SetDomains(v *DescribeDomainsResponseDomains) 
 }
 
 type DescribeDomainsResponseDomains struct {
-	Domain []*DescribeDomainsResponseDomainsDomain `json:"Domain" xml:"Domain" require:"true" type:"Repeated"`
+	Domain []*DescribeDomainsResponseDomainsDomain `json:"Domain,omitempty" xml:"Domain,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainsResponseDomains) String() string {
@@ -7908,25 +8515,26 @@ func (s *DescribeDomainsResponseDomains) SetDomain(v []*DescribeDomainsResponseD
 }
 
 type DescribeDomainsResponseDomainsDomain struct {
-	DomainId        *string                                         `json:"DomainId" xml:"DomainId" require:"true"`
-	DomainName      *string                                         `json:"DomainName" xml:"DomainName" require:"true"`
-	PunyCode        *string                                         `json:"PunyCode" xml:"PunyCode" require:"true"`
-	AliDomain       *bool                                           `json:"AliDomain" xml:"AliDomain" require:"true"`
-	RecordCount     *int64                                          `json:"RecordCount" xml:"RecordCount" require:"true"`
-	RegistrantEmail *string                                         `json:"RegistrantEmail" xml:"RegistrantEmail" require:"true"`
-	Remark          *string                                         `json:"Remark" xml:"Remark" require:"true"`
-	GroupId         *string                                         `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName       *string                                         `json:"GroupName" xml:"GroupName" require:"true"`
-	InstanceId      *string                                         `json:"InstanceId" xml:"InstanceId" require:"true"`
-	VersionCode     *string                                         `json:"VersionCode" xml:"VersionCode" require:"true"`
-	VersionName     *string                                         `json:"VersionName" xml:"VersionName" require:"true"`
-	InstanceEndTime *string                                         `json:"InstanceEndTime" xml:"InstanceEndTime" require:"true"`
-	InstanceExpired *bool                                           `json:"InstanceExpired" xml:"InstanceExpired" require:"true"`
-	Starmark        *bool                                           `json:"Starmark" xml:"Starmark" require:"true"`
-	CreateTime      *string                                         `json:"CreateTime" xml:"CreateTime" require:"true"`
-	CreateTimestamp *int64                                          `json:"CreateTimestamp" xml:"CreateTimestamp" require:"true"`
-	Tags            *DescribeDomainsResponseDomainsDomainTags       `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
-	DnsServers      *DescribeDomainsResponseDomainsDomainDnsServers `json:"DnsServers" xml:"DnsServers" require:"true" type:"Struct"`
+	DomainId        *string                                         `json:"DomainId,omitempty" xml:"DomainId,omitempty" require:"true"`
+	DomainName      *string                                         `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PunyCode        *string                                         `json:"PunyCode,omitempty" xml:"PunyCode,omitempty" require:"true"`
+	AliDomain       *bool                                           `json:"AliDomain,omitempty" xml:"AliDomain,omitempty" require:"true"`
+	RecordCount     *int64                                          `json:"RecordCount,omitempty" xml:"RecordCount,omitempty" require:"true"`
+	RegistrantEmail *string                                         `json:"RegistrantEmail,omitempty" xml:"RegistrantEmail,omitempty" require:"true"`
+	Remark          *string                                         `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
+	GroupId         *string                                         `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName       *string                                         `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	InstanceId      *string                                         `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	VersionCode     *string                                         `json:"VersionCode,omitempty" xml:"VersionCode,omitempty" require:"true"`
+	VersionName     *string                                         `json:"VersionName,omitempty" xml:"VersionName,omitempty" require:"true"`
+	InstanceEndTime *string                                         `json:"InstanceEndTime,omitempty" xml:"InstanceEndTime,omitempty" require:"true"`
+	InstanceExpired *bool                                           `json:"InstanceExpired,omitempty" xml:"InstanceExpired,omitempty" require:"true"`
+	Starmark        *bool                                           `json:"Starmark,omitempty" xml:"Starmark,omitempty" require:"true"`
+	CreateTime      *string                                         `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	CreateTimestamp *int64                                          `json:"CreateTimestamp,omitempty" xml:"CreateTimestamp,omitempty" require:"true"`
+	ResourceGroupId *string                                         `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	Tags            *DescribeDomainsResponseDomainsDomainTags       `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
+	DnsServers      *DescribeDomainsResponseDomainsDomainDnsServers `json:"DnsServers,omitempty" xml:"DnsServers,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainsResponseDomainsDomain) String() string {
@@ -8022,6 +8630,11 @@ func (s *DescribeDomainsResponseDomainsDomain) SetCreateTimestamp(v int64) *Desc
 	return s
 }
 
+func (s *DescribeDomainsResponseDomainsDomain) SetResourceGroupId(v string) *DescribeDomainsResponseDomainsDomain {
+	s.ResourceGroupId = &v
+	return s
+}
+
 func (s *DescribeDomainsResponseDomainsDomain) SetTags(v *DescribeDomainsResponseDomainsDomainTags) *DescribeDomainsResponseDomainsDomain {
 	s.Tags = v
 	return s
@@ -8033,7 +8646,7 @@ func (s *DescribeDomainsResponseDomainsDomain) SetDnsServers(v *DescribeDomainsR
 }
 
 type DescribeDomainsResponseDomainsDomainTags struct {
-	Tag []*DescribeDomainsResponseDomainsDomainTagsTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	Tag []*DescribeDomainsResponseDomainsDomainTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainsResponseDomainsDomainTags) String() string {
@@ -8050,8 +8663,8 @@ func (s *DescribeDomainsResponseDomainsDomainTags) SetTag(v []*DescribeDomainsRe
 }
 
 type DescribeDomainsResponseDomainsDomainTagsTag struct {
-	Key   *string `json:"Key" xml:"Key" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Key   *string `json:"Key,omitempty" xml:"Key,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeDomainsResponseDomainsDomainTagsTag) String() string {
@@ -8073,7 +8686,7 @@ func (s *DescribeDomainsResponseDomainsDomainTagsTag) SetValue(v string) *Descri
 }
 
 type DescribeDomainsResponseDomainsDomainDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainsResponseDomainsDomainDnsServers) String() string {
@@ -8090,21 +8703,21 @@ func (s *DescribeDomainsResponseDomainsDomainDnsServers) SetDnsServer(v []*strin
 }
 
 type DescribeDomainRecordsRequest struct {
-	Lang         *string `json:"Lang" xml:"Lang"`
-	DomainName   *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
-	KeyWord      *string `json:"KeyWord" xml:"KeyWord"`
-	RRKeyWord    *string `json:"RRKeyWord" xml:"RRKeyWord"`
-	TypeKeyWord  *string `json:"TypeKeyWord" xml:"TypeKeyWord"`
-	ValueKeyWord *string `json:"ValueKeyWord" xml:"ValueKeyWord"`
-	OrderBy      *string `json:"OrderBy" xml:"OrderBy"`
-	Direction    *string `json:"Direction" xml:"Direction"`
-	SearchMode   *string `json:"SearchMode" xml:"SearchMode"`
-	GroupId      *int64  `json:"GroupId" xml:"GroupId"`
-	Type         *string `json:"Type" xml:"Type"`
-	Line         *string `json:"Line" xml:"Line"`
-	Status       *string `json:"Status" xml:"Status"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	KeyWord      *string `json:"KeyWord,omitempty" xml:"KeyWord,omitempty"`
+	RRKeyWord    *string `json:"RRKeyWord,omitempty" xml:"RRKeyWord,omitempty"`
+	TypeKeyWord  *string `json:"TypeKeyWord,omitempty" xml:"TypeKeyWord,omitempty"`
+	ValueKeyWord *string `json:"ValueKeyWord,omitempty" xml:"ValueKeyWord,omitempty"`
+	OrderBy      *string `json:"OrderBy,omitempty" xml:"OrderBy,omitempty"`
+	Direction    *string `json:"Direction,omitempty" xml:"Direction,omitempty"`
+	SearchMode   *string `json:"SearchMode,omitempty" xml:"SearchMode,omitempty"`
+	GroupId      *int64  `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	Line         *string `json:"Line,omitempty" xml:"Line,omitempty"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty"`
 }
 
 func (s DescribeDomainRecordsRequest) String() string {
@@ -8191,11 +8804,11 @@ func (s *DescribeDomainRecordsRequest) SetStatus(v string) *DescribeDomainRecord
 }
 
 type DescribeDomainRecordsResponse struct {
-	RequestId     *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int64                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber    *int64                                      `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize      *int64                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	DomainRecords *DescribeDomainRecordsResponseDomainRecords `json:"DomainRecords" xml:"DomainRecords" require:"true" type:"Struct"`
+	RequestId     *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int64                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber    *int64                                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *int64                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DomainRecords *DescribeDomainRecordsResponseDomainRecords `json:"DomainRecords,omitempty" xml:"DomainRecords,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainRecordsResponse) String() string {
@@ -8232,7 +8845,7 @@ func (s *DescribeDomainRecordsResponse) SetDomainRecords(v *DescribeDomainRecord
 }
 
 type DescribeDomainRecordsResponseDomainRecords struct {
-	Record []*DescribeDomainRecordsResponseDomainRecordsRecord `json:"Record" xml:"Record" require:"true" type:"Repeated"`
+	Record []*DescribeDomainRecordsResponseDomainRecordsRecord `json:"Record,omitempty" xml:"Record,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainRecordsResponseDomainRecords) String() string {
@@ -8249,18 +8862,18 @@ func (s *DescribeDomainRecordsResponseDomainRecords) SetRecord(v []*DescribeDoma
 }
 
 type DescribeDomainRecordsResponseDomainRecordsRecord struct {
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	RecordId   *string `json:"RecordId" xml:"RecordId" require:"true"`
-	RR         *string `json:"RR" xml:"RR" require:"true"`
-	Type       *string `json:"Type" xml:"Type" require:"true"`
-	Value      *string `json:"Value" xml:"Value" require:"true"`
-	TTL        *int64  `json:"TTL" xml:"TTL" require:"true"`
-	Priority   *int64  `json:"Priority" xml:"Priority" require:"true"`
-	Line       *string `json:"Line" xml:"Line" require:"true"`
-	Status     *string `json:"Status" xml:"Status" require:"true"`
-	Locked     *bool   `json:"Locked" xml:"Locked" require:"true"`
-	Weight     *int    `json:"Weight" xml:"Weight" require:"true"`
-	Remark     *string `json:"Remark" xml:"Remark" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	RecordId   *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	RR         *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Value      *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	TTL        *int64  `json:"TTL,omitempty" xml:"TTL,omitempty" require:"true"`
+	Priority   *int64  `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
+	Line       *string `json:"Line,omitempty" xml:"Line,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Locked     *bool   `json:"Locked,omitempty" xml:"Locked,omitempty" require:"true"`
+	Weight     *int    `json:"Weight,omitempty" xml:"Weight,omitempty" require:"true"`
+	Remark     *string `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
 }
 
 func (s DescribeDomainRecordsResponseDomainRecordsRecord) String() string {
@@ -8332,10 +8945,9 @@ func (s *DescribeDomainRecordsResponseDomainRecordsRecord) SetRemark(v string) *
 }
 
 type DescribeDomainRecordInfoRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	RecordId     *string `json:"RecordId" xml:"RecordId" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	RecordId     *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
 }
 
 func (s DescribeDomainRecordInfoRequest) String() string {
@@ -8344,11 +8956,6 @@ func (s DescribeDomainRecordInfoRequest) String() string {
 
 func (s DescribeDomainRecordInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDomainRecordInfoRequest) SetAccessKeyId(v string) *DescribeDomainRecordInfoRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDomainRecordInfoRequest) SetLang(v string) *DescribeDomainRecordInfoRequest {
@@ -8367,21 +8974,21 @@ func (s *DescribeDomainRecordInfoRequest) SetRecordId(v string) *DescribeDomainR
 }
 
 type DescribeDomainRecordInfoResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainId   *string `json:"DomainId" xml:"DomainId" require:"true"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PunyCode   *string `json:"PunyCode" xml:"PunyCode" require:"true"`
-	GroupId    *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName  *string `json:"GroupName" xml:"GroupName" require:"true"`
-	RecordId   *string `json:"RecordId" xml:"RecordId" require:"true"`
-	RR         *string `json:"RR" xml:"RR" require:"true"`
-	Type       *string `json:"Type" xml:"Type" require:"true"`
-	Value      *string `json:"Value" xml:"Value" require:"true"`
-	TTL        *int64  `json:"TTL" xml:"TTL" require:"true"`
-	Priority   *int64  `json:"Priority" xml:"Priority" require:"true"`
-	Line       *string `json:"Line" xml:"Line" require:"true"`
-	Status     *string `json:"Status" xml:"Status" require:"true"`
-	Locked     *bool   `json:"Locked" xml:"Locked" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainId   *string `json:"DomainId,omitempty" xml:"DomainId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PunyCode   *string `json:"PunyCode,omitempty" xml:"PunyCode,omitempty" require:"true"`
+	GroupId    *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName  *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	RecordId   *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
+	RR         *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Value      *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	TTL        *int64  `json:"TTL,omitempty" xml:"TTL,omitempty" require:"true"`
+	Priority   *int64  `json:"Priority,omitempty" xml:"Priority,omitempty" require:"true"`
+	Line       *string `json:"Line,omitempty" xml:"Line,omitempty" require:"true"`
+	Status     *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Locked     *bool   `json:"Locked,omitempty" xml:"Locked,omitempty" require:"true"`
 }
 
 func (s DescribeDomainRecordInfoResponse) String() string {
@@ -8468,14 +9075,14 @@ func (s *DescribeDomainRecordInfoResponse) SetLocked(v bool) *DescribeDomainReco
 }
 
 type DescribeDomainLogsRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	KeyWord    *string `json:"KeyWord" xml:"KeyWord"`
-	GroupId    *string `json:"GroupId" xml:"GroupId"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
-	StartDate  *string `json:"StartDate" xml:"StartDate"`
-	EndDate    *string `json:"endDate" xml:"endDate"`
-	Type       *string `json:"Type" xml:"Type"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	KeyWord    *string `json:"KeyWord,omitempty" xml:"KeyWord,omitempty"`
+	GroupId    *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartDate  *string `json:"StartDate,omitempty" xml:"StartDate,omitempty"`
+	EndDate    *string `json:"endDate,omitempty" xml:"endDate,omitempty"`
+	Type       *string `json:"Type,omitempty" xml:"Type,omitempty"`
 }
 
 func (s DescribeDomainLogsRequest) String() string {
@@ -8527,11 +9134,11 @@ func (s *DescribeDomainLogsRequest) SetType(v string) *DescribeDomainLogsRequest
 }
 
 type DescribeDomainLogsResponse struct {
-	RequestId  *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount *int64                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int64                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int64                                `json:"PageSize" xml:"PageSize" require:"true"`
-	DomainLogs *DescribeDomainLogsResponseDomainLogs `json:"DomainLogs" xml:"DomainLogs" require:"true" type:"Struct"`
+	RequestId  *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount *int64                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int64                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int64                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DomainLogs *DescribeDomainLogsResponseDomainLogs `json:"DomainLogs,omitempty" xml:"DomainLogs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainLogsResponse) String() string {
@@ -8568,7 +9175,7 @@ func (s *DescribeDomainLogsResponse) SetDomainLogs(v *DescribeDomainLogsResponse
 }
 
 type DescribeDomainLogsResponseDomainLogs struct {
-	DomainLog []*DescribeDomainLogsResponseDomainLogsDomainLog `json:"DomainLog" xml:"DomainLog" require:"true" type:"Repeated"`
+	DomainLog []*DescribeDomainLogsResponseDomainLogsDomainLog `json:"DomainLog,omitempty" xml:"DomainLog,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainLogsResponseDomainLogs) String() string {
@@ -8585,13 +9192,13 @@ func (s *DescribeDomainLogsResponseDomainLogs) SetDomainLog(v []*DescribeDomainL
 }
 
 type DescribeDomainLogsResponseDomainLogsDomainLog struct {
-	ActionTime      *string `json:"ActionTime" xml:"ActionTime" require:"true"`
-	ActionTimestamp *int64  `json:"ActionTimestamp" xml:"ActionTimestamp" require:"true"`
-	DomainName      *string `json:"DomainName" xml:"DomainName" require:"true"`
-	Action          *string `json:"Action" xml:"Action" require:"true"`
-	Message         *string `json:"Message" xml:"Message" require:"true"`
-	ClientIp        *string `json:"ClientIp" xml:"ClientIp" require:"true"`
-	ZoneId          *string `json:"ZoneId" xml:"ZoneId" require:"true"`
+	ActionTime      *string `json:"ActionTime,omitempty" xml:"ActionTime,omitempty" require:"true"`
+	ActionTimestamp *int64  `json:"ActionTimestamp,omitempty" xml:"ActionTimestamp,omitempty" require:"true"`
+	DomainName      *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	Action          *string `json:"Action,omitempty" xml:"Action,omitempty" require:"true"`
+	Message         *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	ClientIp        *string `json:"ClientIp,omitempty" xml:"ClientIp,omitempty" require:"true"`
+	ZoneId          *string `json:"ZoneId,omitempty" xml:"ZoneId,omitempty" require:"true"`
 }
 
 func (s DescribeDomainLogsResponseDomainLogsDomainLog) String() string {
@@ -8638,10 +9245,9 @@ func (s *DescribeDomainLogsResponseDomainLogsDomainLog) SetZoneId(v string) *Des
 }
 
 type DescribeDomainInfoRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang                 *string `json:"Lang" xml:"Lang"`
-	DomainName           *string `json:"DomainName" xml:"DomainName" require:"true"`
-	NeedDetailAttributes *bool   `json:"NeedDetailAttributes" xml:"NeedDetailAttributes"`
+	Lang                 *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName           *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	NeedDetailAttributes *bool   `json:"NeedDetailAttributes,omitempty" xml:"NeedDetailAttributes,omitempty"`
 }
 
 func (s DescribeDomainInfoRequest) String() string {
@@ -8650,11 +9256,6 @@ func (s DescribeDomainInfoRequest) String() string {
 
 func (s DescribeDomainInfoRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDomainInfoRequest) SetAccessKeyId(v string) *DescribeDomainInfoRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDomainInfoRequest) SetLang(v string) *DescribeDomainInfoRequest {
@@ -8673,27 +9274,28 @@ func (s *DescribeDomainInfoRequest) SetNeedDetailAttributes(v bool) *DescribeDom
 }
 
 type DescribeDomainInfoResponse struct {
-	RequestId          *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainId           *string                                  `json:"DomainId" xml:"DomainId" require:"true"`
-	DomainName         *string                                  `json:"DomainName" xml:"DomainName" require:"true"`
-	PunyCode           *string                                  `json:"PunyCode" xml:"PunyCode" require:"true"`
-	AliDomain          *bool                                    `json:"AliDomain" xml:"AliDomain" require:"true"`
-	Remark             *string                                  `json:"Remark" xml:"Remark" require:"true"`
-	GroupId            *string                                  `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName          *string                                  `json:"GroupName" xml:"GroupName" require:"true"`
-	InstanceId         *string                                  `json:"InstanceId" xml:"InstanceId" require:"true"`
-	VersionCode        *string                                  `json:"VersionCode" xml:"VersionCode" require:"true"`
-	VersionName        *string                                  `json:"VersionName" xml:"VersionName" require:"true"`
-	MinTtl             *int64                                   `json:"MinTtl" xml:"MinTtl" require:"true"`
-	RecordLineTreeJson *string                                  `json:"RecordLineTreeJson" xml:"RecordLineTreeJson" require:"true"`
-	LineType           *string                                  `json:"LineType" xml:"LineType" require:"true"`
-	RegionLines        *bool                                    `json:"RegionLines" xml:"RegionLines" require:"true"`
-	InBlackHole        *bool                                    `json:"InBlackHole" xml:"InBlackHole" require:"true"`
-	InClean            *bool                                    `json:"InClean" xml:"InClean" require:"true"`
-	SlaveDns           *bool                                    `json:"SlaveDns" xml:"SlaveDns" require:"true"`
-	RecordLines        *DescribeDomainInfoResponseRecordLines   `json:"RecordLines" xml:"RecordLines" require:"true" type:"Struct"`
-	DnsServers         *DescribeDomainInfoResponseDnsServers    `json:"DnsServers" xml:"DnsServers" require:"true" type:"Struct"`
-	AvailableTtls      *DescribeDomainInfoResponseAvailableTtls `json:"AvailableTtls" xml:"AvailableTtls" require:"true" type:"Struct"`
+	RequestId          *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainId           *string                                  `json:"DomainId,omitempty" xml:"DomainId,omitempty" require:"true"`
+	DomainName         *string                                  `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PunyCode           *string                                  `json:"PunyCode,omitempty" xml:"PunyCode,omitempty" require:"true"`
+	AliDomain          *bool                                    `json:"AliDomain,omitempty" xml:"AliDomain,omitempty" require:"true"`
+	Remark             *string                                  `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
+	GroupId            *string                                  `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName          *string                                  `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	InstanceId         *string                                  `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	VersionCode        *string                                  `json:"VersionCode,omitempty" xml:"VersionCode,omitempty" require:"true"`
+	VersionName        *string                                  `json:"VersionName,omitempty" xml:"VersionName,omitempty" require:"true"`
+	MinTtl             *int64                                   `json:"MinTtl,omitempty" xml:"MinTtl,omitempty" require:"true"`
+	RecordLineTreeJson *string                                  `json:"RecordLineTreeJson,omitempty" xml:"RecordLineTreeJson,omitempty" require:"true"`
+	LineType           *string                                  `json:"LineType,omitempty" xml:"LineType,omitempty" require:"true"`
+	RegionLines        *bool                                    `json:"RegionLines,omitempty" xml:"RegionLines,omitempty" require:"true"`
+	InBlackHole        *bool                                    `json:"InBlackHole,omitempty" xml:"InBlackHole,omitempty" require:"true"`
+	InClean            *bool                                    `json:"InClean,omitempty" xml:"InClean,omitempty" require:"true"`
+	SlaveDns           *bool                                    `json:"SlaveDns,omitempty" xml:"SlaveDns,omitempty" require:"true"`
+	ResourceGroupId    *string                                  `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty" require:"true"`
+	RecordLines        *DescribeDomainInfoResponseRecordLines   `json:"RecordLines,omitempty" xml:"RecordLines,omitempty" require:"true" type:"Struct"`
+	DnsServers         *DescribeDomainInfoResponseDnsServers    `json:"DnsServers,omitempty" xml:"DnsServers,omitempty" require:"true" type:"Struct"`
+	AvailableTtls      *DescribeDomainInfoResponseAvailableTtls `json:"AvailableTtls,omitempty" xml:"AvailableTtls,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainInfoResponse) String() string {
@@ -8794,6 +9396,11 @@ func (s *DescribeDomainInfoResponse) SetSlaveDns(v bool) *DescribeDomainInfoResp
 	return s
 }
 
+func (s *DescribeDomainInfoResponse) SetResourceGroupId(v string) *DescribeDomainInfoResponse {
+	s.ResourceGroupId = &v
+	return s
+}
+
 func (s *DescribeDomainInfoResponse) SetRecordLines(v *DescribeDomainInfoResponseRecordLines) *DescribeDomainInfoResponse {
 	s.RecordLines = v
 	return s
@@ -8810,7 +9417,7 @@ func (s *DescribeDomainInfoResponse) SetAvailableTtls(v *DescribeDomainInfoRespo
 }
 
 type DescribeDomainInfoResponseRecordLines struct {
-	RecordLine []*DescribeDomainInfoResponseRecordLinesRecordLine `json:"RecordLine" xml:"RecordLine" require:"true" type:"Repeated"`
+	RecordLine []*DescribeDomainInfoResponseRecordLinesRecordLine `json:"RecordLine,omitempty" xml:"RecordLine,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainInfoResponseRecordLines) String() string {
@@ -8827,10 +9434,10 @@ func (s *DescribeDomainInfoResponseRecordLines) SetRecordLine(v []*DescribeDomai
 }
 
 type DescribeDomainInfoResponseRecordLinesRecordLine struct {
-	LineCode        *string `json:"LineCode" xml:"LineCode" require:"true"`
-	FatherCode      *string `json:"FatherCode" xml:"FatherCode" require:"true"`
-	LineName        *string `json:"LineName" xml:"LineName" require:"true"`
-	LineDisplayName *string `json:"LineDisplayName" xml:"LineDisplayName" require:"true"`
+	LineCode        *string `json:"LineCode,omitempty" xml:"LineCode,omitempty" require:"true"`
+	FatherCode      *string `json:"FatherCode,omitempty" xml:"FatherCode,omitempty" require:"true"`
+	LineName        *string `json:"LineName,omitempty" xml:"LineName,omitempty" require:"true"`
+	LineDisplayName *string `json:"LineDisplayName,omitempty" xml:"LineDisplayName,omitempty" require:"true"`
 }
 
 func (s DescribeDomainInfoResponseRecordLinesRecordLine) String() string {
@@ -8862,7 +9469,7 @@ func (s *DescribeDomainInfoResponseRecordLinesRecordLine) SetLineDisplayName(v s
 }
 
 type DescribeDomainInfoResponseDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainInfoResponseDnsServers) String() string {
@@ -8879,7 +9486,7 @@ func (s *DescribeDomainInfoResponseDnsServers) SetDnsServer(v []*string) *Descri
 }
 
 type DescribeDomainInfoResponseAvailableTtls struct {
-	AvailableTtl []*string `json:"AvailableTtl" xml:"AvailableTtl" require:"true" type:"Repeated"`
+	AvailableTtl []*string `json:"AvailableTtl,omitempty" xml:"AvailableTtl,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainInfoResponseAvailableTtls) String() string {
@@ -8896,10 +9503,10 @@ func (s *DescribeDomainInfoResponseAvailableTtls) SetAvailableTtl(v []*string) *
 }
 
 type DescribeDomainGroupsRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	KeyWord    *string `json:"KeyWord" xml:"KeyWord"`
-	PageNumber *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int64  `json:"PageSize" xml:"PageSize"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	KeyWord    *string `json:"KeyWord,omitempty" xml:"KeyWord,omitempty"`
+	PageNumber *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeDomainGroupsRequest) String() string {
@@ -8931,11 +9538,11 @@ func (s *DescribeDomainGroupsRequest) SetPageSize(v int64) *DescribeDomainGroups
 }
 
 type DescribeDomainGroupsResponse struct {
-	RequestId    *string                                   `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount   *int64                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber   *int64                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize     *int64                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	DomainGroups *DescribeDomainGroupsResponseDomainGroups `json:"DomainGroups" xml:"DomainGroups" require:"true" type:"Struct"`
+	RequestId    *string                                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount   *int64                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber   *int64                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize     *int64                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DomainGroups *DescribeDomainGroupsResponseDomainGroups `json:"DomainGroups,omitempty" xml:"DomainGroups,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDomainGroupsResponse) String() string {
@@ -8972,7 +9579,7 @@ func (s *DescribeDomainGroupsResponse) SetDomainGroups(v *DescribeDomainGroupsRe
 }
 
 type DescribeDomainGroupsResponseDomainGroups struct {
-	DomainGroup []*DescribeDomainGroupsResponseDomainGroupsDomainGroup `json:"DomainGroup" xml:"DomainGroup" require:"true" type:"Repeated"`
+	DomainGroup []*DescribeDomainGroupsResponseDomainGroupsDomainGroup `json:"DomainGroup,omitempty" xml:"DomainGroup,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDomainGroupsResponseDomainGroups) String() string {
@@ -8989,9 +9596,9 @@ func (s *DescribeDomainGroupsResponseDomainGroups) SetDomainGroup(v []*DescribeD
 }
 
 type DescribeDomainGroupsResponseDomainGroupsDomainGroup struct {
-	GroupId     *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName   *string `json:"GroupName" xml:"GroupName" require:"true"`
-	DomainCount *int64  `json:"DomainCount" xml:"DomainCount" require:"true"`
+	GroupId     *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName   *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	DomainCount *int64  `json:"DomainCount,omitempty" xml:"DomainCount,omitempty" require:"true"`
 }
 
 func (s DescribeDomainGroupsResponseDomainGroupsDomainGroup) String() string {
@@ -9018,12 +9625,11 @@ func (s *DescribeDomainGroupsResponseDomainGroupsDomainGroup) SetDomainCount(v i
 }
 
 type DescribeDNSSLBSubDomainsRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	DomainName   *string `json:"DomainName" xml:"DomainName" require:"true"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s DescribeDNSSLBSubDomainsRequest) String() string {
@@ -9032,11 +9638,6 @@ func (s DescribeDNSSLBSubDomainsRequest) String() string {
 
 func (s DescribeDNSSLBSubDomainsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDNSSLBSubDomainsRequest) SetAccessKeyId(v string) *DescribeDNSSLBSubDomainsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDNSSLBSubDomainsRequest) SetLang(v string) *DescribeDNSSLBSubDomainsRequest {
@@ -9065,11 +9666,11 @@ func (s *DescribeDNSSLBSubDomainsRequest) SetPageSize(v int64) *DescribeDNSSLBSu
 }
 
 type DescribeDNSSLBSubDomainsResponse struct {
-	RequestId     *string                                        `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount    *int64                                         `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber    *int64                                         `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize      *int64                                         `json:"PageSize" xml:"PageSize" require:"true"`
-	SlbSubDomains *DescribeDNSSLBSubDomainsResponseSlbSubDomains `json:"SlbSubDomains" xml:"SlbSubDomains" require:"true" type:"Struct"`
+	RequestId     *string                                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount    *int64                                         `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber    *int64                                         `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize      *int64                                         `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	SlbSubDomains *DescribeDNSSLBSubDomainsResponseSlbSubDomains `json:"SlbSubDomains,omitempty" xml:"SlbSubDomains,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDNSSLBSubDomainsResponse) String() string {
@@ -9106,7 +9707,7 @@ func (s *DescribeDNSSLBSubDomainsResponse) SetSlbSubDomains(v *DescribeDNSSLBSub
 }
 
 type DescribeDNSSLBSubDomainsResponseSlbSubDomains struct {
-	SlbSubDomain []*DescribeDNSSLBSubDomainsResponseSlbSubDomainsSlbSubDomain `json:"SlbSubDomain" xml:"SlbSubDomain" require:"true" type:"Repeated"`
+	SlbSubDomain []*DescribeDNSSLBSubDomainsResponseSlbSubDomainsSlbSubDomain `json:"SlbSubDomain,omitempty" xml:"SlbSubDomain,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDNSSLBSubDomainsResponseSlbSubDomains) String() string {
@@ -9123,10 +9724,10 @@ func (s *DescribeDNSSLBSubDomainsResponseSlbSubDomains) SetSlbSubDomain(v []*Des
 }
 
 type DescribeDNSSLBSubDomainsResponseSlbSubDomainsSlbSubDomain struct {
-	SubDomain   *string `json:"SubDomain" xml:"SubDomain" require:"true"`
-	RecordCount *int64  `json:"RecordCount" xml:"RecordCount" require:"true"`
-	Open        *bool   `json:"Open" xml:"Open" require:"true"`
-	Type        *string `json:"Type" xml:"Type" require:"true"`
+	SubDomain   *string `json:"SubDomain,omitempty" xml:"SubDomain,omitempty" require:"true"`
+	RecordCount *int64  `json:"RecordCount,omitempty" xml:"RecordCount,omitempty" require:"true"`
+	Open        *bool   `json:"Open,omitempty" xml:"Open,omitempty" require:"true"`
+	Type        *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s DescribeDNSSLBSubDomainsResponseSlbSubDomainsSlbSubDomain) String() string {
@@ -9158,12 +9759,11 @@ func (s *DescribeDNSSLBSubDomainsResponseSlbSubDomainsSlbSubDomain) SetType(v st
 }
 
 type DescribeDnsProductInstancesRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	PageNumber   *int64  `json:"PageNumber" xml:"PageNumber"`
-	PageSize     *int64  `json:"PageSize" xml:"PageSize"`
-	VersionCode  *string `json:"VersionCode" xml:"VersionCode"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	PageNumber   *int64  `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize     *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	VersionCode  *string `json:"VersionCode,omitempty" xml:"VersionCode,omitempty"`
 }
 
 func (s DescribeDnsProductInstancesRequest) String() string {
@@ -9172,11 +9772,6 @@ func (s DescribeDnsProductInstancesRequest) String() string {
 
 func (s DescribeDnsProductInstancesRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DescribeDnsProductInstancesRequest) SetAccessKeyId(v string) *DescribeDnsProductInstancesRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DescribeDnsProductInstancesRequest) SetLang(v string) *DescribeDnsProductInstancesRequest {
@@ -9205,11 +9800,11 @@ func (s *DescribeDnsProductInstancesRequest) SetVersionCode(v string) *DescribeD
 }
 
 type DescribeDnsProductInstancesResponse struct {
-	RequestId   *string                                         `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int64                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber  *int64                                          `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize    *int64                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	DnsProducts *DescribeDnsProductInstancesResponseDnsProducts `json:"DnsProducts" xml:"DnsProducts" require:"true" type:"Struct"`
+	RequestId   *string                                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int64                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber  *int64                                          `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize    *int64                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	DnsProducts *DescribeDnsProductInstancesResponseDnsProducts `json:"DnsProducts,omitempty" xml:"DnsProducts,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeDnsProductInstancesResponse) String() string {
@@ -9246,7 +9841,7 @@ func (s *DescribeDnsProductInstancesResponse) SetDnsProducts(v *DescribeDnsProdu
 }
 
 type DescribeDnsProductInstancesResponseDnsProducts struct {
-	DnsProduct []*DescribeDnsProductInstancesResponseDnsProductsDnsProduct `json:"DnsProduct" xml:"DnsProduct" require:"true" type:"Repeated"`
+	DnsProduct []*DescribeDnsProductInstancesResponseDnsProductsDnsProduct `json:"DnsProduct,omitempty" xml:"DnsProduct,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeDnsProductInstancesResponseDnsProducts) String() string {
@@ -9263,37 +9858,37 @@ func (s *DescribeDnsProductInstancesResponseDnsProducts) SetDnsProduct(v []*Desc
 }
 
 type DescribeDnsProductInstancesResponseDnsProductsDnsProduct struct {
-	InstanceId            *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	VersionCode           *string `json:"VersionCode" xml:"VersionCode" require:"true"`
-	VersionName           *string `json:"VersionName" xml:"VersionName" require:"true"`
-	StartTime             *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime               *string `json:"EndTime" xml:"EndTime" require:"true"`
-	StartTimestamp        *int64  `json:"StartTimestamp" xml:"StartTimestamp" require:"true"`
-	EndTimestamp          *int64  `json:"EndTimestamp" xml:"EndTimestamp" require:"true"`
-	Domain                *string `json:"Domain" xml:"Domain" require:"true"`
-	BindCount             *int64  `json:"BindCount" xml:"BindCount" require:"true"`
-	BindUsedCount         *int64  `json:"BindUsedCount" xml:"BindUsedCount" require:"true"`
-	TTLMinValue           *int64  `json:"TTLMinValue" xml:"TTLMinValue" require:"true"`
-	SubDomainLevel        *int64  `json:"SubDomainLevel" xml:"SubDomainLevel" require:"true"`
-	DnsSLBCount           *int64  `json:"DnsSLBCount" xml:"DnsSLBCount" require:"true"`
-	URLForwardCount       *int64  `json:"URLForwardCount" xml:"URLForwardCount" require:"true"`
-	DDosDefendFlow        *int64  `json:"DDosDefendFlow" xml:"DDosDefendFlow" require:"true"`
-	DDosDefendQuery       *int64  `json:"DDosDefendQuery" xml:"DDosDefendQuery" require:"true"`
-	OverseaDDosDefendFlow *int64  `json:"OverseaDDosDefendFlow" xml:"OverseaDDosDefendFlow" require:"true"`
-	SearchEngineLines     *string `json:"SearchEngineLines" xml:"SearchEngineLines" require:"true"`
-	ISPLines              *string `json:"ISPLines" xml:"ISPLines" require:"true"`
-	ISPRegionLines        *string `json:"ISPRegionLines" xml:"ISPRegionLines" require:"true"`
-	OverseaLine           *string `json:"OverseaLine" xml:"OverseaLine" require:"true"`
-	MonitorNodeCount      *int64  `json:"MonitorNodeCount" xml:"MonitorNodeCount" require:"true"`
-	MonitorFrequency      *int64  `json:"MonitorFrequency" xml:"MonitorFrequency" require:"true"`
-	MonitorTaskCount      *int64  `json:"MonitorTaskCount" xml:"MonitorTaskCount" require:"true"`
-	RegionLines           *bool   `json:"RegionLines" xml:"RegionLines" require:"true"`
-	Gslb                  *bool   `json:"Gslb" xml:"Gslb" require:"true"`
-	InClean               *bool   `json:"InClean" xml:"InClean" require:"true"`
-	InBlackHole           *bool   `json:"InBlackHole" xml:"InBlackHole" require:"true"`
-	BindDomainCount       *int64  `json:"BindDomainCount" xml:"BindDomainCount" require:"true"`
-	BindDomainUsedCount   *int64  `json:"BindDomainUsedCount" xml:"BindDomainUsedCount" require:"true"`
-	DnsSecurity           *string `json:"DnsSecurity" xml:"DnsSecurity" require:"true"`
+	InstanceId            *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	VersionCode           *string `json:"VersionCode,omitempty" xml:"VersionCode,omitempty" require:"true"`
+	VersionName           *string `json:"VersionName,omitempty" xml:"VersionName,omitempty" require:"true"`
+	StartTime             *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime               *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	StartTimestamp        *int64  `json:"StartTimestamp,omitempty" xml:"StartTimestamp,omitempty" require:"true"`
+	EndTimestamp          *int64  `json:"EndTimestamp,omitempty" xml:"EndTimestamp,omitempty" require:"true"`
+	Domain                *string `json:"Domain,omitempty" xml:"Domain,omitempty" require:"true"`
+	BindCount             *int64  `json:"BindCount,omitempty" xml:"BindCount,omitempty" require:"true"`
+	BindUsedCount         *int64  `json:"BindUsedCount,omitempty" xml:"BindUsedCount,omitempty" require:"true"`
+	TTLMinValue           *int64  `json:"TTLMinValue,omitempty" xml:"TTLMinValue,omitempty" require:"true"`
+	SubDomainLevel        *int64  `json:"SubDomainLevel,omitempty" xml:"SubDomainLevel,omitempty" require:"true"`
+	DnsSLBCount           *int64  `json:"DnsSLBCount,omitempty" xml:"DnsSLBCount,omitempty" require:"true"`
+	URLForwardCount       *int64  `json:"URLForwardCount,omitempty" xml:"URLForwardCount,omitempty" require:"true"`
+	DDosDefendFlow        *int64  `json:"DDosDefendFlow,omitempty" xml:"DDosDefendFlow,omitempty" require:"true"`
+	DDosDefendQuery       *int64  `json:"DDosDefendQuery,omitempty" xml:"DDosDefendQuery,omitempty" require:"true"`
+	OverseaDDosDefendFlow *int64  `json:"OverseaDDosDefendFlow,omitempty" xml:"OverseaDDosDefendFlow,omitempty" require:"true"`
+	SearchEngineLines     *string `json:"SearchEngineLines,omitempty" xml:"SearchEngineLines,omitempty" require:"true"`
+	ISPLines              *string `json:"ISPLines,omitempty" xml:"ISPLines,omitempty" require:"true"`
+	ISPRegionLines        *string `json:"ISPRegionLines,omitempty" xml:"ISPRegionLines,omitempty" require:"true"`
+	OverseaLine           *string `json:"OverseaLine,omitempty" xml:"OverseaLine,omitempty" require:"true"`
+	MonitorNodeCount      *int64  `json:"MonitorNodeCount,omitempty" xml:"MonitorNodeCount,omitempty" require:"true"`
+	MonitorFrequency      *int64  `json:"MonitorFrequency,omitempty" xml:"MonitorFrequency,omitempty" require:"true"`
+	MonitorTaskCount      *int64  `json:"MonitorTaskCount,omitempty" xml:"MonitorTaskCount,omitempty" require:"true"`
+	RegionLines           *bool   `json:"RegionLines,omitempty" xml:"RegionLines,omitempty" require:"true"`
+	Gslb                  *bool   `json:"Gslb,omitempty" xml:"Gslb,omitempty" require:"true"`
+	InClean               *bool   `json:"InClean,omitempty" xml:"InClean,omitempty" require:"true"`
+	InBlackHole           *bool   `json:"InBlackHole,omitempty" xml:"InBlackHole,omitempty" require:"true"`
+	BindDomainCount       *int64  `json:"BindDomainCount,omitempty" xml:"BindDomainCount,omitempty" require:"true"`
+	BindDomainUsedCount   *int64  `json:"BindDomainUsedCount,omitempty" xml:"BindDomainUsedCount,omitempty" require:"true"`
+	DnsSecurity           *string `json:"DnsSecurity,omitempty" xml:"DnsSecurity,omitempty" require:"true"`
 }
 
 func (s DescribeDnsProductInstancesResponseDnsProductsDnsProduct) String() string {
@@ -9460,12 +10055,11 @@ func (s *DescribeDnsProductInstancesResponseDnsProductsDnsProduct) SetDnsSecurit
 }
 
 type DeleteSubDomainRecordsRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	DomainName   *string `json:"DomainName" xml:"DomainName" require:"true"`
-	RR           *string `json:"RR" xml:"RR" require:"true"`
-	Type         *string `json:"Type" xml:"Type"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	RR           *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty"`
 }
 
 func (s DeleteSubDomainRecordsRequest) String() string {
@@ -9474,11 +10068,6 @@ func (s DeleteSubDomainRecordsRequest) String() string {
 
 func (s DeleteSubDomainRecordsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteSubDomainRecordsRequest) SetAccessKeyId(v string) *DeleteSubDomainRecordsRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DeleteSubDomainRecordsRequest) SetLang(v string) *DeleteSubDomainRecordsRequest {
@@ -9507,9 +10096,9 @@ func (s *DeleteSubDomainRecordsRequest) SetType(v string) *DeleteSubDomainRecord
 }
 
 type DeleteSubDomainRecordsResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RR         *string `json:"RR" xml:"RR" require:"true"`
-	TotalCount *string `json:"TotalCount" xml:"TotalCount" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RR         *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	TotalCount *string `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
 }
 
 func (s DeleteSubDomainRecordsResponse) String() string {
@@ -9536,10 +10125,9 @@ func (s *DeleteSubDomainRecordsResponse) SetTotalCount(v string) *DeleteSubDomai
 }
 
 type DeleteDomainRecordRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	RecordId     *string `json:"RecordId" xml:"RecordId" require:"true"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	RecordId     *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
 }
 
 func (s DeleteDomainRecordRequest) String() string {
@@ -9548,11 +10136,6 @@ func (s DeleteDomainRecordRequest) String() string {
 
 func (s DeleteDomainRecordRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDomainRecordRequest) SetAccessKeyId(v string) *DeleteDomainRecordRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DeleteDomainRecordRequest) SetLang(v string) *DeleteDomainRecordRequest {
@@ -9571,8 +10154,8 @@ func (s *DeleteDomainRecordRequest) SetRecordId(v string) *DeleteDomainRecordReq
 }
 
 type DeleteDomainRecordResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordId  *string `json:"RecordId" xml:"RecordId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordId  *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
 }
 
 func (s DeleteDomainRecordResponse) String() string {
@@ -9594,8 +10177,8 @@ func (s *DeleteDomainRecordResponse) SetRecordId(v string) *DeleteDomainRecordRe
 }
 
 type DeleteDomainGroupRequest struct {
-	Lang    *string `json:"Lang" xml:"Lang"`
-	GroupId *string `json:"GroupId" xml:"GroupId" require:"true"`
+	Lang    *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	GroupId *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
 }
 
 func (s DeleteDomainGroupRequest) String() string {
@@ -9617,8 +10200,8 @@ func (s *DeleteDomainGroupRequest) SetGroupId(v string) *DeleteDomainGroupReques
 }
 
 type DeleteDomainGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s DeleteDomainGroupResponse) String() string {
@@ -9640,9 +10223,8 @@ func (s *DeleteDomainGroupResponse) SetGroupName(v string) *DeleteDomainGroupRes
 }
 
 type DeleteDomainRequest struct {
-	AccessKeyId *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang        *string `json:"Lang" xml:"Lang"`
-	DomainName  *string `json:"DomainName" xml:"DomainName" require:"true"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DeleteDomainRequest) String() string {
@@ -9651,11 +10233,6 @@ func (s DeleteDomainRequest) String() string {
 
 func (s DeleteDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *DeleteDomainRequest) SetAccessKeyId(v string) *DeleteDomainRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *DeleteDomainRequest) SetLang(v string) *DeleteDomainRequest {
@@ -9669,8 +10246,8 @@ func (s *DeleteDomainRequest) SetDomainName(v string) *DeleteDomainRequest {
 }
 
 type DeleteDomainResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
 }
 
 func (s DeleteDomainResponse) String() string {
@@ -9692,12 +10269,11 @@ func (s *DeleteDomainResponse) SetDomainName(v string) *DeleteDomainResponse {
 }
 
 type ChangeDomainOfDnsProductRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	InstanceId   *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	NewDomain    *string `json:"NewDomain" xml:"NewDomain"`
-	Force        *bool   `json:"Force" xml:"Force"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	InstanceId   *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	NewDomain    *string `json:"NewDomain,omitempty" xml:"NewDomain,omitempty"`
+	Force        *bool   `json:"Force,omitempty" xml:"Force,omitempty"`
 }
 
 func (s ChangeDomainOfDnsProductRequest) String() string {
@@ -9706,11 +10282,6 @@ func (s ChangeDomainOfDnsProductRequest) String() string {
 
 func (s ChangeDomainOfDnsProductRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ChangeDomainOfDnsProductRequest) SetAccessKeyId(v string) *ChangeDomainOfDnsProductRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *ChangeDomainOfDnsProductRequest) SetLang(v string) *ChangeDomainOfDnsProductRequest {
@@ -9739,8 +10310,8 @@ func (s *ChangeDomainOfDnsProductRequest) SetForce(v bool) *ChangeDomainOfDnsPro
 }
 
 type ChangeDomainOfDnsProductResponse struct {
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	OriginalDomain *string `json:"OriginalDomain" xml:"OriginalDomain" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OriginalDomain *string `json:"OriginalDomain,omitempty" xml:"OriginalDomain,omitempty" require:"true"`
 }
 
 func (s ChangeDomainOfDnsProductResponse) String() string {
@@ -9762,9 +10333,9 @@ func (s *ChangeDomainOfDnsProductResponse) SetOriginalDomain(v string) *ChangeDo
 }
 
 type ChangeDomainGroupRequest struct {
-	Lang       *string `json:"Lang" xml:"Lang"`
-	DomainName *string `json:"DomainName" xml:"DomainName" require:"true"`
-	GroupId    *string `json:"GroupId" xml:"GroupId"`
+	Lang       *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	GroupId    *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
 }
 
 func (s ChangeDomainGroupRequest) String() string {
@@ -9791,9 +10362,9 @@ func (s *ChangeDomainGroupRequest) SetGroupId(v string) *ChangeDomainGroupReques
 }
 
 type ChangeDomainGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId   *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId   *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s ChangeDomainGroupResponse) String() string {
@@ -9820,16 +10391,15 @@ func (s *ChangeDomainGroupResponse) SetGroupName(v string) *ChangeDomainGroupRes
 }
 
 type AddDomainRecordRequest struct {
-	AccessKeyId  *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang         *string `json:"Lang" xml:"Lang"`
-	UserClientIp *string `json:"UserClientIp" xml:"UserClientIp"`
-	DomainName   *string `json:"DomainName" xml:"DomainName" require:"true"`
-	RR           *string `json:"RR" xml:"RR" require:"true"`
-	Type         *string `json:"Type" xml:"Type" require:"true"`
-	Value        *string `json:"Value" xml:"Value" require:"true"`
-	TTL          *int64  `json:"TTL" xml:"TTL"`
-	Priority     *int64  `json:"Priority" xml:"Priority"`
-	Line         *string `json:"Line" xml:"Line"`
+	Lang         *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	UserClientIp *string `json:"UserClientIp,omitempty" xml:"UserClientIp,omitempty"`
+	DomainName   *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	RR           *string `json:"RR,omitempty" xml:"RR,omitempty" require:"true"`
+	Type         *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Value        *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	TTL          *int64  `json:"TTL,omitempty" xml:"TTL,omitempty"`
+	Priority     *int64  `json:"Priority,omitempty" xml:"Priority,omitempty"`
+	Line         *string `json:"Line,omitempty" xml:"Line,omitempty"`
 }
 
 func (s AddDomainRecordRequest) String() string {
@@ -9838,11 +10408,6 @@ func (s AddDomainRecordRequest) String() string {
 
 func (s AddDomainRecordRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddDomainRecordRequest) SetAccessKeyId(v string) *AddDomainRecordRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *AddDomainRecordRequest) SetLang(v string) *AddDomainRecordRequest {
@@ -9891,8 +10456,8 @@ func (s *AddDomainRecordRequest) SetLine(v string) *AddDomainRecordRequest {
 }
 
 type AddDomainRecordResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RecordId  *string `json:"RecordId" xml:"RecordId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RecordId  *string `json:"RecordId,omitempty" xml:"RecordId,omitempty" require:"true"`
 }
 
 func (s AddDomainRecordResponse) String() string {
@@ -9914,8 +10479,8 @@ func (s *AddDomainRecordResponse) SetRecordId(v string) *AddDomainRecordResponse
 }
 
 type AddDomainGroupRequest struct {
-	Lang      *string `json:"Lang" xml:"Lang"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	Lang      *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s AddDomainGroupRequest) String() string {
@@ -9937,9 +10502,9 @@ func (s *AddDomainGroupRequest) SetGroupName(v string) *AddDomainGroupRequest {
 }
 
 type AddDomainGroupResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	GroupId   *string `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName *string `json:"GroupName" xml:"GroupName" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	GroupId   *string `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName *string `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
 }
 
 func (s AddDomainGroupResponse) String() string {
@@ -9966,11 +10531,10 @@ func (s *AddDomainGroupResponse) SetGroupName(v string) *AddDomainGroupResponse 
 }
 
 type AddDomainRequest struct {
-	AccessKeyId     *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	Lang            *string `json:"Lang" xml:"Lang"`
-	DomainName      *string `json:"DomainName" xml:"DomainName" require:"true"`
-	GroupId         *string `json:"GroupId" xml:"GroupId"`
-	ResourceGroupId *string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	Lang            *string `json:"Lang,omitempty" xml:"Lang,omitempty"`
+	DomainName      *string `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	GroupId         *string `json:"GroupId,omitempty" xml:"GroupId,omitempty"`
+	ResourceGroupId *string `json:"ResourceGroupId,omitempty" xml:"ResourceGroupId,omitempty"`
 }
 
 func (s AddDomainRequest) String() string {
@@ -9979,11 +10543,6 @@ func (s AddDomainRequest) String() string {
 
 func (s AddDomainRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddDomainRequest) SetAccessKeyId(v string) *AddDomainRequest {
-	s.AccessKeyId = &v
-	return s
 }
 
 func (s *AddDomainRequest) SetLang(v string) *AddDomainRequest {
@@ -10007,13 +10566,13 @@ func (s *AddDomainRequest) SetResourceGroupId(v string) *AddDomainRequest {
 }
 
 type AddDomainResponse struct {
-	RequestId  *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	DomainId   *string                      `json:"DomainId" xml:"DomainId" require:"true"`
-	DomainName *string                      `json:"DomainName" xml:"DomainName" require:"true"`
-	PunyCode   *string                      `json:"PunyCode" xml:"PunyCode" require:"true"`
-	GroupId    *string                      `json:"GroupId" xml:"GroupId" require:"true"`
-	GroupName  *string                      `json:"GroupName" xml:"GroupName" require:"true"`
-	DnsServers *AddDomainResponseDnsServers `json:"DnsServers" xml:"DnsServers" require:"true" type:"Struct"`
+	RequestId  *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	DomainId   *string                      `json:"DomainId,omitempty" xml:"DomainId,omitempty" require:"true"`
+	DomainName *string                      `json:"DomainName,omitempty" xml:"DomainName,omitempty" require:"true"`
+	PunyCode   *string                      `json:"PunyCode,omitempty" xml:"PunyCode,omitempty" require:"true"`
+	GroupId    *string                      `json:"GroupId,omitempty" xml:"GroupId,omitempty" require:"true"`
+	GroupName  *string                      `json:"GroupName,omitempty" xml:"GroupName,omitempty" require:"true"`
+	DnsServers *AddDomainResponseDnsServers `json:"DnsServers,omitempty" xml:"DnsServers,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AddDomainResponse) String() string {
@@ -10060,7 +10619,7 @@ func (s *AddDomainResponse) SetDnsServers(v *AddDomainResponseDnsServers) *AddDo
 }
 
 type AddDomainResponseDnsServers struct {
-	DnsServer []*string `json:"DnsServer" xml:"DnsServer" require:"true" type:"Repeated"`
+	DnsServer []*string `json:"DnsServer,omitempty" xml:"DnsServer,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s AddDomainResponseDnsServers) String() string {
@@ -10102,6 +10661,156 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) DescribeDohDomainStatisticsSummaryWithOptions(request *DescribeDohDomainStatisticsSummaryRequest, runtime *util.RuntimeOptions) (_result *DescribeDohDomainStatisticsSummaryResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDohDomainStatisticsSummaryResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDohDomainStatisticsSummary"), tea.String("HTTPS"), tea.String("POST"), tea.String("2015-01-09"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDohDomainStatisticsSummary(request *DescribeDohDomainStatisticsSummaryRequest) (_result *DescribeDohDomainStatisticsSummaryResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDohDomainStatisticsSummaryResponse{}
+	_body, _err := client.DescribeDohDomainStatisticsSummaryWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeDohAccountStatisticsWithOptions(request *DescribeDohAccountStatisticsRequest, runtime *util.RuntimeOptions) (_result *DescribeDohAccountStatisticsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDohAccountStatisticsResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDohAccountStatistics"), tea.String("HTTPS"), tea.String("POST"), tea.String("2015-01-09"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDohAccountStatistics(request *DescribeDohAccountStatisticsRequest) (_result *DescribeDohAccountStatisticsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDohAccountStatisticsResponse{}
+	_body, _err := client.DescribeDohAccountStatisticsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeDohSubDomainStatisticsWithOptions(request *DescribeDohSubDomainStatisticsRequest, runtime *util.RuntimeOptions) (_result *DescribeDohSubDomainStatisticsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDohSubDomainStatisticsResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDohSubDomainStatistics"), tea.String("HTTPS"), tea.String("POST"), tea.String("2015-01-09"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDohSubDomainStatistics(request *DescribeDohSubDomainStatisticsRequest) (_result *DescribeDohSubDomainStatisticsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDohSubDomainStatisticsResponse{}
+	_body, _err := client.DescribeDohSubDomainStatisticsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeDohSubDomainStatisticsSummaryWithOptions(request *DescribeDohSubDomainStatisticsSummaryRequest, runtime *util.RuntimeOptions) (_result *DescribeDohSubDomainStatisticsSummaryResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDohSubDomainStatisticsSummaryResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDohSubDomainStatisticsSummary"), tea.String("HTTPS"), tea.String("POST"), tea.String("2015-01-09"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDohSubDomainStatisticsSummary(request *DescribeDohSubDomainStatisticsSummaryRequest) (_result *DescribeDohSubDomainStatisticsSummaryResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDohSubDomainStatisticsSummaryResponse{}
+	_body, _err := client.DescribeDohSubDomainStatisticsSummaryWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeDohDomainStatisticsWithOptions(request *DescribeDohDomainStatisticsRequest, runtime *util.RuntimeOptions) (_result *DescribeDohDomainStatisticsResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDohDomainStatisticsResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDohDomainStatistics"), tea.String("HTTPS"), tea.String("POST"), tea.String("2015-01-09"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDohDomainStatistics(request *DescribeDohDomainStatisticsRequest) (_result *DescribeDohDomainStatisticsResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDohDomainStatisticsResponse{}
+	_body, _err := client.DescribeDohDomainStatisticsWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) DescribeDohUserInfoWithOptions(request *DescribeDohUserInfoRequest, runtime *util.RuntimeOptions) (_result *DescribeDohUserInfoResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &DescribeDohUserInfoResponse{}
+	_body, _err := client.DoRequest(tea.String("DescribeDohUserInfo"), tea.String("HTTPS"), tea.String("POST"), tea.String("2015-01-09"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) DescribeDohUserInfo(request *DescribeDohUserInfoRequest) (_result *DescribeDohUserInfoResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &DescribeDohUserInfoResponse{}
+	_body, _err := client.DescribeDohUserInfoWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) ListTagResourcesWithOptions(request *ListTagResourcesRequest, runtime *util.RuntimeOptions) (_result *ListTagResourcesResponse, _err error) {

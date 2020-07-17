@@ -10,7 +10,7 @@
 ## 安装
 你可以使用 `go mod` 来管理你的依赖，
 ```sh
-  go get github.com/alibabacloud-go/Alidns-20150109
+  go get github.com/alibabacloud-go/alidns-20150109
 ```
 
 ## 问题
