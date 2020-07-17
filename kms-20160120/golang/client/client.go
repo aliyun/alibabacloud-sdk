@@ -9,9 +9,9 @@ import (
 )
 
 type ListSecretsRequest struct {
-	FetchTags  *string `json:"FetchTags" xml:"FetchTags"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	FetchTags  *string `json:"FetchTags,omitempty" xml:"FetchTags,omitempty"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListSecretsRequest) String() string {
@@ -38,11 +38,11 @@ func (s *ListSecretsRequest) SetPageSize(v int) *ListSecretsRequest {
 }
 
 type ListSecretsResponse struct {
-	RequestId  *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	PageNumber *int                           `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                           `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                           `json:"TotalCount" xml:"TotalCount" require:"true"`
-	SecretList *ListSecretsResponseSecretList `json:"SecretList" xml:"SecretList" require:"true" type:"Struct"`
+	RequestId  *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	PageNumber *int                           `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                           `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                           `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	SecretList *ListSecretsResponseSecretList `json:"SecretList,omitempty" xml:"SecretList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSecretsResponse) String() string {
@@ -79,7 +79,7 @@ func (s *ListSecretsResponse) SetSecretList(v *ListSecretsResponseSecretList) *L
 }
 
 type ListSecretsResponseSecretList struct {
-	Secret []*ListSecretsResponseSecretListSecret `json:"Secret" xml:"Secret" require:"true" type:"Repeated"`
+	Secret []*ListSecretsResponseSecretListSecret `json:"Secret,omitempty" xml:"Secret,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListSecretsResponseSecretList) String() string {
@@ -96,11 +96,11 @@ func (s *ListSecretsResponseSecretList) SetSecret(v []*ListSecretsResponseSecret
 }
 
 type ListSecretsResponseSecretListSecret struct {
-	SecretName        *string                                  `json:"SecretName" xml:"SecretName" require:"true"`
-	CreateTime        *string                                  `json:"CreateTime" xml:"CreateTime" require:"true"`
-	UpdateTime        *string                                  `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	PlannedDeleteTime *string                                  `json:"PlannedDeleteTime" xml:"PlannedDeleteTime" require:"true"`
-	Tags              *ListSecretsResponseSecretListSecretTags `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
+	SecretName        *string                                  `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	CreateTime        *string                                  `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	UpdateTime        *string                                  `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	PlannedDeleteTime *string                                  `json:"PlannedDeleteTime,omitempty" xml:"PlannedDeleteTime,omitempty" require:"true"`
+	Tags              *ListSecretsResponseSecretListSecretTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSecretsResponseSecretListSecret) String() string {
@@ -137,7 +137,7 @@ func (s *ListSecretsResponseSecretListSecret) SetTags(v *ListSecretsResponseSecr
 }
 
 type ListSecretsResponseSecretListSecretTags struct {
-	Tag []*ListSecretsResponseSecretListSecretTagsTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	Tag []*ListSecretsResponseSecretListSecretTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListSecretsResponseSecretListSecretTags) String() string {
@@ -154,8 +154,8 @@ func (s *ListSecretsResponseSecretListSecretTags) SetTag(v []*ListSecretsRespons
 }
 
 type ListSecretsResponseSecretListSecretTagsTag struct {
-	TagKey   *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue *string `json:"TagValue" xml:"TagValue" require:"true"`
+	TagKey   *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
 }
 
 func (s ListSecretsResponseSecretListSecretTagsTag) String() string {
@@ -177,10 +177,10 @@ func (s *ListSecretsResponseSecretListSecretTagsTag) SetTagValue(v string) *List
 }
 
 type ListSecretVersionIdsRequest struct {
-	SecretName        *string `json:"SecretName" xml:"SecretName" require:"true"`
-	IncludeDeprecated *string `json:"IncludeDeprecated" xml:"IncludeDeprecated"`
-	PageNumber        *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize          *int    `json:"PageSize" xml:"PageSize"`
+	SecretName        *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	IncludeDeprecated *string `json:"IncludeDeprecated,omitempty" xml:"IncludeDeprecated,omitempty"`
+	PageNumber        *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize          *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListSecretVersionIdsRequest) String() string {
@@ -212,12 +212,12 @@ func (s *ListSecretVersionIdsRequest) SetPageSize(v int) *ListSecretVersionIdsRe
 }
 
 type ListSecretVersionIdsResponse struct {
-	PageNumber *int                                    `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                                    `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName *string                                 `json:"SecretName" xml:"SecretName" require:"true"`
-	TotalCount *int                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	VersionIds *ListSecretVersionIdsResponseVersionIds `json:"VersionIds" xml:"VersionIds" require:"true" type:"Struct"`
+	PageNumber *int                                    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                                    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecretName *string                                 `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	TotalCount *int                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	VersionIds *ListSecretVersionIdsResponseVersionIds `json:"VersionIds,omitempty" xml:"VersionIds,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSecretVersionIdsResponse) String() string {
@@ -259,7 +259,7 @@ func (s *ListSecretVersionIdsResponse) SetVersionIds(v *ListSecretVersionIdsResp
 }
 
 type ListSecretVersionIdsResponseVersionIds struct {
-	VersionId []*ListSecretVersionIdsResponseVersionIdsVersionId `json:"VersionId" xml:"VersionId" require:"true" type:"Repeated"`
+	VersionId []*ListSecretVersionIdsResponseVersionIdsVersionId `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListSecretVersionIdsResponseVersionIds) String() string {
@@ -276,9 +276,9 @@ func (s *ListSecretVersionIdsResponseVersionIds) SetVersionId(v []*ListSecretVer
 }
 
 type ListSecretVersionIdsResponseVersionIdsVersionId struct {
-	CreateTime    *string                                                       `json:"CreateTime" xml:"CreateTime" require:"true"`
-	VersionId     *string                                                       `json:"VersionId" xml:"VersionId" require:"true"`
-	VersionStages *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Struct"`
+	CreateTime    *string                                                       `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	VersionId     *string                                                       `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	VersionStages *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages `json:"VersionStages,omitempty" xml:"VersionStages,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListSecretVersionIdsResponseVersionIdsVersionId) String() string {
@@ -305,7 +305,7 @@ func (s *ListSecretVersionIdsResponseVersionIdsVersionId) SetVersionStages(v *Li
 }
 
 type ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages struct {
-	VersionStage []*string `json:"VersionStage" xml:"VersionStage" require:"true" type:"Repeated"`
+	VersionStage []*string `json:"VersionStage,omitempty" xml:"VersionStage,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) String() string {
@@ -322,8 +322,8 @@ func (s *ListSecretVersionIdsResponseVersionIdsVersionIdVersionStages) SetVersio
 }
 
 type DescribeSecretRequest struct {
-	SecretName *string `json:"SecretName" xml:"SecretName" require:"true"`
-	FetchTags  *string `json:"FetchTags" xml:"FetchTags"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	FetchTags  *string `json:"FetchTags,omitempty" xml:"FetchTags,omitempty"`
 }
 
 func (s DescribeSecretRequest) String() string {
@@ -345,15 +345,15 @@ func (s *DescribeSecretRequest) SetFetchTags(v string) *DescribeSecretRequest {
 }
 
 type DescribeSecretResponse struct {
-	RequestId         *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Arn               *string                     `json:"Arn" xml:"Arn" require:"true"`
-	SecretName        *string                     `json:"SecretName" xml:"SecretName" require:"true"`
-	EncryptionKeyId   *string                     `json:"EncryptionKeyId" xml:"EncryptionKeyId" require:"true"`
-	Description       *string                     `json:"Description" xml:"Description" require:"true"`
-	CreateTime        *string                     `json:"CreateTime" xml:"CreateTime" require:"true"`
-	UpdateTime        *string                     `json:"UpdateTime" xml:"UpdateTime" require:"true"`
-	PlannedDeleteTime *string                     `json:"PlannedDeleteTime" xml:"PlannedDeleteTime" require:"true"`
-	Tags              *DescribeSecretResponseTags `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
+	RequestId         *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Arn               *string                     `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	SecretName        *string                     `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	EncryptionKeyId   *string                     `json:"EncryptionKeyId,omitempty" xml:"EncryptionKeyId,omitempty" require:"true"`
+	Description       *string                     `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	CreateTime        *string                     `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	UpdateTime        *string                     `json:"UpdateTime,omitempty" xml:"UpdateTime,omitempty" require:"true"`
+	PlannedDeleteTime *string                     `json:"PlannedDeleteTime,omitempty" xml:"PlannedDeleteTime,omitempty" require:"true"`
+	Tags              *DescribeSecretResponseTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeSecretResponse) String() string {
@@ -410,7 +410,7 @@ func (s *DescribeSecretResponse) SetTags(v *DescribeSecretResponseTags) *Describ
 }
 
 type DescribeSecretResponseTags struct {
-	Tag []*DescribeSecretResponseTagsTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	Tag []*DescribeSecretResponseTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeSecretResponseTags) String() string {
@@ -427,8 +427,8 @@ func (s *DescribeSecretResponseTags) SetTag(v []*DescribeSecretResponseTagsTag) 
 }
 
 type DescribeSecretResponseTagsTag struct {
-	TagKey   *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue *string `json:"TagValue" xml:"TagValue" require:"true"`
+	TagKey   *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
 }
 
 func (s DescribeSecretResponseTagsTag) String() string {
@@ -450,8 +450,8 @@ func (s *DescribeSecretResponseTagsTag) SetTagValue(v string) *DescribeSecretRes
 }
 
 type UpdateSecretRequest struct {
-	SecretName  *string `json:"SecretName" xml:"SecretName" require:"true"`
-	Description *string `json:"Description" xml:"Description"`
+	SecretName  *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
 func (s UpdateSecretRequest) String() string {
@@ -473,8 +473,8 @@ func (s *UpdateSecretRequest) SetDescription(v string) *UpdateSecretRequest {
 }
 
 type UpdateSecretResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName *string `json:"SecretName" xml:"SecretName" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
 }
 
 func (s UpdateSecretResponse) String() string {
@@ -496,9 +496,9 @@ func (s *UpdateSecretResponse) SetSecretName(v string) *UpdateSecretResponse {
 }
 
 type GetSecretValueRequest struct {
-	SecretName   *string `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionStage *string `json:"VersionStage" xml:"VersionStage"`
-	VersionId    *string `json:"VersionId" xml:"VersionId"`
+	SecretName   *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	VersionStage *string `json:"VersionStage,omitempty" xml:"VersionStage,omitempty"`
+	VersionId    *string `json:"VersionId,omitempty" xml:"VersionId,omitempty"`
 }
 
 func (s GetSecretValueRequest) String() string {
@@ -525,13 +525,13 @@ func (s *GetSecretValueRequest) SetVersionId(v string) *GetSecretValueRequest {
 }
 
 type GetSecretValueResponse struct {
-	RequestId      *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName     *string                              `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionId      *string                              `json:"VersionId" xml:"VersionId" require:"true"`
-	CreateTime     *string                              `json:"CreateTime" xml:"CreateTime" require:"true"`
-	SecretData     *string                              `json:"SecretData" xml:"SecretData" require:"true"`
-	SecretDataType *string                              `json:"SecretDataType" xml:"SecretDataType" require:"true"`
-	VersionStages  *GetSecretValueResponseVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Struct"`
+	RequestId      *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecretName     *string                              `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	VersionId      *string                              `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	CreateTime     *string                              `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	SecretData     *string                              `json:"SecretData,omitempty" xml:"SecretData,omitempty" require:"true"`
+	SecretDataType *string                              `json:"SecretDataType,omitempty" xml:"SecretDataType,omitempty" require:"true"`
+	VersionStages  *GetSecretValueResponseVersionStages `json:"VersionStages,omitempty" xml:"VersionStages,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetSecretValueResponse) String() string {
@@ -578,7 +578,7 @@ func (s *GetSecretValueResponse) SetVersionStages(v *GetSecretValueResponseVersi
 }
 
 type GetSecretValueResponseVersionStages struct {
-	VersionStage []*string `json:"VersionStage" xml:"VersionStage" require:"true" type:"Repeated"`
+	VersionStage []*string `json:"VersionStage,omitempty" xml:"VersionStage,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetSecretValueResponseVersionStages) String() string {
@@ -595,13 +595,13 @@ func (s *GetSecretValueResponseVersionStages) SetVersionStage(v []*string) *GetS
 }
 
 type GetRandomPasswordRequest struct {
-	PasswordLength          *string `json:"PasswordLength" xml:"PasswordLength"`
-	ExcludeCharacters       *string `json:"ExcludeCharacters" xml:"ExcludeCharacters"`
-	ExcludeLowercase        *string `json:"ExcludeLowercase" xml:"ExcludeLowercase"`
-	ExcludeUppercase        *string `json:"ExcludeUppercase" xml:"ExcludeUppercase"`
-	ExcludeNumbers          *string `json:"ExcludeNumbers" xml:"ExcludeNumbers"`
-	ExcludePunctuation      *string `json:"ExcludePunctuation" xml:"ExcludePunctuation"`
-	RequireEachIncludedType *string `json:"RequireEachIncludedType" xml:"RequireEachIncludedType"`
+	PasswordLength          *string `json:"PasswordLength,omitempty" xml:"PasswordLength,omitempty"`
+	ExcludeCharacters       *string `json:"ExcludeCharacters,omitempty" xml:"ExcludeCharacters,omitempty"`
+	ExcludeLowercase        *string `json:"ExcludeLowercase,omitempty" xml:"ExcludeLowercase,omitempty"`
+	ExcludeUppercase        *string `json:"ExcludeUppercase,omitempty" xml:"ExcludeUppercase,omitempty"`
+	ExcludeNumbers          *string `json:"ExcludeNumbers,omitempty" xml:"ExcludeNumbers,omitempty"`
+	ExcludePunctuation      *string `json:"ExcludePunctuation,omitempty" xml:"ExcludePunctuation,omitempty"`
+	RequireEachIncludedType *string `json:"RequireEachIncludedType,omitempty" xml:"RequireEachIncludedType,omitempty"`
 }
 
 func (s GetRandomPasswordRequest) String() string {
@@ -648,8 +648,8 @@ func (s *GetRandomPasswordRequest) SetRequireEachIncludedType(v string) *GetRand
 }
 
 type GetRandomPasswordResponse struct {
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	RandomPassword *string `json:"RandomPassword" xml:"RandomPassword" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	RandomPassword *string `json:"RandomPassword,omitempty" xml:"RandomPassword,omitempty" require:"true"`
 }
 
 func (s GetRandomPasswordResponse) String() string {
@@ -671,7 +671,7 @@ func (s *GetRandomPasswordResponse) SetRandomPassword(v string) *GetRandomPasswo
 }
 
 type RestoreSecretRequest struct {
-	SecretName *string `json:"SecretName" xml:"SecretName" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
 }
 
 func (s RestoreSecretRequest) String() string {
@@ -688,8 +688,8 @@ func (s *RestoreSecretRequest) SetSecretName(v string) *RestoreSecretRequest {
 }
 
 type RestoreSecretResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName *string `json:"SecretName" xml:"SecretName" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
 }
 
 func (s RestoreSecretResponse) String() string {
@@ -711,13 +711,13 @@ func (s *RestoreSecretResponse) SetSecretName(v string) *RestoreSecretResponse {
 }
 
 type CreateSecretRequest struct {
-	SecretName      *string `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionId       *string `json:"VersionId" xml:"VersionId" require:"true"`
-	EncryptionKeyId *string `json:"EncryptionKeyId" xml:"EncryptionKeyId"`
-	SecretData      *string `json:"SecretData" xml:"SecretData" require:"true"`
-	SecretDataType  *string `json:"SecretDataType" xml:"SecretDataType"`
-	Description     *string `json:"Description" xml:"Description"`
-	Tags            *string `json:"Tags" xml:"Tags"`
+	SecretName      *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	VersionId       *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	EncryptionKeyId *string `json:"EncryptionKeyId,omitempty" xml:"EncryptionKeyId,omitempty"`
+	SecretData      *string `json:"SecretData,omitempty" xml:"SecretData,omitempty" require:"true"`
+	SecretDataType  *string `json:"SecretDataType,omitempty" xml:"SecretDataType,omitempty"`
+	Description     *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	Tags            *string `json:"Tags,omitempty" xml:"Tags,omitempty"`
 }
 
 func (s CreateSecretRequest) String() string {
@@ -764,10 +764,10 @@ func (s *CreateSecretRequest) SetTags(v string) *CreateSecretRequest {
 }
 
 type CreateSecretResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Arn        *string `json:"Arn" xml:"Arn" require:"true"`
-	VersionId  *string `json:"VersionId" xml:"VersionId" require:"true"`
-	SecretName *string `json:"SecretName" xml:"SecretName" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Arn        *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	VersionId  *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
 }
 
 func (s CreateSecretResponse) String() string {
@@ -799,11 +799,11 @@ func (s *CreateSecretResponse) SetSecretName(v string) *CreateSecretResponse {
 }
 
 type PutSecretValueRequest struct {
-	VersionId      *string `json:"VersionId" xml:"VersionId" require:"true"`
-	SecretName     *string `json:"SecretName" xml:"SecretName" require:"true"`
-	SecretData     *string `json:"SecretData" xml:"SecretData" require:"true"`
-	SecretDataType *string `json:"SecretDataType" xml:"SecretDataType"`
-	VersionStages  *string `json:"VersionStages" xml:"VersionStages"`
+	VersionId      *string `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	SecretName     *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	SecretData     *string `json:"SecretData,omitempty" xml:"SecretData,omitempty" require:"true"`
+	SecretDataType *string `json:"SecretDataType,omitempty" xml:"SecretDataType,omitempty"`
+	VersionStages  *string `json:"VersionStages,omitempty" xml:"VersionStages,omitempty"`
 }
 
 func (s PutSecretValueRequest) String() string {
@@ -840,10 +840,10 @@ func (s *PutSecretValueRequest) SetVersionStages(v string) *PutSecretValueReques
 }
 
 type PutSecretValueResponse struct {
-	RequestId     *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName    *string                              `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionId     *string                              `json:"VersionId" xml:"VersionId" require:"true"`
-	VersionStages *PutSecretValueResponseVersionStages `json:"VersionStages" xml:"VersionStages" require:"true" type:"Struct"`
+	RequestId     *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecretName    *string                              `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	VersionId     *string                              `json:"VersionId,omitempty" xml:"VersionId,omitempty" require:"true"`
+	VersionStages *PutSecretValueResponseVersionStages `json:"VersionStages,omitempty" xml:"VersionStages,omitempty" require:"true" type:"Struct"`
 }
 
 func (s PutSecretValueResponse) String() string {
@@ -875,7 +875,7 @@ func (s *PutSecretValueResponse) SetVersionStages(v *PutSecretValueResponseVersi
 }
 
 type PutSecretValueResponseVersionStages struct {
-	VersionStage []*string `json:"VersionStage" xml:"VersionStage" require:"true" type:"Repeated"`
+	VersionStage []*string `json:"VersionStage,omitempty" xml:"VersionStage,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s PutSecretValueResponseVersionStages) String() string {
@@ -892,9 +892,9 @@ func (s *PutSecretValueResponseVersionStages) SetVersionStage(v []*string) *PutS
 }
 
 type DeleteSecretRequest struct {
-	SecretName                 *string `json:"SecretName" xml:"SecretName" require:"true"`
-	ForceDeleteWithoutRecovery *string `json:"ForceDeleteWithoutRecovery" xml:"ForceDeleteWithoutRecovery"`
-	RecoveryWindowInDays       *string `json:"RecoveryWindowInDays" xml:"RecoveryWindowInDays"`
+	SecretName                 *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	ForceDeleteWithoutRecovery *string `json:"ForceDeleteWithoutRecovery,omitempty" xml:"ForceDeleteWithoutRecovery,omitempty"`
+	RecoveryWindowInDays       *string `json:"RecoveryWindowInDays,omitempty" xml:"RecoveryWindowInDays,omitempty"`
 }
 
 func (s DeleteSecretRequest) String() string {
@@ -921,9 +921,9 @@ func (s *DeleteSecretRequest) SetRecoveryWindowInDays(v string) *DeleteSecretReq
 }
 
 type DeleteSecretResponse struct {
-	RequestId         *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SecretName        *string `json:"SecretName" xml:"SecretName" require:"true"`
-	PlannedDeleteTime *string `json:"PlannedDeleteTime" xml:"PlannedDeleteTime" require:"true"`
+	RequestId         *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SecretName        *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	PlannedDeleteTime *string `json:"PlannedDeleteTime,omitempty" xml:"PlannedDeleteTime,omitempty" require:"true"`
 }
 
 func (s DeleteSecretResponse) String() string {
@@ -950,10 +950,10 @@ func (s *DeleteSecretResponse) SetPlannedDeleteTime(v string) *DeleteSecretRespo
 }
 
 type UpdateSecretVersionStageRequest struct {
-	SecretName        *string `json:"SecretName" xml:"SecretName" require:"true"`
-	VersionStage      *string `json:"VersionStage" xml:"VersionStage" require:"true"`
-	RemoveFromVersion *string `json:"RemoveFromVersion" xml:"RemoveFromVersion"`
-	MoveToVersion     *string `json:"MoveToVersion" xml:"MoveToVersion"`
+	SecretName        *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	VersionStage      *string `json:"VersionStage,omitempty" xml:"VersionStage,omitempty" require:"true"`
+	RemoveFromVersion *string `json:"RemoveFromVersion,omitempty" xml:"RemoveFromVersion,omitempty"`
+	MoveToVersion     *string `json:"MoveToVersion,omitempty" xml:"MoveToVersion,omitempty"`
 }
 
 func (s UpdateSecretVersionStageRequest) String() string {
@@ -985,8 +985,8 @@ func (s *UpdateSecretVersionStageRequest) SetMoveToVersion(v string) *UpdateSecr
 }
 
 type UpdateSecretVersionStageResponse struct {
-	SecretName *string `json:"SecretName" xml:"SecretName" require:"true"`
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateSecretVersionStageResponse) String() string {
@@ -1008,10 +1008,10 @@ func (s *UpdateSecretVersionStageResponse) SetRequestId(v string) *UpdateSecretV
 }
 
 type AsymmetricDecryptRequest struct {
-	CiphertextBlob *string `json:"CiphertextBlob" xml:"CiphertextBlob" require:"true"`
-	KeyId          *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId   *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	Algorithm      *string `json:"Algorithm" xml:"Algorithm" require:"true"`
+	CiphertextBlob *string `json:"CiphertextBlob,omitempty" xml:"CiphertextBlob,omitempty" require:"true"`
+	KeyId          *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId   *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	Algorithm      *string `json:"Algorithm,omitempty" xml:"Algorithm,omitempty" require:"true"`
 }
 
 func (s AsymmetricDecryptRequest) String() string {
@@ -1043,10 +1043,10 @@ func (s *AsymmetricDecryptRequest) SetAlgorithm(v string) *AsymmetricDecryptRequ
 }
 
 type AsymmetricDecryptResponse struct {
-	Plaintext    *string `json:"Plaintext" xml:"Plaintext" require:"true"`
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	Plaintext    *string `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s AsymmetricDecryptResponse) String() string {
@@ -1078,11 +1078,11 @@ func (s *AsymmetricDecryptResponse) SetKeyVersionId(v string) *AsymmetricDecrypt
 }
 
 type AsymmetricVerifyRequest struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	Algorithm    *string `json:"Algorithm" xml:"Algorithm" require:"true"`
-	Digest       *string `json:"Digest" xml:"Digest" require:"true"`
-	Value        *string `json:"Value" xml:"Value" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	Algorithm    *string `json:"Algorithm,omitempty" xml:"Algorithm,omitempty" require:"true"`
+	Digest       *string `json:"Digest,omitempty" xml:"Digest,omitempty" require:"true"`
+	Value        *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s AsymmetricVerifyRequest) String() string {
@@ -1119,10 +1119,10 @@ func (s *AsymmetricVerifyRequest) SetValue(v string) *AsymmetricVerifyRequest {
 }
 
 type AsymmetricVerifyResponse struct {
-	Value        *bool   `json:"Value" xml:"Value" require:"true"`
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	Value        *bool   `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s AsymmetricVerifyResponse) String() string {
@@ -1154,10 +1154,10 @@ func (s *AsymmetricVerifyResponse) SetKeyVersionId(v string) *AsymmetricVerifyRe
 }
 
 type AsymmetricSignRequest struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	Algorithm    *string `json:"Algorithm" xml:"Algorithm" require:"true"`
-	Digest       *string `json:"Digest" xml:"Digest" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	Algorithm    *string `json:"Algorithm,omitempty" xml:"Algorithm,omitempty" require:"true"`
+	Digest       *string `json:"Digest,omitempty" xml:"Digest,omitempty" require:"true"`
 }
 
 func (s AsymmetricSignRequest) String() string {
@@ -1189,10 +1189,10 @@ func (s *AsymmetricSignRequest) SetDigest(v string) *AsymmetricSignRequest {
 }
 
 type AsymmetricSignResponse struct {
-	Value        *string `json:"Value" xml:"Value" require:"true"`
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	Value        *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s AsymmetricSignResponse) String() string {
@@ -1224,10 +1224,10 @@ func (s *AsymmetricSignResponse) SetKeyVersionId(v string) *AsymmetricSignRespon
 }
 
 type AsymmetricEncryptRequest struct {
-	Plaintext    *string `json:"Plaintext" xml:"Plaintext" require:"true"`
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	Algorithm    *string `json:"Algorithm" xml:"Algorithm" require:"true"`
+	Plaintext    *string `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	Algorithm    *string `json:"Algorithm,omitempty" xml:"Algorithm,omitempty" require:"true"`
 }
 
 func (s AsymmetricEncryptRequest) String() string {
@@ -1259,10 +1259,10 @@ func (s *AsymmetricEncryptRequest) SetAlgorithm(v string) *AsymmetricEncryptRequ
 }
 
 type AsymmetricEncryptResponse struct {
-	CiphertextBlob *string `json:"CiphertextBlob" xml:"CiphertextBlob" require:"true"`
-	KeyId          *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId   *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	CiphertextBlob *string `json:"CiphertextBlob,omitempty" xml:"CiphertextBlob,omitempty" require:"true"`
+	KeyId          *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId   *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s AsymmetricEncryptResponse) String() string {
@@ -1294,8 +1294,8 @@ func (s *AsymmetricEncryptResponse) SetKeyVersionId(v string) *AsymmetricEncrypt
 }
 
 type GetPublicKeyRequest struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s GetPublicKeyRequest) String() string {
@@ -1317,10 +1317,10 @@ func (s *GetPublicKeyRequest) SetKeyVersionId(v string) *GetPublicKeyRequest {
 }
 
 type GetPublicKeyResponse struct {
-	PublicKey    *string `json:"PublicKey" xml:"PublicKey" require:"true"`
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	PublicKey    *string `json:"PublicKey,omitempty" xml:"PublicKey,omitempty" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s GetPublicKeyResponse) String() string {
@@ -1352,10 +1352,10 @@ func (s *GetPublicKeyResponse) SetKeyVersionId(v string) *GetPublicKeyResponse {
 }
 
 type GenerateDataKeyWithoutPlaintextRequest struct {
-	KeyId             *string                `json:"KeyId" xml:"KeyId" require:"true"`
-	KeySpec           *string                `json:"KeySpec" xml:"KeySpec"`
-	NumberOfBytes     *int                   `json:"NumberOfBytes" xml:"NumberOfBytes"`
-	EncryptionContext map[string]interface{} `json:"EncryptionContext" xml:"EncryptionContext"`
+	KeyId             *string                `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeySpec           *string                `json:"KeySpec,omitempty" xml:"KeySpec,omitempty"`
+	NumberOfBytes     *int                   `json:"NumberOfBytes,omitempty" xml:"NumberOfBytes,omitempty"`
+	EncryptionContext map[string]interface{} `json:"EncryptionContext,omitempty" xml:"EncryptionContext,omitempty"`
 }
 
 func (s GenerateDataKeyWithoutPlaintextRequest) String() string {
@@ -1387,10 +1387,10 @@ func (s *GenerateDataKeyWithoutPlaintextRequest) SetEncryptionContext(v map[stri
 }
 
 type GenerateDataKeyWithoutPlaintextResponse struct {
-	CiphertextBlob *string `json:"CiphertextBlob" xml:"CiphertextBlob" require:"true"`
-	KeyId          *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId   *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	CiphertextBlob *string `json:"CiphertextBlob,omitempty" xml:"CiphertextBlob,omitempty" require:"true"`
+	KeyId          *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId   *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s GenerateDataKeyWithoutPlaintextResponse) String() string {
@@ -1422,8 +1422,8 @@ func (s *GenerateDataKeyWithoutPlaintextResponse) SetKeyVersionId(v string) *Gen
 }
 
 type UpdateKeyDescriptionRequest struct {
-	KeyId       *string `json:"KeyId" xml:"KeyId" require:"true"`
-	Description *string `json:"Description" xml:"Description" require:"true"`
+	KeyId       *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	Description *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
 }
 
 func (s UpdateKeyDescriptionRequest) String() string {
@@ -1445,7 +1445,7 @@ func (s *UpdateKeyDescriptionRequest) SetDescription(v string) *UpdateKeyDescrip
 }
 
 type UpdateKeyDescriptionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateKeyDescriptionResponse) String() string {
@@ -1462,8 +1462,8 @@ func (s *UpdateKeyDescriptionResponse) SetRequestId(v string) *UpdateKeyDescript
 }
 
 type DescribeKeyVersionRequest struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s DescribeKeyVersionRequest) String() string {
@@ -1485,8 +1485,8 @@ func (s *DescribeKeyVersionRequest) SetKeyVersionId(v string) *DescribeKeyVersio
 }
 
 type DescribeKeyVersionResponse struct {
-	RequestId  *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersion *DescribeKeyVersionResponseKeyVersion `json:"KeyVersion" xml:"KeyVersion" require:"true" type:"Struct"`
+	RequestId  *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersion *DescribeKeyVersionResponseKeyVersion `json:"KeyVersion,omitempty" xml:"KeyVersion,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeKeyVersionResponse) String() string {
@@ -1508,9 +1508,9 @@ func (s *DescribeKeyVersionResponse) SetKeyVersion(v *DescribeKeyVersionResponse
 }
 
 type DescribeKeyVersionResponseKeyVersion struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	CreationDate *string `json:"CreationDate" xml:"CreationDate" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	CreationDate *string `json:"CreationDate,omitempty" xml:"CreationDate,omitempty" require:"true"`
 }
 
 func (s DescribeKeyVersionResponseKeyVersion) String() string {
@@ -1537,9 +1537,9 @@ func (s *DescribeKeyVersionResponseKeyVersion) SetCreationDate(v string) *Descri
 }
 
 type UpdateRotationPolicyRequest struct {
-	KeyId                   *string `json:"KeyId" xml:"KeyId" require:"true"`
-	EnableAutomaticRotation *bool   `json:"EnableAutomaticRotation" xml:"EnableAutomaticRotation" require:"true"`
-	RotationInterval        *string `json:"RotationInterval" xml:"RotationInterval"`
+	KeyId                   *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	EnableAutomaticRotation *bool   `json:"EnableAutomaticRotation,omitempty" xml:"EnableAutomaticRotation,omitempty" require:"true"`
+	RotationInterval        *string `json:"RotationInterval,omitempty" xml:"RotationInterval,omitempty"`
 }
 
 func (s UpdateRotationPolicyRequest) String() string {
@@ -1566,7 +1566,7 @@ func (s *UpdateRotationPolicyRequest) SetRotationInterval(v string) *UpdateRotat
 }
 
 type UpdateRotationPolicyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateRotationPolicyResponse) String() string {
@@ -1583,9 +1583,9 @@ func (s *UpdateRotationPolicyResponse) SetRequestId(v string) *UpdateRotationPol
 }
 
 type ListKeyVersionsRequest struct {
-	KeyId      *string `json:"KeyId" xml:"KeyId" require:"true"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	KeyId      *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListKeyVersionsRequest) String() string {
@@ -1612,11 +1612,11 @@ func (s *ListKeyVersionsRequest) SetPageSize(v int) *ListKeyVersionsRequest {
 }
 
 type ListKeyVersionsResponse struct {
-	RequestId   *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	TotalCount  *int                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber  *int                                `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize    *int                                `json:"PageSize" xml:"PageSize" require:"true"`
-	KeyVersions *ListKeyVersionsResponseKeyVersions `json:"KeyVersions" xml:"KeyVersions" require:"true" type:"Struct"`
+	RequestId   *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TotalCount  *int                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber  *int                                `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize    *int                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	KeyVersions *ListKeyVersionsResponseKeyVersions `json:"KeyVersions,omitempty" xml:"KeyVersions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListKeyVersionsResponse) String() string {
@@ -1653,7 +1653,7 @@ func (s *ListKeyVersionsResponse) SetKeyVersions(v *ListKeyVersionsResponseKeyVe
 }
 
 type ListKeyVersionsResponseKeyVersions struct {
-	KeyVersion []*ListKeyVersionsResponseKeyVersionsKeyVersion `json:"KeyVersion" xml:"KeyVersion" require:"true" type:"Repeated"`
+	KeyVersion []*ListKeyVersionsResponseKeyVersionsKeyVersion `json:"KeyVersion,omitempty" xml:"KeyVersion,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListKeyVersionsResponseKeyVersions) String() string {
@@ -1670,9 +1670,9 @@ func (s *ListKeyVersionsResponseKeyVersions) SetKeyVersion(v []*ListKeyVersionsR
 }
 
 type ListKeyVersionsResponseKeyVersionsKeyVersion struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	CreationDate *string `json:"CreationDate" xml:"CreationDate" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	CreationDate *string `json:"CreationDate,omitempty" xml:"CreationDate,omitempty" require:"true"`
 }
 
 func (s ListKeyVersionsResponseKeyVersionsKeyVersion) String() string {
@@ -1699,7 +1699,7 @@ func (s *ListKeyVersionsResponseKeyVersionsKeyVersion) SetCreationDate(v string)
 }
 
 type CreateKeyVersionRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s CreateKeyVersionRequest) String() string {
@@ -1716,8 +1716,8 @@ func (s *CreateKeyVersionRequest) SetKeyId(v string) *CreateKeyVersionRequest {
 }
 
 type CreateKeyVersionResponse struct {
-	RequestId  *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersion *CreateKeyVersionResponseKeyVersion `json:"KeyVersion" xml:"KeyVersion" require:"true" type:"Struct"`
+	RequestId  *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersion *CreateKeyVersionResponseKeyVersion `json:"KeyVersion,omitempty" xml:"KeyVersion,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateKeyVersionResponse) String() string {
@@ -1739,9 +1739,9 @@ func (s *CreateKeyVersionResponse) SetKeyVersion(v *CreateKeyVersionResponseKeyV
 }
 
 type CreateKeyVersionResponseKeyVersion struct {
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
-	CreationDate *string `json:"CreationDate" xml:"CreationDate" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
+	CreationDate *string `json:"CreationDate,omitempty" xml:"CreationDate,omitempty" require:"true"`
 }
 
 func (s CreateKeyVersionResponseKeyVersion) String() string {
@@ -1779,9 +1779,9 @@ func (s DescribeServiceRequest) GoString() string {
 }
 
 type DescribeServiceResponse struct {
-	RequestId        *string                                  `json:"RequestId" xml:"RequestId" require:"true"`
-	ProtectionLevels *DescribeServiceResponseProtectionLevels `json:"ProtectionLevels" xml:"ProtectionLevels" require:"true" type:"Struct"`
-	KeySpecs         *DescribeServiceResponseKeySpecs         `json:"KeySpecs" xml:"KeySpecs" require:"true" type:"Struct"`
+	RequestId        *string                                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ProtectionLevels *DescribeServiceResponseProtectionLevels `json:"ProtectionLevels,omitempty" xml:"ProtectionLevels,omitempty" require:"true" type:"Struct"`
+	KeySpecs         *DescribeServiceResponseKeySpecs         `json:"KeySpecs,omitempty" xml:"KeySpecs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceResponse) String() string {
@@ -1808,7 +1808,7 @@ func (s *DescribeServiceResponse) SetKeySpecs(v *DescribeServiceResponseKeySpecs
 }
 
 type DescribeServiceResponseProtectionLevels struct {
-	ProtectionLevel []*DescribeServiceResponseProtectionLevelsProtectionLevel `json:"ProtectionLevel" xml:"ProtectionLevel" require:"true" type:"Repeated"`
+	ProtectionLevel []*DescribeServiceResponseProtectionLevelsProtectionLevel `json:"ProtectionLevel,omitempty" xml:"ProtectionLevel,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceResponseProtectionLevels) String() string {
@@ -1825,7 +1825,7 @@ func (s *DescribeServiceResponseProtectionLevels) SetProtectionLevel(v []*Descri
 }
 
 type DescribeServiceResponseProtectionLevelsProtectionLevel struct {
-	Type *string `json:"Type" xml:"Type" require:"true"`
+	Type *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s DescribeServiceResponseProtectionLevelsProtectionLevel) String() string {
@@ -1842,7 +1842,7 @@ func (s *DescribeServiceResponseProtectionLevelsProtectionLevel) SetType(v strin
 }
 
 type DescribeServiceResponseKeySpecs struct {
-	KeySpec []*DescribeServiceResponseKeySpecsKeySpec `json:"KeySpec" xml:"KeySpec" require:"true" type:"Repeated"`
+	KeySpec []*DescribeServiceResponseKeySpecsKeySpec `json:"KeySpec,omitempty" xml:"KeySpec,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceResponseKeySpecs) String() string {
@@ -1859,9 +1859,9 @@ func (s *DescribeServiceResponseKeySpecs) SetKeySpec(v []*DescribeServiceRespons
 }
 
 type DescribeServiceResponseKeySpecsKeySpec struct {
-	Name                      *string                                                          `json:"Name" xml:"Name" require:"true"`
-	SupportedProtectionLevels *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels `json:"SupportedProtectionLevels" xml:"SupportedProtectionLevels" require:"true" type:"Struct"`
-	Usages                    *DescribeServiceResponseKeySpecsKeySpecUsages                    `json:"Usages" xml:"Usages" require:"true" type:"Struct"`
+	Name                      *string                                                          `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	SupportedProtectionLevels *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels `json:"SupportedProtectionLevels,omitempty" xml:"SupportedProtectionLevels,omitempty" require:"true" type:"Struct"`
+	Usages                    *DescribeServiceResponseKeySpecsKeySpecUsages                    `json:"Usages,omitempty" xml:"Usages,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeServiceResponseKeySpecsKeySpec) String() string {
@@ -1888,7 +1888,7 @@ func (s *DescribeServiceResponseKeySpecsKeySpec) SetUsages(v *DescribeServiceRes
 }
 
 type DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels struct {
-	SupportedProtectionLevel []*string `json:"SupportedProtectionLevel" xml:"SupportedProtectionLevel" require:"true" type:"Repeated"`
+	SupportedProtectionLevel []*string `json:"SupportedProtectionLevel,omitempty" xml:"SupportedProtectionLevel,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) String() string {
@@ -1905,7 +1905,7 @@ func (s *DescribeServiceResponseKeySpecsKeySpecSupportedProtectionLevels) SetSup
 }
 
 type DescribeServiceResponseKeySpecsKeySpecUsages struct {
-	Usage []*string `json:"Usage" xml:"Usage" require:"true" type:"Repeated"`
+	Usage []*string `json:"Usage,omitempty" xml:"Usage,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeServiceResponseKeySpecsKeySpecUsages) String() string {
@@ -1922,8 +1922,8 @@ func (s *DescribeServiceResponseKeySpecsKeySpecUsages) SetUsage(v []*string) *De
 }
 
 type UpdateAliasRequest struct {
-	KeyId     *string `json:"KeyId" xml:"KeyId" require:"true"`
-	AliasName *string `json:"AliasName" xml:"AliasName" require:"true"`
+	KeyId     *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	AliasName *string `json:"AliasName,omitempty" xml:"AliasName,omitempty" require:"true"`
 }
 
 func (s UpdateAliasRequest) String() string {
@@ -1945,7 +1945,7 @@ func (s *UpdateAliasRequest) SetAliasName(v string) *UpdateAliasRequest {
 }
 
 type UpdateAliasResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UpdateAliasResponse) String() string {
@@ -1962,9 +1962,9 @@ func (s *UpdateAliasResponse) SetRequestId(v string) *UpdateAliasResponse {
 }
 
 type UntagResourceRequest struct {
-	KeyId      *string `json:"KeyId" xml:"KeyId"`
-	TagKeys    *string `json:"TagKeys" xml:"TagKeys" require:"true"`
-	SecretName *string `json:"SecretName" xml:"SecretName"`
+	KeyId      *string `json:"KeyId,omitempty" xml:"KeyId,omitempty"`
+	TagKeys    *string `json:"TagKeys,omitempty" xml:"TagKeys,omitempty" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty"`
 }
 
 func (s UntagResourceRequest) String() string {
@@ -1991,7 +1991,7 @@ func (s *UntagResourceRequest) SetSecretName(v string) *UntagResourceRequest {
 }
 
 type UntagResourceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s UntagResourceResponse) String() string {
@@ -2008,9 +2008,9 @@ func (s *UntagResourceResponse) SetRequestId(v string) *UntagResourceResponse {
 }
 
 type TagResourceRequest struct {
-	KeyId      *string `json:"KeyId" xml:"KeyId"`
-	Tags       *string `json:"Tags" xml:"Tags" require:"true"`
-	SecretName *string `json:"SecretName" xml:"SecretName"`
+	KeyId      *string `json:"KeyId,omitempty" xml:"KeyId,omitempty"`
+	Tags       *string `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true"`
+	SecretName *string `json:"SecretName,omitempty" xml:"SecretName,omitempty"`
 }
 
 func (s TagResourceRequest) String() string {
@@ -2037,7 +2037,7 @@ func (s *TagResourceRequest) SetSecretName(v string) *TagResourceRequest {
 }
 
 type TagResourceResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s TagResourceResponse) String() string {
@@ -2054,8 +2054,8 @@ func (s *TagResourceResponse) SetRequestId(v string) *TagResourceResponse {
 }
 
 type ScheduleKeyDeletionRequest struct {
-	KeyId               *string `json:"KeyId" xml:"KeyId" require:"true"`
-	PendingWindowInDays *int    `json:"PendingWindowInDays" xml:"PendingWindowInDays"`
+	KeyId               *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	PendingWindowInDays *int    `json:"PendingWindowInDays,omitempty" xml:"PendingWindowInDays,omitempty"`
 }
 
 func (s ScheduleKeyDeletionRequest) String() string {
@@ -2077,7 +2077,7 @@ func (s *ScheduleKeyDeletionRequest) SetPendingWindowInDays(v int) *ScheduleKeyD
 }
 
 type ScheduleKeyDeletionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ScheduleKeyDeletionResponse) String() string {
@@ -2094,7 +2094,7 @@ func (s *ScheduleKeyDeletionResponse) SetRequestId(v string) *ScheduleKeyDeletio
 }
 
 type ListResourceTagsRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s ListResourceTagsRequest) String() string {
@@ -2111,8 +2111,8 @@ func (s *ListResourceTagsRequest) SetKeyId(v string) *ListResourceTagsRequest {
 }
 
 type ListResourceTagsResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Tags      *ListResourceTagsResponseTags `json:"Tags" xml:"Tags" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Tags      *ListResourceTagsResponseTags `json:"Tags,omitempty" xml:"Tags,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListResourceTagsResponse) String() string {
@@ -2134,7 +2134,7 @@ func (s *ListResourceTagsResponse) SetTags(v *ListResourceTagsResponseTags) *Lis
 }
 
 type ListResourceTagsResponseTags struct {
-	Tag []*ListResourceTagsResponseTagsTag `json:"Tag" xml:"Tag" require:"true" type:"Repeated"`
+	Tag []*ListResourceTagsResponseTagsTag `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListResourceTagsResponseTags) String() string {
@@ -2151,9 +2151,9 @@ func (s *ListResourceTagsResponseTags) SetTag(v []*ListResourceTagsResponseTagsT
 }
 
 type ListResourceTagsResponseTagsTag struct {
-	KeyId    *string `json:"KeyId" xml:"KeyId" require:"true"`
-	TagKey   *string `json:"TagKey" xml:"TagKey" require:"true"`
-	TagValue *string `json:"TagValue" xml:"TagValue" require:"true"`
+	KeyId    *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	TagKey   *string `json:"TagKey,omitempty" xml:"TagKey,omitempty" require:"true"`
+	TagValue *string `json:"TagValue,omitempty" xml:"TagValue,omitempty" require:"true"`
 }
 
 func (s ListResourceTagsResponseTagsTag) String() string {
@@ -2180,8 +2180,8 @@ func (s *ListResourceTagsResponseTagsTag) SetTagValue(v string) *ListResourceTag
 }
 
 type ListKeysRequest struct {
-	PageNumber *int `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int `json:"PageSize" xml:"PageSize"`
+	PageNumber *int `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListKeysRequest) String() string {
@@ -2203,11 +2203,10 @@ func (s *ListKeysRequest) SetPageSize(v int) *ListKeysRequest {
 }
 
 type ListKeysResponse struct {
-	TotalCount *int                  `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int                  `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                  `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string               `json:"RequestId" xml:"RequestId" require:"true"`
-	Keys       *ListKeysResponseKeys `json:"Keys" xml:"Keys" require:"true" type:"Struct"`
+	TotalCount *int    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ListKeysResponse) String() string {
@@ -2238,55 +2237,10 @@ func (s *ListKeysResponse) SetRequestId(v string) *ListKeysResponse {
 	return s
 }
 
-func (s *ListKeysResponse) SetKeys(v *ListKeysResponseKeys) *ListKeysResponse {
-	s.Keys = v
-	return s
-}
-
-type ListKeysResponseKeys struct {
-	Key []*ListKeysResponseKeysKey `json:"Key" xml:"Key" require:"true" type:"Repeated"`
-}
-
-func (s ListKeysResponseKeys) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ListKeysResponseKeys) GoString() string {
-	return s.String()
-}
-
-func (s *ListKeysResponseKeys) SetKey(v []*ListKeysResponseKeysKey) *ListKeysResponseKeys {
-	s.Key = v
-	return s
-}
-
-type ListKeysResponseKeysKey struct {
-	KeyId  *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyArn *string `json:"KeyArn" xml:"KeyArn" require:"true"`
-}
-
-func (s ListKeysResponseKeysKey) String() string {
-	return tea.Prettify(s)
-}
-
-func (s ListKeysResponseKeysKey) GoString() string {
-	return s.String()
-}
-
-func (s *ListKeysResponseKeysKey) SetKeyId(v string) *ListKeysResponseKeysKey {
-	s.KeyId = &v
-	return s
-}
-
-func (s *ListKeysResponseKeysKey) SetKeyArn(v string) *ListKeysResponseKeysKey {
-	s.KeyArn = &v
-	return s
-}
-
 type ListAliasesByKeyIdRequest struct {
-	KeyId      *string `json:"KeyId" xml:"KeyId" require:"true"`
-	PageNumber *int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int    `json:"PageSize" xml:"PageSize"`
+	KeyId      *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	PageNumber *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListAliasesByKeyIdRequest) String() string {
@@ -2313,11 +2267,11 @@ func (s *ListAliasesByKeyIdRequest) SetPageSize(v int) *ListAliasesByKeyIdReques
 }
 
 type ListAliasesByKeyIdResponse struct {
-	TotalCount *int                               `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int                               `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                               `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Aliases    *ListAliasesByKeyIdResponseAliases `json:"Aliases" xml:"Aliases" require:"true" type:"Struct"`
+	TotalCount *int                               `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int                               `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Aliases    *ListAliasesByKeyIdResponseAliases `json:"Aliases,omitempty" xml:"Aliases,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListAliasesByKeyIdResponse) String() string {
@@ -2354,7 +2308,7 @@ func (s *ListAliasesByKeyIdResponse) SetAliases(v *ListAliasesByKeyIdResponseAli
 }
 
 type ListAliasesByKeyIdResponseAliases struct {
-	Alias []*ListAliasesByKeyIdResponseAliasesAlias `json:"Alias" xml:"Alias" require:"true" type:"Repeated"`
+	Alias []*ListAliasesByKeyIdResponseAliasesAlias `json:"Alias,omitempty" xml:"Alias,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAliasesByKeyIdResponseAliases) String() string {
@@ -2371,9 +2325,9 @@ func (s *ListAliasesByKeyIdResponseAliases) SetAlias(v []*ListAliasesByKeyIdResp
 }
 
 type ListAliasesByKeyIdResponseAliasesAlias struct {
-	KeyId     *string `json:"KeyId" xml:"KeyId" require:"true"`
-	AliasName *string `json:"AliasName" xml:"AliasName" require:"true"`
-	AliasArn  *string `json:"AliasArn" xml:"AliasArn" require:"true"`
+	KeyId     *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	AliasName *string `json:"AliasName,omitempty" xml:"AliasName,omitempty" require:"true"`
+	AliasArn  *string `json:"AliasArn,omitempty" xml:"AliasArn,omitempty" require:"true"`
 }
 
 func (s ListAliasesByKeyIdResponseAliasesAlias) String() string {
@@ -2400,8 +2354,8 @@ func (s *ListAliasesByKeyIdResponseAliasesAlias) SetAliasArn(v string) *ListAlia
 }
 
 type ListAliasesRequest struct {
-	PageNumber *int `json:"PageNumber" xml:"PageNumber"`
-	PageSize   *int `json:"PageSize" xml:"PageSize"`
+	PageNumber *int `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
+	PageSize   *int `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s ListAliasesRequest) String() string {
@@ -2423,11 +2377,11 @@ func (s *ListAliasesRequest) SetPageSize(v int) *ListAliasesRequest {
 }
 
 type ListAliasesResponse struct {
-	TotalCount *int                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNumber *int                        `json:"PageNumber" xml:"PageNumber" require:"true"`
-	PageSize   *int                        `json:"PageSize" xml:"PageSize" require:"true"`
-	RequestId  *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Aliases    *ListAliasesResponseAliases `json:"Aliases" xml:"Aliases" require:"true" type:"Struct"`
+	TotalCount *int                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNumber *int                        `json:"PageNumber,omitempty" xml:"PageNumber,omitempty" require:"true"`
+	PageSize   *int                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	RequestId  *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Aliases    *ListAliasesResponseAliases `json:"Aliases,omitempty" xml:"Aliases,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ListAliasesResponse) String() string {
@@ -2464,7 +2418,7 @@ func (s *ListAliasesResponse) SetAliases(v *ListAliasesResponseAliases) *ListAli
 }
 
 type ListAliasesResponseAliases struct {
-	Alias []*ListAliasesResponseAliasesAlias `json:"Alias" xml:"Alias" require:"true" type:"Repeated"`
+	Alias []*ListAliasesResponseAliasesAlias `json:"Alias,omitempty" xml:"Alias,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ListAliasesResponseAliases) String() string {
@@ -2481,9 +2435,9 @@ func (s *ListAliasesResponseAliases) SetAlias(v []*ListAliasesResponseAliasesAli
 }
 
 type ListAliasesResponseAliasesAlias struct {
-	KeyId     *string `json:"KeyId" xml:"KeyId" require:"true"`
-	AliasName *string `json:"AliasName" xml:"AliasName" require:"true"`
-	AliasArn  *string `json:"AliasArn" xml:"AliasArn" require:"true"`
+	KeyId     *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	AliasName *string `json:"AliasName,omitempty" xml:"AliasName,omitempty" require:"true"`
+	AliasArn  *string `json:"AliasArn,omitempty" xml:"AliasArn,omitempty" require:"true"`
 }
 
 func (s ListAliasesResponseAliasesAlias) String() string {
@@ -2510,10 +2464,10 @@ func (s *ListAliasesResponseAliasesAlias) SetAliasArn(v string) *ListAliasesResp
 }
 
 type ImportKeyMaterialRequest struct {
-	KeyId                 *string `json:"KeyId" xml:"KeyId" require:"true"`
-	EncryptedKeyMaterial  *string `json:"EncryptedKeyMaterial" xml:"EncryptedKeyMaterial" require:"true"`
-	ImportToken           *string `json:"ImportToken" xml:"ImportToken" require:"true"`
-	KeyMaterialExpireUnix *int64  `json:"KeyMaterialExpireUnix" xml:"KeyMaterialExpireUnix" require:"true"`
+	KeyId                 *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	EncryptedKeyMaterial  *string `json:"EncryptedKeyMaterial,omitempty" xml:"EncryptedKeyMaterial,omitempty" require:"true"`
+	ImportToken           *string `json:"ImportToken,omitempty" xml:"ImportToken,omitempty" require:"true"`
+	KeyMaterialExpireUnix *int64  `json:"KeyMaterialExpireUnix,omitempty" xml:"KeyMaterialExpireUnix,omitempty" require:"true"`
 }
 
 func (s ImportKeyMaterialRequest) String() string {
@@ -2545,7 +2499,7 @@ func (s *ImportKeyMaterialRequest) SetKeyMaterialExpireUnix(v int64) *ImportKeyM
 }
 
 type ImportKeyMaterialResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s ImportKeyMaterialResponse) String() string {
@@ -2562,9 +2516,9 @@ func (s *ImportKeyMaterialResponse) SetRequestId(v string) *ImportKeyMaterialRes
 }
 
 type GetParametersForImportRequest struct {
-	KeyId             *string `json:"KeyId" xml:"KeyId" require:"true"`
-	WrappingAlgorithm *string `json:"WrappingAlgorithm" xml:"WrappingAlgorithm" require:"true"`
-	WrappingKeySpec   *string `json:"WrappingKeySpec" xml:"WrappingKeySpec" require:"true"`
+	KeyId             *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	WrappingAlgorithm *string `json:"WrappingAlgorithm,omitempty" xml:"WrappingAlgorithm,omitempty" require:"true"`
+	WrappingKeySpec   *string `json:"WrappingKeySpec,omitempty" xml:"WrappingKeySpec,omitempty" require:"true"`
 }
 
 func (s GetParametersForImportRequest) String() string {
@@ -2591,11 +2545,11 @@ func (s *GetParametersForImportRequest) SetWrappingKeySpec(v string) *GetParamet
 }
 
 type GetParametersForImportResponse struct {
-	KeyId           *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	ImportToken     *string `json:"ImportToken" xml:"ImportToken" require:"true"`
-	PublicKey       *string `json:"PublicKey" xml:"PublicKey" require:"true"`
-	TokenExpireTime *string `json:"TokenExpireTime" xml:"TokenExpireTime" require:"true"`
+	KeyId           *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	ImportToken     *string `json:"ImportToken,omitempty" xml:"ImportToken,omitempty" require:"true"`
+	PublicKey       *string `json:"PublicKey,omitempty" xml:"PublicKey,omitempty" require:"true"`
+	TokenExpireTime *string `json:"TokenExpireTime,omitempty" xml:"TokenExpireTime,omitempty" require:"true"`
 }
 
 func (s GetParametersForImportResponse) String() string {
@@ -2632,10 +2586,10 @@ func (s *GetParametersForImportResponse) SetTokenExpireTime(v string) *GetParame
 }
 
 type GenerateDataKeyRequest struct {
-	KeyId             *string                `json:"KeyId" xml:"KeyId" require:"true"`
-	KeySpec           *string                `json:"KeySpec" xml:"KeySpec"`
-	NumberOfBytes     *int                   `json:"NumberOfBytes" xml:"NumberOfBytes"`
-	EncryptionContext map[string]interface{} `json:"EncryptionContext" xml:"EncryptionContext"`
+	KeyId             *string                `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeySpec           *string                `json:"KeySpec,omitempty" xml:"KeySpec,omitempty"`
+	NumberOfBytes     *int                   `json:"NumberOfBytes,omitempty" xml:"NumberOfBytes,omitempty"`
+	EncryptionContext map[string]interface{} `json:"EncryptionContext,omitempty" xml:"EncryptionContext,omitempty"`
 }
 
 func (s GenerateDataKeyRequest) String() string {
@@ -2667,11 +2621,11 @@ func (s *GenerateDataKeyRequest) SetEncryptionContext(v map[string]interface{}) 
 }
 
 type GenerateDataKeyResponse struct {
-	CiphertextBlob *string `json:"CiphertextBlob" xml:"CiphertextBlob" require:"true"`
-	KeyId          *string `json:"KeyId" xml:"KeyId" require:"true"`
-	Plaintext      *string `json:"Plaintext" xml:"Plaintext" require:"true"`
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId   *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	CiphertextBlob *string `json:"CiphertextBlob,omitempty" xml:"CiphertextBlob,omitempty" require:"true"`
+	KeyId          *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	Plaintext      *string `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId   *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s GenerateDataKeyResponse) String() string {
@@ -2708,9 +2662,9 @@ func (s *GenerateDataKeyResponse) SetKeyVersionId(v string) *GenerateDataKeyResp
 }
 
 type EncryptRequest struct {
-	KeyId             *string                `json:"KeyId" xml:"KeyId" require:"true"`
-	Plaintext         *string                `json:"Plaintext" xml:"Plaintext" require:"true"`
-	EncryptionContext map[string]interface{} `json:"EncryptionContext" xml:"EncryptionContext"`
+	KeyId             *string                `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	Plaintext         *string                `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	EncryptionContext map[string]interface{} `json:"EncryptionContext,omitempty" xml:"EncryptionContext,omitempty"`
 }
 
 func (s EncryptRequest) String() string {
@@ -2737,10 +2691,10 @@ func (s *EncryptRequest) SetEncryptionContext(v map[string]interface{}) *Encrypt
 }
 
 type EncryptResponse struct {
-	CiphertextBlob *string `json:"CiphertextBlob" xml:"CiphertextBlob" require:"true"`
-	KeyId          *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId      *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId   *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	CiphertextBlob *string `json:"CiphertextBlob,omitempty" xml:"CiphertextBlob,omitempty" require:"true"`
+	KeyId          *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId   *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s EncryptResponse) String() string {
@@ -2772,7 +2726,7 @@ func (s *EncryptResponse) SetKeyVersionId(v string) *EncryptResponse {
 }
 
 type EnableKeyRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s EnableKeyRequest) String() string {
@@ -2789,7 +2743,7 @@ func (s *EnableKeyRequest) SetKeyId(v string) *EnableKeyRequest {
 }
 
 type EnableKeyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s EnableKeyResponse) String() string {
@@ -2806,7 +2760,7 @@ func (s *EnableKeyResponse) SetRequestId(v string) *EnableKeyResponse {
 }
 
 type DisableKeyRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s DisableKeyRequest) String() string {
@@ -2823,7 +2777,7 @@ func (s *DisableKeyRequest) SetKeyId(v string) *DisableKeyRequest {
 }
 
 type DisableKeyResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DisableKeyResponse) String() string {
@@ -2851,8 +2805,8 @@ func (s DescribeRegionsRequest) GoString() string {
 }
 
 type DescribeRegionsResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Regions   *DescribeRegionsResponseRegions `json:"Regions" xml:"Regions" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Regions   *DescribeRegionsResponseRegions `json:"Regions,omitempty" xml:"Regions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeRegionsResponse) String() string {
@@ -2874,7 +2828,7 @@ func (s *DescribeRegionsResponse) SetRegions(v *DescribeRegionsResponseRegions) 
 }
 
 type DescribeRegionsResponseRegions struct {
-	Region []*DescribeRegionsResponseRegionsRegion `json:"Region" xml:"Region" require:"true" type:"Repeated"`
+	Region []*DescribeRegionsResponseRegionsRegion `json:"Region,omitempty" xml:"Region,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeRegionsResponseRegions) String() string {
@@ -2891,7 +2845,7 @@ func (s *DescribeRegionsResponseRegions) SetRegion(v []*DescribeRegionsResponseR
 }
 
 type DescribeRegionsResponseRegionsRegion struct {
-	RegionId *string `json:"RegionId" xml:"RegionId" require:"true"`
+	RegionId *string `json:"RegionId,omitempty" xml:"RegionId,omitempty" require:"true"`
 }
 
 func (s DescribeRegionsResponseRegionsRegion) String() string {
@@ -2908,7 +2862,7 @@ func (s *DescribeRegionsResponseRegionsRegion) SetRegionId(v string) *DescribeRe
 }
 
 type DescribeKeyRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s DescribeKeyRequest) String() string {
@@ -2925,8 +2879,8 @@ func (s *DescribeKeyRequest) SetKeyId(v string) *DescribeKeyRequest {
 }
 
 type DescribeKeyResponse struct {
-	RequestId   *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyMetadata *DescribeKeyResponseKeyMetadata `json:"KeyMetadata" xml:"KeyMetadata" require:"true" type:"Struct"`
+	RequestId   *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyMetadata *DescribeKeyResponseKeyMetadata `json:"KeyMetadata,omitempty" xml:"KeyMetadata,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeKeyResponse) String() string {
@@ -2948,23 +2902,23 @@ func (s *DescribeKeyResponse) SetKeyMetadata(v *DescribeKeyResponseKeyMetadata) 
 }
 
 type DescribeKeyResponseKeyMetadata struct {
-	CreationDate       *string `json:"CreationDate" xml:"CreationDate" require:"true"`
-	Description        *string `json:"Description" xml:"Description" require:"true"`
-	KeyId              *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyState           *string `json:"KeyState" xml:"KeyState" require:"true"`
-	KeyUsage           *string `json:"KeyUsage" xml:"KeyUsage" require:"true"`
-	DeleteDate         *string `json:"DeleteDate" xml:"DeleteDate" require:"true"`
-	Creator            *string `json:"Creator" xml:"Creator" require:"true"`
-	Arn                *string `json:"Arn" xml:"Arn" require:"true"`
-	Origin             *string `json:"Origin" xml:"Origin" require:"true"`
-	MaterialExpireTime *string `json:"MaterialExpireTime" xml:"MaterialExpireTime" require:"true"`
-	ProtectionLevel    *string `json:"ProtectionLevel" xml:"ProtectionLevel" require:"true"`
-	PrimaryKeyVersion  *string `json:"PrimaryKeyVersion" xml:"PrimaryKeyVersion" require:"true"`
-	LastRotationDate   *string `json:"LastRotationDate" xml:"LastRotationDate" require:"true"`
-	AutomaticRotation  *string `json:"AutomaticRotation" xml:"AutomaticRotation" require:"true"`
-	RotationInterval   *string `json:"RotationInterval" xml:"RotationInterval" require:"true"`
-	NextRotationDate   *string `json:"NextRotationDate" xml:"NextRotationDate" require:"true"`
-	KeySpec            *string `json:"KeySpec" xml:"KeySpec" require:"true"`
+	CreationDate       *string `json:"CreationDate,omitempty" xml:"CreationDate,omitempty" require:"true"`
+	Description        *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	KeyId              *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyState           *string `json:"KeyState,omitempty" xml:"KeyState,omitempty" require:"true"`
+	KeyUsage           *string `json:"KeyUsage,omitempty" xml:"KeyUsage,omitempty" require:"true"`
+	DeleteDate         *string `json:"DeleteDate,omitempty" xml:"DeleteDate,omitempty" require:"true"`
+	Creator            *string `json:"Creator,omitempty" xml:"Creator,omitempty" require:"true"`
+	Arn                *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Origin             *string `json:"Origin,omitempty" xml:"Origin,omitempty" require:"true"`
+	MaterialExpireTime *string `json:"MaterialExpireTime,omitempty" xml:"MaterialExpireTime,omitempty" require:"true"`
+	ProtectionLevel    *string `json:"ProtectionLevel,omitempty" xml:"ProtectionLevel,omitempty" require:"true"`
+	PrimaryKeyVersion  *string `json:"PrimaryKeyVersion,omitempty" xml:"PrimaryKeyVersion,omitempty" require:"true"`
+	LastRotationDate   *string `json:"LastRotationDate,omitempty" xml:"LastRotationDate,omitempty" require:"true"`
+	AutomaticRotation  *string `json:"AutomaticRotation,omitempty" xml:"AutomaticRotation,omitempty" require:"true"`
+	RotationInterval   *string `json:"RotationInterval,omitempty" xml:"RotationInterval,omitempty" require:"true"`
+	NextRotationDate   *string `json:"NextRotationDate,omitempty" xml:"NextRotationDate,omitempty" require:"true"`
+	KeySpec            *string `json:"KeySpec,omitempty" xml:"KeySpec,omitempty" require:"true"`
 }
 
 func (s DescribeKeyResponseKeyMetadata) String() string {
@@ -3061,7 +3015,7 @@ func (s *DescribeKeyResponseKeyMetadata) SetKeySpec(v string) *DescribeKeyRespon
 }
 
 type DeleteKeyMaterialRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s DeleteKeyMaterialRequest) String() string {
@@ -3078,7 +3032,7 @@ func (s *DeleteKeyMaterialRequest) SetKeyId(v string) *DeleteKeyMaterialRequest 
 }
 
 type DeleteKeyMaterialResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteKeyMaterialResponse) String() string {
@@ -3095,7 +3049,7 @@ func (s *DeleteKeyMaterialResponse) SetRequestId(v string) *DeleteKeyMaterialRes
 }
 
 type DeleteAliasRequest struct {
-	AliasName *string `json:"AliasName" xml:"AliasName" require:"true"`
+	AliasName *string `json:"AliasName,omitempty" xml:"AliasName,omitempty" require:"true"`
 }
 
 func (s DeleteAliasRequest) String() string {
@@ -3112,7 +3066,7 @@ func (s *DeleteAliasRequest) SetAliasName(v string) *DeleteAliasRequest {
 }
 
 type DeleteAliasResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s DeleteAliasResponse) String() string {
@@ -3129,8 +3083,8 @@ func (s *DeleteAliasResponse) SetRequestId(v string) *DeleteAliasResponse {
 }
 
 type DecryptRequest struct {
-	CiphertextBlob    *string                `json:"CiphertextBlob" xml:"CiphertextBlob" require:"true"`
-	EncryptionContext map[string]interface{} `json:"EncryptionContext" xml:"EncryptionContext"`
+	CiphertextBlob    *string                `json:"CiphertextBlob,omitempty" xml:"CiphertextBlob,omitempty" require:"true"`
+	EncryptionContext map[string]interface{} `json:"EncryptionContext,omitempty" xml:"EncryptionContext,omitempty"`
 }
 
 func (s DecryptRequest) String() string {
@@ -3152,10 +3106,10 @@ func (s *DecryptRequest) SetEncryptionContext(v map[string]interface{}) *Decrypt
 }
 
 type DecryptResponse struct {
-	Plaintext    *string `json:"Plaintext" xml:"Plaintext" require:"true"`
-	KeyId        *string `json:"KeyId" xml:"KeyId" require:"true"`
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyVersionId *string `json:"KeyVersionId" xml:"KeyVersionId" require:"true"`
+	Plaintext    *string `json:"Plaintext,omitempty" xml:"Plaintext,omitempty" require:"true"`
+	KeyId        *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyVersionId *string `json:"KeyVersionId,omitempty" xml:"KeyVersionId,omitempty" require:"true"`
 }
 
 func (s DecryptResponse) String() string {
@@ -3187,13 +3141,13 @@ func (s *DecryptResponse) SetKeyVersionId(v string) *DecryptResponse {
 }
 
 type CreateKeyRequest struct {
-	Description             *string `json:"Description" xml:"Description"`
-	KeyUsage                *string `json:"KeyUsage" xml:"KeyUsage"`
-	Origin                  *string `json:"Origin" xml:"Origin"`
-	ProtectionLevel         *string `json:"ProtectionLevel" xml:"ProtectionLevel"`
-	EnableAutomaticRotation *bool   `json:"EnableAutomaticRotation" xml:"EnableAutomaticRotation"`
-	RotationInterval        *string `json:"RotationInterval" xml:"RotationInterval"`
-	KeySpec                 *string `json:"KeySpec" xml:"KeySpec"`
+	Description             *string `json:"Description,omitempty" xml:"Description,omitempty"`
+	KeyUsage                *string `json:"KeyUsage,omitempty" xml:"KeyUsage,omitempty"`
+	Origin                  *string `json:"Origin,omitempty" xml:"Origin,omitempty"`
+	ProtectionLevel         *string `json:"ProtectionLevel,omitempty" xml:"ProtectionLevel,omitempty"`
+	EnableAutomaticRotation *bool   `json:"EnableAutomaticRotation,omitempty" xml:"EnableAutomaticRotation,omitempty"`
+	RotationInterval        *string `json:"RotationInterval,omitempty" xml:"RotationInterval,omitempty"`
+	KeySpec                 *string `json:"KeySpec,omitempty" xml:"KeySpec,omitempty"`
 }
 
 func (s CreateKeyRequest) String() string {
@@ -3240,8 +3194,8 @@ func (s *CreateKeyRequest) SetKeySpec(v string) *CreateKeyRequest {
 }
 
 type CreateKeyResponse struct {
-	RequestId   *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	KeyMetadata *CreateKeyResponseKeyMetadata `json:"KeyMetadata" xml:"KeyMetadata" require:"true" type:"Struct"`
+	RequestId   *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	KeyMetadata *CreateKeyResponseKeyMetadata `json:"KeyMetadata,omitempty" xml:"KeyMetadata,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateKeyResponse) String() string {
@@ -3263,23 +3217,23 @@ func (s *CreateKeyResponse) SetKeyMetadata(v *CreateKeyResponseKeyMetadata) *Cre
 }
 
 type CreateKeyResponseKeyMetadata struct {
-	CreationDate       *string `json:"CreationDate" xml:"CreationDate" require:"true"`
-	Description        *string `json:"Description" xml:"Description" require:"true"`
-	KeyId              *string `json:"KeyId" xml:"KeyId" require:"true"`
-	KeyState           *string `json:"KeyState" xml:"KeyState" require:"true"`
-	KeyUsage           *string `json:"KeyUsage" xml:"KeyUsage" require:"true"`
-	DeleteDate         *string `json:"DeleteDate" xml:"DeleteDate" require:"true"`
-	Creator            *string `json:"Creator" xml:"Creator" require:"true"`
-	Arn                *string `json:"Arn" xml:"Arn" require:"true"`
-	Origin             *string `json:"Origin" xml:"Origin" require:"true"`
-	MaterialExpireTime *string `json:"MaterialExpireTime" xml:"MaterialExpireTime" require:"true"`
-	ProtectionLevel    *string `json:"ProtectionLevel" xml:"ProtectionLevel" require:"true"`
-	PrimaryKeyVersion  *string `json:"PrimaryKeyVersion" xml:"PrimaryKeyVersion" require:"true"`
-	LastRotationDate   *string `json:"LastRotationDate" xml:"LastRotationDate" require:"true"`
-	AutomaticRotation  *string `json:"AutomaticRotation" xml:"AutomaticRotation" require:"true"`
-	RotationInterval   *string `json:"RotationInterval" xml:"RotationInterval" require:"true"`
-	NextRotationDate   *string `json:"NextRotationDate" xml:"NextRotationDate" require:"true"`
-	KeySpec            *string `json:"KeySpec" xml:"KeySpec" require:"true"`
+	CreationDate       *string `json:"CreationDate,omitempty" xml:"CreationDate,omitempty" require:"true"`
+	Description        *string `json:"Description,omitempty" xml:"Description,omitempty" require:"true"`
+	KeyId              *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	KeyState           *string `json:"KeyState,omitempty" xml:"KeyState,omitempty" require:"true"`
+	KeyUsage           *string `json:"KeyUsage,omitempty" xml:"KeyUsage,omitempty" require:"true"`
+	DeleteDate         *string `json:"DeleteDate,omitempty" xml:"DeleteDate,omitempty" require:"true"`
+	Creator            *string `json:"Creator,omitempty" xml:"Creator,omitempty" require:"true"`
+	Arn                *string `json:"Arn,omitempty" xml:"Arn,omitempty" require:"true"`
+	Origin             *string `json:"Origin,omitempty" xml:"Origin,omitempty" require:"true"`
+	MaterialExpireTime *string `json:"MaterialExpireTime,omitempty" xml:"MaterialExpireTime,omitempty" require:"true"`
+	ProtectionLevel    *string `json:"ProtectionLevel,omitempty" xml:"ProtectionLevel,omitempty" require:"true"`
+	PrimaryKeyVersion  *string `json:"PrimaryKeyVersion,omitempty" xml:"PrimaryKeyVersion,omitempty" require:"true"`
+	LastRotationDate   *string `json:"LastRotationDate,omitempty" xml:"LastRotationDate,omitempty" require:"true"`
+	AutomaticRotation  *string `json:"AutomaticRotation,omitempty" xml:"AutomaticRotation,omitempty" require:"true"`
+	RotationInterval   *string `json:"RotationInterval,omitempty" xml:"RotationInterval,omitempty" require:"true"`
+	NextRotationDate   *string `json:"NextRotationDate,omitempty" xml:"NextRotationDate,omitempty" require:"true"`
+	KeySpec            *string `json:"KeySpec,omitempty" xml:"KeySpec,omitempty" require:"true"`
 }
 
 func (s CreateKeyResponseKeyMetadata) String() string {
@@ -3376,8 +3330,8 @@ func (s *CreateKeyResponseKeyMetadata) SetKeySpec(v string) *CreateKeyResponseKe
 }
 
 type CreateAliasRequest struct {
-	KeyId     *string `json:"KeyId" xml:"KeyId" require:"true"`
-	AliasName *string `json:"AliasName" xml:"AliasName" require:"true"`
+	KeyId     *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
+	AliasName *string `json:"AliasName,omitempty" xml:"AliasName,omitempty" require:"true"`
 }
 
 func (s CreateAliasRequest) String() string {
@@ -3399,7 +3353,7 @@ func (s *CreateAliasRequest) SetAliasName(v string) *CreateAliasRequest {
 }
 
 type CreateAliasResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CreateAliasResponse) String() string {
@@ -3416,7 +3370,7 @@ func (s *CreateAliasResponse) SetRequestId(v string) *CreateAliasResponse {
 }
 
 type CancelKeyDeletionRequest struct {
-	KeyId *string `json:"KeyId" xml:"KeyId" require:"true"`
+	KeyId *string `json:"KeyId,omitempty" xml:"KeyId,omitempty" require:"true"`
 }
 
 func (s CancelKeyDeletionRequest) String() string {
@@ -3433,7 +3387,7 @@ func (s *CancelKeyDeletionRequest) SetKeyId(v string) *CancelKeyDeletionRequest 
 }
 
 type CancelKeyDeletionResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
 }
 
 func (s CancelKeyDeletionResponse) String() string {
@@ -3469,7 +3423,7 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	if _err != nil {
 		return _err
 	}
-	client.Endpoint, _err = client.GetEndpoint(client.ProductId, client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
+	client.Endpoint, _err = client.GetEndpoint(tea.String("kms"), client.RegionId, client.EndpointRule, client.Network, client.Suffix, client.EndpointMap, client.Endpoint)
 	if _err != nil {
 		return _err
 	}
@@ -3477,13 +3431,13 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
-func (client *Client) ListSecretsEx(request *ListSecretsRequest, runtime *util.RuntimeOptions) (_result *ListSecretsResponse, _err error) {
+func (client *Client) ListSecretsWithOptions(request *ListSecretsRequest, runtime *util.RuntimeOptions) (_result *ListSecretsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListSecretsResponse{}
-	_body, _err := client.DoRequest(tea.String("ListSecrets"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListSecrets"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3494,7 +3448,7 @@ func (client *Client) ListSecretsEx(request *ListSecretsRequest, runtime *util.R
 func (client *Client) ListSecrets(request *ListSecretsRequest) (_result *ListSecretsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListSecretsResponse{}
-	_body, _err := client.ListSecretsEx(request, runtime)
+	_body, _err := client.ListSecretsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3502,13 +3456,13 @@ func (client *Client) ListSecrets(request *ListSecretsRequest) (_result *ListSec
 	return _result, _err
 }
 
-func (client *Client) ListSecretVersionIdsEx(request *ListSecretVersionIdsRequest, runtime *util.RuntimeOptions) (_result *ListSecretVersionIdsResponse, _err error) {
+func (client *Client) ListSecretVersionIdsWithOptions(request *ListSecretVersionIdsRequest, runtime *util.RuntimeOptions) (_result *ListSecretVersionIdsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListSecretVersionIdsResponse{}
-	_body, _err := client.DoRequest(tea.String("ListSecretVersionIds"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListSecretVersionIds"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3519,7 +3473,7 @@ func (client *Client) ListSecretVersionIdsEx(request *ListSecretVersionIdsReques
 func (client *Client) ListSecretVersionIds(request *ListSecretVersionIdsRequest) (_result *ListSecretVersionIdsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListSecretVersionIdsResponse{}
-	_body, _err := client.ListSecretVersionIdsEx(request, runtime)
+	_body, _err := client.ListSecretVersionIdsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3527,13 +3481,13 @@ func (client *Client) ListSecretVersionIds(request *ListSecretVersionIdsRequest)
 	return _result, _err
 }
 
-func (client *Client) DescribeSecretEx(request *DescribeSecretRequest, runtime *util.RuntimeOptions) (_result *DescribeSecretResponse, _err error) {
+func (client *Client) DescribeSecretWithOptions(request *DescribeSecretRequest, runtime *util.RuntimeOptions) (_result *DescribeSecretResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DescribeSecretResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3544,7 +3498,7 @@ func (client *Client) DescribeSecretEx(request *DescribeSecretRequest, runtime *
 func (client *Client) DescribeSecret(request *DescribeSecretRequest) (_result *DescribeSecretResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeSecretResponse{}
-	_body, _err := client.DescribeSecretEx(request, runtime)
+	_body, _err := client.DescribeSecretWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3552,13 +3506,13 @@ func (client *Client) DescribeSecret(request *DescribeSecretRequest) (_result *D
 	return _result, _err
 }
 
-func (client *Client) UpdateSecretEx(request *UpdateSecretRequest, runtime *util.RuntimeOptions) (_result *UpdateSecretResponse, _err error) {
+func (client *Client) UpdateSecretWithOptions(request *UpdateSecretRequest, runtime *util.RuntimeOptions) (_result *UpdateSecretResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &UpdateSecretResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3569,7 +3523,7 @@ func (client *Client) UpdateSecretEx(request *UpdateSecretRequest, runtime *util
 func (client *Client) UpdateSecret(request *UpdateSecretRequest) (_result *UpdateSecretResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateSecretResponse{}
-	_body, _err := client.UpdateSecretEx(request, runtime)
+	_body, _err := client.UpdateSecretWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3577,13 +3531,13 @@ func (client *Client) UpdateSecret(request *UpdateSecretRequest) (_result *Updat
 	return _result, _err
 }
 
-func (client *Client) GetSecretValueEx(request *GetSecretValueRequest, runtime *util.RuntimeOptions) (_result *GetSecretValueResponse, _err error) {
+func (client *Client) GetSecretValueWithOptions(request *GetSecretValueRequest, runtime *util.RuntimeOptions) (_result *GetSecretValueResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &GetSecretValueResponse{}
-	_body, _err := client.DoRequest(tea.String("GetSecretValue"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetSecretValue"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3594,7 +3548,7 @@ func (client *Client) GetSecretValueEx(request *GetSecretValueRequest, runtime *
 func (client *Client) GetSecretValue(request *GetSecretValueRequest) (_result *GetSecretValueResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GetSecretValueResponse{}
-	_body, _err := client.GetSecretValueEx(request, runtime)
+	_body, _err := client.GetSecretValueWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3602,13 +3556,13 @@ func (client *Client) GetSecretValue(request *GetSecretValueRequest) (_result *G
 	return _result, _err
 }
 
-func (client *Client) GetRandomPasswordEx(request *GetRandomPasswordRequest, runtime *util.RuntimeOptions) (_result *GetRandomPasswordResponse, _err error) {
+func (client *Client) GetRandomPasswordWithOptions(request *GetRandomPasswordRequest, runtime *util.RuntimeOptions) (_result *GetRandomPasswordResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &GetRandomPasswordResponse{}
-	_body, _err := client.DoRequest(tea.String("GetRandomPassword"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetRandomPassword"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3619,7 +3573,7 @@ func (client *Client) GetRandomPasswordEx(request *GetRandomPasswordRequest, run
 func (client *Client) GetRandomPassword(request *GetRandomPasswordRequest) (_result *GetRandomPasswordResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GetRandomPasswordResponse{}
-	_body, _err := client.GetRandomPasswordEx(request, runtime)
+	_body, _err := client.GetRandomPasswordWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3627,13 +3581,13 @@ func (client *Client) GetRandomPassword(request *GetRandomPasswordRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) RestoreSecretEx(request *RestoreSecretRequest, runtime *util.RuntimeOptions) (_result *RestoreSecretResponse, _err error) {
+func (client *Client) RestoreSecretWithOptions(request *RestoreSecretRequest, runtime *util.RuntimeOptions) (_result *RestoreSecretResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &RestoreSecretResponse{}
-	_body, _err := client.DoRequest(tea.String("RestoreSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("RestoreSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3644,7 +3598,7 @@ func (client *Client) RestoreSecretEx(request *RestoreSecretRequest, runtime *ut
 func (client *Client) RestoreSecret(request *RestoreSecretRequest) (_result *RestoreSecretResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &RestoreSecretResponse{}
-	_body, _err := client.RestoreSecretEx(request, runtime)
+	_body, _err := client.RestoreSecretWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3652,13 +3606,13 @@ func (client *Client) RestoreSecret(request *RestoreSecretRequest) (_result *Res
 	return _result, _err
 }
 
-func (client *Client) CreateSecretEx(request *CreateSecretRequest, runtime *util.RuntimeOptions) (_result *CreateSecretResponse, _err error) {
+func (client *Client) CreateSecretWithOptions(request *CreateSecretRequest, runtime *util.RuntimeOptions) (_result *CreateSecretResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &CreateSecretResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3669,7 +3623,7 @@ func (client *Client) CreateSecretEx(request *CreateSecretRequest, runtime *util
 func (client *Client) CreateSecret(request *CreateSecretRequest) (_result *CreateSecretResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateSecretResponse{}
-	_body, _err := client.CreateSecretEx(request, runtime)
+	_body, _err := client.CreateSecretWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3677,13 +3631,13 @@ func (client *Client) CreateSecret(request *CreateSecretRequest) (_result *Creat
 	return _result, _err
 }
 
-func (client *Client) PutSecretValueEx(request *PutSecretValueRequest, runtime *util.RuntimeOptions) (_result *PutSecretValueResponse, _err error) {
+func (client *Client) PutSecretValueWithOptions(request *PutSecretValueRequest, runtime *util.RuntimeOptions) (_result *PutSecretValueResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &PutSecretValueResponse{}
-	_body, _err := client.DoRequest(tea.String("PutSecretValue"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("PutSecretValue"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3694,7 +3648,7 @@ func (client *Client) PutSecretValueEx(request *PutSecretValueRequest, runtime *
 func (client *Client) PutSecretValue(request *PutSecretValueRequest) (_result *PutSecretValueResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &PutSecretValueResponse{}
-	_body, _err := client.PutSecretValueEx(request, runtime)
+	_body, _err := client.PutSecretValueWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3702,13 +3656,13 @@ func (client *Client) PutSecretValue(request *PutSecretValueRequest) (_result *P
 	return _result, _err
 }
 
-func (client *Client) DeleteSecretEx(request *DeleteSecretRequest, runtime *util.RuntimeOptions) (_result *DeleteSecretResponse, _err error) {
+func (client *Client) DeleteSecretWithOptions(request *DeleteSecretRequest, runtime *util.RuntimeOptions) (_result *DeleteSecretResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DeleteSecretResponse{}
-	_body, _err := client.DoRequest(tea.String("DeleteSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteSecret"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3719,7 +3673,7 @@ func (client *Client) DeleteSecretEx(request *DeleteSecretRequest, runtime *util
 func (client *Client) DeleteSecret(request *DeleteSecretRequest) (_result *DeleteSecretResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteSecretResponse{}
-	_body, _err := client.DeleteSecretEx(request, runtime)
+	_body, _err := client.DeleteSecretWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3727,13 +3681,13 @@ func (client *Client) DeleteSecret(request *DeleteSecretRequest) (_result *Delet
 	return _result, _err
 }
 
-func (client *Client) UpdateSecretVersionStageEx(request *UpdateSecretVersionStageRequest, runtime *util.RuntimeOptions) (_result *UpdateSecretVersionStageResponse, _err error) {
+func (client *Client) UpdateSecretVersionStageWithOptions(request *UpdateSecretVersionStageRequest, runtime *util.RuntimeOptions) (_result *UpdateSecretVersionStageResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &UpdateSecretVersionStageResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateSecretVersionStage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateSecretVersionStage"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3744,7 +3698,7 @@ func (client *Client) UpdateSecretVersionStageEx(request *UpdateSecretVersionSta
 func (client *Client) UpdateSecretVersionStage(request *UpdateSecretVersionStageRequest) (_result *UpdateSecretVersionStageResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateSecretVersionStageResponse{}
-	_body, _err := client.UpdateSecretVersionStageEx(request, runtime)
+	_body, _err := client.UpdateSecretVersionStageWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3752,13 +3706,13 @@ func (client *Client) UpdateSecretVersionStage(request *UpdateSecretVersionStage
 	return _result, _err
 }
 
-func (client *Client) AsymmetricDecryptEx(request *AsymmetricDecryptRequest, runtime *util.RuntimeOptions) (_result *AsymmetricDecryptResponse, _err error) {
+func (client *Client) AsymmetricDecryptWithOptions(request *AsymmetricDecryptRequest, runtime *util.RuntimeOptions) (_result *AsymmetricDecryptResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &AsymmetricDecryptResponse{}
-	_body, _err := client.DoRequest(tea.String("AsymmetricDecrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricDecrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3769,7 +3723,7 @@ func (client *Client) AsymmetricDecryptEx(request *AsymmetricDecryptRequest, run
 func (client *Client) AsymmetricDecrypt(request *AsymmetricDecryptRequest) (_result *AsymmetricDecryptResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &AsymmetricDecryptResponse{}
-	_body, _err := client.AsymmetricDecryptEx(request, runtime)
+	_body, _err := client.AsymmetricDecryptWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3777,13 +3731,13 @@ func (client *Client) AsymmetricDecrypt(request *AsymmetricDecryptRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) AsymmetricVerifyEx(request *AsymmetricVerifyRequest, runtime *util.RuntimeOptions) (_result *AsymmetricVerifyResponse, _err error) {
+func (client *Client) AsymmetricVerifyWithOptions(request *AsymmetricVerifyRequest, runtime *util.RuntimeOptions) (_result *AsymmetricVerifyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &AsymmetricVerifyResponse{}
-	_body, _err := client.DoRequest(tea.String("AsymmetricVerify"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricVerify"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3794,7 +3748,7 @@ func (client *Client) AsymmetricVerifyEx(request *AsymmetricVerifyRequest, runti
 func (client *Client) AsymmetricVerify(request *AsymmetricVerifyRequest) (_result *AsymmetricVerifyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &AsymmetricVerifyResponse{}
-	_body, _err := client.AsymmetricVerifyEx(request, runtime)
+	_body, _err := client.AsymmetricVerifyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3802,13 +3756,13 @@ func (client *Client) AsymmetricVerify(request *AsymmetricVerifyRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) AsymmetricSignEx(request *AsymmetricSignRequest, runtime *util.RuntimeOptions) (_result *AsymmetricSignResponse, _err error) {
+func (client *Client) AsymmetricSignWithOptions(request *AsymmetricSignRequest, runtime *util.RuntimeOptions) (_result *AsymmetricSignResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &AsymmetricSignResponse{}
-	_body, _err := client.DoRequest(tea.String("AsymmetricSign"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricSign"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3819,7 +3773,7 @@ func (client *Client) AsymmetricSignEx(request *AsymmetricSignRequest, runtime *
 func (client *Client) AsymmetricSign(request *AsymmetricSignRequest) (_result *AsymmetricSignResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &AsymmetricSignResponse{}
-	_body, _err := client.AsymmetricSignEx(request, runtime)
+	_body, _err := client.AsymmetricSignWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3827,13 +3781,13 @@ func (client *Client) AsymmetricSign(request *AsymmetricSignRequest) (_result *A
 	return _result, _err
 }
 
-func (client *Client) AsymmetricEncryptEx(request *AsymmetricEncryptRequest, runtime *util.RuntimeOptions) (_result *AsymmetricEncryptResponse, _err error) {
+func (client *Client) AsymmetricEncryptWithOptions(request *AsymmetricEncryptRequest, runtime *util.RuntimeOptions) (_result *AsymmetricEncryptResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &AsymmetricEncryptResponse{}
-	_body, _err := client.DoRequest(tea.String("AsymmetricEncrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("AsymmetricEncrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3844,7 +3798,7 @@ func (client *Client) AsymmetricEncryptEx(request *AsymmetricEncryptRequest, run
 func (client *Client) AsymmetricEncrypt(request *AsymmetricEncryptRequest) (_result *AsymmetricEncryptResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &AsymmetricEncryptResponse{}
-	_body, _err := client.AsymmetricEncryptEx(request, runtime)
+	_body, _err := client.AsymmetricEncryptWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3852,13 +3806,13 @@ func (client *Client) AsymmetricEncrypt(request *AsymmetricEncryptRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) GetPublicKeyEx(request *GetPublicKeyRequest, runtime *util.RuntimeOptions) (_result *GetPublicKeyResponse, _err error) {
+func (client *Client) GetPublicKeyWithOptions(request *GetPublicKeyRequest, runtime *util.RuntimeOptions) (_result *GetPublicKeyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &GetPublicKeyResponse{}
-	_body, _err := client.DoRequest(tea.String("GetPublicKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetPublicKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3869,7 +3823,7 @@ func (client *Client) GetPublicKeyEx(request *GetPublicKeyRequest, runtime *util
 func (client *Client) GetPublicKey(request *GetPublicKeyRequest) (_result *GetPublicKeyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GetPublicKeyResponse{}
-	_body, _err := client.GetPublicKeyEx(request, runtime)
+	_body, _err := client.GetPublicKeyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3877,13 +3831,13 @@ func (client *Client) GetPublicKey(request *GetPublicKeyRequest) (_result *GetPu
 	return _result, _err
 }
 
-func (client *Client) GenerateDataKeyWithoutPlaintextEx(request *GenerateDataKeyWithoutPlaintextRequest, runtime *util.RuntimeOptions) (_result *GenerateDataKeyWithoutPlaintextResponse, _err error) {
+func (client *Client) GenerateDataKeyWithoutPlaintextWithOptions(request *GenerateDataKeyWithoutPlaintextRequest, runtime *util.RuntimeOptions) (_result *GenerateDataKeyWithoutPlaintextResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &GenerateDataKeyWithoutPlaintextResponse{}
-	_body, _err := client.DoRequest(tea.String("GenerateDataKeyWithoutPlaintext"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GenerateDataKeyWithoutPlaintext"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3894,7 +3848,7 @@ func (client *Client) GenerateDataKeyWithoutPlaintextEx(request *GenerateDataKey
 func (client *Client) GenerateDataKeyWithoutPlaintext(request *GenerateDataKeyWithoutPlaintextRequest) (_result *GenerateDataKeyWithoutPlaintextResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GenerateDataKeyWithoutPlaintextResponse{}
-	_body, _err := client.GenerateDataKeyWithoutPlaintextEx(request, runtime)
+	_body, _err := client.GenerateDataKeyWithoutPlaintextWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3902,13 +3856,13 @@ func (client *Client) GenerateDataKeyWithoutPlaintext(request *GenerateDataKeyWi
 	return _result, _err
 }
 
-func (client *Client) UpdateKeyDescriptionEx(request *UpdateKeyDescriptionRequest, runtime *util.RuntimeOptions) (_result *UpdateKeyDescriptionResponse, _err error) {
+func (client *Client) UpdateKeyDescriptionWithOptions(request *UpdateKeyDescriptionRequest, runtime *util.RuntimeOptions) (_result *UpdateKeyDescriptionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &UpdateKeyDescriptionResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateKeyDescription"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateKeyDescription"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3919,7 +3873,7 @@ func (client *Client) UpdateKeyDescriptionEx(request *UpdateKeyDescriptionReques
 func (client *Client) UpdateKeyDescription(request *UpdateKeyDescriptionRequest) (_result *UpdateKeyDescriptionResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateKeyDescriptionResponse{}
-	_body, _err := client.UpdateKeyDescriptionEx(request, runtime)
+	_body, _err := client.UpdateKeyDescriptionWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3927,13 +3881,13 @@ func (client *Client) UpdateKeyDescription(request *UpdateKeyDescriptionRequest)
 	return _result, _err
 }
 
-func (client *Client) DescribeKeyVersionEx(request *DescribeKeyVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeKeyVersionResponse, _err error) {
+func (client *Client) DescribeKeyVersionWithOptions(request *DescribeKeyVersionRequest, runtime *util.RuntimeOptions) (_result *DescribeKeyVersionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DescribeKeyVersionResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeKeyVersion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeKeyVersion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3944,7 +3898,7 @@ func (client *Client) DescribeKeyVersionEx(request *DescribeKeyVersionRequest, r
 func (client *Client) DescribeKeyVersion(request *DescribeKeyVersionRequest) (_result *DescribeKeyVersionResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeKeyVersionResponse{}
-	_body, _err := client.DescribeKeyVersionEx(request, runtime)
+	_body, _err := client.DescribeKeyVersionWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3952,13 +3906,13 @@ func (client *Client) DescribeKeyVersion(request *DescribeKeyVersionRequest) (_r
 	return _result, _err
 }
 
-func (client *Client) UpdateRotationPolicyEx(request *UpdateRotationPolicyRequest, runtime *util.RuntimeOptions) (_result *UpdateRotationPolicyResponse, _err error) {
+func (client *Client) UpdateRotationPolicyWithOptions(request *UpdateRotationPolicyRequest, runtime *util.RuntimeOptions) (_result *UpdateRotationPolicyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &UpdateRotationPolicyResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateRotationPolicy"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateRotationPolicy"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3969,7 +3923,7 @@ func (client *Client) UpdateRotationPolicyEx(request *UpdateRotationPolicyReques
 func (client *Client) UpdateRotationPolicy(request *UpdateRotationPolicyRequest) (_result *UpdateRotationPolicyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateRotationPolicyResponse{}
-	_body, _err := client.UpdateRotationPolicyEx(request, runtime)
+	_body, _err := client.UpdateRotationPolicyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3977,13 +3931,13 @@ func (client *Client) UpdateRotationPolicy(request *UpdateRotationPolicyRequest)
 	return _result, _err
 }
 
-func (client *Client) ListKeyVersionsEx(request *ListKeyVersionsRequest, runtime *util.RuntimeOptions) (_result *ListKeyVersionsResponse, _err error) {
+func (client *Client) ListKeyVersionsWithOptions(request *ListKeyVersionsRequest, runtime *util.RuntimeOptions) (_result *ListKeyVersionsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListKeyVersionsResponse{}
-	_body, _err := client.DoRequest(tea.String("ListKeyVersions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListKeyVersions"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -3994,7 +3948,7 @@ func (client *Client) ListKeyVersionsEx(request *ListKeyVersionsRequest, runtime
 func (client *Client) ListKeyVersions(request *ListKeyVersionsRequest) (_result *ListKeyVersionsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListKeyVersionsResponse{}
-	_body, _err := client.ListKeyVersionsEx(request, runtime)
+	_body, _err := client.ListKeyVersionsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4002,13 +3956,13 @@ func (client *Client) ListKeyVersions(request *ListKeyVersionsRequest) (_result 
 	return _result, _err
 }
 
-func (client *Client) CreateKeyVersionEx(request *CreateKeyVersionRequest, runtime *util.RuntimeOptions) (_result *CreateKeyVersionResponse, _err error) {
+func (client *Client) CreateKeyVersionWithOptions(request *CreateKeyVersionRequest, runtime *util.RuntimeOptions) (_result *CreateKeyVersionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &CreateKeyVersionResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateKeyVersion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateKeyVersion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4019,7 +3973,7 @@ func (client *Client) CreateKeyVersionEx(request *CreateKeyVersionRequest, runti
 func (client *Client) CreateKeyVersion(request *CreateKeyVersionRequest) (_result *CreateKeyVersionResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateKeyVersionResponse{}
-	_body, _err := client.CreateKeyVersionEx(request, runtime)
+	_body, _err := client.CreateKeyVersionWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4027,7 +3981,7 @@ func (client *Client) CreateKeyVersion(request *CreateKeyVersionRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) DescribeServiceEx(request *DescribeServiceRequest, runtime *util.RuntimeOptions) (_result *DescribeServiceResponse, _err error) {
+func (client *Client) DescribeServiceWithOptions(request *DescribeServiceRequest, runtime *util.RuntimeOptions) (_result *DescribeServiceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -4044,7 +3998,7 @@ func (client *Client) DescribeServiceEx(request *DescribeServiceRequest, runtime
 func (client *Client) DescribeService(request *DescribeServiceRequest) (_result *DescribeServiceResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeServiceResponse{}
-	_body, _err := client.DescribeServiceEx(request, runtime)
+	_body, _err := client.DescribeServiceWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4052,13 +4006,13 @@ func (client *Client) DescribeService(request *DescribeServiceRequest) (_result 
 	return _result, _err
 }
 
-func (client *Client) UpdateAliasEx(request *UpdateAliasRequest, runtime *util.RuntimeOptions) (_result *UpdateAliasResponse, _err error) {
+func (client *Client) UpdateAliasWithOptions(request *UpdateAliasRequest, runtime *util.RuntimeOptions) (_result *UpdateAliasResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &UpdateAliasResponse{}
-	_body, _err := client.DoRequest(tea.String("UpdateAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UpdateAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4069,7 +4023,7 @@ func (client *Client) UpdateAliasEx(request *UpdateAliasRequest, runtime *util.R
 func (client *Client) UpdateAlias(request *UpdateAliasRequest) (_result *UpdateAliasResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateAliasResponse{}
-	_body, _err := client.UpdateAliasEx(request, runtime)
+	_body, _err := client.UpdateAliasWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4077,13 +4031,13 @@ func (client *Client) UpdateAlias(request *UpdateAliasRequest) (_result *UpdateA
 	return _result, _err
 }
 
-func (client *Client) UntagResourceEx(request *UntagResourceRequest, runtime *util.RuntimeOptions) (_result *UntagResourceResponse, _err error) {
+func (client *Client) UntagResourceWithOptions(request *UntagResourceRequest, runtime *util.RuntimeOptions) (_result *UntagResourceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &UntagResourceResponse{}
-	_body, _err := client.DoRequest(tea.String("UntagResource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("UntagResource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4094,7 +4048,7 @@ func (client *Client) UntagResourceEx(request *UntagResourceRequest, runtime *ut
 func (client *Client) UntagResource(request *UntagResourceRequest) (_result *UntagResourceResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &UntagResourceResponse{}
-	_body, _err := client.UntagResourceEx(request, runtime)
+	_body, _err := client.UntagResourceWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4102,13 +4056,13 @@ func (client *Client) UntagResource(request *UntagResourceRequest) (_result *Unt
 	return _result, _err
 }
 
-func (client *Client) TagResourceEx(request *TagResourceRequest, runtime *util.RuntimeOptions) (_result *TagResourceResponse, _err error) {
+func (client *Client) TagResourceWithOptions(request *TagResourceRequest, runtime *util.RuntimeOptions) (_result *TagResourceResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &TagResourceResponse{}
-	_body, _err := client.DoRequest(tea.String("TagResource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("TagResource"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4119,7 +4073,7 @@ func (client *Client) TagResourceEx(request *TagResourceRequest, runtime *util.R
 func (client *Client) TagResource(request *TagResourceRequest) (_result *TagResourceResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &TagResourceResponse{}
-	_body, _err := client.TagResourceEx(request, runtime)
+	_body, _err := client.TagResourceWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4127,13 +4081,13 @@ func (client *Client) TagResource(request *TagResourceRequest) (_result *TagReso
 	return _result, _err
 }
 
-func (client *Client) ScheduleKeyDeletionEx(request *ScheduleKeyDeletionRequest, runtime *util.RuntimeOptions) (_result *ScheduleKeyDeletionResponse, _err error) {
+func (client *Client) ScheduleKeyDeletionWithOptions(request *ScheduleKeyDeletionRequest, runtime *util.RuntimeOptions) (_result *ScheduleKeyDeletionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ScheduleKeyDeletionResponse{}
-	_body, _err := client.DoRequest(tea.String("ScheduleKeyDeletion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ScheduleKeyDeletion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4144,7 +4098,7 @@ func (client *Client) ScheduleKeyDeletionEx(request *ScheduleKeyDeletionRequest,
 func (client *Client) ScheduleKeyDeletion(request *ScheduleKeyDeletionRequest) (_result *ScheduleKeyDeletionResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ScheduleKeyDeletionResponse{}
-	_body, _err := client.ScheduleKeyDeletionEx(request, runtime)
+	_body, _err := client.ScheduleKeyDeletionWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4152,13 +4106,13 @@ func (client *Client) ScheduleKeyDeletion(request *ScheduleKeyDeletionRequest) (
 	return _result, _err
 }
 
-func (client *Client) ListResourceTagsEx(request *ListResourceTagsRequest, runtime *util.RuntimeOptions) (_result *ListResourceTagsResponse, _err error) {
+func (client *Client) ListResourceTagsWithOptions(request *ListResourceTagsRequest, runtime *util.RuntimeOptions) (_result *ListResourceTagsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListResourceTagsResponse{}
-	_body, _err := client.DoRequest(tea.String("ListResourceTags"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListResourceTags"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4169,7 +4123,7 @@ func (client *Client) ListResourceTagsEx(request *ListResourceTagsRequest, runti
 func (client *Client) ListResourceTags(request *ListResourceTagsRequest) (_result *ListResourceTagsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListResourceTagsResponse{}
-	_body, _err := client.ListResourceTagsEx(request, runtime)
+	_body, _err := client.ListResourceTagsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4177,13 +4131,13 @@ func (client *Client) ListResourceTags(request *ListResourceTagsRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) ListKeysEx(request *ListKeysRequest, runtime *util.RuntimeOptions) (_result *ListKeysResponse, _err error) {
+func (client *Client) ListKeysWithOptions(request *ListKeysRequest, runtime *util.RuntimeOptions) (_result *ListKeysResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListKeysResponse{}
-	_body, _err := client.DoRequest(tea.String("ListKeys"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListKeys"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4194,7 +4148,7 @@ func (client *Client) ListKeysEx(request *ListKeysRequest, runtime *util.Runtime
 func (client *Client) ListKeys(request *ListKeysRequest) (_result *ListKeysResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListKeysResponse{}
-	_body, _err := client.ListKeysEx(request, runtime)
+	_body, _err := client.ListKeysWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4202,13 +4156,13 @@ func (client *Client) ListKeys(request *ListKeysRequest) (_result *ListKeysRespo
 	return _result, _err
 }
 
-func (client *Client) ListAliasesByKeyIdEx(request *ListAliasesByKeyIdRequest, runtime *util.RuntimeOptions) (_result *ListAliasesByKeyIdResponse, _err error) {
+func (client *Client) ListAliasesByKeyIdWithOptions(request *ListAliasesByKeyIdRequest, runtime *util.RuntimeOptions) (_result *ListAliasesByKeyIdResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListAliasesByKeyIdResponse{}
-	_body, _err := client.DoRequest(tea.String("ListAliasesByKeyId"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListAliasesByKeyId"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4219,7 +4173,7 @@ func (client *Client) ListAliasesByKeyIdEx(request *ListAliasesByKeyIdRequest, r
 func (client *Client) ListAliasesByKeyId(request *ListAliasesByKeyIdRequest) (_result *ListAliasesByKeyIdResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListAliasesByKeyIdResponse{}
-	_body, _err := client.ListAliasesByKeyIdEx(request, runtime)
+	_body, _err := client.ListAliasesByKeyIdWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4227,13 +4181,13 @@ func (client *Client) ListAliasesByKeyId(request *ListAliasesByKeyIdRequest) (_r
 	return _result, _err
 }
 
-func (client *Client) ListAliasesEx(request *ListAliasesRequest, runtime *util.RuntimeOptions) (_result *ListAliasesResponse, _err error) {
+func (client *Client) ListAliasesWithOptions(request *ListAliasesRequest, runtime *util.RuntimeOptions) (_result *ListAliasesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ListAliasesResponse{}
-	_body, _err := client.DoRequest(tea.String("ListAliases"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ListAliases"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4244,7 +4198,7 @@ func (client *Client) ListAliasesEx(request *ListAliasesRequest, runtime *util.R
 func (client *Client) ListAliases(request *ListAliasesRequest) (_result *ListAliasesResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ListAliasesResponse{}
-	_body, _err := client.ListAliasesEx(request, runtime)
+	_body, _err := client.ListAliasesWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4252,13 +4206,13 @@ func (client *Client) ListAliases(request *ListAliasesRequest) (_result *ListAli
 	return _result, _err
 }
 
-func (client *Client) ImportKeyMaterialEx(request *ImportKeyMaterialRequest, runtime *util.RuntimeOptions) (_result *ImportKeyMaterialResponse, _err error) {
+func (client *Client) ImportKeyMaterialWithOptions(request *ImportKeyMaterialRequest, runtime *util.RuntimeOptions) (_result *ImportKeyMaterialResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &ImportKeyMaterialResponse{}
-	_body, _err := client.DoRequest(tea.String("ImportKeyMaterial"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("ImportKeyMaterial"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4269,7 +4223,7 @@ func (client *Client) ImportKeyMaterialEx(request *ImportKeyMaterialRequest, run
 func (client *Client) ImportKeyMaterial(request *ImportKeyMaterialRequest) (_result *ImportKeyMaterialResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &ImportKeyMaterialResponse{}
-	_body, _err := client.ImportKeyMaterialEx(request, runtime)
+	_body, _err := client.ImportKeyMaterialWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4277,13 +4231,13 @@ func (client *Client) ImportKeyMaterial(request *ImportKeyMaterialRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) GetParametersForImportEx(request *GetParametersForImportRequest, runtime *util.RuntimeOptions) (_result *GetParametersForImportResponse, _err error) {
+func (client *Client) GetParametersForImportWithOptions(request *GetParametersForImportRequest, runtime *util.RuntimeOptions) (_result *GetParametersForImportResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &GetParametersForImportResponse{}
-	_body, _err := client.DoRequest(tea.String("GetParametersForImport"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GetParametersForImport"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4294,7 +4248,7 @@ func (client *Client) GetParametersForImportEx(request *GetParametersForImportRe
 func (client *Client) GetParametersForImport(request *GetParametersForImportRequest) (_result *GetParametersForImportResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GetParametersForImportResponse{}
-	_body, _err := client.GetParametersForImportEx(request, runtime)
+	_body, _err := client.GetParametersForImportWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4302,13 +4256,13 @@ func (client *Client) GetParametersForImport(request *GetParametersForImportRequ
 	return _result, _err
 }
 
-func (client *Client) GenerateDataKeyEx(request *GenerateDataKeyRequest, runtime *util.RuntimeOptions) (_result *GenerateDataKeyResponse, _err error) {
+func (client *Client) GenerateDataKeyWithOptions(request *GenerateDataKeyRequest, runtime *util.RuntimeOptions) (_result *GenerateDataKeyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &GenerateDataKeyResponse{}
-	_body, _err := client.DoRequest(tea.String("GenerateDataKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("GenerateDataKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4319,7 +4273,7 @@ func (client *Client) GenerateDataKeyEx(request *GenerateDataKeyRequest, runtime
 func (client *Client) GenerateDataKey(request *GenerateDataKeyRequest) (_result *GenerateDataKeyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &GenerateDataKeyResponse{}
-	_body, _err := client.GenerateDataKeyEx(request, runtime)
+	_body, _err := client.GenerateDataKeyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4327,13 +4281,13 @@ func (client *Client) GenerateDataKey(request *GenerateDataKeyRequest) (_result 
 	return _result, _err
 }
 
-func (client *Client) EncryptEx(request *EncryptRequest, runtime *util.RuntimeOptions) (_result *EncryptResponse, _err error) {
+func (client *Client) EncryptWithOptions(request *EncryptRequest, runtime *util.RuntimeOptions) (_result *EncryptResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &EncryptResponse{}
-	_body, _err := client.DoRequest(tea.String("Encrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("Encrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4344,7 +4298,7 @@ func (client *Client) EncryptEx(request *EncryptRequest, runtime *util.RuntimeOp
 func (client *Client) Encrypt(request *EncryptRequest) (_result *EncryptResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &EncryptResponse{}
-	_body, _err := client.EncryptEx(request, runtime)
+	_body, _err := client.EncryptWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4352,13 +4306,13 @@ func (client *Client) Encrypt(request *EncryptRequest) (_result *EncryptResponse
 	return _result, _err
 }
 
-func (client *Client) EnableKeyEx(request *EnableKeyRequest, runtime *util.RuntimeOptions) (_result *EnableKeyResponse, _err error) {
+func (client *Client) EnableKeyWithOptions(request *EnableKeyRequest, runtime *util.RuntimeOptions) (_result *EnableKeyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &EnableKeyResponse{}
-	_body, _err := client.DoRequest(tea.String("EnableKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("EnableKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4369,7 +4323,7 @@ func (client *Client) EnableKeyEx(request *EnableKeyRequest, runtime *util.Runti
 func (client *Client) EnableKey(request *EnableKeyRequest) (_result *EnableKeyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &EnableKeyResponse{}
-	_body, _err := client.EnableKeyEx(request, runtime)
+	_body, _err := client.EnableKeyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4377,13 +4331,13 @@ func (client *Client) EnableKey(request *EnableKeyRequest) (_result *EnableKeyRe
 	return _result, _err
 }
 
-func (client *Client) DisableKeyEx(request *DisableKeyRequest, runtime *util.RuntimeOptions) (_result *DisableKeyResponse, _err error) {
+func (client *Client) DisableKeyWithOptions(request *DisableKeyRequest, runtime *util.RuntimeOptions) (_result *DisableKeyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DisableKeyResponse{}
-	_body, _err := client.DoRequest(tea.String("DisableKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DisableKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4394,7 +4348,7 @@ func (client *Client) DisableKeyEx(request *DisableKeyRequest, runtime *util.Run
 func (client *Client) DisableKey(request *DisableKeyRequest) (_result *DisableKeyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DisableKeyResponse{}
-	_body, _err := client.DisableKeyEx(request, runtime)
+	_body, _err := client.DisableKeyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4402,7 +4356,7 @@ func (client *Client) DisableKey(request *DisableKeyRequest) (_result *DisableKe
 	return _result, _err
 }
 
-func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
+func (client *Client) DescribeRegionsWithOptions(request *DescribeRegionsRequest, runtime *util.RuntimeOptions) (_result *DescribeRegionsResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
@@ -4419,7 +4373,7 @@ func (client *Client) DescribeRegionsEx(request *DescribeRegionsRequest, runtime
 func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result *DescribeRegionsResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeRegionsResponse{}
-	_body, _err := client.DescribeRegionsEx(request, runtime)
+	_body, _err := client.DescribeRegionsWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4427,13 +4381,13 @@ func (client *Client) DescribeRegions(request *DescribeRegionsRequest) (_result 
 	return _result, _err
 }
 
-func (client *Client) DescribeKeyEx(request *DescribeKeyRequest, runtime *util.RuntimeOptions) (_result *DescribeKeyResponse, _err error) {
+func (client *Client) DescribeKeyWithOptions(request *DescribeKeyRequest, runtime *util.RuntimeOptions) (_result *DescribeKeyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DescribeKeyResponse{}
-	_body, _err := client.DoRequest(tea.String("DescribeKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DescribeKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4444,7 +4398,7 @@ func (client *Client) DescribeKeyEx(request *DescribeKeyRequest, runtime *util.R
 func (client *Client) DescribeKey(request *DescribeKeyRequest) (_result *DescribeKeyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DescribeKeyResponse{}
-	_body, _err := client.DescribeKeyEx(request, runtime)
+	_body, _err := client.DescribeKeyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4452,13 +4406,13 @@ func (client *Client) DescribeKey(request *DescribeKeyRequest) (_result *Describ
 	return _result, _err
 }
 
-func (client *Client) DeleteKeyMaterialEx(request *DeleteKeyMaterialRequest, runtime *util.RuntimeOptions) (_result *DeleteKeyMaterialResponse, _err error) {
+func (client *Client) DeleteKeyMaterialWithOptions(request *DeleteKeyMaterialRequest, runtime *util.RuntimeOptions) (_result *DeleteKeyMaterialResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DeleteKeyMaterialResponse{}
-	_body, _err := client.DoRequest(tea.String("DeleteKeyMaterial"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteKeyMaterial"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4469,7 +4423,7 @@ func (client *Client) DeleteKeyMaterialEx(request *DeleteKeyMaterialRequest, run
 func (client *Client) DeleteKeyMaterial(request *DeleteKeyMaterialRequest) (_result *DeleteKeyMaterialResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteKeyMaterialResponse{}
-	_body, _err := client.DeleteKeyMaterialEx(request, runtime)
+	_body, _err := client.DeleteKeyMaterialWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4477,13 +4431,13 @@ func (client *Client) DeleteKeyMaterial(request *DeleteKeyMaterialRequest) (_res
 	return _result, _err
 }
 
-func (client *Client) DeleteAliasEx(request *DeleteAliasRequest, runtime *util.RuntimeOptions) (_result *DeleteAliasResponse, _err error) {
+func (client *Client) DeleteAliasWithOptions(request *DeleteAliasRequest, runtime *util.RuntimeOptions) (_result *DeleteAliasResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DeleteAliasResponse{}
-	_body, _err := client.DoRequest(tea.String("DeleteAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("DeleteAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4494,7 +4448,7 @@ func (client *Client) DeleteAliasEx(request *DeleteAliasRequest, runtime *util.R
 func (client *Client) DeleteAlias(request *DeleteAliasRequest) (_result *DeleteAliasResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DeleteAliasResponse{}
-	_body, _err := client.DeleteAliasEx(request, runtime)
+	_body, _err := client.DeleteAliasWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4502,13 +4456,13 @@ func (client *Client) DeleteAlias(request *DeleteAliasRequest) (_result *DeleteA
 	return _result, _err
 }
 
-func (client *Client) DecryptEx(request *DecryptRequest, runtime *util.RuntimeOptions) (_result *DecryptResponse, _err error) {
+func (client *Client) DecryptWithOptions(request *DecryptRequest, runtime *util.RuntimeOptions) (_result *DecryptResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &DecryptResponse{}
-	_body, _err := client.DoRequest(tea.String("Decrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("Decrypt"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4519,7 +4473,7 @@ func (client *Client) DecryptEx(request *DecryptRequest, runtime *util.RuntimeOp
 func (client *Client) Decrypt(request *DecryptRequest) (_result *DecryptResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &DecryptResponse{}
-	_body, _err := client.DecryptEx(request, runtime)
+	_body, _err := client.DecryptWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4527,13 +4481,13 @@ func (client *Client) Decrypt(request *DecryptRequest) (_result *DecryptResponse
 	return _result, _err
 }
 
-func (client *Client) CreateKeyEx(request *CreateKeyRequest, runtime *util.RuntimeOptions) (_result *CreateKeyResponse, _err error) {
+func (client *Client) CreateKeyWithOptions(request *CreateKeyRequest, runtime *util.RuntimeOptions) (_result *CreateKeyResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &CreateKeyResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateKey"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4544,7 +4498,7 @@ func (client *Client) CreateKeyEx(request *CreateKeyRequest, runtime *util.Runti
 func (client *Client) CreateKey(request *CreateKeyRequest) (_result *CreateKeyResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateKeyResponse{}
-	_body, _err := client.CreateKeyEx(request, runtime)
+	_body, _err := client.CreateKeyWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4552,13 +4506,13 @@ func (client *Client) CreateKey(request *CreateKeyRequest) (_result *CreateKeyRe
 	return _result, _err
 }
 
-func (client *Client) CreateAliasEx(request *CreateAliasRequest, runtime *util.RuntimeOptions) (_result *CreateAliasResponse, _err error) {
+func (client *Client) CreateAliasWithOptions(request *CreateAliasRequest, runtime *util.RuntimeOptions) (_result *CreateAliasResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &CreateAliasResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CreateAlias"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4569,7 +4523,7 @@ func (client *Client) CreateAliasEx(request *CreateAliasRequest, runtime *util.R
 func (client *Client) CreateAlias(request *CreateAliasRequest) (_result *CreateAliasResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CreateAliasResponse{}
-	_body, _err := client.CreateAliasEx(request, runtime)
+	_body, _err := client.CreateAliasWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4577,13 +4531,13 @@ func (client *Client) CreateAlias(request *CreateAliasRequest) (_result *CreateA
 	return _result, _err
 }
 
-func (client *Client) CancelKeyDeletionEx(request *CancelKeyDeletionRequest, runtime *util.RuntimeOptions) (_result *CancelKeyDeletionResponse, _err error) {
+func (client *Client) CancelKeyDeletionWithOptions(request *CancelKeyDeletionRequest, runtime *util.RuntimeOptions) (_result *CancelKeyDeletionResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
 		return _result, _err
 	}
 	_result = &CancelKeyDeletionResponse{}
-	_body, _err := client.DoRequest(tea.String("CancelKeyDeletion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), tea.ToMap(request), nil, runtime)
+	_body, _err := client.DoRequest(tea.String("CancelKeyDeletion"), tea.String("HTTPS"), tea.String("POST"), tea.String("2016-01-20"), tea.String("AK"), nil, tea.ToMap(request), runtime)
 	if _err != nil {
 		return _result, _err
 	}
@@ -4594,7 +4548,7 @@ func (client *Client) CancelKeyDeletionEx(request *CancelKeyDeletionRequest, run
 func (client *Client) CancelKeyDeletion(request *CancelKeyDeletionRequest) (_result *CancelKeyDeletionResponse, _err error) {
 	runtime := &util.RuntimeOptions{}
 	_result = &CancelKeyDeletionResponse{}
-	_body, _err := client.CancelKeyDeletionEx(request, runtime)
+	_body, _err := client.CancelKeyDeletionWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
