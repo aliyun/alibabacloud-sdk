@@ -18,7 +18,7 @@ public class GetPolicyResponse extends TeaModel {
 
     @NameInMap("Data")
     @Validation(required = true)
-    public String data;
+    public java.util.Map<String, ?> data;
 
     public static GetPolicyResponse build(java.util.Map<String, ?> map) throws Exception {
         GetPolicyResponse self = new GetPolicyResponse();

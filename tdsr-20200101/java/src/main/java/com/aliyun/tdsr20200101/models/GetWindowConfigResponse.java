@@ -18,7 +18,7 @@ public class GetWindowConfigResponse extends TeaModel {
 
     @NameInMap("Data")
     @Validation(required = true)
-    public String data;
+    public java.util.Map<String, ?> data;
 
     public static GetWindowConfigResponse build(java.util.Map<String, ?> map) throws Exception {
         GetWindowConfigResponse self = new GetWindowConfigResponse();

@@ -18,7 +18,7 @@ public class PublishHotspotResponse extends TeaModel {
 
     @NameInMap("Data")
     @Validation(required = true)
-    public String data;
+    public java.util.Map<String, ?> data;
 
     public static PublishHotspotResponse build(java.util.Map<String, ?> map) throws Exception {
         PublishHotspotResponse self = new PublishHotspotResponse();

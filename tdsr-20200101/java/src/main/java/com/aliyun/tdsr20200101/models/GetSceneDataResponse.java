@@ -18,7 +18,7 @@ public class GetSceneDataResponse extends TeaModel {
 
     @NameInMap("Data")
     @Validation(required = true)
-    public String data;
+    public java.util.Map<String, ?> data;
 
     public static GetSceneDataResponse build(java.util.Map<String, ?> map) throws Exception {
         GetSceneDataResponse self = new GetSceneDataResponse();
