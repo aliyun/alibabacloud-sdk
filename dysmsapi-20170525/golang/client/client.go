@@ -9,11 +9,7 @@ import (
 )
 
 type QuerySmsTemplateRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateCode         *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
+	TemplateCode *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
 }
 
 func (s QuerySmsTemplateRequest) String() string {
@@ -24,42 +20,22 @@ func (s QuerySmsTemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *QuerySmsTemplateRequest) SetAccessKeyId(v string) *QuerySmsTemplateRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *QuerySmsTemplateRequest) SetOwnerId(v int64) *QuerySmsTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *QuerySmsTemplateRequest) SetResourceOwnerAccount(v string) *QuerySmsTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *QuerySmsTemplateRequest) SetResourceOwnerId(v int64) *QuerySmsTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *QuerySmsTemplateRequest) SetTemplateCode(v string) *QuerySmsTemplateRequest {
 	s.TemplateCode = &v
 	return s
 }
 
 type QuerySmsTemplateResponse struct {
-	RequestId       *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code            *string `json:"Code" xml:"Code" require:"true"`
-	Message         *string `json:"Message" xml:"Message" require:"true"`
-	TemplateStatus  *int    `json:"TemplateStatus" xml:"TemplateStatus" require:"true"`
-	Reason          *string `json:"Reason" xml:"Reason" require:"true"`
-	TemplateCode    *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	TemplateType    *int    `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateName    *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateContent *string `json:"TemplateContent" xml:"TemplateContent" require:"true"`
-	CreateDate      *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	RequestId       *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code            *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message         *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	TemplateStatus  *int    `json:"TemplateStatus,omitempty" xml:"TemplateStatus,omitempty" require:"true"`
+	Reason          *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	TemplateCode    *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	TemplateType    *int    `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateName    *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateContent *string `json:"TemplateContent,omitempty" xml:"TemplateContent,omitempty" require:"true"`
+	CreateDate      *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s QuerySmsTemplateResponse) String() string {
@@ -121,11 +97,7 @@ func (s *QuerySmsTemplateResponse) SetCreateDate(v string) *QuerySmsTemplateResp
 }
 
 type QuerySmsSignRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	SignName             *string `json:"SignName" xml:"SignName" require:"true"`
+	SignName *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
 }
 
 func (s QuerySmsSignRequest) String() string {
@@ -136,39 +108,19 @@ func (s QuerySmsSignRequest) GoString() string {
 	return s.String()
 }
 
-func (s *QuerySmsSignRequest) SetAccessKeyId(v string) *QuerySmsSignRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *QuerySmsSignRequest) SetOwnerId(v int64) *QuerySmsSignRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *QuerySmsSignRequest) SetResourceOwnerAccount(v string) *QuerySmsSignRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *QuerySmsSignRequest) SetResourceOwnerId(v int64) *QuerySmsSignRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *QuerySmsSignRequest) SetSignName(v string) *QuerySmsSignRequest {
 	s.SignName = &v
 	return s
 }
 
 type QuerySmsSignResponse struct {
-	RequestId  *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code       *string `json:"Code" xml:"Code" require:"true"`
-	Message    *string `json:"Message" xml:"Message" require:"true"`
-	SignStatus *int    `json:"SignStatus" xml:"SignStatus" require:"true"`
-	Reason     *string `json:"Reason" xml:"Reason" require:"true"`
-	SignName   *string `json:"SignName" xml:"SignName" require:"true"`
-	CreateDate *string `json:"CreateDate" xml:"CreateDate" require:"true"`
+	RequestId  *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code       *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message    *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	SignStatus *int    `json:"SignStatus,omitempty" xml:"SignStatus,omitempty" require:"true"`
+	Reason     *string `json:"Reason,omitempty" xml:"Reason,omitempty" require:"true"`
+	SignName   *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	CreateDate *string `json:"CreateDate,omitempty" xml:"CreateDate,omitempty" require:"true"`
 }
 
 func (s QuerySmsSignResponse) String() string {
@@ -215,15 +167,11 @@ func (s *QuerySmsSignResponse) SetCreateDate(v string) *QuerySmsSignResponse {
 }
 
 type ModifySmsTemplateRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateType         *int    `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateName         *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateCode         *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	TemplateContent      *string `json:"TemplateContent" xml:"TemplateContent" require:"true"`
-	Remark               *string `json:"Remark" xml:"Remark" require:"true"`
+	TemplateType    *int    `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateName    *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateCode    *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	TemplateContent *string `json:"TemplateContent,omitempty" xml:"TemplateContent,omitempty" require:"true"`
+	Remark          *string `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
 }
 
 func (s ModifySmsTemplateRequest) String() string {
@@ -232,26 +180,6 @@ func (s ModifySmsTemplateRequest) String() string {
 
 func (s ModifySmsTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifySmsTemplateRequest) SetAccessKeyId(v string) *ModifySmsTemplateRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifySmsTemplateRequest) SetOwnerId(v int64) *ModifySmsTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifySmsTemplateRequest) SetResourceOwnerAccount(v string) *ModifySmsTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifySmsTemplateRequest) SetResourceOwnerId(v int64) *ModifySmsTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ModifySmsTemplateRequest) SetTemplateType(v int) *ModifySmsTemplateRequest {
@@ -280,10 +208,10 @@ func (s *ModifySmsTemplateRequest) SetRemark(v string) *ModifySmsTemplateRequest
 }
 
 type ModifySmsTemplateResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateCode *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	Code         *string `json:"Code" xml:"Code" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateCode *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	Code         *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s ModifySmsTemplateResponse) String() string {
@@ -315,14 +243,10 @@ func (s *ModifySmsTemplateResponse) SetMessage(v string) *ModifySmsTemplateRespo
 }
 
 type ModifySmsSignRequest struct {
-	AccessKeyId          *string                             `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64                              `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                             `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                              `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	SignName             *string                             `json:"SignName" xml:"SignName" require:"true"`
-	SignSource           *int                                `json:"SignSource" xml:"SignSource" require:"true"`
-	SignFileList         []*ModifySmsSignRequestSignFileList `json:"SignFileList" xml:"SignFileList" require:"true" type:"Repeated"`
-	Remark               *string                             `json:"Remark" xml:"Remark" require:"true"`
+	SignName     *string                             `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	SignSource   *int                                `json:"SignSource,omitempty" xml:"SignSource,omitempty" require:"true"`
+	SignFileList []*ModifySmsSignRequestSignFileList `json:"SignFileList,omitempty" xml:"SignFileList,omitempty" require:"true" type:"Repeated"`
+	Remark       *string                             `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
 }
 
 func (s ModifySmsSignRequest) String() string {
@@ -331,26 +255,6 @@ func (s ModifySmsSignRequest) String() string {
 
 func (s ModifySmsSignRequest) GoString() string {
 	return s.String()
-}
-
-func (s *ModifySmsSignRequest) SetAccessKeyId(v string) *ModifySmsSignRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *ModifySmsSignRequest) SetOwnerId(v int64) *ModifySmsSignRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *ModifySmsSignRequest) SetResourceOwnerAccount(v string) *ModifySmsSignRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *ModifySmsSignRequest) SetResourceOwnerId(v int64) *ModifySmsSignRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *ModifySmsSignRequest) SetSignName(v string) *ModifySmsSignRequest {
@@ -374,8 +278,8 @@ func (s *ModifySmsSignRequest) SetRemark(v string) *ModifySmsSignRequest {
 }
 
 type ModifySmsSignRequestSignFileList struct {
-	FileSuffix   *string `json:"FileSuffix" xml:"FileSuffix" require:"true"`
-	FileContents *string `json:"FileContents" xml:"FileContents" require:"true"`
+	FileSuffix   *string `json:"FileSuffix,omitempty" xml:"FileSuffix,omitempty" require:"true"`
+	FileContents *string `json:"FileContents,omitempty" xml:"FileContents,omitempty" require:"true"`
 }
 
 func (s ModifySmsSignRequestSignFileList) String() string {
@@ -397,10 +301,10 @@ func (s *ModifySmsSignRequestSignFileList) SetFileContents(v string) *ModifySmsS
 }
 
 type ModifySmsSignResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SignName  *string `json:"SignName" xml:"SignName" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SignName  *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s ModifySmsSignResponse) String() string {
@@ -432,11 +336,7 @@ func (s *ModifySmsSignResponse) SetMessage(v string) *ModifySmsSignResponse {
 }
 
 type DeleteSmsTemplateRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateCode         *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
+	TemplateCode *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
 }
 
 func (s DeleteSmsTemplateRequest) String() string {
@@ -447,36 +347,16 @@ func (s DeleteSmsTemplateRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteSmsTemplateRequest) SetAccessKeyId(v string) *DeleteSmsTemplateRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteSmsTemplateRequest) SetOwnerId(v int64) *DeleteSmsTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteSmsTemplateRequest) SetResourceOwnerAccount(v string) *DeleteSmsTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteSmsTemplateRequest) SetResourceOwnerId(v int64) *DeleteSmsTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteSmsTemplateRequest) SetTemplateCode(v string) *DeleteSmsTemplateRequest {
 	s.TemplateCode = &v
 	return s
 }
 
 type DeleteSmsTemplateResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateCode *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	Code         *string `json:"Code" xml:"Code" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateCode *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	Code         *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s DeleteSmsTemplateResponse) String() string {
@@ -508,11 +388,7 @@ func (s *DeleteSmsTemplateResponse) SetMessage(v string) *DeleteSmsTemplateRespo
 }
 
 type DeleteSmsSignRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	SignName             *string `json:"SignName" xml:"SignName" require:"true"`
+	SignName *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
 }
 
 func (s DeleteSmsSignRequest) String() string {
@@ -523,36 +399,16 @@ func (s DeleteSmsSignRequest) GoString() string {
 	return s.String()
 }
 
-func (s *DeleteSmsSignRequest) SetAccessKeyId(v string) *DeleteSmsSignRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *DeleteSmsSignRequest) SetOwnerId(v int64) *DeleteSmsSignRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *DeleteSmsSignRequest) SetResourceOwnerAccount(v string) *DeleteSmsSignRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *DeleteSmsSignRequest) SetResourceOwnerId(v int64) *DeleteSmsSignRequest {
-	s.ResourceOwnerId = &v
-	return s
-}
-
 func (s *DeleteSmsSignRequest) SetSignName(v string) *DeleteSmsSignRequest {
 	s.SignName = &v
 	return s
 }
 
 type DeleteSmsSignResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SignName  *string `json:"SignName" xml:"SignName" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SignName  *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s DeleteSmsSignResponse) String() string {
@@ -584,14 +440,10 @@ func (s *DeleteSmsSignResponse) SetMessage(v string) *DeleteSmsSignResponse {
 }
 
 type AddSmsTemplateRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	TemplateType         *int    `json:"TemplateType" xml:"TemplateType" require:"true"`
-	TemplateName         *string `json:"TemplateName" xml:"TemplateName" require:"true"`
-	TemplateContent      *string `json:"TemplateContent" xml:"TemplateContent" require:"true"`
-	Remark               *string `json:"Remark" xml:"Remark" require:"true"`
+	TemplateType    *int    `json:"TemplateType,omitempty" xml:"TemplateType,omitempty" require:"true"`
+	TemplateName    *string `json:"TemplateName,omitempty" xml:"TemplateName,omitempty" require:"true"`
+	TemplateContent *string `json:"TemplateContent,omitempty" xml:"TemplateContent,omitempty" require:"true"`
+	Remark          *string `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
 }
 
 func (s AddSmsTemplateRequest) String() string {
@@ -600,26 +452,6 @@ func (s AddSmsTemplateRequest) String() string {
 
 func (s AddSmsTemplateRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddSmsTemplateRequest) SetAccessKeyId(v string) *AddSmsTemplateRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *AddSmsTemplateRequest) SetOwnerId(v int64) *AddSmsTemplateRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddSmsTemplateRequest) SetResourceOwnerAccount(v string) *AddSmsTemplateRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddSmsTemplateRequest) SetResourceOwnerId(v int64) *AddSmsTemplateRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AddSmsTemplateRequest) SetTemplateType(v int) *AddSmsTemplateRequest {
@@ -643,10 +475,10 @@ func (s *AddSmsTemplateRequest) SetRemark(v string) *AddSmsTemplateRequest {
 }
 
 type AddSmsTemplateResponse struct {
-	RequestId    *string `json:"RequestId" xml:"RequestId" require:"true"`
-	TemplateCode *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	Code         *string `json:"Code" xml:"Code" require:"true"`
-	Message      *string `json:"Message" xml:"Message" require:"true"`
+	RequestId    *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	TemplateCode *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	Code         *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message      *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s AddSmsTemplateResponse) String() string {
@@ -678,14 +510,10 @@ func (s *AddSmsTemplateResponse) SetMessage(v string) *AddSmsTemplateResponse {
 }
 
 type AddSmsSignRequest struct {
-	AccessKeyId          *string                          `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64                           `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string                          `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64                           `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	SignName             *string                          `json:"SignName" xml:"SignName" require:"true"`
-	SignSource           *int                             `json:"SignSource" xml:"SignSource" require:"true"`
-	SignFileList         []*AddSmsSignRequestSignFileList `json:"SignFileList" xml:"SignFileList" require:"true" type:"Repeated"`
-	Remark               *string                          `json:"Remark" xml:"Remark" require:"true"`
+	SignName     *string                          `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	SignSource   *int                             `json:"SignSource,omitempty" xml:"SignSource,omitempty" require:"true"`
+	SignFileList []*AddSmsSignRequestSignFileList `json:"SignFileList,omitempty" xml:"SignFileList,omitempty" require:"true" type:"Repeated"`
+	Remark       *string                          `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
 }
 
 func (s AddSmsSignRequest) String() string {
@@ -694,26 +522,6 @@ func (s AddSmsSignRequest) String() string {
 
 func (s AddSmsSignRequest) GoString() string {
 	return s.String()
-}
-
-func (s *AddSmsSignRequest) SetAccessKeyId(v string) *AddSmsSignRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *AddSmsSignRequest) SetOwnerId(v int64) *AddSmsSignRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *AddSmsSignRequest) SetResourceOwnerAccount(v string) *AddSmsSignRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *AddSmsSignRequest) SetResourceOwnerId(v int64) *AddSmsSignRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *AddSmsSignRequest) SetSignName(v string) *AddSmsSignRequest {
@@ -737,8 +545,8 @@ func (s *AddSmsSignRequest) SetRemark(v string) *AddSmsSignRequest {
 }
 
 type AddSmsSignRequestSignFileList struct {
-	FileSuffix   *string `json:"FileSuffix" xml:"FileSuffix" require:"true"`
-	FileContents *string `json:"FileContents" xml:"FileContents" require:"true"`
+	FileSuffix   *string `json:"FileSuffix,omitempty" xml:"FileSuffix,omitempty" require:"true"`
+	FileContents *string `json:"FileContents,omitempty" xml:"FileContents,omitempty" require:"true"`
 }
 
 func (s AddSmsSignRequestSignFileList) String() string {
@@ -760,10 +568,10 @@ func (s *AddSmsSignRequestSignFileList) SetFileContents(v string) *AddSmsSignReq
 }
 
 type AddSmsSignResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	SignName  *string `json:"SignName" xml:"SignName" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	SignName  *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s AddSmsSignResponse) String() string {
@@ -795,15 +603,11 @@ func (s *AddSmsSignResponse) SetMessage(v string) *AddSmsSignResponse {
 }
 
 type SendBatchSmsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	PhoneNumberJson      *string `json:"PhoneNumberJson" xml:"PhoneNumberJson" require:"true"`
-	SignNameJson         *string `json:"SignNameJson" xml:"SignNameJson" require:"true"`
-	TemplateCode         *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	TemplateParamJson    *string `json:"TemplateParamJson" xml:"TemplateParamJson"`
-	SmsUpExtendCodeJson  *string `json:"SmsUpExtendCodeJson" xml:"SmsUpExtendCodeJson"`
+	PhoneNumberJson     *string `json:"PhoneNumberJson,omitempty" xml:"PhoneNumberJson,omitempty" require:"true"`
+	SignNameJson        *string `json:"SignNameJson,omitempty" xml:"SignNameJson,omitempty" require:"true"`
+	TemplateCode        *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	TemplateParamJson   *string `json:"TemplateParamJson,omitempty" xml:"TemplateParamJson,omitempty"`
+	SmsUpExtendCodeJson *string `json:"SmsUpExtendCodeJson,omitempty" xml:"SmsUpExtendCodeJson,omitempty"`
 }
 
 func (s SendBatchSmsRequest) String() string {
@@ -812,26 +616,6 @@ func (s SendBatchSmsRequest) String() string {
 
 func (s SendBatchSmsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SendBatchSmsRequest) SetAccessKeyId(v string) *SendBatchSmsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SendBatchSmsRequest) SetOwnerId(v int64) *SendBatchSmsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SendBatchSmsRequest) SetResourceOwnerAccount(v string) *SendBatchSmsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SendBatchSmsRequest) SetResourceOwnerId(v int64) *SendBatchSmsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SendBatchSmsRequest) SetPhoneNumberJson(v string) *SendBatchSmsRequest {
@@ -860,10 +644,10 @@ func (s *SendBatchSmsRequest) SetSmsUpExtendCodeJson(v string) *SendBatchSmsRequ
 }
 
 type SendBatchSmsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	BizId     *string `json:"BizId" xml:"BizId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	BizId     *string `json:"BizId,omitempty" xml:"BizId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s SendBatchSmsResponse) String() string {
@@ -895,16 +679,12 @@ func (s *SendBatchSmsResponse) SetMessage(v string) *SendBatchSmsResponse {
 }
 
 type SendSmsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	PhoneNumbers         *string `json:"PhoneNumbers" xml:"PhoneNumbers" require:"true"`
-	SignName             *string `json:"SignName" xml:"SignName" require:"true"`
-	TemplateCode         *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	TemplateParam        *string `json:"TemplateParam" xml:"TemplateParam"`
-	SmsUpExtendCode      *string `json:"SmsUpExtendCode" xml:"SmsUpExtendCode"`
-	OutId                *string `json:"OutId" xml:"OutId"`
+	PhoneNumbers    *string `json:"PhoneNumbers,omitempty" xml:"PhoneNumbers,omitempty" require:"true"`
+	SignName        *string `json:"SignName,omitempty" xml:"SignName,omitempty" require:"true"`
+	TemplateCode    *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	TemplateParam   *string `json:"TemplateParam,omitempty" xml:"TemplateParam,omitempty"`
+	SmsUpExtendCode *string `json:"SmsUpExtendCode,omitempty" xml:"SmsUpExtendCode,omitempty"`
+	OutId           *string `json:"OutId,omitempty" xml:"OutId,omitempty"`
 }
 
 func (s SendSmsRequest) String() string {
@@ -913,26 +693,6 @@ func (s SendSmsRequest) String() string {
 
 func (s SendSmsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *SendSmsRequest) SetAccessKeyId(v string) *SendSmsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *SendSmsRequest) SetOwnerId(v int64) *SendSmsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *SendSmsRequest) SetResourceOwnerAccount(v string) *SendSmsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *SendSmsRequest) SetResourceOwnerId(v int64) *SendSmsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *SendSmsRequest) SetPhoneNumbers(v string) *SendSmsRequest {
@@ -966,10 +726,10 @@ func (s *SendSmsRequest) SetOutId(v string) *SendSmsRequest {
 }
 
 type SendSmsResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	BizId     *string `json:"BizId" xml:"BizId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	BizId     *string `json:"BizId,omitempty" xml:"BizId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s SendSmsResponse) String() string {
@@ -1001,15 +761,11 @@ func (s *SendSmsResponse) SetMessage(v string) *SendSmsResponse {
 }
 
 type QuerySendDetailsRequest struct {
-	AccessKeyId          *string `json:"AccessKeyId" xml:"AccessKeyId"`
-	OwnerId              *int64  `json:"OwnerId" xml:"OwnerId"`
-	ResourceOwnerAccount *string `json:"ResourceOwnerAccount" xml:"ResourceOwnerAccount"`
-	ResourceOwnerId      *int64  `json:"ResourceOwnerId" xml:"ResourceOwnerId"`
-	PhoneNumber          *string `json:"PhoneNumber" xml:"PhoneNumber" require:"true"`
-	BizId                *string `json:"BizId" xml:"BizId"`
-	SendDate             *string `json:"SendDate" xml:"SendDate" require:"true"`
-	PageSize             *int64  `json:"PageSize" xml:"PageSize" require:"true"`
-	CurrentPage          *int64  `json:"CurrentPage" xml:"CurrentPage" require:"true"`
+	PhoneNumber *string `json:"PhoneNumber,omitempty" xml:"PhoneNumber,omitempty" require:"true"`
+	BizId       *string `json:"BizId,omitempty" xml:"BizId,omitempty"`
+	SendDate    *string `json:"SendDate,omitempty" xml:"SendDate,omitempty" require:"true"`
+	PageSize    *int64  `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	CurrentPage *int64  `json:"CurrentPage,omitempty" xml:"CurrentPage,omitempty" require:"true"`
 }
 
 func (s QuerySendDetailsRequest) String() string {
@@ -1018,26 +774,6 @@ func (s QuerySendDetailsRequest) String() string {
 
 func (s QuerySendDetailsRequest) GoString() string {
 	return s.String()
-}
-
-func (s *QuerySendDetailsRequest) SetAccessKeyId(v string) *QuerySendDetailsRequest {
-	s.AccessKeyId = &v
-	return s
-}
-
-func (s *QuerySendDetailsRequest) SetOwnerId(v int64) *QuerySendDetailsRequest {
-	s.OwnerId = &v
-	return s
-}
-
-func (s *QuerySendDetailsRequest) SetResourceOwnerAccount(v string) *QuerySendDetailsRequest {
-	s.ResourceOwnerAccount = &v
-	return s
-}
-
-func (s *QuerySendDetailsRequest) SetResourceOwnerId(v int64) *QuerySendDetailsRequest {
-	s.ResourceOwnerId = &v
-	return s
 }
 
 func (s *QuerySendDetailsRequest) SetPhoneNumber(v string) *QuerySendDetailsRequest {
@@ -1066,11 +802,11 @@ func (s *QuerySendDetailsRequest) SetCurrentPage(v int64) *QuerySendDetailsReque
 }
 
 type QuerySendDetailsResponse struct {
-	RequestId         *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Code              *string                                    `json:"Code" xml:"Code" require:"true"`
-	Message           *string                                    `json:"Message" xml:"Message" require:"true"`
-	TotalCount        *string                                    `json:"TotalCount" xml:"TotalCount" require:"true"`
-	SmsSendDetailDTOs *QuerySendDetailsResponseSmsSendDetailDTOs `json:"SmsSendDetailDTOs" xml:"SmsSendDetailDTOs" require:"true" type:"Struct"`
+	RequestId         *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code              *string                                    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message           *string                                    `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	TotalCount        *string                                    `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	SmsSendDetailDTOs *QuerySendDetailsResponseSmsSendDetailDTOs `json:"SmsSendDetailDTOs,omitempty" xml:"SmsSendDetailDTOs,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QuerySendDetailsResponse) String() string {
@@ -1107,7 +843,7 @@ func (s *QuerySendDetailsResponse) SetSmsSendDetailDTOs(v *QuerySendDetailsRespo
 }
 
 type QuerySendDetailsResponseSmsSendDetailDTOs struct {
-	SmsSendDetailDTO []*QuerySendDetailsResponseSmsSendDetailDTOsSmsSendDetailDTO `json:"SmsSendDetailDTO" xml:"SmsSendDetailDTO" require:"true" type:"Repeated"`
+	SmsSendDetailDTO []*QuerySendDetailsResponseSmsSendDetailDTOsSmsSendDetailDTO `json:"SmsSendDetailDTO,omitempty" xml:"SmsSendDetailDTO,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QuerySendDetailsResponseSmsSendDetailDTOs) String() string {
@@ -1124,14 +860,14 @@ func (s *QuerySendDetailsResponseSmsSendDetailDTOs) SetSmsSendDetailDTO(v []*Que
 }
 
 type QuerySendDetailsResponseSmsSendDetailDTOsSmsSendDetailDTO struct {
-	PhoneNum     *string `json:"PhoneNum" xml:"PhoneNum" require:"true"`
-	SendStatus   *int64  `json:"SendStatus" xml:"SendStatus" require:"true"`
-	ErrCode      *string `json:"ErrCode" xml:"ErrCode" require:"true"`
-	TemplateCode *string `json:"TemplateCode" xml:"TemplateCode" require:"true"`
-	Content      *string `json:"Content" xml:"Content" require:"true"`
-	SendDate     *string `json:"SendDate" xml:"SendDate" require:"true"`
-	ReceiveDate  *string `json:"ReceiveDate" xml:"ReceiveDate" require:"true"`
-	OutId        *string `json:"OutId" xml:"OutId" require:"true"`
+	PhoneNum     *string `json:"PhoneNum,omitempty" xml:"PhoneNum,omitempty" require:"true"`
+	SendStatus   *int64  `json:"SendStatus,omitempty" xml:"SendStatus,omitempty" require:"true"`
+	ErrCode      *string `json:"ErrCode,omitempty" xml:"ErrCode,omitempty" require:"true"`
+	TemplateCode *string `json:"TemplateCode,omitempty" xml:"TemplateCode,omitempty" require:"true"`
+	Content      *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	SendDate     *string `json:"SendDate,omitempty" xml:"SendDate,omitempty" require:"true"`
+	ReceiveDate  *string `json:"ReceiveDate,omitempty" xml:"ReceiveDate,omitempty" require:"true"`
+	OutId        *string `json:"OutId,omitempty" xml:"OutId,omitempty" require:"true"`
 }
 
 func (s QuerySendDetailsResponseSmsSendDetailDTOsSmsSendDetailDTO) String() string {
