@@ -408,6 +408,7 @@ type SearchTracesRequest struct {
 	Tag           []*SearchTracesRequestTag `json:"Tag,omitempty" xml:"Tag,omitempty" type:"Repeated"`
 	PageNumber    *int                      `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize      *int                      `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	Reverse       *bool                     `json:"Reverse,omitempty" xml:"Reverse,omitempty"`
 	ServiceIp     *string                   `json:"ServiceIp,omitempty" xml:"ServiceIp,omitempty"`
 }
 
@@ -466,6 +467,11 @@ func (s *SearchTracesRequest) SetPageNumber(v int) *SearchTracesRequest {
 
 func (s *SearchTracesRequest) SetPageSize(v int) *SearchTracesRequest {
 	s.PageSize = &v
+	return s
+}
+
+func (s *SearchTracesRequest) SetReverse(v bool) *SearchTracesRequest {
+	s.Reverse = &v
 	return s
 }
 
