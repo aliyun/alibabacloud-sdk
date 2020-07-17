@@ -10,7 +10,7 @@ English | [简体中文](README-CN.md)
 If you use `go mod` to manage your dependence, you can use the following command:
 
 ```sh
-$ go get github.com/alibabacloud-go/BssOpenApi-20171214
+$ go get github.com/alibabacloud-go/bssopenapi-20171214
 ```
 
 ## Issues

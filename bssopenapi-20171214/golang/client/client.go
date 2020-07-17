@@ -8,13 +8,368 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type QuerySettleBillRequest struct {
+	BillingCycle           *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	Type                   *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	ProductCode            *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType            *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType       *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	IsHideZeroCharge       *bool   `json:"IsHideZeroCharge,omitempty" xml:"IsHideZeroCharge,omitempty"`
+	IsDisplayLocalCurrency *bool   `json:"IsDisplayLocalCurrency,omitempty" xml:"IsDisplayLocalCurrency,omitempty"`
+	NextToken              *string `json:"NextToken,omitempty" xml:"NextToken,omitempty"`
+	MaxResults             *int    `json:"MaxResults,omitempty" xml:"MaxResults,omitempty"`
+}
+
+func (s QuerySettleBillRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s QuerySettleBillRequest) GoString() string {
+	return s.String()
+}
+
+func (s *QuerySettleBillRequest) SetBillingCycle(v string) *QuerySettleBillRequest {
+	s.BillingCycle = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetType(v string) *QuerySettleBillRequest {
+	s.Type = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetProductCode(v string) *QuerySettleBillRequest {
+	s.ProductCode = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetProductType(v string) *QuerySettleBillRequest {
+	s.ProductType = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetSubscriptionType(v string) *QuerySettleBillRequest {
+	s.SubscriptionType = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetIsHideZeroCharge(v bool) *QuerySettleBillRequest {
+	s.IsHideZeroCharge = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetIsDisplayLocalCurrency(v bool) *QuerySettleBillRequest {
+	s.IsDisplayLocalCurrency = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetNextToken(v string) *QuerySettleBillRequest {
+	s.NextToken = &v
+	return s
+}
+
+func (s *QuerySettleBillRequest) SetMaxResults(v int) *QuerySettleBillRequest {
+	s.MaxResults = &v
+	return s
+}
+
+type QuerySettleBillResponse struct {
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                        `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                      `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                      `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QuerySettleBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
+}
+
+func (s QuerySettleBillResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s QuerySettleBillResponse) GoString() string {
+	return s.String()
+}
+
+func (s *QuerySettleBillResponse) SetRequestId(v string) *QuerySettleBillResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *QuerySettleBillResponse) SetSuccess(v bool) *QuerySettleBillResponse {
+	s.Success = &v
+	return s
+}
+
+func (s *QuerySettleBillResponse) SetCode(v string) *QuerySettleBillResponse {
+	s.Code = &v
+	return s
+}
+
+func (s *QuerySettleBillResponse) SetMessage(v string) *QuerySettleBillResponse {
+	s.Message = &v
+	return s
+}
+
+func (s *QuerySettleBillResponse) SetData(v *QuerySettleBillResponseData) *QuerySettleBillResponse {
+	s.Data = v
+	return s
+}
+
+type QuerySettleBillResponseData struct {
+	BillingCycle *string                           `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	AccountID    *string                           `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName  *string                           `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	NextToken    *string                           `json:"NextToken,omitempty" xml:"NextToken,omitempty" require:"true"`
+	MaxResults   *int                              `json:"MaxResults,omitempty" xml:"MaxResults,omitempty" require:"true"`
+	TotalCount   *int                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Items        *QuerySettleBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
+}
+
+func (s QuerySettleBillResponseData) String() string {
+	return tea.Prettify(s)
+}
+
+func (s QuerySettleBillResponseData) GoString() string {
+	return s.String()
+}
+
+func (s *QuerySettleBillResponseData) SetBillingCycle(v string) *QuerySettleBillResponseData {
+	s.BillingCycle = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseData) SetAccountID(v string) *QuerySettleBillResponseData {
+	s.AccountID = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseData) SetAccountName(v string) *QuerySettleBillResponseData {
+	s.AccountName = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseData) SetNextToken(v string) *QuerySettleBillResponseData {
+	s.NextToken = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseData) SetMaxResults(v int) *QuerySettleBillResponseData {
+	s.MaxResults = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseData) SetTotalCount(v int) *QuerySettleBillResponseData {
+	s.TotalCount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseData) SetItems(v *QuerySettleBillResponseDataItems) *QuerySettleBillResponseData {
+	s.Items = v
+	return s
+}
+
+type QuerySettleBillResponseDataItems struct {
+	Item []*QuerySettleBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s QuerySettleBillResponseDataItems) String() string {
+	return tea.Prettify(s)
+}
+
+func (s QuerySettleBillResponseDataItems) GoString() string {
+	return s.String()
+}
+
+func (s *QuerySettleBillResponseDataItems) SetItem(v []*QuerySettleBillResponseDataItemsItem) *QuerySettleBillResponseDataItems {
+	s.Item = v
+	return s
+}
+
+type QuerySettleBillResponseDataItemsItem struct {
+	RecordID              *string  `json:"RecordID,omitempty" xml:"RecordID,omitempty" require:"true"`
+	Item                  *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	OwnerID               *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	UsageStartTime        *string  `json:"UsageStartTime,omitempty" xml:"UsageStartTime,omitempty" require:"true"`
+	UsageEndTime          *string  `json:"UsageEndTime,omitempty" xml:"UsageEndTime,omitempty" require:"true"`
+	PaymentTime           *string  `json:"PaymentTime,omitempty" xml:"PaymentTime,omitempty" require:"true"`
+	ProductCode           *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType           *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType      *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ProductName           *string  `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	ProductDetail         *string  `json:"ProductDetail,omitempty" xml:"ProductDetail,omitempty" require:"true"`
+	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	DeductedByCoupons     *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	InvoiceDiscount       *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	PretaxAmount          *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency              *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax                   *float32 `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	PaymentAmount         *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	OutstandingAmount     *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	AfterTaxAmount        *float32 `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	Status                *string  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	PaymentCurrency       *string  `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	PaymentTransactionID  *string  `json:"PaymentTransactionID,omitempty" xml:"PaymentTransactionID,omitempty" require:"true"`
+	RoundDownDiscount     *string  `json:"RoundDownDiscount,omitempty" xml:"RoundDownDiscount,omitempty" require:"true"`
+	SubOrderId            *string  `json:"SubOrderId,omitempty" xml:"SubOrderId,omitempty" require:"true"`
+}
+
+func (s QuerySettleBillResponseDataItemsItem) String() string {
+	return tea.Prettify(s)
+}
+
+func (s QuerySettleBillResponseDataItemsItem) GoString() string {
+	return s.String()
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetRecordID(v string) *QuerySettleBillResponseDataItemsItem {
+	s.RecordID = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetItem(v string) *QuerySettleBillResponseDataItemsItem {
+	s.Item = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetOwnerID(v string) *QuerySettleBillResponseDataItemsItem {
+	s.OwnerID = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetUsageStartTime(v string) *QuerySettleBillResponseDataItemsItem {
+	s.UsageStartTime = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetUsageEndTime(v string) *QuerySettleBillResponseDataItemsItem {
+	s.UsageEndTime = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPaymentTime(v string) *QuerySettleBillResponseDataItemsItem {
+	s.PaymentTime = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetProductCode(v string) *QuerySettleBillResponseDataItemsItem {
+	s.ProductCode = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetProductType(v string) *QuerySettleBillResponseDataItemsItem {
+	s.ProductType = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetSubscriptionType(v string) *QuerySettleBillResponseDataItemsItem {
+	s.SubscriptionType = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetProductName(v string) *QuerySettleBillResponseDataItemsItem {
+	s.ProductName = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetProductDetail(v string) *QuerySettleBillResponseDataItemsItem {
+	s.ProductDetail = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPretaxGrossAmount(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.PretaxGrossAmount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetDeductedByCoupons(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.DeductedByCoupons = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetInvoiceDiscount(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.InvoiceDiscount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPretaxAmount(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.PretaxAmount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetCurrency(v string) *QuerySettleBillResponseDataItemsItem {
+	s.Currency = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPretaxAmountLocal(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.PretaxAmountLocal = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetTax(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.Tax = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPaymentAmount(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.PaymentAmount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetDeductedByCashCoupons(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.DeductedByCashCoupons = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetDeductedByPrepaidCard(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.DeductedByPrepaidCard = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetOutstandingAmount(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.OutstandingAmount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetAfterTaxAmount(v float32) *QuerySettleBillResponseDataItemsItem {
+	s.AfterTaxAmount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetStatus(v string) *QuerySettleBillResponseDataItemsItem {
+	s.Status = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPaymentCurrency(v string) *QuerySettleBillResponseDataItemsItem {
+	s.PaymentCurrency = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetPaymentTransactionID(v string) *QuerySettleBillResponseDataItemsItem {
+	s.PaymentTransactionID = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetRoundDownDiscount(v string) *QuerySettleBillResponseDataItemsItem {
+	s.RoundDownDiscount = &v
+	return s
+}
+
+func (s *QuerySettleBillResponseDataItemsItem) SetSubOrderId(v string) *QuerySettleBillResponseDataItemsItem {
+	s.SubOrderId = &v
+	return s
+}
+
 type QuerySplitItemBillRequest struct {
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QuerySplitItemBillRequest) String() string {
@@ -56,11 +411,11 @@ func (s *QuerySplitItemBillRequest) SetPageSize(v int) *QuerySplitItemBillReques
 }
 
 type QuerySplitItemBillResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                           `json:"Success" xml:"Success" require:"true"`
-	Code      *string                         `json:"Code" xml:"Code" require:"true"`
-	Message   *string                         `json:"Message" xml:"Message" require:"true"`
-	Data      *QuerySplitItemBillResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                           `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                         `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                         `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QuerySplitItemBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QuerySplitItemBillResponse) String() string {
@@ -97,13 +452,13 @@ func (s *QuerySplitItemBillResponse) SetData(v *QuerySplitItemBillResponseData) 
 }
 
 type QuerySplitItemBillResponseData struct {
-	BillingCycle *string                              `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	AccountID    *string                              `json:"AccountID" xml:"AccountID" require:"true"`
-	AccountName  *string                              `json:"AccountName" xml:"AccountName" require:"true"`
-	TotalCount   *int                                 `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNum      *int                                 `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                                 `json:"PageSize" xml:"PageSize" require:"true"`
-	Items        *QuerySplitItemBillResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	BillingCycle *string                              `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	AccountID    *string                              `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName  *string                              `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	TotalCount   *int                                 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNum      *int                                 `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                                 `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Items        *QuerySplitItemBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QuerySplitItemBillResponseData) String() string {
@@ -150,7 +505,7 @@ func (s *QuerySplitItemBillResponseData) SetItems(v *QuerySplitItemBillResponseD
 }
 
 type QuerySplitItemBillResponseDataItems struct {
-	Item []*QuerySplitItemBillResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QuerySplitItemBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QuerySplitItemBillResponseDataItems) String() string {
@@ -167,44 +522,44 @@ func (s *QuerySplitItemBillResponseDataItems) SetItem(v []*QuerySplitItemBillRes
 }
 
 type QuerySplitItemBillResponseDataItemsItem struct {
-	InstanceID                *string  `json:"InstanceID" xml:"InstanceID" require:"true"`
-	BillingType               *string  `json:"BillingType" xml:"BillingType" require:"true"`
-	CostUnit                  *string  `json:"CostUnit" xml:"CostUnit" require:"true"`
-	ProductCode               *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType               *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType          *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	ProductName               *string  `json:"ProductName" xml:"ProductName" require:"true"`
-	ProductDetail             *string  `json:"ProductDetail" xml:"ProductDetail" require:"true"`
-	OwnerID                   *string  `json:"OwnerID" xml:"OwnerID" require:"true"`
-	BillingItem               *string  `json:"BillingItem" xml:"BillingItem" require:"true"`
-	ListPrice                 *string  `json:"ListPrice" xml:"ListPrice" require:"true"`
-	ListPriceUnit             *string  `json:"ListPriceUnit" xml:"ListPriceUnit" require:"true"`
-	Usage                     *string  `json:"Usage" xml:"Usage" require:"true"`
-	UsageUnit                 *string  `json:"UsageUnit" xml:"UsageUnit" require:"true"`
-	DeductedByResourcePackage *string  `json:"DeductedByResourcePackage" xml:"DeductedByResourcePackage" require:"true"`
-	PretaxGrossAmount         *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	InvoiceDiscount           *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	DeductedByCoupons         *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	PretaxAmount              *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	DeductedByCashCoupons     *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard     *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	PaymentAmount             *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	OutstandingAmount         *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	Currency                  *string  `json:"Currency" xml:"Currency" require:"true"`
-	NickName                  *string  `json:"NickName" xml:"NickName" require:"true"`
-	ResourceGroup             *string  `json:"ResourceGroup" xml:"ResourceGroup" require:"true"`
-	Tag                       *string  `json:"Tag" xml:"Tag" require:"true"`
-	InstanceConfig            *string  `json:"InstanceConfig" xml:"InstanceConfig" require:"true"`
-	InstanceSpec              *string  `json:"InstanceSpec" xml:"InstanceSpec" require:"true"`
-	InternetIP                *string  `json:"InternetIP" xml:"InternetIP" require:"true"`
-	IntranetIP                *string  `json:"IntranetIP" xml:"IntranetIP" require:"true"`
-	Region                    *string  `json:"Region" xml:"Region" require:"true"`
-	Zone                      *string  `json:"Zone" xml:"Zone" require:"true"`
-	Item                      *string  `json:"Item" xml:"Item" require:"true"`
-	ServicePeriod             *string  `json:"ServicePeriod" xml:"ServicePeriod" require:"true"`
-	BillingDate               *string  `json:"BillingDate" xml:"BillingDate" require:"true"`
-	SplitItemID               *string  `json:"SplitItemID" xml:"SplitItemID" require:"true"`
-	SplitItemName             *string  `json:"SplitItemName" xml:"SplitItemName" require:"true"`
+	InstanceID                *string  `json:"InstanceID,omitempty" xml:"InstanceID,omitempty" require:"true"`
+	BillingType               *string  `json:"BillingType,omitempty" xml:"BillingType,omitempty" require:"true"`
+	CostUnit                  *string  `json:"CostUnit,omitempty" xml:"CostUnit,omitempty" require:"true"`
+	ProductCode               *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType               *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType          *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ProductName               *string  `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	ProductDetail             *string  `json:"ProductDetail,omitempty" xml:"ProductDetail,omitempty" require:"true"`
+	OwnerID                   *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	BillingItem               *string  `json:"BillingItem,omitempty" xml:"BillingItem,omitempty" require:"true"`
+	ListPrice                 *string  `json:"ListPrice,omitempty" xml:"ListPrice,omitempty" require:"true"`
+	ListPriceUnit             *string  `json:"ListPriceUnit,omitempty" xml:"ListPriceUnit,omitempty" require:"true"`
+	Usage                     *string  `json:"Usage,omitempty" xml:"Usage,omitempty" require:"true"`
+	UsageUnit                 *string  `json:"UsageUnit,omitempty" xml:"UsageUnit,omitempty" require:"true"`
+	DeductedByResourcePackage *string  `json:"DeductedByResourcePackage,omitempty" xml:"DeductedByResourcePackage,omitempty" require:"true"`
+	PretaxGrossAmount         *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	InvoiceDiscount           *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	DeductedByCoupons         *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	PretaxAmount              *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	DeductedByCashCoupons     *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard     *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	PaymentAmount             *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	OutstandingAmount         *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	Currency                  *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	NickName                  *string  `json:"NickName,omitempty" xml:"NickName,omitempty" require:"true"`
+	ResourceGroup             *string  `json:"ResourceGroup,omitempty" xml:"ResourceGroup,omitempty" require:"true"`
+	Tag                       *string  `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	InstanceConfig            *string  `json:"InstanceConfig,omitempty" xml:"InstanceConfig,omitempty" require:"true"`
+	InstanceSpec              *string  `json:"InstanceSpec,omitempty" xml:"InstanceSpec,omitempty" require:"true"`
+	InternetIP                *string  `json:"InternetIP,omitempty" xml:"InternetIP,omitempty" require:"true"`
+	IntranetIP                *string  `json:"IntranetIP,omitempty" xml:"IntranetIP,omitempty" require:"true"`
+	Region                    *string  `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	Zone                      *string  `json:"Zone,omitempty" xml:"Zone,omitempty" require:"true"`
+	Item                      *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	ServicePeriod             *string  `json:"ServicePeriod,omitempty" xml:"ServicePeriod,omitempty" require:"true"`
+	BillingDate               *string  `json:"BillingDate,omitempty" xml:"BillingDate,omitempty" require:"true"`
+	SplitItemID               *string  `json:"SplitItemID,omitempty" xml:"SplitItemID,omitempty" require:"true"`
+	SplitItemName             *string  `json:"SplitItemName,omitempty" xml:"SplitItemName,omitempty" require:"true"`
 }
 
 func (s QuerySplitItemBillResponseDataItemsItem) String() string {
@@ -406,14 +761,14 @@ func (s *QuerySplitItemBillResponseDataItemsItem) SetSplitItemName(v string) *Qu
 }
 
 type QueryRIUtilizationDetailRequest struct {
-	RIInstanceId       *string `json:"RIInstanceId" xml:"RIInstanceId"`
-	InstanceSpec       *string `json:"InstanceSpec" xml:"InstanceSpec"`
-	RICommodityCode    *string `json:"RICommodityCode" xml:"RICommodityCode" require:"true"`
-	DeductedInstanceId *string `json:"DeductedInstanceId" xml:"DeductedInstanceId"`
-	StartTime          *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime            *string `json:"EndTime" xml:"EndTime" require:"true"`
-	PageNum            *int    `json:"PageNum" xml:"PageNum"`
-	PageSize           *int    `json:"PageSize" xml:"PageSize"`
+	RIInstanceId       *string `json:"RIInstanceId,omitempty" xml:"RIInstanceId,omitempty"`
+	InstanceSpec       *string `json:"InstanceSpec,omitempty" xml:"InstanceSpec,omitempty"`
+	RICommodityCode    *string `json:"RICommodityCode,omitempty" xml:"RICommodityCode,omitempty" require:"true"`
+	DeductedInstanceId *string `json:"DeductedInstanceId,omitempty" xml:"DeductedInstanceId,omitempty"`
+	StartTime          *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime            *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	PageNum            *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize           *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryRIUtilizationDetailRequest) String() string {
@@ -465,11 +820,11 @@ func (s *QueryRIUtilizationDetailRequest) SetPageSize(v int) *QueryRIUtilization
 }
 
 type QueryRIUtilizationDetailResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                 `json:"Success" xml:"Success" require:"true"`
-	Code      *string                               `json:"Code" xml:"Code" require:"true"`
-	Message   *string                               `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryRIUtilizationDetailResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                 `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryRIUtilizationDetailResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryRIUtilizationDetailResponse) String() string {
@@ -506,10 +861,10 @@ func (s *QueryRIUtilizationDetailResponse) SetData(v *QueryRIUtilizationDetailRe
 }
 
 type QueryRIUtilizationDetailResponseData struct {
-	PageNum    *int64                                          `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize   *int64                                          `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int64                                          `json:"TotalCount" xml:"TotalCount" require:"true"`
-	DetailList *QueryRIUtilizationDetailResponseDataDetailList `json:"DetailList" xml:"DetailList" require:"true" type:"Struct"`
+	PageNum    *int64                                          `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize   *int64                                          `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int64                                          `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	DetailList *QueryRIUtilizationDetailResponseDataDetailList `json:"DetailList,omitempty" xml:"DetailList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryRIUtilizationDetailResponseData) String() string {
@@ -541,7 +896,7 @@ func (s *QueryRIUtilizationDetailResponseData) SetDetailList(v *QueryRIUtilizati
 }
 
 type QueryRIUtilizationDetailResponseDataDetailList struct {
-	DetailList []*QueryRIUtilizationDetailResponseDataDetailListDetailList `json:"DetailList" xml:"DetailList" require:"true" type:"Repeated"`
+	DetailList []*QueryRIUtilizationDetailResponseDataDetailListDetailList `json:"DetailList,omitempty" xml:"DetailList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryRIUtilizationDetailResponseDataDetailList) String() string {
@@ -558,15 +913,15 @@ func (s *QueryRIUtilizationDetailResponseDataDetailList) SetDetailList(v []*Quer
 }
 
 type QueryRIUtilizationDetailResponseDataDetailListDetailList struct {
-	RIInstanceId          *string  `json:"RIInstanceId" xml:"RIInstanceId" require:"true"`
-	InstanceSpec          *string  `json:"InstanceSpec" xml:"InstanceSpec" require:"true"`
-	DeductedInstanceId    *string  `json:"DeductedInstanceId" xml:"DeductedInstanceId" require:"true"`
-	DeductedCommodityCode *string  `json:"DeductedCommodityCode" xml:"DeductedCommodityCode" require:"true"`
-	DeductDate            *string  `json:"DeductDate" xml:"DeductDate" require:"true"`
-	DeductHours           *string  `json:"DeductHours" xml:"DeductHours" require:"true"`
-	DeductedProductDetail *string  `json:"DeductedProductDetail" xml:"DeductedProductDetail" require:"true"`
-	DeductQuantity        *float32 `json:"DeductQuantity" xml:"DeductQuantity" require:"true"`
-	DeductFactorTotal     *float32 `json:"DeductFactorTotal" xml:"DeductFactorTotal" require:"true"`
+	RIInstanceId          *string  `json:"RIInstanceId,omitempty" xml:"RIInstanceId,omitempty" require:"true"`
+	InstanceSpec          *string  `json:"InstanceSpec,omitempty" xml:"InstanceSpec,omitempty" require:"true"`
+	DeductedInstanceId    *string  `json:"DeductedInstanceId,omitempty" xml:"DeductedInstanceId,omitempty" require:"true"`
+	DeductedCommodityCode *string  `json:"DeductedCommodityCode,omitempty" xml:"DeductedCommodityCode,omitempty" require:"true"`
+	DeductDate            *string  `json:"DeductDate,omitempty" xml:"DeductDate,omitempty" require:"true"`
+	DeductHours           *string  `json:"DeductHours,omitempty" xml:"DeductHours,omitempty" require:"true"`
+	DeductedProductDetail *string  `json:"DeductedProductDetail,omitempty" xml:"DeductedProductDetail,omitempty" require:"true"`
+	DeductQuantity        *float32 `json:"DeductQuantity,omitempty" xml:"DeductQuantity,omitempty" require:"true"`
+	DeductFactorTotal     *float32 `json:"DeductFactorTotal,omitempty" xml:"DeductFactorTotal,omitempty" require:"true"`
 }
 
 func (s QueryRIUtilizationDetailResponseDataDetailListDetailList) String() string {
@@ -634,11 +989,11 @@ func (s QueryBillToOSSSubscriptionRequest) GoString() string {
 }
 
 type QueryBillToOSSSubscriptionResponse struct {
-	RequestId *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                   `json:"Success" xml:"Success" require:"true"`
-	Code      *string                                 `json:"Code" xml:"Code" require:"true"`
-	Message   *string                                 `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryBillToOSSSubscriptionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                 `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryBillToOSSSubscriptionResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryBillToOSSSubscriptionResponse) String() string {
@@ -675,9 +1030,9 @@ func (s *QueryBillToOSSSubscriptionResponse) SetData(v *QueryBillToOSSSubscripti
 }
 
 type QueryBillToOSSSubscriptionResponseData struct {
-	AccountID   *string                                      `json:"AccountID" xml:"AccountID" require:"true"`
-	AccountName *string                                      `json:"AccountName" xml:"AccountName" require:"true"`
-	Items       *QueryBillToOSSSubscriptionResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	AccountID   *string                                      `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName *string                                      `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	Items       *QueryBillToOSSSubscriptionResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryBillToOSSSubscriptionResponseData) String() string {
@@ -704,7 +1059,7 @@ func (s *QueryBillToOSSSubscriptionResponseData) SetItems(v *QueryBillToOSSSubsc
 }
 
 type QueryBillToOSSSubscriptionResponseDataItems struct {
-	Item []*QueryBillToOSSSubscriptionResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryBillToOSSSubscriptionResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryBillToOSSSubscriptionResponseDataItems) String() string {
@@ -721,12 +1076,12 @@ func (s *QueryBillToOSSSubscriptionResponseDataItems) SetItem(v []*QueryBillToOS
 }
 
 type QueryBillToOSSSubscriptionResponseDataItemsItem struct {
-	SubscribeType           *string `json:"SubscribeType" xml:"SubscribeType" require:"true"`
-	SubscribeBucket         *string `json:"SubscribeBucket" xml:"SubscribeBucket" require:"true"`
-	BucketOwnerId           *int64  `json:"BucketOwnerId" xml:"BucketOwnerId" require:"true"`
-	SubscribeTime           *string `json:"SubscribeTime" xml:"SubscribeTime" require:"true"`
-	SubscribeLanguage       *string `json:"SubscribeLanguage" xml:"SubscribeLanguage" require:"true"`
-	MultAccountRelSubscribe *string `json:"MultAccountRelSubscribe" xml:"MultAccountRelSubscribe" require:"true"`
+	SubscribeType           *string `json:"SubscribeType,omitempty" xml:"SubscribeType,omitempty" require:"true"`
+	SubscribeBucket         *string `json:"SubscribeBucket,omitempty" xml:"SubscribeBucket,omitempty" require:"true"`
+	BucketOwnerId           *int64  `json:"BucketOwnerId,omitempty" xml:"BucketOwnerId,omitempty" require:"true"`
+	SubscribeTime           *string `json:"SubscribeTime,omitempty" xml:"SubscribeTime,omitempty" require:"true"`
+	SubscribeLanguage       *string `json:"SubscribeLanguage,omitempty" xml:"SubscribeLanguage,omitempty" require:"true"`
+	MultAccountRelSubscribe *string `json:"MultAccountRelSubscribe,omitempty" xml:"MultAccountRelSubscribe,omitempty" require:"true"`
 }
 
 func (s QueryBillToOSSSubscriptionResponseDataItemsItem) String() string {
@@ -768,12 +1123,12 @@ func (s *QueryBillToOSSSubscriptionResponseDataItemsItem) SetMultAccountRelSubsc
 }
 
 type QueryAccountBillRequest struct {
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	OwnerID          *int64  `json:"OwnerID" xml:"OwnerID"`
-	IsGroupByProduct *bool   `json:"IsGroupByProduct" xml:"IsGroupByProduct"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	OwnerID          *int64  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty"`
+	IsGroupByProduct *bool   `json:"IsGroupByProduct,omitempty" xml:"IsGroupByProduct,omitempty"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
 }
 
 func (s QueryAccountBillRequest) String() string {
@@ -815,11 +1170,11 @@ func (s *QueryAccountBillRequest) SetProductCode(v string) *QueryAccountBillRequ
 }
 
 type QueryAccountBillResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                         `json:"Success" xml:"Success" require:"true"`
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryAccountBillResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                         `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryAccountBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryAccountBillResponse) String() string {
@@ -856,13 +1211,13 @@ func (s *QueryAccountBillResponse) SetData(v *QueryAccountBillResponseData) *Que
 }
 
 type QueryAccountBillResponseData struct {
-	BillingCycle *string                            `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	AccountID    *string                            `json:"AccountID" xml:"AccountID" require:"true"`
-	AccountName  *string                            `json:"AccountName" xml:"AccountName" require:"true"`
-	TotalCount   *int                               `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNum      *int                               `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                               `json:"PageSize" xml:"PageSize" require:"true"`
-	Items        *QueryAccountBillResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	BillingCycle *string                            `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	AccountID    *string                            `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName  *string                            `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	TotalCount   *int                               `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNum      *int                               `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Items        *QueryAccountBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryAccountBillResponseData) String() string {
@@ -909,7 +1264,7 @@ func (s *QueryAccountBillResponseData) SetItems(v *QueryAccountBillResponseDataI
 }
 
 type QueryAccountBillResponseDataItems struct {
-	Item []*QueryAccountBillResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryAccountBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryAccountBillResponseDataItems) String() string {
@@ -926,21 +1281,21 @@ func (s *QueryAccountBillResponseDataItems) SetItem(v []*QueryAccountBillRespons
 }
 
 type QueryAccountBillResponseDataItemsItem struct {
-	CostUnit              *string  `json:"CostUnit" xml:"CostUnit" require:"true"`
-	OwnerID               *string  `json:"OwnerID" xml:"OwnerID" require:"true"`
-	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	InvoiceDiscount       *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	DeductedByCoupons     *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	PretaxAmount          *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	PaymentAmount         *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	OutstandingAmount     *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	Currency              *string  `json:"Currency" xml:"Currency" require:"true"`
-	OwnerName             *string  `json:"OwnerName" xml:"OwnerName" require:"true"`
-	ProductCode           *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductName           *string  `json:"ProductName" xml:"ProductName" require:"true"`
-	SubscriptionType      *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
+	CostUnit              *string  `json:"CostUnit,omitempty" xml:"CostUnit,omitempty" require:"true"`
+	OwnerID               *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	InvoiceDiscount       *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	DeductedByCoupons     *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	PretaxAmount          *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	PaymentAmount         *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	OutstandingAmount     *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	Currency              *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	OwnerName             *string  `json:"OwnerName,omitempty" xml:"OwnerName,omitempty" require:"true"`
+	ProductCode           *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductName           *string  `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	SubscriptionType      *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
 }
 
 func (s QueryAccountBillResponseDataItemsItem) String() string {
@@ -1027,7 +1382,7 @@ func (s *QueryAccountBillResponseDataItemsItem) SetSubscriptionType(v string) *Q
 }
 
 type CreateCostUnitRequest struct {
-	UnitEntityList []*CreateCostUnitRequestUnitEntityList `json:"UnitEntityList" xml:"UnitEntityList" type:"Repeated"`
+	UnitEntityList []*CreateCostUnitRequestUnitEntityList `json:"UnitEntityList,omitempty" xml:"UnitEntityList,omitempty" type:"Repeated"`
 }
 
 func (s CreateCostUnitRequest) String() string {
@@ -1044,9 +1399,9 @@ func (s *CreateCostUnitRequest) SetUnitEntityList(v []*CreateCostUnitRequestUnit
 }
 
 type CreateCostUnitRequestUnitEntityList struct {
-	OwnerUid     *int64  `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	ParentUnitId *int64  `json:"ParentUnitId" xml:"ParentUnitId" require:"true"`
-	UnitName     *string `json:"UnitName" xml:"UnitName" require:"true"`
+	OwnerUid     *int64  `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	ParentUnitId *int64  `json:"ParentUnitId,omitempty" xml:"ParentUnitId,omitempty" require:"true"`
+	UnitName     *string `json:"UnitName,omitempty" xml:"UnitName,omitempty" require:"true"`
 }
 
 func (s CreateCostUnitRequestUnitEntityList) String() string {
@@ -1073,11 +1428,11 @@ func (s *CreateCostUnitRequestUnitEntityList) SetUnitName(v string) *CreateCostU
 }
 
 type CreateCostUnitResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                       `json:"Success" xml:"Success" require:"true"`
-	Code      *string                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                     `json:"Message" xml:"Message" require:"true"`
-	Data      *CreateCostUnitResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                       `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *CreateCostUnitResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateCostUnitResponse) String() string {
@@ -1114,7 +1469,7 @@ func (s *CreateCostUnitResponse) SetData(v *CreateCostUnitResponseData) *CreateC
 }
 
 type CreateCostUnitResponseData struct {
-	CostUnitDtoList []*CreateCostUnitResponseDataCostUnitDtoList `json:"CostUnitDtoList" xml:"CostUnitDtoList" require:"true" type:"Repeated"`
+	CostUnitDtoList []*CreateCostUnitResponseDataCostUnitDtoList `json:"CostUnitDtoList,omitempty" xml:"CostUnitDtoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s CreateCostUnitResponseData) String() string {
@@ -1131,10 +1486,10 @@ func (s *CreateCostUnitResponseData) SetCostUnitDtoList(v []*CreateCostUnitRespo
 }
 
 type CreateCostUnitResponseDataCostUnitDtoList struct {
-	OwnerUid     *int64  `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	ParentUnitId *int64  `json:"ParentUnitId" xml:"ParentUnitId" require:"true"`
-	UnitId       *int64  `json:"UnitId" xml:"UnitId" require:"true"`
-	UnitName     *string `json:"UnitName" xml:"UnitName" require:"true"`
+	OwnerUid     *int64  `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	ParentUnitId *int64  `json:"ParentUnitId,omitempty" xml:"ParentUnitId,omitempty" require:"true"`
+	UnitId       *int64  `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	UnitName     *string `json:"UnitName,omitempty" xml:"UnitName,omitempty" require:"true"`
 }
 
 func (s CreateCostUnitResponseDataCostUnitDtoList) String() string {
@@ -1166,7 +1521,7 @@ func (s *CreateCostUnitResponseDataCostUnitDtoList) SetUnitName(v string) *Creat
 }
 
 type ModifyCostUnitRequest struct {
-	UnitEntityList []*ModifyCostUnitRequestUnitEntityList `json:"UnitEntityList" xml:"UnitEntityList" type:"Repeated"`
+	UnitEntityList []*ModifyCostUnitRequestUnitEntityList `json:"UnitEntityList,omitempty" xml:"UnitEntityList,omitempty" type:"Repeated"`
 }
 
 func (s ModifyCostUnitRequest) String() string {
@@ -1183,9 +1538,9 @@ func (s *ModifyCostUnitRequest) SetUnitEntityList(v []*ModifyCostUnitRequestUnit
 }
 
 type ModifyCostUnitRequestUnitEntityList struct {
-	OwnerUid    *int64  `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	UnitId      *int64  `json:"UnitId" xml:"UnitId" require:"true"`
-	NewUnitName *string `json:"NewUnitName" xml:"NewUnitName" require:"true"`
+	OwnerUid    *int64  `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	UnitId      *int64  `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	NewUnitName *string `json:"NewUnitName,omitempty" xml:"NewUnitName,omitempty" require:"true"`
 }
 
 func (s ModifyCostUnitRequestUnitEntityList) String() string {
@@ -1212,11 +1567,11 @@ func (s *ModifyCostUnitRequestUnitEntityList) SetNewUnitName(v string) *ModifyCo
 }
 
 type ModifyCostUnitResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                         `json:"Success" xml:"Success" require:"true"`
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	Data      []*ModifyCostUnitResponseData `json:"Data" xml:"Data" require:"true" type:"Repeated"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                         `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      []*ModifyCostUnitResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s ModifyCostUnitResponse) String() string {
@@ -1253,9 +1608,9 @@ func (s *ModifyCostUnitResponse) SetData(v []*ModifyCostUnitResponseData) *Modif
 }
 
 type ModifyCostUnitResponseData struct {
-	OwnerUid  *int64 `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	UnitId    *int64 `json:"UnitId" xml:"UnitId" require:"true"`
-	IsSuccess *bool  `json:"IsSuccess" xml:"IsSuccess" require:"true"`
+	OwnerUid  *int64 `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	UnitId    *int64 `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	IsSuccess *bool  `json:"IsSuccess,omitempty" xml:"IsSuccess,omitempty" require:"true"`
 }
 
 func (s ModifyCostUnitResponseData) String() string {
@@ -1282,10 +1637,10 @@ func (s *ModifyCostUnitResponseData) SetIsSuccess(v bool) *ModifyCostUnitRespons
 }
 
 type QueryCostUnitRequest struct {
-	OwnerUid     *int64 `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	ParentUnitId *int64 `json:"ParentUnitId" xml:"ParentUnitId" require:"true"`
-	PageNum      *int   `json:"PageNum" xml:"PageNum"`
-	PageSize     *int   `json:"PageSize" xml:"PageSize"`
+	OwnerUid     *int64 `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	ParentUnitId *int64 `json:"ParentUnitId,omitempty" xml:"ParentUnitId,omitempty" require:"true"`
+	PageNum      *int   `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize     *int   `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryCostUnitRequest) String() string {
@@ -1317,11 +1672,11 @@ func (s *QueryCostUnitRequest) SetPageSize(v int) *QueryCostUnitRequest {
 }
 
 type QueryCostUnitResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                      `json:"Success" xml:"Success" require:"true"`
-	Code      *string                    `json:"Code" xml:"Code" require:"true"`
-	Message   *string                    `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryCostUnitResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                      `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                    `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryCostUnitResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryCostUnitResponse) String() string {
@@ -1358,10 +1713,10 @@ func (s *QueryCostUnitResponse) SetData(v *QueryCostUnitResponseData) *QueryCost
 }
 
 type QueryCostUnitResponseData struct {
-	PageNum         *int                                        `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize        *int                                        `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount      *int                                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	CostUnitDtoList []*QueryCostUnitResponseDataCostUnitDtoList `json:"CostUnitDtoList" xml:"CostUnitDtoList" require:"true" type:"Repeated"`
+	PageNum         *int                                        `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize        *int                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount      *int                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	CostUnitDtoList []*QueryCostUnitResponseDataCostUnitDtoList `json:"CostUnitDtoList,omitempty" xml:"CostUnitDtoList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryCostUnitResponseData) String() string {
@@ -1393,10 +1748,10 @@ func (s *QueryCostUnitResponseData) SetCostUnitDtoList(v []*QueryCostUnitRespons
 }
 
 type QueryCostUnitResponseDataCostUnitDtoList struct {
-	OwnerUid     *int64  `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	ParentUnitId *int64  `json:"ParentUnitId" xml:"ParentUnitId" require:"true"`
-	UnitId       *int64  `json:"UnitId" xml:"UnitId" require:"true"`
-	UnitName     *string `json:"UnitName" xml:"UnitName" require:"true"`
+	OwnerUid     *int64  `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	ParentUnitId *int64  `json:"ParentUnitId,omitempty" xml:"ParentUnitId,omitempty" require:"true"`
+	UnitId       *int64  `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	UnitName     *string `json:"UnitName,omitempty" xml:"UnitName,omitempty" require:"true"`
 }
 
 func (s QueryCostUnitResponseDataCostUnitDtoList) String() string {
@@ -1428,8 +1783,8 @@ func (s *QueryCostUnitResponseDataCostUnitDtoList) SetUnitName(v string) *QueryC
 }
 
 type DeleteCostUnitRequest struct {
-	OwnerUid *int64 `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	UnitId   *int64 `json:"UnitId" xml:"UnitId" require:"true"`
+	OwnerUid *int64 `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	UnitId   *int64 `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
 }
 
 func (s DeleteCostUnitRequest) String() string {
@@ -1451,11 +1806,11 @@ func (s *DeleteCostUnitRequest) SetUnitId(v int64) *DeleteCostUnitRequest {
 }
 
 type DeleteCostUnitResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                       `json:"Success" xml:"Success" require:"true"`
-	Code      *string                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                     `json:"Message" xml:"Message" require:"true"`
-	Data      *DeleteCostUnitResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                       `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *DeleteCostUnitResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DeleteCostUnitResponse) String() string {
@@ -1492,9 +1847,9 @@ func (s *DeleteCostUnitResponse) SetData(v *DeleteCostUnitResponseData) *DeleteC
 }
 
 type DeleteCostUnitResponseData struct {
-	OwnerUid  *int64 `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	UnitId    *int64 `json:"UnitId" xml:"UnitId" require:"true"`
-	IsSuccess *bool  `json:"IsSuccess" xml:"IsSuccess" require:"true"`
+	OwnerUid  *int64 `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	UnitId    *int64 `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	IsSuccess *bool  `json:"IsSuccess,omitempty" xml:"IsSuccess,omitempty" require:"true"`
 }
 
 func (s DeleteCostUnitResponseData) String() string {
@@ -1521,11 +1876,11 @@ func (s *DeleteCostUnitResponseData) SetIsSuccess(v bool) *DeleteCostUnitRespons
 }
 
 type AllocateCostUnitResourceRequest struct {
-	FromUnitUserId       *int64                                                 `json:"FromUnitUserId" xml:"FromUnitUserId" require:"true"`
-	FromUnitId           *int64                                                 `json:"FromUnitId" xml:"FromUnitId" require:"true"`
-	ResourceInstanceList []*AllocateCostUnitResourceRequestResourceInstanceList `json:"ResourceInstanceList" xml:"ResourceInstanceList" require:"true" type:"Repeated"`
-	ToUnitUserId         *int64                                                 `json:"ToUnitUserId" xml:"ToUnitUserId" require:"true"`
-	ToUnitId             *int64                                                 `json:"ToUnitId" xml:"ToUnitId" require:"true"`
+	FromUnitUserId       *int64                                                 `json:"FromUnitUserId,omitempty" xml:"FromUnitUserId,omitempty" require:"true"`
+	FromUnitId           *int64                                                 `json:"FromUnitId,omitempty" xml:"FromUnitId,omitempty" require:"true"`
+	ResourceInstanceList []*AllocateCostUnitResourceRequestResourceInstanceList `json:"ResourceInstanceList,omitempty" xml:"ResourceInstanceList,omitempty" require:"true" type:"Repeated"`
+	ToUnitUserId         *int64                                                 `json:"ToUnitUserId,omitempty" xml:"ToUnitUserId,omitempty" require:"true"`
+	ToUnitId             *int64                                                 `json:"ToUnitId,omitempty" xml:"ToUnitId,omitempty" require:"true"`
 }
 
 func (s AllocateCostUnitResourceRequest) String() string {
@@ -1562,10 +1917,10 @@ func (s *AllocateCostUnitResourceRequest) SetToUnitId(v int64) *AllocateCostUnit
 }
 
 type AllocateCostUnitResourceRequestResourceInstanceList struct {
-	ResourceUserId *int64  `json:"ResourceUserId" xml:"ResourceUserId" require:"true"`
-	ResourceId     *string `json:"ResourceId" xml:"ResourceId" require:"true"`
-	CommodityCode  *string `json:"CommodityCode" xml:"CommodityCode" require:"true"`
-	ApportionCode  *string `json:"ApportionCode" xml:"ApportionCode"`
+	ResourceUserId *int64  `json:"ResourceUserId,omitempty" xml:"ResourceUserId,omitempty" require:"true"`
+	ResourceId     *string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
+	CommodityCode  *string `json:"CommodityCode,omitempty" xml:"CommodityCode,omitempty" require:"true"`
+	ApportionCode  *string `json:"ApportionCode,omitempty" xml:"ApportionCode,omitempty"`
 }
 
 func (s AllocateCostUnitResourceRequestResourceInstanceList) String() string {
@@ -1597,11 +1952,11 @@ func (s *AllocateCostUnitResourceRequestResourceInstanceList) SetApportionCode(v
 }
 
 type AllocateCostUnitResourceResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                 `json:"Success" xml:"Success" require:"true"`
-	Code      *string                               `json:"Code" xml:"Code" require:"true"`
-	Message   *string                               `json:"Message" xml:"Message" require:"true"`
-	Data      *AllocateCostUnitResourceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                 `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *AllocateCostUnitResourceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s AllocateCostUnitResourceResponse) String() string {
@@ -1638,9 +1993,9 @@ func (s *AllocateCostUnitResourceResponse) SetData(v *AllocateCostUnitResourceRe
 }
 
 type AllocateCostUnitResourceResponseData struct {
-	ToUnitUserId *int64 `json:"ToUnitUserId" xml:"ToUnitUserId" require:"true"`
-	ToUnitId     *int64 `json:"ToUnitId" xml:"ToUnitId" require:"true"`
-	IsSuccess    *bool  `json:"IsSuccess" xml:"IsSuccess" require:"true"`
+	ToUnitUserId *int64 `json:"ToUnitUserId,omitempty" xml:"ToUnitUserId,omitempty" require:"true"`
+	ToUnitId     *int64 `json:"ToUnitId,omitempty" xml:"ToUnitId,omitempty" require:"true"`
+	IsSuccess    *bool  `json:"IsSuccess,omitempty" xml:"IsSuccess,omitempty" require:"true"`
 }
 
 func (s AllocateCostUnitResourceResponseData) String() string {
@@ -1667,10 +2022,10 @@ func (s *AllocateCostUnitResourceResponseData) SetIsSuccess(v bool) *AllocateCos
 }
 
 type QueryCostUnitResourceRequest struct {
-	OwnerUid *int64 `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	UnitId   *int64 `json:"UnitId" xml:"UnitId" require:"true"`
-	PageNum  *int   `json:"PageNum" xml:"PageNum"`
-	PageSize *int   `json:"PageSize" xml:"PageSize"`
+	OwnerUid *int64 `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	UnitId   *int64 `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	PageNum  *int   `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize *int   `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryCostUnitResourceRequest) String() string {
@@ -1702,11 +2057,11 @@ func (s *QueryCostUnitResourceRequest) SetPageSize(v int) *QueryCostUnitResource
 }
 
 type QueryCostUnitResourceResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                              `json:"Success" xml:"Success" require:"true"`
-	Code      *string                            `json:"Code" xml:"Code" require:"true"`
-	Message   *string                            `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryCostUnitResourceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                              `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                            `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                            `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryCostUnitResourceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryCostUnitResourceResponse) String() string {
@@ -1743,12 +2098,12 @@ func (s *QueryCostUnitResourceResponse) SetData(v *QueryCostUnitResourceResponse
 }
 
 type QueryCostUnitResourceResponseData struct {
-	PageNum                 *int                                                        `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize                *int                                                        `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount              *int                                                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	ResourceInstanceDtoList []*QueryCostUnitResourceResponseDataResourceInstanceDtoList `json:"ResourceInstanceDtoList" xml:"ResourceInstanceDtoList" require:"true" type:"Repeated"`
-	CostUnit                *QueryCostUnitResourceResponseDataCostUnit                  `json:"CostUnit" xml:"CostUnit" require:"true" type:"Struct"`
-	CostUnitStatisInfo      *QueryCostUnitResourceResponseDataCostUnitStatisInfo        `json:"CostUnitStatisInfo" xml:"CostUnitStatisInfo" require:"true" type:"Struct"`
+	PageNum                 *int                                                        `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize                *int                                                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount              *int                                                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	ResourceInstanceDtoList []*QueryCostUnitResourceResponseDataResourceInstanceDtoList `json:"ResourceInstanceDtoList,omitempty" xml:"ResourceInstanceDtoList,omitempty" require:"true" type:"Repeated"`
+	CostUnit                *QueryCostUnitResourceResponseDataCostUnit                  `json:"CostUnit,omitempty" xml:"CostUnit,omitempty" require:"true" type:"Struct"`
+	CostUnitStatisInfo      *QueryCostUnitResourceResponseDataCostUnitStatisInfo        `json:"CostUnitStatisInfo,omitempty" xml:"CostUnitStatisInfo,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryCostUnitResourceResponseData) String() string {
@@ -1790,19 +2145,19 @@ func (s *QueryCostUnitResourceResponseData) SetCostUnitStatisInfo(v *QueryCostUn
 }
 
 type QueryCostUnitResourceResponseDataResourceInstanceDtoList struct {
-	ResourceUserId   *int64  `json:"ResourceUserId" xml:"ResourceUserId" require:"true"`
-	ResourceId       *string `json:"ResourceId" xml:"ResourceId" require:"true"`
-	CommodityCode    *string `json:"CommodityCode" xml:"CommodityCode" require:"true"`
-	ResourceUserName *string `json:"ResourceUserName" xml:"ResourceUserName" require:"true"`
-	CommodityName    *string `json:"CommodityName" xml:"CommodityName" require:"true"`
-	ResourceGroup    *string `json:"ResourceGroup" xml:"ResourceGroup" require:"true"`
-	ResourceTag      *string `json:"ResourceTag" xml:"ResourceTag" require:"true"`
-	ResourceNick     *string `json:"ResourceNick" xml:"ResourceNick" require:"true"`
-	ResourceType     *string `json:"ResourceType" xml:"ResourceType" require:"true"`
-	ResourceStatus   *string `json:"ResourceStatus" xml:"ResourceStatus" require:"true"`
-	RelatedResources *string `json:"RelatedResources" xml:"RelatedResources" require:"true"`
-	ApportionCode    *string `json:"ApportionCode" xml:"ApportionCode" require:"true"`
-	ApportionName    *string `json:"ApportionName" xml:"ApportionName" require:"true"`
+	ResourceUserId   *int64  `json:"ResourceUserId,omitempty" xml:"ResourceUserId,omitempty" require:"true"`
+	ResourceId       *string `json:"ResourceId,omitempty" xml:"ResourceId,omitempty" require:"true"`
+	CommodityCode    *string `json:"CommodityCode,omitempty" xml:"CommodityCode,omitempty" require:"true"`
+	ResourceUserName *string `json:"ResourceUserName,omitempty" xml:"ResourceUserName,omitempty" require:"true"`
+	CommodityName    *string `json:"CommodityName,omitempty" xml:"CommodityName,omitempty" require:"true"`
+	ResourceGroup    *string `json:"ResourceGroup,omitempty" xml:"ResourceGroup,omitempty" require:"true"`
+	ResourceTag      *string `json:"ResourceTag,omitempty" xml:"ResourceTag,omitempty" require:"true"`
+	ResourceNick     *string `json:"ResourceNick,omitempty" xml:"ResourceNick,omitempty" require:"true"`
+	ResourceType     *string `json:"ResourceType,omitempty" xml:"ResourceType,omitempty" require:"true"`
+	ResourceStatus   *string `json:"ResourceStatus,omitempty" xml:"ResourceStatus,omitempty" require:"true"`
+	RelatedResources *string `json:"RelatedResources,omitempty" xml:"RelatedResources,omitempty" require:"true"`
+	ApportionCode    *string `json:"ApportionCode,omitempty" xml:"ApportionCode,omitempty" require:"true"`
+	ApportionName    *string `json:"ApportionName,omitempty" xml:"ApportionName,omitempty" require:"true"`
 }
 
 func (s QueryCostUnitResourceResponseDataResourceInstanceDtoList) String() string {
@@ -1879,10 +2234,10 @@ func (s *QueryCostUnitResourceResponseDataResourceInstanceDtoList) SetApportionN
 }
 
 type QueryCostUnitResourceResponseDataCostUnit struct {
-	OwnerUid     *int64  `json:"OwnerUid" xml:"OwnerUid" require:"true"`
-	ParentUnitId *int64  `json:"ParentUnitId" xml:"ParentUnitId" require:"true"`
-	UnitId       *int64  `json:"UnitId" xml:"UnitId" require:"true"`
-	UnitName     *string `json:"UnitName" xml:"UnitName" require:"true"`
+	OwnerUid     *int64  `json:"OwnerUid,omitempty" xml:"OwnerUid,omitempty" require:"true"`
+	ParentUnitId *int64  `json:"ParentUnitId,omitempty" xml:"ParentUnitId,omitempty" require:"true"`
+	UnitId       *int64  `json:"UnitId,omitempty" xml:"UnitId,omitempty" require:"true"`
+	UnitName     *string `json:"UnitName,omitempty" xml:"UnitName,omitempty" require:"true"`
 }
 
 func (s QueryCostUnitResourceResponseDataCostUnit) String() string {
@@ -1914,13 +2269,13 @@ func (s *QueryCostUnitResourceResponseDataCostUnit) SetUnitName(v string) *Query
 }
 
 type QueryCostUnitResourceResponseDataCostUnitStatisInfo struct {
-	ResourceCount           *int64 `json:"ResourceCount" xml:"ResourceCount" require:"true"`
-	ResourceGroupCount      *int64 `json:"ResourceGroupCount" xml:"ResourceGroupCount" require:"true"`
-	SubUnitCount            *int64 `json:"SubUnitCount" xml:"SubUnitCount" require:"true"`
-	UserCount               *int64 `json:"UserCount" xml:"UserCount" require:"true"`
-	TotalResourceCount      *int64 `json:"TotalResourceCount" xml:"TotalResourceCount" require:"true"`
-	TotalUserCount          *int64 `json:"TotalUserCount" xml:"TotalUserCount" require:"true"`
-	TotalResourceGroupCount *int64 `json:"TotalResourceGroupCount" xml:"TotalResourceGroupCount" require:"true"`
+	ResourceCount           *int64 `json:"ResourceCount,omitempty" xml:"ResourceCount,omitempty" require:"true"`
+	ResourceGroupCount      *int64 `json:"ResourceGroupCount,omitempty" xml:"ResourceGroupCount,omitempty" require:"true"`
+	SubUnitCount            *int64 `json:"SubUnitCount,omitempty" xml:"SubUnitCount,omitempty" require:"true"`
+	UserCount               *int64 `json:"UserCount,omitempty" xml:"UserCount,omitempty" require:"true"`
+	TotalResourceCount      *int64 `json:"TotalResourceCount,omitempty" xml:"TotalResourceCount,omitempty" require:"true"`
+	TotalUserCount          *int64 `json:"TotalUserCount,omitempty" xml:"TotalUserCount,omitempty" require:"true"`
+	TotalResourceGroupCount *int64 `json:"TotalResourceGroupCount,omitempty" xml:"TotalResourceGroupCount,omitempty" require:"true"`
 }
 
 func (s QueryCostUnitResourceResponseDataCostUnitStatisInfo) String() string {
@@ -1967,10 +2322,10 @@ func (s *QueryCostUnitResourceResponseDataCostUnitStatisInfo) SetTotalResourceGr
 }
 
 type RenewResourcePackageRequest struct {
-	InstanceId    *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	EffectiveDate *string `json:"EffectiveDate" xml:"EffectiveDate"`
-	Duration      *int    `json:"Duration" xml:"Duration" require:"true"`
-	PricingCycle  *string `json:"PricingCycle" xml:"PricingCycle" require:"true"`
+	InstanceId    *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	EffectiveDate *string `json:"EffectiveDate,omitempty" xml:"EffectiveDate,omitempty"`
+	Duration      *int    `json:"Duration,omitempty" xml:"Duration,omitempty" require:"true"`
+	PricingCycle  *string `json:"PricingCycle,omitempty" xml:"PricingCycle,omitempty" require:"true"`
 }
 
 func (s RenewResourcePackageRequest) String() string {
@@ -2002,12 +2357,12 @@ func (s *RenewResourcePackageRequest) SetPricingCycle(v string) *RenewResourcePa
 }
 
 type RenewResourcePackageResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	OrderId   *int64                            `json:"OrderId" xml:"OrderId" require:"true"`
-	Success   *bool                             `json:"Success" xml:"Success" require:"true"`
-	Code      *string                           `json:"Code" xml:"Code" require:"true"`
-	Message   *string                           `json:"Message" xml:"Message" require:"true"`
-	Data      *RenewResourcePackageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OrderId   *int64                            `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	Success   *bool                             `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                           `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                           `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *RenewResourcePackageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RenewResourcePackageResponse) String() string {
@@ -2049,8 +2404,8 @@ func (s *RenewResourcePackageResponse) SetData(v *RenewResourcePackageResponseDa
 }
 
 type RenewResourcePackageResponseData struct {
-	OrderId    *int64  `json:"OrderId" xml:"OrderId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	OrderId    *int64  `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s RenewResourcePackageResponseData) String() string {
@@ -2072,9 +2427,9 @@ func (s *RenewResourcePackageResponseData) SetInstanceId(v string) *RenewResourc
 }
 
 type UpgradeResourcePackageRequest struct {
-	InstanceId    *string `json:"InstanceId" xml:"InstanceId"`
-	EffectiveDate *string `json:"EffectiveDate" xml:"EffectiveDate"`
-	Specification *string `json:"Specification" xml:"Specification"`
+	InstanceId    *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	EffectiveDate *string `json:"EffectiveDate,omitempty" xml:"EffectiveDate,omitempty"`
+	Specification *string `json:"Specification,omitempty" xml:"Specification,omitempty"`
 }
 
 func (s UpgradeResourcePackageRequest) String() string {
@@ -2101,12 +2456,12 @@ func (s *UpgradeResourcePackageRequest) SetSpecification(v string) *UpgradeResou
 }
 
 type UpgradeResourcePackageResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	OrderId   *int64                              `json:"OrderId" xml:"OrderId" require:"true"`
-	Success   *bool                               `json:"Success" xml:"Success" require:"true"`
-	Code      *string                             `json:"Code" xml:"Code" require:"true"`
-	Message   *string                             `json:"Message" xml:"Message" require:"true"`
-	Data      *UpgradeResourcePackageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OrderId   *int64                              `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	Success   *bool                               `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                             `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                             `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *UpgradeResourcePackageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s UpgradeResourcePackageResponse) String() string {
@@ -2148,8 +2503,8 @@ func (s *UpgradeResourcePackageResponse) SetData(v *UpgradeResourcePackageRespon
 }
 
 type UpgradeResourcePackageResponseData struct {
-	OrderId    *int64  `json:"OrderId" xml:"OrderId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	OrderId    *int64  `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s UpgradeResourcePackageResponseData) String() string {
@@ -2171,15 +2526,15 @@ func (s *UpgradeResourcePackageResponseData) SetInstanceId(v string) *UpgradeRes
 }
 
 type CreateAgAccountRequest struct {
-	LoginEmail     *string `json:"LoginEmail" xml:"LoginEmail" require:"true"`
-	AccountAttr    *string `json:"AccountAttr" xml:"AccountAttr"`
-	EnterpriseName *string `json:"EnterpriseName" xml:"EnterpriseName"`
-	FirstName      *string `json:"FirstName" xml:"FirstName"`
-	LastName       *string `json:"LastName" xml:"LastName"`
-	NationCode     *string `json:"NationCode" xml:"NationCode"`
-	ProvinceName   *string `json:"ProvinceName" xml:"ProvinceName"`
-	CityName       *string `json:"CityName" xml:"CityName"`
-	Postcode       *string `json:"Postcode" xml:"Postcode"`
+	LoginEmail     *string `json:"LoginEmail,omitempty" xml:"LoginEmail,omitempty" require:"true"`
+	AccountAttr    *string `json:"AccountAttr,omitempty" xml:"AccountAttr,omitempty"`
+	EnterpriseName *string `json:"EnterpriseName,omitempty" xml:"EnterpriseName,omitempty"`
+	FirstName      *string `json:"FirstName,omitempty" xml:"FirstName,omitempty"`
+	LastName       *string `json:"LastName,omitempty" xml:"LastName,omitempty"`
+	NationCode     *string `json:"NationCode,omitempty" xml:"NationCode,omitempty"`
+	ProvinceName   *string `json:"ProvinceName,omitempty" xml:"ProvinceName,omitempty"`
+	CityName       *string `json:"CityName,omitempty" xml:"CityName,omitempty"`
+	Postcode       *string `json:"Postcode,omitempty" xml:"Postcode,omitempty"`
 }
 
 func (s CreateAgAccountRequest) String() string {
@@ -2236,11 +2591,11 @@ func (s *CreateAgAccountRequest) SetPostcode(v string) *CreateAgAccountRequest {
 }
 
 type CreateAgAccountResponse struct {
-	RequestId     *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Code          *string                               `json:"Code" xml:"Code" require:"true"`
-	Message       *string                               `json:"Message" xml:"Message" require:"true"`
-	Success       *bool                                 `json:"Success" xml:"Success" require:"true"`
-	AgRelationDto *CreateAgAccountResponseAgRelationDto `json:"AgRelationDto" xml:"AgRelationDto" require:"true" type:"Struct"`
+	RequestId     *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code          *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message       *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success       *bool                                 `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	AgRelationDto *CreateAgAccountResponseAgRelationDto `json:"AgRelationDto,omitempty" xml:"AgRelationDto,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateAgAccountResponse) String() string {
@@ -2277,10 +2632,10 @@ func (s *CreateAgAccountResponse) SetAgRelationDto(v *CreateAgAccountResponseAgR
 }
 
 type CreateAgAccountResponseAgRelationDto struct {
-	Pk               *string `json:"Pk" xml:"Pk" require:"true"`
-	Type             *string `json:"Type" xml:"Type" require:"true"`
-	Mpk              *string `json:"Mpk" xml:"Mpk" require:"true"`
-	RamAdminRoleName *string `json:"RamAdminRoleName" xml:"RamAdminRoleName" require:"true"`
+	Pk               *string `json:"Pk,omitempty" xml:"Pk,omitempty" require:"true"`
+	Type             *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	Mpk              *string `json:"Mpk,omitempty" xml:"Mpk,omitempty" require:"true"`
+	RamAdminRoleName *string `json:"RamAdminRoleName,omitempty" xml:"RamAdminRoleName,omitempty" require:"true"`
 }
 
 func (s CreateAgAccountResponseAgRelationDto) String() string {
@@ -2323,11 +2678,11 @@ func (s GetCustomerAccountInfoRequest) GoString() string {
 }
 
 type GetCustomerAccountInfoResponse struct {
-	RequestId *string                             `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                               `json:"Success" xml:"Success" require:"true"`
-	Code      *string                             `json:"Code" xml:"Code" require:"true"`
-	Message   *string                             `json:"Message" xml:"Message" require:"true"`
-	Data      *GetCustomerAccountInfoResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                             `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                               `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                             `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                             `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *GetCustomerAccountInfoResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetCustomerAccountInfoResponse) String() string {
@@ -2364,12 +2719,12 @@ func (s *GetCustomerAccountInfoResponse) SetData(v *GetCustomerAccountInfoRespon
 }
 
 type GetCustomerAccountInfoResponseData struct {
-	LoginEmail        *string `json:"LoginEmail" xml:"LoginEmail" require:"true"`
-	AccountType       *string `json:"AccountType" xml:"AccountType" require:"true"`
-	Mpk               *int64  `json:"Mpk" xml:"Mpk" require:"true"`
-	HostingStatus     *string `json:"HostingStatus" xml:"HostingStatus" require:"true"`
-	CreditLimitStatus *string `json:"CreditLimitStatus" xml:"CreditLimitStatus" require:"true"`
-	IsCertified       *bool   `json:"IsCertified" xml:"IsCertified" require:"true"`
+	LoginEmail        *string `json:"LoginEmail,omitempty" xml:"LoginEmail,omitempty" require:"true"`
+	AccountType       *string `json:"AccountType,omitempty" xml:"AccountType,omitempty" require:"true"`
+	Mpk               *int64  `json:"Mpk,omitempty" xml:"Mpk,omitempty" require:"true"`
+	HostingStatus     *string `json:"HostingStatus,omitempty" xml:"HostingStatus,omitempty" require:"true"`
+	CreditLimitStatus *string `json:"CreditLimitStatus,omitempty" xml:"CreditLimitStatus,omitempty" require:"true"`
+	IsCertified       *bool   `json:"IsCertified,omitempty" xml:"IsCertified,omitempty" require:"true"`
 }
 
 func (s GetCustomerAccountInfoResponseData) String() string {
@@ -2422,11 +2777,11 @@ func (s GetCustomerListRequest) GoString() string {
 }
 
 type GetCustomerListResponse struct {
-	RequestId *string                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                        `json:"Success" xml:"Success" require:"true"`
-	Code      *string                      `json:"Code" xml:"Code" require:"true"`
-	Message   *string                      `json:"Message" xml:"Message" require:"true"`
-	Data      *GetCustomerListResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                        `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                      `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                      `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *GetCustomerListResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetCustomerListResponse) String() string {
@@ -2463,7 +2818,7 @@ func (s *GetCustomerListResponse) SetData(v *GetCustomerListResponseData) *GetCu
 }
 
 type GetCustomerListResponseData struct {
-	UidList []*string `json:"UidList" xml:"UidList" require:"true" type:"Repeated"`
+	UidList []*string `json:"UidList,omitempty" xml:"UidList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetCustomerListResponseData) String() string {
@@ -2480,13 +2835,13 @@ func (s *GetCustomerListResponseData) SetUidList(v []*string) *GetCustomerListRe
 }
 
 type ChangeResellerConsumeAmountRequest struct {
-	AdjustType   *string `json:"AdjustType" xml:"AdjustType" require:"true"`
-	Amount       *string `json:"Amount" xml:"Amount" require:"true"`
-	Currency     *string `json:"Currency" xml:"Currency" require:"true"`
-	BusinessType *string `json:"BusinessType" xml:"BusinessType" require:"true"`
-	Source       *string `json:"Source" xml:"Source" require:"true"`
-	OutBizId     *string `json:"OutBizId" xml:"OutBizId" require:"true"`
-	ExtendMap    *string `json:"ExtendMap" xml:"ExtendMap"`
+	AdjustType   *string `json:"AdjustType,omitempty" xml:"AdjustType,omitempty" require:"true"`
+	Amount       *string `json:"Amount,omitempty" xml:"Amount,omitempty" require:"true"`
+	Currency     *string `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	BusinessType *string `json:"BusinessType,omitempty" xml:"BusinessType,omitempty" require:"true"`
+	Source       *string `json:"Source,omitempty" xml:"Source,omitempty" require:"true"`
+	OutBizId     *string `json:"OutBizId,omitempty" xml:"OutBizId,omitempty" require:"true"`
+	ExtendMap    *string `json:"ExtendMap,omitempty" xml:"ExtendMap,omitempty"`
 }
 
 func (s ChangeResellerConsumeAmountRequest) String() string {
@@ -2533,11 +2888,11 @@ func (s *ChangeResellerConsumeAmountRequest) SetExtendMap(v string) *ChangeResel
 }
 
 type ChangeResellerConsumeAmountResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s ChangeResellerConsumeAmountResponse) String() string {
@@ -2574,8 +2929,8 @@ func (s *ChangeResellerConsumeAmountResponse) SetData(v string) *ChangeResellerC
 }
 
 type SetResellerUserStatusRequest struct {
-	Status       *string `json:"Status" xml:"Status" require:"true"`
-	BusinessType *string `json:"BusinessType" xml:"BusinessType" require:"true"`
+	Status       *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	BusinessType *string `json:"BusinessType,omitempty" xml:"BusinessType,omitempty" require:"true"`
 }
 
 func (s SetResellerUserStatusRequest) String() string {
@@ -2597,11 +2952,11 @@ func (s *SetResellerUserStatusRequest) SetBusinessType(v string) *SetResellerUse
 }
 
 type SetResellerUserStatusResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Data      *bool   `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data      *bool   `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s SetResellerUserStatusResponse) String() string {
@@ -2638,9 +2993,9 @@ func (s *SetResellerUserStatusResponse) SetData(v bool) *SetResellerUserStatusRe
 }
 
 type CreateResellerUserQuotaRequest struct {
-	Amount   *string `json:"Amount" xml:"Amount" require:"true"`
-	Currency *string `json:"Currency" xml:"Currency" require:"true"`
-	OutBizId *string `json:"OutBizId" xml:"OutBizId"`
+	Amount   *string `json:"Amount,omitempty" xml:"Amount,omitempty" require:"true"`
+	Currency *string `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	OutBizId *string `json:"OutBizId,omitempty" xml:"OutBizId,omitempty"`
 }
 
 func (s CreateResellerUserQuotaRequest) String() string {
@@ -2667,11 +3022,11 @@ func (s *CreateResellerUserQuotaRequest) SetOutBizId(v string) *CreateResellerUs
 }
 
 type CreateResellerUserQuotaResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Data      *bool   `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data      *bool   `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s CreateResellerUserQuotaResponse) String() string {
@@ -2708,9 +3063,9 @@ func (s *CreateResellerUserQuotaResponse) SetData(v bool) *CreateResellerUserQuo
 }
 
 type SetResellerUserQuotaRequest struct {
-	Amount   *string `json:"Amount" xml:"Amount" require:"true"`
-	Currency *string `json:"Currency" xml:"Currency"`
-	OutBizId *string `json:"OutBizId" xml:"OutBizId"`
+	Amount   *string `json:"Amount,omitempty" xml:"Amount,omitempty" require:"true"`
+	Currency *string `json:"Currency,omitempty" xml:"Currency,omitempty"`
+	OutBizId *string `json:"OutBizId,omitempty" xml:"OutBizId,omitempty"`
 }
 
 func (s SetResellerUserQuotaRequest) String() string {
@@ -2737,11 +3092,11 @@ func (s *SetResellerUserQuotaRequest) SetOutBizId(v string) *SetResellerUserQuot
 }
 
 type SetResellerUserQuotaResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Data      *bool   `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data      *bool   `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s SetResellerUserQuotaResponse) String() string {
@@ -2778,7 +3133,7 @@ func (s *SetResellerUserQuotaResponse) SetData(v bool) *SetResellerUserQuotaResp
 }
 
 type QueryResellerAvailableQuotaRequest struct {
-	ItemCodes *string `json:"ItemCodes" xml:"ItemCodes"`
+	ItemCodes *string `json:"ItemCodes,omitempty" xml:"ItemCodes,omitempty"`
 }
 
 func (s QueryResellerAvailableQuotaRequest) String() string {
@@ -2795,11 +3150,11 @@ func (s *QueryResellerAvailableQuotaRequest) SetItemCodes(v string) *QueryResell
 }
 
 type QueryResellerAvailableQuotaResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Data      *string `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data      *string `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s QueryResellerAvailableQuotaResponse) String() string {
@@ -2836,8 +3191,8 @@ func (s *QueryResellerAvailableQuotaResponse) SetData(v string) *QueryResellerAv
 }
 
 type SetResellerUserAlarmThresholdRequest struct {
-	AlarmType       *string `json:"AlarmType" xml:"AlarmType" require:"true"`
-	AlarmThresholds *string `json:"AlarmThresholds" xml:"AlarmThresholds"`
+	AlarmType       *string `json:"AlarmType,omitempty" xml:"AlarmType,omitempty" require:"true"`
+	AlarmThresholds *string `json:"AlarmThresholds,omitempty" xml:"AlarmThresholds,omitempty"`
 }
 
 func (s SetResellerUserAlarmThresholdRequest) String() string {
@@ -2859,11 +3214,11 @@ func (s *SetResellerUserAlarmThresholdRequest) SetAlarmThresholds(v string) *Set
 }
 
 type SetResellerUserAlarmThresholdResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Data      *bool   `json:"Data" xml:"Data" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data      *bool   `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
 }
 
 func (s SetResellerUserAlarmThresholdResponse) String() string {
@@ -2900,13 +3255,13 @@ func (s *SetResellerUserAlarmThresholdResponse) SetData(v bool) *SetResellerUser
 }
 
 type QueryAccountTransactionsRequest struct {
-	TransactionNumber    *string `json:"TransactionNumber" xml:"TransactionNumber"`
-	RecordID             *string `json:"RecordID" xml:"RecordID"`
-	TransactionChannelSN *string `json:"TransactionChannelSN" xml:"TransactionChannelSN"`
-	CreateTimeStart      *string `json:"CreateTimeStart" xml:"CreateTimeStart"`
-	CreateTimeEnd        *string `json:"CreateTimeEnd" xml:"CreateTimeEnd"`
-	PageNum              *int    `json:"PageNum" xml:"PageNum"`
-	PageSize             *int    `json:"PageSize" xml:"PageSize"`
+	TransactionNumber    *string `json:"TransactionNumber,omitempty" xml:"TransactionNumber,omitempty"`
+	RecordID             *string `json:"RecordID,omitempty" xml:"RecordID,omitempty"`
+	TransactionChannelSN *string `json:"TransactionChannelSN,omitempty" xml:"TransactionChannelSN,omitempty"`
+	CreateTimeStart      *string `json:"CreateTimeStart,omitempty" xml:"CreateTimeStart,omitempty"`
+	CreateTimeEnd        *string `json:"CreateTimeEnd,omitempty" xml:"CreateTimeEnd,omitempty"`
+	PageNum              *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize             *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryAccountTransactionsRequest) String() string {
@@ -2953,11 +3308,11 @@ func (s *QueryAccountTransactionsRequest) SetPageSize(v int) *QueryAccountTransa
 }
 
 type QueryAccountTransactionsResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                 `json:"Success" xml:"Success" require:"true"`
-	Code      *string                               `json:"Code" xml:"Code" require:"true"`
-	Message   *string                               `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryAccountTransactionsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                 `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryAccountTransactionsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryAccountTransactionsResponse) String() string {
@@ -2994,11 +3349,11 @@ func (s *QueryAccountTransactionsResponse) SetData(v *QueryAccountTransactionsRe
 }
 
 type QueryAccountTransactionsResponseData struct {
-	AccountName             *string                                                      `json:"AccountName" xml:"AccountName" require:"true"`
-	TotalCount              *int                                                         `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNum                 *int                                                         `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize                *int                                                         `json:"PageSize" xml:"PageSize" require:"true"`
-	AccountTransactionsList *QueryAccountTransactionsResponseDataAccountTransactionsList `json:"AccountTransactionsList" xml:"AccountTransactionsList" require:"true" type:"Struct"`
+	AccountName             *string                                                      `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	TotalCount              *int                                                         `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNum                 *int                                                         `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize                *int                                                         `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	AccountTransactionsList *QueryAccountTransactionsResponseDataAccountTransactionsList `json:"AccountTransactionsList,omitempty" xml:"AccountTransactionsList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryAccountTransactionsResponseData) String() string {
@@ -3035,7 +3390,7 @@ func (s *QueryAccountTransactionsResponseData) SetAccountTransactionsList(v *Que
 }
 
 type QueryAccountTransactionsResponseDataAccountTransactionsList struct {
-	AccountTransactionsList []*QueryAccountTransactionsResponseDataAccountTransactionsListAccountTransactionsList `json:"AccountTransactionsList" xml:"AccountTransactionsList" require:"true" type:"Repeated"`
+	AccountTransactionsList []*QueryAccountTransactionsResponseDataAccountTransactionsListAccountTransactionsList `json:"AccountTransactionsList,omitempty" xml:"AccountTransactionsList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryAccountTransactionsResponseDataAccountTransactionsList) String() string {
@@ -3052,19 +3407,19 @@ func (s *QueryAccountTransactionsResponseDataAccountTransactionsList) SetAccount
 }
 
 type QueryAccountTransactionsResponseDataAccountTransactionsListAccountTransactionsList struct {
-	TransactionNumber    *string `json:"TransactionNumber" xml:"TransactionNumber" require:"true"`
-	TransactionTime      *string `json:"TransactionTime" xml:"TransactionTime" require:"true"`
-	TransactionFlow      *string `json:"TransactionFlow" xml:"TransactionFlow" require:"true"`
-	TransactionType      *string `json:"TransactionType" xml:"TransactionType" require:"true"`
-	TransactionChannel   *string `json:"TransactionChannel" xml:"TransactionChannel" require:"true"`
-	TransactionChannelSN *string `json:"TransactionChannelSN" xml:"TransactionChannelSN" require:"true"`
-	FundType             *string `json:"FundType" xml:"FundType" require:"true"`
-	RecordID             *string `json:"RecordID" xml:"RecordID" require:"true"`
-	Remarks              *string `json:"Remarks" xml:"Remarks" require:"true"`
-	BillingCycle         *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	Amount               *string `json:"Amount" xml:"Amount" require:"true"`
-	Balance              *string `json:"Balance" xml:"Balance" require:"true"`
-	TransactionAccount   *string `json:"TransactionAccount" xml:"TransactionAccount" require:"true"`
+	TransactionNumber    *string `json:"TransactionNumber,omitempty" xml:"TransactionNumber,omitempty" require:"true"`
+	TransactionTime      *string `json:"TransactionTime,omitempty" xml:"TransactionTime,omitempty" require:"true"`
+	TransactionFlow      *string `json:"TransactionFlow,omitempty" xml:"TransactionFlow,omitempty" require:"true"`
+	TransactionType      *string `json:"TransactionType,omitempty" xml:"TransactionType,omitempty" require:"true"`
+	TransactionChannel   *string `json:"TransactionChannel,omitempty" xml:"TransactionChannel,omitempty" require:"true"`
+	TransactionChannelSN *string `json:"TransactionChannelSN,omitempty" xml:"TransactionChannelSN,omitempty" require:"true"`
+	FundType             *string `json:"FundType,omitempty" xml:"FundType,omitempty" require:"true"`
+	RecordID             *string `json:"RecordID,omitempty" xml:"RecordID,omitempty" require:"true"`
+	Remarks              *string `json:"Remarks,omitempty" xml:"Remarks,omitempty" require:"true"`
+	BillingCycle         *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	Amount               *string `json:"Amount,omitempty" xml:"Amount,omitempty" require:"true"`
+	Balance              *string `json:"Balance,omitempty" xml:"Balance,omitempty" require:"true"`
+	TransactionAccount   *string `json:"TransactionAccount,omitempty" xml:"TransactionAccount,omitempty" require:"true"`
 }
 
 func (s QueryAccountTransactionsResponseDataAccountTransactionsListAccountTransactionsList) String() string {
@@ -3141,8 +3496,8 @@ func (s *QueryAccountTransactionsResponseDataAccountTransactionsListAccountTrans
 }
 
 type UnsubscribeBillToOSSRequest struct {
-	SubscribeType           *string `json:"SubscribeType" xml:"SubscribeType" require:"true"`
-	MultAccountRelSubscribe *string `json:"MultAccountRelSubscribe" xml:"MultAccountRelSubscribe"`
+	SubscribeType           *string `json:"SubscribeType,omitempty" xml:"SubscribeType,omitempty" require:"true"`
+	MultAccountRelSubscribe *string `json:"MultAccountRelSubscribe,omitempty" xml:"MultAccountRelSubscribe,omitempty"`
 }
 
 func (s UnsubscribeBillToOSSRequest) String() string {
@@ -3164,10 +3519,10 @@ func (s *UnsubscribeBillToOSSRequest) SetMultAccountRelSubscribe(v string) *Unsu
 }
 
 type UnsubscribeBillToOSSResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s UnsubscribeBillToOSSResponse) String() string {
@@ -3199,10 +3554,10 @@ func (s *UnsubscribeBillToOSSResponse) SetMessage(v string) *UnsubscribeBillToOS
 }
 
 type SubscribeBillToOSSRequest struct {
-	SubscribeBucket         *string `json:"SubscribeBucket" xml:"SubscribeBucket" require:"true"`
-	SubscribeType           *string `json:"SubscribeType" xml:"SubscribeType"`
-	MultAccountRelSubscribe *string `json:"MultAccountRelSubscribe" xml:"MultAccountRelSubscribe"`
-	BucketOwnerId           *int64  `json:"BucketOwnerId" xml:"BucketOwnerId"`
+	SubscribeBucket         *string `json:"SubscribeBucket,omitempty" xml:"SubscribeBucket,omitempty" require:"true"`
+	SubscribeType           *string `json:"SubscribeType,omitempty" xml:"SubscribeType,omitempty"`
+	MultAccountRelSubscribe *string `json:"MultAccountRelSubscribe,omitempty" xml:"MultAccountRelSubscribe,omitempty"`
+	BucketOwnerId           *int64  `json:"BucketOwnerId,omitempty" xml:"BucketOwnerId,omitempty"`
 }
 
 func (s SubscribeBillToOSSRequest) String() string {
@@ -3234,10 +3589,10 @@ func (s *SubscribeBillToOSSRequest) SetBucketOwnerId(v int64) *SubscribeBillToOS
 }
 
 type SubscribeBillToOSSResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s SubscribeBillToOSSResponse) String() string {
@@ -3269,12 +3624,12 @@ func (s *SubscribeBillToOSSResponse) SetMessage(v string) *SubscribeBillToOSSRes
 }
 
 type QueryUserOmsDataRequest struct {
-	Table     *string `json:"Table" xml:"Table" require:"true"`
-	DataType  *string `json:"DataType" xml:"DataType" require:"true"`
-	StartTime *string `json:"StartTime" xml:"StartTime" require:"true"`
-	EndTime   *string `json:"EndTime" xml:"EndTime" require:"true"`
-	Marker    *string `json:"Marker" xml:"Marker"`
-	PageSize  *int    `json:"PageSize" xml:"PageSize"`
+	Table     *string `json:"Table,omitempty" xml:"Table,omitempty" require:"true"`
+	DataType  *string `json:"DataType,omitempty" xml:"DataType,omitempty" require:"true"`
+	StartTime *string `json:"StartTime,omitempty" xml:"StartTime,omitempty" require:"true"`
+	EndTime   *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	Marker    *string `json:"Marker,omitempty" xml:"Marker,omitempty"`
+	PageSize  *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryUserOmsDataRequest) String() string {
@@ -3316,11 +3671,11 @@ func (s *QueryUserOmsDataRequest) SetPageSize(v int) *QueryUserOmsDataRequest {
 }
 
 type QueryUserOmsDataResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                         `json:"Success" xml:"Success" require:"true"`
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryUserOmsDataResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                         `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryUserOmsDataResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryUserOmsDataResponse) String() string {
@@ -3357,9 +3712,9 @@ func (s *QueryUserOmsDataResponse) SetData(v *QueryUserOmsDataResponseData) *Que
 }
 
 type QueryUserOmsDataResponseData struct {
-	Marker  *string                  `json:"Marker" xml:"Marker" require:"true"`
-	HostId  *string                  `json:"HostId" xml:"HostId" require:"true"`
-	OmsData []map[string]interface{} `json:"OmsData" xml:"OmsData" require:"true" type:"Repeated"`
+	Marker  *string                  `json:"Marker,omitempty" xml:"Marker,omitempty" require:"true"`
+	HostId  *string                  `json:"HostId,omitempty" xml:"HostId,omitempty" require:"true"`
+	OmsData []map[string]interface{} `json:"OmsData,omitempty" xml:"OmsData,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryUserOmsDataResponseData) String() string {
@@ -3386,7 +3741,7 @@ func (s *QueryUserOmsDataResponseData) SetOmsData(v []map[string]interface{}) *Q
 }
 
 type CancelOrderRequest struct {
-	OrderId *string `json:"OrderId" xml:"OrderId" require:"true"`
+	OrderId *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s CancelOrderRequest) String() string {
@@ -3403,11 +3758,11 @@ func (s *CancelOrderRequest) SetOrderId(v string) *CancelOrderRequest {
 }
 
 type CancelOrderResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                    `json:"Success" xml:"Success" require:"true"`
-	Code      *string                  `json:"Code" xml:"Code" require:"true"`
-	Message   *string                  `json:"Message" xml:"Message" require:"true"`
-	Data      *CancelOrderResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                    `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                  `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *CancelOrderResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CancelOrderResponse) String() string {
@@ -3444,7 +3799,7 @@ func (s *CancelOrderResponse) SetData(v *CancelOrderResponseData) *CancelOrderRe
 }
 
 type CancelOrderResponseData struct {
-	HostId *string `json:"HostId" xml:"HostId" require:"true"`
+	HostId *string `json:"HostId,omitempty" xml:"HostId,omitempty" require:"true"`
 }
 
 func (s CancelOrderResponseData) String() string {
@@ -3461,14 +3816,14 @@ func (s *CancelOrderResponseData) SetHostId(v string) *CancelOrderResponseData {
 }
 
 type ApplyInvoiceRequest struct {
-	InvoiceAmount   *int64   `json:"InvoiceAmount" xml:"InvoiceAmount" require:"true"`
-	CustomerId      *int64   `json:"CustomerId" xml:"CustomerId" require:"true"`
-	AddressId       *int64   `json:"AddressId" xml:"AddressId" require:"true"`
-	InvoicingType   *int     `json:"InvoicingType" xml:"InvoicingType"`
-	ProcessWay      *int     `json:"ProcessWay" xml:"ProcessWay"`
-	ApplyUserNick   *string  `json:"ApplyUserNick" xml:"ApplyUserNick" require:"true"`
-	SelectedIds     []*int64 `json:"SelectedIds" xml:"SelectedIds" require:"true" type:"Repeated"`
-	InvoiceByAmount *bool    `json:"InvoiceByAmount" xml:"InvoiceByAmount"`
+	InvoiceAmount   *int64   `json:"InvoiceAmount,omitempty" xml:"InvoiceAmount,omitempty" require:"true"`
+	CustomerId      *int64   `json:"CustomerId,omitempty" xml:"CustomerId,omitempty" require:"true"`
+	AddressId       *int64   `json:"AddressId,omitempty" xml:"AddressId,omitempty" require:"true"`
+	InvoicingType   *int     `json:"InvoicingType,omitempty" xml:"InvoicingType,omitempty"`
+	ProcessWay      *int     `json:"ProcessWay,omitempty" xml:"ProcessWay,omitempty"`
+	ApplyUserNick   *string  `json:"ApplyUserNick,omitempty" xml:"ApplyUserNick,omitempty" require:"true"`
+	SelectedIds     []*int64 `json:"SelectedIds,omitempty" xml:"SelectedIds,omitempty" require:"true" type:"Repeated"`
+	InvoiceByAmount *bool    `json:"InvoiceByAmount,omitempty" xml:"InvoiceByAmount,omitempty"`
 }
 
 func (s ApplyInvoiceRequest) String() string {
@@ -3520,11 +3875,11 @@ func (s *ApplyInvoiceRequest) SetInvoiceByAmount(v bool) *ApplyInvoiceRequest {
 }
 
 type ApplyInvoiceResponse struct {
-	RequestId *string                   `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                     `json:"Success" xml:"Success" require:"true"`
-	Code      *string                   `json:"Code" xml:"Code" require:"true"`
-	Message   *string                   `json:"Message" xml:"Message" require:"true"`
-	Data      *ApplyInvoiceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                   `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                     `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                   `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                   `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *ApplyInvoiceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ApplyInvoiceResponse) String() string {
@@ -3561,7 +3916,7 @@ func (s *ApplyInvoiceResponse) SetData(v *ApplyInvoiceResponseData) *ApplyInvoic
 }
 
 type ApplyInvoiceResponseData struct {
-	InvoiceApplyId *int64 `json:"InvoiceApplyId" xml:"InvoiceApplyId" require:"true"`
+	InvoiceApplyId *int64 `json:"InvoiceApplyId,omitempty" xml:"InvoiceApplyId,omitempty" require:"true"`
 }
 
 func (s ApplyInvoiceResponseData) String() string {
@@ -3589,11 +3944,11 @@ func (s QueryCustomerAddressListRequest) GoString() string {
 }
 
 type QueryCustomerAddressListResponse struct {
-	RequestId *string                               `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                 `json:"Success" xml:"Success" require:"true"`
-	Code      *string                               `json:"Code" xml:"Code" require:"true"`
-	Message   *string                               `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryCustomerAddressListResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                               `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                 `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                               `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                               `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryCustomerAddressListResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryCustomerAddressListResponse) String() string {
@@ -3630,7 +3985,7 @@ func (s *QueryCustomerAddressListResponse) SetData(v *QueryCustomerAddressListRe
 }
 
 type QueryCustomerAddressListResponseData struct {
-	CustomerInvoiceAddressList *QueryCustomerAddressListResponseDataCustomerInvoiceAddressList `json:"CustomerInvoiceAddressList" xml:"CustomerInvoiceAddressList" require:"true" type:"Struct"`
+	CustomerInvoiceAddressList *QueryCustomerAddressListResponseDataCustomerInvoiceAddressList `json:"CustomerInvoiceAddressList,omitempty" xml:"CustomerInvoiceAddressList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryCustomerAddressListResponseData) String() string {
@@ -3647,7 +4002,7 @@ func (s *QueryCustomerAddressListResponseData) SetCustomerInvoiceAddressList(v *
 }
 
 type QueryCustomerAddressListResponseDataCustomerInvoiceAddressList struct {
-	CustomerInvoiceAddress []*QueryCustomerAddressListResponseDataCustomerInvoiceAddressListCustomerInvoiceAddress `json:"CustomerInvoiceAddress" xml:"CustomerInvoiceAddress" require:"true" type:"Repeated"`
+	CustomerInvoiceAddress []*QueryCustomerAddressListResponseDataCustomerInvoiceAddressListCustomerInvoiceAddress `json:"CustomerInvoiceAddress,omitempty" xml:"CustomerInvoiceAddress,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryCustomerAddressListResponseDataCustomerInvoiceAddressList) String() string {
@@ -3664,18 +4019,18 @@ func (s *QueryCustomerAddressListResponseDataCustomerInvoiceAddressList) SetCust
 }
 
 type QueryCustomerAddressListResponseDataCustomerInvoiceAddressListCustomerInvoiceAddress struct {
-	Id              *int64  `json:"Id" xml:"Id" require:"true"`
-	UserId          *int64  `json:"UserId" xml:"UserId" require:"true"`
-	UserNick        *string `json:"UserNick" xml:"UserNick" require:"true"`
-	Addressee       *string `json:"Addressee" xml:"Addressee" require:"true"`
-	Province        *string `json:"Province" xml:"Province" require:"true"`
-	City            *string `json:"City" xml:"City" require:"true"`
-	County          *string `json:"County" xml:"County" require:"true"`
-	Street          *string `json:"Street" xml:"Street" require:"true"`
-	PostalCode      *string `json:"PostalCode" xml:"PostalCode" require:"true"`
-	Phone           *string `json:"Phone" xml:"Phone" require:"true"`
-	BizType         *string `json:"BizType" xml:"BizType" require:"true"`
-	DeliveryAddress *string `json:"DeliveryAddress" xml:"DeliveryAddress" require:"true"`
+	Id              *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	UserId          *int64  `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserNick        *string `json:"UserNick,omitempty" xml:"UserNick,omitempty" require:"true"`
+	Addressee       *string `json:"Addressee,omitempty" xml:"Addressee,omitempty" require:"true"`
+	Province        *string `json:"Province,omitempty" xml:"Province,omitempty" require:"true"`
+	City            *string `json:"City,omitempty" xml:"City,omitempty" require:"true"`
+	County          *string `json:"County,omitempty" xml:"County,omitempty" require:"true"`
+	Street          *string `json:"Street,omitempty" xml:"Street,omitempty" require:"true"`
+	PostalCode      *string `json:"PostalCode,omitempty" xml:"PostalCode,omitempty" require:"true"`
+	Phone           *string `json:"Phone,omitempty" xml:"Phone,omitempty" require:"true"`
+	BizType         *string `json:"BizType,omitempty" xml:"BizType,omitempty" require:"true"`
+	DeliveryAddress *string `json:"DeliveryAddress,omitempty" xml:"DeliveryAddress,omitempty" require:"true"`
 }
 
 func (s QueryCustomerAddressListResponseDataCustomerInvoiceAddressListCustomerInvoiceAddress) String() string {
@@ -3747,19 +4102,19 @@ func (s *QueryCustomerAddressListResponseDataCustomerInvoiceAddressListCustomerI
 }
 
 type QueryEvaluateListRequest struct {
-	Type            *int      `json:"Type" xml:"Type"`
-	OutBizId        *string   `json:"OutBizId" xml:"OutBizId"`
-	PageNum         *int      `json:"PageNum" xml:"PageNum"`
-	PageSize        *int      `json:"PageSize" xml:"PageSize"`
-	StartAmount     *int64    `json:"StartAmount" xml:"StartAmount"`
-	EndAmount       *int64    `json:"EndAmount" xml:"EndAmount"`
-	StartBizTime    *string   `json:"StartBizTime" xml:"StartBizTime"`
-	EndBizTime      *string   `json:"EndBizTime" xml:"EndBizTime"`
-	SortType        *int      `json:"SortType" xml:"SortType"`
-	StartSearchTime *string   `json:"StartSearchTime" xml:"StartSearchTime"`
-	EndSearchTime   *string   `json:"EndSearchTime" xml:"EndSearchTime"`
-	BillCycle       *string   `json:"BillCycle" xml:"BillCycle"`
-	BizTypeList     []*string `json:"BizTypeList" xml:"BizTypeList" type:"Repeated"`
+	Type            *int      `json:"Type,omitempty" xml:"Type,omitempty"`
+	OutBizId        *string   `json:"OutBizId,omitempty" xml:"OutBizId,omitempty"`
+	PageNum         *int      `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize        *int      `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	StartAmount     *int64    `json:"StartAmount,omitempty" xml:"StartAmount,omitempty"`
+	EndAmount       *int64    `json:"EndAmount,omitempty" xml:"EndAmount,omitempty"`
+	StartBizTime    *string   `json:"StartBizTime,omitempty" xml:"StartBizTime,omitempty"`
+	EndBizTime      *string   `json:"EndBizTime,omitempty" xml:"EndBizTime,omitempty"`
+	SortType        *int      `json:"SortType,omitempty" xml:"SortType,omitempty"`
+	StartSearchTime *string   `json:"StartSearchTime,omitempty" xml:"StartSearchTime,omitempty"`
+	EndSearchTime   *string   `json:"EndSearchTime,omitempty" xml:"EndSearchTime,omitempty"`
+	BillCycle       *string   `json:"BillCycle,omitempty" xml:"BillCycle,omitempty"`
+	BizTypeList     []*string `json:"BizTypeList,omitempty" xml:"BizTypeList,omitempty" type:"Repeated"`
 }
 
 func (s QueryEvaluateListRequest) String() string {
@@ -3836,11 +4191,11 @@ func (s *QueryEvaluateListRequest) SetBizTypeList(v []*string) *QueryEvaluateLis
 }
 
 type QueryEvaluateListResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                          `json:"Success" xml:"Success" require:"true"`
-	Code      *string                        `json:"Code" xml:"Code" require:"true"`
-	Message   *string                        `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryEvaluateListResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                          `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                        `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                        `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryEvaluateListResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryEvaluateListResponse) String() string {
@@ -3877,13 +4232,13 @@ func (s *QueryEvaluateListResponse) SetData(v *QueryEvaluateListResponseData) *Q
 }
 
 type QueryEvaluateListResponseData struct {
-	HostId                      *string                                    `json:"HostId" xml:"HostId" require:"true"`
-	PageNum                     *int                                       `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize                    *int                                       `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount                  *int                                       `json:"TotalCount" xml:"TotalCount" require:"true"`
-	TotalInvoiceAmount          *int64                                     `json:"TotalInvoiceAmount" xml:"TotalInvoiceAmount" require:"true"`
-	TotalUnAppliedInvoiceAmount *int64                                     `json:"TotalUnAppliedInvoiceAmount" xml:"TotalUnAppliedInvoiceAmount" require:"true"`
-	EvaluateList                *QueryEvaluateListResponseDataEvaluateList `json:"EvaluateList" xml:"EvaluateList" require:"true" type:"Struct"`
+	HostId                      *string                                    `json:"HostId,omitempty" xml:"HostId,omitempty" require:"true"`
+	PageNum                     *int                                       `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize                    *int                                       `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount                  *int                                       `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	TotalInvoiceAmount          *int64                                     `json:"TotalInvoiceAmount,omitempty" xml:"TotalInvoiceAmount,omitempty" require:"true"`
+	TotalUnAppliedInvoiceAmount *int64                                     `json:"TotalUnAppliedInvoiceAmount,omitempty" xml:"TotalUnAppliedInvoiceAmount,omitempty" require:"true"`
+	EvaluateList                *QueryEvaluateListResponseDataEvaluateList `json:"EvaluateList,omitempty" xml:"EvaluateList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryEvaluateListResponseData) String() string {
@@ -3930,7 +4285,7 @@ func (s *QueryEvaluateListResponseData) SetEvaluateList(v *QueryEvaluateListResp
 }
 
 type QueryEvaluateListResponseDataEvaluateList struct {
-	Evaluate []*QueryEvaluateListResponseDataEvaluateListEvaluate `json:"Evaluate" xml:"Evaluate" require:"true" type:"Repeated"`
+	Evaluate []*QueryEvaluateListResponseDataEvaluateListEvaluate `json:"Evaluate,omitempty" xml:"Evaluate,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryEvaluateListResponseDataEvaluateList) String() string {
@@ -3947,27 +4302,27 @@ func (s *QueryEvaluateListResponseDataEvaluateList) SetEvaluate(v []*QueryEvalua
 }
 
 type QueryEvaluateListResponseDataEvaluateListEvaluate struct {
-	Id                 *int64  `json:"Id" xml:"Id" require:"true"`
-	GmtCreate          *string `json:"GmtCreate" xml:"GmtCreate" require:"true"`
-	GmtModified        *string `json:"GmtModified" xml:"GmtModified" require:"true"`
-	UserId             *int64  `json:"UserId" xml:"UserId" require:"true"`
-	UserNick           *string `json:"UserNick" xml:"UserNick" require:"true"`
-	OutBizId           *string `json:"OutBizId" xml:"OutBizId" require:"true"`
-	BillId             *int64  `json:"BillId" xml:"BillId" require:"true"`
-	ItemId             *int64  `json:"ItemId" xml:"ItemId" require:"true"`
-	BillCycle          *string `json:"BillCycle" xml:"BillCycle" require:"true"`
-	BizType            *string `json:"BizType" xml:"BizType" require:"true"`
-	OriginalAmount     *int64  `json:"OriginalAmount" xml:"OriginalAmount" require:"true"`
-	PresentAmount      *int64  `json:"PresentAmount" xml:"PresentAmount" require:"true"`
-	CanInvoiceAmount   *int64  `json:"CanInvoiceAmount" xml:"CanInvoiceAmount" require:"true"`
-	InvoicedAmount     *int64  `json:"InvoicedAmount" xml:"InvoicedAmount" require:"true"`
-	OffsetCostAmount   *int64  `json:"OffsetCostAmount" xml:"OffsetCostAmount" require:"true"`
-	OffsetAcceptAmount *int64  `json:"OffsetAcceptAmount" xml:"OffsetAcceptAmount" require:"true"`
-	Status             *int    `json:"Status" xml:"Status" require:"true"`
-	OpId               *string `json:"OpId" xml:"OpId" require:"true"`
-	Name               *string `json:"Name" xml:"Name" require:"true"`
-	BizTime            *string `json:"BizTime" xml:"BizTime" require:"true"`
-	Type               *int    `json:"Type" xml:"Type" require:"true"`
+	Id                 *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	GmtCreate          *string `json:"GmtCreate,omitempty" xml:"GmtCreate,omitempty" require:"true"`
+	GmtModified        *string `json:"GmtModified,omitempty" xml:"GmtModified,omitempty" require:"true"`
+	UserId             *int64  `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserNick           *string `json:"UserNick,omitempty" xml:"UserNick,omitempty" require:"true"`
+	OutBizId           *string `json:"OutBizId,omitempty" xml:"OutBizId,omitempty" require:"true"`
+	BillId             *int64  `json:"BillId,omitempty" xml:"BillId,omitempty" require:"true"`
+	ItemId             *int64  `json:"ItemId,omitempty" xml:"ItemId,omitempty" require:"true"`
+	BillCycle          *string `json:"BillCycle,omitempty" xml:"BillCycle,omitempty" require:"true"`
+	BizType            *string `json:"BizType,omitempty" xml:"BizType,omitempty" require:"true"`
+	OriginalAmount     *int64  `json:"OriginalAmount,omitempty" xml:"OriginalAmount,omitempty" require:"true"`
+	PresentAmount      *int64  `json:"PresentAmount,omitempty" xml:"PresentAmount,omitempty" require:"true"`
+	CanInvoiceAmount   *int64  `json:"CanInvoiceAmount,omitempty" xml:"CanInvoiceAmount,omitempty" require:"true"`
+	InvoicedAmount     *int64  `json:"InvoicedAmount,omitempty" xml:"InvoicedAmount,omitempty" require:"true"`
+	OffsetCostAmount   *int64  `json:"OffsetCostAmount,omitempty" xml:"OffsetCostAmount,omitempty" require:"true"`
+	OffsetAcceptAmount *int64  `json:"OffsetAcceptAmount,omitempty" xml:"OffsetAcceptAmount,omitempty" require:"true"`
+	Status             *int    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	OpId               *string `json:"OpId,omitempty" xml:"OpId,omitempty" require:"true"`
+	Name               *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	BizTime            *string `json:"BizTime,omitempty" xml:"BizTime,omitempty" require:"true"`
+	Type               *int    `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
 }
 
 func (s QueryEvaluateListResponseDataEvaluateListEvaluate) String() string {
@@ -4095,11 +4450,11 @@ func (s QueryInvoicingCustomerListRequest) GoString() string {
 }
 
 type QueryInvoicingCustomerListResponse struct {
-	RequestId *string                                 `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                   `json:"Success" xml:"Success" require:"true"`
-	Code      *string                                 `json:"Code" xml:"Code" require:"true"`
-	Message   *string                                 `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryInvoicingCustomerListResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                 `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                                 `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                 `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryInvoicingCustomerListResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryInvoicingCustomerListResponse) String() string {
@@ -4136,7 +4491,7 @@ func (s *QueryInvoicingCustomerListResponse) SetData(v *QueryInvoicingCustomerLi
 }
 
 type QueryInvoicingCustomerListResponseData struct {
-	CustomerInvoiceList *QueryInvoicingCustomerListResponseDataCustomerInvoiceList `json:"CustomerInvoiceList" xml:"CustomerInvoiceList" require:"true" type:"Struct"`
+	CustomerInvoiceList *QueryInvoicingCustomerListResponseDataCustomerInvoiceList `json:"CustomerInvoiceList,omitempty" xml:"CustomerInvoiceList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryInvoicingCustomerListResponseData) String() string {
@@ -4153,7 +4508,7 @@ func (s *QueryInvoicingCustomerListResponseData) SetCustomerInvoiceList(v *Query
 }
 
 type QueryInvoicingCustomerListResponseDataCustomerInvoiceList struct {
-	CustomerInvoice []*QueryInvoicingCustomerListResponseDataCustomerInvoiceListCustomerInvoice `json:"CustomerInvoice" xml:"CustomerInvoice" require:"true" type:"Repeated"`
+	CustomerInvoice []*QueryInvoicingCustomerListResponseDataCustomerInvoiceListCustomerInvoice `json:"CustomerInvoice,omitempty" xml:"CustomerInvoice,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryInvoicingCustomerListResponseDataCustomerInvoiceList) String() string {
@@ -4170,27 +4525,27 @@ func (s *QueryInvoicingCustomerListResponseDataCustomerInvoiceList) SetCustomerI
 }
 
 type QueryInvoicingCustomerListResponseDataCustomerInvoiceListCustomerInvoice struct {
-	Id                      *int64  `json:"Id" xml:"Id" require:"true"`
-	UserId                  *int64  `json:"UserId" xml:"UserId" require:"true"`
-	UserNick                *string `json:"UserNick" xml:"UserNick" require:"true"`
-	InvoiceTitle            *string `json:"InvoiceTitle" xml:"InvoiceTitle" require:"true"`
-	CustomerType            *int64  `json:"CustomerType" xml:"CustomerType" require:"true"`
-	TaxpayerType            *int64  `json:"TaxpayerType" xml:"TaxpayerType" require:"true"`
-	Bank                    *string `json:"Bank" xml:"Bank" require:"true"`
-	BankNo                  *string `json:"BankNo" xml:"BankNo" require:"true"`
-	OperatingLicenseAddress *string `json:"OperatingLicenseAddress" xml:"OperatingLicenseAddress" require:"true"`
-	OperatingLicensePhone   *string `json:"OperatingLicensePhone" xml:"OperatingLicensePhone" require:"true"`
-	RegisterNo              *string `json:"RegisterNo" xml:"RegisterNo" require:"true"`
-	StartCycle              *int64  `json:"StartCycle" xml:"StartCycle" require:"true"`
-	Status                  *int64  `json:"Status" xml:"Status" require:"true"`
-	GmtCreate               *string `json:"GmtCreate" xml:"GmtCreate" require:"true"`
-	TaxationLicense         *string `json:"TaxationLicense" xml:"TaxationLicense" require:"true"`
-	AdjustType              *int64  `json:"AdjustType" xml:"AdjustType" require:"true"`
-	EndCycle                *int64  `json:"EndCycle" xml:"EndCycle" require:"true"`
-	TitleChangeInstructions *string `json:"TitleChangeInstructions" xml:"TitleChangeInstructions" require:"true"`
-	IssueType               *int64  `json:"IssueType" xml:"IssueType" require:"true"`
-	Type                    *int64  `json:"Type" xml:"Type" require:"true"`
-	DefaultRemark           *string `json:"DefaultRemark" xml:"DefaultRemark" require:"true"`
+	Id                      *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	UserId                  *int64  `json:"UserId,omitempty" xml:"UserId,omitempty" require:"true"`
+	UserNick                *string `json:"UserNick,omitempty" xml:"UserNick,omitempty" require:"true"`
+	InvoiceTitle            *string `json:"InvoiceTitle,omitempty" xml:"InvoiceTitle,omitempty" require:"true"`
+	CustomerType            *int64  `json:"CustomerType,omitempty" xml:"CustomerType,omitempty" require:"true"`
+	TaxpayerType            *int64  `json:"TaxpayerType,omitempty" xml:"TaxpayerType,omitempty" require:"true"`
+	Bank                    *string `json:"Bank,omitempty" xml:"Bank,omitempty" require:"true"`
+	BankNo                  *string `json:"BankNo,omitempty" xml:"BankNo,omitempty" require:"true"`
+	OperatingLicenseAddress *string `json:"OperatingLicenseAddress,omitempty" xml:"OperatingLicenseAddress,omitempty" require:"true"`
+	OperatingLicensePhone   *string `json:"OperatingLicensePhone,omitempty" xml:"OperatingLicensePhone,omitempty" require:"true"`
+	RegisterNo              *string `json:"RegisterNo,omitempty" xml:"RegisterNo,omitempty" require:"true"`
+	StartCycle              *int64  `json:"StartCycle,omitempty" xml:"StartCycle,omitempty" require:"true"`
+	Status                  *int64  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	GmtCreate               *string `json:"GmtCreate,omitempty" xml:"GmtCreate,omitempty" require:"true"`
+	TaxationLicense         *string `json:"TaxationLicense,omitempty" xml:"TaxationLicense,omitempty" require:"true"`
+	AdjustType              *int64  `json:"AdjustType,omitempty" xml:"AdjustType,omitempty" require:"true"`
+	EndCycle                *int64  `json:"EndCycle,omitempty" xml:"EndCycle,omitempty" require:"true"`
+	TitleChangeInstructions *string `json:"TitleChangeInstructions,omitempty" xml:"TitleChangeInstructions,omitempty" require:"true"`
+	IssueType               *int64  `json:"IssueType,omitempty" xml:"IssueType,omitempty" require:"true"`
+	Type                    *int64  `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	DefaultRemark           *string `json:"DefaultRemark,omitempty" xml:"DefaultRemark,omitempty" require:"true"`
 }
 
 func (s QueryInvoicingCustomerListResponseDataCustomerInvoiceListCustomerInvoice) String() string {
@@ -4307,10 +4662,10 @@ func (s *QueryInvoicingCustomerListResponseDataCustomerInvoiceListCustomerInvoic
 }
 
 type QueryBillOverviewRequest struct {
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
 }
 
 func (s QueryBillOverviewRequest) String() string {
@@ -4342,11 +4697,11 @@ func (s *QueryBillOverviewRequest) SetSubscriptionType(v string) *QueryBillOverv
 }
 
 type QueryBillOverviewResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                          `json:"Success" xml:"Success" require:"true"`
-	Code      *string                        `json:"Code" xml:"Code" require:"true"`
-	Message   *string                        `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryBillOverviewResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                          `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                        `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                        `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryBillOverviewResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryBillOverviewResponse) String() string {
@@ -4383,10 +4738,10 @@ func (s *QueryBillOverviewResponse) SetData(v *QueryBillOverviewResponseData) *Q
 }
 
 type QueryBillOverviewResponseData struct {
-	BillingCycle *string                             `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	AccountID    *string                             `json:"AccountID" xml:"AccountID" require:"true"`
-	AccountName  *string                             `json:"AccountName" xml:"AccountName" require:"true"`
-	Items        *QueryBillOverviewResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	BillingCycle *string                             `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	AccountID    *string                             `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName  *string                             `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	Items        *QueryBillOverviewResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryBillOverviewResponseData) String() string {
@@ -4418,7 +4773,7 @@ func (s *QueryBillOverviewResponseData) SetItems(v *QueryBillOverviewResponseDat
 }
 
 type QueryBillOverviewResponseDataItems struct {
-	Item []*QueryBillOverviewResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryBillOverviewResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryBillOverviewResponseDataItems) String() string {
@@ -4435,26 +4790,26 @@ func (s *QueryBillOverviewResponseDataItems) SetItem(v []*QueryBillOverviewRespo
 }
 
 type QueryBillOverviewResponseDataItemsItem struct {
-	Item                  *string  `json:"Item" xml:"Item" require:"true"`
-	ProductCode           *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType           *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType      *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	ProductName           *string  `json:"ProductName" xml:"ProductName" require:"true"`
-	ProductDetail         *string  `json:"ProductDetail" xml:"ProductDetail" require:"true"`
-	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	InvoiceDiscount       *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	DeductedByCoupons     *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	PretaxAmount          *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency              *string  `json:"Currency" xml:"Currency" require:"true"`
-	PaymentAmount         *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	OutstandingAmount     *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	Tax                   *float32 `json:"Tax" xml:"Tax" require:"true"`
-	AfterTaxAmount        *float32 `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	PaymentCurrency       *string  `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
-	RoundDownDiscount     *string  `json:"RoundDownDiscount" xml:"RoundDownDiscount" require:"true"`
+	Item                  *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	ProductCode           *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType           *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType      *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ProductName           *string  `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	ProductDetail         *string  `json:"ProductDetail,omitempty" xml:"ProductDetail,omitempty" require:"true"`
+	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	InvoiceDiscount       *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	DeductedByCoupons     *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	PretaxAmount          *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency              *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PaymentAmount         *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	OutstandingAmount     *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax                   *float32 `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	AfterTaxAmount        *float32 `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	PaymentCurrency       *string  `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	RoundDownDiscount     *string  `json:"RoundDownDiscount,omitempty" xml:"RoundDownDiscount,omitempty" require:"true"`
 }
 
 func (s QueryBillOverviewResponseDataItemsItem) String() string {
@@ -4566,15 +4921,15 @@ func (s *QueryBillOverviewResponseDataItemsItem) SetRoundDownDiscount(v string) 
 }
 
 type QueryBillRequest struct {
-	BillingCycle           *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	Type                   *string `json:"Type" xml:"Type"`
-	ProductCode            *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType            *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType       *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	IsHideZeroCharge       *bool   `json:"IsHideZeroCharge" xml:"IsHideZeroCharge"`
-	IsDisplayLocalCurrency *bool   `json:"IsDisplayLocalCurrency" xml:"IsDisplayLocalCurrency"`
-	PageNum                *int    `json:"PageNum" xml:"PageNum"`
-	PageSize               *int    `json:"PageSize" xml:"PageSize"`
+	BillingCycle           *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	Type                   *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	ProductCode            *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType            *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType       *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	IsHideZeroCharge       *bool   `json:"IsHideZeroCharge,omitempty" xml:"IsHideZeroCharge,omitempty"`
+	IsDisplayLocalCurrency *bool   `json:"IsDisplayLocalCurrency,omitempty" xml:"IsDisplayLocalCurrency,omitempty"`
+	PageNum                *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize               *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryBillRequest) String() string {
@@ -4631,11 +4986,11 @@ func (s *QueryBillRequest) SetPageSize(v int) *QueryBillRequest {
 }
 
 type QueryBillResponse struct {
-	RequestId *string                `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                  `json:"Success" xml:"Success" require:"true"`
-	Code      *string                `json:"Code" xml:"Code" require:"true"`
-	Message   *string                `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryBillResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                  `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryBillResponse) String() string {
@@ -4672,13 +5027,13 @@ func (s *QueryBillResponse) SetData(v *QueryBillResponseData) *QueryBillResponse
 }
 
 type QueryBillResponseData struct {
-	BillingCycle *string                     `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	AccountID    *string                     `json:"AccountID" xml:"AccountID" require:"true"`
-	AccountName  *string                     `json:"AccountName" xml:"AccountName" require:"true"`
-	PageNum      *int                        `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                        `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount   *int                        `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Items        *QueryBillResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	BillingCycle *string                     `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	AccountID    *string                     `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName  *string                     `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	PageNum      *int                        `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                        `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount   *int                        `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Items        *QueryBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryBillResponseData) String() string {
@@ -4725,7 +5080,7 @@ func (s *QueryBillResponseData) SetItems(v *QueryBillResponseDataItems) *QueryBi
 }
 
 type QueryBillResponseDataItems struct {
-	Item []*QueryBillResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryBillResponseDataItems) String() string {
@@ -4742,34 +5097,34 @@ func (s *QueryBillResponseDataItems) SetItem(v []*QueryBillResponseDataItemsItem
 }
 
 type QueryBillResponseDataItemsItem struct {
-	RecordID              *string  `json:"RecordID" xml:"RecordID" require:"true"`
-	Item                  *string  `json:"Item" xml:"Item" require:"true"`
-	OwnerID               *string  `json:"OwnerID" xml:"OwnerID" require:"true"`
-	UsageStartTime        *string  `json:"UsageStartTime" xml:"UsageStartTime" require:"true"`
-	UsageEndTime          *string  `json:"UsageEndTime" xml:"UsageEndTime" require:"true"`
-	PaymentTime           *string  `json:"PaymentTime" xml:"PaymentTime" require:"true"`
-	ProductCode           *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType           *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType      *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	ProductName           *string  `json:"ProductName" xml:"ProductName" require:"true"`
-	ProductDetail         *string  `json:"ProductDetail" xml:"ProductDetail" require:"true"`
-	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	DeductedByCoupons     *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	InvoiceDiscount       *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	PretaxAmount          *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency              *string  `json:"Currency" xml:"Currency" require:"true"`
-	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	Tax                   *float32 `json:"Tax" xml:"Tax" require:"true"`
-	PaymentAmount         *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	OutstandingAmount     *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	AfterTaxAmount        *float32 `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	Status                *string  `json:"Status" xml:"Status" require:"true"`
-	PaymentCurrency       *string  `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
-	PaymentTransactionID  *string  `json:"PaymentTransactionID" xml:"PaymentTransactionID" require:"true"`
-	RoundDownDiscount     *string  `json:"RoundDownDiscount" xml:"RoundDownDiscount" require:"true"`
-	SubOrderId            *string  `json:"SubOrderId" xml:"SubOrderId" require:"true"`
+	RecordID              *string  `json:"RecordID,omitempty" xml:"RecordID,omitempty" require:"true"`
+	Item                  *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	OwnerID               *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	UsageStartTime        *string  `json:"UsageStartTime,omitempty" xml:"UsageStartTime,omitempty" require:"true"`
+	UsageEndTime          *string  `json:"UsageEndTime,omitempty" xml:"UsageEndTime,omitempty" require:"true"`
+	PaymentTime           *string  `json:"PaymentTime,omitempty" xml:"PaymentTime,omitempty" require:"true"`
+	ProductCode           *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType           *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType      *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ProductName           *string  `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	ProductDetail         *string  `json:"ProductDetail,omitempty" xml:"ProductDetail,omitempty" require:"true"`
+	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	DeductedByCoupons     *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	InvoiceDiscount       *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	PretaxAmount          *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency              *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax                   *float32 `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	PaymentAmount         *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	OutstandingAmount     *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	AfterTaxAmount        *float32 `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	Status                *string  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	PaymentCurrency       *string  `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	PaymentTransactionID  *string  `json:"PaymentTransactionID,omitempty" xml:"PaymentTransactionID,omitempty" require:"true"`
+	RoundDownDiscount     *string  `json:"RoundDownDiscount,omitempty" xml:"RoundDownDiscount,omitempty" require:"true"`
+	SubOrderId            *string  `json:"SubOrderId,omitempty" xml:"SubOrderId,omitempty" require:"true"`
 }
 
 func (s QueryBillResponseDataItemsItem) String() string {
@@ -4921,16 +5276,16 @@ func (s *QueryBillResponseDataItemsItem) SetSubOrderId(v string) *QueryBillRespo
 }
 
 type QueryInstanceBillRequest struct {
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	IsBillingItem    *bool   `json:"IsBillingItem" xml:"IsBillingItem"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	IsHideZeroCharge *bool   `json:"IsHideZeroCharge" xml:"IsHideZeroCharge"`
-	BillingDate      *string `json:"BillingDate" xml:"BillingDate"`
-	Granularity      *string `json:"Granularity" xml:"Granularity"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	IsBillingItem    *bool   `json:"IsBillingItem,omitempty" xml:"IsBillingItem,omitempty"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	IsHideZeroCharge *bool   `json:"IsHideZeroCharge,omitempty" xml:"IsHideZeroCharge,omitempty"`
+	BillingDate      *string `json:"BillingDate,omitempty" xml:"BillingDate,omitempty"`
+	Granularity      *string `json:"Granularity,omitempty" xml:"Granularity,omitempty"`
 }
 
 func (s QueryInstanceBillRequest) String() string {
@@ -4992,11 +5347,11 @@ func (s *QueryInstanceBillRequest) SetGranularity(v string) *QueryInstanceBillRe
 }
 
 type QueryInstanceBillResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                          `json:"Success" xml:"Success" require:"true"`
-	Code      *string                        `json:"Code" xml:"Code" require:"true"`
-	Message   *string                        `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryInstanceBillResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                          `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                        `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                        `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryInstanceBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryInstanceBillResponse) String() string {
@@ -5033,13 +5388,13 @@ func (s *QueryInstanceBillResponse) SetData(v *QueryInstanceBillResponseData) *Q
 }
 
 type QueryInstanceBillResponseData struct {
-	BillingCycle *string                             `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	AccountID    *string                             `json:"AccountID" xml:"AccountID" require:"true"`
-	AccountName  *string                             `json:"AccountName" xml:"AccountName" require:"true"`
-	TotalCount   *int                                `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNum      *int                                `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                                `json:"PageSize" xml:"PageSize" require:"true"`
-	Items        *QueryInstanceBillResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	BillingCycle *string                             `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	AccountID    *string                             `json:"AccountID,omitempty" xml:"AccountID,omitempty" require:"true"`
+	AccountName  *string                             `json:"AccountName,omitempty" xml:"AccountName,omitempty" require:"true"`
+	TotalCount   *int                                `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNum      *int                                `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                                `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Items        *QueryInstanceBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryInstanceBillResponseData) String() string {
@@ -5086,7 +5441,7 @@ func (s *QueryInstanceBillResponseData) SetItems(v *QueryInstanceBillResponseDat
 }
 
 type QueryInstanceBillResponseDataItems struct {
-	Item []*QueryInstanceBillResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryInstanceBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryInstanceBillResponseDataItems) String() string {
@@ -5103,43 +5458,43 @@ func (s *QueryInstanceBillResponseDataItems) SetItem(v []*QueryInstanceBillRespo
 }
 
 type QueryInstanceBillResponseDataItemsItem struct {
-	InstanceID                *string  `json:"InstanceID" xml:"InstanceID" require:"true"`
-	BillingType               *string  `json:"BillingType" xml:"BillingType" require:"true"`
-	CostUnit                  *string  `json:"CostUnit" xml:"CostUnit" require:"true"`
-	ProductCode               *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType               *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType          *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	ProductName               *string  `json:"ProductName" xml:"ProductName" require:"true"`
-	ProductDetail             *string  `json:"ProductDetail" xml:"ProductDetail" require:"true"`
-	OwnerID                   *string  `json:"OwnerID" xml:"OwnerID" require:"true"`
-	BillingItem               *string  `json:"BillingItem" xml:"BillingItem" require:"true"`
-	ListPrice                 *string  `json:"ListPrice" xml:"ListPrice" require:"true"`
-	ListPriceUnit             *string  `json:"ListPriceUnit" xml:"ListPriceUnit" require:"true"`
-	Usage                     *string  `json:"Usage" xml:"Usage" require:"true"`
-	UsageUnit                 *string  `json:"UsageUnit" xml:"UsageUnit" require:"true"`
-	DeductedByResourcePackage *string  `json:"DeductedByResourcePackage" xml:"DeductedByResourcePackage" require:"true"`
-	PretaxGrossAmount         *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	InvoiceDiscount           *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	DeductedByCoupons         *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	PretaxAmount              *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	DeductedByCashCoupons     *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard     *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	PaymentAmount             *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	OutstandingAmount         *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	Currency                  *string  `json:"Currency" xml:"Currency" require:"true"`
-	NickName                  *string  `json:"NickName" xml:"NickName" require:"true"`
-	ResourceGroup             *string  `json:"ResourceGroup" xml:"ResourceGroup" require:"true"`
-	Tag                       *string  `json:"Tag" xml:"Tag" require:"true"`
-	InstanceConfig            *string  `json:"InstanceConfig" xml:"InstanceConfig" require:"true"`
-	InstanceSpec              *string  `json:"InstanceSpec" xml:"InstanceSpec" require:"true"`
-	InternetIP                *string  `json:"InternetIP" xml:"InternetIP" require:"true"`
-	IntranetIP                *string  `json:"IntranetIP" xml:"IntranetIP" require:"true"`
-	Region                    *string  `json:"Region" xml:"Region" require:"true"`
-	Zone                      *string  `json:"Zone" xml:"Zone" require:"true"`
-	Item                      *string  `json:"Item" xml:"Item" require:"true"`
-	ServicePeriod             *string  `json:"ServicePeriod" xml:"ServicePeriod" require:"true"`
-	BillingDate               *string  `json:"BillingDate" xml:"BillingDate" require:"true"`
-	ServicePeriodUnit         *string  `json:"ServicePeriodUnit" xml:"ServicePeriodUnit" require:"true"`
+	InstanceID                *string  `json:"InstanceID,omitempty" xml:"InstanceID,omitempty" require:"true"`
+	BillingType               *string  `json:"BillingType,omitempty" xml:"BillingType,omitempty" require:"true"`
+	CostUnit                  *string  `json:"CostUnit,omitempty" xml:"CostUnit,omitempty" require:"true"`
+	ProductCode               *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType               *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType          *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ProductName               *string  `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	ProductDetail             *string  `json:"ProductDetail,omitempty" xml:"ProductDetail,omitempty" require:"true"`
+	OwnerID                   *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	BillingItem               *string  `json:"BillingItem,omitempty" xml:"BillingItem,omitempty" require:"true"`
+	ListPrice                 *string  `json:"ListPrice,omitempty" xml:"ListPrice,omitempty" require:"true"`
+	ListPriceUnit             *string  `json:"ListPriceUnit,omitempty" xml:"ListPriceUnit,omitempty" require:"true"`
+	Usage                     *string  `json:"Usage,omitempty" xml:"Usage,omitempty" require:"true"`
+	UsageUnit                 *string  `json:"UsageUnit,omitempty" xml:"UsageUnit,omitempty" require:"true"`
+	DeductedByResourcePackage *string  `json:"DeductedByResourcePackage,omitempty" xml:"DeductedByResourcePackage,omitempty" require:"true"`
+	PretaxGrossAmount         *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	InvoiceDiscount           *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	DeductedByCoupons         *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	PretaxAmount              *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	DeductedByCashCoupons     *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard     *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	PaymentAmount             *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	OutstandingAmount         *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	Currency                  *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	NickName                  *string  `json:"NickName,omitempty" xml:"NickName,omitempty" require:"true"`
+	ResourceGroup             *string  `json:"ResourceGroup,omitempty" xml:"ResourceGroup,omitempty" require:"true"`
+	Tag                       *string  `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	InstanceConfig            *string  `json:"InstanceConfig,omitempty" xml:"InstanceConfig,omitempty" require:"true"`
+	InstanceSpec              *string  `json:"InstanceSpec,omitempty" xml:"InstanceSpec,omitempty" require:"true"`
+	InternetIP                *string  `json:"InternetIP,omitempty" xml:"InternetIP,omitempty" require:"true"`
+	IntranetIP                *string  `json:"IntranetIP,omitempty" xml:"IntranetIP,omitempty" require:"true"`
+	Region                    *string  `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	Zone                      *string  `json:"Zone,omitempty" xml:"Zone,omitempty" require:"true"`
+	Item                      *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	ServicePeriod             *string  `json:"ServicePeriod,omitempty" xml:"ServicePeriod,omitempty" require:"true"`
+	BillingDate               *string  `json:"BillingDate,omitempty" xml:"BillingDate,omitempty" require:"true"`
+	ServicePeriodUnit         *string  `json:"ServicePeriodUnit,omitempty" xml:"ServicePeriodUnit,omitempty" require:"true"`
 }
 
 func (s QueryInstanceBillResponseDataItemsItem) String() string {
@@ -5336,7 +5691,7 @@ func (s *QueryInstanceBillResponseDataItemsItem) SetServicePeriodUnit(v string) 
 }
 
 type EnableBillGenerationRequest struct {
-	ProductCode *string `json:"ProductCode" xml:"ProductCode" require:"true"`
+	ProductCode *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
 }
 
 func (s EnableBillGenerationRequest) String() string {
@@ -5353,11 +5708,11 @@ func (s *EnableBillGenerationRequest) SetProductCode(v string) *EnableBillGenera
 }
 
 type EnableBillGenerationResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                             `json:"Success" xml:"Success" require:"true"`
-	Code      *string                           `json:"Code" xml:"Code" require:"true"`
-	Message   *string                           `json:"Message" xml:"Message" require:"true"`
-	Data      *EnableBillGenerationResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                             `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                           `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                           `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *EnableBillGenerationResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s EnableBillGenerationResponse) String() string {
@@ -5394,7 +5749,7 @@ func (s *EnableBillGenerationResponse) SetData(v *EnableBillGenerationResponseDa
 }
 
 type EnableBillGenerationResponseData struct {
-	Boolean *bool `json:"Boolean" xml:"Boolean" require:"true"`
+	Boolean *bool `json:"Boolean,omitempty" xml:"Boolean,omitempty" require:"true"`
 }
 
 func (s EnableBillGenerationResponseData) String() string {
@@ -5411,11 +5766,11 @@ func (s *EnableBillGenerationResponseData) SetBoolean(v bool) *EnableBillGenerat
 }
 
 type QueryRedeemRequest struct {
-	ExpiryTimeStart *string `json:"ExpiryTimeStart" xml:"ExpiryTimeStart"`
-	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd" xml:"ExpiryTimeEnd"`
-	EffectiveOrNot  *bool   `json:"EffectiveOrNot" xml:"EffectiveOrNot"`
-	PageNum         *int    `json:"PageNum" xml:"PageNum"`
-	PageSize        *int    `json:"PageSize" xml:"PageSize"`
+	ExpiryTimeStart *string `json:"ExpiryTimeStart,omitempty" xml:"ExpiryTimeStart,omitempty"`
+	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd,omitempty" xml:"ExpiryTimeEnd,omitempty"`
+	EffectiveOrNot  *bool   `json:"EffectiveOrNot,omitempty" xml:"EffectiveOrNot,omitempty"`
+	PageNum         *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryRedeemRequest) String() string {
@@ -5452,11 +5807,11 @@ func (s *QueryRedeemRequest) SetPageSize(v int) *QueryRedeemRequest {
 }
 
 type QueryRedeemResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                    `json:"Success" xml:"Success" require:"true"`
-	Code      *string                  `json:"Code" xml:"Code" require:"true"`
-	Message   *string                  `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryRedeemResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                    `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                  `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryRedeemResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryRedeemResponse) String() string {
@@ -5493,10 +5848,10 @@ func (s *QueryRedeemResponse) SetData(v *QueryRedeemResponseData) *QueryRedeemRe
 }
 
 type QueryRedeemResponseData struct {
-	PageNum    *int64                         `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize   *int64                         `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int64                         `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Redeem     *QueryRedeemResponseDataRedeem `json:"Redeem" xml:"Redeem" require:"true" type:"Struct"`
+	PageNum    *int64                         `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize   *int64                         `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int64                         `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Redeem     *QueryRedeemResponseDataRedeem `json:"Redeem,omitempty" xml:"Redeem,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryRedeemResponseData) String() string {
@@ -5528,7 +5883,7 @@ func (s *QueryRedeemResponseData) SetRedeem(v *QueryRedeemResponseDataRedeem) *Q
 }
 
 type QueryRedeemResponseDataRedeem struct {
-	Redeem []*QueryRedeemResponseDataRedeemRedeem `json:"Redeem" xml:"Redeem" require:"true" type:"Repeated"`
+	Redeem []*QueryRedeemResponseDataRedeemRedeem `json:"Redeem,omitempty" xml:"Redeem,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryRedeemResponseDataRedeem) String() string {
@@ -5545,16 +5900,16 @@ func (s *QueryRedeemResponseDataRedeem) SetRedeem(v []*QueryRedeemResponseDataRe
 }
 
 type QueryRedeemResponseDataRedeemRedeem struct {
-	RedeemId           *string `json:"RedeemId" xml:"RedeemId" require:"true"`
-	RedeemNo           *string `json:"RedeemNo" xml:"RedeemNo" require:"true"`
-	Status             *string `json:"Status" xml:"Status" require:"true"`
-	GrantedTime        *string `json:"GrantedTime" xml:"GrantedTime" require:"true"`
-	EffectiveTime      *string `json:"EffectiveTime" xml:"EffectiveTime" require:"true"`
-	ExpiryTime         *string `json:"ExpiryTime" xml:"ExpiryTime" require:"true"`
-	NominalValue       *string `json:"NominalValue" xml:"NominalValue" require:"true"`
-	Balance            *string `json:"Balance" xml:"Balance" require:"true"`
-	ApplicableProducts *string `json:"ApplicableProducts" xml:"ApplicableProducts" require:"true"`
-	Specification      *string `json:"Specification" xml:"Specification" require:"true"`
+	RedeemId           *string `json:"RedeemId,omitempty" xml:"RedeemId,omitempty" require:"true"`
+	RedeemNo           *string `json:"RedeemNo,omitempty" xml:"RedeemNo,omitempty" require:"true"`
+	Status             *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	GrantedTime        *string `json:"GrantedTime,omitempty" xml:"GrantedTime,omitempty" require:"true"`
+	EffectiveTime      *string `json:"EffectiveTime,omitempty" xml:"EffectiveTime,omitempty" require:"true"`
+	ExpiryTime         *string `json:"ExpiryTime,omitempty" xml:"ExpiryTime,omitempty" require:"true"`
+	NominalValue       *string `json:"NominalValue,omitempty" xml:"NominalValue,omitempty" require:"true"`
+	Balance            *string `json:"Balance,omitempty" xml:"Balance,omitempty" require:"true"`
+	ApplicableProducts *string `json:"ApplicableProducts,omitempty" xml:"ApplicableProducts,omitempty" require:"true"`
+	Specification      *string `json:"Specification,omitempty" xml:"Specification,omitempty" require:"true"`
 }
 
 func (s QueryRedeemResponseDataRedeemRedeem) String() string {
@@ -5616,11 +5971,11 @@ func (s *QueryRedeemResponseDataRedeemRedeem) SetSpecification(v string) *QueryR
 }
 
 type ConvertChargeTypeRequest struct {
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	Period           *int    `json:"Period" xml:"Period"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	InstanceId       *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	Period           *int    `json:"Period,omitempty" xml:"Period,omitempty"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	InstanceId       *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s ConvertChargeTypeRequest) String() string {
@@ -5657,11 +6012,11 @@ func (s *ConvertChargeTypeRequest) SetInstanceId(v string) *ConvertChargeTypeReq
 }
 
 type ConvertChargeTypeResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                          `json:"Success" xml:"Success" require:"true"`
-	Code      *string                        `json:"Code" xml:"Code" require:"true"`
-	Message   *string                        `json:"Message" xml:"Message" require:"true"`
-	Data      *ConvertChargeTypeResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                          `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                        `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                        `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *ConvertChargeTypeResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ConvertChargeTypeResponse) String() string {
@@ -5698,7 +6053,7 @@ func (s *ConvertChargeTypeResponse) SetData(v *ConvertChargeTypeResponseData) *C
 }
 
 type ConvertChargeTypeResponseData struct {
-	OrderId *string `json:"OrderId" xml:"OrderId" require:"true"`
+	OrderId *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s ConvertChargeTypeResponseData) String() string {
@@ -5715,14 +6070,14 @@ func (s *ConvertChargeTypeResponseData) SetOrderId(v string) *ConvertChargeTypeR
 }
 
 type CreateInstanceRequest struct {
-	ProductCode      *string                           `json:"ProductCode" xml:"ProductCode" require:"true"`
-	Parameter        []*CreateInstanceRequestParameter `json:"Parameter" xml:"Parameter" type:"Repeated"`
-	ProductType      *string                           `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string                           `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	Period           *int                              `json:"Period" xml:"Period"`
-	RenewalStatus    *string                           `json:"RenewalStatus" xml:"RenewalStatus"`
-	RenewPeriod      *int                              `json:"RenewPeriod" xml:"RenewPeriod"`
-	ClientToken      *string                           `json:"ClientToken" xml:"ClientToken"`
+	ProductCode      *string                           `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	Parameter        []*CreateInstanceRequestParameter `json:"Parameter,omitempty" xml:"Parameter,omitempty" type:"Repeated"`
+	ProductType      *string                           `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string                           `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	Period           *int                              `json:"Period,omitempty" xml:"Period,omitempty"`
+	RenewalStatus    *string                           `json:"RenewalStatus,omitempty" xml:"RenewalStatus,omitempty"`
+	RenewPeriod      *int                              `json:"RenewPeriod,omitempty" xml:"RenewPeriod,omitempty"`
+	ClientToken      *string                           `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s CreateInstanceRequest) String() string {
@@ -5774,8 +6129,8 @@ func (s *CreateInstanceRequest) SetClientToken(v string) *CreateInstanceRequest 
 }
 
 type CreateInstanceRequestParameter struct {
-	Code  *string `json:"Code" xml:"Code" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Code  *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s CreateInstanceRequestParameter) String() string {
@@ -5797,11 +6152,11 @@ func (s *CreateInstanceRequestParameter) SetValue(v string) *CreateInstanceReque
 }
 
 type CreateInstanceResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                       `json:"Success" xml:"Success" require:"true"`
-	Code      *string                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                     `json:"Message" xml:"Message" require:"true"`
-	Data      *CreateInstanceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                       `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *CreateInstanceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateInstanceResponse) String() string {
@@ -5838,8 +6193,8 @@ func (s *CreateInstanceResponse) SetData(v *CreateInstanceResponseData) *CreateI
 }
 
 type CreateInstanceResponseData struct {
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	OrderId    *string `json:"OrderId" xml:"OrderId" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	OrderId    *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s CreateInstanceResponseData) String() string {
@@ -5861,13 +6216,13 @@ func (s *CreateInstanceResponseData) SetOrderId(v string) *CreateInstanceRespons
 }
 
 type ModifyInstanceRequest struct {
-	ProductCode      *string                           `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType      *string                           `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string                           `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	ModifyType       *string                           `json:"ModifyType" xml:"ModifyType" require:"true"`
-	InstanceId       *string                           `json:"InstanceId" xml:"InstanceId"`
-	Parameter        []*ModifyInstanceRequestParameter `json:"Parameter" xml:"Parameter" type:"Repeated"`
-	ClientToken      *string                           `json:"ClientToken" xml:"ClientToken"`
+	ProductCode      *string                           `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType      *string                           `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string                           `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ModifyType       *string                           `json:"ModifyType,omitempty" xml:"ModifyType,omitempty" require:"true"`
+	InstanceId       *string                           `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	Parameter        []*ModifyInstanceRequestParameter `json:"Parameter,omitempty" xml:"Parameter,omitempty" type:"Repeated"`
+	ClientToken      *string                           `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
 }
 
 func (s ModifyInstanceRequest) String() string {
@@ -5914,8 +6269,8 @@ func (s *ModifyInstanceRequest) SetClientToken(v string) *ModifyInstanceRequest 
 }
 
 type ModifyInstanceRequestParameter struct {
-	Code  *string `json:"Code" xml:"Code" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Code  *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s ModifyInstanceRequestParameter) String() string {
@@ -5937,11 +6292,11 @@ func (s *ModifyInstanceRequestParameter) SetValue(v string) *ModifyInstanceReque
 }
 
 type ModifyInstanceResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                       `json:"Success" xml:"Success" require:"true"`
-	Code      *string                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                     `json:"Message" xml:"Message" require:"true"`
-	Data      *ModifyInstanceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                       `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *ModifyInstanceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s ModifyInstanceResponse) String() string {
@@ -5978,8 +6333,8 @@ func (s *ModifyInstanceResponse) SetData(v *ModifyInstanceResponseData) *ModifyI
 }
 
 type ModifyInstanceResponseData struct {
-	HostId  *string `json:"HostId" xml:"HostId" require:"true"`
-	OrderId *string `json:"OrderId" xml:"OrderId" require:"true"`
+	HostId  *string `json:"HostId,omitempty" xml:"HostId,omitempty" require:"true"`
+	OrderId *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s ModifyInstanceResponseData) String() string {
@@ -6001,9 +6356,9 @@ func (s *ModifyInstanceResponseData) SetOrderId(v string) *ModifyInstanceRespons
 }
 
 type DescribePricingModuleRequest struct {
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
 }
 
 func (s DescribePricingModuleRequest) String() string {
@@ -6030,11 +6385,11 @@ func (s *DescribePricingModuleRequest) SetSubscriptionType(v string) *DescribePr
 }
 
 type DescribePricingModuleResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                              `json:"Success" xml:"Success" require:"true"`
-	Code      *string                            `json:"Code" xml:"Code" require:"true"`
-	Message   *string                            `json:"Message" xml:"Message" require:"true"`
-	Data      *DescribePricingModuleResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                              `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                            `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                            `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *DescribePricingModuleResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePricingModuleResponse) String() string {
@@ -6071,8 +6426,8 @@ func (s *DescribePricingModuleResponse) SetData(v *DescribePricingModuleResponse
 }
 
 type DescribePricingModuleResponseData struct {
-	ModuleList    *DescribePricingModuleResponseDataModuleList    `json:"ModuleList" xml:"ModuleList" require:"true" type:"Struct"`
-	AttributeList *DescribePricingModuleResponseDataAttributeList `json:"AttributeList" xml:"AttributeList" require:"true" type:"Struct"`
+	ModuleList    *DescribePricingModuleResponseDataModuleList    `json:"ModuleList,omitempty" xml:"ModuleList,omitempty" require:"true" type:"Struct"`
+	AttributeList *DescribePricingModuleResponseDataAttributeList `json:"AttributeList,omitempty" xml:"AttributeList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePricingModuleResponseData) String() string {
@@ -6094,7 +6449,7 @@ func (s *DescribePricingModuleResponseData) SetAttributeList(v *DescribePricingM
 }
 
 type DescribePricingModuleResponseDataModuleList struct {
-	Module []*DescribePricingModuleResponseDataModuleListModule `json:"Module" xml:"Module" require:"true" type:"Repeated"`
+	Module []*DescribePricingModuleResponseDataModuleListModule `json:"Module,omitempty" xml:"Module,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePricingModuleResponseDataModuleList) String() string {
@@ -6111,11 +6466,11 @@ func (s *DescribePricingModuleResponseDataModuleList) SetModule(v []*DescribePri
 }
 
 type DescribePricingModuleResponseDataModuleListModule struct {
-	ModuleCode *string                                                      `json:"ModuleCode" xml:"ModuleCode" require:"true"`
-	ModuleName *string                                                      `json:"ModuleName" xml:"ModuleName" require:"true"`
-	PriceType  *string                                                      `json:"PriceType" xml:"PriceType" require:"true"`
-	Currency   *string                                                      `json:"Currency" xml:"Currency" require:"true"`
-	ConfigList *DescribePricingModuleResponseDataModuleListModuleConfigList `json:"ConfigList" xml:"ConfigList" require:"true" type:"Struct"`
+	ModuleCode *string                                                      `json:"ModuleCode,omitempty" xml:"ModuleCode,omitempty" require:"true"`
+	ModuleName *string                                                      `json:"ModuleName,omitempty" xml:"ModuleName,omitempty" require:"true"`
+	PriceType  *string                                                      `json:"PriceType,omitempty" xml:"PriceType,omitempty" require:"true"`
+	Currency   *string                                                      `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	ConfigList *DescribePricingModuleResponseDataModuleListModuleConfigList `json:"ConfigList,omitempty" xml:"ConfigList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribePricingModuleResponseDataModuleListModule) String() string {
@@ -6152,7 +6507,7 @@ func (s *DescribePricingModuleResponseDataModuleListModule) SetConfigList(v *Des
 }
 
 type DescribePricingModuleResponseDataModuleListModuleConfigList struct {
-	ConfigList []*string `json:"ConfigList" xml:"ConfigList" require:"true" type:"Repeated"`
+	ConfigList []*string `json:"ConfigList,omitempty" xml:"ConfigList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePricingModuleResponseDataModuleListModuleConfigList) String() string {
@@ -6169,7 +6524,7 @@ func (s *DescribePricingModuleResponseDataModuleListModuleConfigList) SetConfigL
 }
 
 type DescribePricingModuleResponseDataAttributeList struct {
-	Attribute []*DescribePricingModuleResponseDataAttributeListAttribute `json:"Attribute" xml:"Attribute" require:"true" type:"Repeated"`
+	Attribute []*DescribePricingModuleResponseDataAttributeListAttribute `json:"Attribute,omitempty" xml:"Attribute,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribePricingModuleResponseDataAttributeList) String() string {
@@ -6186,9 +6541,9 @@ func (s *DescribePricingModuleResponseDataAttributeList) SetAttribute(v []*Descr
 }
 
 type DescribePricingModuleResponseDataAttributeListAttribute struct {
-	Code *string `json:"Code" xml:"Code" require:"true"`
-	Name *string `json:"Name" xml:"Name" require:"true"`
-	Unit *string `json:"Unit" xml:"Unit" require:"true"`
+	Code *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Unit *string `json:"Unit,omitempty" xml:"Unit,omitempty" require:"true"`
 }
 
 func (s DescribePricingModuleResponseDataAttributeListAttribute) String() string {
@@ -6215,9 +6570,9 @@ func (s *DescribePricingModuleResponseDataAttributeListAttribute) SetUnit(v stri
 }
 
 type QueryProductListRequest struct {
-	QueryTotalCount *bool `json:"QueryTotalCount" xml:"QueryTotalCount"`
-	PageNum         *int  `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize        *int  `json:"PageSize" xml:"PageSize"`
+	QueryTotalCount *bool `json:"QueryTotalCount,omitempty" xml:"QueryTotalCount,omitempty"`
+	PageNum         *int  `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize        *int  `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryProductListRequest) String() string {
@@ -6244,11 +6599,11 @@ func (s *QueryProductListRequest) SetPageSize(v int) *QueryProductListRequest {
 }
 
 type QueryProductListResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                         `json:"Success" xml:"Success" require:"true"`
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryProductListResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                         `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryProductListResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryProductListResponse) String() string {
@@ -6285,10 +6640,10 @@ func (s *QueryProductListResponse) SetData(v *QueryProductListResponseData) *Que
 }
 
 type QueryProductListResponseData struct {
-	TotalCount  *int                                     `json:"TotalCount" xml:"TotalCount" require:"true"`
-	PageNum     *int                                     `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize    *int                                     `json:"PageSize" xml:"PageSize" require:"true"`
-	ProductList *QueryProductListResponseDataProductList `json:"ProductList" xml:"ProductList" require:"true" type:"Struct"`
+	TotalCount  *int                                     `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	PageNum     *int                                     `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize    *int                                     `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	ProductList *QueryProductListResponseDataProductList `json:"ProductList,omitempty" xml:"ProductList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryProductListResponseData) String() string {
@@ -6320,7 +6675,7 @@ func (s *QueryProductListResponseData) SetProductList(v *QueryProductListRespons
 }
 
 type QueryProductListResponseDataProductList struct {
-	Product []*QueryProductListResponseDataProductListProduct `json:"Product" xml:"Product" require:"true" type:"Repeated"`
+	Product []*QueryProductListResponseDataProductListProduct `json:"Product,omitempty" xml:"Product,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryProductListResponseDataProductList) String() string {
@@ -6337,10 +6692,10 @@ func (s *QueryProductListResponseDataProductList) SetProduct(v []*QueryProductLi
 }
 
 type QueryProductListResponseDataProductListProduct struct {
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductName      *string `json:"ProductName" xml:"ProductName" require:"true"`
-	ProductType      *string `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductName      *string `json:"ProductName,omitempty" xml:"ProductName,omitempty" require:"true"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
 }
 
 func (s QueryProductListResponseDataProductListProduct) String() string {
@@ -6372,12 +6727,12 @@ func (s *QueryProductListResponseDataProductListProduct) SetSubscriptionType(v s
 }
 
 type QueryInstanceGaapCostRequest struct {
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
 }
 
 func (s QueryInstanceGaapCostRequest) String() string {
@@ -6419,11 +6774,11 @@ func (s *QueryInstanceGaapCostRequest) SetSubscriptionType(v string) *QueryInsta
 }
 
 type QueryInstanceGaapCostResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                              `json:"Success" xml:"Success" require:"true"`
-	Code      *string                            `json:"Code" xml:"Code" require:"true"`
-	Message   *string                            `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryInstanceGaapCostResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                              `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                            `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                            `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryInstanceGaapCostResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryInstanceGaapCostResponse) String() string {
@@ -6460,11 +6815,11 @@ func (s *QueryInstanceGaapCostResponse) SetData(v *QueryInstanceGaapCostResponse
 }
 
 type QueryInstanceGaapCostResponseData struct {
-	HostId     *string                                   `json:"HostId" xml:"HostId" require:"true"`
-	PageNum    *int                                      `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize   *int                                      `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                                      `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Modules    *QueryInstanceGaapCostResponseDataModules `json:"Modules" xml:"Modules" require:"true" type:"Struct"`
+	HostId     *string                                   `json:"HostId,omitempty" xml:"HostId,omitempty" require:"true"`
+	PageNum    *int                                      `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize   *int                                      `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                                      `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Modules    *QueryInstanceGaapCostResponseDataModules `json:"Modules,omitempty" xml:"Modules,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryInstanceGaapCostResponseData) String() string {
@@ -6501,7 +6856,7 @@ func (s *QueryInstanceGaapCostResponseData) SetModules(v *QueryInstanceGaapCostR
 }
 
 type QueryInstanceGaapCostResponseDataModules struct {
-	Module []*QueryInstanceGaapCostResponseDataModulesModule `json:"Module" xml:"Module" require:"true" type:"Repeated"`
+	Module []*QueryInstanceGaapCostResponseDataModulesModule `json:"Module,omitempty" xml:"Module,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryInstanceGaapCostResponseDataModules) String() string {
@@ -6518,58 +6873,58 @@ func (s *QueryInstanceGaapCostResponseDataModules) SetModule(v []*QueryInstanceG
 }
 
 type QueryInstanceGaapCostResponseDataModulesModule struct {
-	BillingCycle                     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	InstanceID                       *string `json:"InstanceID" xml:"InstanceID" require:"true"`
-	ProductCode                      *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType                      *string `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType                 *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	Tag                              *string `json:"Tag" xml:"Tag" require:"true"`
-	ResourceGroup                    *string `json:"ResourceGroup" xml:"ResourceGroup" require:"true"`
-	AccountingUnit                   *string `json:"AccountingUnit" xml:"AccountingUnit" require:"true"`
-	PayerAccount                     *string `json:"PayerAccount" xml:"PayerAccount" require:"true"`
-	OwnerID                          *string `json:"OwnerID" xml:"OwnerID" require:"true"`
-	Region                           *string `json:"Region" xml:"Region" require:"true"`
-	Currency                         *string `json:"Currency" xml:"Currency" require:"true"`
-	PaymentCurrency                  *string `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
-	OrderType                        *string `json:"OrderType" xml:"OrderType" require:"true"`
-	PayTime                          *string `json:"PayTime" xml:"PayTime" require:"true"`
-	PretaxGrossAmount                *string `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	PricingDiscount                  *string `json:"PricingDiscount" xml:"PricingDiscount" require:"true"`
-	DeductedByCoupons                *string `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	PretaxAmount                     *string `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	PretaxAmountLocal                *string `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	DeductedByCashCoupons            *string `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard            *string `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	PaymentAmount                    *string `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	GaapPretaxGrossAmount            *string `json:"GaapPretaxGrossAmount" xml:"GaapPretaxGrossAmount" require:"true"`
-	GaapPricingDiscount              *string `json:"GaapPricingDiscount" xml:"GaapPricingDiscount" require:"true"`
-	GaapDeductedByCoupons            *string `json:"GaapDeductedByCoupons" xml:"GaapDeductedByCoupons" require:"true"`
-	GaapPretaxAmount                 *string `json:"GaapPretaxAmount" xml:"GaapPretaxAmount" require:"true"`
-	GaapPretaxAmountLocal            *string `json:"GaapPretaxAmountLocal" xml:"GaapPretaxAmountLocal" require:"true"`
-	GaapDeductedByCashCoupons        *string `json:"GaapDeductedByCashCoupons" xml:"GaapDeductedByCashCoupons" require:"true"`
-	GaapDeductedByPrepaidCard        *string `json:"GaapDeductedByPrepaidCard" xml:"GaapDeductedByPrepaidCard" require:"true"`
-	GaapPaymentAmount                *string `json:"GaapPaymentAmount" xml:"GaapPaymentAmount" require:"true"`
-	MonthGaapPretaxGrossAmount       *string `json:"MonthGaapPretaxGrossAmount" xml:"MonthGaapPretaxGrossAmount" require:"true"`
-	MonthGaapPricingDiscount         *string `json:"MonthGaapPricingDiscount" xml:"MonthGaapPricingDiscount" require:"true"`
-	MonthGaapDeductedByCoupons       *string `json:"MonthGaapDeductedByCoupons" xml:"MonthGaapDeductedByCoupons" require:"true"`
-	MonthGaapPretaxAmount            *string `json:"MonthGaapPretaxAmount" xml:"MonthGaapPretaxAmount" require:"true"`
-	MonthGaapPretaxAmountLocal       *string `json:"MonthGaapPretaxAmountLocal" xml:"MonthGaapPretaxAmountLocal" require:"true"`
-	MonthGaapDeductedByCashCoupons   *string `json:"MonthGaapDeductedByCashCoupons" xml:"MonthGaapDeductedByCashCoupons" require:"true"`
-	MonthGaapDeductedByPrepaidCard   *string `json:"MonthGaapDeductedByPrepaidCard" xml:"MonthGaapDeductedByPrepaidCard" require:"true"`
-	MonthGaapPaymentAmount           *string `json:"MonthGaapPaymentAmount" xml:"MonthGaapPaymentAmount" require:"true"`
-	UnallocatedPaymentAmount         *string `json:"UnallocatedPaymentAmount" xml:"UnallocatedPaymentAmount" require:"true"`
-	UsageStartDate                   *string `json:"UsageStartDate" xml:"UsageStartDate" require:"true"`
-	UsageEndDate                     *string `json:"UsageEndDate" xml:"UsageEndDate" require:"true"`
-	BillType                         *string `json:"BillType" xml:"BillType" require:"true"`
-	OrderId                          *string `json:"OrderId" xml:"OrderId" require:"true"`
-	SubOrderId                       *string `json:"SubOrderId" xml:"SubOrderId" require:"true"`
-	UnallocatedPretaxGrossAmount     *string `json:"UnallocatedPretaxGrossAmount" xml:"UnallocatedPretaxGrossAmount" require:"true"`
-	UnallocatedPricingDiscount       *string `json:"UnallocatedPricingDiscount" xml:"UnallocatedPricingDiscount" require:"true"`
-	UnallocatedDeductedByCoupons     *string `json:"UnallocatedDeductedByCoupons" xml:"UnallocatedDeductedByCoupons" require:"true"`
-	UnallocatedPretaxAmount          *string `json:"UnallocatedPretaxAmount" xml:"UnallocatedPretaxAmount" require:"true"`
-	UnallocatedPretaxAmountLocal     *string `json:"UnallocatedPretaxAmountLocal" xml:"UnallocatedPretaxAmountLocal" require:"true"`
-	UnallocatedDeductedByCashCoupons *string `json:"UnallocatedDeductedByCashCoupons" xml:"UnallocatedDeductedByCashCoupons" require:"true"`
-	UnallocatedDeductedByPrepaidCard *string `json:"UnallocatedDeductedByPrepaidCard" xml:"UnallocatedDeductedByPrepaidCard" require:"true"`
+	BillingCycle                     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	InstanceID                       *string `json:"InstanceID,omitempty" xml:"InstanceID,omitempty" require:"true"`
+	ProductCode                      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType                      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType                 *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	Tag                              *string `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	ResourceGroup                    *string `json:"ResourceGroup,omitempty" xml:"ResourceGroup,omitempty" require:"true"`
+	AccountingUnit                   *string `json:"AccountingUnit,omitempty" xml:"AccountingUnit,omitempty" require:"true"`
+	PayerAccount                     *string `json:"PayerAccount,omitempty" xml:"PayerAccount,omitempty" require:"true"`
+	OwnerID                          *string `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	Region                           *string `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	Currency                         *string `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PaymentCurrency                  *string `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	OrderType                        *string `json:"OrderType,omitempty" xml:"OrderType,omitempty" require:"true"`
+	PayTime                          *string `json:"PayTime,omitempty" xml:"PayTime,omitempty" require:"true"`
+	PretaxGrossAmount                *string `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	PricingDiscount                  *string `json:"PricingDiscount,omitempty" xml:"PricingDiscount,omitempty" require:"true"`
+	DeductedByCoupons                *string `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	PretaxAmount                     *string `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	PretaxAmountLocal                *string `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	DeductedByCashCoupons            *string `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard            *string `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	PaymentAmount                    *string `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	GaapPretaxGrossAmount            *string `json:"GaapPretaxGrossAmount,omitempty" xml:"GaapPretaxGrossAmount,omitempty" require:"true"`
+	GaapPricingDiscount              *string `json:"GaapPricingDiscount,omitempty" xml:"GaapPricingDiscount,omitempty" require:"true"`
+	GaapDeductedByCoupons            *string `json:"GaapDeductedByCoupons,omitempty" xml:"GaapDeductedByCoupons,omitempty" require:"true"`
+	GaapPretaxAmount                 *string `json:"GaapPretaxAmount,omitempty" xml:"GaapPretaxAmount,omitempty" require:"true"`
+	GaapPretaxAmountLocal            *string `json:"GaapPretaxAmountLocal,omitempty" xml:"GaapPretaxAmountLocal,omitempty" require:"true"`
+	GaapDeductedByCashCoupons        *string `json:"GaapDeductedByCashCoupons,omitempty" xml:"GaapDeductedByCashCoupons,omitempty" require:"true"`
+	GaapDeductedByPrepaidCard        *string `json:"GaapDeductedByPrepaidCard,omitempty" xml:"GaapDeductedByPrepaidCard,omitempty" require:"true"`
+	GaapPaymentAmount                *string `json:"GaapPaymentAmount,omitempty" xml:"GaapPaymentAmount,omitempty" require:"true"`
+	MonthGaapPretaxGrossAmount       *string `json:"MonthGaapPretaxGrossAmount,omitempty" xml:"MonthGaapPretaxGrossAmount,omitempty" require:"true"`
+	MonthGaapPricingDiscount         *string `json:"MonthGaapPricingDiscount,omitempty" xml:"MonthGaapPricingDiscount,omitempty" require:"true"`
+	MonthGaapDeductedByCoupons       *string `json:"MonthGaapDeductedByCoupons,omitempty" xml:"MonthGaapDeductedByCoupons,omitempty" require:"true"`
+	MonthGaapPretaxAmount            *string `json:"MonthGaapPretaxAmount,omitempty" xml:"MonthGaapPretaxAmount,omitempty" require:"true"`
+	MonthGaapPretaxAmountLocal       *string `json:"MonthGaapPretaxAmountLocal,omitempty" xml:"MonthGaapPretaxAmountLocal,omitempty" require:"true"`
+	MonthGaapDeductedByCashCoupons   *string `json:"MonthGaapDeductedByCashCoupons,omitempty" xml:"MonthGaapDeductedByCashCoupons,omitempty" require:"true"`
+	MonthGaapDeductedByPrepaidCard   *string `json:"MonthGaapDeductedByPrepaidCard,omitempty" xml:"MonthGaapDeductedByPrepaidCard,omitempty" require:"true"`
+	MonthGaapPaymentAmount           *string `json:"MonthGaapPaymentAmount,omitempty" xml:"MonthGaapPaymentAmount,omitempty" require:"true"`
+	UnallocatedPaymentAmount         *string `json:"UnallocatedPaymentAmount,omitempty" xml:"UnallocatedPaymentAmount,omitempty" require:"true"`
+	UsageStartDate                   *string `json:"UsageStartDate,omitempty" xml:"UsageStartDate,omitempty" require:"true"`
+	UsageEndDate                     *string `json:"UsageEndDate,omitempty" xml:"UsageEndDate,omitempty" require:"true"`
+	BillType                         *string `json:"BillType,omitempty" xml:"BillType,omitempty" require:"true"`
+	OrderId                          *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	SubOrderId                       *string `json:"SubOrderId,omitempty" xml:"SubOrderId,omitempty" require:"true"`
+	UnallocatedPretaxGrossAmount     *string `json:"UnallocatedPretaxGrossAmount,omitempty" xml:"UnallocatedPretaxGrossAmount,omitempty" require:"true"`
+	UnallocatedPricingDiscount       *string `json:"UnallocatedPricingDiscount,omitempty" xml:"UnallocatedPricingDiscount,omitempty" require:"true"`
+	UnallocatedDeductedByCoupons     *string `json:"UnallocatedDeductedByCoupons,omitempty" xml:"UnallocatedDeductedByCoupons,omitempty" require:"true"`
+	UnallocatedPretaxAmount          *string `json:"UnallocatedPretaxAmount,omitempty" xml:"UnallocatedPretaxAmount,omitempty" require:"true"`
+	UnallocatedPretaxAmountLocal     *string `json:"UnallocatedPretaxAmountLocal,omitempty" xml:"UnallocatedPretaxAmountLocal,omitempty" require:"true"`
+	UnallocatedDeductedByCashCoupons *string `json:"UnallocatedDeductedByCashCoupons,omitempty" xml:"UnallocatedDeductedByCashCoupons,omitempty" require:"true"`
+	UnallocatedDeductedByPrepaidCard *string `json:"UnallocatedDeductedByPrepaidCard,omitempty" xml:"UnallocatedDeductedByPrepaidCard,omitempty" require:"true"`
 }
 
 func (s QueryInstanceGaapCostResponseDataModulesModule) String() string {
@@ -6841,11 +7196,11 @@ func (s *QueryInstanceGaapCostResponseDataModulesModule) SetUnallocatedDeductedB
 }
 
 type RenewInstanceRequest struct {
-	ProductCode *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	InstanceId  *string `json:"InstanceId" xml:"InstanceId" require:"true"`
-	RenewPeriod *int    `json:"RenewPeriod" xml:"RenewPeriod" require:"true"`
-	ClientToken *string `json:"ClientToken" xml:"ClientToken"`
-	ProductType *string `json:"ProductType" xml:"ProductType"`
+	ProductCode *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	InstanceId  *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	RenewPeriod *int    `json:"RenewPeriod,omitempty" xml:"RenewPeriod,omitempty" require:"true"`
+	ClientToken *string `json:"ClientToken,omitempty" xml:"ClientToken,omitempty"`
+	ProductType *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
 }
 
 func (s RenewInstanceRequest) String() string {
@@ -6882,11 +7237,11 @@ func (s *RenewInstanceRequest) SetProductType(v string) *RenewInstanceRequest {
 }
 
 type RenewInstanceResponse struct {
-	RequestId *string                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                      `json:"Success" xml:"Success" require:"true"`
-	Code      *string                    `json:"Code" xml:"Code" require:"true"`
-	Message   *string                    `json:"Message" xml:"Message" require:"true"`
-	Data      *RenewInstanceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                      `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                    `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *RenewInstanceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s RenewInstanceResponse) String() string {
@@ -6923,7 +7278,7 @@ func (s *RenewInstanceResponse) SetData(v *RenewInstanceResponseData) *RenewInst
 }
 
 type RenewInstanceResponseData struct {
-	OrderId *string `json:"OrderId" xml:"OrderId" require:"true"`
+	OrderId *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s RenewInstanceResponseData) String() string {
@@ -6940,7 +7295,7 @@ func (s *RenewInstanceResponseData) SetOrderId(v string) *RenewInstanceResponseD
 }
 
 type GetOrderDetailRequest struct {
-	OrderId *string `json:"OrderId" xml:"OrderId" require:"true"`
+	OrderId *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
 }
 
 func (s GetOrderDetailRequest) String() string {
@@ -6957,11 +7312,11 @@ func (s *GetOrderDetailRequest) SetOrderId(v string) *GetOrderDetailRequest {
 }
 
 type GetOrderDetailResponse struct {
-	RequestId *string                     `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                       `json:"Success" xml:"Success" require:"true"`
-	Code      *string                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                     `json:"Message" xml:"Message" require:"true"`
-	Data      *GetOrderDetailResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                       `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *GetOrderDetailResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetOrderDetailResponse) String() string {
@@ -6998,11 +7353,11 @@ func (s *GetOrderDetailResponse) SetData(v *GetOrderDetailResponseData) *GetOrde
 }
 
 type GetOrderDetailResponseData struct {
-	HostName   *string                              `json:"HostName" xml:"HostName" require:"true"`
-	PageNum    *int                                 `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize   *int                                 `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                                 `json:"TotalCount" xml:"TotalCount" require:"true"`
-	OrderList  *GetOrderDetailResponseDataOrderList `json:"OrderList" xml:"OrderList" require:"true" type:"Struct"`
+	HostName   *string                              `json:"HostName,omitempty" xml:"HostName,omitempty" require:"true"`
+	PageNum    *int                                 `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize   *int                                 `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                                 `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	OrderList  *GetOrderDetailResponseDataOrderList `json:"OrderList,omitempty" xml:"OrderList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetOrderDetailResponseData) String() string {
@@ -7039,7 +7394,7 @@ func (s *GetOrderDetailResponseData) SetOrderList(v *GetOrderDetailResponseDataO
 }
 
 type GetOrderDetailResponseDataOrderList struct {
-	Order []*GetOrderDetailResponseDataOrderListOrder `json:"Order" xml:"Order" require:"true" type:"Repeated"`
+	Order []*GetOrderDetailResponseDataOrderListOrder `json:"Order,omitempty" xml:"Order,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetOrderDetailResponseDataOrderList) String() string {
@@ -7056,32 +7411,32 @@ func (s *GetOrderDetailResponseDataOrderList) SetOrder(v []*GetOrderDetailRespon
 }
 
 type GetOrderDetailResponseDataOrderListOrder struct {
-	OrderId           *string `json:"OrderId" xml:"OrderId" require:"true"`
-	SubOrderId        *string `json:"SubOrderId" xml:"SubOrderId" require:"true"`
-	ProductCode       *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType       *string `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType  *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	OrderType         *string `json:"OrderType" xml:"OrderType" require:"true"`
-	CreateTime        *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	PaymentTime       *string `json:"PaymentTime" xml:"PaymentTime" require:"true"`
-	PaymentStatus     *string `json:"PaymentStatus" xml:"PaymentStatus" require:"true"`
-	Region            *string `json:"Region" xml:"Region" require:"true"`
-	Config            *string `json:"Config" xml:"Config" require:"true"`
-	Quantity          *string `json:"Quantity" xml:"Quantity" require:"true"`
-	UsageStartTime    *string `json:"UsageStartTime" xml:"UsageStartTime" require:"true"`
-	UsageEndTime      *string `json:"UsageEndTime" xml:"UsageEndTime" require:"true"`
-	InstanceIDs       *string `json:"InstanceIDs" xml:"InstanceIDs" require:"true"`
-	PretaxGrossAmount *string `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	PretaxAmount      *string `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency          *string `json:"Currency" xml:"Currency" require:"true"`
-	PretaxAmountLocal *string `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	Tax               *string `json:"Tax" xml:"Tax" require:"true"`
-	AfterTaxAmount    *string `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	PaymentCurrency   *string `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
-	Operator          *string `json:"Operator" xml:"Operator" require:"true"`
-	RelatedOrderId    *string `json:"RelatedOrderId" xml:"RelatedOrderId" require:"true"`
-	OrderSubType      *string `json:"OrderSubType" xml:"OrderSubType" require:"true"`
-	OriginalConfig    *string `json:"OriginalConfig" xml:"OriginalConfig" require:"true"`
+	OrderId           *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	SubOrderId        *string `json:"SubOrderId,omitempty" xml:"SubOrderId,omitempty" require:"true"`
+	ProductCode       *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType       *string `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType  *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	OrderType         *string `json:"OrderType,omitempty" xml:"OrderType,omitempty" require:"true"`
+	CreateTime        *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	PaymentTime       *string `json:"PaymentTime,omitempty" xml:"PaymentTime,omitempty" require:"true"`
+	PaymentStatus     *string `json:"PaymentStatus,omitempty" xml:"PaymentStatus,omitempty" require:"true"`
+	Region            *string `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	Config            *string `json:"Config,omitempty" xml:"Config,omitempty" require:"true"`
+	Quantity          *string `json:"Quantity,omitempty" xml:"Quantity,omitempty" require:"true"`
+	UsageStartTime    *string `json:"UsageStartTime,omitempty" xml:"UsageStartTime,omitempty" require:"true"`
+	UsageEndTime      *string `json:"UsageEndTime,omitempty" xml:"UsageEndTime,omitempty" require:"true"`
+	InstanceIDs       *string `json:"InstanceIDs,omitempty" xml:"InstanceIDs,omitempty" require:"true"`
+	PretaxGrossAmount *string `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	PretaxAmount      *string `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency          *string `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal *string `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax               *string `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	AfterTaxAmount    *string `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	PaymentCurrency   *string `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	Operator          *string `json:"Operator,omitempty" xml:"Operator,omitempty" require:"true"`
+	RelatedOrderId    *string `json:"RelatedOrderId,omitempty" xml:"RelatedOrderId,omitempty" require:"true"`
+	OrderSubType      *string `json:"OrderSubType,omitempty" xml:"OrderSubType,omitempty" require:"true"`
+	OriginalConfig    *string `json:"OriginalConfig,omitempty" xml:"OriginalConfig,omitempty" require:"true"`
 }
 
 func (s GetOrderDetailResponseDataOrderListOrder) String() string {
@@ -7223,15 +7578,15 @@ func (s *GetOrderDetailResponseDataOrderListOrder) SetOriginalConfig(v string) *
 }
 
 type QueryOrdersRequest struct {
-	CreateTimeEnd    *string `json:"CreateTimeEnd" xml:"CreateTimeEnd"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	OrderType        *string `json:"OrderType" xml:"OrderType"`
-	PaymentStatus    *string `json:"PaymentStatus" xml:"PaymentStatus"`
-	CreateTimeStart  *string `json:"CreateTimeStart" xml:"CreateTimeStart"`
+	CreateTimeEnd    *string `json:"CreateTimeEnd,omitempty" xml:"CreateTimeEnd,omitempty"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	OrderType        *string `json:"OrderType,omitempty" xml:"OrderType,omitempty"`
+	PaymentStatus    *string `json:"PaymentStatus,omitempty" xml:"PaymentStatus,omitempty"`
+	CreateTimeStart  *string `json:"CreateTimeStart,omitempty" xml:"CreateTimeStart,omitempty"`
 }
 
 func (s QueryOrdersRequest) String() string {
@@ -7288,11 +7643,11 @@ func (s *QueryOrdersRequest) SetCreateTimeStart(v string) *QueryOrdersRequest {
 }
 
 type QueryOrdersResponse struct {
-	RequestId *string                  `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                    `json:"Success" xml:"Success" require:"true"`
-	Code      *string                  `json:"Code" xml:"Code" require:"true"`
-	Message   *string                  `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryOrdersResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                    `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                  `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                  `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryOrdersResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryOrdersResponse) String() string {
@@ -7329,11 +7684,11 @@ func (s *QueryOrdersResponse) SetData(v *QueryOrdersResponseData) *QueryOrdersRe
 }
 
 type QueryOrdersResponseData struct {
-	HostName   *string                           `json:"HostName" xml:"HostName" require:"true"`
-	PageNum    *int                              `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize   *int                              `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *int                              `json:"TotalCount" xml:"TotalCount" require:"true"`
-	OrderList  *QueryOrdersResponseDataOrderList `json:"OrderList" xml:"OrderList" require:"true" type:"Struct"`
+	HostName   *string                           `json:"HostName,omitempty" xml:"HostName,omitempty" require:"true"`
+	PageNum    *int                              `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize   *int                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *int                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	OrderList  *QueryOrdersResponseDataOrderList `json:"OrderList,omitempty" xml:"OrderList,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryOrdersResponseData) String() string {
@@ -7370,7 +7725,7 @@ func (s *QueryOrdersResponseData) SetOrderList(v *QueryOrdersResponseDataOrderLi
 }
 
 type QueryOrdersResponseDataOrderList struct {
-	Order []*QueryOrdersResponseDataOrderListOrder `json:"Order" xml:"Order" require:"true" type:"Repeated"`
+	Order []*QueryOrdersResponseDataOrderListOrder `json:"Order,omitempty" xml:"Order,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryOrdersResponseDataOrderList) String() string {
@@ -7387,22 +7742,22 @@ func (s *QueryOrdersResponseDataOrderList) SetOrder(v []*QueryOrdersResponseData
 }
 
 type QueryOrdersResponseDataOrderListOrder struct {
-	OrderId           *string `json:"OrderId" xml:"OrderId" require:"true"`
-	ProductCode       *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType       *string `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType  *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	OrderType         *string `json:"OrderType" xml:"OrderType" require:"true"`
-	CreateTime        *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	PaymentTime       *string `json:"PaymentTime" xml:"PaymentTime" require:"true"`
-	PaymentStatus     *string `json:"PaymentStatus" xml:"PaymentStatus" require:"true"`
-	PretaxGrossAmount *string `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	PretaxAmount      *string `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency          *string `json:"Currency" xml:"Currency" require:"true"`
-	PretaxAmountLocal *string `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	Tax               *string `json:"Tax" xml:"Tax" require:"true"`
-	AfterTaxAmount    *string `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	PaymentCurrency   *string `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
-	RelatedOrderId    *string `json:"RelatedOrderId" xml:"RelatedOrderId" require:"true"`
+	OrderId           *string `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	ProductCode       *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType       *string `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType  *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	OrderType         *string `json:"OrderType,omitempty" xml:"OrderType,omitempty" require:"true"`
+	CreateTime        *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	PaymentTime       *string `json:"PaymentTime,omitempty" xml:"PaymentTime,omitempty" require:"true"`
+	PaymentStatus     *string `json:"PaymentStatus,omitempty" xml:"PaymentStatus,omitempty" require:"true"`
+	PretaxGrossAmount *string `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	PretaxAmount      *string `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency          *string `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal *string `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax               *string `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	AfterTaxAmount    *string `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	PaymentCurrency   *string `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	RelatedOrderId    *string `json:"RelatedOrderId,omitempty" xml:"RelatedOrderId,omitempty" require:"true"`
 }
 
 func (s QueryOrdersResponseDataOrderListOrder) String() string {
@@ -7494,12 +7849,12 @@ func (s *QueryOrdersResponseDataOrderListOrder) SetRelatedOrderId(v string) *Que
 }
 
 type QueryMonthlyInstanceConsumptionRequest struct {
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
 }
 
 func (s QueryMonthlyInstanceConsumptionRequest) String() string {
@@ -7541,11 +7896,11 @@ func (s *QueryMonthlyInstanceConsumptionRequest) SetSubscriptionType(v string) *
 }
 
 type QueryMonthlyInstanceConsumptionResponse struct {
-	RequestId *string                                      `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                        `json:"Success" xml:"Success" require:"true"`
-	Code      *string                                      `json:"Code" xml:"Code" require:"true"`
-	Message   *string                                      `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryMonthlyInstanceConsumptionResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                      `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                        `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                                      `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                      `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryMonthlyInstanceConsumptionResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryMonthlyInstanceConsumptionResponse) String() string {
@@ -7582,11 +7937,11 @@ func (s *QueryMonthlyInstanceConsumptionResponse) SetData(v *QueryMonthlyInstanc
 }
 
 type QueryMonthlyInstanceConsumptionResponseData struct {
-	PageNum      *int                                              `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                                              `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount   *int                                              `json:"TotalCount" xml:"TotalCount" require:"true"`
-	BillingCycle *string                                           `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	Items        *QueryMonthlyInstanceConsumptionResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	PageNum      *int                                              `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                                              `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount   *int                                              `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	BillingCycle *string                                           `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	Items        *QueryMonthlyInstanceConsumptionResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryMonthlyInstanceConsumptionResponseData) String() string {
@@ -7623,7 +7978,7 @@ func (s *QueryMonthlyInstanceConsumptionResponseData) SetItems(v *QueryMonthlyIn
 }
 
 type QueryMonthlyInstanceConsumptionResponseDataItems struct {
-	Item []*QueryMonthlyInstanceConsumptionResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryMonthlyInstanceConsumptionResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryMonthlyInstanceConsumptionResponseDataItems) String() string {
@@ -7640,23 +7995,23 @@ func (s *QueryMonthlyInstanceConsumptionResponseDataItems) SetItem(v []*QueryMon
 }
 
 type QueryMonthlyInstanceConsumptionResponseDataItemsItem struct {
-	InstanceID        *string  `json:"InstanceID" xml:"InstanceID" require:"true"`
-	ProductCode       *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType       *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType  *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	Tag               *string  `json:"Tag" xml:"Tag" require:"true"`
-	ResourceGroup     *string  `json:"ResourceGroup" xml:"ResourceGroup" require:"true"`
-	PayerAccount      *string  `json:"PayerAccount" xml:"PayerAccount" require:"true"`
-	OwnerID           *string  `json:"OwnerID" xml:"OwnerID" require:"true"`
-	Region            *string  `json:"Region" xml:"Region" require:"true"`
-	PretaxGrossAmount *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	DiscountAmount    *float32 `json:"DiscountAmount" xml:"DiscountAmount" require:"true"`
-	PretaxAmount      *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency          *string  `json:"Currency" xml:"Currency" require:"true"`
-	PretaxAmountLocal *float32 `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	Tax               *float32 `json:"Tax" xml:"Tax" require:"true"`
-	AfterTaxAmount    *float32 `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	PaymentCurrency   *string  `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
+	InstanceID        *string  `json:"InstanceID,omitempty" xml:"InstanceID,omitempty" require:"true"`
+	ProductCode       *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType       *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType  *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	Tag               *string  `json:"Tag,omitempty" xml:"Tag,omitempty" require:"true"`
+	ResourceGroup     *string  `json:"ResourceGroup,omitempty" xml:"ResourceGroup,omitempty" require:"true"`
+	PayerAccount      *string  `json:"PayerAccount,omitempty" xml:"PayerAccount,omitempty" require:"true"`
+	OwnerID           *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	Region            *string  `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	PretaxGrossAmount *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	DiscountAmount    *float32 `json:"DiscountAmount,omitempty" xml:"DiscountAmount,omitempty" require:"true"`
+	PretaxAmount      *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency          *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal *float32 `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax               *float32 `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	AfterTaxAmount    *float32 `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	PaymentCurrency   *string  `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
 }
 
 func (s QueryMonthlyInstanceConsumptionResponseDataItemsItem) String() string {
@@ -7753,16 +8108,16 @@ func (s *QueryMonthlyInstanceConsumptionResponseDataItemsItem) SetPaymentCurrenc
 }
 
 type QuerySettlementBillRequest struct {
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	BillingCycle     *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	StartTime        *string `json:"StartTime" xml:"StartTime"`
-	EndTime          *string `json:"EndTime" xml:"EndTime"`
-	Type             *string `json:"Type" xml:"Type"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	IsHideZeroCharge *bool   `json:"IsHideZeroCharge" xml:"IsHideZeroCharge"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	BillingCycle     *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	StartTime        *string `json:"StartTime,omitempty" xml:"StartTime,omitempty"`
+	EndTime          *string `json:"EndTime,omitempty" xml:"EndTime,omitempty"`
+	Type             *string `json:"Type,omitempty" xml:"Type,omitempty"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	IsHideZeroCharge *bool   `json:"IsHideZeroCharge,omitempty" xml:"IsHideZeroCharge,omitempty"`
 }
 
 func (s QuerySettlementBillRequest) String() string {
@@ -7824,11 +8179,11 @@ func (s *QuerySettlementBillRequest) SetIsHideZeroCharge(v bool) *QuerySettlemen
 }
 
 type QuerySettlementBillResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                            `json:"Success" xml:"Success" require:"true"`
-	Code      *string                          `json:"Code" xml:"Code" require:"true"`
-	Message   *string                          `json:"Message" xml:"Message" require:"true"`
-	Data      *QuerySettlementBillResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                            `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                          `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                          `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QuerySettlementBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QuerySettlementBillResponse) String() string {
@@ -7865,11 +8220,11 @@ func (s *QuerySettlementBillResponse) SetData(v *QuerySettlementBillResponseData
 }
 
 type QuerySettlementBillResponseData struct {
-	PageNum      *int                                  `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                                  `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount   *int                                  `json:"TotalCount" xml:"TotalCount" require:"true"`
-	BillingCycle *string                               `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	Items        *QuerySettlementBillResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	PageNum      *int                                  `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                                  `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount   *int                                  `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	BillingCycle *string                               `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	Items        *QuerySettlementBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QuerySettlementBillResponseData) String() string {
@@ -7906,7 +8261,7 @@ func (s *QuerySettlementBillResponseData) SetItems(v *QuerySettlementBillRespons
 }
 
 type QuerySettlementBillResponseDataItems struct {
-	Item []*QuerySettlementBillResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QuerySettlementBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QuerySettlementBillResponseDataItems) String() string {
@@ -7923,49 +8278,49 @@ func (s *QuerySettlementBillResponseDataItems) SetItem(v []*QuerySettlementBillR
 }
 
 type QuerySettlementBillResponseDataItemsItem struct {
-	RecordID                    *string  `json:"RecordID" xml:"RecordID" require:"true"`
-	Item                        *string  `json:"Item" xml:"Item" require:"true"`
-	PayerAccount                *string  `json:"PayerAccount" xml:"PayerAccount" require:"true"`
-	OwnerID                     *string  `json:"OwnerID" xml:"OwnerID" require:"true"`
-	CreateTime                  *string  `json:"CreateTime" xml:"CreateTime" require:"true"`
-	UsageStartTime              *string  `json:"UsageStartTime" xml:"UsageStartTime" require:"true"`
-	UsageEndTime                *string  `json:"UsageEndTime" xml:"UsageEndTime" require:"true"`
-	SuborderID                  *string  `json:"SuborderID" xml:"SuborderID" require:"true"`
-	OrderID                     *string  `json:"OrderID" xml:"OrderID" require:"true"`
-	OrderType                   *string  `json:"OrderType" xml:"OrderType" require:"true"`
-	LinkedCustomerOrderID       *string  `json:"LinkedCustomerOrderID" xml:"LinkedCustomerOrderID" require:"true"`
-	OriginalOrderID             *string  `json:"OriginalOrderID" xml:"OriginalOrderID" require:"true"`
-	PaymentTime                 *string  `json:"PaymentTime" xml:"PaymentTime" require:"true"`
-	SolutionID                  *string  `json:"SolutionID" xml:"SolutionID" require:"true"`
-	SolutionName                *string  `json:"SolutionName" xml:"SolutionName" require:"true"`
-	BillID                      *string  `json:"BillID" xml:"BillID" require:"true"`
-	ProductCode                 *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType                 *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType            *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	Region                      *string  `json:"Region" xml:"Region" require:"true"`
-	Config                      *string  `json:"Config" xml:"Config" require:"true"`
-	Quantity                    *string  `json:"Quantity" xml:"Quantity" require:"true"`
-	PretaxGrossAmount           *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	ChargeDiscount              *float32 `json:"ChargeDiscount" xml:"ChargeDiscount" require:"true"`
-	DeductedByCoupons           *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	AccountDiscount             *float32 `json:"AccountDiscount" xml:"AccountDiscount" require:"true"`
-	Promotion                   *string  `json:"Promotion" xml:"Promotion" require:"true"`
-	PretaxAmount                *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency                    *string  `json:"Currency" xml:"Currency" require:"true"`
-	PretaxAmountLocal           *float32 `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	PreviousBillingCycleBalance *float32 `json:"PreviousBillingCycleBalance" xml:"PreviousBillingCycleBalance" require:"true"`
-	Tax                         *float32 `json:"Tax" xml:"Tax" require:"true"`
-	AfterTaxAmount              *float32 `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	Status                      *string  `json:"Status" xml:"Status" require:"true"`
-	ClearedTime                 *string  `json:"ClearedTime" xml:"ClearedTime" require:"true"`
-	OutstandingAmount           *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	DeductedByCashCoupons       *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard       *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	MybankPaymentAmount         *float32 `json:"MybankPaymentAmount" xml:"MybankPaymentAmount" require:"true"`
-	PaymentAmount               *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	PaymentCurrency             *string  `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
-	Seller                      *string  `json:"Seller" xml:"Seller" require:"true"`
-	InvoiceNo                   *string  `json:"InvoiceNo" xml:"InvoiceNo" require:"true"`
+	RecordID                    *string  `json:"RecordID,omitempty" xml:"RecordID,omitempty" require:"true"`
+	Item                        *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	PayerAccount                *string  `json:"PayerAccount,omitempty" xml:"PayerAccount,omitempty" require:"true"`
+	OwnerID                     *string  `json:"OwnerID,omitempty" xml:"OwnerID,omitempty" require:"true"`
+	CreateTime                  *string  `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	UsageStartTime              *string  `json:"UsageStartTime,omitempty" xml:"UsageStartTime,omitempty" require:"true"`
+	UsageEndTime                *string  `json:"UsageEndTime,omitempty" xml:"UsageEndTime,omitempty" require:"true"`
+	SuborderID                  *string  `json:"SuborderID,omitempty" xml:"SuborderID,omitempty" require:"true"`
+	OrderID                     *string  `json:"OrderID,omitempty" xml:"OrderID,omitempty" require:"true"`
+	OrderType                   *string  `json:"OrderType,omitempty" xml:"OrderType,omitempty" require:"true"`
+	LinkedCustomerOrderID       *string  `json:"LinkedCustomerOrderID,omitempty" xml:"LinkedCustomerOrderID,omitempty" require:"true"`
+	OriginalOrderID             *string  `json:"OriginalOrderID,omitempty" xml:"OriginalOrderID,omitempty" require:"true"`
+	PaymentTime                 *string  `json:"PaymentTime,omitempty" xml:"PaymentTime,omitempty" require:"true"`
+	SolutionID                  *string  `json:"SolutionID,omitempty" xml:"SolutionID,omitempty" require:"true"`
+	SolutionName                *string  `json:"SolutionName,omitempty" xml:"SolutionName,omitempty" require:"true"`
+	BillID                      *string  `json:"BillID,omitempty" xml:"BillID,omitempty" require:"true"`
+	ProductCode                 *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType                 *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType            *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	Region                      *string  `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	Config                      *string  `json:"Config,omitempty" xml:"Config,omitempty" require:"true"`
+	Quantity                    *string  `json:"Quantity,omitempty" xml:"Quantity,omitempty" require:"true"`
+	PretaxGrossAmount           *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	ChargeDiscount              *float32 `json:"ChargeDiscount,omitempty" xml:"ChargeDiscount,omitempty" require:"true"`
+	DeductedByCoupons           *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	AccountDiscount             *float32 `json:"AccountDiscount,omitempty" xml:"AccountDiscount,omitempty" require:"true"`
+	Promotion                   *string  `json:"Promotion,omitempty" xml:"Promotion,omitempty" require:"true"`
+	PretaxAmount                *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency                    *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal           *float32 `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	PreviousBillingCycleBalance *float32 `json:"PreviousBillingCycleBalance,omitempty" xml:"PreviousBillingCycleBalance,omitempty" require:"true"`
+	Tax                         *float32 `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	AfterTaxAmount              *float32 `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	Status                      *string  `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	ClearedTime                 *string  `json:"ClearedTime,omitempty" xml:"ClearedTime,omitempty" require:"true"`
+	OutstandingAmount           *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	DeductedByCashCoupons       *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard       *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	MybankPaymentAmount         *float32 `json:"MybankPaymentAmount,omitempty" xml:"MybankPaymentAmount,omitempty" require:"true"`
+	PaymentAmount               *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	PaymentCurrency             *string  `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
+	Seller                      *string  `json:"Seller,omitempty" xml:"Seller,omitempty" require:"true"`
+	InvoiceNo                   *string  `json:"InvoiceNo,omitempty" xml:"InvoiceNo,omitempty" require:"true"`
 }
 
 func (s QuerySettlementBillResponseDataItemsItem) String() string {
@@ -8192,7 +8547,7 @@ func (s *QuerySettlementBillResponseDataItemsItem) SetInvoiceNo(v string) *Query
 }
 
 type QueryMonthlyBillRequest struct {
-	BillingCycle *string `json:"BillingCycle" xml:"BillingCycle" require:"true"`
+	BillingCycle *string `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
 }
 
 func (s QueryMonthlyBillRequest) String() string {
@@ -8209,11 +8564,11 @@ func (s *QueryMonthlyBillRequest) SetBillingCycle(v string) *QueryMonthlyBillReq
 }
 
 type QueryMonthlyBillResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                         `json:"Success" xml:"Success" require:"true"`
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryMonthlyBillResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                         `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryMonthlyBillResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryMonthlyBillResponse) String() string {
@@ -8250,11 +8605,11 @@ func (s *QueryMonthlyBillResponse) SetData(v *QueryMonthlyBillResponseData) *Que
 }
 
 type QueryMonthlyBillResponseData struct {
-	OutstandingAmount      *float32                           `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	TotalOutstandingAmount *float32                           `json:"TotalOutstandingAmount" xml:"TotalOutstandingAmount" require:"true"`
-	NewInvoiceAmount       *float32                           `json:"NewInvoiceAmount" xml:"NewInvoiceAmount" require:"true"`
-	BillingCycle           *string                            `json:"BillingCycle" xml:"BillingCycle" require:"true"`
-	Items                  *QueryMonthlyBillResponseDataItems `json:"Items" xml:"Items" require:"true" type:"Struct"`
+	OutstandingAmount      *float32                           `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	TotalOutstandingAmount *float32                           `json:"TotalOutstandingAmount,omitempty" xml:"TotalOutstandingAmount,omitempty" require:"true"`
+	NewInvoiceAmount       *float32                           `json:"NewInvoiceAmount,omitempty" xml:"NewInvoiceAmount,omitempty" require:"true"`
+	BillingCycle           *string                            `json:"BillingCycle,omitempty" xml:"BillingCycle,omitempty" require:"true"`
+	Items                  *QueryMonthlyBillResponseDataItems `json:"Items,omitempty" xml:"Items,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryMonthlyBillResponseData) String() string {
@@ -8291,7 +8646,7 @@ func (s *QueryMonthlyBillResponseData) SetItems(v *QueryMonthlyBillResponseDataI
 }
 
 type QueryMonthlyBillResponseDataItems struct {
-	Item []*QueryMonthlyBillResponseDataItemsItem `json:"Item" xml:"Item" require:"true" type:"Repeated"`
+	Item []*QueryMonthlyBillResponseDataItemsItem `json:"Item,omitempty" xml:"Item,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryMonthlyBillResponseDataItems) String() string {
@@ -8308,25 +8663,25 @@ func (s *QueryMonthlyBillResponseDataItems) SetItem(v []*QueryMonthlyBillRespons
 }
 
 type QueryMonthlyBillResponseDataItemsItem struct {
-	Item                  *string  `json:"Item" xml:"Item" require:"true"`
-	ProductCode           *string  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType           *string  `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType      *string  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	SolutionCode          *string  `json:"SolutionCode" xml:"SolutionCode" require:"true"`
-	SolutionName          *string  `json:"SolutionName" xml:"SolutionName" require:"true"`
-	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount" xml:"PretaxGrossAmount" require:"true"`
-	InvoiceDiscount       *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	DeductedByCoupons     *float32 `json:"DeductedByCoupons" xml:"DeductedByCoupons" require:"true"`
-	PretaxAmount          *float32 `json:"PretaxAmount" xml:"PretaxAmount" require:"true"`
-	Currency              *string  `json:"Currency" xml:"Currency" require:"true"`
-	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal" xml:"PretaxAmountLocal" require:"true"`
-	Tax                   *float32 `json:"Tax" xml:"Tax" require:"true"`
-	AfterTaxAmount        *float32 `json:"AfterTaxAmount" xml:"AfterTaxAmount" require:"true"`
-	OutstandingAmount     *float32 `json:"OutstandingAmount" xml:"OutstandingAmount" require:"true"`
-	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons" xml:"DeductedByCashCoupons" require:"true"`
-	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard" xml:"DeductedByPrepaidCard" require:"true"`
-	PaymentAmount         *float32 `json:"PaymentAmount" xml:"PaymentAmount" require:"true"`
-	PaymentCurrency       *string  `json:"PaymentCurrency" xml:"PaymentCurrency" require:"true"`
+	Item                  *string  `json:"Item,omitempty" xml:"Item,omitempty" require:"true"`
+	ProductCode           *string  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType           *string  `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType      *string  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	SolutionCode          *string  `json:"SolutionCode,omitempty" xml:"SolutionCode,omitempty" require:"true"`
+	SolutionName          *string  `json:"SolutionName,omitempty" xml:"SolutionName,omitempty" require:"true"`
+	PretaxGrossAmount     *float32 `json:"PretaxGrossAmount,omitempty" xml:"PretaxGrossAmount,omitempty" require:"true"`
+	InvoiceDiscount       *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	DeductedByCoupons     *float32 `json:"DeductedByCoupons,omitempty" xml:"DeductedByCoupons,omitempty" require:"true"`
+	PretaxAmount          *float32 `json:"PretaxAmount,omitempty" xml:"PretaxAmount,omitempty" require:"true"`
+	Currency              *string  `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	PretaxAmountLocal     *float32 `json:"PretaxAmountLocal,omitempty" xml:"PretaxAmountLocal,omitempty" require:"true"`
+	Tax                   *float32 `json:"Tax,omitempty" xml:"Tax,omitempty" require:"true"`
+	AfterTaxAmount        *float32 `json:"AfterTaxAmount,omitempty" xml:"AfterTaxAmount,omitempty" require:"true"`
+	OutstandingAmount     *float32 `json:"OutstandingAmount,omitempty" xml:"OutstandingAmount,omitempty" require:"true"`
+	DeductedByCashCoupons *float32 `json:"DeductedByCashCoupons,omitempty" xml:"DeductedByCashCoupons,omitempty" require:"true"`
+	DeductedByPrepaidCard *float32 `json:"DeductedByPrepaidCard,omitempty" xml:"DeductedByPrepaidCard,omitempty" require:"true"`
+	PaymentAmount         *float32 `json:"PaymentAmount,omitempty" xml:"PaymentAmount,omitempty" require:"true"`
+	PaymentCurrency       *string  `json:"PaymentCurrency,omitempty" xml:"PaymentCurrency,omitempty" require:"true"`
 }
 
 func (s QueryMonthlyBillResponseDataItemsItem) String() string {
@@ -8433,13 +8788,13 @@ func (s *QueryMonthlyBillResponseDataItemsItem) SetPaymentCurrency(v string) *Qu
 }
 
 type SetRenewalRequest struct {
-	RenewalPeriod     *int    `json:"RenewalPeriod" xml:"RenewalPeriod"`
-	InstanceIDs       *string `json:"InstanceIDs" xml:"InstanceIDs" require:"true"`
-	ProductCode       *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType       *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType  *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	RenewalPeriodUnit *string `json:"RenewalPeriodUnit" xml:"RenewalPeriodUnit"`
-	RenewalStatus     *string `json:"RenewalStatus" xml:"RenewalStatus" require:"true"`
+	RenewalPeriod     *int    `json:"RenewalPeriod,omitempty" xml:"RenewalPeriod,omitempty"`
+	InstanceIDs       *string `json:"InstanceIDs,omitempty" xml:"InstanceIDs,omitempty" require:"true"`
+	ProductCode       *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType       *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType  *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	RenewalPeriodUnit *string `json:"RenewalPeriodUnit,omitempty" xml:"RenewalPeriodUnit,omitempty"`
+	RenewalStatus     *string `json:"RenewalStatus,omitempty" xml:"RenewalStatus,omitempty" require:"true"`
 }
 
 func (s SetRenewalRequest) String() string {
@@ -8486,10 +8841,10 @@ func (s *SetRenewalRequest) SetRenewalStatus(v string) *SetRenewalRequest {
 }
 
 type SetRenewalResponse struct {
-	RequestId *string `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool   `json:"Success" xml:"Success" require:"true"`
-	Code      *string `json:"Code" xml:"Code" require:"true"`
-	Message   *string `json:"Message" xml:"Message" require:"true"`
+	RequestId *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
 }
 
 func (s SetRenewalResponse) String() string {
@@ -8521,18 +8876,18 @@ func (s *SetRenewalResponse) SetMessage(v string) *SetRenewalResponse {
 }
 
 type QueryAvailableInstancesRequest struct {
-	Region           *string `json:"Region" xml:"Region"`
-	PageNum          *int    `json:"PageNum" xml:"PageNum"`
-	PageSize         *int    `json:"PageSize" xml:"PageSize"`
-	ProductCode      *string `json:"ProductCode" xml:"ProductCode"`
-	ProductType      *string `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string `json:"SubscriptionType" xml:"SubscriptionType"`
-	InstanceIDs      *string `json:"InstanceIDs" xml:"InstanceIDs"`
-	EndTimeStart     *string `json:"EndTimeStart" xml:"EndTimeStart"`
-	EndTimeEnd       *string `json:"EndTimeEnd" xml:"EndTimeEnd"`
-	CreateTimeStart  *string `json:"CreateTimeStart" xml:"CreateTimeStart"`
-	CreateTimeEnd    *string `json:"CreateTimeEnd" xml:"CreateTimeEnd"`
-	RenewStatus      *string `json:"RenewStatus" xml:"RenewStatus"`
+	Region           *string `json:"Region,omitempty" xml:"Region,omitempty"`
+	PageNum          *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize         *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
+	ProductCode      *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ProductType      *string `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty"`
+	InstanceIDs      *string `json:"InstanceIDs,omitempty" xml:"InstanceIDs,omitempty"`
+	EndTimeStart     *string `json:"EndTimeStart,omitempty" xml:"EndTimeStart,omitempty"`
+	EndTimeEnd       *string `json:"EndTimeEnd,omitempty" xml:"EndTimeEnd,omitempty"`
+	CreateTimeStart  *string `json:"CreateTimeStart,omitempty" xml:"CreateTimeStart,omitempty"`
+	CreateTimeEnd    *string `json:"CreateTimeEnd,omitempty" xml:"CreateTimeEnd,omitempty"`
+	RenewStatus      *string `json:"RenewStatus,omitempty" xml:"RenewStatus,omitempty"`
 }
 
 func (s QueryAvailableInstancesRequest) String() string {
@@ -8604,11 +8959,11 @@ func (s *QueryAvailableInstancesRequest) SetRenewStatus(v string) *QueryAvailabl
 }
 
 type QueryAvailableInstancesResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                `json:"Success" xml:"Success" require:"true"`
-	Code      *string                              `json:"Code" xml:"Code" require:"true"`
-	Message   *string                              `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryAvailableInstancesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                              `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                              `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryAvailableInstancesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryAvailableInstancesResponse) String() string {
@@ -8645,10 +9000,10 @@ func (s *QueryAvailableInstancesResponse) SetData(v *QueryAvailableInstancesResp
 }
 
 type QueryAvailableInstancesResponseData struct {
-	PageNum      *int                                               `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize     *int                                               `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount   *int                                               `json:"TotalCount" xml:"TotalCount" require:"true"`
-	InstanceList []*QueryAvailableInstancesResponseDataInstanceList `json:"InstanceList" xml:"InstanceList" require:"true" type:"Repeated"`
+	PageNum      *int                                               `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize     *int                                               `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount   *int                                               `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	InstanceList []*QueryAvailableInstancesResponseDataInstanceList `json:"InstanceList,omitempty" xml:"InstanceList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryAvailableInstancesResponseData) String() string {
@@ -8680,24 +9035,24 @@ func (s *QueryAvailableInstancesResponseData) SetInstanceList(v []*QueryAvailabl
 }
 
 type QueryAvailableInstancesResponseDataInstanceList struct {
-	OwnerId             *int64  `json:"OwnerId" xml:"OwnerId" require:"true"`
-	SellerId            *int64  `json:"SellerId" xml:"SellerId" require:"true"`
-	ProductCode         *string `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType         *string `json:"ProductType" xml:"ProductType" require:"true"`
-	SubscriptionType    *string `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	InstanceID          *string `json:"InstanceID" xml:"InstanceID" require:"true"`
-	Region              *string `json:"Region" xml:"Region" require:"true"`
-	CreateTime          *string `json:"CreateTime" xml:"CreateTime" require:"true"`
-	EndTime             *string `json:"EndTime" xml:"EndTime" require:"true"`
-	StopTime            *string `json:"StopTime" xml:"StopTime" require:"true"`
-	ReleaseTime         *string `json:"ReleaseTime" xml:"ReleaseTime" require:"true"`
-	ExpectedReleaseTime *string `json:"ExpectedReleaseTime" xml:"ExpectedReleaseTime" require:"true"`
-	Status              *string `json:"Status" xml:"Status" require:"true"`
-	SubStatus           *string `json:"SubStatus" xml:"SubStatus" require:"true"`
-	RenewStatus         *string `json:"RenewStatus" xml:"RenewStatus" require:"true"`
-	RenewalDuration     *int    `json:"RenewalDuration" xml:"RenewalDuration" require:"true"`
-	RenewalDurationUnit *string `json:"RenewalDurationUnit" xml:"RenewalDurationUnit" require:"true"`
-	Seller              *string `json:"Seller" xml:"Seller" require:"true"`
+	OwnerId             *int64  `json:"OwnerId,omitempty" xml:"OwnerId,omitempty" require:"true"`
+	SellerId            *int64  `json:"SellerId,omitempty" xml:"SellerId,omitempty" require:"true"`
+	ProductCode         *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType         *string `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	SubscriptionType    *string `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	InstanceID          *string `json:"InstanceID,omitempty" xml:"InstanceID,omitempty" require:"true"`
+	Region              *string `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	CreateTime          *string `json:"CreateTime,omitempty" xml:"CreateTime,omitempty" require:"true"`
+	EndTime             *string `json:"EndTime,omitempty" xml:"EndTime,omitempty" require:"true"`
+	StopTime            *string `json:"StopTime,omitempty" xml:"StopTime,omitempty" require:"true"`
+	ReleaseTime         *string `json:"ReleaseTime,omitempty" xml:"ReleaseTime,omitempty" require:"true"`
+	ExpectedReleaseTime *string `json:"ExpectedReleaseTime,omitempty" xml:"ExpectedReleaseTime,omitempty" require:"true"`
+	Status              *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	SubStatus           *string `json:"SubStatus,omitempty" xml:"SubStatus,omitempty" require:"true"`
+	RenewStatus         *string `json:"RenewStatus,omitempty" xml:"RenewStatus,omitempty" require:"true"`
+	RenewalDuration     *int    `json:"RenewalDuration,omitempty" xml:"RenewalDuration,omitempty" require:"true"`
+	RenewalDurationUnit *string `json:"RenewalDurationUnit,omitempty" xml:"RenewalDurationUnit,omitempty" require:"true"`
+	Seller              *string `json:"Seller,omitempty" xml:"Seller,omitempty" require:"true"`
 }
 
 func (s QueryAvailableInstancesResponseDataInstanceList) String() string {
@@ -8799,12 +9154,12 @@ func (s *QueryAvailableInstancesResponseDataInstanceList) SetSeller(v string) *Q
 }
 
 type CreateResourcePackageRequest struct {
-	ProductCode   *string `json:"ProductCode" xml:"ProductCode"`
-	PackageType   *string `json:"PackageType" xml:"PackageType"`
-	EffectiveDate *string `json:"EffectiveDate" xml:"EffectiveDate"`
-	Specification *string `json:"Specification" xml:"Specification"`
-	Duration      *int    `json:"Duration" xml:"Duration"`
-	PricingCycle  *string `json:"PricingCycle" xml:"PricingCycle"`
+	ProductCode   *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	PackageType   *string `json:"PackageType,omitempty" xml:"PackageType,omitempty"`
+	EffectiveDate *string `json:"EffectiveDate,omitempty" xml:"EffectiveDate,omitempty"`
+	Specification *string `json:"Specification,omitempty" xml:"Specification,omitempty"`
+	Duration      *int    `json:"Duration,omitempty" xml:"Duration,omitempty"`
+	PricingCycle  *string `json:"PricingCycle,omitempty" xml:"PricingCycle,omitempty"`
 }
 
 func (s CreateResourcePackageRequest) String() string {
@@ -8846,12 +9201,12 @@ func (s *CreateResourcePackageRequest) SetPricingCycle(v string) *CreateResource
 }
 
 type CreateResourcePackageResponse struct {
-	RequestId *string                            `json:"RequestId" xml:"RequestId" require:"true"`
-	OrderId   *int64                             `json:"OrderId" xml:"OrderId" require:"true"`
-	Success   *bool                              `json:"Success" xml:"Success" require:"true"`
-	Code      *string                            `json:"Code" xml:"Code" require:"true"`
-	Message   *string                            `json:"Message" xml:"Message" require:"true"`
-	Data      *CreateResourcePackageResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                            `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OrderId   *int64                             `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	Success   *bool                              `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                            `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                            `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *CreateResourcePackageResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s CreateResourcePackageResponse) String() string {
@@ -8893,8 +9248,8 @@ func (s *CreateResourcePackageResponse) SetData(v *CreateResourcePackageResponse
 }
 
 type CreateResourcePackageResponseData struct {
-	OrderId    *int64  `json:"OrderId" xml:"OrderId" require:"true"`
-	InstanceId *string `json:"InstanceId" xml:"InstanceId" require:"true"`
+	OrderId    *int64  `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	InstanceId *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
 }
 
 func (s CreateResourcePackageResponseData) String() string {
@@ -8916,11 +9271,11 @@ func (s *CreateResourcePackageResponseData) SetInstanceId(v string) *CreateResou
 }
 
 type QueryResourcePackageInstancesRequest struct {
-	ProductCode     *string `json:"ProductCode" xml:"ProductCode"`
-	ExpiryTimeStart *string `json:"ExpiryTimeStart" xml:"ExpiryTimeStart"`
-	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd" xml:"ExpiryTimeEnd"`
-	PageNum         *int    `json:"PageNum" xml:"PageNum"`
-	PageSize        *int    `json:"PageSize" xml:"PageSize"`
+	ProductCode     *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	ExpiryTimeStart *string `json:"ExpiryTimeStart,omitempty" xml:"ExpiryTimeStart,omitempty"`
+	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd,omitempty" xml:"ExpiryTimeEnd,omitempty"`
+	PageNum         *int    `json:"PageNum,omitempty" xml:"PageNum,omitempty"`
+	PageSize        *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
 }
 
 func (s QueryResourcePackageInstancesRequest) String() string {
@@ -8957,14 +9312,14 @@ func (s *QueryResourcePackageInstancesRequest) SetPageSize(v int) *QueryResource
 }
 
 type QueryResourcePackageInstancesResponse struct {
-	RequestId *string                                    `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                      `json:"Success" xml:"Success" require:"true"`
-	Code      *string                                    `json:"Code" xml:"Code" require:"true"`
-	Message   *string                                    `json:"Message" xml:"Message" require:"true"`
-	Page      *int                                       `json:"Page" xml:"Page" require:"true"`
-	PageSize  *int                                       `json:"PageSize" xml:"PageSize" require:"true"`
-	Total     *int                                       `json:"Total" xml:"Total" require:"true"`
-	Data      *QueryResourcePackageInstancesResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                    `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                      `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                                    `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                    `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Page      *int                                       `json:"Page,omitempty" xml:"Page,omitempty" require:"true"`
+	PageSize  *int                                       `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	Total     *int                                       `json:"Total,omitempty" xml:"Total,omitempty" require:"true"`
+	Data      *QueryResourcePackageInstancesResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryResourcePackageInstancesResponse) String() string {
@@ -9016,11 +9371,11 @@ func (s *QueryResourcePackageInstancesResponse) SetData(v *QueryResourcePackageI
 }
 
 type QueryResourcePackageInstancesResponseData struct {
-	HostId     *string                                             `json:"HostId" xml:"HostId" require:"true"`
-	PageNum    *string                                             `json:"PageNum" xml:"PageNum" require:"true"`
-	PageSize   *string                                             `json:"PageSize" xml:"PageSize" require:"true"`
-	TotalCount *string                                             `json:"TotalCount" xml:"TotalCount" require:"true"`
-	Instances  *QueryResourcePackageInstancesResponseDataInstances `json:"Instances" xml:"Instances" require:"true" type:"Struct"`
+	HostId     *string                                             `json:"HostId,omitempty" xml:"HostId,omitempty" require:"true"`
+	PageNum    *string                                             `json:"PageNum,omitempty" xml:"PageNum,omitempty" require:"true"`
+	PageSize   *string                                             `json:"PageSize,omitempty" xml:"PageSize,omitempty" require:"true"`
+	TotalCount *string                                             `json:"TotalCount,omitempty" xml:"TotalCount,omitempty" require:"true"`
+	Instances  *QueryResourcePackageInstancesResponseDataInstances `json:"Instances,omitempty" xml:"Instances,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryResourcePackageInstancesResponseData) String() string {
@@ -9057,7 +9412,7 @@ func (s *QueryResourcePackageInstancesResponseData) SetInstances(v *QueryResourc
 }
 
 type QueryResourcePackageInstancesResponseDataInstances struct {
-	Instance []*QueryResourcePackageInstancesResponseDataInstancesInstance `json:"Instance" xml:"Instance" require:"true" type:"Repeated"`
+	Instance []*QueryResourcePackageInstancesResponseDataInstancesInstance `json:"Instance,omitempty" xml:"Instance,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryResourcePackageInstancesResponseDataInstances) String() string {
@@ -9074,19 +9429,19 @@ func (s *QueryResourcePackageInstancesResponseDataInstances) SetInstance(v []*Qu
 }
 
 type QueryResourcePackageInstancesResponseDataInstancesInstance struct {
-	InstanceId          *string                                                                       `json:"InstanceId" xml:"InstanceId" require:"true"`
-	Region              *string                                                                       `json:"Region" xml:"Region" require:"true"`
-	TotalAmount         *string                                                                       `json:"TotalAmount" xml:"TotalAmount" require:"true"`
-	TotalAmountUnit     *string                                                                       `json:"TotalAmountUnit" xml:"TotalAmountUnit" require:"true"`
-	RemainingAmount     *string                                                                       `json:"RemainingAmount" xml:"RemainingAmount" require:"true"`
-	RemainingAmountUnit *string                                                                       `json:"RemainingAmountUnit" xml:"RemainingAmountUnit" require:"true"`
-	EffectiveTime       *string                                                                       `json:"EffectiveTime" xml:"EffectiveTime" require:"true"`
-	ExpiryTime          *string                                                                       `json:"ExpiryTime" xml:"ExpiryTime" require:"true"`
-	Remark              *string                                                                       `json:"Remark" xml:"Remark" require:"true"`
-	PackageType         *string                                                                       `json:"PackageType" xml:"PackageType" require:"true"`
-	Status              *string                                                                       `json:"Status" xml:"Status" require:"true"`
-	DeductType          *string                                                                       `json:"DeductType" xml:"DeductType" require:"true"`
-	ApplicableProducts  *QueryResourcePackageInstancesResponseDataInstancesInstanceApplicableProducts `json:"ApplicableProducts" xml:"ApplicableProducts" require:"true" type:"Struct"`
+	InstanceId          *string                                                                       `json:"InstanceId,omitempty" xml:"InstanceId,omitempty" require:"true"`
+	Region              *string                                                                       `json:"Region,omitempty" xml:"Region,omitempty" require:"true"`
+	TotalAmount         *string                                                                       `json:"TotalAmount,omitempty" xml:"TotalAmount,omitempty" require:"true"`
+	TotalAmountUnit     *string                                                                       `json:"TotalAmountUnit,omitempty" xml:"TotalAmountUnit,omitempty" require:"true"`
+	RemainingAmount     *string                                                                       `json:"RemainingAmount,omitempty" xml:"RemainingAmount,omitempty" require:"true"`
+	RemainingAmountUnit *string                                                                       `json:"RemainingAmountUnit,omitempty" xml:"RemainingAmountUnit,omitempty" require:"true"`
+	EffectiveTime       *string                                                                       `json:"EffectiveTime,omitempty" xml:"EffectiveTime,omitempty" require:"true"`
+	ExpiryTime          *string                                                                       `json:"ExpiryTime,omitempty" xml:"ExpiryTime,omitempty" require:"true"`
+	Remark              *string                                                                       `json:"Remark,omitempty" xml:"Remark,omitempty" require:"true"`
+	PackageType         *string                                                                       `json:"PackageType,omitempty" xml:"PackageType,omitempty" require:"true"`
+	Status              *string                                                                       `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	DeductType          *string                                                                       `json:"DeductType,omitempty" xml:"DeductType,omitempty" require:"true"`
+	ApplicableProducts  *QueryResourcePackageInstancesResponseDataInstancesInstanceApplicableProducts `json:"ApplicableProducts,omitempty" xml:"ApplicableProducts,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryResourcePackageInstancesResponseDataInstancesInstance) String() string {
@@ -9163,7 +9518,7 @@ func (s *QueryResourcePackageInstancesResponseDataInstancesInstance) SetApplicab
 }
 
 type QueryResourcePackageInstancesResponseDataInstancesInstanceApplicableProducts struct {
-	Product []*string `json:"Product" xml:"Product" require:"true" type:"Repeated"`
+	Product []*string `json:"Product,omitempty" xml:"Product,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryResourcePackageInstancesResponseDataInstancesInstanceApplicableProducts) String() string {
@@ -9180,14 +9535,14 @@ func (s *QueryResourcePackageInstancesResponseDataInstancesInstanceApplicablePro
 }
 
 type GetResourcePackagePriceRequest struct {
-	ProductCode   *string `json:"ProductCode" xml:"ProductCode"`
-	PackageType   *string `json:"PackageType" xml:"PackageType"`
-	EffectiveDate *string `json:"EffectiveDate" xml:"EffectiveDate"`
-	Specification *string `json:"Specification" xml:"Specification"`
-	Duration      *int    `json:"Duration" xml:"Duration"`
-	PricingCycle  *string `json:"PricingCycle" xml:"PricingCycle"`
-	OrderType     *string `json:"OrderType" xml:"OrderType"`
-	InstanceId    *string `json:"InstanceId" xml:"InstanceId"`
+	ProductCode   *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
+	PackageType   *string `json:"PackageType,omitempty" xml:"PackageType,omitempty"`
+	EffectiveDate *string `json:"EffectiveDate,omitempty" xml:"EffectiveDate,omitempty"`
+	Specification *string `json:"Specification,omitempty" xml:"Specification,omitempty"`
+	Duration      *int    `json:"Duration,omitempty" xml:"Duration,omitempty"`
+	PricingCycle  *string `json:"PricingCycle,omitempty" xml:"PricingCycle,omitempty"`
+	OrderType     *string `json:"OrderType,omitempty" xml:"OrderType,omitempty"`
+	InstanceId    *string `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
 }
 
 func (s GetResourcePackagePriceRequest) String() string {
@@ -9239,11 +9594,11 @@ func (s *GetResourcePackagePriceRequest) SetInstanceId(v string) *GetResourcePac
 }
 
 type GetResourcePackagePriceResponse struct {
-	RequestId *string                              `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                                `json:"Success" xml:"Success" require:"true"`
-	Code      *string                              `json:"Code" xml:"Code" require:"true"`
-	Message   *string                              `json:"Message" xml:"Message" require:"true"`
-	Data      *GetResourcePackagePriceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                              `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                                `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                              `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                              `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *GetResourcePackagePriceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetResourcePackagePriceResponse) String() string {
@@ -9280,11 +9635,11 @@ func (s *GetResourcePackagePriceResponse) SetData(v *GetResourcePackagePriceResp
 }
 
 type GetResourcePackagePriceResponseData struct {
-	Currency      *string                                        `json:"Currency" xml:"Currency" require:"true"`
-	OriginalPrice *float32                                       `json:"OriginalPrice" xml:"OriginalPrice" require:"true"`
-	TradePrice    *float32                                       `json:"TradePrice" xml:"TradePrice" require:"true"`
-	DiscountPrice *float32                                       `json:"DiscountPrice" xml:"DiscountPrice" require:"true"`
-	Promotions    *GetResourcePackagePriceResponseDataPromotions `json:"Promotions" xml:"Promotions" require:"true" type:"Struct"`
+	Currency      *string                                        `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	OriginalPrice *float32                                       `json:"OriginalPrice,omitempty" xml:"OriginalPrice,omitempty" require:"true"`
+	TradePrice    *float32                                       `json:"TradePrice,omitempty" xml:"TradePrice,omitempty" require:"true"`
+	DiscountPrice *float32                                       `json:"DiscountPrice,omitempty" xml:"DiscountPrice,omitempty" require:"true"`
+	Promotions    *GetResourcePackagePriceResponseDataPromotions `json:"Promotions,omitempty" xml:"Promotions,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetResourcePackagePriceResponseData) String() string {
@@ -9321,7 +9676,7 @@ func (s *GetResourcePackagePriceResponseData) SetPromotions(v *GetResourcePackag
 }
 
 type GetResourcePackagePriceResponseDataPromotions struct {
-	Promotion []*GetResourcePackagePriceResponseDataPromotionsPromotion `json:"Promotion" xml:"Promotion" require:"true" type:"Repeated"`
+	Promotion []*GetResourcePackagePriceResponseDataPromotionsPromotion `json:"Promotion,omitempty" xml:"Promotion,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetResourcePackagePriceResponseDataPromotions) String() string {
@@ -9338,8 +9693,8 @@ func (s *GetResourcePackagePriceResponseDataPromotions) SetPromotion(v []*GetRes
 }
 
 type GetResourcePackagePriceResponseDataPromotionsPromotion struct {
-	Id   *int64  `json:"Id" xml:"Id" require:"true"`
-	Name *string `json:"Name" xml:"Name" require:"true"`
+	Id   *int64  `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
+	Name *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
 }
 
 func (s GetResourcePackagePriceResponseDataPromotionsPromotion) String() string {
@@ -9361,16 +9716,16 @@ func (s *GetResourcePackagePriceResponseDataPromotionsPromotion) SetName(v strin
 }
 
 type GetSubscriptionPriceRequest struct {
-	ServicePeriodUnit     *string                                  `json:"ServicePeriodUnit" xml:"ServicePeriodUnit"`
-	SubscriptionType      *string                                  `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	ProductCode           *string                                  `json:"ProductCode" xml:"ProductCode" require:"true"`
-	OrderType             *string                                  `json:"OrderType" xml:"OrderType" require:"true"`
-	ServicePeriodQuantity *int                                     `json:"ServicePeriodQuantity" xml:"ServicePeriodQuantity"`
-	ProductType           *string                                  `json:"ProductType" xml:"ProductType"`
-	Region                *string                                  `json:"Region" xml:"Region"`
-	InstanceId            *string                                  `json:"InstanceId" xml:"InstanceId"`
-	ModuleList            []*GetSubscriptionPriceRequestModuleList `json:"ModuleList" xml:"ModuleList" require:"true" type:"Repeated"`
-	Quantity              *int                                     `json:"Quantity" xml:"Quantity"`
+	ServicePeriodUnit     *string                                  `json:"ServicePeriodUnit,omitempty" xml:"ServicePeriodUnit,omitempty"`
+	SubscriptionType      *string                                  `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	ProductCode           *string                                  `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	OrderType             *string                                  `json:"OrderType,omitempty" xml:"OrderType,omitempty" require:"true"`
+	ServicePeriodQuantity *int                                     `json:"ServicePeriodQuantity,omitempty" xml:"ServicePeriodQuantity,omitempty"`
+	ProductType           *string                                  `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	Region                *string                                  `json:"Region,omitempty" xml:"Region,omitempty"`
+	InstanceId            *string                                  `json:"InstanceId,omitempty" xml:"InstanceId,omitempty"`
+	ModuleList            []*GetSubscriptionPriceRequestModuleList `json:"ModuleList,omitempty" xml:"ModuleList,omitempty" require:"true" type:"Repeated"`
+	Quantity              *int                                     `json:"Quantity,omitempty" xml:"Quantity,omitempty"`
 }
 
 func (s GetSubscriptionPriceRequest) String() string {
@@ -9432,10 +9787,10 @@ func (s *GetSubscriptionPriceRequest) SetQuantity(v int) *GetSubscriptionPriceRe
 }
 
 type GetSubscriptionPriceRequestModuleList struct {
-	ModuleCode   *string `json:"ModuleCode" xml:"ModuleCode" require:"true"`
-	Config       *string `json:"Config" xml:"Config" require:"true"`
-	ModuleStatus *int    `json:"ModuleStatus" xml:"ModuleStatus"`
-	Tag          *string `json:"Tag" xml:"Tag"`
+	ModuleCode   *string `json:"ModuleCode,omitempty" xml:"ModuleCode,omitempty" require:"true"`
+	Config       *string `json:"Config,omitempty" xml:"Config,omitempty" require:"true"`
+	ModuleStatus *int    `json:"ModuleStatus,omitempty" xml:"ModuleStatus,omitempty"`
+	Tag          *string `json:"Tag,omitempty" xml:"Tag,omitempty"`
 }
 
 func (s GetSubscriptionPriceRequestModuleList) String() string {
@@ -9467,11 +9822,11 @@ func (s *GetSubscriptionPriceRequestModuleList) SetTag(v string) *GetSubscriptio
 }
 
 type GetSubscriptionPriceResponse struct {
-	RequestId *string                           `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                             `json:"Success" xml:"Success" require:"true"`
-	Code      *string                           `json:"Code" xml:"Code" require:"true"`
-	Message   *string                           `json:"Message" xml:"Message" require:"true"`
-	Data      *GetSubscriptionPriceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                           `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                             `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                           `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                           `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *GetSubscriptionPriceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetSubscriptionPriceResponse) String() string {
@@ -9508,13 +9863,13 @@ func (s *GetSubscriptionPriceResponse) SetData(v *GetSubscriptionPriceResponseDa
 }
 
 type GetSubscriptionPriceResponseData struct {
-	OriginalPrice    *float32                                          `json:"OriginalPrice" xml:"OriginalPrice" require:"true"`
-	DiscountPrice    *float32                                          `json:"DiscountPrice" xml:"DiscountPrice" require:"true"`
-	TradePrice       *float32                                          `json:"TradePrice" xml:"TradePrice" require:"true"`
-	Currency         *string                                           `json:"Currency" xml:"Currency" require:"true"`
-	Quantity         *int                                              `json:"Quantity" xml:"Quantity" require:"true"`
-	ModuleDetails    *GetSubscriptionPriceResponseDataModuleDetails    `json:"ModuleDetails" xml:"ModuleDetails" require:"true" type:"Struct"`
-	PromotionDetails *GetSubscriptionPriceResponseDataPromotionDetails `json:"PromotionDetails" xml:"PromotionDetails" require:"true" type:"Struct"`
+	OriginalPrice    *float32                                          `json:"OriginalPrice,omitempty" xml:"OriginalPrice,omitempty" require:"true"`
+	DiscountPrice    *float32                                          `json:"DiscountPrice,omitempty" xml:"DiscountPrice,omitempty" require:"true"`
+	TradePrice       *float32                                          `json:"TradePrice,omitempty" xml:"TradePrice,omitempty" require:"true"`
+	Currency         *string                                           `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	Quantity         *int                                              `json:"Quantity,omitempty" xml:"Quantity,omitempty" require:"true"`
+	ModuleDetails    *GetSubscriptionPriceResponseDataModuleDetails    `json:"ModuleDetails,omitempty" xml:"ModuleDetails,omitempty" require:"true" type:"Struct"`
+	PromotionDetails *GetSubscriptionPriceResponseDataPromotionDetails `json:"PromotionDetails,omitempty" xml:"PromotionDetails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetSubscriptionPriceResponseData) String() string {
@@ -9561,7 +9916,7 @@ func (s *GetSubscriptionPriceResponseData) SetPromotionDetails(v *GetSubscriptio
 }
 
 type GetSubscriptionPriceResponseDataModuleDetails struct {
-	ModuleDetail []*GetSubscriptionPriceResponseDataModuleDetailsModuleDetail `json:"ModuleDetail" xml:"ModuleDetail" require:"true" type:"Repeated"`
+	ModuleDetail []*GetSubscriptionPriceResponseDataModuleDetailsModuleDetail `json:"ModuleDetail,omitempty" xml:"ModuleDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetSubscriptionPriceResponseDataModuleDetails) String() string {
@@ -9578,11 +9933,11 @@ func (s *GetSubscriptionPriceResponseDataModuleDetails) SetModuleDetail(v []*Get
 }
 
 type GetSubscriptionPriceResponseDataModuleDetailsModuleDetail struct {
-	ModuleCode        *string  `json:"ModuleCode" xml:"ModuleCode" require:"true"`
-	OriginalCost      *float32 `json:"OriginalCost" xml:"OriginalCost" require:"true"`
-	InvoiceDiscount   *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	CostAfterDiscount *float32 `json:"CostAfterDiscount" xml:"CostAfterDiscount" require:"true"`
-	UnitPrice         *float32 `json:"UnitPrice" xml:"UnitPrice" require:"true"`
+	ModuleCode        *string  `json:"ModuleCode,omitempty" xml:"ModuleCode,omitempty" require:"true"`
+	OriginalCost      *float32 `json:"OriginalCost,omitempty" xml:"OriginalCost,omitempty" require:"true"`
+	InvoiceDiscount   *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	CostAfterDiscount *float32 `json:"CostAfterDiscount,omitempty" xml:"CostAfterDiscount,omitempty" require:"true"`
+	UnitPrice         *float32 `json:"UnitPrice,omitempty" xml:"UnitPrice,omitempty" require:"true"`
 }
 
 func (s GetSubscriptionPriceResponseDataModuleDetailsModuleDetail) String() string {
@@ -9619,7 +9974,7 @@ func (s *GetSubscriptionPriceResponseDataModuleDetailsModuleDetail) SetUnitPrice
 }
 
 type GetSubscriptionPriceResponseDataPromotionDetails struct {
-	PromotionDetail []*GetSubscriptionPriceResponseDataPromotionDetailsPromotionDetail `json:"PromotionDetail" xml:"PromotionDetail" require:"true" type:"Repeated"`
+	PromotionDetail []*GetSubscriptionPriceResponseDataPromotionDetailsPromotionDetail `json:"PromotionDetail,omitempty" xml:"PromotionDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetSubscriptionPriceResponseDataPromotionDetails) String() string {
@@ -9636,9 +9991,9 @@ func (s *GetSubscriptionPriceResponseDataPromotionDetails) SetPromotionDetail(v 
 }
 
 type GetSubscriptionPriceResponseDataPromotionDetailsPromotionDetail struct {
-	PromotionName *string `json:"PromotionName" xml:"PromotionName" require:"true"`
-	PromotionDesc *string `json:"PromotionDesc" xml:"PromotionDesc" require:"true"`
-	PromotionId   *int64  `json:"PromotionId" xml:"PromotionId" require:"true"`
+	PromotionName *string `json:"PromotionName,omitempty" xml:"PromotionName,omitempty" require:"true"`
+	PromotionDesc *string `json:"PromotionDesc,omitempty" xml:"PromotionDesc,omitempty" require:"true"`
+	PromotionId   *int64  `json:"PromotionId,omitempty" xml:"PromotionId,omitempty" require:"true"`
 }
 
 func (s GetSubscriptionPriceResponseDataPromotionDetailsPromotionDetail) String() string {
@@ -9665,11 +10020,11 @@ func (s *GetSubscriptionPriceResponseDataPromotionDetailsPromotionDetail) SetPro
 }
 
 type GetPayAsYouGoPriceRequest struct {
-	ProductCode      *string                                `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType      *string                                `json:"ProductType" xml:"ProductType"`
-	SubscriptionType *string                                `json:"SubscriptionType" xml:"SubscriptionType" require:"true"`
-	Region           *string                                `json:"Region" xml:"Region"`
-	ModuleList       []*GetPayAsYouGoPriceRequestModuleList `json:"ModuleList" xml:"ModuleList" require:"true" type:"Repeated"`
+	ProductCode      *string                                `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType      *string                                `json:"ProductType,omitempty" xml:"ProductType,omitempty"`
+	SubscriptionType *string                                `json:"SubscriptionType,omitempty" xml:"SubscriptionType,omitempty" require:"true"`
+	Region           *string                                `json:"Region,omitempty" xml:"Region,omitempty"`
+	ModuleList       []*GetPayAsYouGoPriceRequestModuleList `json:"ModuleList,omitempty" xml:"ModuleList,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetPayAsYouGoPriceRequest) String() string {
@@ -9706,9 +10061,9 @@ func (s *GetPayAsYouGoPriceRequest) SetModuleList(v []*GetPayAsYouGoPriceRequest
 }
 
 type GetPayAsYouGoPriceRequestModuleList struct {
-	ModuleCode *string `json:"ModuleCode" xml:"ModuleCode" require:"true"`
-	Config     *string `json:"Config" xml:"Config" require:"true"`
-	PriceType  *string `json:"PriceType" xml:"PriceType" require:"true"`
+	ModuleCode *string `json:"ModuleCode,omitempty" xml:"ModuleCode,omitempty" require:"true"`
+	Config     *string `json:"Config,omitempty" xml:"Config,omitempty" require:"true"`
+	PriceType  *string `json:"PriceType,omitempty" xml:"PriceType,omitempty" require:"true"`
 }
 
 func (s GetPayAsYouGoPriceRequestModuleList) String() string {
@@ -9735,11 +10090,11 @@ func (s *GetPayAsYouGoPriceRequestModuleList) SetPriceType(v string) *GetPayAsYo
 }
 
 type GetPayAsYouGoPriceResponse struct {
-	RequestId *string                         `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                           `json:"Success" xml:"Success" require:"true"`
-	Code      *string                         `json:"Code" xml:"Code" require:"true"`
-	Message   *string                         `json:"Message" xml:"Message" require:"true"`
-	Data      *GetPayAsYouGoPriceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                         `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                           `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                         `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                         `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *GetPayAsYouGoPriceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPayAsYouGoPriceResponse) String() string {
@@ -9776,9 +10131,9 @@ func (s *GetPayAsYouGoPriceResponse) SetData(v *GetPayAsYouGoPriceResponseData) 
 }
 
 type GetPayAsYouGoPriceResponseData struct {
-	Currency         *string                                         `json:"Currency" xml:"Currency" require:"true"`
-	ModuleDetails    *GetPayAsYouGoPriceResponseDataModuleDetails    `json:"ModuleDetails" xml:"ModuleDetails" require:"true" type:"Struct"`
-	PromotionDetails *GetPayAsYouGoPriceResponseDataPromotionDetails `json:"PromotionDetails" xml:"PromotionDetails" require:"true" type:"Struct"`
+	Currency         *string                                         `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
+	ModuleDetails    *GetPayAsYouGoPriceResponseDataModuleDetails    `json:"ModuleDetails,omitempty" xml:"ModuleDetails,omitempty" require:"true" type:"Struct"`
+	PromotionDetails *GetPayAsYouGoPriceResponseDataPromotionDetails `json:"PromotionDetails,omitempty" xml:"PromotionDetails,omitempty" require:"true" type:"Struct"`
 }
 
 func (s GetPayAsYouGoPriceResponseData) String() string {
@@ -9805,7 +10160,7 @@ func (s *GetPayAsYouGoPriceResponseData) SetPromotionDetails(v *GetPayAsYouGoPri
 }
 
 type GetPayAsYouGoPriceResponseDataModuleDetails struct {
-	ModuleDetail []*GetPayAsYouGoPriceResponseDataModuleDetailsModuleDetail `json:"ModuleDetail" xml:"ModuleDetail" require:"true" type:"Repeated"`
+	ModuleDetail []*GetPayAsYouGoPriceResponseDataModuleDetailsModuleDetail `json:"ModuleDetail,omitempty" xml:"ModuleDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetPayAsYouGoPriceResponseDataModuleDetails) String() string {
@@ -9822,11 +10177,11 @@ func (s *GetPayAsYouGoPriceResponseDataModuleDetails) SetModuleDetail(v []*GetPa
 }
 
 type GetPayAsYouGoPriceResponseDataModuleDetailsModuleDetail struct {
-	ModuleCode        *string  `json:"ModuleCode" xml:"ModuleCode" require:"true"`
-	OriginalCost      *float32 `json:"OriginalCost" xml:"OriginalCost" require:"true"`
-	InvoiceDiscount   *float32 `json:"InvoiceDiscount" xml:"InvoiceDiscount" require:"true"`
-	CostAfterDiscount *float32 `json:"CostAfterDiscount" xml:"CostAfterDiscount" require:"true"`
-	UnitPrice         *float32 `json:"UnitPrice" xml:"UnitPrice" require:"true"`
+	ModuleCode        *string  `json:"ModuleCode,omitempty" xml:"ModuleCode,omitempty" require:"true"`
+	OriginalCost      *float32 `json:"OriginalCost,omitempty" xml:"OriginalCost,omitempty" require:"true"`
+	InvoiceDiscount   *float32 `json:"InvoiceDiscount,omitempty" xml:"InvoiceDiscount,omitempty" require:"true"`
+	CostAfterDiscount *float32 `json:"CostAfterDiscount,omitempty" xml:"CostAfterDiscount,omitempty" require:"true"`
+	UnitPrice         *float32 `json:"UnitPrice,omitempty" xml:"UnitPrice,omitempty" require:"true"`
 }
 
 func (s GetPayAsYouGoPriceResponseDataModuleDetailsModuleDetail) String() string {
@@ -9863,7 +10218,7 @@ func (s *GetPayAsYouGoPriceResponseDataModuleDetailsModuleDetail) SetUnitPrice(v
 }
 
 type GetPayAsYouGoPriceResponseDataPromotionDetails struct {
-	PromotionDetail []*GetPayAsYouGoPriceResponseDataPromotionDetailsPromotionDetail `json:"PromotionDetail" xml:"PromotionDetail" require:"true" type:"Repeated"`
+	PromotionDetail []*GetPayAsYouGoPriceResponseDataPromotionDetailsPromotionDetail `json:"PromotionDetail,omitempty" xml:"PromotionDetail,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s GetPayAsYouGoPriceResponseDataPromotionDetails) String() string {
@@ -9880,9 +10235,9 @@ func (s *GetPayAsYouGoPriceResponseDataPromotionDetails) SetPromotionDetail(v []
 }
 
 type GetPayAsYouGoPriceResponseDataPromotionDetailsPromotionDetail struct {
-	PromotionName *string `json:"PromotionName" xml:"PromotionName" require:"true"`
-	PromotionDesc *string `json:"PromotionDesc" xml:"PromotionDesc" require:"true"`
-	PromotionId   *int64  `json:"PromotionId" xml:"PromotionId" require:"true"`
+	PromotionName *string `json:"PromotionName,omitempty" xml:"PromotionName,omitempty" require:"true"`
+	PromotionDesc *string `json:"PromotionDesc,omitempty" xml:"PromotionDesc,omitempty" require:"true"`
+	PromotionId   *int64  `json:"PromotionId,omitempty" xml:"PromotionId,omitempty" require:"true"`
 }
 
 func (s GetPayAsYouGoPriceResponseDataPromotionDetailsPromotionDetail) String() string {
@@ -9909,9 +10264,9 @@ func (s *GetPayAsYouGoPriceResponseDataPromotionDetailsPromotionDetail) SetPromo
 }
 
 type QueryPrepaidCardsRequest struct {
-	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd" xml:"ExpiryTimeEnd"`
-	ExpiryTimeStart *string `json:"ExpiryTimeStart" xml:"ExpiryTimeStart"`
-	EffectiveOrNot  *bool   `json:"EffectiveOrNot" xml:"EffectiveOrNot"`
+	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd,omitempty" xml:"ExpiryTimeEnd,omitempty"`
+	ExpiryTimeStart *string `json:"ExpiryTimeStart,omitempty" xml:"ExpiryTimeStart,omitempty"`
+	EffectiveOrNot  *bool   `json:"EffectiveOrNot,omitempty" xml:"EffectiveOrNot,omitempty"`
 }
 
 func (s QueryPrepaidCardsRequest) String() string {
@@ -9938,11 +10293,11 @@ func (s *QueryPrepaidCardsRequest) SetEffectiveOrNot(v bool) *QueryPrepaidCardsR
 }
 
 type QueryPrepaidCardsResponse struct {
-	RequestId *string                        `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                          `json:"Success" xml:"Success" require:"true"`
-	Code      *string                        `json:"Code" xml:"Code" require:"true"`
-	Message   *string                        `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryPrepaidCardsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                        `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                          `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                        `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                        `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryPrepaidCardsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryPrepaidCardsResponse) String() string {
@@ -9979,7 +10334,7 @@ func (s *QueryPrepaidCardsResponse) SetData(v *QueryPrepaidCardsResponseData) *Q
 }
 
 type QueryPrepaidCardsResponseData struct {
-	PrepaidCard []*QueryPrepaidCardsResponseDataPrepaidCard `json:"PrepaidCard" xml:"PrepaidCard" require:"true" type:"Repeated"`
+	PrepaidCard []*QueryPrepaidCardsResponseDataPrepaidCard `json:"PrepaidCard,omitempty" xml:"PrepaidCard,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryPrepaidCardsResponseData) String() string {
@@ -9996,16 +10351,16 @@ func (s *QueryPrepaidCardsResponseData) SetPrepaidCard(v []*QueryPrepaidCardsRes
 }
 
 type QueryPrepaidCardsResponseDataPrepaidCard struct {
-	PrepaidCardId       *int64  `json:"PrepaidCardId" xml:"PrepaidCardId" require:"true"`
-	PrepaidCardNo       *string `json:"PrepaidCardNo" xml:"PrepaidCardNo" require:"true"`
-	GrantedTime         *string `json:"GrantedTime" xml:"GrantedTime" require:"true"`
-	EffectiveTime       *string `json:"EffectiveTime" xml:"EffectiveTime" require:"true"`
-	ExpiryTime          *string `json:"ExpiryTime" xml:"ExpiryTime" require:"true"`
-	ApplicableProducts  *string `json:"ApplicableProducts" xml:"ApplicableProducts" require:"true"`
-	ApplicableScenarios *string `json:"ApplicableScenarios" xml:"ApplicableScenarios" require:"true"`
-	NominalValue        *string `json:"NominalValue" xml:"NominalValue" require:"true"`
-	Balance             *string `json:"Balance" xml:"Balance" require:"true"`
-	Status              *string `json:"Status" xml:"Status" require:"true"`
+	PrepaidCardId       *int64  `json:"PrepaidCardId,omitempty" xml:"PrepaidCardId,omitempty" require:"true"`
+	PrepaidCardNo       *string `json:"PrepaidCardNo,omitempty" xml:"PrepaidCardNo,omitempty" require:"true"`
+	GrantedTime         *string `json:"GrantedTime,omitempty" xml:"GrantedTime,omitempty" require:"true"`
+	EffectiveTime       *string `json:"EffectiveTime,omitempty" xml:"EffectiveTime,omitempty" require:"true"`
+	ExpiryTime          *string `json:"ExpiryTime,omitempty" xml:"ExpiryTime,omitempty" require:"true"`
+	ApplicableProducts  *string `json:"ApplicableProducts,omitempty" xml:"ApplicableProducts,omitempty" require:"true"`
+	ApplicableScenarios *string `json:"ApplicableScenarios,omitempty" xml:"ApplicableScenarios,omitempty" require:"true"`
+	NominalValue        *string `json:"NominalValue,omitempty" xml:"NominalValue,omitempty" require:"true"`
+	Balance             *string `json:"Balance,omitempty" xml:"Balance,omitempty" require:"true"`
+	Status              *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s QueryPrepaidCardsResponseDataPrepaidCard) String() string {
@@ -10067,9 +10422,9 @@ func (s *QueryPrepaidCardsResponseDataPrepaidCard) SetStatus(v string) *QueryPre
 }
 
 type QueryCashCouponsRequest struct {
-	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd" xml:"ExpiryTimeEnd"`
-	ExpiryTimeStart *string `json:"ExpiryTimeStart" xml:"ExpiryTimeStart"`
-	EffectiveOrNot  *bool   `json:"EffectiveOrNot" xml:"EffectiveOrNot"`
+	ExpiryTimeEnd   *string `json:"ExpiryTimeEnd,omitempty" xml:"ExpiryTimeEnd,omitempty"`
+	ExpiryTimeStart *string `json:"ExpiryTimeStart,omitempty" xml:"ExpiryTimeStart,omitempty"`
+	EffectiveOrNot  *bool   `json:"EffectiveOrNot,omitempty" xml:"EffectiveOrNot,omitempty"`
 }
 
 func (s QueryCashCouponsRequest) String() string {
@@ -10096,11 +10451,11 @@ func (s *QueryCashCouponsRequest) SetEffectiveOrNot(v bool) *QueryCashCouponsReq
 }
 
 type QueryCashCouponsResponse struct {
-	RequestId *string                       `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                         `json:"Success" xml:"Success" require:"true"`
-	Code      *string                       `json:"Code" xml:"Code" require:"true"`
-	Message   *string                       `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryCashCouponsResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                       `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                         `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                       `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                       `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryCashCouponsResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryCashCouponsResponse) String() string {
@@ -10137,7 +10492,7 @@ func (s *QueryCashCouponsResponse) SetData(v *QueryCashCouponsResponseData) *Que
 }
 
 type QueryCashCouponsResponseData struct {
-	CashCoupon []*QueryCashCouponsResponseDataCashCoupon `json:"CashCoupon" xml:"CashCoupon" require:"true" type:"Repeated"`
+	CashCoupon []*QueryCashCouponsResponseDataCashCoupon `json:"CashCoupon,omitempty" xml:"CashCoupon,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s QueryCashCouponsResponseData) String() string {
@@ -10154,16 +10509,16 @@ func (s *QueryCashCouponsResponseData) SetCashCoupon(v []*QueryCashCouponsRespon
 }
 
 type QueryCashCouponsResponseDataCashCoupon struct {
-	CashCouponId        *int64  `json:"CashCouponId" xml:"CashCouponId" require:"true"`
-	CashCouponNo        *string `json:"CashCouponNo" xml:"CashCouponNo" require:"true"`
-	GrantedTime         *string `json:"GrantedTime" xml:"GrantedTime" require:"true"`
-	EffectiveTime       *string `json:"EffectiveTime" xml:"EffectiveTime" require:"true"`
-	ExpiryTime          *string `json:"ExpiryTime" xml:"ExpiryTime" require:"true"`
-	ApplicableProducts  *string `json:"ApplicableProducts" xml:"ApplicableProducts" require:"true"`
-	ApplicableScenarios *string `json:"ApplicableScenarios" xml:"ApplicableScenarios" require:"true"`
-	NominalValue        *string `json:"NominalValue" xml:"NominalValue" require:"true"`
-	Balance             *string `json:"Balance" xml:"Balance" require:"true"`
-	Status              *string `json:"Status" xml:"Status" require:"true"`
+	CashCouponId        *int64  `json:"CashCouponId,omitempty" xml:"CashCouponId,omitempty" require:"true"`
+	CashCouponNo        *string `json:"CashCouponNo,omitempty" xml:"CashCouponNo,omitempty" require:"true"`
+	GrantedTime         *string `json:"GrantedTime,omitempty" xml:"GrantedTime,omitempty" require:"true"`
+	EffectiveTime       *string `json:"EffectiveTime,omitempty" xml:"EffectiveTime,omitempty" require:"true"`
+	ExpiryTime          *string `json:"ExpiryTime,omitempty" xml:"ExpiryTime,omitempty" require:"true"`
+	ApplicableProducts  *string `json:"ApplicableProducts,omitempty" xml:"ApplicableProducts,omitempty" require:"true"`
+	ApplicableScenarios *string `json:"ApplicableScenarios,omitempty" xml:"ApplicableScenarios,omitempty" require:"true"`
+	NominalValue        *string `json:"NominalValue,omitempty" xml:"NominalValue,omitempty" require:"true"`
+	Balance             *string `json:"Balance,omitempty" xml:"Balance,omitempty" require:"true"`
+	Status              *string `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
 }
 
 func (s QueryCashCouponsResponseDataCashCoupon) String() string {
@@ -10236,11 +10591,11 @@ func (s QueryAccountBalanceRequest) GoString() string {
 }
 
 type QueryAccountBalanceResponse struct {
-	RequestId *string                          `json:"RequestId" xml:"RequestId" require:"true"`
-	Success   *bool                            `json:"Success" xml:"Success" require:"true"`
-	Code      *string                          `json:"Code" xml:"Code" require:"true"`
-	Message   *string                          `json:"Message" xml:"Message" require:"true"`
-	Data      *QueryAccountBalanceResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                          `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success   *bool                            `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                          `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                          `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *QueryAccountBalanceResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s QueryAccountBalanceResponse) String() string {
@@ -10277,11 +10632,11 @@ func (s *QueryAccountBalanceResponse) SetData(v *QueryAccountBalanceResponseData
 }
 
 type QueryAccountBalanceResponseData struct {
-	AvailableAmount     *string `json:"AvailableAmount" xml:"AvailableAmount" require:"true"`
-	AvailableCashAmount *string `json:"AvailableCashAmount" xml:"AvailableCashAmount" require:"true"`
-	CreditAmount        *string `json:"CreditAmount" xml:"CreditAmount" require:"true"`
-	MybankCreditAmount  *string `json:"MybankCreditAmount" xml:"MybankCreditAmount" require:"true"`
-	Currency            *string `json:"Currency" xml:"Currency" require:"true"`
+	AvailableAmount     *string `json:"AvailableAmount,omitempty" xml:"AvailableAmount,omitempty" require:"true"`
+	AvailableCashAmount *string `json:"AvailableCashAmount,omitempty" xml:"AvailableCashAmount,omitempty" require:"true"`
+	CreditAmount        *string `json:"CreditAmount,omitempty" xml:"CreditAmount,omitempty" require:"true"`
+	MybankCreditAmount  *string `json:"MybankCreditAmount,omitempty" xml:"MybankCreditAmount,omitempty" require:"true"`
+	Currency            *string `json:"Currency,omitempty" xml:"Currency,omitempty" require:"true"`
 }
 
 func (s QueryAccountBalanceResponseData) String() string {
@@ -10318,7 +10673,7 @@ func (s *QueryAccountBalanceResponseData) SetCurrency(v string) *QueryAccountBal
 }
 
 type DescribeResourcePackageProductRequest struct {
-	ProductCode *string `json:"ProductCode" xml:"ProductCode"`
+	ProductCode *string `json:"ProductCode,omitempty" xml:"ProductCode,omitempty"`
 }
 
 func (s DescribeResourcePackageProductRequest) String() string {
@@ -10335,12 +10690,12 @@ func (s *DescribeResourcePackageProductRequest) SetProductCode(v string) *Descri
 }
 
 type DescribeResourcePackageProductResponse struct {
-	RequestId *string                                     `json:"RequestId" xml:"RequestId" require:"true"`
-	OrderId   *int64                                      `json:"OrderId" xml:"OrderId" require:"true"`
-	Success   *bool                                       `json:"Success" xml:"Success" require:"true"`
-	Code      *string                                     `json:"Code" xml:"Code" require:"true"`
-	Message   *string                                     `json:"Message" xml:"Message" require:"true"`
-	Data      *DescribeResourcePackageProductResponseData `json:"Data" xml:"Data" require:"true" type:"Struct"`
+	RequestId *string                                     `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	OrderId   *int64                                      `json:"OrderId,omitempty" xml:"OrderId,omitempty" require:"true"`
+	Success   *bool                                       `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Code      *string                                     `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Message   *string                                     `json:"Message,omitempty" xml:"Message,omitempty" require:"true"`
+	Data      *DescribeResourcePackageProductResponseData `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeResourcePackageProductResponse) String() string {
@@ -10382,7 +10737,7 @@ func (s *DescribeResourcePackageProductResponse) SetData(v *DescribeResourcePack
 }
 
 type DescribeResourcePackageProductResponseData struct {
-	ResourcePackages *DescribeResourcePackageProductResponseDataResourcePackages `json:"ResourcePackages" xml:"ResourcePackages" require:"true" type:"Struct"`
+	ResourcePackages *DescribeResourcePackageProductResponseDataResourcePackages `json:"ResourcePackages,omitempty" xml:"ResourcePackages,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeResourcePackageProductResponseData) String() string {
@@ -10399,7 +10754,7 @@ func (s *DescribeResourcePackageProductResponseData) SetResourcePackages(v *Desc
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackages struct {
-	ResourcePackage []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackage `json:"ResourcePackage" xml:"ResourcePackage" require:"true" type:"Repeated"`
+	ResourcePackage []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackage `json:"ResourcePackage,omitempty" xml:"ResourcePackage,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackages) String() string {
@@ -10416,10 +10771,10 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackages) SetResource
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackage struct {
-	ProductCode  *string                                                                                `json:"ProductCode" xml:"ProductCode" require:"true"`
-	ProductType  *string                                                                                `json:"ProductType" xml:"ProductType" require:"true"`
-	Name         *string                                                                                `json:"Name" xml:"Name" require:"true"`
-	PackageTypes *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypes `json:"PackageTypes" xml:"PackageTypes" require:"true" type:"Struct"`
+	ProductCode  *string                                                                                `json:"ProductCode,omitempty" xml:"ProductCode,omitempty" require:"true"`
+	ProductType  *string                                                                                `json:"ProductType,omitempty" xml:"ProductType,omitempty" require:"true"`
+	Name         *string                                                                                `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	PackageTypes *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypes `json:"PackageTypes,omitempty" xml:"PackageTypes,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackage) String() string {
@@ -10451,7 +10806,7 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypes struct {
-	PackageType []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageType `json:"PackageType" xml:"PackageType" require:"true" type:"Repeated"`
+	PackageType []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageType `json:"PackageType,omitempty" xml:"PackageType,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypes) String() string {
@@ -10468,10 +10823,10 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageType struct {
-	Name           *string                                                                                                         `json:"Name" xml:"Name" require:"true"`
-	Code           *string                                                                                                         `json:"Code" xml:"Code" require:"true"`
-	Properties     *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeProperties     `json:"Properties" xml:"Properties" require:"true" type:"Struct"`
-	Specifications *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecifications `json:"Specifications" xml:"Specifications" require:"true" type:"Struct"`
+	Name           *string                                                                                                         `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Code           *string                                                                                                         `json:"Code,omitempty" xml:"Code,omitempty" require:"true"`
+	Properties     *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeProperties     `json:"Properties,omitempty" xml:"Properties,omitempty" require:"true" type:"Struct"`
+	Specifications *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecifications `json:"Specifications,omitempty" xml:"Specifications,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageType) String() string {
@@ -10503,7 +10858,7 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeProperties struct {
-	Property []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypePropertiesProperty `json:"Property" xml:"Property" require:"true" type:"Repeated"`
+	Property []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypePropertiesProperty `json:"Property,omitempty" xml:"Property,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeProperties) String() string {
@@ -10520,8 +10875,8 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypePropertiesProperty struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *string `json:"Value" xml:"Value" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *string `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypePropertiesProperty) String() string {
@@ -10543,7 +10898,7 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecifications struct {
-	Specification []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecification `json:"Specification" xml:"Specification" require:"true" type:"Repeated"`
+	Specification []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecification `json:"Specification,omitempty" xml:"Specification,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecifications) String() string {
@@ -10560,9 +10915,9 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecification struct {
-	Name               *string                                                                                                                                        `json:"Name" xml:"Name" require:"true"`
-	Value              *string                                                                                                                                        `json:"Value" xml:"Value" require:"true"`
-	AvailableDurations *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurations `json:"AvailableDurations" xml:"AvailableDurations" require:"true" type:"Struct"`
+	Name               *string                                                                                                                                        `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value              *string                                                                                                                                        `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	AvailableDurations *DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurations `json:"AvailableDurations,omitempty" xml:"AvailableDurations,omitempty" require:"true" type:"Struct"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecification) String() string {
@@ -10589,7 +10944,7 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurations struct {
-	AvailableDuration []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurationsAvailableDuration `json:"AvailableDuration" xml:"AvailableDuration" require:"true" type:"Repeated"`
+	AvailableDuration []*DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurationsAvailableDuration `json:"AvailableDuration,omitempty" xml:"AvailableDuration,omitempty" require:"true" type:"Repeated"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurations) String() string {
@@ -10606,9 +10961,9 @@ func (s *DescribeResourcePackageProductResponseDataResourcePackagesResourcePacka
 }
 
 type DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurationsAvailableDuration struct {
-	Name  *string `json:"Name" xml:"Name" require:"true"`
-	Value *int    `json:"Value" xml:"Value" require:"true"`
-	Unit  *string `json:"Unit" xml:"Unit" require:"true"`
+	Name  *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	Value *int    `json:"Value,omitempty" xml:"Value,omitempty" require:"true"`
+	Unit  *string `json:"Unit,omitempty" xml:"Unit,omitempty" require:"true"`
 }
 
 func (s DescribeResourcePackageProductResponseDataResourcePackagesResourcePackagePackageTypesPackageTypeSpecificationsSpecificationAvailableDurationsAvailableDuration) String() string {
@@ -10716,6 +11071,31 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	}
 
 	return nil
+}
+
+func (client *Client) QuerySettleBillWithOptions(request *QuerySettleBillRequest, runtime *util.RuntimeOptions) (_result *QuerySettleBillResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &QuerySettleBillResponse{}
+	_body, _err := client.DoRequest(tea.String("QuerySettleBill"), tea.String("HTTPS"), tea.String("POST"), tea.String("2017-12-14"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) QuerySettleBill(request *QuerySettleBillRequest) (_result *QuerySettleBillResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &QuerySettleBillResponse{}
+	_body, _err := client.QuerySettleBillWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
 }
 
 func (client *Client) QuerySplitItemBillWithOptions(request *QuerySplitItemBillRequest, runtime *util.RuntimeOptions) (_result *QuerySplitItemBillResponse, _err error) {
