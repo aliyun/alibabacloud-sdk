@@ -8,6 +8,218 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type CreateDagComplementRequest struct {
+	ProjectEnv     *string `json:"ProjectEnv,omitempty" xml:"ProjectEnv,omitempty" require:"true"`
+	StartBizDate   *string `json:"StartBizDate,omitempty" xml:"StartBizDate,omitempty" require:"true"`
+	Name           *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	RootNodeId     *int64  `json:"RootNodeId,omitempty" xml:"RootNodeId,omitempty" require:"true"`
+	IncludeNodeIds *string `json:"IncludeNodeIds,omitempty" xml:"IncludeNodeIds,omitempty" require:"true"`
+	ExcludeNodeIds *string `json:"ExcludeNodeIds,omitempty" xml:"ExcludeNodeIds,omitempty"`
+	BizBeginTime   *string `json:"BizBeginTime,omitempty" xml:"BizBeginTime,omitempty"`
+	BizEndTime     *string `json:"BizEndTime,omitempty" xml:"BizEndTime,omitempty"`
+	Parallelism    *bool   `json:"Parallelism,omitempty" xml:"Parallelism,omitempty" require:"true"`
+	EndBizDate     *string `json:"EndBizDate,omitempty" xml:"EndBizDate,omitempty" require:"true"`
+	NodeParams     *string `json:"NodeParams,omitempty" xml:"NodeParams,omitempty"`
+}
+
+func (s CreateDagComplementRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDagComplementRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDagComplementRequest) SetProjectEnv(v string) *CreateDagComplementRequest {
+	s.ProjectEnv = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetStartBizDate(v string) *CreateDagComplementRequest {
+	s.StartBizDate = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetName(v string) *CreateDagComplementRequest {
+	s.Name = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetRootNodeId(v int64) *CreateDagComplementRequest {
+	s.RootNodeId = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetIncludeNodeIds(v string) *CreateDagComplementRequest {
+	s.IncludeNodeIds = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetExcludeNodeIds(v string) *CreateDagComplementRequest {
+	s.ExcludeNodeIds = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetBizBeginTime(v string) *CreateDagComplementRequest {
+	s.BizBeginTime = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetBizEndTime(v string) *CreateDagComplementRequest {
+	s.BizEndTime = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetParallelism(v bool) *CreateDagComplementRequest {
+	s.Parallelism = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetEndBizDate(v string) *CreateDagComplementRequest {
+	s.EndBizDate = &v
+	return s
+}
+
+func (s *CreateDagComplementRequest) SetNodeParams(v string) *CreateDagComplementRequest {
+	s.NodeParams = &v
+	return s
+}
+
+type CreateDagComplementResponse struct {
+	ErrorCode      *string  `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage   *string  `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	HttpStatusCode *int     `json:"HttpStatusCode,omitempty" xml:"HttpStatusCode,omitempty" require:"true"`
+	RequestId      *string  `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success        *bool    `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data           []*int64 `json:"Data,omitempty" xml:"Data,omitempty" require:"true" type:"Repeated"`
+}
+
+func (s CreateDagComplementResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDagComplementResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDagComplementResponse) SetErrorCode(v string) *CreateDagComplementResponse {
+	s.ErrorCode = &v
+	return s
+}
+
+func (s *CreateDagComplementResponse) SetErrorMessage(v string) *CreateDagComplementResponse {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *CreateDagComplementResponse) SetHttpStatusCode(v int) *CreateDagComplementResponse {
+	s.HttpStatusCode = &v
+	return s
+}
+
+func (s *CreateDagComplementResponse) SetRequestId(v string) *CreateDagComplementResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *CreateDagComplementResponse) SetSuccess(v bool) *CreateDagComplementResponse {
+	s.Success = &v
+	return s
+}
+
+func (s *CreateDagComplementResponse) SetData(v []*int64) *CreateDagComplementResponse {
+	s.Data = v
+	return s
+}
+
+type CreateDagTestRequest struct {
+	ProjectEnv *string `json:"ProjectEnv,omitempty" xml:"ProjectEnv,omitempty" require:"true"`
+	Bizdate    *string `json:"Bizdate,omitempty" xml:"Bizdate,omitempty" require:"true"`
+	Name       *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
+	NodeId     *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty" require:"true"`
+	NodeParams *string `json:"NodeParams,omitempty" xml:"NodeParams,omitempty"`
+}
+
+func (s CreateDagTestRequest) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDagTestRequest) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDagTestRequest) SetProjectEnv(v string) *CreateDagTestRequest {
+	s.ProjectEnv = &v
+	return s
+}
+
+func (s *CreateDagTestRequest) SetBizdate(v string) *CreateDagTestRequest {
+	s.Bizdate = &v
+	return s
+}
+
+func (s *CreateDagTestRequest) SetName(v string) *CreateDagTestRequest {
+	s.Name = &v
+	return s
+}
+
+func (s *CreateDagTestRequest) SetNodeId(v int64) *CreateDagTestRequest {
+	s.NodeId = &v
+	return s
+}
+
+func (s *CreateDagTestRequest) SetNodeParams(v string) *CreateDagTestRequest {
+	s.NodeParams = &v
+	return s
+}
+
+type CreateDagTestResponse struct {
+	ErrorCode      *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorMessage   *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
+	HttpStatusCode *int    `json:"HttpStatusCode,omitempty" xml:"HttpStatusCode,omitempty" require:"true"`
+	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Success        *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
+	Data           *int64  `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
+}
+
+func (s CreateDagTestResponse) String() string {
+	return tea.Prettify(s)
+}
+
+func (s CreateDagTestResponse) GoString() string {
+	return s.String()
+}
+
+func (s *CreateDagTestResponse) SetErrorCode(v string) *CreateDagTestResponse {
+	s.ErrorCode = &v
+	return s
+}
+
+func (s *CreateDagTestResponse) SetErrorMessage(v string) *CreateDagTestResponse {
+	s.ErrorMessage = &v
+	return s
+}
+
+func (s *CreateDagTestResponse) SetHttpStatusCode(v int) *CreateDagTestResponse {
+	s.HttpStatusCode = &v
+	return s
+}
+
+func (s *CreateDagTestResponse) SetRequestId(v string) *CreateDagTestResponse {
+	s.RequestId = &v
+	return s
+}
+
+func (s *CreateDagTestResponse) SetSuccess(v bool) *CreateDagTestResponse {
+	s.Success = &v
+	return s
+}
+
+func (s *CreateDagTestResponse) SetData(v int64) *CreateDagTestResponse {
+	s.Data = &v
+	return s
+}
+
 type ListCalcEnginesRequest struct {
 	ProjectId      *int64  `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
 	Name           *string `json:"Name,omitempty" xml:"Name,omitempty"`
@@ -361,6 +573,7 @@ type ListConnectionsResponseDataConnections struct {
 	Id                  *int    `json:"Id,omitempty" xml:"Id,omitempty" require:"true"`
 	ProjectId           *int    `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
 	Status              *int    `json:"Status,omitempty" xml:"Status,omitempty" require:"true"`
+	Content             *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 }
 
 func (s ListConnectionsResponseDataConnections) String() string {
@@ -453,6 +666,11 @@ func (s *ListConnectionsResponseDataConnections) SetProjectId(v int) *ListConnec
 
 func (s *ListConnectionsResponseDataConnections) SetStatus(v int) *ListConnectionsResponseDataConnections {
 	s.Status = &v
+	return s
+}
+
+func (s *ListConnectionsResponseDataConnections) SetContent(v string) *ListConnectionsResponseDataConnections {
+	s.Content = &v
 	return s
 }
 
@@ -638,26 +856,16 @@ func (s *GetProjectDetailResponse) SetData(v *GetProjectDetailResponseData) *Get
 
 type GetProjectDetailResponseData struct {
 	GmtModified                      *string   `json:"GmtModified,omitempty" xml:"GmtModified,omitempty" require:"true"`
-	MaxFlowNode                      *int      `json:"MaxFlowNode,omitempty" xml:"MaxFlowNode,omitempty" require:"true"`
 	DefaultDiResourceGroupIdentifier *string   `json:"DefaultDiResourceGroupIdentifier,omitempty" xml:"DefaultDiResourceGroupIdentifier,omitempty" require:"true"`
-	Destination                      *int      `json:"Destination,omitempty" xml:"Destination,omitempty" require:"true"`
 	IsAllowDownload                  *int      `json:"IsAllowDownload,omitempty" xml:"IsAllowDownload,omitempty" require:"true"`
-	ProdStorageQuota                 *string   `json:"ProdStorageQuota,omitempty" xml:"ProdStorageQuota,omitempty" require:"true"`
 	SchedulerRetryInterval           *int      `json:"SchedulerRetryInterval,omitempty" xml:"SchedulerRetryInterval,omitempty" require:"true"`
 	ResidentArea                     *string   `json:"ResidentArea,omitempty" xml:"ResidentArea,omitempty" require:"true"`
-	TablePrivacyMode                 *int      `json:"TablePrivacyMode,omitempty" xml:"TablePrivacyMode,omitempty" require:"true"`
 	ProjectOwnerBaseId               *string   `json:"ProjectOwnerBaseId,omitempty" xml:"ProjectOwnerBaseId,omitempty" require:"true"`
-	UseProxyOdpsAccount              *bool     `json:"UseProxyOdpsAccount,omitempty" xml:"UseProxyOdpsAccount,omitempty" require:"true"`
-	DisableDevelopment               *bool     `json:"DisableDevelopment,omitempty" xml:"DisableDevelopment,omitempty" require:"true"`
 	ProjectMode                      *int      `json:"ProjectMode,omitempty" xml:"ProjectMode,omitempty" require:"true"`
 	GmtCreate                        *string   `json:"GmtCreate,omitempty" xml:"GmtCreate,omitempty" require:"true"`
-	DevStorageQuota                  *string   `json:"DevStorageQuota,omitempty" xml:"DevStorageQuota,omitempty" require:"true"`
-	IsDefault                        *int      `json:"IsDefault,omitempty" xml:"IsDefault,omitempty" require:"true"`
 	ProtectedMode                    *int      `json:"ProtectedMode,omitempty" xml:"ProtectedMode,omitempty" require:"true"`
-	BaseProject                      *bool     `json:"BaseProject,omitempty" xml:"BaseProject,omitempty" require:"true"`
 	TenantId                         *int64    `json:"TenantId,omitempty" xml:"TenantId,omitempty" require:"true"`
 	ProjectDescription               *string   `json:"ProjectDescription,omitempty" xml:"ProjectDescription,omitempty" require:"true"`
-	Appkey                           *string   `json:"Appkey,omitempty" xml:"Appkey,omitempty" require:"true"`
 	SchedulerMaxRetryTimes           *int      `json:"SchedulerMaxRetryTimes,omitempty" xml:"SchedulerMaxRetryTimes,omitempty" require:"true"`
 	ProjectName                      *string   `json:"ProjectName,omitempty" xml:"ProjectName,omitempty" require:"true"`
 	ProjectIdentifier                *string   `json:"ProjectIdentifier,omitempty" xml:"ProjectIdentifier,omitempty" require:"true"`
@@ -680,28 +888,13 @@ func (s *GetProjectDetailResponseData) SetGmtModified(v string) *GetProjectDetai
 	return s
 }
 
-func (s *GetProjectDetailResponseData) SetMaxFlowNode(v int) *GetProjectDetailResponseData {
-	s.MaxFlowNode = &v
-	return s
-}
-
 func (s *GetProjectDetailResponseData) SetDefaultDiResourceGroupIdentifier(v string) *GetProjectDetailResponseData {
 	s.DefaultDiResourceGroupIdentifier = &v
 	return s
 }
 
-func (s *GetProjectDetailResponseData) SetDestination(v int) *GetProjectDetailResponseData {
-	s.Destination = &v
-	return s
-}
-
 func (s *GetProjectDetailResponseData) SetIsAllowDownload(v int) *GetProjectDetailResponseData {
 	s.IsAllowDownload = &v
-	return s
-}
-
-func (s *GetProjectDetailResponseData) SetProdStorageQuota(v string) *GetProjectDetailResponseData {
-	s.ProdStorageQuota = &v
 	return s
 }
 
@@ -715,23 +908,8 @@ func (s *GetProjectDetailResponseData) SetResidentArea(v string) *GetProjectDeta
 	return s
 }
 
-func (s *GetProjectDetailResponseData) SetTablePrivacyMode(v int) *GetProjectDetailResponseData {
-	s.TablePrivacyMode = &v
-	return s
-}
-
 func (s *GetProjectDetailResponseData) SetProjectOwnerBaseId(v string) *GetProjectDetailResponseData {
 	s.ProjectOwnerBaseId = &v
-	return s
-}
-
-func (s *GetProjectDetailResponseData) SetUseProxyOdpsAccount(v bool) *GetProjectDetailResponseData {
-	s.UseProxyOdpsAccount = &v
-	return s
-}
-
-func (s *GetProjectDetailResponseData) SetDisableDevelopment(v bool) *GetProjectDetailResponseData {
-	s.DisableDevelopment = &v
 	return s
 }
 
@@ -745,23 +923,8 @@ func (s *GetProjectDetailResponseData) SetGmtCreate(v string) *GetProjectDetailR
 	return s
 }
 
-func (s *GetProjectDetailResponseData) SetDevStorageQuota(v string) *GetProjectDetailResponseData {
-	s.DevStorageQuota = &v
-	return s
-}
-
-func (s *GetProjectDetailResponseData) SetIsDefault(v int) *GetProjectDetailResponseData {
-	s.IsDefault = &v
-	return s
-}
-
 func (s *GetProjectDetailResponseData) SetProtectedMode(v int) *GetProjectDetailResponseData {
 	s.ProtectedMode = &v
-	return s
-}
-
-func (s *GetProjectDetailResponseData) SetBaseProject(v bool) *GetProjectDetailResponseData {
-	s.BaseProject = &v
 	return s
 }
 
@@ -772,11 +935,6 @@ func (s *GetProjectDetailResponseData) SetTenantId(v int64) *GetProjectDetailRes
 
 func (s *GetProjectDetailResponseData) SetProjectDescription(v string) *GetProjectDetailResponseData {
 	s.ProjectDescription = &v
-	return s
-}
-
-func (s *GetProjectDetailResponseData) SetAppkey(v string) *GetProjectDetailResponseData {
-	s.Appkey = &v
 	return s
 }
 
@@ -4006,124 +4164,6 @@ func (s *SearchMetaTablesResponseDataDataEntityList) SetProjectName(v string) *S
 	return s
 }
 
-type CreateNodeTestRequest struct {
-	ProjectEnv     *string `json:"ProjectEnv,omitempty" xml:"ProjectEnv,omitempty" require:"true"`
-	Bizdate        *string `json:"Bizdate,omitempty" xml:"Bizdate,omitempty" require:"true"`
-	Name           *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
-	NodeId         *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty" require:"true"`
-	NodeProjectId  *int64  `json:"NodeProjectId,omitempty" xml:"NodeProjectId,omitempty" require:"true"`
-	IncludeNodeIds *string `json:"IncludeNodeIds,omitempty" xml:"IncludeNodeIds,omitempty" require:"true"`
-	ExcludeNodeIds *string `json:"ExcludeNodeIds,omitempty" xml:"ExcludeNodeIds,omitempty" require:"true"`
-	BizBeginTime   *string `json:"BizBeginTime,omitempty" xml:"BizBeginTime,omitempty" require:"true"`
-	BizEndTime     *string `json:"BizEndTime,omitempty" xml:"BizEndTime,omitempty" require:"true"`
-	Parallelism    *bool   `json:"Parallelism,omitempty" xml:"Parallelism,omitempty" require:"true"`
-}
-
-func (s CreateNodeTestRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateNodeTestRequest) GoString() string {
-	return s.String()
-}
-
-func (s *CreateNodeTestRequest) SetProjectEnv(v string) *CreateNodeTestRequest {
-	s.ProjectEnv = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetBizdate(v string) *CreateNodeTestRequest {
-	s.Bizdate = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetName(v string) *CreateNodeTestRequest {
-	s.Name = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetNodeId(v int64) *CreateNodeTestRequest {
-	s.NodeId = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetNodeProjectId(v int64) *CreateNodeTestRequest {
-	s.NodeProjectId = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetIncludeNodeIds(v string) *CreateNodeTestRequest {
-	s.IncludeNodeIds = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetExcludeNodeIds(v string) *CreateNodeTestRequest {
-	s.ExcludeNodeIds = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetBizBeginTime(v string) *CreateNodeTestRequest {
-	s.BizBeginTime = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetBizEndTime(v string) *CreateNodeTestRequest {
-	s.BizEndTime = &v
-	return s
-}
-
-func (s *CreateNodeTestRequest) SetParallelism(v bool) *CreateNodeTestRequest {
-	s.Parallelism = &v
-	return s
-}
-
-type CreateNodeTestResponse struct {
-	ErrorCode      *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
-	ErrorMessage   *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
-	HttpStatusCode *int    `json:"HttpStatusCode,omitempty" xml:"HttpStatusCode,omitempty" require:"true"`
-	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
-	Success        *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
-	Data           *int64  `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
-}
-
-func (s CreateNodeTestResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateNodeTestResponse) GoString() string {
-	return s.String()
-}
-
-func (s *CreateNodeTestResponse) SetErrorCode(v string) *CreateNodeTestResponse {
-	s.ErrorCode = &v
-	return s
-}
-
-func (s *CreateNodeTestResponse) SetErrorMessage(v string) *CreateNodeTestResponse {
-	s.ErrorMessage = &v
-	return s
-}
-
-func (s *CreateNodeTestResponse) SetHttpStatusCode(v int) *CreateNodeTestResponse {
-	s.HttpStatusCode = &v
-	return s
-}
-
-func (s *CreateNodeTestResponse) SetRequestId(v string) *CreateNodeTestResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *CreateNodeTestResponse) SetSuccess(v bool) *CreateNodeTestResponse {
-	s.Success = &v
-	return s
-}
-
-func (s *CreateNodeTestResponse) SetData(v int64) *CreateNodeTestResponse {
-	s.Data = &v
-	return s
-}
-
 type GetMetaTableListByCategoryRequest struct {
 	PageNumber *int   `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize   *int   `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
@@ -4371,130 +4411,6 @@ func (s *UpdateMetaCategoryResponse) SetSuccess(v bool) *UpdateMetaCategoryRespo
 }
 
 func (s *UpdateMetaCategoryResponse) SetData(v bool) *UpdateMetaCategoryResponse {
-	s.Data = &v
-	return s
-}
-
-type CreateNodeComplementRequest struct {
-	ProjectEnv     *string `json:"ProjectEnv,omitempty" xml:"ProjectEnv,omitempty" require:"true"`
-	StartBizDate   *string `json:"StartBizDate,omitempty" xml:"StartBizDate,omitempty" require:"true"`
-	Name           *string `json:"Name,omitempty" xml:"Name,omitempty" require:"true"`
-	NodeId         *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty" require:"true"`
-	NodeProjectId  *int64  `json:"NodeProjectId,omitempty" xml:"NodeProjectId,omitempty" require:"true"`
-	IncludeNodeIds *string `json:"IncludeNodeIds,omitempty" xml:"IncludeNodeIds,omitempty" require:"true"`
-	ExcludeNodeIds *string `json:"ExcludeNodeIds,omitempty" xml:"ExcludeNodeIds,omitempty" require:"true"`
-	BizBeginTime   *string `json:"BizBeginTime,omitempty" xml:"BizBeginTime,omitempty" require:"true"`
-	BizEndTime     *string `json:"BizEndTime,omitempty" xml:"BizEndTime,omitempty" require:"true"`
-	Parallelism    *bool   `json:"Parallelism,omitempty" xml:"Parallelism,omitempty" require:"true"`
-	EndBizDate     *string `json:"EndBizDate,omitempty" xml:"EndBizDate,omitempty" require:"true"`
-}
-
-func (s CreateNodeComplementRequest) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateNodeComplementRequest) GoString() string {
-	return s.String()
-}
-
-func (s *CreateNodeComplementRequest) SetProjectEnv(v string) *CreateNodeComplementRequest {
-	s.ProjectEnv = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetStartBizDate(v string) *CreateNodeComplementRequest {
-	s.StartBizDate = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetName(v string) *CreateNodeComplementRequest {
-	s.Name = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetNodeId(v int64) *CreateNodeComplementRequest {
-	s.NodeId = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetNodeProjectId(v int64) *CreateNodeComplementRequest {
-	s.NodeProjectId = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetIncludeNodeIds(v string) *CreateNodeComplementRequest {
-	s.IncludeNodeIds = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetExcludeNodeIds(v string) *CreateNodeComplementRequest {
-	s.ExcludeNodeIds = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetBizBeginTime(v string) *CreateNodeComplementRequest {
-	s.BizBeginTime = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetBizEndTime(v string) *CreateNodeComplementRequest {
-	s.BizEndTime = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetParallelism(v bool) *CreateNodeComplementRequest {
-	s.Parallelism = &v
-	return s
-}
-
-func (s *CreateNodeComplementRequest) SetEndBizDate(v string) *CreateNodeComplementRequest {
-	s.EndBizDate = &v
-	return s
-}
-
-type CreateNodeComplementResponse struct {
-	ErrorCode      *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
-	ErrorMessage   *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
-	HttpStatusCode *int    `json:"HttpStatusCode,omitempty" xml:"HttpStatusCode,omitempty" require:"true"`
-	RequestId      *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
-	Success        *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
-	Data           *int64  `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
-}
-
-func (s CreateNodeComplementResponse) String() string {
-	return tea.Prettify(s)
-}
-
-func (s CreateNodeComplementResponse) GoString() string {
-	return s.String()
-}
-
-func (s *CreateNodeComplementResponse) SetErrorCode(v string) *CreateNodeComplementResponse {
-	s.ErrorCode = &v
-	return s
-}
-
-func (s *CreateNodeComplementResponse) SetErrorMessage(v string) *CreateNodeComplementResponse {
-	s.ErrorMessage = &v
-	return s
-}
-
-func (s *CreateNodeComplementResponse) SetHttpStatusCode(v int) *CreateNodeComplementResponse {
-	s.HttpStatusCode = &v
-	return s
-}
-
-func (s *CreateNodeComplementResponse) SetRequestId(v string) *CreateNodeComplementResponse {
-	s.RequestId = &v
-	return s
-}
-
-func (s *CreateNodeComplementResponse) SetSuccess(v bool) *CreateNodeComplementResponse {
-	s.Success = &v
-	return s
-}
-
-func (s *CreateNodeComplementResponse) SetData(v int64) *CreateNodeComplementResponse {
 	s.Data = &v
 	return s
 }
@@ -5037,7 +4953,7 @@ func (s *CreateMetaCategoryResponseData) SetCategoryId(v int64) *CreateMetaCateg
 type ListNodeIORequest struct {
 	NodeId     *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty" require:"true"`
 	ProjectEnv *string `json:"ProjectEnv,omitempty" xml:"ProjectEnv,omitempty" require:"true"`
-	Type       *string `json:"Type,omitempty" xml:"Type,omitempty" require:"true"`
+	IoType     *string `json:"IoType,omitempty" xml:"IoType,omitempty" require:"true"`
 }
 
 func (s ListNodeIORequest) String() string {
@@ -5058,8 +4974,8 @@ func (s *ListNodeIORequest) SetProjectEnv(v string) *ListNodeIORequest {
 	return s
 }
 
-func (s *ListNodeIORequest) SetType(v string) *ListNodeIORequest {
-	s.Type = &v
+func (s *ListNodeIORequest) SetIoType(v string) *ListNodeIORequest {
+	s.IoType = &v
 	return s
 }
 
@@ -5716,6 +5632,7 @@ func (s *GetNodeResponseData) SetParamValues(v string) *GetNodeResponseData {
 }
 
 type ListNodesRequest struct {
+	Owner       *string `json:"Owner,omitempty" xml:"Owner,omitempty"`
 	BizName     *string `json:"BizName,omitempty" xml:"BizName,omitempty"`
 	ProgramType *string `json:"ProgramType,omitempty" xml:"ProgramType,omitempty"`
 	PageNumber  *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
@@ -5731,6 +5648,11 @@ func (s ListNodesRequest) String() string {
 
 func (s ListNodesRequest) GoString() string {
 	return s.String()
+}
+
+func (s *ListNodesRequest) SetOwner(v string) *ListNodesRequest {
+	s.Owner = &v
+	return s
 }
 
 func (s *ListNodesRequest) SetBizName(v string) *ListNodesRequest {
@@ -6476,7 +6398,7 @@ type ListFilesRequest struct {
 	ProjectIdentifier *string `json:"ProjectIdentifier,omitempty" xml:"ProjectIdentifier,omitempty"`
 	PageNumber        *int    `json:"PageNumber,omitempty" xml:"PageNumber,omitempty"`
 	PageSize          *int    `json:"PageSize,omitempty" xml:"PageSize,omitempty"`
-	UseType           *int    `json:"UseType,omitempty" xml:"UseType,omitempty"`
+	UseType           *string `json:"UseType,omitempty" xml:"UseType,omitempty"`
 	FileTypes         *string `json:"FileTypes,omitempty" xml:"FileTypes,omitempty"`
 	Owner             *string `json:"Owner,omitempty" xml:"Owner,omitempty"`
 }
@@ -6519,7 +6441,7 @@ func (s *ListFilesRequest) SetPageSize(v int) *ListFilesRequest {
 	return s
 }
 
-func (s *ListFilesRequest) SetUseType(v int) *ListFilesRequest {
+func (s *ListFilesRequest) SetUseType(v string) *ListFilesRequest {
 	s.UseType = &v
 	return s
 }
@@ -6626,7 +6548,7 @@ type ListFilesResponseDataFiles struct {
 	FileFolderId    *string `json:"FileFolderId,omitempty" xml:"FileFolderId,omitempty" require:"true"`
 	FileName        *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
 	FileType        *int    `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
-	UseType         *int    `json:"UseType,omitempty" xml:"UseType,omitempty" require:"true"`
+	UseType         *string `json:"UseType,omitempty" xml:"UseType,omitempty" require:"true"`
 	FileDescription *string `json:"FileDescription,omitempty" xml:"FileDescription,omitempty" require:"true"`
 	Content         *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 	NodeId          *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty" require:"true"`
@@ -6690,7 +6612,7 @@ func (s *ListFilesResponseDataFiles) SetFileType(v int) *ListFilesResponseDataFi
 	return s
 }
 
-func (s *ListFilesResponseDataFiles) SetUseType(v int) *ListFilesResponseDataFiles {
+func (s *ListFilesResponseDataFiles) SetUseType(v string) *ListFilesResponseDataFiles {
 	s.UseType = &v
 	return s
 }
@@ -7619,6 +7541,7 @@ type ListInstancesRequest struct {
 	ProjectEnv  *string `json:"ProjectEnv,omitempty" xml:"ProjectEnv,omitempty" require:"true"`
 	NodeId      *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty"`
 	NodeName    *string `json:"NodeName,omitempty" xml:"NodeName,omitempty"`
+	Owner       *string `json:"Owner,omitempty" xml:"Owner,omitempty"`
 	ProjectId   *int64  `json:"ProjectId,omitempty" xml:"ProjectId,omitempty" require:"true"`
 	BizName     *string `json:"BizName,omitempty" xml:"BizName,omitempty"`
 	ProgramType *string `json:"ProgramType,omitempty" xml:"ProgramType,omitempty"`
@@ -7646,6 +7569,11 @@ func (s *ListInstancesRequest) SetNodeId(v int64) *ListInstancesRequest {
 
 func (s *ListInstancesRequest) SetNodeName(v string) *ListInstancesRequest {
 	s.NodeName = &v
+	return s
+}
+
+func (s *ListInstancesRequest) SetOwner(v string) *ListInstancesRequest {
+	s.Owner = &v
 	return s
 }
 
@@ -7945,7 +7873,7 @@ type CreateFileRequest struct {
 	CronExpress             *string `json:"CronExpress,omitempty" xml:"CronExpress,omitempty"`
 	CycleType               *string `json:"CycleType,omitempty" xml:"CycleType,omitempty"`
 	DependentType           *string `json:"DependentType,omitempty" xml:"DependentType,omitempty"`
-	DependentCloudUuidList  *string `json:"DependentCloudUuidList,omitempty" xml:"DependentCloudUuidList,omitempty"`
+	DependentNodeIdList     *string `json:"DependentNodeIdList,omitempty" xml:"DependentNodeIdList,omitempty"`
 	InputList               *string `json:"InputList,omitempty" xml:"InputList,omitempty" require:"true"`
 	ProjectIdentifier       *string `json:"ProjectIdentifier,omitempty" xml:"ProjectIdentifier,omitempty"`
 }
@@ -8043,8 +7971,8 @@ func (s *CreateFileRequest) SetDependentType(v string) *CreateFileRequest {
 	return s
 }
 
-func (s *CreateFileRequest) SetDependentCloudUuidList(v string) *CreateFileRequest {
-	s.DependentCloudUuidList = &v
+func (s *CreateFileRequest) SetDependentNodeIdList(v string) *CreateFileRequest {
+	s.DependentNodeIdList = &v
 	return s
 }
 
@@ -9992,7 +9920,7 @@ type GetFileResponseDataFile struct {
 	FileFolderId    *string `json:"FileFolderId,omitempty" xml:"FileFolderId,omitempty" require:"true"`
 	FileName        *string `json:"FileName,omitempty" xml:"FileName,omitempty" require:"true"`
 	FileType        *int    `json:"FileType,omitempty" xml:"FileType,omitempty" require:"true"`
-	UseType         *int    `json:"UseType,omitempty" xml:"UseType,omitempty" require:"true"`
+	UseType         *string `json:"UseType,omitempty" xml:"UseType,omitempty" require:"true"`
 	FileDescription *string `json:"FileDescription,omitempty" xml:"FileDescription,omitempty" require:"true"`
 	Content         *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
 	NodeId          *int64  `json:"NodeId,omitempty" xml:"NodeId,omitempty" require:"true"`
@@ -10056,7 +9984,7 @@ func (s *GetFileResponseDataFile) SetFileType(v int) *GetFileResponseDataFile {
 	return s
 }
 
-func (s *GetFileResponseDataFile) SetUseType(v int) *GetFileResponseDataFile {
+func (s *GetFileResponseDataFile) SetUseType(v string) *GetFileResponseDataFile {
 	s.UseType = &v
 	return s
 }
@@ -10102,8 +10030,8 @@ func (s *GetFileResponseDataFile) SetCommitStatus(v int) *GetFileResponseDataFil
 }
 
 type GetFileResponseDataNodeConfiguration struct {
-	TaskRerunTime           *int                                              `json:"TaskRerunTime,omitempty" xml:"TaskRerunTime,omitempty" require:"true"`
-	TaskRerunIntervalMillis *int                                              `json:"TaskRerunIntervalMillis,omitempty" xml:"TaskRerunIntervalMillis,omitempty" require:"true"`
+	AutoRerunTimes          *int                                              `json:"AutoRerunTimes,omitempty" xml:"AutoRerunTimes,omitempty" require:"true"`
+	AutoRerunIntervalMillis *int                                              `json:"AutoRerunIntervalMillis,omitempty" xml:"AutoRerunIntervalMillis,omitempty" require:"true"`
 	RerunMode               *string                                           `json:"RerunMode,omitempty" xml:"RerunMode,omitempty" require:"true"`
 	Stop                    *bool                                             `json:"Stop,omitempty" xml:"Stop,omitempty" require:"true"`
 	ParaValue               *string                                           `json:"ParaValue,omitempty" xml:"ParaValue,omitempty" require:"true"`
@@ -10125,13 +10053,13 @@ func (s GetFileResponseDataNodeConfiguration) GoString() string {
 	return s.String()
 }
 
-func (s *GetFileResponseDataNodeConfiguration) SetTaskRerunTime(v int) *GetFileResponseDataNodeConfiguration {
-	s.TaskRerunTime = &v
+func (s *GetFileResponseDataNodeConfiguration) SetAutoRerunTimes(v int) *GetFileResponseDataNodeConfiguration {
+	s.AutoRerunTimes = &v
 	return s
 }
 
-func (s *GetFileResponseDataNodeConfiguration) SetTaskRerunIntervalMillis(v int) *GetFileResponseDataNodeConfiguration {
-	s.TaskRerunIntervalMillis = &v
+func (s *GetFileResponseDataNodeConfiguration) SetAutoRerunIntervalMillis(v int) *GetFileResponseDataNodeConfiguration {
+	s.AutoRerunIntervalMillis = &v
 	return s
 }
 
@@ -16475,7 +16403,7 @@ func (s *DeleteQualityEntityRequest) SetEnvType(v string) *DeleteQualityEntityRe
 
 type DeleteQualityEntityResponse struct {
 	Success        *bool   `json:"Success,omitempty" xml:"Success,omitempty" require:"true"`
-	ErrorCode      *bool   `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
+	ErrorCode      *string `json:"ErrorCode,omitempty" xml:"ErrorCode,omitempty" require:"true"`
 	ErrorMessage   *string `json:"ErrorMessage,omitempty" xml:"ErrorMessage,omitempty" require:"true"`
 	HttpStatusCode *int    `json:"HttpStatusCode,omitempty" xml:"HttpStatusCode,omitempty" require:"true"`
 	Data           *bool   `json:"Data,omitempty" xml:"Data,omitempty" require:"true"`
@@ -16495,7 +16423,7 @@ func (s *DeleteQualityEntityResponse) SetSuccess(v bool) *DeleteQualityEntityRes
 	return s
 }
 
-func (s *DeleteQualityEntityResponse) SetErrorCode(v bool) *DeleteQualityEntityResponse {
+func (s *DeleteQualityEntityResponse) SetErrorCode(v string) *DeleteQualityEntityResponse {
 	s.ErrorCode = &v
 	return s
 }
@@ -17798,6 +17726,56 @@ func (client *Client) Init(config *rpc.Config) (_err error) {
 	return nil
 }
 
+func (client *Client) CreateDagComplementWithOptions(request *CreateDagComplementRequest, runtime *util.RuntimeOptions) (_result *CreateDagComplementResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateDagComplementResponse{}
+	_body, _err := client.DoRequest(tea.String("CreateDagComplement"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-18"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateDagComplement(request *CreateDagComplementRequest) (_result *CreateDagComplementResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateDagComplementResponse{}
+	_body, _err := client.CreateDagComplementWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
+func (client *Client) CreateDagTestWithOptions(request *CreateDagTestRequest, runtime *util.RuntimeOptions) (_result *CreateDagTestResponse, _err error) {
+	_err = util.ValidateModel(request)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = &CreateDagTestResponse{}
+	_body, _err := client.DoRequest(tea.String("CreateDagTest"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-18"), tea.String("AK"), nil, tea.ToMap(request), runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = tea.Convert(_body, &_result)
+	return _result, _err
+}
+
+func (client *Client) CreateDagTest(request *CreateDagTestRequest) (_result *CreateDagTestResponse, _err error) {
+	runtime := &util.RuntimeOptions{}
+	_result = &CreateDagTestResponse{}
+	_body, _err := client.CreateDagTestWithOptions(request, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_result = _body
+	return _result, _err
+}
+
 func (client *Client) ListCalcEnginesWithOptions(request *ListCalcEnginesRequest, runtime *util.RuntimeOptions) (_result *ListCalcEnginesResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
@@ -18373,31 +18351,6 @@ func (client *Client) SearchMetaTables(request *SearchMetaTablesRequest) (_resul
 	return _result, _err
 }
 
-func (client *Client) CreateNodeTestWithOptions(request *CreateNodeTestRequest, runtime *util.RuntimeOptions) (_result *CreateNodeTestResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &CreateNodeTestResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateNodeTest"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-18"), tea.String("AK"), nil, tea.ToMap(request), runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) CreateNodeTest(request *CreateNodeTestRequest) (_result *CreateNodeTestResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &CreateNodeTestResponse{}
-	_body, _err := client.CreateNodeTestWithOptions(request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
 func (client *Client) GetMetaTableListByCategoryWithOptions(request *GetMetaTableListByCategoryRequest, runtime *util.RuntimeOptions) (_result *GetMetaTableListByCategoryResponse, _err error) {
 	_err = util.ValidateModel(request)
 	if _err != nil {
@@ -18466,31 +18419,6 @@ func (client *Client) UpdateMetaCategory(request *UpdateMetaCategoryRequest) (_r
 	runtime := &util.RuntimeOptions{}
 	_result = &UpdateMetaCategoryResponse{}
 	_body, _err := client.UpdateMetaCategoryWithOptions(request, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = _body
-	return _result, _err
-}
-
-func (client *Client) CreateNodeComplementWithOptions(request *CreateNodeComplementRequest, runtime *util.RuntimeOptions) (_result *CreateNodeComplementResponse, _err error) {
-	_err = util.ValidateModel(request)
-	if _err != nil {
-		return _result, _err
-	}
-	_result = &CreateNodeComplementResponse{}
-	_body, _err := client.DoRequest(tea.String("CreateNodeComplement"), tea.String("HTTPS"), tea.String("POST"), tea.String("2020-05-18"), tea.String("AK"), nil, tea.ToMap(request), runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = tea.Convert(_body, &_result)
-	return _result, _err
-}
-
-func (client *Client) CreateNodeComplement(request *CreateNodeComplementRequest) (_result *CreateNodeComplementResponse, _err error) {
-	runtime := &util.RuntimeOptions{}
-	_result = &CreateNodeComplementResponse{}
-	_body, _err := client.CreateNodeComplementWithOptions(request, runtime)
 	if _err != nil {
 		return _result, _err
 	}
