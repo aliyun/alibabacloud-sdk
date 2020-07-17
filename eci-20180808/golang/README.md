@@ -10,7 +10,7 @@ English | [简体中文](README-CN.md)
 If you use `go mod` to manage your dependence, you can use the following command:
 
 ```sh
-$ go get github.com/alibabacloud-go/Eci-20180808
+$ go get github.com/alibabacloud-go/eci-20180808
 ```
 
 ## Issues
